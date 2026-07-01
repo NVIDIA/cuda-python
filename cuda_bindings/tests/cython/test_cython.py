@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import functools
@@ -18,7 +18,7 @@ def py_func(func):
     return wrapped
 
 
-cython_test_modules = ["test_ccuda", "test_ccudart", "test_interoperability_cython"]
+cython_test_modules = ["test_ccuda", "test_ccudart", "test_interoperability_cython", "test_extern_cimport"]
 
 
 for mod in cython_test_modules:

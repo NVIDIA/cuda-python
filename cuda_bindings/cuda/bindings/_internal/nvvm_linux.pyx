@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260626. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -278,7 +278,7 @@ cdef const char* _nvvmGetErrorString(nvvmResult result) except?NULL nogil:
         result)
 
 
-cdef nvvmResult _nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmVersion(int* major, int* minor) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmVersion
     _check_or_init_nvvm()
     if __nvvmVersion == NULL:
@@ -288,7 +288,7 @@ cdef nvvmResult _nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL
         major, minor)
 
 
-cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmIRVersion
     _check_or_init_nvvm()
     if __nvvmIRVersion == NULL:
@@ -298,7 +298,7 @@ cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* m
         majorIR, minorIR, majorDbg, minorDbg)
 
 
-cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmCreateProgram
     _check_or_init_nvvm()
     if __nvvmCreateProgram == NULL:
@@ -308,7 +308,7 @@ cdef nvvmResult _nvvmCreateProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNA
         prog)
 
 
-cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmDestroyProgram
     _check_or_init_nvvm()
     if __nvvmDestroyProgram == NULL:
@@ -318,7 +318,7 @@ cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERN
         prog)
 
 
-cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmAddModuleToProgram
     _check_or_init_nvvm()
     if __nvvmAddModuleToProgram == NULL:
@@ -328,7 +328,7 @@ cdef nvvmResult _nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, si
         prog, buffer, size, name)
 
 
-cdef nvvmResult _nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmLazyAddModuleToProgram
     _check_or_init_nvvm()
     if __nvvmLazyAddModuleToProgram == NULL:
@@ -338,7 +338,7 @@ cdef nvvmResult _nvvmLazyAddModuleToProgram(nvvmProgram prog, const char* buffer
         prog, buffer, size, name)
 
 
-cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char** options) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmCompileProgram
     _check_or_init_nvvm()
     if __nvvmCompileProgram == NULL:
@@ -348,7 +348,7 @@ cdef nvvmResult _nvvmCompileProgram(nvvmProgram prog, int numOptions, const char
         prog, numOptions, options)
 
 
-cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char** options) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmVerifyProgram
     _check_or_init_nvvm()
     if __nvvmVerifyProgram == NULL:
@@ -358,7 +358,7 @@ cdef nvvmResult _nvvmVerifyProgram(nvvmProgram prog, int numOptions, const char*
         prog, numOptions, options)
 
 
-cdef nvvmResult _nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeRet) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmGetCompiledResultSize
     _check_or_init_nvvm()
     if __nvvmGetCompiledResultSize == NULL:
@@ -368,7 +368,7 @@ cdef nvvmResult _nvvmGetCompiledResultSize(nvvmProgram prog, size_t* bufferSizeR
         prog, bufferSizeRet)
 
 
-cdef nvvmResult _nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmGetCompiledResult
     _check_or_init_nvvm()
     if __nvvmGetCompiledResult == NULL:
@@ -378,7 +378,7 @@ cdef nvvmResult _nvvmGetCompiledResult(nvvmProgram prog, char* buffer) except?_N
         prog, buffer)
 
 
-cdef nvvmResult _nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmGetProgramLogSize
     _check_or_init_nvvm()
     if __nvvmGetProgramLogSize == NULL:
@@ -388,7 +388,7 @@ cdef nvvmResult _nvvmGetProgramLogSize(nvvmProgram prog, size_t* bufferSizeRet) 
         prog, bufferSizeRet)
 
 
-cdef nvvmResult _nvvmGetProgramLog(nvvmProgram prog, char* buffer) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmGetProgramLog(nvvmProgram prog, char* buffer) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmGetProgramLog
     _check_or_init_nvvm()
     if __nvvmGetProgramLog == NULL:
@@ -398,7 +398,7 @@ cdef nvvmResult _nvvmGetProgramLog(nvvmProgram prog, char* buffer) except?_NVVMR
         prog, buffer)
 
 
-cdef nvvmResult _nvvmLLVMVersion(const char* arch, int* major) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
+cdef nvvmResult _nvvmLLVMVersion(const char* arch, int* major) except?<nvvmResult>_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvvmLLVMVersion
     _check_or_init_nvvm()
     if __nvvmLLVMVersion == NULL:

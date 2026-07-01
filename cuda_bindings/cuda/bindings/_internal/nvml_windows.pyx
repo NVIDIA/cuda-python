@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0, generator version 0.3.1.dev1779+ga8cc71818.d20260626. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -2589,7 +2589,7 @@ cpdef _inspect_function_pointer(str name):
 # Wrapper functions
 ###############################################################################
 
-cdef nvmlReturn_t _nvmlInit_v2() except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlInit_v2() except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlInit_v2
     _check_or_init_nvml()
     if __nvmlInit_v2 == NULL:
@@ -2599,7 +2599,7 @@ cdef nvmlReturn_t _nvmlInit_v2() except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nog
         )
 
 
-cdef nvmlReturn_t _nvmlInitWithFlags(unsigned int flags) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlInitWithFlags(unsigned int flags) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlInitWithFlags
     _check_or_init_nvml()
     if __nvmlInitWithFlags == NULL:
@@ -2609,7 +2609,7 @@ cdef nvmlReturn_t _nvmlInitWithFlags(unsigned int flags) except?_NVMLRETURN_T_IN
         flags)
 
 
-cdef nvmlReturn_t _nvmlShutdown() except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlShutdown() except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlShutdown
     _check_or_init_nvml()
     if __nvmlShutdown == NULL:
@@ -2629,7 +2629,7 @@ cdef const char* _nvmlErrorString(nvmlReturn_t result) except?NULL nogil:
         result)
 
 
-cdef nvmlReturn_t _nvmlSystemGetDriverVersion(char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetDriverVersion(char* version, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetDriverVersion
     _check_or_init_nvml()
     if __nvmlSystemGetDriverVersion == NULL:
@@ -2639,7 +2639,7 @@ cdef nvmlReturn_t _nvmlSystemGetDriverVersion(char* version, unsigned int length
         version, length)
 
 
-cdef nvmlReturn_t _nvmlSystemGetNVMLVersion(char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetNVMLVersion(char* version, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetNVMLVersion
     _check_or_init_nvml()
     if __nvmlSystemGetNVMLVersion == NULL:
@@ -2649,7 +2649,7 @@ cdef nvmlReturn_t _nvmlSystemGetNVMLVersion(char* version, unsigned int length) 
         version, length)
 
 
-cdef nvmlReturn_t _nvmlSystemGetCudaDriverVersion(int* cudaDriverVersion) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetCudaDriverVersion(int* cudaDriverVersion) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetCudaDriverVersion
     _check_or_init_nvml()
     if __nvmlSystemGetCudaDriverVersion == NULL:
@@ -2659,7 +2659,7 @@ cdef nvmlReturn_t _nvmlSystemGetCudaDriverVersion(int* cudaDriverVersion) except
         cudaDriverVersion)
 
 
-cdef nvmlReturn_t _nvmlSystemGetCudaDriverVersion_v2(int* cudaDriverVersion) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetCudaDriverVersion_v2(int* cudaDriverVersion) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetCudaDriverVersion_v2
     _check_or_init_nvml()
     if __nvmlSystemGetCudaDriverVersion_v2 == NULL:
@@ -2669,7 +2669,7 @@ cdef nvmlReturn_t _nvmlSystemGetCudaDriverVersion_v2(int* cudaDriverVersion) exc
         cudaDriverVersion)
 
 
-cdef nvmlReturn_t _nvmlSystemGetProcessName(unsigned int pid, char* name, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetProcessName(unsigned int pid, char* name, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetProcessName
     _check_or_init_nvml()
     if __nvmlSystemGetProcessName == NULL:
@@ -2679,7 +2679,7 @@ cdef nvmlReturn_t _nvmlSystemGetProcessName(unsigned int pid, char* name, unsign
         pid, name, length)
 
 
-cdef nvmlReturn_t _nvmlSystemGetHicVersion(unsigned int* hwbcCount, nvmlHwbcEntry_t* hwbcEntries) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetHicVersion(unsigned int* hwbcCount, nvmlHwbcEntry_t* hwbcEntries) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetHicVersion
     _check_or_init_nvml()
     if __nvmlSystemGetHicVersion == NULL:
@@ -2689,7 +2689,7 @@ cdef nvmlReturn_t _nvmlSystemGetHicVersion(unsigned int* hwbcCount, nvmlHwbcEntr
         hwbcCount, hwbcEntries)
 
 
-cdef nvmlReturn_t _nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsigned int* count, nvmlDevice_t* deviceArray) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsigned int* count, nvmlDevice_t* deviceArray) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetTopologyGpuSet
     _check_or_init_nvml()
     if __nvmlSystemGetTopologyGpuSet == NULL:
@@ -2699,7 +2699,7 @@ cdef nvmlReturn_t _nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsigned 
         cpuNumber, count, deviceArray)
 
 
-cdef nvmlReturn_t _nvmlSystemGetDriverBranch(nvmlSystemDriverBranchInfo_t* branchInfo, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetDriverBranch(nvmlSystemDriverBranchInfo_t* branchInfo, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetDriverBranch
     _check_or_init_nvml()
     if __nvmlSystemGetDriverBranch == NULL:
@@ -2709,7 +2709,7 @@ cdef nvmlReturn_t _nvmlSystemGetDriverBranch(nvmlSystemDriverBranchInfo_t* branc
         branchInfo, length)
 
 
-cdef nvmlReturn_t _nvmlUnitGetCount(unsigned int* unitCount) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlUnitGetCount(unsigned int* unitCount) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlUnitGetCount
     _check_or_init_nvml()
     if __nvmlUnitGetCount == NULL:
@@ -2719,7 +2719,7 @@ cdef nvmlReturn_t _nvmlUnitGetCount(unsigned int* unitCount) except?_NVMLRETURN_
         unitCount)
 
 
-cdef nvmlReturn_t _nvmlUnitGetHandleByIndex(unsigned int index, nvmlUnit_t* unit) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlUnitGetHandleByIndex(unsigned int index, nvmlUnit_t* unit) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlUnitGetHandleByIndex
     _check_or_init_nvml()
     if __nvmlUnitGetHandleByIndex == NULL:
@@ -2729,7 +2729,7 @@ cdef nvmlReturn_t _nvmlUnitGetHandleByIndex(unsigned int index, nvmlUnit_t* unit
         index, unit)
 
 
-cdef nvmlReturn_t _nvmlUnitGetUnitInfo(nvmlUnit_t unit, nvmlUnitInfo_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlUnitGetUnitInfo(nvmlUnit_t unit, nvmlUnitInfo_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlUnitGetUnitInfo
     _check_or_init_nvml()
     if __nvmlUnitGetUnitInfo == NULL:
@@ -2739,7 +2739,7 @@ cdef nvmlReturn_t _nvmlUnitGetUnitInfo(nvmlUnit_t unit, nvmlUnitInfo_t* info) ex
         unit, info)
 
 
-cdef nvmlReturn_t _nvmlUnitGetLedState(nvmlUnit_t unit, nvmlLedState_t* state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlUnitGetLedState(nvmlUnit_t unit, nvmlLedState_t* state) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlUnitGetLedState
     _check_or_init_nvml()
     if __nvmlUnitGetLedState == NULL:
@@ -2749,7 +2749,7 @@ cdef nvmlReturn_t _nvmlUnitGetLedState(nvmlUnit_t unit, nvmlLedState_t* state) e
         unit, state)
 
 
-cdef nvmlReturn_t _nvmlUnitGetPsuInfo(nvmlUnit_t unit, nvmlPSUInfo_t* psu) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlUnitGetPsuInfo(nvmlUnit_t unit, nvmlPSUInfo_t* psu) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlUnitGetPsuInfo
     _check_or_init_nvml()
     if __nvmlUnitGetPsuInfo == NULL:
@@ -2759,7 +2759,7 @@ cdef nvmlReturn_t _nvmlUnitGetPsuInfo(nvmlUnit_t unit, nvmlPSUInfo_t* psu) excep
         unit, psu)
 
 
-cdef nvmlReturn_t _nvmlUnitGetTemperature(nvmlUnit_t unit, unsigned int type, unsigned int* temp) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlUnitGetTemperature(nvmlUnit_t unit, unsigned int type, unsigned int* temp) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlUnitGetTemperature
     _check_or_init_nvml()
     if __nvmlUnitGetTemperature == NULL:
@@ -2769,7 +2769,7 @@ cdef nvmlReturn_t _nvmlUnitGetTemperature(nvmlUnit_t unit, unsigned int type, un
         unit, type, temp)
 
 
-cdef nvmlReturn_t _nvmlUnitGetFanSpeedInfo(nvmlUnit_t unit, nvmlUnitFanSpeeds_t* fanSpeeds) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlUnitGetFanSpeedInfo(nvmlUnit_t unit, nvmlUnitFanSpeeds_t* fanSpeeds) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlUnitGetFanSpeedInfo
     _check_or_init_nvml()
     if __nvmlUnitGetFanSpeedInfo == NULL:
@@ -2779,7 +2779,7 @@ cdef nvmlReturn_t _nvmlUnitGetFanSpeedInfo(nvmlUnit_t unit, nvmlUnitFanSpeeds_t*
         unit, fanSpeeds)
 
 
-cdef nvmlReturn_t _nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int* deviceCount, nvmlDevice_t* devices) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int* deviceCount, nvmlDevice_t* devices) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlUnitGetDevices
     _check_or_init_nvml()
     if __nvmlUnitGetDevices == NULL:
@@ -2789,7 +2789,7 @@ cdef nvmlReturn_t _nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int* deviceCount
         unit, deviceCount, devices)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCount_v2(unsigned int* deviceCount) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCount_v2(unsigned int* deviceCount) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCount_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetCount_v2 == NULL:
@@ -2799,7 +2799,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCount_v2(unsigned int* deviceCount) except?_NVML
         deviceCount)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDeviceAttributes_t* attributes) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDeviceAttributes_t* attributes) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetAttributes_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetAttributes_v2 == NULL:
@@ -2809,7 +2809,7 @@ cdef nvmlReturn_t _nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDeviceAtt
         device, attributes)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDevice_t* device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDevice_t* device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetHandleByIndex_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetHandleByIndex_v2 == NULL:
@@ -2819,7 +2819,7 @@ cdef nvmlReturn_t _nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDevice_
         index, device)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetHandleBySerial(const char* serial, nvmlDevice_t* device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetHandleBySerial(const char* serial, nvmlDevice_t* device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetHandleBySerial
     _check_or_init_nvml()
     if __nvmlDeviceGetHandleBySerial == NULL:
@@ -2829,7 +2829,7 @@ cdef nvmlReturn_t _nvmlDeviceGetHandleBySerial(const char* serial, nvmlDevice_t*
         serial, device)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetHandleByUUID(const char* uuid, nvmlDevice_t* device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetHandleByUUID(const char* uuid, nvmlDevice_t* device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetHandleByUUID
     _check_or_init_nvml()
     if __nvmlDeviceGetHandleByUUID == NULL:
@@ -2839,7 +2839,7 @@ cdef nvmlReturn_t _nvmlDeviceGetHandleByUUID(const char* uuid, nvmlDevice_t* dev
         uuid, device)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetHandleByUUIDV(const nvmlUUID_t* uuid, nvmlDevice_t* device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetHandleByUUIDV(const nvmlUUID_t* uuid, nvmlDevice_t* device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetHandleByUUIDV
     _check_or_init_nvml()
     if __nvmlDeviceGetHandleByUUIDV == NULL:
@@ -2849,7 +2849,7 @@ cdef nvmlReturn_t _nvmlDeviceGetHandleByUUIDV(const nvmlUUID_t* uuid, nvmlDevice
         uuid, device)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetHandleByPciBusId_v2(const char* pciBusId, nvmlDevice_t* device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetHandleByPciBusId_v2(const char* pciBusId, nvmlDevice_t* device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetHandleByPciBusId_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetHandleByPciBusId_v2 == NULL:
@@ -2859,7 +2859,7 @@ cdef nvmlReturn_t _nvmlDeviceGetHandleByPciBusId_v2(const char* pciBusId, nvmlDe
         pciBusId, device)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetName(nvmlDevice_t device, char* name, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetName(nvmlDevice_t device, char* name, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetName
     _check_or_init_nvml()
     if __nvmlDeviceGetName == NULL:
@@ -2869,7 +2869,7 @@ cdef nvmlReturn_t _nvmlDeviceGetName(nvmlDevice_t device, char* name, unsigned i
         device, name, length)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetBrand(nvmlDevice_t device, nvmlBrandType_t* type) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetBrand(nvmlDevice_t device, nvmlBrandType_t* type) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetBrand
     _check_or_init_nvml()
     if __nvmlDeviceGetBrand == NULL:
@@ -2879,7 +2879,7 @@ cdef nvmlReturn_t _nvmlDeviceGetBrand(nvmlDevice_t device, nvmlBrandType_t* type
         device, type)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int* index) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int* index) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetIndex
     _check_or_init_nvml()
     if __nvmlDeviceGetIndex == NULL:
@@ -2889,7 +2889,7 @@ cdef nvmlReturn_t _nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int* index) 
         device, index)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSerial(nvmlDevice_t device, char* serial, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSerial(nvmlDevice_t device, char* serial, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSerial
     _check_or_init_nvml()
     if __nvmlDeviceGetSerial == NULL:
@@ -2899,7 +2899,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSerial(nvmlDevice_t device, char* serial, unsign
         device, serial, length)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetModuleId(nvmlDevice_t device, unsigned int* moduleId) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetModuleId(nvmlDevice_t device, unsigned int* moduleId) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetModuleId
     _check_or_init_nvml()
     if __nvmlDeviceGetModuleId == NULL:
@@ -2909,7 +2909,7 @@ cdef nvmlReturn_t _nvmlDeviceGetModuleId(nvmlDevice_t device, unsigned int* modu
         device, moduleId)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetC2cModeInfoV(nvmlDevice_t device, nvmlC2cModeInfo_v1_t* c2cModeInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetC2cModeInfoV(nvmlDevice_t device, nvmlC2cModeInfo_v1_t* c2cModeInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetC2cModeInfoV
     _check_or_init_nvml()
     if __nvmlDeviceGetC2cModeInfoV == NULL:
@@ -2919,7 +2919,7 @@ cdef nvmlReturn_t _nvmlDeviceGetC2cModeInfoV(nvmlDevice_t device, nvmlC2cModeInf
         device, c2cModeInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigned int nodeSetSize, unsigned long* nodeSet, nvmlAffinityScope_t scope) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigned int nodeSetSize, unsigned long* nodeSet, nvmlAffinityScope_t scope) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMemoryAffinity
     _check_or_init_nvml()
     if __nvmlDeviceGetMemoryAffinity == NULL:
@@ -2929,7 +2929,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigned int
         device, nodeSetSize, nodeSet, scope)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCpuAffinityWithinScope(nvmlDevice_t device, unsigned int cpuSetSize, unsigned long* cpuSet, nvmlAffinityScope_t scope) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCpuAffinityWithinScope(nvmlDevice_t device, unsigned int cpuSetSize, unsigned long* cpuSet, nvmlAffinityScope_t scope) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCpuAffinityWithinScope
     _check_or_init_nvml()
     if __nvmlDeviceGetCpuAffinityWithinScope == NULL:
@@ -2939,7 +2939,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCpuAffinityWithinScope(nvmlDevice_t device, unsi
         device, cpuSetSize, cpuSet, scope)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCpuAffinity(nvmlDevice_t device, unsigned int cpuSetSize, unsigned long* cpuSet) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCpuAffinity(nvmlDevice_t device, unsigned int cpuSetSize, unsigned long* cpuSet) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCpuAffinity
     _check_or_init_nvml()
     if __nvmlDeviceGetCpuAffinity == NULL:
@@ -2949,7 +2949,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCpuAffinity(nvmlDevice_t device, unsigned int cp
         device, cpuSetSize, cpuSet)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetCpuAffinity(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetCpuAffinity(nvmlDevice_t device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetCpuAffinity
     _check_or_init_nvml()
     if __nvmlDeviceSetCpuAffinity == NULL:
@@ -2959,7 +2959,7 @@ cdef nvmlReturn_t _nvmlDeviceSetCpuAffinity(nvmlDevice_t device) except?_NVMLRET
         device)
 
 
-cdef nvmlReturn_t _nvmlDeviceClearCpuAffinity(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceClearCpuAffinity(nvmlDevice_t device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceClearCpuAffinity
     _check_or_init_nvml()
     if __nvmlDeviceClearCpuAffinity == NULL:
@@ -2969,7 +2969,7 @@ cdef nvmlReturn_t _nvmlDeviceClearCpuAffinity(nvmlDevice_t device) except?_NVMLR
         device)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNumaNodeId(nvmlDevice_t device, unsigned int* node) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNumaNodeId(nvmlDevice_t device, unsigned int* node) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNumaNodeId
     _check_or_init_nvml()
     if __nvmlDeviceGetNumaNodeId == NULL:
@@ -2979,7 +2979,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNumaNodeId(nvmlDevice_t device, unsigned int* no
         device, node)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1, nvmlDevice_t device2, nvmlGpuTopologyLevel_t* pathInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1, nvmlDevice_t device2, nvmlGpuTopologyLevel_t* pathInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetTopologyCommonAncestor
     _check_or_init_nvml()
     if __nvmlDeviceGetTopologyCommonAncestor == NULL:
@@ -2989,7 +2989,7 @@ cdef nvmlReturn_t _nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1, nvm
         device1, device2, pathInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nvmlGpuTopologyLevel_t level, unsigned int* count, nvmlDevice_t* deviceArray) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nvmlGpuTopologyLevel_t level, unsigned int* count, nvmlDevice_t* deviceArray) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetTopologyNearestGpus
     _check_or_init_nvml()
     if __nvmlDeviceGetTopologyNearestGpus == NULL:
@@ -2999,7 +2999,7 @@ cdef nvmlReturn_t _nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nvmlGpu
         device, level, count, deviceArray)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_t device2, nvmlGpuP2PCapsIndex_t p2pIndex, nvmlGpuP2PStatus_t* p2pStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_t device2, nvmlGpuP2PCapsIndex_t p2pIndex, nvmlGpuP2PStatus_t* p2pStatus) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetP2PStatus
     _check_or_init_nvml()
     if __nvmlDeviceGetP2PStatus == NULL:
@@ -3009,7 +3009,7 @@ cdef nvmlReturn_t _nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_t dev
         device1, device2, p2pIndex, p2pStatus)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetUUID(nvmlDevice_t device, char* uuid, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetUUID(nvmlDevice_t device, char* uuid, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetUUID
     _check_or_init_nvml()
     if __nvmlDeviceGetUUID == NULL:
@@ -3019,7 +3019,7 @@ cdef nvmlReturn_t _nvmlDeviceGetUUID(nvmlDevice_t device, char* uuid, unsigned i
         device, uuid, length)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMinorNumber(nvmlDevice_t device, unsigned int* minorNumber) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMinorNumber(nvmlDevice_t device, unsigned int* minorNumber) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMinorNumber
     _check_or_init_nvml()
     if __nvmlDeviceGetMinorNumber == NULL:
@@ -3029,7 +3029,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMinorNumber(nvmlDevice_t device, unsigned int* m
         device, minorNumber)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetBoardPartNumber(nvmlDevice_t device, char* partNumber, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetBoardPartNumber(nvmlDevice_t device, char* partNumber, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetBoardPartNumber
     _check_or_init_nvml()
     if __nvmlDeviceGetBoardPartNumber == NULL:
@@ -3039,7 +3039,7 @@ cdef nvmlReturn_t _nvmlDeviceGetBoardPartNumber(nvmlDevice_t device, char* partN
         device, partNumber, length)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetInforomVersion(nvmlDevice_t device, nvmlInforomObject_t object, char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetInforomVersion(nvmlDevice_t device, nvmlInforomObject_t object, char* version, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetInforomVersion
     _check_or_init_nvml()
     if __nvmlDeviceGetInforomVersion == NULL:
@@ -3049,7 +3049,7 @@ cdef nvmlReturn_t _nvmlDeviceGetInforomVersion(nvmlDevice_t device, nvmlInforomO
         device, object, version, length)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetInforomImageVersion(nvmlDevice_t device, char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetInforomImageVersion(nvmlDevice_t device, char* version, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetInforomImageVersion
     _check_or_init_nvml()
     if __nvmlDeviceGetInforomImageVersion == NULL:
@@ -3059,7 +3059,7 @@ cdef nvmlReturn_t _nvmlDeviceGetInforomImageVersion(nvmlDevice_t device, char* v
         device, version, length)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice_t device, unsigned int* checksum) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice_t device, unsigned int* checksum) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetInforomConfigurationChecksum
     _check_or_init_nvml()
     if __nvmlDeviceGetInforomConfigurationChecksum == NULL:
@@ -3069,7 +3069,7 @@ cdef nvmlReturn_t _nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice_t device
         device, checksum)
 
 
-cdef nvmlReturn_t _nvmlDeviceValidateInforom(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceValidateInforom(nvmlDevice_t device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceValidateInforom
     _check_or_init_nvml()
     if __nvmlDeviceValidateInforom == NULL:
@@ -3079,7 +3079,7 @@ cdef nvmlReturn_t _nvmlDeviceValidateInforom(nvmlDevice_t device) except?_NVMLRE
         device)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetLastBBXFlushTime(nvmlDevice_t device, unsigned long long* timestamp, unsigned long* durationUs) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetLastBBXFlushTime(nvmlDevice_t device, unsigned long long* timestamp, unsigned long* durationUs) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetLastBBXFlushTime
     _check_or_init_nvml()
     if __nvmlDeviceGetLastBBXFlushTime == NULL:
@@ -3089,7 +3089,7 @@ cdef nvmlReturn_t _nvmlDeviceGetLastBBXFlushTime(nvmlDevice_t device, unsigned l
         device, timestamp, durationUs)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnableState_t* display) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnableState_t* display) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetDisplayMode
     _check_or_init_nvml()
     if __nvmlDeviceGetDisplayMode == NULL:
@@ -3099,7 +3099,7 @@ cdef nvmlReturn_t _nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnableState
         device, display)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetDisplayActive(nvmlDevice_t device, nvmlEnableState_t* isActive) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetDisplayActive(nvmlDevice_t device, nvmlEnableState_t* isActive) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetDisplayActive
     _check_or_init_nvml()
     if __nvmlDeviceGetDisplayActive == NULL:
@@ -3109,7 +3109,7 @@ cdef nvmlReturn_t _nvmlDeviceGetDisplayActive(nvmlDevice_t device, nvmlEnableSta
         device, isActive)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEnableState_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEnableState_t* mode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPersistenceMode
     _check_or_init_nvml()
     if __nvmlDeviceGetPersistenceMode == NULL:
@@ -3119,7 +3119,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEnableS
         device, mode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPciInfoExt(nvmlDevice_t device, nvmlPciInfoExt_t* pci) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPciInfoExt(nvmlDevice_t device, nvmlPciInfoExt_t* pci) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPciInfoExt
     _check_or_init_nvml()
     if __nvmlDeviceGetPciInfoExt == NULL:
@@ -3129,7 +3129,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPciInfoExt(nvmlDevice_t device, nvmlPciInfoExt_t
         device, pci)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo_t* pci) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo_t* pci) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPciInfo_v3
     _check_or_init_nvml()
     if __nvmlDeviceGetPciInfo_v3 == NULL:
@@ -3139,7 +3139,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo_t* p
         device, pci)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, unsigned int* maxLinkGen) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, unsigned int* maxLinkGen) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMaxPcieLinkGeneration
     _check_or_init_nvml()
     if __nvmlDeviceGetMaxPcieLinkGeneration == NULL:
@@ -3149,7 +3149,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, unsig
         device, maxLinkGen)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuMaxPcieLinkGeneration(nvmlDevice_t device, unsigned int* maxLinkGenDevice) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuMaxPcieLinkGeneration(nvmlDevice_t device, unsigned int* maxLinkGenDevice) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuMaxPcieLinkGeneration
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuMaxPcieLinkGeneration == NULL:
@@ -3159,7 +3159,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuMaxPcieLinkGeneration(nvmlDevice_t device, un
         device, maxLinkGenDevice)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsigned int* maxLinkWidth) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsigned int* maxLinkWidth) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMaxPcieLinkWidth
     _check_or_init_nvml()
     if __nvmlDeviceGetMaxPcieLinkWidth == NULL:
@@ -3169,7 +3169,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsigned i
         device, maxLinkWidth)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCurrPcieLinkGeneration(nvmlDevice_t device, unsigned int* currLinkGen) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCurrPcieLinkGeneration(nvmlDevice_t device, unsigned int* currLinkGen) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCurrPcieLinkGeneration
     _check_or_init_nvml()
     if __nvmlDeviceGetCurrPcieLinkGeneration == NULL:
@@ -3179,7 +3179,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCurrPcieLinkGeneration(nvmlDevice_t device, unsi
         device, currLinkGen)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCurrPcieLinkWidth(nvmlDevice_t device, unsigned int* currLinkWidth) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCurrPcieLinkWidth(nvmlDevice_t device, unsigned int* currLinkWidth) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCurrPcieLinkWidth
     _check_or_init_nvml()
     if __nvmlDeviceGetCurrPcieLinkWidth == NULL:
@@ -3189,7 +3189,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCurrPcieLinkWidth(nvmlDevice_t device, unsigned 
         device, currLinkWidth)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPcieThroughput(nvmlDevice_t device, nvmlPcieUtilCounter_t counter, unsigned int* value) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPcieThroughput(nvmlDevice_t device, nvmlPcieUtilCounter_t counter, unsigned int* value) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPcieThroughput
     _check_or_init_nvml()
     if __nvmlDeviceGetPcieThroughput == NULL:
@@ -3199,7 +3199,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPcieThroughput(nvmlDevice_t device, nvmlPcieUtil
         device, counter, value)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPcieReplayCounter(nvmlDevice_t device, unsigned int* value) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPcieReplayCounter(nvmlDevice_t device, unsigned int* value) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPcieReplayCounter
     _check_or_init_nvml()
     if __nvmlDeviceGetPcieReplayCounter == NULL:
@@ -3209,7 +3209,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPcieReplayCounter(nvmlDevice_t device, unsigned 
         device, value)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetClockInfo(nvmlDevice_t device, nvmlClockType_t type, unsigned int* clock) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetClockInfo(nvmlDevice_t device, nvmlClockType_t type, unsigned int* clock) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetClockInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetClockInfo == NULL:
@@ -3219,7 +3219,7 @@ cdef nvmlReturn_t _nvmlDeviceGetClockInfo(nvmlDevice_t device, nvmlClockType_t t
         device, type, clock)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClockType_t type, unsigned int* clock) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClockType_t type, unsigned int* clock) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMaxClockInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetMaxClockInfo == NULL:
@@ -3229,7 +3229,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClockType_
         device, type, clock)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpcClkVfOffset(nvmlDevice_t device, int* offset) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpcClkVfOffset(nvmlDevice_t device, int* offset) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpcClkVfOffset
     _check_or_init_nvml()
     if __nvmlDeviceGetGpcClkVfOffset == NULL:
@@ -3239,7 +3239,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpcClkVfOffset(nvmlDevice_t device, int* offset)
         device, offset)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetClock(nvmlDevice_t device, nvmlClockType_t clockType, nvmlClockId_t clockId, unsigned int* clockMHz) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetClock(nvmlDevice_t device, nvmlClockType_t clockType, nvmlClockId_t clockId, unsigned int* clockMHz) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetClock
     _check_or_init_nvml()
     if __nvmlDeviceGetClock == NULL:
@@ -3249,7 +3249,7 @@ cdef nvmlReturn_t _nvmlDeviceGetClock(nvmlDevice_t device, nvmlClockType_t clock
         device, clockType, clockId, clockMHz)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMaxCustomerBoostClock(nvmlDevice_t device, nvmlClockType_t clockType, unsigned int* clockMHz) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMaxCustomerBoostClock(nvmlDevice_t device, nvmlClockType_t clockType, unsigned int* clockMHz) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMaxCustomerBoostClock
     _check_or_init_nvml()
     if __nvmlDeviceGetMaxCustomerBoostClock == NULL:
@@ -3259,7 +3259,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMaxCustomerBoostClock(nvmlDevice_t device, nvmlC
         device, clockType, clockMHz)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSupportedMemoryClocks(nvmlDevice_t device, unsigned int* count, unsigned int* clocksMHz) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSupportedMemoryClocks(nvmlDevice_t device, unsigned int* count, unsigned int* clocksMHz) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSupportedMemoryClocks
     _check_or_init_nvml()
     if __nvmlDeviceGetSupportedMemoryClocks == NULL:
@@ -3269,7 +3269,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSupportedMemoryClocks(nvmlDevice_t device, unsig
         device, count, clocksMHz)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSupportedGraphicsClocks(nvmlDevice_t device, unsigned int memoryClockMHz, unsigned int* count, unsigned int* clocksMHz) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSupportedGraphicsClocks(nvmlDevice_t device, unsigned int memoryClockMHz, unsigned int* count, unsigned int* clocksMHz) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSupportedGraphicsClocks
     _check_or_init_nvml()
     if __nvmlDeviceGetSupportedGraphicsClocks == NULL:
@@ -3279,7 +3279,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSupportedGraphicsClocks(nvmlDevice_t device, uns
         device, memoryClockMHz, count, clocksMHz)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t* isEnabled, nvmlEnableState_t* defaultIsEnabled) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t* isEnabled, nvmlEnableState_t* defaultIsEnabled) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetAutoBoostedClocksEnabled
     _check_or_init_nvml()
     if __nvmlDeviceGetAutoBoostedClocksEnabled == NULL:
@@ -3289,7 +3289,7 @@ cdef nvmlReturn_t _nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t device, nv
         device, isEnabled, defaultIsEnabled)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int* speed) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int* speed) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetFanSpeed
     _check_or_init_nvml()
     if __nvmlDeviceGetFanSpeed == NULL:
@@ -3299,7 +3299,7 @@ cdef nvmlReturn_t _nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int* spee
         device, speed)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned int fan, unsigned int* speed) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned int fan, unsigned int* speed) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetFanSpeed_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetFanSpeed_v2 == NULL:
@@ -3309,7 +3309,7 @@ cdef nvmlReturn_t _nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned int fa
         device, fan, speed)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetFanSpeedRPM(nvmlDevice_t device, nvmlFanSpeedInfo_t* fanSpeed) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetFanSpeedRPM(nvmlDevice_t device, nvmlFanSpeedInfo_t* fanSpeed) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetFanSpeedRPM
     _check_or_init_nvml()
     if __nvmlDeviceGetFanSpeedRPM == NULL:
@@ -3319,7 +3319,7 @@ cdef nvmlReturn_t _nvmlDeviceGetFanSpeedRPM(nvmlDevice_t device, nvmlFanSpeedInf
         device, fanSpeed)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetTargetFanSpeed(nvmlDevice_t device, unsigned int fan, unsigned int* targetSpeed) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetTargetFanSpeed(nvmlDevice_t device, unsigned int fan, unsigned int* targetSpeed) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetTargetFanSpeed
     _check_or_init_nvml()
     if __nvmlDeviceGetTargetFanSpeed == NULL:
@@ -3329,7 +3329,7 @@ cdef nvmlReturn_t _nvmlDeviceGetTargetFanSpeed(nvmlDevice_t device, unsigned int
         device, fan, targetSpeed)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMinMaxFanSpeed(nvmlDevice_t device, unsigned int* minSpeed, unsigned int* maxSpeed) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMinMaxFanSpeed(nvmlDevice_t device, unsigned int* minSpeed, unsigned int* maxSpeed) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMinMaxFanSpeed
     _check_or_init_nvml()
     if __nvmlDeviceGetMinMaxFanSpeed == NULL:
@@ -3339,7 +3339,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMinMaxFanSpeed(nvmlDevice_t device, unsigned int
         device, minSpeed, maxSpeed)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetFanControlPolicy_v2(nvmlDevice_t device, unsigned int fan, nvmlFanControlPolicy_t* policy) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetFanControlPolicy_v2(nvmlDevice_t device, unsigned int fan, nvmlFanControlPolicy_t* policy) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetFanControlPolicy_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetFanControlPolicy_v2 == NULL:
@@ -3349,7 +3349,7 @@ cdef nvmlReturn_t _nvmlDeviceGetFanControlPolicy_v2(nvmlDevice_t device, unsigne
         device, fan, policy)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNumFans(nvmlDevice_t device, unsigned int* numFans) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNumFans(nvmlDevice_t device, unsigned int* numFans) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNumFans
     _check_or_init_nvml()
     if __nvmlDeviceGetNumFans == NULL:
@@ -3359,7 +3359,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNumFans(nvmlDevice_t device, unsigned int* numFa
         device, numFans)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCoolerInfo(nvmlDevice_t device, nvmlCoolerInfo_t* coolerInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCoolerInfo(nvmlDevice_t device, nvmlCoolerInfo_t* coolerInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCoolerInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetCoolerInfo == NULL:
@@ -3369,7 +3369,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCoolerInfo(nvmlDevice_t device, nvmlCoolerInfo_t
         device, coolerInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetTemperatureV(nvmlDevice_t device, nvmlTemperature_t* temperature) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetTemperatureV(nvmlDevice_t device, nvmlTemperature_t* temperature) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetTemperatureV
     _check_or_init_nvml()
     if __nvmlDeviceGetTemperatureV == NULL:
@@ -3379,7 +3379,7 @@ cdef nvmlReturn_t _nvmlDeviceGetTemperatureV(nvmlDevice_t device, nvmlTemperatur
         device, temperature)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, nvmlTemperatureThresholds_t thresholdType, unsigned int* temp) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, nvmlTemperatureThresholds_t thresholdType, unsigned int* temp) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetTemperatureThreshold
     _check_or_init_nvml()
     if __nvmlDeviceGetTemperatureThreshold == NULL:
@@ -3389,7 +3389,7 @@ cdef nvmlReturn_t _nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, nvmlTe
         device, thresholdType, temp)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMarginTemperature(nvmlDevice_t device, nvmlMarginTemperature_t* marginTempInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMarginTemperature(nvmlDevice_t device, nvmlMarginTemperature_t* marginTempInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMarginTemperature
     _check_or_init_nvml()
     if __nvmlDeviceGetMarginTemperature == NULL:
@@ -3399,7 +3399,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMarginTemperature(nvmlDevice_t device, nvmlMargi
         device, marginTempInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetThermalSettings(nvmlDevice_t device, unsigned int sensorIndex, nvmlGpuThermalSettings_t* pThermalSettings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetThermalSettings(nvmlDevice_t device, unsigned int sensorIndex, nvmlGpuThermalSettings_t* pThermalSettings) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetThermalSettings
     _check_or_init_nvml()
     if __nvmlDeviceGetThermalSettings == NULL:
@@ -3409,7 +3409,7 @@ cdef nvmlReturn_t _nvmlDeviceGetThermalSettings(nvmlDevice_t device, unsigned in
         device, sensorIndex, pThermalSettings)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlPstates_t* pState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlPstates_t* pState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPerformanceState
     _check_or_init_nvml()
     if __nvmlDeviceGetPerformanceState == NULL:
@@ -3419,7 +3419,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlPstate
         device, pState)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCurrentClocksEventReasons(nvmlDevice_t device, unsigned long long* clocksEventReasons) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCurrentClocksEventReasons(nvmlDevice_t device, unsigned long long* clocksEventReasons) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCurrentClocksEventReasons
     _check_or_init_nvml()
     if __nvmlDeviceGetCurrentClocksEventReasons == NULL:
@@ -3429,7 +3429,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCurrentClocksEventReasons(nvmlDevice_t device, u
         device, clocksEventReasons)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSupportedClocksEventReasons(nvmlDevice_t device, unsigned long long* supportedClocksEventReasons) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSupportedClocksEventReasons(nvmlDevice_t device, unsigned long long* supportedClocksEventReasons) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSupportedClocksEventReasons
     _check_or_init_nvml()
     if __nvmlDeviceGetSupportedClocksEventReasons == NULL:
@@ -3439,7 +3439,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSupportedClocksEventReasons(nvmlDevice_t device,
         device, supportedClocksEventReasons)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates_t* pState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates_t* pState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPowerState
     _check_or_init_nvml()
     if __nvmlDeviceGetPowerState == NULL:
@@ -3449,7 +3449,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates_t* p
         device, pState)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetDynamicPstatesInfo(nvmlDevice_t device, nvmlGpuDynamicPstatesInfo_t* pDynamicPstatesInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetDynamicPstatesInfo(nvmlDevice_t device, nvmlGpuDynamicPstatesInfo_t* pDynamicPstatesInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetDynamicPstatesInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetDynamicPstatesInfo == NULL:
@@ -3459,7 +3459,7 @@ cdef nvmlReturn_t _nvmlDeviceGetDynamicPstatesInfo(nvmlDevice_t device, nvmlGpuD
         device, pDynamicPstatesInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMemClkVfOffset(nvmlDevice_t device, int* offset) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMemClkVfOffset(nvmlDevice_t device, int* offset) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMemClkVfOffset
     _check_or_init_nvml()
     if __nvmlDeviceGetMemClkVfOffset == NULL:
@@ -3469,7 +3469,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMemClkVfOffset(nvmlDevice_t device, int* offset)
         device, offset)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMinMaxClockOfPState(nvmlDevice_t device, nvmlClockType_t type, nvmlPstates_t pstate, unsigned int* minClockMHz, unsigned int* maxClockMHz) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMinMaxClockOfPState(nvmlDevice_t device, nvmlClockType_t type, nvmlPstates_t pstate, unsigned int* minClockMHz, unsigned int* maxClockMHz) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMinMaxClockOfPState
     _check_or_init_nvml()
     if __nvmlDeviceGetMinMaxClockOfPState == NULL:
@@ -3479,7 +3479,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMinMaxClockOfPState(nvmlDevice_t device, nvmlClo
         device, type, pstate, minClockMHz, maxClockMHz)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSupportedPerformanceStates(nvmlDevice_t device, nvmlPstates_t* pstates, unsigned int size) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSupportedPerformanceStates(nvmlDevice_t device, nvmlPstates_t* pstates, unsigned int size) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSupportedPerformanceStates
     _check_or_init_nvml()
     if __nvmlDeviceGetSupportedPerformanceStates == NULL:
@@ -3489,7 +3489,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSupportedPerformanceStates(nvmlDevice_t device, 
         device, pstates, size)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpcClkMinMaxVfOffset(nvmlDevice_t device, int* minOffset, int* maxOffset) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpcClkMinMaxVfOffset(nvmlDevice_t device, int* minOffset, int* maxOffset) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpcClkMinMaxVfOffset
     _check_or_init_nvml()
     if __nvmlDeviceGetGpcClkMinMaxVfOffset == NULL:
@@ -3499,7 +3499,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpcClkMinMaxVfOffset(nvmlDevice_t device, int* m
         device, minOffset, maxOffset)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMemClkMinMaxVfOffset(nvmlDevice_t device, int* minOffset, int* maxOffset) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMemClkMinMaxVfOffset(nvmlDevice_t device, int* minOffset, int* maxOffset) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMemClkMinMaxVfOffset
     _check_or_init_nvml()
     if __nvmlDeviceGetMemClkMinMaxVfOffset == NULL:
@@ -3509,7 +3509,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMemClkMinMaxVfOffset(nvmlDevice_t device, int* m
         device, minOffset, maxOffset)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetClockOffsets
     _check_or_init_nvml()
     if __nvmlDeviceGetClockOffsets == NULL:
@@ -3519,7 +3519,7 @@ cdef nvmlReturn_t _nvmlDeviceGetClockOffsets(nvmlDevice_t device, nvmlClockOffse
         device, info)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetClockOffsets
     _check_or_init_nvml()
     if __nvmlDeviceSetClockOffsets == NULL:
@@ -3529,7 +3529,7 @@ cdef nvmlReturn_t _nvmlDeviceSetClockOffsets(nvmlDevice_t device, nvmlClockOffse
         device, info)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPerformanceModes(nvmlDevice_t device, nvmlDevicePerfModes_t* perfModes) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPerformanceModes(nvmlDevice_t device, nvmlDevicePerfModes_t* perfModes) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPerformanceModes
     _check_or_init_nvml()
     if __nvmlDeviceGetPerformanceModes == NULL:
@@ -3539,7 +3539,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPerformanceModes(nvmlDevice_t device, nvmlDevice
         device, perfModes)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCurrentClockFreqs(nvmlDevice_t device, nvmlDeviceCurrentClockFreqs_t* currentClockFreqs) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCurrentClockFreqs(nvmlDevice_t device, nvmlDeviceCurrentClockFreqs_t* currentClockFreqs) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCurrentClockFreqs
     _check_or_init_nvml()
     if __nvmlDeviceGetCurrentClockFreqs == NULL:
@@ -3549,7 +3549,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCurrentClockFreqs(nvmlDevice_t device, nvmlDevic
         device, currentClockFreqs)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPowerManagementLimit(nvmlDevice_t device, unsigned int* limit) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPowerManagementLimit(nvmlDevice_t device, unsigned int* limit) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPowerManagementLimit
     _check_or_init_nvml()
     if __nvmlDeviceGetPowerManagementLimit == NULL:
@@ -3559,7 +3559,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPowerManagementLimit(nvmlDevice_t device, unsign
         device, limit)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPowerManagementLimitConstraints(nvmlDevice_t device, unsigned int* minLimit, unsigned int* maxLimit) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPowerManagementLimitConstraints(nvmlDevice_t device, unsigned int* minLimit, unsigned int* maxLimit) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPowerManagementLimitConstraints
     _check_or_init_nvml()
     if __nvmlDeviceGetPowerManagementLimitConstraints == NULL:
@@ -3569,7 +3569,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPowerManagementLimitConstraints(nvmlDevice_t dev
         device, minLimit, maxLimit)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPowerManagementDefaultLimit(nvmlDevice_t device, unsigned int* defaultLimit) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPowerManagementDefaultLimit(nvmlDevice_t device, unsigned int* defaultLimit) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPowerManagementDefaultLimit
     _check_or_init_nvml()
     if __nvmlDeviceGetPowerManagementDefaultLimit == NULL:
@@ -3579,7 +3579,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPowerManagementDefaultLimit(nvmlDevice_t device,
         device, defaultLimit)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned int* power) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned int* power) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPowerUsage
     _check_or_init_nvml()
     if __nvmlDeviceGetPowerUsage == NULL:
@@ -3589,7 +3589,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned int* po
         device, power)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device, unsigned long long* energy) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device, unsigned long long* energy) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetTotalEnergyConsumption
     _check_or_init_nvml()
     if __nvmlDeviceGetTotalEnergyConsumption == NULL:
@@ -3599,7 +3599,7 @@ cdef nvmlReturn_t _nvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device, unsi
         device, energy)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetEnforcedPowerLimit(nvmlDevice_t device, unsigned int* limit) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetEnforcedPowerLimit(nvmlDevice_t device, unsigned int* limit) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetEnforcedPowerLimit
     _check_or_init_nvml()
     if __nvmlDeviceGetEnforcedPowerLimit == NULL:
@@ -3609,7 +3609,7 @@ cdef nvmlReturn_t _nvmlDeviceGetEnforcedPowerLimit(nvmlDevice_t device, unsigned
         device, limit)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuOperationMode(nvmlDevice_t device, nvmlGpuOperationMode_t* current, nvmlGpuOperationMode_t* pending) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuOperationMode(nvmlDevice_t device, nvmlGpuOperationMode_t* current, nvmlGpuOperationMode_t* pending) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuOperationMode
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuOperationMode == NULL:
@@ -3619,7 +3619,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuOperationMode(nvmlDevice_t device, nvmlGpuOpe
         device, current, pending)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMemoryInfo_v2(nvmlDevice_t device, nvmlMemory_v2_t* memory) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMemoryInfo_v2(nvmlDevice_t device, nvmlMemory_v2_t* memory) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMemoryInfo_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetMemoryInfo_v2 == NULL:
@@ -3629,7 +3629,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMemoryInfo_v2(nvmlDevice_t device, nvmlMemory_v2
         device, memory)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComputeMode_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComputeMode_t* mode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetComputeMode
     _check_or_init_nvml()
     if __nvmlDeviceGetComputeMode == NULL:
@@ -3639,7 +3639,7 @@ cdef nvmlReturn_t _nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComputeMode
         device, mode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, int* major, int* minor) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, int* major, int* minor) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCudaComputeCapability
     _check_or_init_nvml()
     if __nvmlDeviceGetCudaComputeCapability == NULL:
@@ -3649,7 +3649,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, int* 
         device, major, minor)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetDramEncryptionMode(nvmlDevice_t device, nvmlDramEncryptionInfo_t* current, nvmlDramEncryptionInfo_t* pending) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetDramEncryptionMode(nvmlDevice_t device, nvmlDramEncryptionInfo_t* current, nvmlDramEncryptionInfo_t* pending) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetDramEncryptionMode
     _check_or_init_nvml()
     if __nvmlDeviceGetDramEncryptionMode == NULL:
@@ -3659,7 +3659,7 @@ cdef nvmlReturn_t _nvmlDeviceGetDramEncryptionMode(nvmlDevice_t device, nvmlDram
         device, current, pending)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetDramEncryptionMode(nvmlDevice_t device, const nvmlDramEncryptionInfo_t* dramEncryption) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetDramEncryptionMode(nvmlDevice_t device, const nvmlDramEncryptionInfo_t* dramEncryption) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetDramEncryptionMode
     _check_or_init_nvml()
     if __nvmlDeviceSetDramEncryptionMode == NULL:
@@ -3669,7 +3669,7 @@ cdef nvmlReturn_t _nvmlDeviceSetDramEncryptionMode(nvmlDevice_t device, const nv
         device, dramEncryption)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableState_t* current, nvmlEnableState_t* pending) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableState_t* current, nvmlEnableState_t* pending) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetEccMode
     _check_or_init_nvml()
     if __nvmlDeviceGetEccMode == NULL:
@@ -3679,7 +3679,7 @@ cdef nvmlReturn_t _nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableState_t* 
         device, current, pending)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetDefaultEccMode(nvmlDevice_t device, nvmlEnableState_t* defaultMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetDefaultEccMode(nvmlDevice_t device, nvmlEnableState_t* defaultMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetDefaultEccMode
     _check_or_init_nvml()
     if __nvmlDeviceGetDefaultEccMode == NULL:
@@ -3689,7 +3689,7 @@ cdef nvmlReturn_t _nvmlDeviceGetDefaultEccMode(nvmlDevice_t device, nvmlEnableSt
         device, defaultMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetBoardId(nvmlDevice_t device, unsigned int* boardId) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetBoardId(nvmlDevice_t device, unsigned int* boardId) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetBoardId
     _check_or_init_nvml()
     if __nvmlDeviceGetBoardId == NULL:
@@ -3699,7 +3699,7 @@ cdef nvmlReturn_t _nvmlDeviceGetBoardId(nvmlDevice_t device, unsigned int* board
         device, boardId)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMultiGpuBoard(nvmlDevice_t device, unsigned int* multiGpuBool) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMultiGpuBoard(nvmlDevice_t device, unsigned int* multiGpuBool) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMultiGpuBoard
     _check_or_init_nvml()
     if __nvmlDeviceGetMultiGpuBoard == NULL:
@@ -3709,7 +3709,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMultiGpuBoard(nvmlDevice_t device, unsigned int*
         device, multiGpuBool)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetTotalEccErrors(nvmlDevice_t device, nvmlMemoryErrorType_t errorType, nvmlEccCounterType_t counterType, unsigned long long* eccCounts) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetTotalEccErrors(nvmlDevice_t device, nvmlMemoryErrorType_t errorType, nvmlEccCounterType_t counterType, unsigned long long* eccCounts) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetTotalEccErrors
     _check_or_init_nvml()
     if __nvmlDeviceGetTotalEccErrors == NULL:
@@ -3719,7 +3719,7 @@ cdef nvmlReturn_t _nvmlDeviceGetTotalEccErrors(nvmlDevice_t device, nvmlMemoryEr
         device, errorType, counterType, eccCounts)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMemoryErrorCounter(nvmlDevice_t device, nvmlMemoryErrorType_t errorType, nvmlEccCounterType_t counterType, nvmlMemoryLocation_t locationType, unsigned long long* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMemoryErrorCounter(nvmlDevice_t device, nvmlMemoryErrorType_t errorType, nvmlEccCounterType_t counterType, nvmlMemoryLocation_t locationType, unsigned long long* count) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMemoryErrorCounter
     _check_or_init_nvml()
     if __nvmlDeviceGetMemoryErrorCounter == NULL:
@@ -3729,7 +3729,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMemoryErrorCounter(nvmlDevice_t device, nvmlMemo
         device, errorType, counterType, locationType, count)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlUtilization_t* utilization) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlUtilization_t* utilization) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetUtilizationRates
     _check_or_init_nvml()
     if __nvmlDeviceGetUtilizationRates == NULL:
@@ -3739,7 +3739,7 @@ cdef nvmlReturn_t _nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlUtiliz
         device, utilization)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetEncoderUtilization(nvmlDevice_t device, unsigned int* utilization, unsigned int* samplingPeriodUs) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetEncoderUtilization(nvmlDevice_t device, unsigned int* utilization, unsigned int* samplingPeriodUs) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetEncoderUtilization
     _check_or_init_nvml()
     if __nvmlDeviceGetEncoderUtilization == NULL:
@@ -3749,7 +3749,7 @@ cdef nvmlReturn_t _nvmlDeviceGetEncoderUtilization(nvmlDevice_t device, unsigned
         device, utilization, samplingPeriodUs)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetEncoderCapacity(nvmlDevice_t device, nvmlEncoderType_t encoderQueryType, unsigned int* encoderCapacity) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetEncoderCapacity(nvmlDevice_t device, nvmlEncoderType_t encoderQueryType, unsigned int* encoderCapacity) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetEncoderCapacity
     _check_or_init_nvml()
     if __nvmlDeviceGetEncoderCapacity == NULL:
@@ -3759,7 +3759,7 @@ cdef nvmlReturn_t _nvmlDeviceGetEncoderCapacity(nvmlDevice_t device, nvmlEncoder
         device, encoderQueryType, encoderCapacity)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetEncoderStats(nvmlDevice_t device, unsigned int* sessionCount, unsigned int* averageFps, unsigned int* averageLatency) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetEncoderStats(nvmlDevice_t device, unsigned int* sessionCount, unsigned int* averageFps, unsigned int* averageLatency) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetEncoderStats
     _check_or_init_nvml()
     if __nvmlDeviceGetEncoderStats == NULL:
@@ -3769,7 +3769,7 @@ cdef nvmlReturn_t _nvmlDeviceGetEncoderStats(nvmlDevice_t device, unsigned int* 
         device, sessionCount, averageFps, averageLatency)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetEncoderSessions(nvmlDevice_t device, unsigned int* sessionCount, nvmlEncoderSessionInfo_t* sessionInfos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetEncoderSessions(nvmlDevice_t device, unsigned int* sessionCount, nvmlEncoderSessionInfo_t* sessionInfos) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetEncoderSessions
     _check_or_init_nvml()
     if __nvmlDeviceGetEncoderSessions == NULL:
@@ -3779,7 +3779,7 @@ cdef nvmlReturn_t _nvmlDeviceGetEncoderSessions(nvmlDevice_t device, unsigned in
         device, sessionCount, sessionInfos)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, unsigned int* utilization, unsigned int* samplingPeriodUs) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, unsigned int* utilization, unsigned int* samplingPeriodUs) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetDecoderUtilization
     _check_or_init_nvml()
     if __nvmlDeviceGetDecoderUtilization == NULL:
@@ -3789,7 +3789,7 @@ cdef nvmlReturn_t _nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, unsigned
         device, utilization, samplingPeriodUs)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetJpgUtilization(nvmlDevice_t device, unsigned int* utilization, unsigned int* samplingPeriodUs) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetJpgUtilization(nvmlDevice_t device, unsigned int* utilization, unsigned int* samplingPeriodUs) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetJpgUtilization
     _check_or_init_nvml()
     if __nvmlDeviceGetJpgUtilization == NULL:
@@ -3799,7 +3799,7 @@ cdef nvmlReturn_t _nvmlDeviceGetJpgUtilization(nvmlDevice_t device, unsigned int
         device, utilization, samplingPeriodUs)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetOfaUtilization(nvmlDevice_t device, unsigned int* utilization, unsigned int* samplingPeriodUs) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetOfaUtilization(nvmlDevice_t device, unsigned int* utilization, unsigned int* samplingPeriodUs) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetOfaUtilization
     _check_or_init_nvml()
     if __nvmlDeviceGetOfaUtilization == NULL:
@@ -3809,7 +3809,7 @@ cdef nvmlReturn_t _nvmlDeviceGetOfaUtilization(nvmlDevice_t device, unsigned int
         device, utilization, samplingPeriodUs)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_t* fbcStats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_t* fbcStats) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetFBCStats
     _check_or_init_nvml()
     if __nvmlDeviceGetFBCStats == NULL:
@@ -3819,7 +3819,7 @@ cdef nvmlReturn_t _nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_t* fb
         device, fbcStats)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned int* sessionCount, nvmlFBCSessionInfo_t* sessionInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned int* sessionCount, nvmlFBCSessionInfo_t* sessionInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetFBCSessions
     _check_or_init_nvml()
     if __nvmlDeviceGetFBCSessions == NULL:
@@ -3829,7 +3829,7 @@ cdef nvmlReturn_t _nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned int* s
         device, sessionCount, sessionInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetDriverModel_v2(nvmlDevice_t device, nvmlDriverModel_t* current, nvmlDriverModel_t* pending) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetDriverModel_v2(nvmlDevice_t device, nvmlDriverModel_t* current, nvmlDriverModel_t* pending) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetDriverModel_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetDriverModel_v2 == NULL:
@@ -3839,7 +3839,7 @@ cdef nvmlReturn_t _nvmlDeviceGetDriverModel_v2(nvmlDevice_t device, nvmlDriverMo
         device, current, pending)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char* version, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVbiosVersion
     _check_or_init_nvml()
     if __nvmlDeviceGetVbiosVersion == NULL:
@@ -3849,7 +3849,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char* version,
         device, version, length)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBridgeChipHierarchy_t* bridgeHierarchy) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBridgeChipHierarchy_t* bridgeHierarchy) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetBridgeChipInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetBridgeChipInfo == NULL:
@@ -3859,7 +3859,7 @@ cdef nvmlReturn_t _nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBridgeCh
         device, bridgeHierarchy)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetComputeRunningProcesses_v3
     _check_or_init_nvml()
     if __nvmlDeviceGetComputeRunningProcesses_v3 == NULL:
@@ -3869,7 +3869,7 @@ cdef nvmlReturn_t _nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, 
         device, infoCount, infos)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGraphicsRunningProcesses_v3
     _check_or_init_nvml()
     if __nvmlDeviceGetGraphicsRunningProcesses_v3 == NULL:
@@ -3879,7 +3879,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device,
         device, infoCount, infos)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMPSComputeRunningProcesses_v3
     _check_or_init_nvml()
     if __nvmlDeviceGetMPSComputeRunningProcesses_v3 == NULL:
@@ -3889,7 +3889,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t devic
         device, infoCount, infos)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetRunningProcessDetailList(nvmlDevice_t device, nvmlProcessDetailList_t* plist) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetRunningProcessDetailList(nvmlDevice_t device, nvmlProcessDetailList_t* plist) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetRunningProcessDetailList
     _check_or_init_nvml()
     if __nvmlDeviceGetRunningProcessDetailList == NULL:
@@ -3899,7 +3899,7 @@ cdef nvmlReturn_t _nvmlDeviceGetRunningProcessDetailList(nvmlDevice_t device, nv
         device, plist)
 
 
-cdef nvmlReturn_t _nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t device2, int* onSameBoard) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t device2, int* onSameBoard) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceOnSameBoard
     _check_or_init_nvml()
     if __nvmlDeviceOnSameBoard == NULL:
@@ -3909,7 +3909,7 @@ cdef nvmlReturn_t _nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t devi
         device1, device2, onSameBoard)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetAPIRestriction(nvmlDevice_t device, nvmlRestrictedAPI_t apiType, nvmlEnableState_t* isRestricted) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetAPIRestriction(nvmlDevice_t device, nvmlRestrictedAPI_t apiType, nvmlEnableState_t* isRestricted) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetAPIRestriction
     _check_or_init_nvml()
     if __nvmlDeviceGetAPIRestriction == NULL:
@@ -3919,7 +3919,7 @@ cdef nvmlReturn_t _nvmlDeviceGetAPIRestriction(nvmlDevice_t device, nvmlRestrict
         device, apiType, isRestricted)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSamples(nvmlDevice_t device, nvmlSamplingType_t type, unsigned long long lastSeenTimeStamp, nvmlValueType_t* sampleValType, unsigned int* sampleCount, nvmlSample_t* samples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSamples(nvmlDevice_t device, nvmlSamplingType_t type, unsigned long long lastSeenTimeStamp, nvmlValueType_t* sampleValType, unsigned int* sampleCount, nvmlSample_t* samples) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSamples
     _check_or_init_nvml()
     if __nvmlDeviceGetSamples == NULL:
@@ -3929,7 +3929,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSamples(nvmlDevice_t device, nvmlSamplingType_t 
         device, type, lastSeenTimeStamp, sampleValType, sampleCount, samples)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetBAR1MemoryInfo(nvmlDevice_t device, nvmlBAR1Memory_t* bar1Memory) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetBAR1MemoryInfo(nvmlDevice_t device, nvmlBAR1Memory_t* bar1Memory) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetBAR1MemoryInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetBAR1MemoryInfo == NULL:
@@ -3939,7 +3939,7 @@ cdef nvmlReturn_t _nvmlDeviceGetBAR1MemoryInfo(nvmlDevice_t device, nvmlBAR1Memo
         device, bar1Memory)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetIrqNum(nvmlDevice_t device, unsigned int* irqNum) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetIrqNum(nvmlDevice_t device, unsigned int* irqNum) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetIrqNum
     _check_or_init_nvml()
     if __nvmlDeviceGetIrqNum == NULL:
@@ -3949,7 +3949,7 @@ cdef nvmlReturn_t _nvmlDeviceGetIrqNum(nvmlDevice_t device, unsigned int* irqNum
         device, irqNum)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNumGpuCores(nvmlDevice_t device, unsigned int* numCores) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNumGpuCores(nvmlDevice_t device, unsigned int* numCores) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNumGpuCores
     _check_or_init_nvml()
     if __nvmlDeviceGetNumGpuCores == NULL:
@@ -3959,7 +3959,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNumGpuCores(nvmlDevice_t device, unsigned int* n
         device, numCores)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPowerSource(nvmlDevice_t device, nvmlPowerSource_t* powerSource) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPowerSource(nvmlDevice_t device, nvmlPowerSource_t* powerSource) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPowerSource
     _check_or_init_nvml()
     if __nvmlDeviceGetPowerSource == NULL:
@@ -3969,7 +3969,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPowerSource(nvmlDevice_t device, nvmlPowerSource
         device, powerSource)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMemoryBusWidth(nvmlDevice_t device, unsigned int* busWidth) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMemoryBusWidth(nvmlDevice_t device, unsigned int* busWidth) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMemoryBusWidth
     _check_or_init_nvml()
     if __nvmlDeviceGetMemoryBusWidth == NULL:
@@ -3979,7 +3979,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMemoryBusWidth(nvmlDevice_t device, unsigned int
         device, busWidth)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPcieLinkMaxSpeed(nvmlDevice_t device, unsigned int* maxSpeed) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPcieLinkMaxSpeed(nvmlDevice_t device, unsigned int* maxSpeed) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPcieLinkMaxSpeed
     _check_or_init_nvml()
     if __nvmlDeviceGetPcieLinkMaxSpeed == NULL:
@@ -3989,7 +3989,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPcieLinkMaxSpeed(nvmlDevice_t device, unsigned i
         device, maxSpeed)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPcieSpeed(nvmlDevice_t device, unsigned int* pcieSpeed) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPcieSpeed(nvmlDevice_t device, unsigned int* pcieSpeed) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPcieSpeed
     _check_or_init_nvml()
     if __nvmlDeviceGetPcieSpeed == NULL:
@@ -3999,7 +3999,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPcieSpeed(nvmlDevice_t device, unsigned int* pci
         device, pcieSpeed)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetAdaptiveClockInfoStatus(nvmlDevice_t device, unsigned int* adaptiveClockStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetAdaptiveClockInfoStatus(nvmlDevice_t device, unsigned int* adaptiveClockStatus) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetAdaptiveClockInfoStatus
     _check_or_init_nvml()
     if __nvmlDeviceGetAdaptiveClockInfoStatus == NULL:
@@ -4009,7 +4009,7 @@ cdef nvmlReturn_t _nvmlDeviceGetAdaptiveClockInfoStatus(nvmlDevice_t device, uns
         device, adaptiveClockStatus)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetBusType(nvmlDevice_t device, nvmlBusType_t* type) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetBusType(nvmlDevice_t device, nvmlBusType_t* type) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetBusType
     _check_or_init_nvml()
     if __nvmlDeviceGetBusType == NULL:
@@ -4019,7 +4019,7 @@ cdef nvmlReturn_t _nvmlDeviceGetBusType(nvmlDevice_t device, nvmlBusType_t* type
         device, type)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuFabricInfoV(nvmlDevice_t device, nvmlGpuFabricInfoV_t* gpuFabricInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuFabricInfoV(nvmlDevice_t device, nvmlGpuFabricInfoV_t* gpuFabricInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuFabricInfoV
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuFabricInfoV == NULL:
@@ -4029,7 +4029,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuFabricInfoV(nvmlDevice_t device, nvmlGpuFabri
         device, gpuFabricInfo)
 
 
-cdef nvmlReturn_t _nvmlSystemGetConfComputeCapabilities(nvmlConfComputeSystemCaps_t* capabilities) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetConfComputeCapabilities(nvmlConfComputeSystemCaps_t* capabilities) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetConfComputeCapabilities
     _check_or_init_nvml()
     if __nvmlSystemGetConfComputeCapabilities == NULL:
@@ -4039,7 +4039,7 @@ cdef nvmlReturn_t _nvmlSystemGetConfComputeCapabilities(nvmlConfComputeSystemCap
         capabilities)
 
 
-cdef nvmlReturn_t _nvmlSystemGetConfComputeState(nvmlConfComputeSystemState_t* state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetConfComputeState(nvmlConfComputeSystemState_t* state) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetConfComputeState
     _check_or_init_nvml()
     if __nvmlSystemGetConfComputeState == NULL:
@@ -4049,7 +4049,7 @@ cdef nvmlReturn_t _nvmlSystemGetConfComputeState(nvmlConfComputeSystemState_t* s
         state)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetConfComputeMemSizeInfo(nvmlDevice_t device, nvmlConfComputeMemSizeInfo_t* memInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetConfComputeMemSizeInfo(nvmlDevice_t device, nvmlConfComputeMemSizeInfo_t* memInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetConfComputeMemSizeInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetConfComputeMemSizeInfo == NULL:
@@ -4059,7 +4059,7 @@ cdef nvmlReturn_t _nvmlDeviceGetConfComputeMemSizeInfo(nvmlDevice_t device, nvml
         device, memInfo)
 
 
-cdef nvmlReturn_t _nvmlSystemGetConfComputeGpusReadyState(unsigned int* isAcceptingWork) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetConfComputeGpusReadyState(unsigned int* isAcceptingWork) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetConfComputeGpusReadyState
     _check_or_init_nvml()
     if __nvmlSystemGetConfComputeGpusReadyState == NULL:
@@ -4069,7 +4069,7 @@ cdef nvmlReturn_t _nvmlSystemGetConfComputeGpusReadyState(unsigned int* isAccept
         isAcceptingWork)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetConfComputeProtectedMemoryUsage(nvmlDevice_t device, nvmlMemory_t* memory) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetConfComputeProtectedMemoryUsage(nvmlDevice_t device, nvmlMemory_t* memory) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetConfComputeProtectedMemoryUsage
     _check_or_init_nvml()
     if __nvmlDeviceGetConfComputeProtectedMemoryUsage == NULL:
@@ -4079,7 +4079,7 @@ cdef nvmlReturn_t _nvmlDeviceGetConfComputeProtectedMemoryUsage(nvmlDevice_t dev
         device, memory)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetConfComputeGpuCertificate(nvmlDevice_t device, nvmlConfComputeGpuCertificate_t* gpuCert) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetConfComputeGpuCertificate(nvmlDevice_t device, nvmlConfComputeGpuCertificate_t* gpuCert) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetConfComputeGpuCertificate
     _check_or_init_nvml()
     if __nvmlDeviceGetConfComputeGpuCertificate == NULL:
@@ -4089,7 +4089,7 @@ cdef nvmlReturn_t _nvmlDeviceGetConfComputeGpuCertificate(nvmlDevice_t device, n
         device, gpuCert)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetConfComputeGpuAttestationReport(nvmlDevice_t device, nvmlConfComputeGpuAttestationReport_t* gpuAtstReport) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetConfComputeGpuAttestationReport(nvmlDevice_t device, nvmlConfComputeGpuAttestationReport_t* gpuAtstReport) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetConfComputeGpuAttestationReport
     _check_or_init_nvml()
     if __nvmlDeviceGetConfComputeGpuAttestationReport == NULL:
@@ -4099,7 +4099,7 @@ cdef nvmlReturn_t _nvmlDeviceGetConfComputeGpuAttestationReport(nvmlDevice_t dev
         device, gpuAtstReport)
 
 
-cdef nvmlReturn_t _nvmlSystemGetConfComputeKeyRotationThresholdInfo(nvmlConfComputeGetKeyRotationThresholdInfo_t* pKeyRotationThrInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetConfComputeKeyRotationThresholdInfo(nvmlConfComputeGetKeyRotationThresholdInfo_t* pKeyRotationThrInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetConfComputeKeyRotationThresholdInfo
     _check_or_init_nvml()
     if __nvmlSystemGetConfComputeKeyRotationThresholdInfo == NULL:
@@ -4109,7 +4109,7 @@ cdef nvmlReturn_t _nvmlSystemGetConfComputeKeyRotationThresholdInfo(nvmlConfComp
         pKeyRotationThrInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetConfComputeUnprotectedMemSize(nvmlDevice_t device, unsigned long long sizeKiB) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetConfComputeUnprotectedMemSize(nvmlDevice_t device, unsigned long long sizeKiB) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetConfComputeUnprotectedMemSize
     _check_or_init_nvml()
     if __nvmlDeviceSetConfComputeUnprotectedMemSize == NULL:
@@ -4119,7 +4119,7 @@ cdef nvmlReturn_t _nvmlDeviceSetConfComputeUnprotectedMemSize(nvmlDevice_t devic
         device, sizeKiB)
 
 
-cdef nvmlReturn_t _nvmlSystemSetConfComputeGpusReadyState(unsigned int isAcceptingWork) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemSetConfComputeGpusReadyState(unsigned int isAcceptingWork) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemSetConfComputeGpusReadyState
     _check_or_init_nvml()
     if __nvmlSystemSetConfComputeGpusReadyState == NULL:
@@ -4129,7 +4129,7 @@ cdef nvmlReturn_t _nvmlSystemSetConfComputeGpusReadyState(unsigned int isAccepti
         isAcceptingWork)
 
 
-cdef nvmlReturn_t _nvmlSystemSetConfComputeKeyRotationThresholdInfo(nvmlConfComputeSetKeyRotationThresholdInfo_t* pKeyRotationThrInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemSetConfComputeKeyRotationThresholdInfo(nvmlConfComputeSetKeyRotationThresholdInfo_t* pKeyRotationThrInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemSetConfComputeKeyRotationThresholdInfo
     _check_or_init_nvml()
     if __nvmlSystemSetConfComputeKeyRotationThresholdInfo == NULL:
@@ -4139,7 +4139,7 @@ cdef nvmlReturn_t _nvmlSystemSetConfComputeKeyRotationThresholdInfo(nvmlConfComp
         pKeyRotationThrInfo)
 
 
-cdef nvmlReturn_t _nvmlSystemGetConfComputeSettings(nvmlSystemConfComputeSettings_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetConfComputeSettings(nvmlSystemConfComputeSettings_t* settings) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetConfComputeSettings
     _check_or_init_nvml()
     if __nvmlSystemGetConfComputeSettings == NULL:
@@ -4149,7 +4149,7 @@ cdef nvmlReturn_t _nvmlSystemGetConfComputeSettings(nvmlSystemConfComputeSetting
         settings)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGspFirmwareVersion(nvmlDevice_t device, char* version) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGspFirmwareVersion(nvmlDevice_t device, char* version) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGspFirmwareVersion
     _check_or_init_nvml()
     if __nvmlDeviceGetGspFirmwareVersion == NULL:
@@ -4159,7 +4159,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGspFirmwareVersion(nvmlDevice_t device, char* ve
         device, version)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned int* isEnabled, unsigned int* defaultMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned int* isEnabled, unsigned int* defaultMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGspFirmwareMode
     _check_or_init_nvml()
     if __nvmlDeviceGetGspFirmwareMode == NULL:
@@ -4169,7 +4169,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned in
         device, isEnabled, defaultMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccSramErrorStatus_t* status) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccSramErrorStatus_t* status) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSramEccErrorStatus
     _check_or_init_nvml()
     if __nvmlDeviceGetSramEccErrorStatus == NULL:
@@ -4179,7 +4179,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccS
         device, status)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEnableState_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEnableState_t* mode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetAccountingMode
     _check_or_init_nvml()
     if __nvmlDeviceGetAccountingMode == NULL:
@@ -4189,7 +4189,7 @@ cdef nvmlReturn_t _nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEnableSt
         device, mode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsigned int pid, nvmlAccountingStats_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsigned int pid, nvmlAccountingStats_t* stats) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetAccountingStats
     _check_or_init_nvml()
     if __nvmlDeviceGetAccountingStats == NULL:
@@ -4199,7 +4199,7 @@ cdef nvmlReturn_t _nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsigned in
         device, pid, stats)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigned int* count, unsigned int* pids) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigned int* count, unsigned int* pids) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetAccountingPids
     _check_or_init_nvml()
     if __nvmlDeviceGetAccountingPids == NULL:
@@ -4209,7 +4209,7 @@ cdef nvmlReturn_t _nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigned int
         device, count, pids)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetAccountingBufferSize(nvmlDevice_t device, unsigned int* bufferSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetAccountingBufferSize(nvmlDevice_t device, unsigned int* bufferSize) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetAccountingBufferSize
     _check_or_init_nvml()
     if __nvmlDeviceGetAccountingBufferSize == NULL:
@@ -4219,7 +4219,7 @@ cdef nvmlReturn_t _nvmlDeviceGetAccountingBufferSize(nvmlDevice_t device, unsign
         device, bufferSize)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetRetiredPages(nvmlDevice_t device, nvmlPageRetirementCause_t cause, unsigned int* pageCount, unsigned long long* addresses) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetRetiredPages(nvmlDevice_t device, nvmlPageRetirementCause_t cause, unsigned int* pageCount, unsigned long long* addresses) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetRetiredPages
     _check_or_init_nvml()
     if __nvmlDeviceGetRetiredPages == NULL:
@@ -4229,7 +4229,7 @@ cdef nvmlReturn_t _nvmlDeviceGetRetiredPages(nvmlDevice_t device, nvmlPageRetire
         device, cause, pageCount, addresses)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device, nvmlPageRetirementCause_t cause, unsigned int* pageCount, unsigned long long* addresses, unsigned long long* timestamps) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device, nvmlPageRetirementCause_t cause, unsigned int* pageCount, unsigned long long* addresses, unsigned long long* timestamps) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetRetiredPages_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetRetiredPages_v2 == NULL:
@@ -4239,7 +4239,7 @@ cdef nvmlReturn_t _nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device, nvmlPageRet
         device, cause, pageCount, addresses, timestamps)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetRetiredPagesPendingStatus(nvmlDevice_t device, nvmlEnableState_t* isPending) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetRetiredPagesPendingStatus(nvmlDevice_t device, nvmlEnableState_t* isPending) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetRetiredPagesPendingStatus
     _check_or_init_nvml()
     if __nvmlDeviceGetRetiredPagesPendingStatus == NULL:
@@ -4249,7 +4249,7 @@ cdef nvmlReturn_t _nvmlDeviceGetRetiredPagesPendingStatus(nvmlDevice_t device, n
         device, isPending)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetRemappedRows(nvmlDevice_t device, unsigned int* corrRows, unsigned int* uncRows, unsigned int* isPending, unsigned int* failureOccurred) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetRemappedRows(nvmlDevice_t device, unsigned int* corrRows, unsigned int* uncRows, unsigned int* isPending, unsigned int* failureOccurred) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetRemappedRows
     _check_or_init_nvml()
     if __nvmlDeviceGetRemappedRows == NULL:
@@ -4259,7 +4259,7 @@ cdef nvmlReturn_t _nvmlDeviceGetRemappedRows(nvmlDevice_t device, unsigned int* 
         device, corrRows, uncRows, isPending, failureOccurred)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetRowRemapperHistogram(nvmlDevice_t device, nvmlRowRemapperHistogramValues_t* values) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetRowRemapperHistogram(nvmlDevice_t device, nvmlRowRemapperHistogramValues_t* values) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetRowRemapperHistogram
     _check_or_init_nvml()
     if __nvmlDeviceGetRowRemapperHistogram == NULL:
@@ -4269,7 +4269,7 @@ cdef nvmlReturn_t _nvmlDeviceGetRowRemapperHistogram(nvmlDevice_t device, nvmlRo
         device, values)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDeviceArchitecture_t* arch) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDeviceArchitecture_t* arch) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetArchitecture
     _check_or_init_nvml()
     if __nvmlDeviceGetArchitecture == NULL:
@@ -4279,7 +4279,7 @@ cdef nvmlReturn_t _nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDeviceArch
         device, arch)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMonStatus_t* status) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMonStatus_t* status) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetClkMonStatus
     _check_or_init_nvml()
     if __nvmlDeviceGetClkMonStatus == NULL:
@@ -4289,7 +4289,7 @@ cdef nvmlReturn_t _nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMonStat
         device, status)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvmlProcessUtilizationSample_t* utilization, unsigned int* processSamplesCount, unsigned long long lastSeenTimeStamp) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvmlProcessUtilizationSample_t* utilization, unsigned int* processSamplesCount, unsigned long long lastSeenTimeStamp) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetProcessUtilization
     _check_or_init_nvml()
     if __nvmlDeviceGetProcessUtilization == NULL:
@@ -4299,7 +4299,7 @@ cdef nvmlReturn_t _nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvmlProc
         device, utilization, processSamplesCount, lastSeenTimeStamp)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetProcessesUtilizationInfo(nvmlDevice_t device, nvmlProcessesUtilizationInfo_t* procesesUtilInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetProcessesUtilizationInfo(nvmlDevice_t device, nvmlProcessesUtilizationInfo_t* procesesUtilInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetProcessesUtilizationInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetProcessesUtilizationInfo == NULL:
@@ -4309,7 +4309,7 @@ cdef nvmlReturn_t _nvmlDeviceGetProcessesUtilizationInfo(nvmlDevice_t device, nv
         device, procesesUtilInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPlatformInfo(nvmlDevice_t device, nvmlPlatformInfo_t* platformInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPlatformInfo(nvmlDevice_t device, nvmlPlatformInfo_t* platformInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPlatformInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetPlatformInfo == NULL:
@@ -4319,7 +4319,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPlatformInfo(nvmlDevice_t device, nvmlPlatformIn
         device, platformInfo)
 
 
-cdef nvmlReturn_t _nvmlUnitSetLedState(nvmlUnit_t unit, nvmlLedColor_t color) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlUnitSetLedState(nvmlUnit_t unit, nvmlLedColor_t color) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlUnitSetLedState
     _check_or_init_nvml()
     if __nvmlUnitSetLedState == NULL:
@@ -4329,7 +4329,7 @@ cdef nvmlReturn_t _nvmlUnitSetLedState(nvmlUnit_t unit, nvmlLedColor_t color) ex
         unit, color)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetPersistenceMode(nvmlDevice_t device, nvmlEnableState_t mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetPersistenceMode(nvmlDevice_t device, nvmlEnableState_t mode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetPersistenceMode
     _check_or_init_nvml()
     if __nvmlDeviceSetPersistenceMode == NULL:
@@ -4339,7 +4339,7 @@ cdef nvmlReturn_t _nvmlDeviceSetPersistenceMode(nvmlDevice_t device, nvmlEnableS
         device, mode)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetComputeMode(nvmlDevice_t device, nvmlComputeMode_t mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetComputeMode(nvmlDevice_t device, nvmlComputeMode_t mode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetComputeMode
     _check_or_init_nvml()
     if __nvmlDeviceSetComputeMode == NULL:
@@ -4349,7 +4349,7 @@ cdef nvmlReturn_t _nvmlDeviceSetComputeMode(nvmlDevice_t device, nvmlComputeMode
         device, mode)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetEccMode(nvmlDevice_t device, nvmlEnableState_t ecc) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetEccMode(nvmlDevice_t device, nvmlEnableState_t ecc) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetEccMode
     _check_or_init_nvml()
     if __nvmlDeviceSetEccMode == NULL:
@@ -4359,7 +4359,7 @@ cdef nvmlReturn_t _nvmlDeviceSetEccMode(nvmlDevice_t device, nvmlEnableState_t e
         device, ecc)
 
 
-cdef nvmlReturn_t _nvmlDeviceClearEccErrorCounts(nvmlDevice_t device, nvmlEccCounterType_t counterType) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceClearEccErrorCounts(nvmlDevice_t device, nvmlEccCounterType_t counterType) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceClearEccErrorCounts
     _check_or_init_nvml()
     if __nvmlDeviceClearEccErrorCounts == NULL:
@@ -4369,7 +4369,7 @@ cdef nvmlReturn_t _nvmlDeviceClearEccErrorCounts(nvmlDevice_t device, nvmlEccCou
         device, counterType)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetDriverModel(nvmlDevice_t device, nvmlDriverModel_t driverModel, unsigned int flags) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetDriverModel(nvmlDevice_t device, nvmlDriverModel_t driverModel, unsigned int flags) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetDriverModel
     _check_or_init_nvml()
     if __nvmlDeviceSetDriverModel == NULL:
@@ -4379,7 +4379,7 @@ cdef nvmlReturn_t _nvmlDeviceSetDriverModel(nvmlDevice_t device, nvmlDriverModel
         device, driverModel, flags)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetGpuLockedClocks(nvmlDevice_t device, unsigned int minGpuClockMHz, unsigned int maxGpuClockMHz) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetGpuLockedClocks(nvmlDevice_t device, unsigned int minGpuClockMHz, unsigned int maxGpuClockMHz) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetGpuLockedClocks
     _check_or_init_nvml()
     if __nvmlDeviceSetGpuLockedClocks == NULL:
@@ -4389,7 +4389,7 @@ cdef nvmlReturn_t _nvmlDeviceSetGpuLockedClocks(nvmlDevice_t device, unsigned in
         device, minGpuClockMHz, maxGpuClockMHz)
 
 
-cdef nvmlReturn_t _nvmlDeviceResetGpuLockedClocks(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceResetGpuLockedClocks(nvmlDevice_t device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceResetGpuLockedClocks
     _check_or_init_nvml()
     if __nvmlDeviceResetGpuLockedClocks == NULL:
@@ -4399,7 +4399,7 @@ cdef nvmlReturn_t _nvmlDeviceResetGpuLockedClocks(nvmlDevice_t device) except?_N
         device)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetMemoryLockedClocks(nvmlDevice_t device, unsigned int minMemClockMHz, unsigned int maxMemClockMHz) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetMemoryLockedClocks(nvmlDevice_t device, unsigned int minMemClockMHz, unsigned int maxMemClockMHz) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetMemoryLockedClocks
     _check_or_init_nvml()
     if __nvmlDeviceSetMemoryLockedClocks == NULL:
@@ -4409,7 +4409,7 @@ cdef nvmlReturn_t _nvmlDeviceSetMemoryLockedClocks(nvmlDevice_t device, unsigned
         device, minMemClockMHz, maxMemClockMHz)
 
 
-cdef nvmlReturn_t _nvmlDeviceResetMemoryLockedClocks(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceResetMemoryLockedClocks(nvmlDevice_t device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceResetMemoryLockedClocks
     _check_or_init_nvml()
     if __nvmlDeviceResetMemoryLockedClocks == NULL:
@@ -4419,7 +4419,7 @@ cdef nvmlReturn_t _nvmlDeviceResetMemoryLockedClocks(nvmlDevice_t device) except
         device)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetAutoBoostedClocksEnabled
     _check_or_init_nvml()
     if __nvmlDeviceSetAutoBoostedClocksEnabled == NULL:
@@ -4429,7 +4429,7 @@ cdef nvmlReturn_t _nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t device, nv
         device, enabled)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled, unsigned int flags) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled, unsigned int flags) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetDefaultAutoBoostedClocksEnabled
     _check_or_init_nvml()
     if __nvmlDeviceSetDefaultAutoBoostedClocksEnabled == NULL:
@@ -4439,7 +4439,7 @@ cdef nvmlReturn_t _nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_t dev
         device, enabled, flags)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetDefaultFanSpeed_v2(nvmlDevice_t device, unsigned int fan) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetDefaultFanSpeed_v2(nvmlDevice_t device, unsigned int fan) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetDefaultFanSpeed_v2
     _check_or_init_nvml()
     if __nvmlDeviceSetDefaultFanSpeed_v2 == NULL:
@@ -4449,7 +4449,7 @@ cdef nvmlReturn_t _nvmlDeviceSetDefaultFanSpeed_v2(nvmlDevice_t device, unsigned
         device, fan)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetFanControlPolicy(nvmlDevice_t device, unsigned int fan, nvmlFanControlPolicy_t policy) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetFanControlPolicy(nvmlDevice_t device, unsigned int fan, nvmlFanControlPolicy_t policy) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetFanControlPolicy
     _check_or_init_nvml()
     if __nvmlDeviceSetFanControlPolicy == NULL:
@@ -4459,7 +4459,7 @@ cdef nvmlReturn_t _nvmlDeviceSetFanControlPolicy(nvmlDevice_t device, unsigned i
         device, fan, policy)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, nvmlTemperatureThresholds_t thresholdType, int* temp) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, nvmlTemperatureThresholds_t thresholdType, int* temp) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetTemperatureThreshold
     _check_or_init_nvml()
     if __nvmlDeviceSetTemperatureThreshold == NULL:
@@ -4469,7 +4469,7 @@ cdef nvmlReturn_t _nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, nvmlTe
         device, thresholdType, temp)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetGpuOperationMode(nvmlDevice_t device, nvmlGpuOperationMode_t mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetGpuOperationMode(nvmlDevice_t device, nvmlGpuOperationMode_t mode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetGpuOperationMode
     _check_or_init_nvml()
     if __nvmlDeviceSetGpuOperationMode == NULL:
@@ -4479,7 +4479,7 @@ cdef nvmlReturn_t _nvmlDeviceSetGpuOperationMode(nvmlDevice_t device, nvmlGpuOpe
         device, mode)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetAPIRestriction(nvmlDevice_t device, nvmlRestrictedAPI_t apiType, nvmlEnableState_t isRestricted) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetAPIRestriction(nvmlDevice_t device, nvmlRestrictedAPI_t apiType, nvmlEnableState_t isRestricted) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetAPIRestriction
     _check_or_init_nvml()
     if __nvmlDeviceSetAPIRestriction == NULL:
@@ -4489,7 +4489,7 @@ cdef nvmlReturn_t _nvmlDeviceSetAPIRestriction(nvmlDevice_t device, nvmlRestrict
         device, apiType, isRestricted)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetFanSpeed_v2(nvmlDevice_t device, unsigned int fan, unsigned int speed) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetFanSpeed_v2(nvmlDevice_t device, unsigned int fan, unsigned int speed) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetFanSpeed_v2
     _check_or_init_nvml()
     if __nvmlDeviceSetFanSpeed_v2 == NULL:
@@ -4499,7 +4499,7 @@ cdef nvmlReturn_t _nvmlDeviceSetFanSpeed_v2(nvmlDevice_t device, unsigned int fa
         device, fan, speed)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEnableState_t mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEnableState_t mode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetAccountingMode
     _check_or_init_nvml()
     if __nvmlDeviceSetAccountingMode == NULL:
@@ -4509,7 +4509,7 @@ cdef nvmlReturn_t _nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEnableSt
         device, mode)
 
 
-cdef nvmlReturn_t _nvmlDeviceClearAccountingPids(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceClearAccountingPids(nvmlDevice_t device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceClearAccountingPids
     _check_or_init_nvml()
     if __nvmlDeviceClearAccountingPids == NULL:
@@ -4519,7 +4519,7 @@ cdef nvmlReturn_t _nvmlDeviceClearAccountingPids(nvmlDevice_t device) except?_NV
         device)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetPowerManagementLimit_v2(nvmlDevice_t device, nvmlPowerValue_v2_t* powerValue) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetPowerManagementLimit_v2(nvmlDevice_t device, nvmlPowerValue_v2_t* powerValue) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetPowerManagementLimit_v2
     _check_or_init_nvml()
     if __nvmlDeviceSetPowerManagementLimit_v2 == NULL:
@@ -4529,7 +4529,7 @@ cdef nvmlReturn_t _nvmlDeviceSetPowerManagementLimit_v2(nvmlDevice_t device, nvm
         device, powerValue)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned int link, nvmlEnableState_t* isActive) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned int link, nvmlEnableState_t* isActive) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNvLinkState
     _check_or_init_nvml()
     if __nvmlDeviceGetNvLinkState == NULL:
@@ -4539,7 +4539,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned int li
         device, link, isActive)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned int link, unsigned int* version) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned int link, unsigned int* version) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNvLinkVersion
     _check_or_init_nvml()
     if __nvmlDeviceGetNvLinkVersion == NULL:
@@ -4549,7 +4549,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned int 
         device, link, version)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNvLinkCapability(nvmlDevice_t device, unsigned int link, nvmlNvLinkCapability_t capability, unsigned int* capResult) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkCapability(nvmlDevice_t device, unsigned int link, nvmlNvLinkCapability_t capability, unsigned int* capResult) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNvLinkCapability
     _check_or_init_nvml()
     if __nvmlDeviceGetNvLinkCapability == NULL:
@@ -4559,7 +4559,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNvLinkCapability(nvmlDevice_t device, unsigned i
         device, link, capability, capResult)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNvLinkRemotePciInfo_v2(nvmlDevice_t device, unsigned int link, nvmlPciInfo_t* pci) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkRemotePciInfo_v2(nvmlDevice_t device, unsigned int link, nvmlPciInfo_t* pci) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNvLinkRemotePciInfo_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetNvLinkRemotePciInfo_v2 == NULL:
@@ -4569,7 +4569,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNvLinkRemotePciInfo_v2(nvmlDevice_t device, unsi
         device, link, pci)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNvLinkErrorCounter(nvmlDevice_t device, unsigned int link, nvmlNvLinkErrorCounter_t counter, unsigned long long* counterValue) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkErrorCounter(nvmlDevice_t device, unsigned int link, nvmlNvLinkErrorCounter_t counter, unsigned long long* counterValue) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNvLinkErrorCounter
     _check_or_init_nvml()
     if __nvmlDeviceGetNvLinkErrorCounter == NULL:
@@ -4579,7 +4579,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNvLinkErrorCounter(nvmlDevice_t device, unsigned
         device, link, counter, counterValue)
 
 
-cdef nvmlReturn_t _nvmlDeviceResetNvLinkErrorCounters(nvmlDevice_t device, unsigned int link) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceResetNvLinkErrorCounters(nvmlDevice_t device, unsigned int link) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceResetNvLinkErrorCounters
     _check_or_init_nvml()
     if __nvmlDeviceResetNvLinkErrorCounters == NULL:
@@ -4589,7 +4589,7 @@ cdef nvmlReturn_t _nvmlDeviceResetNvLinkErrorCounters(nvmlDevice_t device, unsig
         device, link)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device, unsigned int link, nvmlIntNvLinkDeviceType_t* pNvLinkDeviceType) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device, unsigned int link, nvmlIntNvLinkDeviceType_t* pNvLinkDeviceType) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNvLinkRemoteDeviceType
     _check_or_init_nvml()
     if __nvmlDeviceGetNvLinkRemoteDeviceType == NULL:
@@ -4599,7 +4599,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device, unsi
         device, link, pNvLinkDeviceType)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetNvLinkDeviceLowPowerThreshold(nvmlDevice_t device, nvmlNvLinkPowerThres_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetNvLinkDeviceLowPowerThreshold(nvmlDevice_t device, nvmlNvLinkPowerThres_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetNvLinkDeviceLowPowerThreshold
     _check_or_init_nvml()
     if __nvmlDeviceSetNvLinkDeviceLowPowerThreshold == NULL:
@@ -4609,7 +4609,7 @@ cdef nvmlReturn_t _nvmlDeviceSetNvLinkDeviceLowPowerThreshold(nvmlDevice_t devic
         device, info)
 
 
-cdef nvmlReturn_t _nvmlSystemSetNvlinkBwMode(unsigned int nvlinkBwMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemSetNvlinkBwMode(unsigned int nvlinkBwMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemSetNvlinkBwMode
     _check_or_init_nvml()
     if __nvmlSystemSetNvlinkBwMode == NULL:
@@ -4619,7 +4619,7 @@ cdef nvmlReturn_t _nvmlSystemSetNvlinkBwMode(unsigned int nvlinkBwMode) except?_
         nvlinkBwMode)
 
 
-cdef nvmlReturn_t _nvmlSystemGetNvlinkBwMode(unsigned int* nvlinkBwMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemGetNvlinkBwMode(unsigned int* nvlinkBwMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemGetNvlinkBwMode
     _check_or_init_nvml()
     if __nvmlSystemGetNvlinkBwMode == NULL:
@@ -4629,7 +4629,7 @@ cdef nvmlReturn_t _nvmlSystemGetNvlinkBwMode(unsigned int* nvlinkBwMode) except?
         nvlinkBwMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNvlinkSupportedBwModes(nvmlDevice_t device, nvmlNvlinkSupportedBwModes_t* supportedBwMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNvlinkSupportedBwModes(nvmlDevice_t device, nvmlNvlinkSupportedBwModes_t* supportedBwMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNvlinkSupportedBwModes
     _check_or_init_nvml()
     if __nvmlDeviceGetNvlinkSupportedBwModes == NULL:
@@ -4639,7 +4639,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNvlinkSupportedBwModes(nvmlDevice_t device, nvml
         device, supportedBwMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkGetBwMode_t* getBwMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkGetBwMode_t* getBwMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNvlinkBwMode
     _check_or_init_nvml()
     if __nvmlDeviceGetNvlinkBwMode == NULL:
@@ -4649,7 +4649,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkGetB
         device, getBwMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkSetBwMode_t* setBwMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkSetBwMode_t* setBwMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetNvlinkBwMode
     _check_or_init_nvml()
     if __nvmlDeviceSetNvlinkBwMode == NULL:
@@ -4659,7 +4659,7 @@ cdef nvmlReturn_t _nvmlDeviceSetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkSetB
         device, setBwMode)
 
 
-cdef nvmlReturn_t _nvmlEventSetCreate(nvmlEventSet_t* set) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlEventSetCreate(nvmlEventSet_t* set) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlEventSetCreate
     _check_or_init_nvml()
     if __nvmlEventSetCreate == NULL:
@@ -4669,7 +4669,7 @@ cdef nvmlReturn_t _nvmlEventSetCreate(nvmlEventSet_t* set) except?_NVMLRETURN_T_
         set)
 
 
-cdef nvmlReturn_t _nvmlDeviceRegisterEvents(nvmlDevice_t device, unsigned long long eventTypes, nvmlEventSet_t set) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceRegisterEvents(nvmlDevice_t device, unsigned long long eventTypes, nvmlEventSet_t set) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceRegisterEvents
     _check_or_init_nvml()
     if __nvmlDeviceRegisterEvents == NULL:
@@ -4679,7 +4679,7 @@ cdef nvmlReturn_t _nvmlDeviceRegisterEvents(nvmlDevice_t device, unsigned long l
         device, eventTypes, set)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSupportedEventTypes(nvmlDevice_t device, unsigned long long* eventTypes) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSupportedEventTypes(nvmlDevice_t device, unsigned long long* eventTypes) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSupportedEventTypes
     _check_or_init_nvml()
     if __nvmlDeviceGetSupportedEventTypes == NULL:
@@ -4689,7 +4689,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSupportedEventTypes(nvmlDevice_t device, unsigne
         device, eventTypes)
 
 
-cdef nvmlReturn_t _nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t* data, unsigned int timeoutms) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t* data, unsigned int timeoutms) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlEventSetWait_v2
     _check_or_init_nvml()
     if __nvmlEventSetWait_v2 == NULL:
@@ -4699,7 +4699,7 @@ cdef nvmlReturn_t _nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t* data
         set, data, timeoutms)
 
 
-cdef nvmlReturn_t _nvmlEventSetFree(nvmlEventSet_t set) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlEventSetFree(nvmlEventSet_t set) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlEventSetFree
     _check_or_init_nvml()
     if __nvmlEventSetFree == NULL:
@@ -4709,7 +4709,7 @@ cdef nvmlReturn_t _nvmlEventSetFree(nvmlEventSet_t set) except?_NVMLRETURN_T_INT
         set)
 
 
-cdef nvmlReturn_t _nvmlSystemEventSetCreate(nvmlSystemEventSetCreateRequest_t* request) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemEventSetCreate(nvmlSystemEventSetCreateRequest_t* request) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemEventSetCreate
     _check_or_init_nvml()
     if __nvmlSystemEventSetCreate == NULL:
@@ -4719,7 +4719,7 @@ cdef nvmlReturn_t _nvmlSystemEventSetCreate(nvmlSystemEventSetCreateRequest_t* r
         request)
 
 
-cdef nvmlReturn_t _nvmlSystemEventSetFree(nvmlSystemEventSetFreeRequest_t* request) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemEventSetFree(nvmlSystemEventSetFreeRequest_t* request) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemEventSetFree
     _check_or_init_nvml()
     if __nvmlSystemEventSetFree == NULL:
@@ -4729,7 +4729,7 @@ cdef nvmlReturn_t _nvmlSystemEventSetFree(nvmlSystemEventSetFreeRequest_t* reque
         request)
 
 
-cdef nvmlReturn_t _nvmlSystemRegisterEvents(nvmlSystemRegisterEventRequest_t* request) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemRegisterEvents(nvmlSystemRegisterEventRequest_t* request) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemRegisterEvents
     _check_or_init_nvml()
     if __nvmlSystemRegisterEvents == NULL:
@@ -4739,7 +4739,7 @@ cdef nvmlReturn_t _nvmlSystemRegisterEvents(nvmlSystemRegisterEventRequest_t* re
         request)
 
 
-cdef nvmlReturn_t _nvmlSystemEventSetWait(nvmlSystemEventSetWaitRequest_t* request) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSystemEventSetWait(nvmlSystemEventSetWaitRequest_t* request) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSystemEventSetWait
     _check_or_init_nvml()
     if __nvmlSystemEventSetWait == NULL:
@@ -4749,7 +4749,7 @@ cdef nvmlReturn_t _nvmlSystemEventSetWait(nvmlSystemEventSetWaitRequest_t* reque
         request)
 
 
-cdef nvmlReturn_t _nvmlDeviceModifyDrainState(nvmlPciInfo_t* pciInfo, nvmlEnableState_t newState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceModifyDrainState(nvmlPciInfo_t* pciInfo, nvmlEnableState_t newState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceModifyDrainState
     _check_or_init_nvml()
     if __nvmlDeviceModifyDrainState == NULL:
@@ -4759,7 +4759,7 @@ cdef nvmlReturn_t _nvmlDeviceModifyDrainState(nvmlPciInfo_t* pciInfo, nvmlEnable
         pciInfo, newState)
 
 
-cdef nvmlReturn_t _nvmlDeviceQueryDrainState(nvmlPciInfo_t* pciInfo, nvmlEnableState_t* currentState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceQueryDrainState(nvmlPciInfo_t* pciInfo, nvmlEnableState_t* currentState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceQueryDrainState
     _check_or_init_nvml()
     if __nvmlDeviceQueryDrainState == NULL:
@@ -4769,7 +4769,7 @@ cdef nvmlReturn_t _nvmlDeviceQueryDrainState(nvmlPciInfo_t* pciInfo, nvmlEnableS
         pciInfo, currentState)
 
 
-cdef nvmlReturn_t _nvmlDeviceRemoveGpu_v2(nvmlPciInfo_t* pciInfo, nvmlDetachGpuState_t gpuState, nvmlPcieLinkState_t linkState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceRemoveGpu_v2(nvmlPciInfo_t* pciInfo, nvmlDetachGpuState_t gpuState, nvmlPcieLinkState_t linkState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceRemoveGpu_v2
     _check_or_init_nvml()
     if __nvmlDeviceRemoveGpu_v2 == NULL:
@@ -4779,7 +4779,7 @@ cdef nvmlReturn_t _nvmlDeviceRemoveGpu_v2(nvmlPciInfo_t* pciInfo, nvmlDetachGpuS
         pciInfo, gpuState, linkState)
 
 
-cdef nvmlReturn_t _nvmlDeviceDiscoverGpus(nvmlPciInfo_t* pciInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceDiscoverGpus(nvmlPciInfo_t* pciInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceDiscoverGpus
     _check_or_init_nvml()
     if __nvmlDeviceDiscoverGpus == NULL:
@@ -4789,7 +4789,7 @@ cdef nvmlReturn_t _nvmlDeviceDiscoverGpus(nvmlPciInfo_t* pciInfo) except?_NVMLRE
         pciInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetFieldValues(nvmlDevice_t device, int valuesCount, nvmlFieldValue_t* values) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetFieldValues(nvmlDevice_t device, int valuesCount, nvmlFieldValue_t* values) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetFieldValues
     _check_or_init_nvml()
     if __nvmlDeviceGetFieldValues == NULL:
@@ -4799,7 +4799,7 @@ cdef nvmlReturn_t _nvmlDeviceGetFieldValues(nvmlDevice_t device, int valuesCount
         device, valuesCount, values)
 
 
-cdef nvmlReturn_t _nvmlDeviceClearFieldValues(nvmlDevice_t device, int valuesCount, nvmlFieldValue_t* values) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceClearFieldValues(nvmlDevice_t device, int valuesCount, nvmlFieldValue_t* values) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceClearFieldValues
     _check_or_init_nvml()
     if __nvmlDeviceClearFieldValues == NULL:
@@ -4809,7 +4809,7 @@ cdef nvmlReturn_t _nvmlDeviceClearFieldValues(nvmlDevice_t device, int valuesCou
         device, valuesCount, values)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvmlGpuVirtualizationMode_t* pVirtualMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvmlGpuVirtualizationMode_t* pVirtualMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVirtualizationMode
     _check_or_init_nvml()
     if __nvmlDeviceGetVirtualizationMode == NULL:
@@ -4819,7 +4819,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvmlGpuV
         device, pVirtualMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetHostVgpuMode(nvmlDevice_t device, nvmlHostVgpuMode_t* pHostVgpuMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetHostVgpuMode(nvmlDevice_t device, nvmlHostVgpuMode_t* pHostVgpuMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetHostVgpuMode
     _check_or_init_nvml()
     if __nvmlDeviceGetHostVgpuMode == NULL:
@@ -4829,7 +4829,7 @@ cdef nvmlReturn_t _nvmlDeviceGetHostVgpuMode(nvmlDevice_t device, nvmlHostVgpuMo
         device, pHostVgpuMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetVirtualizationMode(nvmlDevice_t device, nvmlGpuVirtualizationMode_t virtualMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetVirtualizationMode(nvmlDevice_t device, nvmlGpuVirtualizationMode_t virtualMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetVirtualizationMode
     _check_or_init_nvml()
     if __nvmlDeviceSetVirtualizationMode == NULL:
@@ -4839,7 +4839,7 @@ cdef nvmlReturn_t _nvmlDeviceSetVirtualizationMode(nvmlDevice_t device, nvmlGpuV
         device, virtualMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuHeterogeneousMode(nvmlDevice_t device, nvmlVgpuHeterogeneousMode_t* pHeterogeneousMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuHeterogeneousMode(nvmlDevice_t device, nvmlVgpuHeterogeneousMode_t* pHeterogeneousMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuHeterogeneousMode
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuHeterogeneousMode == NULL:
@@ -4849,7 +4849,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuHeterogeneousMode(nvmlDevice_t device, nvmlV
         device, pHeterogeneousMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetVgpuHeterogeneousMode(nvmlDevice_t device, const nvmlVgpuHeterogeneousMode_t* pHeterogeneousMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetVgpuHeterogeneousMode(nvmlDevice_t device, const nvmlVgpuHeterogeneousMode_t* pHeterogeneousMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetVgpuHeterogeneousMode
     _check_or_init_nvml()
     if __nvmlDeviceSetVgpuHeterogeneousMode == NULL:
@@ -4859,7 +4859,7 @@ cdef nvmlReturn_t _nvmlDeviceSetVgpuHeterogeneousMode(nvmlDevice_t device, const
         device, pHeterogeneousMode)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetPlacementId(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuPlacementId_t* pPlacement) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetPlacementId(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuPlacementId_t* pPlacement) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetPlacementId
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetPlacementId == NULL:
@@ -4869,7 +4869,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetPlacementId(nvmlVgpuInstance_t vgpuInstanc
         vgpuInstance, pPlacement)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuTypeSupportedPlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t* pPlacementList) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuTypeSupportedPlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t* pPlacementList) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuTypeSupportedPlacements
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuTypeSupportedPlacements == NULL:
@@ -4879,7 +4879,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuTypeSupportedPlacements(nvmlDevice_t device,
         device, vgpuTypeId, pPlacementList)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuTypeCreatablePlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t* pPlacementList) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuTypeCreatablePlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t* pPlacementList) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuTypeCreatablePlacements
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuTypeCreatablePlacements == NULL:
@@ -4889,7 +4889,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuTypeCreatablePlacements(nvmlDevice_t device,
         device, vgpuTypeId, pPlacementList)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetGspHeapSize(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long* gspHeapSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetGspHeapSize(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long* gspHeapSize) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetGspHeapSize
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetGspHeapSize == NULL:
@@ -4899,7 +4899,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetGspHeapSize(nvmlVgpuTypeId_t vgpuTypeId, unsig
         vgpuTypeId, gspHeapSize)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetFbReservation(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long* fbReservation) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetFbReservation(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long* fbReservation) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetFbReservation
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetFbReservation == NULL:
@@ -4909,7 +4909,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetFbReservation(nvmlVgpuTypeId_t vgpuTypeId, uns
         vgpuTypeId, fbReservation)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetRuntimeStateSize(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuRuntimeState_t* pState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetRuntimeStateSize(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuRuntimeState_t* pState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetRuntimeStateSize
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetRuntimeStateSize == NULL:
@@ -4919,7 +4919,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetRuntimeStateSize(nvmlVgpuInstance_t vgpuIn
         vgpuInstance, pState)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, nvmlEnableState_t state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, nvmlEnableState_t state) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetVgpuCapabilities
     _check_or_init_nvml()
     if __nvmlDeviceSetVgpuCapabilities == NULL:
@@ -4929,7 +4929,7 @@ cdef nvmlReturn_t _nvmlDeviceSetVgpuCapabilities(nvmlDevice_t device, nvmlDevice
         device, capability, state)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGridLicensableFeatures_v4(nvmlDevice_t device, nvmlGridLicensableFeatures_t* pGridLicensableFeatures) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGridLicensableFeatures_v4(nvmlDevice_t device, nvmlGridLicensableFeatures_t* pGridLicensableFeatures) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGridLicensableFeatures_v4
     _check_or_init_nvml()
     if __nvmlDeviceGetGridLicensableFeatures_v4 == NULL:
@@ -4939,7 +4939,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGridLicensableFeatures_v4(nvmlDevice_t device, n
         device, pGridLicensableFeatures)
 
 
-cdef nvmlReturn_t _nvmlGetVgpuDriverCapabilities(nvmlVgpuDriverCapability_t capability, unsigned int* capResult) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGetVgpuDriverCapabilities(nvmlVgpuDriverCapability_t capability, unsigned int* capResult) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGetVgpuDriverCapabilities
     _check_or_init_nvml()
     if __nvmlGetVgpuDriverCapabilities == NULL:
@@ -4949,7 +4949,7 @@ cdef nvmlReturn_t _nvmlGetVgpuDriverCapabilities(nvmlVgpuDriverCapability_t capa
         capability, capResult)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, unsigned int* capResult) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, unsigned int* capResult) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuCapabilities
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuCapabilities == NULL:
@@ -4959,7 +4959,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuCapabilities(nvmlDevice_t device, nvmlDevice
         device, capability, capResult)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSupportedVgpus(nvmlDevice_t device, unsigned int* vgpuCount, nvmlVgpuTypeId_t* vgpuTypeIds) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSupportedVgpus(nvmlDevice_t device, unsigned int* vgpuCount, nvmlVgpuTypeId_t* vgpuTypeIds) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSupportedVgpus
     _check_or_init_nvml()
     if __nvmlDeviceGetSupportedVgpus == NULL:
@@ -4969,7 +4969,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSupportedVgpus(nvmlDevice_t device, unsigned int
         device, vgpuCount, vgpuTypeIds)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCreatableVgpus(nvmlDevice_t device, unsigned int* vgpuCount, nvmlVgpuTypeId_t* vgpuTypeIds) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCreatableVgpus(nvmlDevice_t device, unsigned int* vgpuCount, nvmlVgpuTypeId_t* vgpuTypeIds) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCreatableVgpus
     _check_or_init_nvml()
     if __nvmlDeviceGetCreatableVgpus == NULL:
@@ -4979,7 +4979,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCreatableVgpus(nvmlDevice_t device, unsigned int
         device, vgpuCount, vgpuTypeIds)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char* vgpuTypeClass, unsigned int* size) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char* vgpuTypeClass, unsigned int* size) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetClass
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetClass == NULL:
@@ -4989,7 +4989,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char* vgpuT
         vgpuTypeId, vgpuTypeClass, size)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char* vgpuTypeName, unsigned int* size) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char* vgpuTypeName, unsigned int* size) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetName
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetName == NULL:
@@ -4999,7 +4999,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char* vgpuTy
         vgpuTypeId, vgpuTypeName, size)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgpuTypeId, unsigned int* gpuInstanceProfileId) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgpuTypeId, unsigned int* gpuInstanceProfileId) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetGpuInstanceProfileId
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetGpuInstanceProfileId == NULL:
@@ -5009,7 +5009,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgpuType
         vgpuTypeId, gpuInstanceProfileId)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetDeviceID(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long* deviceID, unsigned long long* subsystemID) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetDeviceID(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long* deviceID, unsigned long long* subsystemID) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetDeviceID
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetDeviceID == NULL:
@@ -5019,7 +5019,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetDeviceID(nvmlVgpuTypeId_t vgpuTypeId, unsigned
         vgpuTypeId, deviceID, subsystemID)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetFramebufferSize(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long* fbSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetFramebufferSize(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long* fbSize) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetFramebufferSize
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetFramebufferSize == NULL:
@@ -5029,7 +5029,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetFramebufferSize(nvmlVgpuTypeId_t vgpuTypeId, u
         vgpuTypeId, fbSize)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetNumDisplayHeads(nvmlVgpuTypeId_t vgpuTypeId, unsigned int* numDisplayHeads) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetNumDisplayHeads(nvmlVgpuTypeId_t vgpuTypeId, unsigned int* numDisplayHeads) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetNumDisplayHeads
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetNumDisplayHeads == NULL:
@@ -5039,7 +5039,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetNumDisplayHeads(nvmlVgpuTypeId_t vgpuTypeId, u
         vgpuTypeId, numDisplayHeads)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetResolution(nvmlVgpuTypeId_t vgpuTypeId, unsigned int displayIndex, unsigned int* xdim, unsigned int* ydim) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetResolution(nvmlVgpuTypeId_t vgpuTypeId, unsigned int displayIndex, unsigned int* xdim, unsigned int* ydim) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetResolution
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetResolution == NULL:
@@ -5049,7 +5049,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetResolution(nvmlVgpuTypeId_t vgpuTypeId, unsign
         vgpuTypeId, displayIndex, xdim, ydim)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetLicense(nvmlVgpuTypeId_t vgpuTypeId, char* vgpuTypeLicenseString, unsigned int size) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetLicense(nvmlVgpuTypeId_t vgpuTypeId, char* vgpuTypeLicenseString, unsigned int size) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetLicense
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetLicense == NULL:
@@ -5059,7 +5059,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetLicense(nvmlVgpuTypeId_t vgpuTypeId, char* vgp
         vgpuTypeId, vgpuTypeLicenseString, size)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetFrameRateLimit(nvmlVgpuTypeId_t vgpuTypeId, unsigned int* frameRateLimit) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetFrameRateLimit(nvmlVgpuTypeId_t vgpuTypeId, unsigned int* frameRateLimit) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetFrameRateLimit
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetFrameRateLimit == NULL:
@@ -5069,7 +5069,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetFrameRateLimit(nvmlVgpuTypeId_t vgpuTypeId, un
         vgpuTypeId, frameRateLimit)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetMaxInstances(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, unsigned int* vgpuInstanceCount) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetMaxInstances(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, unsigned int* vgpuInstanceCount) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetMaxInstances
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetMaxInstances == NULL:
@@ -5079,7 +5079,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetMaxInstances(nvmlDevice_t device, nvmlVgpuType
         device, vgpuTypeId, vgpuInstanceCount)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTypeId, unsigned int* vgpuInstanceCountPerVm) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTypeId, unsigned int* vgpuInstanceCountPerVm) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetMaxInstancesPerVm
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetMaxInstancesPerVm == NULL:
@@ -5089,7 +5089,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTypeId,
         vgpuTypeId, vgpuInstanceCountPerVm)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetBAR1Info(nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuTypeBar1Info_t* bar1Info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetBAR1Info(nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuTypeBar1Info_t* bar1Info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetBAR1Info
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetBAR1Info == NULL:
@@ -5099,7 +5099,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetBAR1Info(nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpu
         vgpuTypeId, bar1Info)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetActiveVgpus(nvmlDevice_t device, unsigned int* vgpuCount, nvmlVgpuInstance_t* vgpuInstances) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetActiveVgpus(nvmlDevice_t device, unsigned int* vgpuCount, nvmlVgpuInstance_t* vgpuInstances) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetActiveVgpus
     _check_or_init_nvml()
     if __nvmlDeviceGetActiveVgpus == NULL:
@@ -5109,7 +5109,7 @@ cdef nvmlReturn_t _nvmlDeviceGetActiveVgpus(nvmlDevice_t device, unsigned int* v
         device, vgpuCount, vgpuInstances)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance, char* vmId, unsigned int size, nvmlVgpuVmIdType_t* vmIdType) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance, char* vmId, unsigned int size, nvmlVgpuVmIdType_t* vmIdType) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetVmID
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetVmID == NULL:
@@ -5119,7 +5119,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance, char
         vgpuInstance, vmId, size, vmIdType)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetUUID(nvmlVgpuInstance_t vgpuInstance, char* uuid, unsigned int size) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetUUID(nvmlVgpuInstance_t vgpuInstance, char* uuid, unsigned int size) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetUUID
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetUUID == NULL:
@@ -5129,7 +5129,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetUUID(nvmlVgpuInstance_t vgpuInstance, char
         vgpuInstance, uuid, size)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetVmDriverVersion(nvmlVgpuInstance_t vgpuInstance, char* version, unsigned int length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetVmDriverVersion(nvmlVgpuInstance_t vgpuInstance, char* version, unsigned int length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetVmDriverVersion
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetVmDriverVersion == NULL:
@@ -5139,7 +5139,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetVmDriverVersion(nvmlVgpuInstance_t vgpuIns
         vgpuInstance, version, length)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetFbUsage(nvmlVgpuInstance_t vgpuInstance, unsigned long long* fbUsage) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetFbUsage(nvmlVgpuInstance_t vgpuInstance, unsigned long long* fbUsage) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetFbUsage
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetFbUsage == NULL:
@@ -5149,7 +5149,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetFbUsage(nvmlVgpuInstance_t vgpuInstance, u
         vgpuInstance, fbUsage)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetLicenseStatus(nvmlVgpuInstance_t vgpuInstance, unsigned int* licensed) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetLicenseStatus(nvmlVgpuInstance_t vgpuInstance, unsigned int* licensed) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetLicenseStatus
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetLicenseStatus == NULL:
@@ -5159,7 +5159,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetLicenseStatus(nvmlVgpuInstance_t vgpuInsta
         vgpuInstance, licensed)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetType(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuTypeId_t* vgpuTypeId) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetType(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuTypeId_t* vgpuTypeId) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetType
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetType == NULL:
@@ -5169,7 +5169,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetType(nvmlVgpuInstance_t vgpuInstance, nvml
         vgpuInstance, vgpuTypeId)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetFrameRateLimit(nvmlVgpuInstance_t vgpuInstance, unsigned int* frameRateLimit) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetFrameRateLimit(nvmlVgpuInstance_t vgpuInstance, unsigned int* frameRateLimit) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetFrameRateLimit
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetFrameRateLimit == NULL:
@@ -5179,7 +5179,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetFrameRateLimit(nvmlVgpuInstance_t vgpuInst
         vgpuInstance, frameRateLimit)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetEccMode(nvmlVgpuInstance_t vgpuInstance, nvmlEnableState_t* eccMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetEccMode(nvmlVgpuInstance_t vgpuInstance, nvmlEnableState_t* eccMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetEccMode
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetEccMode == NULL:
@@ -5189,7 +5189,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetEccMode(nvmlVgpuInstance_t vgpuInstance, n
         vgpuInstance, eccMode)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetEncoderCapacity(nvmlVgpuInstance_t vgpuInstance, unsigned int* encoderCapacity) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetEncoderCapacity(nvmlVgpuInstance_t vgpuInstance, unsigned int* encoderCapacity) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetEncoderCapacity
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetEncoderCapacity == NULL:
@@ -5199,7 +5199,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetEncoderCapacity(nvmlVgpuInstance_t vgpuIns
         vgpuInstance, encoderCapacity)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceSetEncoderCapacity(nvmlVgpuInstance_t vgpuInstance, unsigned int encoderCapacity) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceSetEncoderCapacity(nvmlVgpuInstance_t vgpuInstance, unsigned int encoderCapacity) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceSetEncoderCapacity
     _check_or_init_nvml()
     if __nvmlVgpuInstanceSetEncoderCapacity == NULL:
@@ -5209,7 +5209,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceSetEncoderCapacity(nvmlVgpuInstance_t vgpuIns
         vgpuInstance, encoderCapacity)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetEncoderStats(nvmlVgpuInstance_t vgpuInstance, unsigned int* sessionCount, unsigned int* averageFps, unsigned int* averageLatency) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetEncoderStats(nvmlVgpuInstance_t vgpuInstance, unsigned int* sessionCount, unsigned int* averageFps, unsigned int* averageLatency) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetEncoderStats
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetEncoderStats == NULL:
@@ -5219,7 +5219,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetEncoderStats(nvmlVgpuInstance_t vgpuInstan
         vgpuInstance, sessionCount, averageFps, averageLatency)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetEncoderSessions(nvmlVgpuInstance_t vgpuInstance, unsigned int* sessionCount, nvmlEncoderSessionInfo_t* sessionInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetEncoderSessions(nvmlVgpuInstance_t vgpuInstance, unsigned int* sessionCount, nvmlEncoderSessionInfo_t* sessionInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetEncoderSessions
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetEncoderSessions == NULL:
@@ -5229,7 +5229,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetEncoderSessions(nvmlVgpuInstance_t vgpuIns
         vgpuInstance, sessionCount, sessionInfo)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetFBCStats(nvmlVgpuInstance_t vgpuInstance, nvmlFBCStats_t* fbcStats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetFBCStats(nvmlVgpuInstance_t vgpuInstance, nvmlFBCStats_t* fbcStats) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetFBCStats
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetFBCStats == NULL:
@@ -5239,7 +5239,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetFBCStats(nvmlVgpuInstance_t vgpuInstance, 
         vgpuInstance, fbcStats)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetFBCSessions(nvmlVgpuInstance_t vgpuInstance, unsigned int* sessionCount, nvmlFBCSessionInfo_t* sessionInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetFBCSessions(nvmlVgpuInstance_t vgpuInstance, unsigned int* sessionCount, nvmlFBCSessionInfo_t* sessionInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetFBCSessions
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetFBCSessions == NULL:
@@ -5249,7 +5249,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetFBCSessions(nvmlVgpuInstance_t vgpuInstanc
         vgpuInstance, sessionCount, sessionInfo)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpuInstance, unsigned int* gpuInstanceId) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpuInstance, unsigned int* gpuInstanceId) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetGpuInstanceId
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetGpuInstanceId == NULL:
@@ -5259,7 +5259,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpuInsta
         vgpuInstance, gpuInstanceId)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetGpuPciId(nvmlVgpuInstance_t vgpuInstance, char* vgpuPciId, unsigned int* length) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetGpuPciId(nvmlVgpuInstance_t vgpuInstance, char* vgpuPciId, unsigned int* length) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetGpuPciId
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetGpuPciId == NULL:
@@ -5269,7 +5269,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetGpuPciId(nvmlVgpuInstance_t vgpuInstance, 
         vgpuInstance, vgpuPciId, length)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetCapabilities(nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuCapability_t capability, unsigned int* capResult) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetCapabilities(nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuCapability_t capability, unsigned int* capResult) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetCapabilities
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetCapabilities == NULL:
@@ -5279,7 +5279,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetCapabilities(nvmlVgpuTypeId_t vgpuTypeId, nvml
         vgpuTypeId, capability, capResult)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInstance, char* mdevUuid, unsigned int size) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInstance, char* mdevUuid, unsigned int size) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetMdevUUID
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetMdevUUID == NULL:
@@ -5289,7 +5289,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInstance, 
         vgpuInstance, mdevUuid, size)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetCreatableVgpus(nvmlGpuInstance_t gpuInstance, nvmlVgpuTypeIdInfo_t* pVgpus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetCreatableVgpus(nvmlGpuInstance_t gpuInstance, nvmlVgpuTypeIdInfo_t* pVgpus) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetCreatableVgpus
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetCreatableVgpus == NULL:
@@ -5299,7 +5299,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetCreatableVgpus(nvmlGpuInstance_t gpuInstanc
         gpuInstance, pVgpus)
 
 
-cdef nvmlReturn_t _nvmlVgpuTypeGetMaxInstancesPerGpuInstance(nvmlVgpuTypeMaxInstance_t* pMaxInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuTypeGetMaxInstancesPerGpuInstance(nvmlVgpuTypeMaxInstance_t* pMaxInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuTypeGetMaxInstancesPerGpuInstance
     _check_or_init_nvml()
     if __nvmlVgpuTypeGetMaxInstancesPerGpuInstance == NULL:
@@ -5309,7 +5309,7 @@ cdef nvmlReturn_t _nvmlVgpuTypeGetMaxInstancesPerGpuInstance(nvmlVgpuTypeMaxInst
         pMaxInstance)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetActiveVgpus(nvmlGpuInstance_t gpuInstance, nvmlActiveVgpuInstanceInfo_t* pVgpuInstanceInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetActiveVgpus(nvmlGpuInstance_t gpuInstance, nvmlActiveVgpuInstanceInfo_t* pVgpuInstanceInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetActiveVgpus
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetActiveVgpus == NULL:
@@ -5319,7 +5319,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetActiveVgpus(nvmlGpuInstance_t gpuInstance, 
         gpuInstance, pVgpuInstanceInfo)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_t* pScheduler) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_t* pScheduler) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceSetVgpuSchedulerState
     _check_or_init_nvml()
     if __nvmlGpuInstanceSetVgpuSchedulerState == NULL:
@@ -5329,7 +5329,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState(nvmlGpuInstance_t gpuIns
         gpuInstance, pScheduler)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_t* pSchedulerStateInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetVgpuSchedulerState
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetVgpuSchedulerState == NULL:
@@ -5339,7 +5339,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerState(nvmlGpuInstance_t gpuIns
         gpuInstance, pSchedulerStateInfo)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerLog(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerLog(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_t* pSchedulerLogInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetVgpuSchedulerLog
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetVgpuSchedulerLog == NULL:
@@ -5349,7 +5349,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerLog(nvmlGpuInstance_t gpuInsta
         gpuInstance, pSchedulerLogInfo)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuTypeCreatablePlacements(nvmlGpuInstance_t gpuInstance, nvmlVgpuCreatablePlacementInfo_t* pCreatablePlacementInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuTypeCreatablePlacements(nvmlGpuInstance_t gpuInstance, nvmlVgpuCreatablePlacementInfo_t* pCreatablePlacementInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetVgpuTypeCreatablePlacements
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetVgpuTypeCreatablePlacements == NULL:
@@ -5359,7 +5359,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuTypeCreatablePlacements(nvmlGpuInstance
         gpuInstance, pCreatablePlacementInfo)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, nvmlVgpuHeterogeneousMode_t* pHeterogeneousMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, nvmlVgpuHeterogeneousMode_t* pHeterogeneousMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetVgpuHeterogeneousMode
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetVgpuHeterogeneousMode == NULL:
@@ -5369,7 +5369,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuHeterogeneousMode(nvmlGpuInstance_t gpu
         gpuInstance, pHeterogeneousMode)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, const nvmlVgpuHeterogeneousMode_t* pHeterogeneousMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, const nvmlVgpuHeterogeneousMode_t* pHeterogeneousMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceSetVgpuHeterogeneousMode
     _check_or_init_nvml()
     if __nvmlGpuInstanceSetVgpuHeterogeneousMode == NULL:
@@ -5379,7 +5379,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuHeterogeneousMode(nvmlGpuInstance_t gpu
         gpuInstance, pHeterogeneousMode)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuMetadata_t* vgpuMetadata, unsigned int* bufferSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuMetadata_t* vgpuMetadata, unsigned int* bufferSize) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetMetadata
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetMetadata == NULL:
@@ -5389,7 +5389,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInstance, 
         vgpuInstance, vgpuMetadata, bufferSize)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuMetadata(nvmlDevice_t device, nvmlVgpuPgpuMetadata_t* pgpuMetadata, unsigned int* bufferSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuMetadata(nvmlDevice_t device, nvmlVgpuPgpuMetadata_t* pgpuMetadata, unsigned int* bufferSize) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuMetadata
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuMetadata == NULL:
@@ -5399,7 +5399,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuMetadata(nvmlDevice_t device, nvmlVgpuPgpuMe
         device, pgpuMetadata, bufferSize)
 
 
-cdef nvmlReturn_t _nvmlGetVgpuCompatibility(nvmlVgpuMetadata_t* vgpuMetadata, nvmlVgpuPgpuMetadata_t* pgpuMetadata, nvmlVgpuPgpuCompatibility_t* compatibilityInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGetVgpuCompatibility(nvmlVgpuMetadata_t* vgpuMetadata, nvmlVgpuPgpuMetadata_t* pgpuMetadata, nvmlVgpuPgpuCompatibility_t* compatibilityInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGetVgpuCompatibility
     _check_or_init_nvml()
     if __nvmlGetVgpuCompatibility == NULL:
@@ -5409,7 +5409,7 @@ cdef nvmlReturn_t _nvmlGetVgpuCompatibility(nvmlVgpuMetadata_t* vgpuMetadata, nv
         vgpuMetadata, pgpuMetadata, compatibilityInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, char* pgpuMetadata, unsigned int* bufferSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, char* pgpuMetadata, unsigned int* bufferSize) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPgpuMetadataString
     _check_or_init_nvml()
     if __nvmlDeviceGetPgpuMetadataString == NULL:
@@ -5419,7 +5419,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, char* pg
         device, pgpuMetadata, bufferSize)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerLog(nvmlDevice_t device, nvmlVgpuSchedulerLog_t* pSchedulerLog) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerLog(nvmlDevice_t device, nvmlVgpuSchedulerLog_t* pSchedulerLog) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuSchedulerLog
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuSchedulerLog == NULL:
@@ -5429,7 +5429,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerLog(nvmlDevice_t device, nvmlVgpuSc
         device, pSchedulerLog)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerGetState_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerGetState_t* pSchedulerState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuSchedulerState
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuSchedulerState == NULL:
@@ -5439,7 +5439,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpu
         device, pSchedulerState)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerCapabilities(nvmlDevice_t device, nvmlVgpuSchedulerCapabilities_t* pCapabilities) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerCapabilities(nvmlDevice_t device, nvmlVgpuSchedulerCapabilities_t* pCapabilities) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuSchedulerCapabilities
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuSchedulerCapabilities == NULL:
@@ -5449,7 +5449,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerCapabilities(nvmlDevice_t device, n
         device, pCapabilities)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerSetState_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerSetState_t* pSchedulerState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetVgpuSchedulerState
     _check_or_init_nvml()
     if __nvmlDeviceSetVgpuSchedulerState == NULL:
@@ -5459,7 +5459,7 @@ cdef nvmlReturn_t _nvmlDeviceSetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpu
         device, pSchedulerState)
 
 
-cdef nvmlReturn_t _nvmlGetVgpuVersion(nvmlVgpuVersion_t* supported, nvmlVgpuVersion_t* current) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGetVgpuVersion(nvmlVgpuVersion_t* supported, nvmlVgpuVersion_t* current) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGetVgpuVersion
     _check_or_init_nvml()
     if __nvmlGetVgpuVersion == NULL:
@@ -5469,7 +5469,7 @@ cdef nvmlReturn_t _nvmlGetVgpuVersion(nvmlVgpuVersion_t* supported, nvmlVgpuVers
         supported, current)
 
 
-cdef nvmlReturn_t _nvmlSetVgpuVersion(nvmlVgpuVersion_t* vgpuVersion) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlSetVgpuVersion(nvmlVgpuVersion_t* vgpuVersion) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlSetVgpuVersion
     _check_or_init_nvml()
     if __nvmlSetVgpuVersion == NULL:
@@ -5479,7 +5479,7 @@ cdef nvmlReturn_t _nvmlSetVgpuVersion(nvmlVgpuVersion_t* vgpuVersion) except?_NV
         vgpuVersion)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsigned long long lastSeenTimeStamp, nvmlValueType_t* sampleValType, unsigned int* vgpuInstanceSamplesCount, nvmlVgpuInstanceUtilizationSample_t* utilizationSamples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsigned long long lastSeenTimeStamp, nvmlValueType_t* sampleValType, unsigned int* vgpuInstanceSamplesCount, nvmlVgpuInstanceUtilizationSample_t* utilizationSamples) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuUtilization
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuUtilization == NULL:
@@ -5489,7 +5489,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsigned lo
         device, lastSeenTimeStamp, sampleValType, vgpuInstanceSamplesCount, utilizationSamples)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuInstancesUtilizationInfo(nvmlDevice_t device, nvmlVgpuInstancesUtilizationInfo_t* vgpuUtilInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuInstancesUtilizationInfo(nvmlDevice_t device, nvmlVgpuInstancesUtilizationInfo_t* vgpuUtilInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuInstancesUtilizationInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuInstancesUtilizationInfo == NULL:
@@ -5499,7 +5499,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuInstancesUtilizationInfo(nvmlDevice_t device
         device, vgpuUtilInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device, unsigned long long lastSeenTimeStamp, unsigned int* vgpuProcessSamplesCount, nvmlVgpuProcessUtilizationSample_t* utilizationSamples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device, unsigned long long lastSeenTimeStamp, unsigned int* vgpuProcessSamplesCount, nvmlVgpuProcessUtilizationSample_t* utilizationSamples) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuProcessUtilization
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuProcessUtilization == NULL:
@@ -5509,7 +5509,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device, unsi
         device, lastSeenTimeStamp, vgpuProcessSamplesCount, utilizationSamples)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuProcessesUtilizationInfo(nvmlDevice_t device, nvmlVgpuProcessesUtilizationInfo_t* vgpuProcUtilInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuProcessesUtilizationInfo(nvmlDevice_t device, nvmlVgpuProcessesUtilizationInfo_t* vgpuProcUtilInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuProcessesUtilizationInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuProcessesUtilizationInfo == NULL:
@@ -5519,7 +5519,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuProcessesUtilizationInfo(nvmlDevice_t device
         device, vgpuProcUtilInfo)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetAccountingMode(nvmlVgpuInstance_t vgpuInstance, nvmlEnableState_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetAccountingMode(nvmlVgpuInstance_t vgpuInstance, nvmlEnableState_t* mode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetAccountingMode
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetAccountingMode == NULL:
@@ -5529,7 +5529,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetAccountingMode(nvmlVgpuInstance_t vgpuInst
         vgpuInstance, mode)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetAccountingPids(nvmlVgpuInstance_t vgpuInstance, unsigned int* count, unsigned int* pids) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetAccountingPids(nvmlVgpuInstance_t vgpuInstance, unsigned int* count, unsigned int* pids) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetAccountingPids
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetAccountingPids == NULL:
@@ -5539,7 +5539,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetAccountingPids(nvmlVgpuInstance_t vgpuInst
         vgpuInstance, count, pids)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetAccountingStats(nvmlVgpuInstance_t vgpuInstance, unsigned int pid, nvmlAccountingStats_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetAccountingStats(nvmlVgpuInstance_t vgpuInstance, unsigned int pid, nvmlAccountingStats_t* stats) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetAccountingStats
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetAccountingStats == NULL:
@@ -5549,7 +5549,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetAccountingStats(nvmlVgpuInstance_t vgpuIns
         vgpuInstance, pid, stats)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceClearAccountingPids(nvmlVgpuInstance_t vgpuInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceClearAccountingPids(nvmlVgpuInstance_t vgpuInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceClearAccountingPids
     _check_or_init_nvml()
     if __nvmlVgpuInstanceClearAccountingPids == NULL:
@@ -5559,7 +5559,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceClearAccountingPids(nvmlVgpuInstance_t vgpuIn
         vgpuInstance)
 
 
-cdef nvmlReturn_t _nvmlVgpuInstanceGetLicenseInfo_v2(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuLicenseInfo_t* licenseInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlVgpuInstanceGetLicenseInfo_v2(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuLicenseInfo_t* licenseInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlVgpuInstanceGetLicenseInfo_v2
     _check_or_init_nvml()
     if __nvmlVgpuInstanceGetLicenseInfo_v2 == NULL:
@@ -5569,7 +5569,7 @@ cdef nvmlReturn_t _nvmlVgpuInstanceGetLicenseInfo_v2(nvmlVgpuInstance_t vgpuInst
         vgpuInstance, licenseInfo)
 
 
-cdef nvmlReturn_t _nvmlGetExcludedDeviceCount(unsigned int* deviceCount) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGetExcludedDeviceCount(unsigned int* deviceCount) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGetExcludedDeviceCount
     _check_or_init_nvml()
     if __nvmlGetExcludedDeviceCount == NULL:
@@ -5579,7 +5579,7 @@ cdef nvmlReturn_t _nvmlGetExcludedDeviceCount(unsigned int* deviceCount) except?
         deviceCount)
 
 
-cdef nvmlReturn_t _nvmlGetExcludedDeviceInfoByIndex(unsigned int index, nvmlExcludedDeviceInfo_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGetExcludedDeviceInfoByIndex(unsigned int index, nvmlExcludedDeviceInfo_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGetExcludedDeviceInfoByIndex
     _check_or_init_nvml()
     if __nvmlGetExcludedDeviceInfoByIndex == NULL:
@@ -5589,7 +5589,7 @@ cdef nvmlReturn_t _nvmlGetExcludedDeviceInfoByIndex(unsigned int index, nvmlExcl
         index, info)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetMigMode(nvmlDevice_t device, unsigned int mode, nvmlReturn_t* activationStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetMigMode(nvmlDevice_t device, unsigned int mode, nvmlReturn_t* activationStatus) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetMigMode
     _check_or_init_nvml()
     if __nvmlDeviceSetMigMode == NULL:
@@ -5599,7 +5599,7 @@ cdef nvmlReturn_t _nvmlDeviceSetMigMode(nvmlDevice_t device, unsigned int mode, 
         device, mode, activationStatus)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int* currentMode, unsigned int* pendingMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int* currentMode, unsigned int* pendingMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMigMode
     _check_or_init_nvml()
     if __nvmlDeviceGetMigMode == NULL:
@@ -5609,7 +5609,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int* curre
         device, currentMode, pendingMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceProfileInfoV(nvmlDevice_t device, unsigned int profile, nvmlGpuInstanceProfileInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceProfileInfoV(nvmlDevice_t device, unsigned int profile, nvmlGpuInstanceProfileInfo_v2_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuInstanceProfileInfoV
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuInstanceProfileInfoV == NULL:
@@ -5619,7 +5619,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceProfileInfoV(nvmlDevice_t device, uns
         device, profile, info)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuInstancePossiblePlacements_v2(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstancePlacement_t* placements, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuInstancePossiblePlacements_v2(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstancePlacement_t* placements, unsigned int* count) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuInstancePossiblePlacements_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuInstancePossiblePlacements_v2 == NULL:
@@ -5629,7 +5629,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuInstancePossiblePlacements_v2(nvmlDevice_t de
         device, profileId, placements, count)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceRemainingCapacity(nvmlDevice_t device, unsigned int profileId, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceRemainingCapacity(nvmlDevice_t device, unsigned int profileId, unsigned int* count) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuInstanceRemainingCapacity
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuInstanceRemainingCapacity == NULL:
@@ -5639,7 +5639,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceRemainingCapacity(nvmlDevice_t device
         device, profileId, count)
 
 
-cdef nvmlReturn_t _nvmlDeviceCreateGpuInstance(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstance_t* gpuInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceCreateGpuInstance(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstance_t* gpuInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceCreateGpuInstance
     _check_or_init_nvml()
     if __nvmlDeviceCreateGpuInstance == NULL:
@@ -5649,7 +5649,7 @@ cdef nvmlReturn_t _nvmlDeviceCreateGpuInstance(nvmlDevice_t device, unsigned int
         device, profileId, gpuInstance)
 
 
-cdef nvmlReturn_t _nvmlDeviceCreateGpuInstanceWithPlacement(nvmlDevice_t device, unsigned int profileId, const nvmlGpuInstancePlacement_t* placement, nvmlGpuInstance_t* gpuInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceCreateGpuInstanceWithPlacement(nvmlDevice_t device, unsigned int profileId, const nvmlGpuInstancePlacement_t* placement, nvmlGpuInstance_t* gpuInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceCreateGpuInstanceWithPlacement
     _check_or_init_nvml()
     if __nvmlDeviceCreateGpuInstanceWithPlacement == NULL:
@@ -5659,7 +5659,7 @@ cdef nvmlReturn_t _nvmlDeviceCreateGpuInstanceWithPlacement(nvmlDevice_t device,
         device, profileId, placement, gpuInstance)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceDestroy(nvmlGpuInstance_t gpuInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceDestroy(nvmlGpuInstance_t gpuInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceDestroy
     _check_or_init_nvml()
     if __nvmlGpuInstanceDestroy == NULL:
@@ -5669,7 +5669,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceDestroy(nvmlGpuInstance_t gpuInstance) except?
         gpuInstance)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuInstances(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstance_t* gpuInstances, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuInstances(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstance_t* gpuInstances, unsigned int* count) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuInstances
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuInstances == NULL:
@@ -5679,7 +5679,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuInstances(nvmlDevice_t device, unsigned int p
         device, profileId, gpuInstances, count)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceById(nvmlDevice_t device, unsigned int id, nvmlGpuInstance_t* gpuInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceById(nvmlDevice_t device, unsigned int id, nvmlGpuInstance_t* gpuInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuInstanceById
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuInstanceById == NULL:
@@ -5689,7 +5689,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceById(nvmlDevice_t device, unsigned in
         device, id, gpuInstance)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetInfo(nvmlGpuInstance_t gpuInstance, nvmlGpuInstanceInfo_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetInfo(nvmlGpuInstance_t gpuInstance, nvmlGpuInstanceInfo_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetInfo
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetInfo == NULL:
@@ -5699,7 +5699,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetInfo(nvmlGpuInstance_t gpuInstance, nvmlGpu
         gpuInstance, info)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstanceProfileInfoV(nvmlGpuInstance_t gpuInstance, unsigned int profile, unsigned int engProfile, nvmlComputeInstanceProfileInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstanceProfileInfoV(nvmlGpuInstance_t gpuInstance, unsigned int profile, unsigned int engProfile, nvmlComputeInstanceProfileInfo_v2_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetComputeInstanceProfileInfoV
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetComputeInstanceProfileInfoV == NULL:
@@ -5709,7 +5709,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstanceProfileInfoV(nvmlGpuInstance
         gpuInstance, profile, engProfile, info)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlGpuInstance_t gpuInstance, unsigned int profileId, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlGpuInstance_t gpuInstance, unsigned int profileId, unsigned int* count) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetComputeInstanceRemainingCapacity
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetComputeInstanceRemainingCapacity == NULL:
@@ -5719,7 +5719,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlGpuIns
         gpuInstance, profileId, count)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstancePossiblePlacements(nvmlGpuInstance_t gpuInstance, unsigned int profileId, nvmlComputeInstancePlacement_t* placements, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstancePossiblePlacements(nvmlGpuInstance_t gpuInstance, unsigned int profileId, nvmlComputeInstancePlacement_t* placements, unsigned int* count) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetComputeInstancePossiblePlacements
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetComputeInstancePossiblePlacements == NULL:
@@ -5729,7 +5729,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstancePossiblePlacements(nvmlGpuIn
         gpuInstance, profileId, placements, count)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t gpuInstance, unsigned int profileId, nvmlComputeInstance_t* computeInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t gpuInstance, unsigned int profileId, nvmlComputeInstance_t* computeInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceCreateComputeInstance
     _check_or_init_nvml()
     if __nvmlGpuInstanceCreateComputeInstance == NULL:
@@ -5739,7 +5739,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t gpuIns
         gpuInstance, profileId, computeInstance)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceCreateComputeInstanceWithPlacement(nvmlGpuInstance_t gpuInstance, unsigned int profileId, const nvmlComputeInstancePlacement_t* placement, nvmlComputeInstance_t* computeInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceCreateComputeInstanceWithPlacement(nvmlGpuInstance_t gpuInstance, unsigned int profileId, const nvmlComputeInstancePlacement_t* placement, nvmlComputeInstance_t* computeInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceCreateComputeInstanceWithPlacement
     _check_or_init_nvml()
     if __nvmlGpuInstanceCreateComputeInstanceWithPlacement == NULL:
@@ -5749,7 +5749,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceCreateComputeInstanceWithPlacement(nvmlGpuInst
         gpuInstance, profileId, placement, computeInstance)
 
 
-cdef nvmlReturn_t _nvmlComputeInstanceDestroy(nvmlComputeInstance_t computeInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlComputeInstanceDestroy(nvmlComputeInstance_t computeInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlComputeInstanceDestroy
     _check_or_init_nvml()
     if __nvmlComputeInstanceDestroy == NULL:
@@ -5759,7 +5759,7 @@ cdef nvmlReturn_t _nvmlComputeInstanceDestroy(nvmlComputeInstance_t computeInsta
         computeInstance)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstances(nvmlGpuInstance_t gpuInstance, unsigned int profileId, nvmlComputeInstance_t* computeInstances, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstances(nvmlGpuInstance_t gpuInstance, unsigned int profileId, nvmlComputeInstance_t* computeInstances, unsigned int* count) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetComputeInstances
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetComputeInstances == NULL:
@@ -5769,7 +5769,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstances(nvmlGpuInstance_t gpuInsta
         gpuInstance, profileId, computeInstances, count)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstanceById(nvmlGpuInstance_t gpuInstance, unsigned int id, nvmlComputeInstance_t* computeInstance) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstanceById(nvmlGpuInstance_t gpuInstance, unsigned int id, nvmlComputeInstance_t* computeInstance) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetComputeInstanceById
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetComputeInstanceById == NULL:
@@ -5779,7 +5779,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetComputeInstanceById(nvmlGpuInstance_t gpuIn
         gpuInstance, id, computeInstance)
 
 
-cdef nvmlReturn_t _nvmlComputeInstanceGetInfo_v2(nvmlComputeInstance_t computeInstance, nvmlComputeInstanceInfo_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlComputeInstanceGetInfo_v2(nvmlComputeInstance_t computeInstance, nvmlComputeInstanceInfo_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlComputeInstanceGetInfo_v2
     _check_or_init_nvml()
     if __nvmlComputeInstanceGetInfo_v2 == NULL:
@@ -5789,7 +5789,7 @@ cdef nvmlReturn_t _nvmlComputeInstanceGetInfo_v2(nvmlComputeInstance_t computeIn
         computeInstance, info)
 
 
-cdef nvmlReturn_t _nvmlDeviceIsMigDeviceHandle(nvmlDevice_t device, unsigned int* isMigDevice) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceIsMigDeviceHandle(nvmlDevice_t device, unsigned int* isMigDevice) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceIsMigDeviceHandle
     _check_or_init_nvml()
     if __nvmlDeviceIsMigDeviceHandle == NULL:
@@ -5799,7 +5799,7 @@ cdef nvmlReturn_t _nvmlDeviceIsMigDeviceHandle(nvmlDevice_t device, unsigned int
         device, isMigDevice)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceId(nvmlDevice_t device, unsigned int* id) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceId(nvmlDevice_t device, unsigned int* id) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuInstanceId
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuInstanceId == NULL:
@@ -5809,7 +5809,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceId(nvmlDevice_t device, unsigned int*
         device, id)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetComputeInstanceId(nvmlDevice_t device, unsigned int* id) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetComputeInstanceId(nvmlDevice_t device, unsigned int* id) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetComputeInstanceId
     _check_or_init_nvml()
     if __nvmlDeviceGetComputeInstanceId == NULL:
@@ -5819,7 +5819,7 @@ cdef nvmlReturn_t _nvmlDeviceGetComputeInstanceId(nvmlDevice_t device, unsigned 
         device, id)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMaxMigDeviceCount(nvmlDevice_t device, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMaxMigDeviceCount(nvmlDevice_t device, unsigned int* count) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMaxMigDeviceCount
     _check_or_init_nvml()
     if __nvmlDeviceGetMaxMigDeviceCount == NULL:
@@ -5829,7 +5829,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMaxMigDeviceCount(nvmlDevice_t device, unsigned 
         device, count)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetMigDeviceHandleByIndex(nvmlDevice_t device, unsigned int index, nvmlDevice_t* migDevice) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetMigDeviceHandleByIndex(nvmlDevice_t device, unsigned int index, nvmlDevice_t* migDevice) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetMigDeviceHandleByIndex
     _check_or_init_nvml()
     if __nvmlDeviceGetMigDeviceHandleByIndex == NULL:
@@ -5839,7 +5839,7 @@ cdef nvmlReturn_t _nvmlDeviceGetMigDeviceHandleByIndex(nvmlDevice_t device, unsi
         device, index, migDevice)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_t migDevice, nvmlDevice_t* device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_t migDevice, nvmlDevice_t* device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetDeviceHandleFromMigDeviceHandle
     _check_or_init_nvml()
     if __nvmlDeviceGetDeviceHandleFromMigDeviceHandle == NULL:
@@ -5849,7 +5849,7 @@ cdef nvmlReturn_t _nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_t mig
         migDevice, device)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapabilities_t* caps) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapabilities_t* caps) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCapabilities
     _check_or_init_nvml()
     if __nvmlDeviceGetCapabilities == NULL:
@@ -5859,7 +5859,7 @@ cdef nvmlReturn_t _nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapa
         device, caps)
 
 
-cdef nvmlReturn_t _nvmlDevicePowerSmoothingActivatePresetProfile(nvmlDevice_t device, nvmlPowerSmoothingProfile_t* profile) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDevicePowerSmoothingActivatePresetProfile(nvmlDevice_t device, nvmlPowerSmoothingProfile_t* profile) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDevicePowerSmoothingActivatePresetProfile
     _check_or_init_nvml()
     if __nvmlDevicePowerSmoothingActivatePresetProfile == NULL:
@@ -5869,7 +5869,7 @@ cdef nvmlReturn_t _nvmlDevicePowerSmoothingActivatePresetProfile(nvmlDevice_t de
         device, profile)
 
 
-cdef nvmlReturn_t _nvmlDevicePowerSmoothingUpdatePresetProfileParam(nvmlDevice_t device, nvmlPowerSmoothingProfile_t* profile) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDevicePowerSmoothingUpdatePresetProfileParam(nvmlDevice_t device, nvmlPowerSmoothingProfile_t* profile) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDevicePowerSmoothingUpdatePresetProfileParam
     _check_or_init_nvml()
     if __nvmlDevicePowerSmoothingUpdatePresetProfileParam == NULL:
@@ -5879,7 +5879,7 @@ cdef nvmlReturn_t _nvmlDevicePowerSmoothingUpdatePresetProfileParam(nvmlDevice_t
         device, profile)
 
 
-cdef nvmlReturn_t _nvmlDevicePowerSmoothingSetState(nvmlDevice_t device, nvmlPowerSmoothingState_t* state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDevicePowerSmoothingSetState(nvmlDevice_t device, nvmlPowerSmoothingState_t* state) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDevicePowerSmoothingSetState
     _check_or_init_nvml()
     if __nvmlDevicePowerSmoothingSetState == NULL:
@@ -5889,7 +5889,7 @@ cdef nvmlReturn_t _nvmlDevicePowerSmoothingSetState(nvmlDevice_t device, nvmlPow
         device, state)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetAddressingMode(nvmlDevice_t device, nvmlDeviceAddressingMode_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetAddressingMode(nvmlDevice_t device, nvmlDeviceAddressingMode_t* mode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetAddressingMode
     _check_or_init_nvml()
     if __nvmlDeviceGetAddressingMode == NULL:
@@ -5899,7 +5899,7 @@ cdef nvmlReturn_t _nvmlDeviceGetAddressingMode(nvmlDevice_t device, nvmlDeviceAd
         device, mode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetRepairStatus(nvmlDevice_t device, nvmlRepairStatus_t* repairStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetRepairStatus(nvmlDevice_t device, nvmlRepairStatus_t* repairStatus) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetRepairStatus
     _check_or_init_nvml()
     if __nvmlDeviceGetRepairStatus == NULL:
@@ -5909,7 +5909,7 @@ cdef nvmlReturn_t _nvmlDeviceGetRepairStatus(nvmlDevice_t device, nvmlRepairStat
         device, repairStatus)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPowerMizerMode_v1
     _check_or_init_nvml()
     if __nvmlDeviceGetPowerMizerMode_v1 == NULL:
@@ -5919,7 +5919,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevic
         device, powerMizerMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetPowerMizerMode_v1
     _check_or_init_nvml()
     if __nvmlDeviceSetPowerMizerMode_v1 == NULL:
@@ -5929,7 +5929,7 @@ cdef nvmlReturn_t _nvmlDeviceSetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevic
         device, powerMizerMode)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetPdi(nvmlDevice_t device, nvmlPdi_t* pdi) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetPdi(nvmlDevice_t device, nvmlPdi_t* pdi) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetPdi
     _check_or_init_nvml()
     if __nvmlDeviceGetPdi == NULL:
@@ -5939,7 +5939,7 @@ cdef nvmlReturn_t _nvmlDeviceGetPdi(nvmlDevice_t device, nvmlPdi_t* pdi) except?
         device, pdi)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetHostname_v1
     _check_or_init_nvml()
     if __nvmlDeviceSetHostname_v1 == NULL:
@@ -5949,7 +5949,7 @@ cdef nvmlReturn_t _nvmlDeviceSetHostname_v1(nvmlDevice_t device, nvmlHostname_v1
         device, hostname)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetHostname_v1
     _check_or_init_nvml()
     if __nvmlDeviceGetHostname_v1 == NULL:
@@ -5959,7 +5959,7 @@ cdef nvmlReturn_t _nvmlDeviceGetHostname_v1(nvmlDevice_t device, nvmlHostname_v1
         device, hostname)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetNvLinkInfo(nvmlDevice_t device, nvmlNvLinkInfo_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkInfo(nvmlDevice_t device, nvmlNvLinkInfo_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetNvLinkInfo
     _check_or_init_nvml()
     if __nvmlDeviceGetNvLinkInfo == NULL:
@@ -5969,7 +5969,7 @@ cdef nvmlReturn_t _nvmlDeviceGetNvLinkInfo(nvmlDevice_t device, nvmlNvLinkInfo_t
         device, info)
 
 
-cdef nvmlReturn_t _nvmlDeviceReadWritePRM_v1(nvmlDevice_t device, nvmlPRMTLV_v1_t* buffer) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceReadWritePRM_v1(nvmlDevice_t device, nvmlPRMTLV_v1_t* buffer) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceReadWritePRM_v1
     _check_or_init_nvml()
     if __nvmlDeviceReadWritePRM_v1 == NULL:
@@ -5979,7 +5979,7 @@ cdef nvmlReturn_t _nvmlDeviceReadWritePRM_v1(nvmlDevice_t device, nvmlPRMTLV_v1_
         device, buffer)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstanceProfileInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstanceProfileInfo_v2_t* info) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetGpuInstanceProfileInfoByIdV
     _check_or_init_nvml()
     if __nvmlDeviceGetGpuInstanceProfileInfoByIdV == NULL:
@@ -5989,7 +5989,7 @@ cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device,
         device, profileId, info)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t device, nvmlEccSramUniqueUncorrectedErrorCounts_t* errorCounts) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t device, nvmlEccSramUniqueUncorrectedErrorCounts_t* errorCounts) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
     _check_or_init_nvml()
     if __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts == NULL:
@@ -5999,7 +5999,7 @@ cdef nvmlReturn_t _nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t
         device, errorCounts)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t* unrepairableMemoryStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t* unrepairableMemoryStatus) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetUnrepairableMemoryFlag_v1
     _check_or_init_nvml()
     if __nvmlDeviceGetUnrepairableMemoryFlag_v1 == NULL:
@@ -6009,7 +6009,7 @@ cdef nvmlReturn_t _nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, n
         device, unrepairableMemoryStatus)
 
 
-cdef nvmlReturn_t _nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t* counterList) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t* counterList) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceReadPRMCounters_v1
     _check_or_init_nvml()
     if __nvmlDeviceReadPRMCounters_v1 == NULL:
@@ -6019,7 +6019,7 @@ cdef nvmlReturn_t _nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCoun
         device, counterList)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSettings_v1_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSettings_v1_t* settings) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetRusdSettings_v1
     _check_or_init_nvml()
     if __nvmlDeviceSetRusdSettings_v1 == NULL:
@@ -6029,7 +6029,7 @@ cdef nvmlReturn_t _nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSet
         device, settings)
 
 
-cdef nvmlReturn_t _nvmlDeviceVgpuForceGspUnload(nvmlDevice_t device) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceVgpuForceGspUnload(nvmlDevice_t device) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceVgpuForceGspUnload
     _check_or_init_nvml()
     if __nvmlDeviceVgpuForceGspUnload == NULL:
@@ -6039,7 +6039,7 @@ cdef nvmlReturn_t _nvmlDeviceVgpuForceGspUnload(nvmlDevice_t device) except?_NVM
         device)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuSchedulerState_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuSchedulerState_v2 == NULL:
@@ -6049,7 +6049,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlV
         device, pSchedulerStateInfo)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_v2_t* pSchedulerStateInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetVgpuSchedulerState_v2
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetVgpuSchedulerState_v2 == NULL:
@@ -6059,7 +6059,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerState_v2(nvmlGpuInstance_t gpu
         gpuInstance, pSchedulerStateInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetVgpuSchedulerLog_v2
     _check_or_init_nvml()
     if __nvmlDeviceGetVgpuSchedulerLog_v2 == NULL:
@@ -6069,7 +6069,7 @@ cdef nvmlReturn_t _nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgp
         device, pSchedulerLogInfo)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceGetVgpuSchedulerLog_v2
     _check_or_init_nvml()
     if __nvmlGpuInstanceGetVgpuSchedulerLog_v2 == NULL:
@@ -6079,7 +6079,7 @@ cdef nvmlReturn_t _nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuIn
         gpuInstance, pSchedulerLogInfo)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetVgpuSchedulerState_v2
     _check_or_init_nvml()
     if __nvmlDeviceSetVgpuSchedulerState_v2 == NULL:
@@ -6089,7 +6089,7 @@ cdef nvmlReturn_t _nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlV
         device, pSchedulerState)
 
 
-cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?<nvmlReturn_t>_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlGpuInstanceSetVgpuSchedulerState_v2
     _check_or_init_nvml()
     if __nvmlGpuInstanceSetVgpuSchedulerState_v2 == NULL:
