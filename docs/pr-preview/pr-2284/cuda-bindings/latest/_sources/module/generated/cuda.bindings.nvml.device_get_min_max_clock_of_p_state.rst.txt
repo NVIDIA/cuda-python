@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_min\_max\_clock\_of\_p\_state
-=============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_min_max_clock_of_p_state
