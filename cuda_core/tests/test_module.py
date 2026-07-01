@@ -193,15 +193,18 @@ def _read_saxpy_rdc(kind: str) -> bytes:
         raise ValueError(f"unknown saxpy RDC kind: {kind!r}")
 
     if not rdc_path.is_file():
-        if find_nvidia_binary_utility("nvcc") is None:
+        nvcc_path = find_nvidia_binary_utility("nvcc")
+        if nvcc_path is None:
             pytest.skip(
                 f"{rdc_path.name} not found at {rdc_path} and nvcc is unavailable. "
                 "In CI this is downloaded from the build stage."
             )
+        env = os.environ.copy()
+        env["NVCC"] = nvcc_path
         subprocess.run(  # noqa: S603
             ["bash", str(binaries_dir / "build_test_binaries.sh")],  # noqa: S607
             check=True,
-            env=os.environ,
+            env=env,
         )
     return rdc_path.read_bytes()
 

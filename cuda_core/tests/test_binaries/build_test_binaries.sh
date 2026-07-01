@@ -14,7 +14,9 @@ if [[ "${OS:-}" == "Windows_NT" ]]; then
     NVCC_EXTRA_FLAGS+=(-Xcompiler /Zc:preprocessor)
 fi
 
-nvcc -dc "${NVCC_EXTRA_FLAGS[@]}" -arch=all-major \
+NVCC="${NVCC:-nvcc}"
+
+"${NVCC}" -dc "${NVCC_EXTRA_FLAGS[@]}" -arch=all-major \
     -o "${SCRIPTPATH}/saxpy.o" "${SCRIPTPATH}/saxpy.cu"
 
 if [[ "${OS:-}" == "Windows_NT" ]]; then
