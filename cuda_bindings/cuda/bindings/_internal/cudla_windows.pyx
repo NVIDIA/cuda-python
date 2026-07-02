@@ -3,46 +3,64 @@
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0, generator version 0.3.1.dev1465+gc5c5c8652. Do not modify it directly.
 
-from libc.stdint cimport intptr_t, uintptr_t
+from libc.stdint cimport intptr_t
 
 import threading
 from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.pathfinder import load_nvidia_dynamic_lib
 
-
-###############################################################################
-# Extern
-###############################################################################
+from libc.stddef cimport wchar_t
+from libc.stdint cimport uintptr_t
+from cpython cimport PyUnicode_AsWideCharString, PyMem_Free
 
 # You must 'from .utils import NotSupportedError' before using this template
 
-cdef extern from "<dlfcn.h>" nogil:
-    void* dlopen(const char*, int)
-    char* dlerror()
-    void* dlsym(void*, const char*)
-    int dlclose(void*)
+cdef extern from "windows.h" nogil:
+    ctypedef void* HMODULE
+    ctypedef void* HANDLE
+    ctypedef void* FARPROC
+    ctypedef unsigned long DWORD
+    ctypedef const wchar_t *LPCWSTR
+    ctypedef const char *LPCSTR
 
-    enum:
-        RTLD_LAZY
-        RTLD_NOW
-        RTLD_GLOBAL
-        RTLD_LOCAL
+    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
+    cdef DWORD LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+    cdef DWORD LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
 
-    const void* RTLD_DEFAULT 'RTLD_DEFAULT'
+    HMODULE _LoadLibraryExW "LoadLibraryExW"(
+        LPCWSTR lpLibFileName,
+        HANDLE hFile,
+        DWORD dwFlags
+    )
+
+    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, LPCSTR lpProcName)
+
+cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
+    cdef uintptr_t result
+    cdef wchar_t* wpath = PyUnicode_AsWideCharString(path, NULL)
+    with nogil:
+        result = <uintptr_t>_LoadLibraryExW(
+            wpath,
+            hFile,
+            dwFlags
+        )
+    PyMem_Free(wpath)
+    return result
+
+cdef inline void *GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
+    return _GetProcAddress(<HMODULE>hModule, lpProcName)
 
 cdef int get_cuda_version():
-    cdef void* handle = NULL
     cdef int err, driver_ver = 0
 
     # Load driver to check version
-    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
-    if handle == NULL:
-        err_msg = dlerror()
-        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
-    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
+    handle = LoadLibraryExW("nvcuda.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)
+    if handle == 0:
+        raise NotSupportedError('CUDA driver is not found')
+    cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
     if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
+        raise RuntimeError('Did not find cuDriverGetVersion symbol in nvcuda.dll')
     err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
     if err != 0:
         raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
@@ -73,111 +91,56 @@ cdef void* __cudlaDestroyDevice = NULL
 cdef void* __cudlaSetTaskTimeoutInMs = NULL
 
 
-cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("cudla")._handle_uint
-    return <void*>handle
-
-
 cdef int _init_cudla() except -1 nogil:
     global __py_cudla_init
-    cdef void* handle = NULL
 
     with gil, __symbol_lock:
         # Recheck the flag after obtaining the locks
         if __py_cudla_init:
             return 0
 
+        # Load library
+        handle = load_nvidia_dynamic_lib("cudla")._handle_uint
+
         # Load function
         global __cudlaGetVersion
-        __cudlaGetVersion = dlsym(RTLD_DEFAULT, 'cudlaGetVersion')
-        if __cudlaGetVersion == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaGetVersion = dlsym(handle, 'cudlaGetVersion')
+        __cudlaGetVersion = GetProcAddress(handle, 'cudlaGetVersion')
 
         global __cudlaDeviceGetCount
-        __cudlaDeviceGetCount = dlsym(RTLD_DEFAULT, 'cudlaDeviceGetCount')
-        if __cudlaDeviceGetCount == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaDeviceGetCount = dlsym(handle, 'cudlaDeviceGetCount')
+        __cudlaDeviceGetCount = GetProcAddress(handle, 'cudlaDeviceGetCount')
 
         global __cudlaCreateDevice
-        __cudlaCreateDevice = dlsym(RTLD_DEFAULT, 'cudlaCreateDevice')
-        if __cudlaCreateDevice == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaCreateDevice = dlsym(handle, 'cudlaCreateDevice')
+        __cudlaCreateDevice = GetProcAddress(handle, 'cudlaCreateDevice')
 
         global __cudlaMemRegister
-        __cudlaMemRegister = dlsym(RTLD_DEFAULT, 'cudlaMemRegister')
-        if __cudlaMemRegister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaMemRegister = dlsym(handle, 'cudlaMemRegister')
+        __cudlaMemRegister = GetProcAddress(handle, 'cudlaMemRegister')
 
         global __cudlaModuleLoadFromMemory
-        __cudlaModuleLoadFromMemory = dlsym(RTLD_DEFAULT, 'cudlaModuleLoadFromMemory')
-        if __cudlaModuleLoadFromMemory == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaModuleLoadFromMemory = dlsym(handle, 'cudlaModuleLoadFromMemory')
+        __cudlaModuleLoadFromMemory = GetProcAddress(handle, 'cudlaModuleLoadFromMemory')
 
         global __cudlaModuleGetAttributes
-        __cudlaModuleGetAttributes = dlsym(RTLD_DEFAULT, 'cudlaModuleGetAttributes')
-        if __cudlaModuleGetAttributes == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaModuleGetAttributes = dlsym(handle, 'cudlaModuleGetAttributes')
+        __cudlaModuleGetAttributes = GetProcAddress(handle, 'cudlaModuleGetAttributes')
 
         global __cudlaModuleUnload
-        __cudlaModuleUnload = dlsym(RTLD_DEFAULT, 'cudlaModuleUnload')
-        if __cudlaModuleUnload == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaModuleUnload = dlsym(handle, 'cudlaModuleUnload')
+        __cudlaModuleUnload = GetProcAddress(handle, 'cudlaModuleUnload')
 
         global __cudlaSubmitTask
-        __cudlaSubmitTask = dlsym(RTLD_DEFAULT, 'cudlaSubmitTask')
-        if __cudlaSubmitTask == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaSubmitTask = dlsym(handle, 'cudlaSubmitTask')
+        __cudlaSubmitTask = GetProcAddress(handle, 'cudlaSubmitTask')
 
         global __cudlaDeviceGetAttribute
-        __cudlaDeviceGetAttribute = dlsym(RTLD_DEFAULT, 'cudlaDeviceGetAttribute')
-        if __cudlaDeviceGetAttribute == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaDeviceGetAttribute = dlsym(handle, 'cudlaDeviceGetAttribute')
+        __cudlaDeviceGetAttribute = GetProcAddress(handle, 'cudlaDeviceGetAttribute')
 
         global __cudlaMemUnregister
-        __cudlaMemUnregister = dlsym(RTLD_DEFAULT, 'cudlaMemUnregister')
-        if __cudlaMemUnregister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaMemUnregister = dlsym(handle, 'cudlaMemUnregister')
+        __cudlaMemUnregister = GetProcAddress(handle, 'cudlaMemUnregister')
 
         global __cudlaGetLastError
-        __cudlaGetLastError = dlsym(RTLD_DEFAULT, 'cudlaGetLastError')
-        if __cudlaGetLastError == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaGetLastError = dlsym(handle, 'cudlaGetLastError')
+        __cudlaGetLastError = GetProcAddress(handle, 'cudlaGetLastError')
 
         global __cudlaDestroyDevice
-        __cudlaDestroyDevice = dlsym(RTLD_DEFAULT, 'cudlaDestroyDevice')
-        if __cudlaDestroyDevice == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaDestroyDevice = dlsym(handle, 'cudlaDestroyDevice')
+        __cudlaDestroyDevice = GetProcAddress(handle, 'cudlaDestroyDevice')
 
         global __cudlaSetTaskTimeoutInMs
-        __cudlaSetTaskTimeoutInMs = dlsym(RTLD_DEFAULT, 'cudlaSetTaskTimeoutInMs')
-        if __cudlaSetTaskTimeoutInMs == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaSetTaskTimeoutInMs = dlsym(handle, 'cudlaSetTaskTimeoutInMs')
+        __cudlaSetTaskTimeoutInMs = GetProcAddress(handle, 'cudlaSetTaskTimeoutInMs')
 
         __py_cudla_init = True
         return 0
