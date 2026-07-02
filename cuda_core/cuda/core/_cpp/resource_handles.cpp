@@ -1228,6 +1228,9 @@ CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
     if (!h_graph || slot >= SLOTS_PER_NODE) {
         return CUDA_ERROR_INVALID_VALUE;
     }
+    if (!owner) {
+        return CUDA_SUCCESS;  // nothing to retain; don't force table creation
+    }
     GraphSlotTable* table = ensure_slot_table(get_box(h_graph));
     if (!table) {
         return CUDA_ERROR_NOT_SUPPORTED;

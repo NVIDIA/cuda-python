@@ -494,9 +494,11 @@ OpaqueHandle make_opaque_py(PyObject* obj);
 OpaqueHandle make_opaque_malloc(void* buf);
 
 // Attach owner to one of node's fixed slots on h_graph, replacing whatever was
-// there. The graph's slot table is created on first use. Returns CUDA_SUCCESS,
-// or an error if slot is out of range or the graph cannot hold a table (e.g.
-// the driver lacks user-object support).
+// there. The graph's slot table is created on first use. A null owner is a
+// no-op (returns CUDA_SUCCESS without creating the table), so callers need not
+// guard optional owners. Returns CUDA_SUCCESS, or an error if slot is out of
+// range or the graph cannot hold a table (e.g. the driver lacks user-object
+// support).
 CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
                         unsigned int slot, OpaqueHandle owner);
 
