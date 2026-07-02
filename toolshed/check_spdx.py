@@ -26,21 +26,17 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     ".github": "Apache-2.0",
     "benchmarks": "Apache-2.0",
     "ci": "Apache-2.0",
-    "cuda_bindings": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_bindings": "Apache-2.0",
     "cuda_core": "Apache-2.0",
     "cuda_pathfinder": "Apache-2.0",
-    "cuda_python": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_python": "Apache-2.0",
     "cuda_python_test_helpers": "Apache-2.0",
     "qa": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
     "scripts": "Apache-2.0",
     "toolshed": "Apache-2.0",
 }
 
-SPECIAL_CASE_LICENSE_IDENTIFIERS = {
-    # key: repo-relative path or glob, value: expected SPDX license identifier
-    "cuda_bindings/benchmarks/*": "Apache-2.0",
-    "cuda_bindings/benchmarks/pytest-legacy/*": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
-}
+SPECIAL_CASE_LICENSE_IDENTIFIERS = {}
 
 SPDX_IGNORE_FILENAME = ".spdx-ignore"
 
