@@ -17,6 +17,10 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  push:
+    branches:
+      - "main"
+      - "pull-request/[0-9]+"
   schedule:
     # 2:17 AM UTC daily, after the midnight main CI build finishes.
     # Avoid minute 0 because GitHub documents high scheduled-workflow load
