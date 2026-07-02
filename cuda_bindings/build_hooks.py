@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 # This module implements basic PEP 517 backend support to defer CUDA-dependent
 # logic (header parsing, code generation, cythonization) to build time. See:

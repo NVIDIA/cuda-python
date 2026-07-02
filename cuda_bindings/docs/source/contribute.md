@@ -9,4 +9,9 @@ Thank you for your interest in contributing to `cuda-bindings`! Based on the typ
     them for a release. If you believe the issue needs priority attention
     comment on the issue to notify the team.
 2. You want to implement a feature, improvement, or bug fix:
-    - At this time we do not accept code contributions.
+    - Before starting work on an existing issue, comment on the issue to
+      express your interest and wait to be assigned by a maintainer. This
+      helps avoid redundant effort.
+    - Follow the repository [contribution guide](https://github.com/NVIDIA/cuda-python/blob/12.9.x/CONTRIBUTING.md),
+      including signing off each commit under the Developer Certificate of
+      Origin (DCO) and cryptographically signing commits.
