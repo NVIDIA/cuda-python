@@ -9,7 +9,7 @@ ci:
     autoupdate_branch: ''
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: quarterly
-    skip: [lychee]
+    skip: [lychee, check-precommit-installed]
     submodules: false
 
 # Please update the rev: SHAs below with this command:
@@ -26,6 +26,14 @@ repos:
 
   - repo: local
     hooks:
+      - id: check-precommit-installed
+        name: Warn if the pre-commit git hook is not installed
+        entry: python ./toolshed/check_precommit_installed.py
+        language: python
+        always_run: true
+        pass_filenames: false
+        verbose: true
+
       - id: check-spdx
         name: Check SPDX Headers
         entry: python ./toolshed/check_spdx.py
