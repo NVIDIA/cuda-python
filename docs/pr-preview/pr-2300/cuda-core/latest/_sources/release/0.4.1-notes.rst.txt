@@ -1,0 +1,43 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core.experimental
+
+``cuda.core`` 0.4.1 Release Notes
+=================================
+
+Released on Oct 29, 2025
+
+
+Highlights
+----------
+
+None.
+
+
+Breaking Changes
+----------------
+
+None.
+
+
+New features
+------------
+
+None.
+
+
+New examples
+------------
+
+None.
+
+
+Fixes and enhancements
+----------------------
+
+- Fixed a segmentation fault when accessing :class:`~utils.StridedMemoryView`'s ``shape`` and ``strides`` members.
+- Fixed :attr:`DeviceMemoryResourceOptions.max_size` not accepting values above ``INT_MAX``.
+- Fixed rendering of the documentation for :class:`VirtualMemoryResourceOptions`.
+- Fixed NumPy version requirement for the code sample ``thread_block_cluster.py``.
+- Fixed VMM-related tests.
