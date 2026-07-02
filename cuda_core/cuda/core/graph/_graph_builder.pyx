@@ -341,16 +341,17 @@ cdef class GraphBuilder:
                 "graph_definition is unavailable on forked graph builders; "
                 "access it through the primary builder instead."
             )
-        if self._state == CAPTURING:
+        elif self._state == CAPTURING:
             raise RuntimeError(
                 "graph_definition is unavailable while capture is in "
                 "progress; call end_building() first."
             )
-        if self._kind == PRIMARY and self._state == CAPTURE_NOT_STARTED:
-            raise RuntimeError(
-                "graph_definition is unavailable before begin_building() on "
-                "a primary builder; no graph has been created yet."
-            )
+        elif self._kind == PRIMARY:
+            if self._state == CAPTURE_NOT_STARTED:
+                raise RuntimeError(
+                    "graph_definition is unavailable before begin_building() on "
+                    "a primary builder; no graph has been created yet."
+                )
         return GraphDefinition._from_handle(self._h_graph)
 
     def begin_building(self, mode: str | None = "relaxed") -> GraphBuilder:
