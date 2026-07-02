@@ -351,6 +351,9 @@ jobs:
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          # #2299: BAR-size query returns CUDA_ERROR_NOT_SUPPORTED on G+H;
+          # skip the test on gh200 runners until upstream cufile guards it.
+          PYTEST_ADDOPTS: ${{ matrix.GPU == 'gh200' && '--deselect tests/test_cufile.py::test_get_bar_size_in_kb' || '' }}
         run: run-tests bindings
 
       - name: Run cuda.bindings benchmarks (smoke test)
