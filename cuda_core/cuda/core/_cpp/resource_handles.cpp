@@ -6,8 +6,11 @@
 
 #include "resource_handles.hpp"
 #include <cuda.h>
+#include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
+#include <map>
 #include <mutex>
 #include <stdexcept>
 #include <unordered_map>
@@ -70,6 +73,9 @@ decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 // Graph
 decltype(&cuGraphDestroy) p_cuGraphDestroy = nullptr;
 decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy = nullptr;
+decltype(&cuUserObjectCreate) p_cuUserObjectCreate = nullptr;
+decltype(&cuUserObjectRelease) p_cuUserObjectRelease = nullptr;
+decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject = nullptr;
 
 // Linker
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
@@ -1114,11 +1120,91 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept {
 // ============================================================================
 
 namespace {
+
+// Slot table layout (internal). Each graph maps CUgraphNode -> a fixed-size
+// array of type-erased owners. The width is the most any single node needs: a
+// kernel node holds its kernel and its packed arguments; a host node holds its
+// callback and the userData. The table is heap-allocated and retained on the
+// graph as a user object, so the driver frees it -- and every owner in it --
+// when the graph is destroyed.
+constexpr std::size_t SLOTS_PER_NODE = 2;
+using NodeSlots = std::array<OpaqueHandle, SLOTS_PER_NODE>;
+using GraphSlotTable = std::map<CUgraphNode, NodeSlots>;
+
+// shared_ptr deleters for the payloads that need one. Typed handles convert to
+// OpaqueHandle by assignment and reuse their own control block, so they need no
+// deleter here. The Python deleter follows the owner-release pattern used by
+// the stream/deviceptr handles above.
+void py_deleter(const void* p) noexcept {
+    GILAcquireGuard gil;
+    if (gil.acquired()) {
+        Py_DECREF(const_cast<PyObject*>(static_cast<const PyObject*>(p)));
+    }
+}
+
+void free_deleter(const void* p) noexcept {
+    std::free(const_cast<void*>(p));
+}
+
+void destroy_graph_slot_table(void* table) noexcept {
+    delete static_cast<GraphSlotTable*>(table);
+}
+
 struct GraphBox {
     CUgraph resource;
-    GraphHandle h_parent;  // Keeps parent alive for child/branch graphs
+    GraphHandle h_parent;                  // Keeps parent alive for child/branch graphs
+    mutable GraphSlotTable* slot_table = nullptr;  // Lazily created; owned by the graph's user object
 };
+
+const GraphBox* get_box(const GraphHandle& h) {
+    const CUgraph* p = h.get();
+    return reinterpret_cast<const GraphBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(GraphBox, resource)
+    );
+}
+
+// Return box's slot table, creating it on first use. The table is retained on
+// the graph as a user object (MOVE transfers our only reference into the
+// graph), so it -- and every owner in it -- is freed when the graph is
+// destroyed. Returns nullptr if the driver lacks user-object support or a
+// driver call fails; the cached pointer is non-owning.
+GraphSlotTable* ensure_slot_table(const GraphBox* box) {
+    if (box->slot_table) {
+        return box->slot_table;
+    }
+    if (!p_cuUserObjectCreate || !p_cuGraphRetainUserObject || !p_cuUserObjectRelease) {
+        return nullptr;
+    }
+    auto* table = new GraphSlotTable();
+    CUuserObject user_obj = nullptr;
+    {
+        GILReleaseGuard gil;
+        if (p_cuUserObjectCreate(&user_obj, table,
+                                 reinterpret_cast<CUhostFn>(destroy_graph_slot_table),
+                                 1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC) != CUDA_SUCCESS) {
+            delete table;  // no user object created; nothing else owns the table
+            return nullptr;
+        }
+        if (p_cuGraphRetainUserObject(box->resource, user_obj, 1,
+                                      CU_GRAPH_USER_OBJECT_MOVE) != CUDA_SUCCESS) {
+            p_cuUserObjectRelease(user_obj, 1);  // drops refcount to 0 -> frees table
+            return nullptr;
+        }
+    }
+    box->slot_table = table;  // non-owning cache; the user object owns it
+    return table;
+}
+
 }  // namespace
+
+OpaqueHandle make_opaque_py(PyObject* obj) {
+    Py_INCREF(obj);
+    return OpaqueHandle(static_cast<const void*>(obj), py_deleter);
+}
+
+OpaqueHandle make_opaque_malloc(void* buf) {
+    return OpaqueHandle(static_cast<const void*>(buf), free_deleter);
+}
 
 GraphHandle create_graph_handle(CUgraph graph) {
     auto box = std::shared_ptr<const GraphBox>(
@@ -1135,6 +1221,19 @@ GraphHandle create_graph_handle(CUgraph graph) {
 GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) {
     auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent});
     return GraphHandle(box, &box->resource);
+}
+
+CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
+                        unsigned int slot, OpaqueHandle owner) {
+    if (!h_graph || slot >= SLOTS_PER_NODE) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    GraphSlotTable* table = ensure_slot_table(get_box(h_graph));
+    if (!table) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+    (*table)[node][slot] = std::move(owner);
+    return CUDA_SUCCESS;
 }
 
 // ============================================================================

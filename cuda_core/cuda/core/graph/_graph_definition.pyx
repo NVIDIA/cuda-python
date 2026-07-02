@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from cuda.core._device import Device
     from cuda.core._event import Event
     from cuda.core._launch_config import LaunchConfig
+    from cuda.core._memory._buffer import Buffer
     from cuda.core._module import Kernel
     from cuda.core.graph._graph_builder import (
         Graph,
@@ -156,17 +157,21 @@ cdef class GraphDefinition:
 
     def memset(
         self,
-        dst: int,
+        dst: Buffer | int,
         value,
         size_t width,
+        *,
         size_t height=1,
-        size_t pitch=0
+        size_t pitch=0,
+        dst_owner=None,
     ) -> MemsetNode:
         """Add an entry-point memset node (no dependencies).
 
         See :meth:`GraphNode.memset` for full documentation.
         """
-        return self._entry.memset(dst, value, width, height, pitch)
+        return self._entry.memset(
+            dst, value, width, height=height, pitch=pitch, dst_owner=dst_owner
+        )
 
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add an entry-point kernel launch node (no dependencies).
@@ -200,12 +205,12 @@ cdef class GraphDefinition:
         """
         return self._entry.join(*nodes)
 
-    def memcpy(self, dst: int, src: int, size_t size) -> MemcpyNode:
+    def memcpy(self, dst: Buffer | int, src: Buffer | int, size_t size, *, dst_owner=None, src_owner=None) -> MemcpyNode:
         """Add an entry-point memcpy node (no dependencies).
 
         See :meth:`GraphNode.memcpy` for full documentation.
         """
-        return self._entry.memcpy(dst, src, size)
+        return self._entry.memcpy(dst, src, size, dst_owner=dst_owner, src_owner=src_owner)
 
     def embed(self, child: GraphDefinition) -> ChildGraphNode:
         """Add an entry-point child graph node (no dependencies).
