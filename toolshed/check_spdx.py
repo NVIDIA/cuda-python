@@ -38,7 +38,25 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     "toolshed": "Apache-2.0",
 }
 
-SPECIAL_CASE_LICENSE_IDENTIFIERS = {}
+SPECIAL_CASE_LICENSE_IDENTIFIERS = {
+    # cuda.core and these tools remain under their existing licenses on the
+    # 12.9.x branch. Only cuda.bindings and cuda-python are relicensed here.
+    "cuda_core/cuda/core/experimental/_utils/__init__.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/cuda/core/experimental/_utils/clear_error_support.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/cuda/core/experimental/_utils/driver_cu_result_explanations.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/cuda/core/experimental/_utils/runtime_cuda_error_explanations.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/cuda/core/experimental/include/utility.hpp": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/tests/cython/test_cython.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/tests/cython/test_get_cuda_native_handle.pyx": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/tests/pytest.ini": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/tests/test_cuda_utils.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/tests/test_graph.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/tests/test_linker.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/tests/test_program.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_core/tests/test_utils.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "toolshed/build_static_bitcode_input.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "toolshed/dump_cutile_b64.py": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+}
 
 SPDX_IGNORE_FILENAME = ".spdx-ignore"
 
