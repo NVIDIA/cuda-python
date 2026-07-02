@@ -189,15 +189,18 @@ def get_saxpy_object():
     obj_path = binaries_dir / "saxpy.o"
 
     if not obj_path.is_file():
-        if find_nvidia_binary_utility("nvcc") is None:
+        nvcc_path = find_nvidia_binary_utility("nvcc")
+        if nvcc_path is None:
             pytest.skip(
                 f"saxpy.o not found at {obj_path} and nvcc is unavailable. "
                 "In CI this is downloaded from the build stage."
             )
+        env = os.environ.copy()
+        env["NVCC"] = nvcc_path
         subprocess.run(  # noqa: S603
             ["bash", str(binaries_dir / "build_test_binaries.sh")],  # noqa: S607
             check=True,
-            env=os.environ,
+            env=env,
         )
 
     return obj_path.read_bytes()
