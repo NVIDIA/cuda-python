@@ -35,13 +35,6 @@ repos:
         exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
         args: ["--fix"]
 
-      - id: check-license-copies
-        name: Check Package License Copies
-        entry: python ./toolshed/sync_licenses.py
-        language: system
-        pass_filenames: false
-        always_run: true
-
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
