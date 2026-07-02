@@ -38,3 +38,7 @@ The list of available interfaces is:
 * NVRTC
 * nvJitLink
 * NVVM
+
+## License
+
+CUDA Python is licensed under the [Apache License 2.0](./LICENSE).

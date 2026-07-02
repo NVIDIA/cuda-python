@@ -37,6 +37,29 @@ Some contributors prefer to commit intermediate or work-in-progress changes that
 Choose the setup that best fits your workflow and development style.
 
 
+## Signing Your Work
+
+Contributions to files licensed under Apache 2.0 must be certified under the
+[Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco).
+Sign off every commit with the `-s` option:
+
+```console
+git commit -s -m "Describe your change"
+```
+
+Git uses your configured name and email address to add a trailer like this to
+the commit message:
+
+```text
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+Use your real name and an email address associated with your contribution. The
+sign-off certifies that you have the right to submit the contribution under the
+DCO below. DCO sign-off is separate from the cryptographic commit signing
+described in the next section; both requirements apply.
+
+
 ## Code signing
 
 This repository implements a security check to prevent the CI system from running untrusted code. A part of the security check consists of checking if the git commits are signed. Please ensure that your commits are signed [following GitHub’s instruction](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification).

@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 [build-system]
 requires = [
@@ -15,7 +15,8 @@ backend-path = ["."]
 name = "cuda-bindings"
 description = "Python bindings for CUDA"
 authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
-license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Database",

@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 # These graphics API are the reimplemented version of what's supported by CUDA Runtime.
 # Issue https://github.com/NVIDIA/cuda-python/issues/488 will remove them by letting us
