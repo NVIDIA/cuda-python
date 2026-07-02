@@ -37,8 +37,9 @@ on:
         default: ''
       test-mode:
         description: >
-          Test mode: 'standard' (default), 'nightly-pytorch', or
-          'nightly-numba-cuda'.
+          Test mode: 'standard' (default), 'nightly-pytorch',
+          'nightly-numba-cuda', 'nightly-numba-cuda-mlir', or
+          'nightly-cuda-core'.
         type: string
         default: 'standard'
       sha:
@@ -409,6 +410,20 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests nightly-numba-cuda
 
+      - name: Install cuda-python wheels + numba-cuda-mlir
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-numba-cuda-mlir
+
+      - name: Install main pathfinder/bindings + released cuda-core
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-cuda-core
+
       # ── Nightly: run tests ──
       - name: Run PyTorch interop tests
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}
@@ -420,3 +435,98 @@ jobs:
       - name: Run numba-cuda tests
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         run: python -m numba.runtests numba.cuda.tests
+
+      - name: Checkout numba-cuda-mlir tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          repository: NVIDIA/numba-cuda-mlir
+          ref: v${{ env.NUMBA_CUDA_MLIR_VER }}
+          path: numba-cuda-mlir-released
+
+      - name: Run numba-cuda-mlir tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
+        run: |
+          pushd numba-cuda-mlir-released
+          # Install this tag's test deps (pytest + plugins + ml-dtypes + ...).
+          pip install --upgrade "pip>=25.1"
+          pip install --group test
+          # Skip tests/benchmarks/ and tests/doc_examples/ — they import the
+          # numba package at collection time, which cuSIMT intentionally does
+          # not depend on. See NVIDIA/numba-cuda-mlir#136.
+          #
+          # Version-gated deselects: when a newer numba-cuda-mlir release
+          # ships with the referenced fix, the guard evaluates false and the
+          # tests get run automatically. If they still fail on the newer
+          # version we hear about it loudly (rather than silently masking).
+          DESELECTS=()
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${NUMBA_CUDA_MLIR_VER}') <= Version('0.4.0') else 1)"; then
+            # NVIDIA/numba-cuda-mlir#135: serial-pytest contamination of
+            # numba_cuda_mlir.cuda.cudadrv from an xfailed test in
+            # test_nrt_comprehensive.py contaminates any later test that
+            # touches cuda.cudadrv.driver. Upstream CI hides it via
+            # `-n auto --dist loadscope`. Which specific tests fail depends
+            # on collection order (we saw different subsets on linux-64 vs
+            # win-64 across runs), so we deselect the union of all tests
+            # #135 lists as vulnerable + test_fortran_contiguous (observed
+            # to hit the same contamination in our runs).
+            #
+            # test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn:
+            # subprocess-invokes `cuobjdump`, not on PATH in the base
+            # ubuntu:24.04 container. (Linux-only; Windows runners ship
+            # cuobjdump with the local CTK. No upstream fix yet — pending
+            # a skip-guard bug to be filed against NVIDIA/numba-cuda-mlir.)
+            DESELECTS+=(
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_default_stream'
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_supplied_stream'
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_no_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_no_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync_two_streams'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_fortran_contiguous'
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_nvjitlink.py::TestLinkerDumpAssembly::test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn'
+            )
+          fi
+          pytest -rxXs -v --durations=0 \
+            --ignore=tests/benchmarks \
+            --ignore=tests/doc_examples \
+            "${DESELECTS[@]}" \
+            tests/
+          popd
+
+      - name: Checkout released cuda-core tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_VER != '' }}
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          ref: cuda-core-v${{ env.CUDA_CORE_RELEASED_VER }}
+          path: cuda-core-released
+
+      - name: Run released cuda-core tests
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_VER != '' }}
+        run: |
+          pushd cuda-core-released/cuda_core
+          # Install the released tag's test group so we exercise the exact deps
+          # that cuda-core version shipped with.
+          pip install --upgrade "pip>=25.1"
+          pip install --group "${CUDA_CORE_TEST_GROUP}"
+          # Cap pytest below 9.1: released cuda-core <=1.0.1 has parametrize
+          # patterns that pytest 9.1 rejects; the main-side fix (#2212) has
+          # not yet shipped in a cuda-core release.
+          pip install "pytest<9.1"
+          # Version-gated deselect: drops automatically when a newer
+          # cuda-core release with the wrapper-mapping update ships.
+          DESELECTS=()
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.0.1') else 1)"; then
+            # NvlinkVersion: v1.0.1's wrapper mapping predates
+            # NvlinkVersion.VERSION_6_0 which main cuda-bindings adds.
+            # Expected drift on this mode until released cuda-core catches up.
+            DESELECTS+=(
+              --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]'
+            )
+          fi
+          pytest -rxXs -v --durations=0 --randomly-dont-reorganize \
+            "${DESELECTS[@]}" \
+            tests/
+          popd
