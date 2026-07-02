@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 [build-system]
 requires = ["setuptools>=80.0.0", "setuptools-scm[simple]>=8,!=10.1"]
@@ -11,7 +11,8 @@ name = "cuda-python"
 description = "CUDA Python: Performance meets Productivity"
 readme = {file = "DESCRIPTION.rst", content-type = "text/x-rst"}
 authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
-license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: Microsoft :: Windows",
