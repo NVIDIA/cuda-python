@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fb13ef0a"></script>
+    <script src="../_static/documentation_options.js?v=b42fd552"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev109';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -751,6 +751,12 @@ and as property setters (<a class="reference internal" href="../generated/cuda.c
 <a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlinks" title="cuda.core.system.Device.get_nvlinks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlinks()</span></code></a> for device-specific NVLink enumeration.
 These APIs avoid relying on the static NVML <code class="docutils literal notranslate"><span class="pre">NVML_NVLINK_MAX_LINKS</span></code> macro
 when querying the links available on a particular device.</p></li>
+<li><p>Added the <code class="xref py py-attr docutils literal notranslate"><span class="pre">graph.GraphBuilder.graph_definition</span></code> property, which
+exposes a captured graph as an explicit <a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">graph.GraphDefinition</span></code></a>
+view sharing ownership of the same underlying graph. This enables hybrid
+flows that mix the capture and explicit graph-building APIs, such as
+inspecting or augmenting a captured graph, or populating a conditional
+body entirely through the explicit API.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
