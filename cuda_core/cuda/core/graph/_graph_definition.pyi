@@ -86,7 +86,7 @@ class GraphDefinition:
         See :meth:`GraphNode.deallocate` for full documentation.
         """
 
-    def memset(self, dst: Buffer | int, value, width: int, *, height: int=1, pitch: int=0, dst_owner=None) -> MemsetNode:
+    def memset(self, dst: Buffer | int, value, width: int, height: int=1, pitch: int=0, *, dst_owner=None) -> MemsetNode:
         """Add an entry-point memset node (no dependencies).
 
         See :meth:`GraphNode.memset` for full documentation.

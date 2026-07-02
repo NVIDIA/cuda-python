@@ -631,6 +631,7 @@ def test_kernel_args_survive_graph_clone(init_cuda):
 # =============================================================================
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_buffer_lifetime(init_cuda):
     """Memset retains the Buffer allocation after the wrapper is collected."""
     from cuda.core._utils.cuda_utils import driver, handle_return
@@ -657,6 +658,7 @@ def test_memset_buffer_lifetime(init_cuda):
     assert list(out) == [0xAB] * 4
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_buffer_survives_close(init_cuda):
     """Memset retains the allocation when the Buffer wrapper is closed."""
     from cuda.core._utils.cuda_utils import driver, handle_return
@@ -681,6 +683,7 @@ def test_memset_buffer_survives_close(init_cuda):
     assert list(out) == [0xAB] * 4
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_lifetime(init_cuda):
     """Memcpy retains operand allocations after the Buffer wrappers are collected."""
     from cuda.core._utils.cuda_utils import driver, handle_return
@@ -709,6 +712,7 @@ def test_memcpy_buffer_lifetime(init_cuda):
     assert list(out) == [0xCD] * 4
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_survives_close(init_cuda):
     """Memcpy retains allocations when Buffer wrappers are closed."""
     from cuda.core._utils.cuda_utils import driver, handle_return
@@ -736,6 +740,7 @@ def test_memcpy_buffer_survives_close(init_cuda):
     assert list(out) == [0xCD] * 4
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_allocations_released_after_graph_destroyed(init_cuda):
     """Destroying the graph frees both memcpy operand allocations.
 
@@ -769,6 +774,7 @@ def test_memcpy_buffer_allocations_released_after_graph_destroyed(init_cuda):
     _wait_until(lambda: not src_weak and not dst_weak)
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffers_survive_graph_clone(init_cuda):
     """Cloned graph keeps memcpy operand allocations alive via CUDA user objects."""
     from cuda.core._utils.cuda_utils import driver, handle_return
@@ -804,6 +810,7 @@ def test_memcpy_buffers_survive_graph_clone(init_cuda):
 # =============================================================================
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_raw_ptr_with_dst_owner(init_cuda):
     """Raw dst plus Buffer dst_owner retains the allocation after close."""
     from cuda.core._utils.cuda_utils import driver, handle_return
@@ -828,6 +835,7 @@ def test_memset_raw_ptr_with_dst_owner(init_cuda):
     assert list(out) == [0xAB] * 4
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_slot_owners_released_after_graph_destroyed(init_cuda):
     """Destroying the graph releases every owner held in its slot table.
 
@@ -863,6 +871,7 @@ def test_slot_owners_released_after_graph_destroyed(init_cuda):
     buf.close()
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_raw_ptrs_with_owners(init_cuda):
     """Raw src/dst plus Buffer owners retain allocations after close."""
     from cuda.core._utils.cuda_utils import driver, handle_return
@@ -891,6 +900,7 @@ def test_memcpy_raw_ptrs_with_owners(init_cuda):
     assert list(out) == [0xCD] * 4
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_mixed_buffer_and_raw_owner(init_cuda):
     """Buffer dst and raw src with src_owner retain allocations after close."""
     from cuda.core._utils.cuda_utils import driver, handle_return
@@ -919,6 +929,7 @@ def test_memcpy_mixed_buffer_and_raw_owner(init_cuda):
     assert list(out) == [0xCD] * 4
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_closed_buffer_rejected(init_cuda):
     """Memset rejects a Buffer with no active allocation."""
     _skip_if_no_mempool()
@@ -933,6 +944,7 @@ def test_memset_closed_buffer_rejected(init_cuda):
         g.memset(buf, 0xAB, 4)
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_closed_buffer_dst_owner_rejected(init_cuda):
     """Memset rejects a closed Buffer passed as dst_owner."""
     _skip_if_no_mempool()
@@ -948,6 +960,7 @@ def test_memset_closed_buffer_dst_owner_rejected(init_cuda):
         g.memset(dptr, 0xAB, 4, dst_owner=buf)
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_closed_buffer_src_owner_rejected(init_cuda):
     """Memcpy rejects a closed Buffer passed as src_owner."""
     _skip_if_no_mempool()
@@ -963,6 +976,7 @@ def test_memcpy_closed_buffer_src_owner_rejected(init_cuda):
         g.memcpy(dptr, dptr, 4, src_owner=buf)
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_and_dst_owner_rejected(init_cuda):
     """dst_owner cannot be combined with a Buffer dst operand."""
     _skip_if_no_mempool()
@@ -976,6 +990,7 @@ def test_memcpy_buffer_and_dst_owner_rejected(init_cuda):
         g.memcpy(buf, buf, 4, dst_owner=object())
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_and_src_owner_rejected(init_cuda):
     """src_owner cannot be combined with a Buffer src operand."""
     _skip_if_no_mempool()

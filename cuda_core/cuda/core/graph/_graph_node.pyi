@@ -179,7 +179,7 @@ class GraphNode:
             A new FreeNode representing the free operation.
         """
 
-    def memset(self, dst: Buffer | int, value, width: int, *, height: int=1, pitch: int=0, dst_owner=None) -> MemsetNode:
+    def memset(self, dst: Buffer | int, value, width: int, height: int=1, pitch: int=0, *, dst_owner=None) -> MemsetNode:
         """Add a memset node depending on this node.
 
         Parameters

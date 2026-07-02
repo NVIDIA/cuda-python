@@ -292,6 +292,7 @@ def test_graph_capture_callback_ctypes(init_cuda):
     assert result[0] == 0xAB
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_capture_callback_python_survives_del(init_cuda):
     """Captured host callback is retained in the graph slot table after del."""
     called = [False]
@@ -313,6 +314,7 @@ def test_graph_capture_callback_python_survives_del(init_cuda):
     assert called[0]
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_capture_callback_ctypes_user_data_survives_del(init_cuda):
     """Captured ctypes callback and copied user_data survive after del."""
     import ctypes
@@ -441,6 +443,7 @@ def test_graph_stream_lifetime(init_cuda):
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_definition_returns_graph_definition_after_end_building(init_cuda):
     """Primary builder exposes its captured graph as a GraphDefinition after end_building()."""
     mod = compile_common_kernels()
@@ -457,6 +460,7 @@ def test_graph_definition_returns_graph_definition_after_end_building(init_cuda)
     assert len(gd.nodes()) == 2
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_definition_raises_before_begin_building(init_cuda):
     """Primary builder has no graph allocated before begin_building()."""
     gb = Device().create_graph_builder()
@@ -464,6 +468,7 @@ def test_graph_definition_raises_before_begin_building(init_cuda):
         _ = gb.graph_definition
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_definition_raises_during_capture(init_cuda):
     """graph_definition is unsafe while the driver is actively capturing."""
     gb = Device().create_graph_builder().begin_building()
@@ -474,6 +479,7 @@ def test_graph_definition_raises_during_capture(init_cuda):
         gb.end_building()
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_definition_raises_for_forked(init_cuda):
     """Forked builders share the primary's graph; their property must raise."""
     mod = compile_common_kernels()
@@ -490,6 +496,7 @@ def test_graph_definition_raises_for_forked(init_cuda):
         sibling.end_building()
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_definition_shares_ownership(init_cuda):
     """Closing the builder must not invalidate a held GraphDefinition."""
     mod = compile_common_kernels()
@@ -505,6 +512,7 @@ def test_graph_definition_shares_ownership(init_cuda):
     assert len(gd.nodes()) == 1
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_definition_round_trips_through_explicit_api(init_cuda):
     """Mutating via the explicit API survives complete() and runs correctly."""
     mod = compile_common_kernels()
@@ -534,6 +542,7 @@ def test_graph_definition_round_trips_through_explicit_api(init_cuda):
     b.close()
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 @requires_module(np, "2.1")
 def test_graph_definition_hybrid_conditional_body(init_cuda):
     """Populate a conditional body entirely through the explicit API.
@@ -573,6 +582,7 @@ def test_graph_definition_hybrid_conditional_body(init_cuda):
     b.close()
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 @requires_module(np, "2.1")
 def test_graph_definition_conditional_body_after_capture(init_cuda):
     """Capture into a conditional body, then augment it via the explicit API."""
@@ -609,6 +619,7 @@ def test_graph_definition_conditional_body_after_capture(init_cuda):
     b.close()
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 @requires_module(np, "2.1")
 def test_graph_definition_conditional_body_during_capture_raises(init_cuda):
     """The CAPTURING-state guard fires for conditional bodies too."""

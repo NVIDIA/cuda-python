@@ -287,9 +287,9 @@ cdef class GraphNode:
         dst: Buffer | int,
         value,
         size_t width,
-        *,
         size_t height=1,
         size_t pitch=0,
+        *,
         dst_owner=None,
     ) -> MemsetNode:
         """Add a memset node depending on this node.
