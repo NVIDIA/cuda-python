@@ -2,20 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1853+g2b0a94a68. Do not modify it directly.
-
-# <<<< PREAMBLE CONTENT >>>>
-
-from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
-
-# <<<< END OF PREAMBLE CONTENT >>>>
-
+# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1844+ge04b6a4af. Do not modify it directly.
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
                                get_buffer_pointer, get_resource_ptrs)
 
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 from libcpp.vector cimport vector
 
 
@@ -23,7 +17,7 @@ from libcpp.vector cimport vector
 # Enum
 ###############################################################################
 
-class Result(_cyb_FastEnum):
+class Result(_FastEnum):
     """
     The enumerated type `nvJitLinkResult` defines API call result codes.
     nvJitLink APIs return `nvJitLinkResult` codes to indicate the result.
@@ -50,7 +44,7 @@ class Result(_cyb_FastEnum):
     ERROR_UNSUPPORTED_ARCH = (NVJITLINK_ERROR_UNSUPPORTED_ARCH, 'Unsupported -arch value')
     ERROR_LTO_NOT_ENABLED = (NVJITLINK_ERROR_LTO_NOT_ENABLED, 'Requires -lto')
 
-class InputType(_cyb_FastEnum):
+class InputType(_FastEnum):
     """
     The enumerated type `nvJitLinkInputType` defines the kind of inputs
     that can be passed to nvJitLinkAdd* APIs.
@@ -373,4 +367,3 @@ cpdef get_linked_ltoir(intptr_t handle, ltoir):
     with nogil:
         __status__ = nvJitLinkGetLinkedLTOIR(<Handle>handle, <void*>_ltoir_)
     check_status(__status__)
-del _cyb_FastEnum
