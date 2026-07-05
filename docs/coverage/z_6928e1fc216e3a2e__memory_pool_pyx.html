@@ -84,28 +84,28 @@
   "/": "tests/test_memory.py::test_managed_memory_resource_preferred_location_host_numa|run",
   ":": "tests/test_memory.py::test_managed_memory_resource_preferred_location_host|run",
   ";": "tests/test_memory.py::test_pinned_mr_numa_id_default_with_ipc|run",
-  "=": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_buffer_lifetime|run",
-  "?": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[global]|run",
-  "@": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[relaxed]|run",
-  "[": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[thread_local]|run",
+  "=": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[global]|run",
+  "?": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[relaxed]|run",
+  "@": "tests/graph/test_graph_memory_resource.py::test_dmr_check_capture_state[thread_local]|run",
+  "[": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_launch_and_verify|run",
   "]": "tests/test_memory.py::test_device_memory_resource_initialization[False]|run",
   "^": "tests/test_memory.py::test_device_memory_resource_initialization[True]|run",
   "_": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[PinnedMR]|run",
   "`": "tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]|run",
   "{": "tests/test_memory.py::test_pinned_memory_resource_initialization|run",
   "|": "tests/test_memory.py::test_pinned_mr_numa_id_default_no_ipc|run",
-  "}": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_survive_graph_clone|run",
-  "~": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-global]|run",
-  "ab": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-no_graph]|run",
-  "bb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-relaxed]|run",
-  "cb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-thread_local]|run",
-  "db": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-global]|run",
-  "eb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-no_graph]|run",
-  "fb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-relaxed]|run",
-  "gb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-thread_local]|run",
-  "hb": "tests/test_device.py::test_device_alloc_zero_bytes|run",
-  "ib": "tests/test_device.py::test_device_alloc|run",
-  "jb": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_launch_and_verify|run",
+  "}": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_buffer_lifetime|run",
+  "~": "tests/graph/test_graph_definition_lifetime.py::test_kernel_args_survive_graph_clone|run",
+  "ab": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-global]|run",
+  "bb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-no_graph]|run",
+  "cb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-relaxed]|run",
+  "db": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[fill-thread_local]|run",
+  "eb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-global]|run",
+  "fb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-no_graph]|run",
+  "gb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-relaxed]|run",
+  "hb": "tests/graph/test_graph_memory_resource.py::test_graph_alloc[incr-thread_local]|run",
+  "ib": "tests/test_device.py::test_device_alloc_zero_bytes|run",
+  "jb": "tests/test_device.py::test_device_alloc|run",
   "kb": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_two_green_contexts_independent|run",
   "lb": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_with_workqueue_resource|run",
   "mb": "tests/test_memory.py::test_buffer_external_device[False]|run",
@@ -196,145 +196,145 @@
   "ic": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 10)]|run",
   "jc": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 13, 11)]|run",
   "kc": "tests/test_utils.py::test_from_buffer[False-C-int8-()]|run",
-  "lc": "tests/test_utils.py::test_from_buffer[False-C-uint32-(2, 3)]|run",
-  "mc": "tests/test_utils.py::test_from_buffer[False-F-int8-(2, 3)]|run",
-  "nc": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 10)]|run",
-  "oc": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 13, 11)]|run",
-  "pc": "tests/test_utils.py::test_from_buffer[False-F-uint32-(2, 3)]|run",
-  "qc": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 10)]|run",
-  "rc": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 13, 11)]|run",
-  "sc": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 10)]|run",
-  "tc": "tests/test_utils.py::test_from_buffer[True-C-int8-()]|run",
-  "uc": "tests/test_utils.py::test_from_buffer[True-C-uint32-(2, 3)]|run",
-  "vc": "tests/test_utils.py::test_from_buffer[True-F-int8-(2, 3)]|run",
-  "wc": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 10)]|run",
-  "xc": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 13, 11)]|run",
-  "yc": "tests/test_utils.py::test_from_buffer[True-F-int8-()]|run",
-  "zc": "tests/test_utils.py::test_from_buffer[True-F-uint32-(2, 3)]|run",
-  "Ac": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 13, 11)]|run",
+  "lc": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 10)]|run",
+  "mc": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 13, 11)]|run",
+  "nc": "tests/test_utils.py::test_from_buffer[False-C-uint32-()]|run",
+  "oc": "tests/test_utils.py::test_from_buffer[False-F-int8-(2, 3)]|run",
+  "pc": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 10)]|run",
+  "qc": "tests/test_utils.py::test_from_buffer[False-F-int8-()]|run",
+  "rc": "tests/test_utils.py::test_from_buffer[False-F-uint32-()]|run",
+  "sc": "tests/test_utils.py::test_from_buffer[True-C-int8-(2, 3)]|run",
+  "tc": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 10)]|run",
+  "uc": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 13, 11)]|run",
+  "vc": "tests/test_utils.py::test_from_buffer[True-C-int8-()]|run",
+  "wc": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 10)]|run",
+  "xc": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 13, 11)]|run",
+  "yc": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 10)]|run",
+  "zc": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 13, 11)]|run",
+  "Ac": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 10)]|run",
   "Bc": "tests/test_utils.py::test_from_buffer[True-F-uint32-()]|run",
   "Cc": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
-  "Dc": "tests/test_utils.py::test_from_buffer_sliced[F]|run",
-  "Ec": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
-  "Fc": "tests/test_utils.py::test_strided_memory_view_repr_with_none_dtype|run",
-  "Gc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard[pool]|setup",
-  "Hc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard_prefetch|run",
-  "Ic": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_prefetch[pool]|setup",
-  "Jc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_operation_validation[pool]|setup",
-  "Kc": "tests/test_memory.py::test_managed_memory_resource_initialization|run",
-  "Lc": "(empty)",
-  "Mc": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|setup",
-  "Nc": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|setup",
-  "Oc": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[DeviceMR]|setup",
-  "Pc": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|setup",
-  "Qc": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|setup",
-  "Rc": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|setup",
-  "Sc": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|setup",
-  "Tc": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|setup",
-  "Uc": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[DeviceMR]|setup",
-  "Vc": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|setup",
-  "Wc": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[DeviceMR]|setup",
-  "Xc": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|setup",
-  "Yc": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|setup",
-  "Zc": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|setup",
-  "0c": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|setup",
-  "1c": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|setup",
-  "2c": "tests/memory_ipc/test_leaks.py::test_alloc_handle[DeviceMR]|setup",
-  "3c": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|setup",
-  "4c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|setup",
-  "5c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|setup",
-  "6c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|setup",
-  "7c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|setup",
-  "8c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|setup",
-  "9c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|setup",
-  "!c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|setup",
-  "#c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|setup",
-  "$c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|setup",
-  "%c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|setup",
-  "'c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|setup",
-  "(c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|setup",
-  ")c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|setup",
-  "*c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|setup",
-  "+c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|setup",
-  ",c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|setup",
-  "-c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|setup",
-  ".c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|setup",
-  "/c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|setup",
-  ":c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|setup",
-  ";c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|setup",
-  "=c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|setup",
-  "?c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|setup",
-  "@c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|setup",
-  "[c": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|setup",
-  "]c": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|setup",
-  "^c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|setup",
-  "_c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|setup",
-  "`c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|setup",
-  "{c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|setup",
-  "|c": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|setup",
-  "}c": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|setup",
-  "~c": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|setup",
-  "ad": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|setup",
-  "bd": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|setup",
-  "cd": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|setup",
-  "dd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|setup",
-  "ed": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|setup",
-  "fd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|setup",
-  "gd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
-  "hd": "tests/test_memory.py::test_dmr_peer_accessible_by_setter_empty|run",
-  "id": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|run",
-  "jd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|run",
-  "kd": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|run",
-  "ld": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|run",
-  "md": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|run",
-  "nd": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|run",
-  "od": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
-  "pd": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
-  "qd": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|run",
-  "rd": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|run",
-  "sd": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|run",
-  "td": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|run",
-  "ud": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|run",
-  "vd": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|run",
-  "wd": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|run",
-  "xd": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|run",
-  "yd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|run",
-  "zd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|run",
-  "Ad": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|run",
-  "Bd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|run",
-  "Cd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|run",
-  "Dd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|run",
-  "Ed": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|run",
-  "Fd": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|run",
-  "Gd": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|run",
-  "Hd": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|run",
-  "Id": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|run",
-  "Jd": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|run",
-  "Kd": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|run",
-  "Ld": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|run",
-  "Md": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|run",
-  "Nd": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|run",
-  "Od": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|run",
-  "Pd": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|run",
-  "Qd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|run",
-  "Rd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|run",
-  "Sd": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 10)]|run",
-  "Td": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 13, 11)]|run",
-  "Ud": "tests/test_utils.py::test_from_buffer[False-C-uint32-()]|run",
-  "Vd": "tests/test_utils.py::test_from_buffer[False-F-int8-()]|run",
-  "Wd": "tests/test_utils.py::test_from_buffer[False-F-uint32-()]|run",
-  "Xd": "tests/test_utils.py::test_from_buffer[True-C-int8-(2, 3)]|run",
-  "Yd": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 13, 11)]|run",
-  "Zd": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 10)]|run",
-  "0d": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 13, 11)]|run",
-  "1d": "tests/test_utils.py::test_from_buffer[True-C-uint32-()]|run",
-  "2d": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 10)]|run",
-  "3d": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[None-None-itemsize or dtype must be specified]|run",
-  "4d": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[dtype0-1-itemsize .+ does not match dtype.itemsize .+]|run",
-  "5d": "tests/test_utils.py::test_from_buffer_sliced[C]|run",
-  "6d": "tests/test_utils.py::test_from_buffer_too_small|run",
-  "7d": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
-  "8d": "tests/test_utils.py::test_view_as_cai_device_pointer_and_stream_ordering|run",
+  "Dc": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[dtype0-1-itemsize .+ does not match dtype.itemsize .+]|run",
+  "Ec": "tests/test_utils.py::test_from_buffer_sliced[C]|run",
+  "Fc": "tests/test_utils.py::test_from_buffer_sliced[F]|run",
+  "Gc": "tests/test_utils.py::test_from_buffer_too_small|run",
+  "Hc": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
+  "Ic": "tests/test_utils.py::test_strided_memory_view_repr_with_none_dtype|run",
+  "Jc": "tests/test_utils.py::test_view_as_cai_device_pointer_and_stream_ordering|run",
+  "Kc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard[pool]|setup",
+  "Lc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard_prefetch|run",
+  "Mc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_prefetch[pool]|setup",
+  "Nc": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_operation_validation[pool]|setup",
+  "Oc": "tests/test_memory.py::test_managed_memory_resource_initialization|run",
+  "Pc": "(empty)",
+  "Qc": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|setup",
+  "Rc": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|setup",
+  "Sc": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[DeviceMR]|setup",
+  "Tc": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|setup",
+  "Uc": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|setup",
+  "Vc": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|setup",
+  "Wc": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|setup",
+  "Xc": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|setup",
+  "Yc": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[DeviceMR]|setup",
+  "Zc": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|setup",
+  "0c": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[DeviceMR]|setup",
+  "1c": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|setup",
+  "2c": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|setup",
+  "3c": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|setup",
+  "4c": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|setup",
+  "5c": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|setup",
+  "6c": "tests/memory_ipc/test_leaks.py::test_alloc_handle[DeviceMR]|setup",
+  "7c": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|setup",
+  "8c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|setup",
+  "9c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|setup",
+  "!c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|setup",
+  "#c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|setup",
+  "$c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|setup",
+  "%c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|setup",
+  "'c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|setup",
+  "(c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|setup",
+  ")c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|setup",
+  "*c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|setup",
+  "+c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|setup",
+  ",c": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|setup",
+  "-c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|setup",
+  ".c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|setup",
+  "/c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|setup",
+  ":c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|setup",
+  ";c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|setup",
+  "=c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|setup",
+  "?c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|setup",
+  "@c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|setup",
+  "[c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|setup",
+  "]c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|setup",
+  "^c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|setup",
+  "_c": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|setup",
+  "`c": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|setup",
+  "{c": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|setup",
+  "|c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|setup",
+  "}c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|setup",
+  "~c": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|setup",
+  "ad": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|setup",
+  "bd": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|setup",
+  "cd": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|setup",
+  "dd": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|setup",
+  "ed": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|setup",
+  "fd": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|setup",
+  "gd": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|setup",
+  "hd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|setup",
+  "id": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|setup",
+  "jd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|setup",
+  "kd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
+  "ld": "tests/test_memory.py::test_dmr_peer_accessible_by_setter_empty|run",
+  "md": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|run",
+  "nd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|run",
+  "od": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|run",
+  "pd": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|run",
+  "qd": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|run",
+  "rd": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|run",
+  "sd": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|run",
+  "td": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "ud": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|run",
+  "vd": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|run",
+  "wd": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|run",
+  "xd": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|run",
+  "yd": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|run",
+  "zd": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|run",
+  "Ad": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|run",
+  "Bd": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|run",
+  "Cd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|run",
+  "Dd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|run",
+  "Ed": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|run",
+  "Fd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|run",
+  "Gd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|run",
+  "Hd": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|run",
+  "Id": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|run",
+  "Jd": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|run",
+  "Kd": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|run",
+  "Ld": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|run",
+  "Md": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|run",
+  "Nd": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|run",
+  "Od": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|run",
+  "Pd": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|run",
+  "Qd": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|run",
+  "Rd": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|run",
+  "Sd": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|run",
+  "Td": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|run",
+  "Ud": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|run",
+  "Vd": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|run",
+  "Wd": "tests/test_utils.py::test_from_buffer[False-C-uint32-(2, 3)]|run",
+  "Xd": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 13, 11)]|run",
+  "Yd": "tests/test_utils.py::test_from_buffer[False-F-uint32-(2, 3)]|run",
+  "Zd": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 10)]|run",
+  "0d": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 13, 11)]|run",
+  "1d": "tests/test_utils.py::test_from_buffer[True-C-uint32-(2, 3)]|run",
+  "2d": "tests/test_utils.py::test_from_buffer[True-C-uint32-()]|run",
+  "3d": "tests/test_utils.py::test_from_buffer[True-F-int8-(2, 3)]|run",
+  "4d": "tests/test_utils.py::test_from_buffer[True-F-int8-()]|run",
+  "5d": "tests/test_utils.py::test_from_buffer[True-F-uint32-(2, 3)]|run",
+  "6d": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 13, 11)]|run",
+  "7d": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[None-None-itemsize or dtype must be specified]|run",
+  "8d": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
   "9d": "tests/memory/test_managed_ops.py::TestDiscardBatch::test_basic|setup",
   "!d": "tests/memory/test_managed_ops.py::TestDiscardPrefetchBatch::test_same_location|setup",
   "#d": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_allocate_returns_managed_buffer|setup",
@@ -511,7 +511,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__peer_access_utils_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-04 01:11 +0000
+            created at 2026-07-05 01:17 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -577,7 +577,7 @@
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">    def __repr__(self) -> str:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        return f"{self.__class__.__name__}(%s)" % ", ".join(</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">3 ctx</label></span><span class="ctxs">1bac</span></p>
-    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">            f"{attr}={getattr(self, attr)}" for attr in dir(self)</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">4 ctx</label></span><span class="ctxs">2Lcb a c </span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">            f"{attr}={getattr(self, attr)}" for attr in dir(self)</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">4 ctx</label></span><span class="ctxs">2Pcb a c </span></p>
     <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">                                            if not attr.startswith("_")</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">3 ctx</label></span><span class="ctxs">1bac</span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -640,16 +640,16 @@
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        """High watermark of memory in use."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">        cdef cydriver.cuuint64_t value</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">        self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_HIGH, &amp;value)</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">11 ctx</label></span><span class="ctxs">1SOpUQInJbac</span></p>
-    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        return int(value)</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">12 ctx</label></span><span class="ctxs">2LcS O p U Q I n J b a c </span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        return int(value)</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">12 ctx</label></span><span class="ctxs">2PcS O p U Q I n J b a c </span></p>
     <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">cdef class _MemPool(MemoryResource):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    def __cinit__(self) -> None:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        # Note: subclasses use MP_init_create_pool or MP_init_current_pool to initialize.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        self._mempool_owned = False</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">302 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb9d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.dMcNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t hbibjbkblbmbnb] ^ |d5 }dhd/dL :dKc;d. / : =dK obM _ 8 X j f R N 9 Y ! Z # 0 k g S O D ?dd @do [dE ]dF ^dG _de `dp {d$ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 pb` { 7 C H | ; ) (eqbrbsb* + , - tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFc</span></p>
-    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        self._ipc_data = None</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">302 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb9d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.dMcNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t hbibjbkblbmbnb] ^ |d5 }dhd/dL :dKc;d. / : =dK obM _ 8 X j f R N 9 Y ! Z # 0 k g S O D ?dd @do [dE ]dF ^dG _de `dp {d$ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 pb` { 7 C H | ; ) (eqbrbsb* + , - tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFc</span></p>
-    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        self._attributes = None</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">302 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb9d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.dMcNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t hbibjbkblbmbnb] ^ |d5 }dhd/dL :dKc;d. / : =dK obM _ 8 X j f R N 9 Y ! Z # 0 k g S O D ?dd @do [dE ]dF ^dG _de `dp {d$ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 pb` { 7 C H | ; ) (eqbrbsb* + , - tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFc</span></p>
+    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        self._mempool_owned = False</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">306 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb9d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.dQcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t ibjb[ kblbmbnb] ^ |d5 }dld/dL :dOc;d. / : =dK obM _ 8 X j f R N 9 Y ! Z # 0 k g S O D ?dd @do [dE ]dF ^dG _de `dp {d$ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 pb` { 7 C H | ; ) (eqbrbsb* + , - tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        self._ipc_data = None</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">306 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb9d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.dQcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t ibjb[ kblbmbnb] ^ |d5 }dld/dL :dOc;d. / : =dK obM _ 8 X j f R N 9 Y ! Z # 0 k g S O D ?dd @do [dE ]dF ^dG _de `dp {d$ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 pb` { 7 C H | ; ) (eqbrbsb* + , - tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        self._attributes = None</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">306 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb9d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.dQcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t ibjb[ kblbmbnb] ^ |d5 }dld/dL :dOc;d. / : =dK obM _ 8 X j f R N 9 Y ! Z # 0 k g S O D ?dd @do [dE ]dF ^dG _de `dp {d$ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 pb` { 7 C H | ; ) (eqbrbsb* + , - tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">    def close(self) -> None:</span>&nbsp;</span><span class="r"><label for="ctxs126" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
@@ -676,10 +676,10 @@
     <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">            The allocated buffer object, which is accessible on the device that this memory</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">            resource was created for.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">        if self.is_mapped:</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">214 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgbq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 ob_ j f k g l h m i b c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">        if self.is_mapped:</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">214 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhbq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 ob_ j f k g l h m i b c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">            raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">        cdef Stream s = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">214 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgbq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 ob_ j f k g l h m i b c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
-    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">        return _MP_allocate(self, size, s)</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">214 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgbq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 ob_ j f k g l h m i b c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">        cdef Stream s = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">214 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhbq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 ob_ j f k g l h m i b c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">        return _MP_allocate(self, size, s)</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">214 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhbq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 ob_ j f k g l h m i b c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
     <p class="pln"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">    def deallocate(</span>&nbsp;</span><span class="r"><label for="ctxs156" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">        self,</span>&nbsp;</span><span class="r"></span></p>
@@ -724,7 +724,7 @@
     <p class="pln"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    def is_ipc_enabled(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        """Whether this memory resource has IPC enabled."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">        return self._ipc_data is not None</span>&nbsp;</span><input type="checkbox" id="ctxs199"><span class="r"><label for="ctxs199" class="ctx">178 ctx</label></span><span class="ctxs">2)eMc*eNcq Ocr PckdQcldRcmdScndTcu Ucv Vc+eWc,eXcodYcpdZcqd0crd1c-e2c.e3c/e4csd5ctd6c:e7c;e8cud9cvd!c=e#c?e$cwd%cxd'c@e(c[e)cyd*czd+c]e,c^e-cAd.cBd/c_e:c`e;cCd=cDd?c{e@cEd[cFd]cGd^cHd_cId`cJd{cKd|cLd}cMd~cNdadw x OdbdPdcdQdddRdedidfdjdgdy z A B s t ] ^ 5 K 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q 6 7 C H * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">        return self._ipc_data is not None</span>&nbsp;</span><input type="checkbox" id="ctxs199"><span class="r"><label for="ctxs199" class="ctx">178 ctx</label></span><span class="ctxs">2)eQc*eRcq Scr TcodUcpdVcqdWcrdXcu Ycv Zc+e0c,e1csd2ctd3cud4cvd5c-e6c.e7c/e8cwd9cxd!c:e#c;e$cyd%czd'c=e(c?e)cAd*cBd+c@e,c[e-cCd.cDd/c]e:c^e;cEd=cFd?c_e@c`e[cGd]cHd^c{e_cId`cJd{cKd|cLd}cMd~cNdadOdbdPdcdQdddRdedw x SdfdTdgdUdhdVdidmdjdndkdy z A B s t ] ^ 5 K 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q 6 7 C H * + , - V W </span></p>
     <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">    def is_mapped(self) -> bool:</span>&nbsp;</span><span class="r"></span></p>
@@ -732,7 +732,7 @@
     <p class="pln"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">        Whether this is a mapping of an IPC-enabled memory resource from</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">        another process.  If True, allocation is not permitted.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">        return self._ipc_data is not None and self._ipc_data._is_mapped</span>&nbsp;</span><input type="checkbox" id="ctxs207"><span class="r"><label for="ctxs207" class="ctx">235 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb~daebeGcHcIcJccedeeefegeheieq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 L KcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
+    <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">        return self._ipc_data is not None and self._ipc_data._is_mapped</span>&nbsp;</span><input type="checkbox" id="ctxs207"><span class="r"><label for="ctxs207" class="ctx">235 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb~daebeKcLcMcNccedeeefegeheieq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 L OcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
     <p class="pln"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">    def uuid(self) -> uuid.UUID | None:</span>&nbsp;</span><span class="r"></span></p>
@@ -740,7 +740,7 @@
     <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">        A universally unique identifier for this memory resource. Meaningful</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">        only for IPC-enabled memory resources.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="txt">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        return getattr(self._ipc_data, 'uuid', None)</span>&nbsp;</span><input type="checkbox" id="ctxs215"><span class="r"><label for="ctxs215" class="ctx">6 ctx</label></span><span class="ctxs">2q r idjds t </span></p>
+    <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">        return getattr(self._ipc_data, 'uuid', None)</span>&nbsp;</span><input type="checkbox" id="ctxs215"><span class="r"><label for="ctxs215" class="ctx">6 ctx</label></span><span class="ctxs">2q r mdnds t </span></p>
     <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">cdef int MP_init_create_pool(</span>&nbsp;</span><span class="r"><label for="ctxs218" class="ctx">(empty)</label></span></p>
@@ -757,20 +757,20 @@
     <p class="pln"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">    Sets ``_h_pool`` (owning), ``_mempool_owned``, and ``_ipc_data``.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemPoolProps properties</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">    memset(&amp;properties, 0, sizeof(cydriver.CUmemPoolProps))</span>&nbsp;</span><input type="checkbox" id="ctxs232"><span class="r"><label for="ctxs232" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">    memset(&amp;properties, 0, sizeof(cydriver.CUmemPoolProps))</span>&nbsp;</span><input type="checkbox" id="ctxs232"><span class="r"><label for="ctxs232" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
     <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    properties.allocType = alloc_type</span>&nbsp;</span><input type="checkbox" id="ctxs234"><span class="r"><label for="ctxs234" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
-    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    properties.handleTypes = (</span>&nbsp;</span><input type="checkbox" id="ctxs235"><span class="r"><label for="ctxs235" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
-    <p class="run"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">        _ipc.IPC_HANDLE_TYPE if ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs236"><span class="r"><label for="ctxs236" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
-    <p class="run"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">        else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE</span>&nbsp;</span><input type="checkbox" id="ctxs237"><span class="r"><label for="ctxs237" class="ctx">43 ctx</label></span><span class="ctxs">25 hdL . / : K M 8 j R 9 ! # k S D d o E F G e p $ l T % ' ( m U I n J b a c 6 7 H | ) </span></p>
+    <p class="run"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    properties.allocType = alloc_type</span>&nbsp;</span><input type="checkbox" id="ctxs234"><span class="r"><label for="ctxs234" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    properties.handleTypes = (</span>&nbsp;</span><input type="checkbox" id="ctxs235"><span class="r"><label for="ctxs235" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">        _ipc.IPC_HANDLE_TYPE if ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs236"><span class="r"><label for="ctxs236" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">        else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE</span>&nbsp;</span><input type="checkbox" id="ctxs237"><span class="r"><label for="ctxs237" class="ctx">43 ctx</label></span><span class="ctxs">25 ldL . / : K M 8 j R 9 ! # k S D d o E F G e p $ l T % ' ( m U I n J b a c 6 7 H | ) </span></p>
     <p class="pln"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">    properties.location.id = loc_id</span>&nbsp;</span><input type="checkbox" id="ctxs239"><span class="r"><label for="ctxs239" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
-    <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">    properties.location.type = loc_type</span>&nbsp;</span><input type="checkbox" id="ctxs240"><span class="r"><label for="ctxs240" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
-    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">    properties.maxSize = max_size</span>&nbsp;</span><input type="checkbox" id="ctxs241"><span class="r"><label for="ctxs241" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">    properties.location.id = loc_id</span>&nbsp;</span><input type="checkbox" id="ctxs239"><span class="r"><label for="ctxs239" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">    properties.location.type = loc_type</span>&nbsp;</span><input type="checkbox" id="ctxs240"><span class="r"><label for="ctxs240" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">    properties.maxSize = max_size</span>&nbsp;</span><input type="checkbox" id="ctxs241"><span class="r"><label for="ctxs241" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
     <p class="pln"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    self._mempool_owned = True</span>&nbsp;</span><input type="checkbox" id="ctxs243"><span class="r"><label for="ctxs243" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
-    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    self._h_pool = create_mempool_handle(properties)</span>&nbsp;</span><input type="checkbox" id="ctxs244"><span class="r"><label for="ctxs244" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
-    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    if not self._h_pool:</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    self._mempool_owned = True</span>&nbsp;</span><input type="checkbox" id="ctxs243"><span class="r"><label for="ctxs243" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    self._h_pool = create_mempool_handle(properties)</span>&nbsp;</span><input type="checkbox" id="ctxs244"><span class="r"><label for="ctxs244" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    if not self._h_pool:</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
     <p class="mis show_mis"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        HANDLE_RETURN(get_last_error())</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">        raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">            f"Failed to initialize {self.__class__.__name__}: "</span>&nbsp;</span><span class="r"></span></p>
@@ -779,11 +779,11 @@
     <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">            "CUDA Toolkit, and cuda-python versions."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">    if ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs254"><span class="r"><label for="ctxs254" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
-    <p class="run"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">        alloc_handle = _ipc.MP_export_mempool(self)</span>&nbsp;</span><input type="checkbox" id="ctxs255"><span class="r"><label for="ctxs255" class="ctx">95 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t X f N Y Z 0 g O 1 h P 2 3 4 i Q C ; ) * + , - V W </span></p>
-    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">        self._ipc_data = _ipc.IPCDataForMR(alloc_handle, False)</span>&nbsp;</span><input type="checkbox" id="ctxs256"><span class="r"><label for="ctxs256" class="ctx">95 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t X f N Y Z 0 g O 1 h P 2 3 4 i Q C ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">    if ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs254"><span class="r"><label for="ctxs254" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">        alloc_handle = _ipc.MP_export_mempool(self)</span>&nbsp;</span><input type="checkbox" id="ctxs255"><span class="r"><label for="ctxs255" class="ctx">95 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t X f N Y Z 0 g O 1 h P 2 3 4 i Q C ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">        self._ipc_data = _ipc.IPCDataForMR(alloc_handle, False)</span>&nbsp;</span><input type="checkbox" id="ctxs256"><span class="r"><label for="ctxs256" class="ctx">95 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t X f N Y Z 0 g O 1 h P 2 3 4 i Q C ; ) * + , - V W </span></p>
     <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs258"><span class="r"><label for="ctxs258" class="ctx">137 ctx</label></span><span class="ctxs">2McNcq Ocr PcQcRcScTcu Ucv VcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadw x bdcdddedfdgdy z A B s t 5 hdL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
+    <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs258"><span class="r"><label for="ctxs258" class="ctx">137 ctx</label></span><span class="ctxs">2QcRcq Scr TcUcVcWcXcu Ycv Zc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedw x fdgdhdidjdkdy z A B s t 5 ldL . / : K M 8 X j f R N 9 Y ! Z # 0 k g S O D d o E F G e p $ 1 l h T P % 2 ' 3 ( 4 m i U Q I n J b a c 6 7 C H | ; ) * + , - V W </span></p>
     <p class="pln"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">cdef int MP_init_current_pool(</span>&nbsp;</span><span class="r"><label for="ctxs261" class="ctx">(empty)</label></span></p>
@@ -801,17 +801,17 @@
     <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    IF CUDA_CORE_BUILD_MAJOR >= 13:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">        cdef cydriver.CUmemLocation loc</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">        cdef cydriver.CUmemoryPool pool</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">        loc.id = loc_id</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.d/dL :dKc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
-    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        loc.type = loc_type</span>&nbsp;</span><input type="checkbox" id="ctxs277"><span class="r"><label for="ctxs277" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.d/dL :dKc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
-    <p class="run"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs278"><span class="r"><label for="ctxs278" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.d/dL :dKc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
-    <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuMemGetMemPool(&amp;pool, &amp;loc, alloc_type))</span>&nbsp;</span><input type="checkbox" id="ctxs279"><span class="r"><label for="ctxs279" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.d/dL :dKc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
-    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">        self._h_pool = create_mempool_handle_ref(pool)</span>&nbsp;</span><input type="checkbox" id="ctxs280"><span class="r"><label for="ctxs280" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.d/dL :dKc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
-    <p class="run"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">        self._mempool_owned = False</span>&nbsp;</span><input type="checkbox" id="ctxs281"><span class="r"><label for="ctxs281" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.d/dL :dKc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
+    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">        loc.id = loc_id</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.d/dL :dOc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
+    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        loc.type = loc_type</span>&nbsp;</span><input type="checkbox" id="ctxs277"><span class="r"><label for="ctxs277" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.d/dL :dOc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
+    <p class="run"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">        with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs278"><span class="r"><label for="ctxs278" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.d/dL :dOc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
+    <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuMemGetMemPool(&amp;pool, &amp;loc, alloc_type))</span>&nbsp;</span><input type="checkbox" id="ctxs279"><span class="r"><label for="ctxs279" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.d/dL :dOc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
+    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">        self._h_pool = create_mempool_handle_ref(pool)</span>&nbsp;</span><input type="checkbox" id="ctxs280"><span class="r"><label for="ctxs280" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.d/dL :dOc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
+    <p class="run"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">        self._mempool_owned = False</span>&nbsp;</span><input type="checkbox" id="ctxs281"><span class="r"><label for="ctxs281" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.d/dL :dOc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
     <p class="pln"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    ELSE:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">        raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">            "Getting the current memory pool requires CUDA 13.0 or later"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs286"><span class="r"><label for="ctxs286" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dGcHc%dIc'dJc(d)d*d+d,d-d.d/dL :dKc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
+    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs286"><span class="r"><label for="ctxs286" class="ctx">49 ctx</label></span><span class="ctxs">29d!d#d$dKcLc%dMc'dNc(d)d*d+d,d-d.d/dL :dOc;d. / : =dK M _ D ?dd @do [dE ]dF ^dG _de `dp {dn a ` { </span></p>
     <p class="pln"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">cdef int MP_raise_release_threshold(_MemPool self) except? -1:</span>&nbsp;</span><span class="r"><label for="ctxs289" class="ctx">(empty)</label></span></p>
@@ -822,41 +822,41 @@
     <p class="pln"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">    ULLONG_MAX avoids repeated OS round-trips.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">    cdef cydriver.cuuint64_t current_threshold</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">    cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">131 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgbhbibjbkblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFc</span></p>
-    <p class="run"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs298"><span class="r"><label for="ctxs298" class="ctx">131 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgbhbibjbkblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFc</span></p>
-    <p class="run"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">        HANDLE_RETURN(</span>&nbsp;</span><input type="checkbox" id="ctxs299"><span class="r"><label for="ctxs299" class="ctx">131 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgbhbibjbkblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFc</span></p>
-    <p class="run"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">            cydriver.cuMemPoolGetAttribute(</span>&nbsp;</span><input type="checkbox" id="ctxs300"><span class="r"><label for="ctxs300" class="ctx">131 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgbhbibjbkblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFc</span></p>
+    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">    cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">135 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhbibjb[ kblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs298"><span class="r"><label for="ctxs298" class="ctx">135 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhbibjb[ kblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">        HANDLE_RETURN(</span>&nbsp;</span><input type="checkbox" id="ctxs299"><span class="r"><label for="ctxs299" class="ctx">135 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhbibjb[ kblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">            cydriver.cuMemPoolGetAttribute(</span>&nbsp;</span><input type="checkbox" id="ctxs300"><span class="r"><label for="ctxs300" class="ctx">135 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhbibjb[ kblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
     <p class="pln"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">                as_cu(self._h_pool),</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">                &amp;current_threshold</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">        if current_threshold == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs306"><span class="r"><label for="ctxs306" class="ctx">131 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgbhbibjbkblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFc</span></p>
-    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(</span>&nbsp;</span><input type="checkbox" id="ctxs307"><span class="r"><label for="ctxs307" class="ctx">1 ctx</label></span><span class="ctxs">1=</span></p>
+    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">        if current_threshold == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs306"><span class="r"><label for="ctxs306" class="ctx">135 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhbibjb[ kblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">            HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(</span>&nbsp;</span><input type="checkbox" id="ctxs307"><span class="r"><label for="ctxs307" class="ctx">1 ctx</label></span><span class="ctxs">1[</span></p>
     <p class="pln"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">                as_cu(self._h_pool),</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">                &amp;max_threshold</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">            ))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">131 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgbhbibjbkblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFc</span></p>
+    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">135 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhbibjb[ kblbmbnb] ^ |d}dobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
     <p class="pln"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt"># Raise an exception if the given stream is capturing.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt"># A result of CU_STREAM_CAPTURE_STATUS_INVALIDATED is considered an error.</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs317" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">    cdef cydriver.CUstreamCaptureStatus capturing</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">    HANDLE_RETURN(cydriver.cuStreamIsCapturing(s, &amp;capturing))</span>&nbsp;</span><input type="checkbox" id="ctxs319"><span class="r"><label for="ctxs319" class="ctx">235 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb~daebeGcHcIcJccedeeefegeheieq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 L KcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
-    <p class="run"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">    if capturing != cydriver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:</span>&nbsp;</span><input type="checkbox" id="ctxs320"><span class="r"><label for="ctxs320" class="ctx">235 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb~daebeGcHcIcJccedeeefegeheieq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 L KcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
-    <p class="run"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">        raise RuntimeError("_MemPool cannot perform memory operations on "</span>&nbsp;</span><input type="checkbox" id="ctxs321"><span class="r"><label for="ctxs321" class="ctx">3 ctx</label></span><span class="ctxs">1?@[</span></p>
+    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">    HANDLE_RETURN(cydriver.cuStreamIsCapturing(s, &amp;capturing))</span>&nbsp;</span><input type="checkbox" id="ctxs319"><span class="r"><label for="ctxs319" class="ctx">235 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb~daebeKcLcMcNccedeeefegeheieq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 L OcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">    if capturing != cydriver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:</span>&nbsp;</span><input type="checkbox" id="ctxs320"><span class="r"><label for="ctxs320" class="ctx">235 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb~daebeKcLcMcNccedeeefegeheieq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 L OcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">        raise RuntimeError("_MemPool cannot perform memory operations on "</span>&nbsp;</span><input type="checkbox" id="ctxs321"><span class="r"><label for="ctxs321" class="ctx">3 ctx</label></span><span class="ctxs">1=?@</span></p>
     <p class="pln"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">                           "a capturing stream (consider using GraphMemoryResource).")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = Buffer):</span>&nbsp;</span><span class="r"><label for="ctxs325" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">    cdef cydriver.CUstream s = as_cu(stream._h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs326"><span class="r"><label for="ctxs326" class="ctx">235 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb~daebeGcHcIcJccedeeefegeheieq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 L KcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
+    <p class="run"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">    cdef cydriver.CUstream s = as_cu(stream._h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs326"><span class="r"><label for="ctxs326" class="ctx">235 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb~daebeKcLcMcNccedeeefegeheieq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 L OcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
     <p class="pln"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">    cdef DevicePtrHandle h_ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs328"><span class="r"><label for="ctxs328" class="ctx">235 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb~daebeGcHcIcJccedeeefegeheieq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 L KcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
-    <p class="run"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">        check_not_capturing(s)</span>&nbsp;</span><input type="checkbox" id="ctxs329"><span class="r"><label for="ctxs329" class="ctx">235 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb~daebeGcHcIcJccedeeefegeheieq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 L KcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
-    <p class="run"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">        h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs330"><span class="r"><label for="ctxs330" class="ctx">235 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb~daebeGcHcIcJccedeeefegeheieq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 L KcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
-    <p class="run"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">    if not h_ptr:</span>&nbsp;</span><input type="checkbox" id="ctxs331"><span class="r"><label for="ctxs331" class="ctx">235 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb~daebeGcHcIcJccedeeefegeheieq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 L KcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
+    <p class="run"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs328"><span class="r"><label for="ctxs328" class="ctx">235 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb~daebeKcLcMcNccedeeefegeheieq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 L OcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">        check_not_capturing(s)</span>&nbsp;</span><input type="checkbox" id="ctxs329"><span class="r"><label for="ctxs329" class="ctx">235 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb~daebeKcLcMcNccedeeefegeheieq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 L OcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">        h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs330"><span class="r"><label for="ctxs330" class="ctx">235 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb~daebeKcLcMcNccedeeefegeheieq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 L OcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">    if not h_ptr:</span>&nbsp;</span><input type="checkbox" id="ctxs331"><span class="r"><label for="ctxs331" class="ctx">235 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb~daebeKcLcMcNccedeeefegeheieq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 L OcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">        HANDLE_RETURN(get_last_error())</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">        raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">            f"Failed to allocate {size} bytes from {self.__class__.__name__}: "</span>&nbsp;</span><span class="r"></span></p>
@@ -864,7 +864,7 @@
     <p class="pln"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">            "This is an internal cuda-core error; please report it with your CUDA driver, "</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">            "CUDA Toolkit, and cuda-python versions."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">    return Buffer_from_deviceptr_handle(h_ptr, size, self, None, cls)</span>&nbsp;</span><input type="checkbox" id="ctxs339"><span class="r"><label for="ctxs339" class="ctx">235 ctx</label></span><span class="ctxs">2= } ? @ [ ~ abbbcbdbebfbgb~daebeGcHcIcJccedeeefegeheieq r kdldmdndu v odpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdw x OdPdQdRdidjdy z A B s t hbibjbkblbmbnb] ^ 5 L KcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcSdTdUdmcncocVdpcqcrcWdXdscYdtcucZd0d1dvcwcxcyczc2dAcBcCc3d4d5dDc6d7dEcFc8d</span></p>
+    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">    return Buffer_from_deviceptr_handle(h_ptr, size, self, None, cls)</span>&nbsp;</span><input type="checkbox" id="ctxs339"><span class="r"><label for="ctxs339" class="ctx">235 ctx</label></span><span class="ctxs">2} ~ = ? @ abbbcbdbebfbgbhb~daebeKcLcMcNccedeeefegeheieq r odpdqdrdu v sdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdw x SdTdUdVdmdndy z A B s t ibjb[ kblbmbnb] ^ 5 L OcK obM _ j f k g d e l h m i b a c 6 pb` { 7 C H qbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+bV W ,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckcWdlcmcncocpcXdqcYdZd0drcsctcucvc1dwcxc2d3dyczc4d5dAc6dBcCc7dDcEcFcGc8dHcIcJc</span></p>
     <p class="pln"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">cdef inline void _MP_deallocate(</span>&nbsp;</span><span class="r"><label for="ctxs342" class="ctx">(empty)</label></span></p>
@@ -898,7 +898,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__peer_access_utils_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-04 01:11 +0000
+            created at 2026-07-05 01:17 +0000
         </p>
     </div>
 </footer>
