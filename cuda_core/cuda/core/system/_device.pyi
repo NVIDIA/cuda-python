@@ -1382,7 +1382,7 @@ class Device:
         """
         Get the corresponding :class:`cuda.core.Device` (which is used for CUDA
         access) for this :class:`cuda.core.system.Device` (which is used for
-        NVIDIA machine library (NVML) access).
+        NVIDIA Management Library (NVML) access).
 
         The devices are mapped to one another by their UUID.
 
