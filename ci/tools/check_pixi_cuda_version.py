@@ -12,18 +12,18 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSIONS = ROOT / "ci" / "versions.yml"
+VERSIONS_FILE_PATH = ROOT / "ci" / "versions.yml"
 PIXI_FILES = [ROOT / d / "pixi.toml" for d in ("cuda_bindings", "cuda_core")]
 
 
 def main() -> int:
-    if not VERSIONS.is_file():
-        print(f"error: {VERSIONS} not found", file=sys.stderr)
+    if not VERSIONS_FILE_PATH.is_file():
+        print(f"error: {VERSIONS_FILE_PATH} not found", file=sys.stderr)
         return 2
     try:
-        build_version = yaml.safe_load(VERSIONS.read_text(encoding="utf-8"))["cuda"]["build"]["version"]
+        build_version = yaml.safe_load(VERSIONS_FILE_PATH.read_text(encoding="utf-8"))["cuda"]["build"]["version"]
     except (KeyError, TypeError):
-        print(f"error: cuda.build.version not found in {VERSIONS}", file=sys.stderr)
+        print(f"error: cuda.build.version not found in {VERSIONS_FILE_PATH}", file=sys.stderr)
         return 2
 
     major, minor, *_ = build_version.split(".")
