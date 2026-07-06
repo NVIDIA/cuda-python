@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=16358579761023a22e6e7e3d8cf9ce9977dbd34fd15c9c86609ac2b34022da9c
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1568+g289771de9.d20260413. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -18,6 +19,7 @@ ctypedef CUfileBatchHandle_t BatchHandle
 ctypedef CUfileError_t Error
 ctypedef cufileRDMAInfo_t RDMAInfo
 ctypedef CUfileFSOps_t FSOps
+ctypedef CUfileIOVec_t IOVec
 ctypedef CUfileDrvProps_t DrvProps
 
 

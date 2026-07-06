@@ -1,56 +1,29 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=31bde24373116b0cc22916078af47ba61d0e885695fc25557b13265ee6befd94
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0, generator version 0.3.1.dev1844+ge04b6a4af. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
 
-cimport cython  # NOQA
+# <<<< PREAMBLE CONTENT >>>>
 
-from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
-                               nested_resource)
-
-from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
-
-from cuda.bindings.cydriver cimport CUDA_VERSION
-
-
-from libc.stdlib cimport calloc, free, malloc
-from cython cimport view
-cimport cpython.buffer
-cimport cpython.memoryview
-cimport cpython
-from libc.string cimport memcmp, memcpy
+cimport cpython as _cyb_cpython
+cimport cpython.buffer as _cyb_cpython_buffer
+cimport cpython.memoryview as _cyb_cpython_memoryview
+from cython cimport view as _cyb_view
+from libc.stdlib cimport (
+    calloc as _cyb_calloc,
+    free as _cyb_free,
+    malloc as _cyb_malloc,
+)
+from libc.string cimport (
+    memcmp as _cyb_memcmp,
+    memcpy as _cyb_memcpy,
+)
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 import numpy as _numpy
 
-
-cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
-    # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
-    if isinstance(data, lowpp_type):
-        return data
-    if not isinstance(data, _numpy.ndarray):
-        raise TypeError("data argument must be a NumPy ndarray")
-    if data.size != 1:
-        raise ValueError("data array must have a size of 1")
-    if data.dtype != expected_dtype:
-        raise ValueError(f"data array must be of dtype {dtype_name}")
-    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
-
-
-cdef __from_buffer(buffer, size, lowpp_type):
-    cdef Py_buffer view
-    if cpython.PyObject_GetBuffer(buffer, &view, cpython.PyBUF_SIMPLE) != 0:
-        raise TypeError("buffer argument does not support the buffer protocol")
-    try:
-        if view.itemsize != 1:
-            raise ValueError("buffer itemsize must be 1 byte")
-        if view.len != size:
-            raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
-    finally:
-        cpython.PyBuffer_Release(&view)
-
-
-cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
+cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
     buffer.buf = <char *>ptr
     buffer.format = 'b'
     buffer.internal = NULL
@@ -63,6 +36,45 @@ cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bi
     buffer.strides = &buffer.itemsize
     buffer.suboffsets = NULL
 
+cdef _cyb_from_buffer(buffer, size, lowpp_type):
+    cdef _cyb_cpython.Py_buffer view
+    if _cyb_cpython.PyObject_GetBuffer(buffer, &view, _cyb_cpython_buffer.PyBUF_SIMPLE) != 0:
+        raise TypeError("buffer argument does not support the buffer protocol")
+    try:
+        if view.itemsize != 1:
+            raise ValueError("buffer itemsize must be 1 byte")
+        if view.len != size:
+            raise ValueError(f"buffer length must be {size} bytes")
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+    finally:
+        _cyb_cpython.PyBuffer_Release(&view)
+
+cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
+    # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
+    if isinstance(data, lowpp_type):
+        return data
+    if not isinstance(data, _numpy.ndarray):
+        raise TypeError("data argument must be a NumPy ndarray")
+    if data.size != 1:
+        raise ValueError("data array must have a size of 1")
+    if data.dtype != expected_dtype:
+        raise ValueError(f"data array must be of dtype {dtype_name}")
+    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+
+cimport cython  # NOQA
+from cython cimport view
+cimport cpython
+from libc.string cimport memcpy
+
+from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
+                               nested_resource)
+
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
+
+from cuda.bindings.cydriver cimport CUDA_VERSION
 
 
 cdef inline unsigned int NVML_VERSION_STRUCT(const unsigned int size, const unsigned int ver) nogil:
@@ -73,7 +85,7 @@ cdef inline unsigned int NVML_VERSION_STRUCT(const unsigned int size, const unsi
 # Enum
 ###############################################################################
 
-class BridgeChipType(_FastEnum):
+class BridgeChipType(_cyb_FastEnum):
     """
     Enum to represent type of bridge chip
 
@@ -82,7 +94,7 @@ class BridgeChipType(_FastEnum):
     BRIDGE_CHIP_PLX = NVML_BRIDGE_CHIP_PLX
     BRIDGE_CHIP_BRO4 = NVML_BRIDGE_CHIP_BRO4
 
-class NvLinkUtilizationCountUnits(_FastEnum):
+class NvLinkUtilizationCountUnits(_cyb_FastEnum):
     """
     Enum to represent the NvLink utilization counter packet units
 
@@ -94,7 +106,7 @@ class NvLinkUtilizationCountUnits(_FastEnum):
     NVLINK_COUNTER_UNIT_RESERVED = NVML_NVLINK_COUNTER_UNIT_RESERVED
     NVLINK_COUNTER_UNIT_COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
 
-class NvLinkUtilizationCountPktTypes(_FastEnum):
+class NvLinkUtilizationCountPktTypes(_cyb_FastEnum):
     """
     Enum to represent the NvLink utilization counter packet types to count
     ** this is ONLY applicable with the units as packets or bytes ** as
@@ -113,7 +125,7 @@ class NvLinkUtilizationCountPktTypes(_FastEnum):
     NVLINK_COUNTER_PKTFILTER_RESPNODATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPNODATA
     NVLINK_COUNTER_PKTFILTER_ALL = NVML_NVLINK_COUNTER_PKTFILTER_ALL
 
-class NvLinkCapability(_FastEnum):
+class NvLinkCapability(_cyb_FastEnum):
     """
     Enum to represent NvLink queryable capabilities
 
@@ -127,7 +139,7 @@ class NvLinkCapability(_FastEnum):
     NVLINK_CAP_VALID = NVML_NVLINK_CAP_VALID
     NVLINK_CAP_COUNT = NVML_NVLINK_CAP_COUNT
 
-class NvLinkErrorCounter(_FastEnum):
+class NvLinkErrorCounter(_cyb_FastEnum):
     """
     Enum to represent NvLink queryable error counters
 
@@ -140,7 +152,7 @@ class NvLinkErrorCounter(_FastEnum):
     NVLINK_ERROR_DL_ECC_DATA = NVML_NVLINK_ERROR_DL_ECC_DATA
     NVLINK_ERROR_COUNT = NVML_NVLINK_ERROR_COUNT
 
-class IntNvLinkDeviceType(_FastEnum):
+class IntNvLinkDeviceType(_cyb_FastEnum):
     """
     Enum to represent NvLink's remote device type
 
@@ -151,7 +163,7 @@ class IntNvLinkDeviceType(_FastEnum):
     NVLINK_DEVICE_TYPE_SWITCH = NVML_NVLINK_DEVICE_TYPE_SWITCH
     NVLINK_DEVICE_TYPE_UNKNOWN = NVML_NVLINK_DEVICE_TYPE_UNKNOWN
 
-class GpuTopologyLevel(_FastEnum):
+class GpuTopologyLevel(_cyb_FastEnum):
     """
     Represents level relationships within a system between two GPUs The
     enums are spaced to allow for future relationships
@@ -165,7 +177,7 @@ class GpuTopologyLevel(_FastEnum):
     TOPOLOGY_NODE = NVML_TOPOLOGY_NODE
     TOPOLOGY_SYSTEM = NVML_TOPOLOGY_SYSTEM
 
-class GpuP2PStatus(_FastEnum):
+class GpuP2PStatus(_cyb_FastEnum):
     """
     See `nvmlGpuP2PStatus_t`.
     """
@@ -178,7 +190,7 @@ class GpuP2PStatus(_FastEnum):
     P2P_STATUS_NOT_SUPPORTED = NVML_P2P_STATUS_NOT_SUPPORTED
     P2P_STATUS_UNKNOWN = NVML_P2P_STATUS_UNKNOWN
 
-class GpuP2PCapsIndex(_FastEnum):
+class GpuP2PCapsIndex(_cyb_FastEnum):
     """
     See `nvmlGpuP2PCapsIndex_t`.
     """
@@ -190,7 +202,7 @@ class GpuP2PCapsIndex(_FastEnum):
     P2P_CAPS_INDEX_PROP = NVML_P2P_CAPS_INDEX_PROP
     P2P_CAPS_INDEX_UNKNOWN = NVML_P2P_CAPS_INDEX_UNKNOWN
 
-class SamplingType(_FastEnum):
+class SamplingType(_cyb_FastEnum):
     """
     Represents Type of Sampling Event
 
@@ -208,7 +220,7 @@ class SamplingType(_FastEnum):
     OFA_UTILIZATION_SAMPLES = (NVML_OFA_UTILIZATION_SAMPLES, 'To represent percent of time during which NVOFA remains busy.')
     SAMPLINGTYPE_COUNT = NVML_SAMPLINGTYPE_COUNT
 
-class PcieUtilCounter(_FastEnum):
+class PcieUtilCounter(_cyb_FastEnum):
     """
     Represents the queryable PCIe utilization counters
 
@@ -218,7 +230,7 @@ class PcieUtilCounter(_FastEnum):
     PCIE_UTIL_RX_BYTES = NVML_PCIE_UTIL_RX_BYTES
     PCIE_UTIL_COUNT = NVML_PCIE_UTIL_COUNT
 
-class ValueType(_FastEnum):
+class ValueType(_cyb_FastEnum):
     """
     Represents the type for sample value returned
 
@@ -233,7 +245,7 @@ class ValueType(_FastEnum):
     UNSIGNED_SHORT = NVML_VALUE_TYPE_UNSIGNED_SHORT
     COUNT = NVML_VALUE_TYPE_COUNT
 
-class PerfPolicyType(_FastEnum):
+class PerfPolicyType(_cyb_FastEnum):
     """
     Represents type of perf policy for which violation times can be queried
 
@@ -249,7 +261,7 @@ class PerfPolicyType(_FastEnum):
     PERF_POLICY_TOTAL_BASE_CLOCKS = (NVML_PERF_POLICY_TOTAL_BASE_CLOCKS, 'Total time the GPU was held below base clocks.')
     PERF_POLICY_COUNT = NVML_PERF_POLICY_COUNT
 
-class ThermalTarget(_FastEnum):
+class ThermalTarget(_cyb_FastEnum):
     """
     Represents the thermal sensor targets
 
@@ -266,7 +278,7 @@ class ThermalTarget(_FastEnum):
     ALL = NVML_THERMAL_TARGET_ALL
     UNKNOWN = NVML_THERMAL_TARGET_UNKNOWN
 
-class ThermalController(_FastEnum):
+class ThermalController(_cyb_FastEnum):
     """
     Represents the thermal sensor controllers
 
@@ -292,7 +304,7 @@ class ThermalController(_FastEnum):
     ADT7473S = NVML_THERMAL_CONTROLLER_ADT7473S
     UNKNOWN = NVML_THERMAL_CONTROLLER_UNKNOWN
 
-class CoolerControl(_FastEnum):
+class CoolerControl(_cyb_FastEnum):
     """
     Cooler control type
 
@@ -303,7 +315,7 @@ class CoolerControl(_FastEnum):
     THERMAL_COOLER_SIGNAL_VARIABLE = (NVML_THERMAL_COOLER_SIGNAL_VARIABLE, "This cooler's level can be adjusted from some minimum to some maximum (eg a knob).")
     THERMAL_COOLER_SIGNAL_COUNT = NVML_THERMAL_COOLER_SIGNAL_COUNT
 
-class CoolerTarget(_FastEnum):
+class CoolerTarget(_cyb_FastEnum):
     """
     Cooler's target
 
@@ -315,7 +327,7 @@ class CoolerTarget(_FastEnum):
     THERMAL_POWER_SUPPLY = (NVML_THERMAL_COOLER_TARGET_POWER_SUPPLY, 'This cooler can cool the power supply.')
     THERMAL_GPU_RELATED = (NVML_THERMAL_COOLER_TARGET_GPU_RELATED, 'This cooler cools all of the components related to its target gpu. GPU_RELATED = GPU | MEMORY | POWER_SUPPLY.')
 
-class UUIDType(_FastEnum):
+class UUIDType(_cyb_FastEnum):
     """
     Enum to represent different UUID types
 
@@ -325,7 +337,7 @@ class UUIDType(_FastEnum):
     ASCII = (NVML_UUID_TYPE_ASCII, 'ASCII format type.')
     BINARY = (NVML_UUID_TYPE_BINARY, 'Binary format type.')
 
-class EnableState(_FastEnum):
+class EnableState(_cyb_FastEnum):
     """
     Generic enable/disable enum.
 
@@ -334,7 +346,7 @@ class EnableState(_FastEnum):
     FEATURE_DISABLED = (NVML_FEATURE_DISABLED, 'Feature disabled.')
     FEATURE_ENABLED = (NVML_FEATURE_ENABLED, 'Feature enabled.')
 
-class BrandType(_FastEnum):
+class BrandType(_cyb_FastEnum):
     """
     - The Brand of the GPU
 
@@ -358,34 +370,38 @@ class BrandType(_FastEnum):
     BRAND_NVIDIA = NVML_BRAND_NVIDIA
     BRAND_GEFORCE_RTX = NVML_BRAND_GEFORCE_RTX
     BRAND_TITAN_RTX = NVML_BRAND_TITAN_RTX
+    BRAND_NVIDIA_DLA = NVML_BRAND_NVIDIA_DLA
+    BRAND_NVIDIA_VGAMEDEV = NVML_BRAND_NVIDIA_VGAMEDEV
+    BRAND_NVIDIA_NPU = NVML_BRAND_NVIDIA_NPU
     BRAND_COUNT = NVML_BRAND_COUNT
 
-class TemperatureThresholds(_FastEnum):
+class TemperatureThresholds(_cyb_FastEnum):
     """
     Temperature thresholds.
 
     See `nvmlTemperatureThresholds_t`.
     """
-    TEMPERATURE_THRESHOLD_SHUTDOWN = NVML_TEMPERATURE_THRESHOLD_SHUTDOWN
-    TEMPERATURE_THRESHOLD_SLOWDOWN = NVML_TEMPERATURE_THRESHOLD_SLOWDOWN
-    TEMPERATURE_THRESHOLD_MEM_MAX = NVML_TEMPERATURE_THRESHOLD_MEM_MAX
-    TEMPERATURE_THRESHOLD_GPU_MAX = NVML_TEMPERATURE_THRESHOLD_GPU_MAX
-    TEMPERATURE_THRESHOLD_ACOUSTIC_MIN = NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MIN
-    TEMPERATURE_THRESHOLD_ACOUSTIC_CURR = NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_CURR
-    TEMPERATURE_THRESHOLD_ACOUSTIC_MAX = NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MAX
-    TEMPERATURE_THRESHOLD_GPS_CURR = NVML_TEMPERATURE_THRESHOLD_GPS_CURR
+    TEMPERATURE_THRESHOLD_SHUTDOWN = (NVML_TEMPERATURE_THRESHOLD_SHUTDOWN, 'Temperature at which the GPU will shut down for HW protection')
+    TEMPERATURE_THRESHOLD_SLOWDOWN = (NVML_TEMPERATURE_THRESHOLD_SLOWDOWN, 'Temperature at which the GPU will begin HW slowdown')
+    TEMPERATURE_THRESHOLD_MEM_MAX = (NVML_TEMPERATURE_THRESHOLD_MEM_MAX, 'Memory Temperature at which the GPU will begin SW slowdown')
+    TEMPERATURE_THRESHOLD_GPU_MAX = (NVML_TEMPERATURE_THRESHOLD_GPU_MAX, 'GPU Temperature at which the GPU can be throttled below base clock')
+    TEMPERATURE_THRESHOLD_ACOUSTIC_MIN = (NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MIN, 'Minimum GPU Temperature that can be set as acoustic threshold')
+    TEMPERATURE_THRESHOLD_ACOUSTIC_CURR = (NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_CURR, 'Current temperature that is set as acoustic threshold.')
+    TEMPERATURE_THRESHOLD_ACOUSTIC_MAX = (NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MAX, 'Maximum GPU temperature that can be set as acoustic threshold.')
+    TEMPERATURE_THRESHOLD_GPS_CURR = (NVML_TEMPERATURE_THRESHOLD_GPS_CURR, 'Current temperature that is set as gps threshold.')
     TEMPERATURE_THRESHOLD_COUNT = NVML_TEMPERATURE_THRESHOLD_COUNT
 
-class TemperatureSensors(_FastEnum):
+class TemperatureSensors(_cyb_FastEnum):
     """
     Temperature sensors.
 
     See `nvmlTemperatureSensors_t`.
     """
     TEMPERATURE_GPU = (NVML_TEMPERATURE_GPU, 'Temperature sensor for the GPU die.')
+    TEMPERATURE_GPU_MAX = (NVML_TEMPERATURE_GPU_MAX, 'Temperature from the hottest part of the GPU die.')
     TEMPERATURE_COUNT = NVML_TEMPERATURE_COUNT
 
-class ComputeMode(_FastEnum):
+class ComputeMode(_cyb_FastEnum):
     """
     Compute mode.  NVML_COMPUTEMODE_EXCLUSIVE_PROCESS was added in CUDA
     4.0. Earlier CUDA versions supported a single exclusive mode, which is
@@ -399,7 +415,7 @@ class ComputeMode(_FastEnum):
     COMPUTEMODE_EXCLUSIVE_PROCESS = (NVML_COMPUTEMODE_EXCLUSIVE_PROCESS, 'Compute-exclusive-process mode -- only one context per device, usable from multiple threads at a time.')
     COMPUTEMODE_COUNT = NVML_COMPUTEMODE_COUNT
 
-class MemoryErrorType(_FastEnum):
+class MemoryErrorType(_cyb_FastEnum):
     """
     Memory error types
 
@@ -409,7 +425,7 @@ class MemoryErrorType(_FastEnum):
     UNCORRECTED = (NVML_MEMORY_ERROR_TYPE_UNCORRECTED, 'A memory error that was not corrected  For ECC errors, these are double bit errors For Texture memory, these are errors where the resend fails')
     COUNT = (NVML_MEMORY_ERROR_TYPE_COUNT, 'Count of memory error types.')
 
-class NvlinkVersion(_FastEnum):
+class NvlinkVersion(_cyb_FastEnum):
     """
     Represents Nvlink Version
 
@@ -425,7 +441,7 @@ class NvlinkVersion(_FastEnum):
     VERSION_5_0 = (NVML_NVLINK_VERSION_5_0, 'NVLink Version 5.0.')
     VERSION_6_0 = (NVML_NVLINK_VERSION_6_0, 'NVLink Version 6.0.')
 
-class EccCounterType(_FastEnum):
+class EccCounterType(_cyb_FastEnum):
     """
     ECC counter types.  Note: Volatile counts are reset each time the
     driver loads. On Windows this is once per boot. On Linux this can be
@@ -440,7 +456,7 @@ class EccCounterType(_FastEnum):
     AGGREGATE_ECC = (NVML_AGGREGATE_ECC, 'Aggregate counts persist across reboots (i.e. for the lifetime of the device).')
     COUNT = (NVML_ECC_COUNTER_TYPE_COUNT, 'Count of memory counter types.')
 
-class ClockType(_FastEnum):
+class ClockType(_cyb_FastEnum):
     """
     Clock types.  All speeds are in Mhz.
 
@@ -452,7 +468,7 @@ class ClockType(_FastEnum):
     CLOCK_VIDEO = (NVML_CLOCK_VIDEO, 'Video encoder/decoder clock domain.')
     CLOCK_COUNT = (NVML_CLOCK_COUNT, 'Count of clock types.')
 
-class ClockId(_FastEnum):
+class ClockId(_cyb_FastEnum):
     """
     Clock Ids. These are used in combination with `nvmlClockType_t` to
     specify a single clock value.
@@ -465,7 +481,7 @@ class ClockId(_FastEnum):
     CUSTOMER_BOOST_MAX = (NVML_CLOCK_ID_CUSTOMER_BOOST_MAX, 'OEM-defined maximum clock rate.')
     COUNT = (NVML_CLOCK_ID_COUNT, 'Count of Clock Ids.')
 
-class DriverModel(_FastEnum):
+class DriverModel(_cyb_FastEnum):
     """
     Driver models.  Windows only.
 
@@ -475,7 +491,7 @@ class DriverModel(_FastEnum):
     DRIVER_WDM = (NVML_DRIVER_WDM, 'WDM (TCC) model (deprecated) -- GPU treated as a generic compute device.')
     DRIVER_MCDM = (NVML_DRIVER_MCDM, 'MCDM driver model -- GPU treated as a Microsoft compute device.')
 
-class Pstates(_FastEnum):
+class Pstates(_cyb_FastEnum):
     """
     Allowed PStates.
 
@@ -499,7 +515,7 @@ class Pstates(_FastEnum):
     PSTATE_15 = (NVML_PSTATE_15, 'Performance state 15 -- Minimum Performance.')
     PSTATE_UNKNOWN = (NVML_PSTATE_UNKNOWN, 'Unknown performance state.')
 
-class GpuOperationMode(_FastEnum):
+class GpuOperationMode(_cyb_FastEnum):
     """
     GPU Operation Mode  GOM allows to reduce power usage and optimize GPU
     throughput by disabling GPU features.  Each GOM is designed to meet
@@ -511,7 +527,7 @@ class GpuOperationMode(_FastEnum):
     GOM_COMPUTE = (NVML_GOM_COMPUTE, 'Designed for running only compute tasks. Graphics operations are not allowed')
     GOM_LOW_DP = (NVML_GOM_LOW_DP, "Designed for running graphics applications that don't require high bandwidth double precision")
 
-class InforomObject(_FastEnum):
+class InforomObject(_cyb_FastEnum):
     """
     Available infoROM objects.
 
@@ -523,7 +539,7 @@ class InforomObject(_FastEnum):
     INFOROM_DEN = (NVML_INFOROM_DEN, 'DRAM Encryption object.')
     INFOROM_COUNT = (NVML_INFOROM_COUNT, 'This counts the number of infoROM objects the driver knows about.')
 
-class Return(_FastEnum):
+class Return(_cyb_FastEnum):
     """
     Return values for NVML API calls.
 
@@ -562,7 +578,7 @@ class Return(_FastEnum):
     ERROR_RESET_TYPE_NOT_SUPPORTED = (NVML_ERROR_RESET_TYPE_NOT_SUPPORTED, 'Reset not supported for given device/parameters.')
     ERROR_UNKNOWN = (NVML_ERROR_UNKNOWN, 'An internal driver error occurred.')
 
-class MemoryLocation(_FastEnum):
+class MemoryLocation(_cyb_FastEnum):
     """
     See `nvmlDeviceGetMemoryErrorCounter`
 
@@ -579,7 +595,7 @@ class MemoryLocation(_FastEnum):
     SRAM = (NVML_MEMORY_LOCATION_SRAM, 'Turing+ SRAM.')
     COUNT = (NVML_MEMORY_LOCATION_COUNT, 'This counts the number of memory locations the driver knows about.')
 
-class PageRetirementCause(_FastEnum):
+class PageRetirementCause(_cyb_FastEnum):
     """
     Causes for page retirement
 
@@ -589,7 +605,7 @@ class PageRetirementCause(_FastEnum):
     DOUBLE_BIT_ECC_ERROR = (NVML_PAGE_RETIREMENT_CAUSE_DOUBLE_BIT_ECC_ERROR, 'Page was retired due to double bit ECC error.')
     COUNT = NVML_PAGE_RETIREMENT_CAUSE_COUNT
 
-class RestrictedAPI(_FastEnum):
+class RestrictedAPI(_cyb_FastEnum):
     """
     API types that allow changes to default permission restrictions
 
@@ -599,7 +615,7 @@ class RestrictedAPI(_FastEnum):
     SET_AUTO_BOOSTED_CLOCKS = (NVML_RESTRICTED_API_SET_AUTO_BOOSTED_CLOCKS, 'APIs that enable/disable Auto Boosted clocks see nvmlDeviceSetAutoBoostedClocksEnabled')
     COUNT = NVML_RESTRICTED_API_COUNT
 
-class GpuUtilizationDomainId(_FastEnum):
+class GpuUtilizationDomainId(_cyb_FastEnum):
     """
     Represents the GPU utilization domains
 
@@ -610,7 +626,7 @@ class GpuUtilizationDomainId(_FastEnum):
     GPU_UTILIZATION_DOMAIN_VID = (NVML_GPU_UTILIZATION_DOMAIN_VID, 'Video engine domain.')
     GPU_UTILIZATION_DOMAIN_BUS = (NVML_GPU_UTILIZATION_DOMAIN_BUS, 'Bus interface domain.')
 
-class GpuVirtualizationMode(_FastEnum):
+class GpuVirtualizationMode(_cyb_FastEnum):
     """
     GPU virtualization mode types.
 
@@ -622,7 +638,7 @@ class GpuVirtualizationMode(_FastEnum):
     HOST_VGPU = (NVML_GPU_VIRTUALIZATION_MODE_HOST_VGPU, 'Device is associated with VGX hypervisor in vGPU mode.')
     HOST_VSGA = (NVML_GPU_VIRTUALIZATION_MODE_HOST_VSGA, 'Device is associated with VGX hypervisor in vSGA mode.')
 
-class HostVgpuMode(_FastEnum):
+class HostVgpuMode(_cyb_FastEnum):
     """
     Host vGPU modes
 
@@ -631,7 +647,7 @@ class HostVgpuMode(_FastEnum):
     NON_SRIOV = (NVML_HOST_VGPU_MODE_NON_SRIOV, 'Non SR-IOV mode.')
     SRIOV = (NVML_HOST_VGPU_MODE_SRIOV, 'SR-IOV mode.')
 
-class VgpuVmIdType(_FastEnum):
+class VgpuVmIdType(_cyb_FastEnum):
     """
     Types of VM identifiers
 
@@ -640,7 +656,7 @@ class VgpuVmIdType(_FastEnum):
     VGPU_VM_ID_DOMAIN_ID = (NVML_VGPU_VM_ID_DOMAIN_ID, 'VM ID represents DOMAIN ID.')
     VGPU_VM_ID_UUID = (NVML_VGPU_VM_ID_UUID, 'VM ID represents UUID.')
 
-class VgpuGuestInfoState(_FastEnum):
+class VgpuGuestInfoState(_cyb_FastEnum):
     """
     vGPU GUEST info state
 
@@ -649,7 +665,7 @@ class VgpuGuestInfoState(_FastEnum):
     VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED, 'Guest-dependent fields uninitialized.')
     VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED, 'Guest-dependent fields initialized.')
 
-class GridLicenseFeatureCode(_FastEnum):
+class GridLicenseFeatureCode(_cyb_FastEnum):
     """
     vGPU software licensable features
 
@@ -661,8 +677,9 @@ class GridLicenseFeatureCode(_FastEnum):
     VWORKSTATION = (NVML_GRID_LICENSE_FEATURE_CODE_VWORKSTATION, 'Deprecated, do not use.')
     GAMING = (NVML_GRID_LICENSE_FEATURE_CODE_GAMING, 'Gaming.')
     COMPUTE = (NVML_GRID_LICENSE_FEATURE_CODE_COMPUTE, 'Compute.')
+    VGAMEDEV = (NVML_GRID_LICENSE_FEATURE_CODE_VGAMEDEV, 'vGameDev')
 
-class VgpuCapability(_FastEnum):
+class VgpuCapability(_cyb_FastEnum):
     """
     vGPU queryable capabilities
 
@@ -675,7 +692,7 @@ class VgpuCapability(_FastEnum):
     VGPU_CAP_EXCLUSIVE_SIZE = (NVML_VGPU_CAP_EXCLUSIVE_SIZE, 'vGPU profile cannot run on a GPU alongside other profiles of different size')
     VGPU_CAP_COUNT = NVML_VGPU_CAP_COUNT
 
-class VgpuDriverCapability(_FastEnum):
+class VgpuDriverCapability(_cyb_FastEnum):
     """
     vGPU driver queryable capabilities
 
@@ -685,7 +702,7 @@ class VgpuDriverCapability(_FastEnum):
     VGPU_DRIVER_CAP_WARM_UPDATE = (NVML_VGPU_DRIVER_CAP_WARM_UPDATE, 'Supports FSR and warm update of vGPU host driver without terminating the running guest VM.')
     VGPU_DRIVER_CAP_COUNT = NVML_VGPU_DRIVER_CAP_COUNT
 
-class DeviceVgpuCapability(_FastEnum):
+class DeviceVgpuCapability(_cyb_FastEnum):
     """
     Device vGPU queryable capabilities
 
@@ -705,7 +722,7 @@ class DeviceVgpuCapability(_FastEnum):
     DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED, 'Set/Get MIG timesliced mode reporting, without impacting the underlying functionality.')
     DEVICE_VGPU_CAP_COUNT = NVML_DEVICE_VGPU_CAP_COUNT
 
-class DeviceGpuRecoveryAction(_FastEnum):
+class DeviceGpuRecoveryAction(_cyb_FastEnum):
     """
     Enum describing the GPU Recovery Action
 
@@ -718,7 +735,7 @@ class DeviceGpuRecoveryAction(_FastEnum):
     GPU_RECOVERY_ACTION_DRAIN_AND_RESET = (NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET, 'Drain P2P and Reset Gpu.')
     GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN = (NVML_GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN, 'Recover IMEX Domain.')
 
-class FanState(_FastEnum):
+class FanState(_cyb_FastEnum):
     """
     Fan state enum.
 
@@ -727,7 +744,7 @@ class FanState(_FastEnum):
     FAN_NORMAL = (NVML_FAN_NORMAL, 'Fan is working properly.')
     FAN_FAILED = (NVML_FAN_FAILED, 'Fan has failed.')
 
-class LedColor(_FastEnum):
+class LedColor(_cyb_FastEnum):
     """
     Led color enum.
 
@@ -736,7 +753,7 @@ class LedColor(_FastEnum):
     GREEN = (NVML_LED_COLOR_GREEN, 'GREEN, indicates good health.')
     AMBER = (NVML_LED_COLOR_AMBER, 'AMBER, indicates problem.')
 
-class EncoderType(_FastEnum):
+class EncoderType(_cyb_FastEnum):
     """
     Represents type of encoder for capacity can be queried
 
@@ -747,7 +764,7 @@ class EncoderType(_FastEnum):
     ENCODER_QUERY_AV1 = (NVML_ENCODER_QUERY_AV1, 'AV1 encoder.')
     ENCODER_QUERY_UNKNOWN = (NVML_ENCODER_QUERY_UNKNOWN, 'Unknown encoder.')
 
-class FBCSessionType(_FastEnum):
+class FBCSessionType(_cyb_FastEnum):
     """
     Represents frame buffer capture session type
 
@@ -759,7 +776,7 @@ class FBCSessionType(_FastEnum):
     VID = (NVML_FBC_SESSION_TYPE_VID, 'Vid.')
     HWENC = (NVML_FBC_SESSION_TYPE_HWENC, 'HEnc.')
 
-class DetachGpuState(_FastEnum):
+class DetachGpuState(_cyb_FastEnum):
     """
     Is the GPU device to be removed from the kernel by
     `nvmlDeviceRemoveGpu()`
@@ -769,7 +786,7 @@ class DetachGpuState(_FastEnum):
     DETACH_GPU_KEEP = NVML_DETACH_GPU_KEEP
     DETACH_GPU_REMOVE = NVML_DETACH_GPU_REMOVE
 
-class PcieLinkState(_FastEnum):
+class PcieLinkState(_cyb_FastEnum):
     """
     Parent bridge PCIe link state requested by `nvmlDeviceRemoveGpu()`
 
@@ -778,7 +795,7 @@ class PcieLinkState(_FastEnum):
     PCIE_LINK_KEEP = NVML_PCIE_LINK_KEEP
     PCIE_LINK_SHUT_DOWN = NVML_PCIE_LINK_SHUT_DOWN
 
-class ClockLimitId(_FastEnum):
+class ClockLimitId(_cyb_FastEnum):
     """
     See `nvmlClockLimitId_t`.
     """
@@ -786,7 +803,7 @@ class ClockLimitId(_FastEnum):
     TDP = NVML_CLOCK_LIMIT_ID_TDP
     UNLIMITED = NVML_CLOCK_LIMIT_ID_UNLIMITED
 
-class VgpuVmCompatibility(_FastEnum):
+class VgpuVmCompatibility(_cyb_FastEnum):
     """
     vGPU VM compatibility codes
 
@@ -798,7 +815,7 @@ class VgpuVmCompatibility(_FastEnum):
     SLEEP = (NVML_VGPU_VM_COMPATIBILITY_SLEEP, 'vGPU is runnable from a sleeped state (ACPI S3)')
     LIVE = (NVML_VGPU_VM_COMPATIBILITY_LIVE, 'vGPU is runnable from a live/paused (ACPI S0)')
 
-class VgpuPgpuCompatibilityLimitCode(_FastEnum):
+class VgpuPgpuCompatibilityLimitCode(_cyb_FastEnum):
     """
     vGPU-pGPU compatibility limit codes
 
@@ -810,7 +827,7 @@ class VgpuPgpuCompatibilityLimitCode(_FastEnum):
     VGPU_COMPATIBILITY_LIMIT_GPU = (NVML_VGPU_COMPATIBILITY_LIMIT_GPU, 'Compatibility is limited by GPU hardware.')
     VGPU_COMPATIBILITY_LIMIT_OTHER = (NVML_VGPU_COMPATIBILITY_LIMIT_OTHER, 'Compatibility is limited by an undefined factor.')
 
-class GpmMetricId(_FastEnum):
+class GpmMetricId(_cyb_FastEnum):
     """
     GPM Metric Identifiers
 
@@ -887,152 +904,152 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_NVLINK_L16_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_TX_PER_SEC, 'NvLink write bandwidth for link 16 in MiB/sec.')
     GPM_METRIC_NVLINK_L17_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_RX_PER_SEC, 'NvLink read bandwidth for link 17 in MiB/sec.')
     GPM_METRIC_NVLINK_L17_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_TX_PER_SEC, 'NvLink write bandwidth for link 17 in MiB/sec.')
-    GPM_METRIC_C2C_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC
-    GPM_METRIC_HOSTMEM_CACHE_HIT = NVML_GPM_METRIC_HOSTMEM_CACHE_HIT
-    GPM_METRIC_HOSTMEM_CACHE_MISS = NVML_GPM_METRIC_HOSTMEM_CACHE_MISS
-    GPM_METRIC_PEERMEM_CACHE_HIT = NVML_GPM_METRIC_PEERMEM_CACHE_HIT
-    GPM_METRIC_PEERMEM_CACHE_MISS = NVML_GPM_METRIC_PEERMEM_CACHE_MISS
-    GPM_METRIC_DRAM_CACHE_HIT = NVML_GPM_METRIC_DRAM_CACHE_HIT
-    GPM_METRIC_DRAM_CACHE_MISS = NVML_GPM_METRIC_DRAM_CACHE_MISS
-    GPM_METRIC_NVENC_0_UTIL = NVML_GPM_METRIC_NVENC_0_UTIL
-    GPM_METRIC_NVENC_1_UTIL = NVML_GPM_METRIC_NVENC_1_UTIL
-    GPM_METRIC_NVENC_2_UTIL = NVML_GPM_METRIC_NVENC_2_UTIL
-    GPM_METRIC_NVENC_3_UTIL = NVML_GPM_METRIC_NVENC_3_UTIL
-    GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR0_CTXSW_REQUESTS = NVML_GPM_METRIC_GR0_CTXSW_REQUESTS
-    GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR0_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR0_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR1_CTXSW_REQUESTS = NVML_GPM_METRIC_GR1_CTXSW_REQUESTS
-    GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR1_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR1_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR2_CTXSW_REQUESTS = NVML_GPM_METRIC_GR2_CTXSW_REQUESTS
-    GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR2_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR2_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR3_CTXSW_REQUESTS = NVML_GPM_METRIC_GR3_CTXSW_REQUESTS
-    GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR3_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR3_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR4_CTXSW_REQUESTS = NVML_GPM_METRIC_GR4_CTXSW_REQUESTS
-    GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR4_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR4_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR5_CTXSW_REQUESTS = NVML_GPM_METRIC_GR5_CTXSW_REQUESTS
-    GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR5_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR5_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR6_CTXSW_REQUESTS = NVML_GPM_METRIC_GR6_CTXSW_REQUESTS
-    GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR6_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR6_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR7_CTXSW_REQUESTS = NVML_GPM_METRIC_GR7_CTXSW_REQUESTS
-    GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT
-    GPM_METRIC_NVLINK_L18_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L18_RX_PER_SEC
-    GPM_METRIC_NVLINK_L18_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L18_TX_PER_SEC
-    GPM_METRIC_NVLINK_L19_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L19_RX_PER_SEC
-    GPM_METRIC_NVLINK_L19_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L19_TX_PER_SEC
-    GPM_METRIC_NVLINK_L20_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L20_RX_PER_SEC
-    GPM_METRIC_NVLINK_L20_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L20_TX_PER_SEC
-    GPM_METRIC_NVLINK_L21_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L21_RX_PER_SEC
-    GPM_METRIC_NVLINK_L21_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L21_TX_PER_SEC
-    GPM_METRIC_NVLINK_L22_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L22_RX_PER_SEC
-    GPM_METRIC_NVLINK_L22_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L22_TX_PER_SEC
-    GPM_METRIC_NVLINK_L23_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L23_RX_PER_SEC
-    GPM_METRIC_NVLINK_L23_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L23_TX_PER_SEC
-    GPM_METRIC_NVLINK_L24_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L24_RX_PER_SEC
-    GPM_METRIC_NVLINK_L24_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L24_TX_PER_SEC
-    GPM_METRIC_NVLINK_L25_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L25_RX_PER_SEC
-    GPM_METRIC_NVLINK_L25_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L25_TX_PER_SEC
-    GPM_METRIC_NVLINK_L26_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L26_RX_PER_SEC
-    GPM_METRIC_NVLINK_L26_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L26_TX_PER_SEC
-    GPM_METRIC_NVLINK_L27_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L27_RX_PER_SEC
-    GPM_METRIC_NVLINK_L27_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L27_TX_PER_SEC
-    GPM_METRIC_NVLINK_L28_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L28_RX_PER_SEC
-    GPM_METRIC_NVLINK_L28_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L28_TX_PER_SEC
-    GPM_METRIC_NVLINK_L29_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L29_RX_PER_SEC
-    GPM_METRIC_NVLINK_L29_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L29_TX_PER_SEC
-    GPM_METRIC_NVLINK_L30_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L30_RX_PER_SEC
-    GPM_METRIC_NVLINK_L30_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L30_TX_PER_SEC
-    GPM_METRIC_NVLINK_L31_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L31_RX_PER_SEC
-    GPM_METRIC_NVLINK_L31_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L31_TX_PER_SEC
-    GPM_METRIC_NVLINK_L32_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L32_RX_PER_SEC
-    GPM_METRIC_NVLINK_L32_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L32_TX_PER_SEC
-    GPM_METRIC_NVLINK_L33_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L33_RX_PER_SEC
-    GPM_METRIC_NVLINK_L33_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L33_TX_PER_SEC
-    GPM_METRIC_NVLINK_L34_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L34_RX_PER_SEC
-    GPM_METRIC_NVLINK_L34_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L34_TX_PER_SEC
-    GPM_METRIC_NVLINK_L35_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L35_RX_PER_SEC
-    GPM_METRIC_NVLINK_L35_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L35_TX_PER_SEC
+    GPM_METRIC_C2C_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_TOTAL_TX_PER_SEC, 'C2C total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_TOTAL_RX_PER_SEC, 'C2C total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_DATA_TX_PER_SEC, 'C2C data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_DATA_RX_PER_SEC, 'C2C data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC, 'C2C link 0 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC, 'C2C link 0 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC, 'C2C link 0 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC, 'C2C link 0 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC, 'C2C link 1 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC, 'C2C link 1 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC, 'C2C link 1 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC, 'C2C link 1 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC, 'C2C link 2 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC, 'C2C link 2 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC, 'C2C link 2 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC, 'C2C link 2 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC, 'C2C link 3 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC, 'C2C link 3 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC, 'C2C link 3 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC, 'C2C link 3 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC, 'C2C link 4 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC, 'C2C link 4 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC, 'C2C link 4 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC, 'C2C link 4 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC, 'C2C link 5 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC, 'C2C link 5 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC, 'C2C link 5 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC, 'C2C link 5 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC, 'C2C link 6 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC, 'C2C link 6 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC, 'C2C link 6 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC, 'C2C link 6 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC, 'C2C link 7 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC, 'C2C link 7 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC, 'C2C link 7 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC, 'C2C link 7 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC, 'C2C link 8 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC, 'C2C link 8 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC, 'C2C link 8 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC, 'C2C link 8 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC, 'C2C link 9 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC, 'C2C link 9 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC, 'C2C link 9 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC, 'C2C link 9 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC, 'C2C link 10 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC, 'C2C link 10 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC, 'C2C link 10 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC, 'C2C link 10 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC, 'C2C link 11 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC, 'C2C link 11 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC, 'C2C link 11 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC, 'C2C link 11 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC, 'C2C link 12 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC, 'C2C link 12 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC, 'C2C link 12 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC, 'C2C link 12 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC, 'C2C link 13 total transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC, 'C2C link 13 total receive bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC, 'C2C link 13 data transmit bandwidth in MiB/sec.')
+    GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC = (NVML_GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC, 'C2C link 13 data receive bandwidth in MiB/sec.')
+    GPM_METRIC_HOSTMEM_CACHE_HIT = (NVML_GPM_METRIC_HOSTMEM_CACHE_HIT, 'Percentage of host memory cache hits. 0.0 - 100.0.')
+    GPM_METRIC_HOSTMEM_CACHE_MISS = (NVML_GPM_METRIC_HOSTMEM_CACHE_MISS, 'Percentage of host memory cache misses. 0.0 - 100.0.')
+    GPM_METRIC_PEERMEM_CACHE_HIT = (NVML_GPM_METRIC_PEERMEM_CACHE_HIT, 'Percentage of peer memory cache hits. 0.0 - 100.0.')
+    GPM_METRIC_PEERMEM_CACHE_MISS = (NVML_GPM_METRIC_PEERMEM_CACHE_MISS, 'Percentage of peer memory cache misses. 0.0 - 100.0.')
+    GPM_METRIC_DRAM_CACHE_HIT = (NVML_GPM_METRIC_DRAM_CACHE_HIT, 'Percentage of DRAM cache hits. 0.0 - 100.0.')
+    GPM_METRIC_DRAM_CACHE_MISS = (NVML_GPM_METRIC_DRAM_CACHE_MISS, 'Percentage of DRAM cache misses. 0.0 - 100.0.')
+    GPM_METRIC_NVENC_0_UTIL = (NVML_GPM_METRIC_NVENC_0_UTIL, 'Percent utilization of NVENC 0. 0.0 - 100.0.')
+    GPM_METRIC_NVENC_1_UTIL = (NVML_GPM_METRIC_NVENC_1_UTIL, 'Percent utilization of NVENC 1. 0.0 - 100.0.')
+    GPM_METRIC_NVENC_2_UTIL = (NVML_GPM_METRIC_NVENC_2_UTIL, 'Percent utilization of NVENC 2. 0.0 - 100.0.')
+    GPM_METRIC_NVENC_3_UTIL = (NVML_GPM_METRIC_NVENC_3_UTIL, 'Percent utilization of NVENC 3. 0.0 - 100.0.')
+    GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 0.')
+    GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 0.')
+    GPM_METRIC_GR0_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR0_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 0.')
+    GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 0.')
+    GPM_METRIC_GR0_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR0_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 0 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 1.')
+    GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 1.')
+    GPM_METRIC_GR1_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR1_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 1.')
+    GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 1.')
+    GPM_METRIC_GR1_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR1_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 1 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 2.')
+    GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 2.')
+    GPM_METRIC_GR2_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR2_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 2.')
+    GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 2.')
+    GPM_METRIC_GR2_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR2_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 2 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 3.')
+    GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 3.')
+    GPM_METRIC_GR3_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR3_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 3.')
+    GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 3.')
+    GPM_METRIC_GR3_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR3_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 3 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 4.')
+    GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 4.')
+    GPM_METRIC_GR4_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR4_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 4.')
+    GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 4.')
+    GPM_METRIC_GR4_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR4_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 4 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 5.')
+    GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 5.')
+    GPM_METRIC_GR5_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR5_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 5.')
+    GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 5.')
+    GPM_METRIC_GR5_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR5_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 5 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 6.')
+    GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 6.')
+    GPM_METRIC_GR6_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR6_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 6.')
+    GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 6.')
+    GPM_METRIC_GR6_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR6_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 6 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED = (NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED, 'Total context switch cycles elapsed for GR engine 7.')
+    GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE = (NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE, 'Active context switch cycles for GR engine 7.')
+    GPM_METRIC_GR7_CTXSW_REQUESTS = (NVML_GPM_METRIC_GR7_CTXSW_REQUESTS, 'Number of context switch requests for GR engine 7.')
+    GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = (NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ, 'Average context switch cycles per request for GR engine 7.')
+    GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = (NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT, 'Percentage of time GR engine 7 context switches were active. 0.0 - 100.0.')
+    GPM_METRIC_NVLINK_L18_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L18_RX_PER_SEC, 'NvLink read bandwidth for link 18 in MiB/sec.')
+    GPM_METRIC_NVLINK_L18_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L18_TX_PER_SEC, 'NvLink write bandwidth for link 18 in MiB/sec.')
+    GPM_METRIC_NVLINK_L19_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L19_RX_PER_SEC, 'NvLink read bandwidth for link 19 in MiB/sec.')
+    GPM_METRIC_NVLINK_L19_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L19_TX_PER_SEC, 'NvLink write bandwidth for link 19 in MiB/sec.')
+    GPM_METRIC_NVLINK_L20_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L20_RX_PER_SEC, 'NvLink read bandwidth for link 20 in MiB/sec.')
+    GPM_METRIC_NVLINK_L20_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L20_TX_PER_SEC, 'NvLink write bandwidth for link 20 in MiB/sec.')
+    GPM_METRIC_NVLINK_L21_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L21_RX_PER_SEC, 'NvLink read bandwidth for link 21 in MiB/sec.')
+    GPM_METRIC_NVLINK_L21_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L21_TX_PER_SEC, 'NvLink write bandwidth for link 21 in MiB/sec.')
+    GPM_METRIC_NVLINK_L22_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L22_RX_PER_SEC, 'NvLink read bandwidth for link 22 in MiB/sec.')
+    GPM_METRIC_NVLINK_L22_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L22_TX_PER_SEC, 'NvLink write bandwidth for link 22 in MiB/sec.')
+    GPM_METRIC_NVLINK_L23_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L23_RX_PER_SEC, 'NvLink read bandwidth for link 23 in MiB/sec.')
+    GPM_METRIC_NVLINK_L23_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L23_TX_PER_SEC, 'NvLink write bandwidth for link 23 in MiB/sec.')
+    GPM_METRIC_NVLINK_L24_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L24_RX_PER_SEC, 'NvLink read bandwidth for link 24 in MiB/sec.')
+    GPM_METRIC_NVLINK_L24_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L24_TX_PER_SEC, 'NvLink write bandwidth for link 24 in MiB/sec.')
+    GPM_METRIC_NVLINK_L25_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L25_RX_PER_SEC, 'NvLink read bandwidth for link 25 in MiB/sec.')
+    GPM_METRIC_NVLINK_L25_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L25_TX_PER_SEC, 'NvLink write bandwidth for link 25 in MiB/sec.')
+    GPM_METRIC_NVLINK_L26_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L26_RX_PER_SEC, 'NvLink read bandwidth for link 26 in MiB/sec.')
+    GPM_METRIC_NVLINK_L26_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L26_TX_PER_SEC, 'NvLink write bandwidth for link 26 in MiB/sec.')
+    GPM_METRIC_NVLINK_L27_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L27_RX_PER_SEC, 'NvLink read bandwidth for link 27 in MiB/sec.')
+    GPM_METRIC_NVLINK_L27_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L27_TX_PER_SEC, 'NvLink write bandwidth for link 27 in MiB/sec.')
+    GPM_METRIC_NVLINK_L28_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L28_RX_PER_SEC, 'NvLink read bandwidth for link 28 in MiB/sec.')
+    GPM_METRIC_NVLINK_L28_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L28_TX_PER_SEC, 'NvLink write bandwidth for link 28 in MiB/sec.')
+    GPM_METRIC_NVLINK_L29_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L29_RX_PER_SEC, 'NvLink read bandwidth for link 29 in MiB/sec.')
+    GPM_METRIC_NVLINK_L29_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L29_TX_PER_SEC, 'NvLink write bandwidth for link 29 in MiB/sec.')
+    GPM_METRIC_NVLINK_L30_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L30_RX_PER_SEC, 'NvLink read bandwidth for link 30 in MiB/sec.')
+    GPM_METRIC_NVLINK_L30_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L30_TX_PER_SEC, 'NvLink write bandwidth for link 30 in MiB/sec.')
+    GPM_METRIC_NVLINK_L31_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L31_RX_PER_SEC, 'NvLink read bandwidth for link 31 in MiB/sec.')
+    GPM_METRIC_NVLINK_L31_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L31_TX_PER_SEC, 'NvLink write bandwidth for link 31 in MiB/sec.')
+    GPM_METRIC_NVLINK_L32_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L32_RX_PER_SEC, 'NvLink read bandwidth for link 32 in MiB/sec.')
+    GPM_METRIC_NVLINK_L32_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L32_TX_PER_SEC, 'NvLink write bandwidth for link 32 in MiB/sec.')
+    GPM_METRIC_NVLINK_L33_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L33_RX_PER_SEC, 'NvLink read bandwidth for link 33 in MiB/sec.')
+    GPM_METRIC_NVLINK_L33_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L33_TX_PER_SEC, 'NvLink write bandwidth for link 33 in MiB/sec.')
+    GPM_METRIC_NVLINK_L34_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L34_RX_PER_SEC, 'NvLink read bandwidth for link 34 in MiB/sec.')
+    GPM_METRIC_NVLINK_L34_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L34_TX_PER_SEC, 'NvLink write bandwidth for link 34 in MiB/sec.')
+    GPM_METRIC_NVLINK_L35_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L35_RX_PER_SEC, 'NvLink read bandwidth for link 35 in MiB/sec.')
+    GPM_METRIC_NVLINK_L35_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L35_TX_PER_SEC, 'NvLink write bandwidth for link 35 in MiB/sec.')
     GPM_METRIC_SM_CYCLES_ELAPSED = (NVML_GPM_METRIC_SM_CYCLES_ELAPSED, "The GPU's SM cycles elapsed since reboot.")
     GPM_METRIC_SM_CYCLES_ACTIVE = (NVML_GPM_METRIC_SM_CYCLES_ACTIVE, "The GPU's SM activity since reboot.")
     GPM_METRIC_MMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_MMA_CYCLES_ACTIVE, "The GPU's SM MMA tensor activity since reboot.")
@@ -1044,8 +1061,8 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_PCIE_RX = (NVML_GPM_METRIC_PCIE_RX, 'The PCIe RX traffic since reboot.')
     GPM_METRIC_INTEGER_CYCLES_ACTIVE = (NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE, "The GPU's SM integer activity since reboot.")
     GPM_METRIC_FP64_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP64_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
-    GPM_METRIC_FP32_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP32_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
-    GPM_METRIC_FP16_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP16_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_FP32_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP32_CYCLES_ACTIVE, "The GPU's SM FP32 activity since reboot.")
+    GPM_METRIC_FP16_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP16_CYCLES_ACTIVE, "The GPU's SM FP16 activity since reboot.")
     GPM_METRIC_NVLINK_L0_RX = (NVML_GPM_METRIC_NVLINK_L0_RX, 'NvLink read for link 0 in bytes since reboot.')
     GPM_METRIC_NVLINK_L0_TX = (NVML_GPM_METRIC_NVLINK_L0_TX, 'NvLink write for link 0 in bytes since reboot.')
     GPM_METRIC_NVLINK_L1_RX = (NVML_GPM_METRIC_NVLINK_L1_RX, 'NvLink read for link 1 in bytes since reboot.')
@@ -1118,9 +1135,153 @@ class GpmMetricId(_FastEnum):
     GPM_METRIC_NVLINK_L34_TX = (NVML_GPM_METRIC_NVLINK_L34_TX, 'NvLink write for link 34 in bytes since reboot.')
     GPM_METRIC_NVLINK_L35_RX = (NVML_GPM_METRIC_NVLINK_L35_RX, 'NvLink read for link 35 in bytes since reboot.')
     GPM_METRIC_NVLINK_L35_TX = (NVML_GPM_METRIC_NVLINK_L35_TX, 'NvLink write for link 35 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L36_RX = (NVML_GPM_METRIC_NVLINK_L36_RX, 'NvLink read for link 36 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L36_TX = (NVML_GPM_METRIC_NVLINK_L36_TX, 'NvLink write for link 36 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L37_RX = (NVML_GPM_METRIC_NVLINK_L37_RX, 'NvLink read for link 37 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L37_TX = (NVML_GPM_METRIC_NVLINK_L37_TX, 'NvLink write for link 37 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L38_RX = (NVML_GPM_METRIC_NVLINK_L38_RX, 'NvLink read for link 38 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L38_TX = (NVML_GPM_METRIC_NVLINK_L38_TX, 'NvLink write for link 38 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L39_RX = (NVML_GPM_METRIC_NVLINK_L39_RX, 'NvLink read for link 39 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L39_TX = (NVML_GPM_METRIC_NVLINK_L39_TX, 'NvLink write for link 39 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L40_RX = (NVML_GPM_METRIC_NVLINK_L40_RX, 'NvLink read for link 40 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L40_TX = (NVML_GPM_METRIC_NVLINK_L40_TX, 'NvLink write for link 40 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L41_RX = (NVML_GPM_METRIC_NVLINK_L41_RX, 'NvLink read for link 41 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L41_TX = (NVML_GPM_METRIC_NVLINK_L41_TX, 'NvLink write for link 41 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L42_RX = (NVML_GPM_METRIC_NVLINK_L42_RX, 'NvLink read for link 42 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L42_TX = (NVML_GPM_METRIC_NVLINK_L42_TX, 'NvLink write for link 42 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L43_RX = (NVML_GPM_METRIC_NVLINK_L43_RX, 'NvLink read for link 43 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L43_TX = (NVML_GPM_METRIC_NVLINK_L43_TX, 'NvLink write for link 43 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L44_RX = (NVML_GPM_METRIC_NVLINK_L44_RX, 'NvLink read for link 44 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L44_TX = (NVML_GPM_METRIC_NVLINK_L44_TX, 'NvLink write for link 44 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L45_RX = (NVML_GPM_METRIC_NVLINK_L45_RX, 'NvLink read for link 45 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L45_TX = (NVML_GPM_METRIC_NVLINK_L45_TX, 'NvLink write for link 45 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L46_RX = (NVML_GPM_METRIC_NVLINK_L46_RX, 'NvLink read for link 46 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L46_TX = (NVML_GPM_METRIC_NVLINK_L46_TX, 'NvLink write for link 46 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L47_RX = (NVML_GPM_METRIC_NVLINK_L47_RX, 'NvLink read for link 47 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L47_TX = (NVML_GPM_METRIC_NVLINK_L47_TX, 'NvLink write for link 47 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L48_RX = (NVML_GPM_METRIC_NVLINK_L48_RX, 'NvLink read for link 48 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L48_TX = (NVML_GPM_METRIC_NVLINK_L48_TX, 'NvLink write for link 48 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L49_RX = (NVML_GPM_METRIC_NVLINK_L49_RX, 'NvLink read for link 49 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L49_TX = (NVML_GPM_METRIC_NVLINK_L49_TX, 'NvLink write for link 49 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L50_RX = (NVML_GPM_METRIC_NVLINK_L50_RX, 'NvLink read for link 50 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L50_TX = (NVML_GPM_METRIC_NVLINK_L50_TX, 'NvLink write for link 50 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L51_RX = (NVML_GPM_METRIC_NVLINK_L51_RX, 'NvLink read for link 51 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L51_TX = (NVML_GPM_METRIC_NVLINK_L51_TX, 'NvLink write for link 51 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L52_RX = (NVML_GPM_METRIC_NVLINK_L52_RX, 'NvLink read for link 52 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L52_TX = (NVML_GPM_METRIC_NVLINK_L52_TX, 'NvLink write for link 52 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L53_RX = (NVML_GPM_METRIC_NVLINK_L53_RX, 'NvLink read for link 53 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L53_TX = (NVML_GPM_METRIC_NVLINK_L53_TX, 'NvLink write for link 53 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L54_RX = (NVML_GPM_METRIC_NVLINK_L54_RX, 'NvLink read for link 54 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L54_TX = (NVML_GPM_METRIC_NVLINK_L54_TX, 'NvLink write for link 54 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L55_RX = (NVML_GPM_METRIC_NVLINK_L55_RX, 'NvLink read for link 55 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L55_TX = (NVML_GPM_METRIC_NVLINK_L55_TX, 'NvLink write for link 55 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L56_RX = (NVML_GPM_METRIC_NVLINK_L56_RX, 'NvLink read for link 56 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L56_TX = (NVML_GPM_METRIC_NVLINK_L56_TX, 'NvLink write for link 56 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L57_RX = (NVML_GPM_METRIC_NVLINK_L57_RX, 'NvLink read for link 57 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L57_TX = (NVML_GPM_METRIC_NVLINK_L57_TX, 'NvLink write for link 57 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L58_RX = (NVML_GPM_METRIC_NVLINK_L58_RX, 'NvLink read for link 58 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L58_TX = (NVML_GPM_METRIC_NVLINK_L58_TX, 'NvLink write for link 58 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L59_RX = (NVML_GPM_METRIC_NVLINK_L59_RX, 'NvLink read for link 59 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L59_TX = (NVML_GPM_METRIC_NVLINK_L59_TX, 'NvLink write for link 59 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L60_RX = (NVML_GPM_METRIC_NVLINK_L60_RX, 'NvLink read for link 60 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L60_TX = (NVML_GPM_METRIC_NVLINK_L60_TX, 'NvLink write for link 60 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L61_RX = (NVML_GPM_METRIC_NVLINK_L61_RX, 'NvLink read for link 61 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L61_TX = (NVML_GPM_METRIC_NVLINK_L61_TX, 'NvLink write for link 61 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L62_RX = (NVML_GPM_METRIC_NVLINK_L62_RX, 'NvLink read for link 62 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L62_TX = (NVML_GPM_METRIC_NVLINK_L62_TX, 'NvLink write for link 62 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L63_RX = (NVML_GPM_METRIC_NVLINK_L63_RX, 'NvLink read for link 63 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L63_TX = (NVML_GPM_METRIC_NVLINK_L63_TX, 'NvLink write for link 63 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L64_RX = (NVML_GPM_METRIC_NVLINK_L64_RX, 'NvLink read for link 64 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L64_TX = (NVML_GPM_METRIC_NVLINK_L64_TX, 'NvLink write for link 64 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L65_RX = (NVML_GPM_METRIC_NVLINK_L65_RX, 'NvLink read for link 65 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L65_TX = (NVML_GPM_METRIC_NVLINK_L65_TX, 'NvLink write for link 65 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L66_RX = (NVML_GPM_METRIC_NVLINK_L66_RX, 'NvLink read for link 66 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L66_TX = (NVML_GPM_METRIC_NVLINK_L66_TX, 'NvLink write for link 66 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L67_RX = (NVML_GPM_METRIC_NVLINK_L67_RX, 'NvLink read for link 67 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L67_TX = (NVML_GPM_METRIC_NVLINK_L67_TX, 'NvLink write for link 67 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L68_RX = (NVML_GPM_METRIC_NVLINK_L68_RX, 'NvLink read for link 68 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L68_TX = (NVML_GPM_METRIC_NVLINK_L68_TX, 'NvLink write for link 68 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L69_RX = (NVML_GPM_METRIC_NVLINK_L69_RX, 'NvLink read for link 69 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L69_TX = (NVML_GPM_METRIC_NVLINK_L69_TX, 'NvLink write for link 69 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L70_RX = (NVML_GPM_METRIC_NVLINK_L70_RX, 'NvLink read for link 70 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L70_TX = (NVML_GPM_METRIC_NVLINK_L70_TX, 'NvLink write for link 70 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L71_RX = (NVML_GPM_METRIC_NVLINK_L71_RX, 'NvLink read for link 71 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L71_TX = (NVML_GPM_METRIC_NVLINK_L71_TX, 'NvLink write for link 71 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L36_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L36_RX_PER_SEC, 'NvLink read bandwidth for link 36 in MiB/sec.')
+    GPM_METRIC_NVLINK_L36_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L36_TX_PER_SEC, 'NvLink write bandwidth for link 36 in MiB/sec.')
+    GPM_METRIC_NVLINK_L37_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L37_RX_PER_SEC, 'NvLink read bandwidth for link 37 in MiB/sec.')
+    GPM_METRIC_NVLINK_L37_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L37_TX_PER_SEC, 'NvLink write bandwidth for link 37 in MiB/sec.')
+    GPM_METRIC_NVLINK_L38_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L38_RX_PER_SEC, 'NvLink read bandwidth for link 38 in MiB/sec.')
+    GPM_METRIC_NVLINK_L38_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L38_TX_PER_SEC, 'NvLink write bandwidth for link 38 in MiB/sec.')
+    GPM_METRIC_NVLINK_L39_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L39_RX_PER_SEC, 'NvLink read bandwidth for link 39 in MiB/sec.')
+    GPM_METRIC_NVLINK_L39_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L39_TX_PER_SEC, 'NvLink write bandwidth for link 39 in MiB/sec.')
+    GPM_METRIC_NVLINK_L40_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L40_RX_PER_SEC, 'NvLink read bandwidth for link 40 in MiB/sec.')
+    GPM_METRIC_NVLINK_L40_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L40_TX_PER_SEC, 'NvLink write bandwidth for link 40 in MiB/sec.')
+    GPM_METRIC_NVLINK_L41_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L41_RX_PER_SEC, 'NvLink read bandwidth for link 41 in MiB/sec.')
+    GPM_METRIC_NVLINK_L41_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L41_TX_PER_SEC, 'NvLink write bandwidth for link 41 in MiB/sec.')
+    GPM_METRIC_NVLINK_L42_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L42_RX_PER_SEC, 'NvLink read bandwidth for link 42 in MiB/sec.')
+    GPM_METRIC_NVLINK_L42_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L42_TX_PER_SEC, 'NvLink write bandwidth for link 42 in MiB/sec.')
+    GPM_METRIC_NVLINK_L43_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L43_RX_PER_SEC, 'NvLink read bandwidth for link 43 in MiB/sec.')
+    GPM_METRIC_NVLINK_L43_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L43_TX_PER_SEC, 'NvLink write bandwidth for link 43 in MiB/sec.')
+    GPM_METRIC_NVLINK_L44_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L44_RX_PER_SEC, 'NvLink read bandwidth for link 44 in MiB/sec.')
+    GPM_METRIC_NVLINK_L44_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L44_TX_PER_SEC, 'NvLink write bandwidth for link 44 in MiB/sec.')
+    GPM_METRIC_NVLINK_L45_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L45_RX_PER_SEC, 'NvLink read bandwidth for link 45 in MiB/sec.')
+    GPM_METRIC_NVLINK_L45_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L45_TX_PER_SEC, 'NvLink write bandwidth for link 45 in MiB/sec.')
+    GPM_METRIC_NVLINK_L46_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L46_RX_PER_SEC, 'NvLink read bandwidth for link 46 in MiB/sec.')
+    GPM_METRIC_NVLINK_L46_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L46_TX_PER_SEC, 'NvLink write bandwidth for link 46 in MiB/sec.')
+    GPM_METRIC_NVLINK_L47_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L47_RX_PER_SEC, 'NvLink read bandwidth for link 47 in MiB/sec.')
+    GPM_METRIC_NVLINK_L47_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L47_TX_PER_SEC, 'NvLink write bandwidth for link 47 in MiB/sec.')
+    GPM_METRIC_NVLINK_L48_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L48_RX_PER_SEC, 'NvLink read bandwidth for link 48 in MiB/sec.')
+    GPM_METRIC_NVLINK_L48_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L48_TX_PER_SEC, 'NvLink write bandwidth for link 48 in MiB/sec.')
+    GPM_METRIC_NVLINK_L49_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L49_RX_PER_SEC, 'NvLink read bandwidth for link 49 in MiB/sec.')
+    GPM_METRIC_NVLINK_L49_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L49_TX_PER_SEC, 'NvLink write bandwidth for link 49 in MiB/sec.')
+    GPM_METRIC_NVLINK_L50_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L50_RX_PER_SEC, 'NvLink read bandwidth for link 50 in MiB/sec.')
+    GPM_METRIC_NVLINK_L50_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L50_TX_PER_SEC, 'NvLink write bandwidth for link 50 in MiB/sec.')
+    GPM_METRIC_NVLINK_L51_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L51_RX_PER_SEC, 'NvLink read bandwidth for link 51 in MiB/sec.')
+    GPM_METRIC_NVLINK_L51_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L51_TX_PER_SEC, 'NvLink write bandwidth for link 51 in MiB/sec.')
+    GPM_METRIC_NVLINK_L52_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L52_RX_PER_SEC, 'NvLink read bandwidth for link 52 in MiB/sec.')
+    GPM_METRIC_NVLINK_L52_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L52_TX_PER_SEC, 'NvLink write bandwidth for link 52 in MiB/sec.')
+    GPM_METRIC_NVLINK_L53_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L53_RX_PER_SEC, 'NvLink read bandwidth for link 53 in MiB/sec.')
+    GPM_METRIC_NVLINK_L53_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L53_TX_PER_SEC, 'NvLink write bandwidth for link 53 in MiB/sec.')
+    GPM_METRIC_NVLINK_L54_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L54_RX_PER_SEC, 'NvLink read bandwidth for link 54 in MiB/sec.')
+    GPM_METRIC_NVLINK_L54_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L54_TX_PER_SEC, 'NvLink write bandwidth for link 54 in MiB/sec.')
+    GPM_METRIC_NVLINK_L55_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L55_RX_PER_SEC, 'NvLink read bandwidth for link 55 in MiB/sec.')
+    GPM_METRIC_NVLINK_L55_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L55_TX_PER_SEC, 'NvLink write bandwidth for link 55 in MiB/sec.')
+    GPM_METRIC_NVLINK_L56_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L56_RX_PER_SEC, 'NvLink read bandwidth for link 56 in MiB/sec.')
+    GPM_METRIC_NVLINK_L56_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L56_TX_PER_SEC, 'NvLink write bandwidth for link 56 in MiB/sec.')
+    GPM_METRIC_NVLINK_L57_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L57_RX_PER_SEC, 'NvLink read bandwidth for link 57 in MiB/sec.')
+    GPM_METRIC_NVLINK_L57_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L57_TX_PER_SEC, 'NvLink write bandwidth for link 57 in MiB/sec.')
+    GPM_METRIC_NVLINK_L58_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L58_RX_PER_SEC, 'NvLink read bandwidth for link 58 in MiB/sec.')
+    GPM_METRIC_NVLINK_L58_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L58_TX_PER_SEC, 'NvLink write bandwidth for link 58 in MiB/sec.')
+    GPM_METRIC_NVLINK_L59_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L59_RX_PER_SEC, 'NvLink read bandwidth for link 59 in MiB/sec.')
+    GPM_METRIC_NVLINK_L59_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L59_TX_PER_SEC, 'NvLink write bandwidth for link 59 in MiB/sec.')
+    GPM_METRIC_NVLINK_L60_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L60_RX_PER_SEC, 'NvLink read bandwidth for link 60 in MiB/sec.')
+    GPM_METRIC_NVLINK_L60_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L60_TX_PER_SEC, 'NvLink write bandwidth for link 60 in MiB/sec.')
+    GPM_METRIC_NVLINK_L61_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L61_RX_PER_SEC, 'NvLink read bandwidth for link 61 in MiB/sec.')
+    GPM_METRIC_NVLINK_L61_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L61_TX_PER_SEC, 'NvLink write bandwidth for link 61 in MiB/sec.')
+    GPM_METRIC_NVLINK_L62_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L62_RX_PER_SEC, 'NvLink read bandwidth for link 62 in MiB/sec.')
+    GPM_METRIC_NVLINK_L62_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L62_TX_PER_SEC, 'NvLink write bandwidth for link 62 in MiB/sec.')
+    GPM_METRIC_NVLINK_L63_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L63_RX_PER_SEC, 'NvLink read bandwidth for link 63 in MiB/sec.')
+    GPM_METRIC_NVLINK_L63_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L63_TX_PER_SEC, 'NvLink write bandwidth for link 63 in MiB/sec.')
+    GPM_METRIC_NVLINK_L64_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L64_RX_PER_SEC, 'NvLink read bandwidth for link 64 in MiB/sec.')
+    GPM_METRIC_NVLINK_L64_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L64_TX_PER_SEC, 'NvLink write bandwidth for link 64 in MiB/sec.')
+    GPM_METRIC_NVLINK_L65_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L65_RX_PER_SEC, 'NvLink read bandwidth for link 65 in MiB/sec.')
+    GPM_METRIC_NVLINK_L65_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L65_TX_PER_SEC, 'NvLink write bandwidth for link 65 in MiB/sec.')
+    GPM_METRIC_NVLINK_L66_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L66_RX_PER_SEC, 'NvLink read bandwidth for link 66 in MiB/sec.')
+    GPM_METRIC_NVLINK_L66_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L66_TX_PER_SEC, 'NvLink write bandwidth for link 66 in MiB/sec.')
+    GPM_METRIC_NVLINK_L67_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L67_RX_PER_SEC, 'NvLink read bandwidth for link 67 in MiB/sec.')
+    GPM_METRIC_NVLINK_L67_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L67_TX_PER_SEC, 'NvLink write bandwidth for link 67 in MiB/sec.')
+    GPM_METRIC_NVLINK_L68_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L68_RX_PER_SEC, 'NvLink read bandwidth for link 68 in MiB/sec.')
+    GPM_METRIC_NVLINK_L68_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L68_TX_PER_SEC, 'NvLink write bandwidth for link 68 in MiB/sec.')
+    GPM_METRIC_NVLINK_L69_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L69_RX_PER_SEC, 'NvLink read bandwidth for link 69 in MiB/sec.')
+    GPM_METRIC_NVLINK_L69_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L69_TX_PER_SEC, 'NvLink write bandwidth for link 69 in MiB/sec.')
+    GPM_METRIC_NVLINK_L70_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L70_RX_PER_SEC, 'NvLink read bandwidth for link 70 in MiB/sec.')
+    GPM_METRIC_NVLINK_L70_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L70_TX_PER_SEC, 'NvLink write bandwidth for link 70 in MiB/sec.')
+    GPM_METRIC_NVLINK_L71_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L71_RX_PER_SEC, 'NvLink read bandwidth for link 71 in MiB/sec.')
+    GPM_METRIC_NVLINK_L71_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L71_TX_PER_SEC, 'NvLink write bandwidth for link 71 in MiB/sec.')
     GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1.')
 
-class PowerProfileType(_FastEnum):
+class PowerProfileType(_cyb_FastEnum):
     """
     See `nvmlPowerProfileType_t`.
     """
@@ -1139,9 +1300,19 @@ class PowerProfileType(_FastEnum):
     POWER_PROFILE_SYNC_BALANCED = NVML_POWER_PROFILE_SYNC_BALANCED
     POWER_PROFILE_HPC = NVML_POWER_PROFILE_HPC
     POWER_PROFILE_MIG = NVML_POWER_PROFILE_MIG
+    POWER_PROFILE_MAX_Q_1 = NVML_POWER_PROFILE_MAX_Q_1
+    POWER_PROFILE_NETWORK_BOUND = NVML_POWER_PROFILE_NETWORK_BOUND
+    POWER_PROFILE_HIGH_THROUGHPUT_INFERENCE = NVML_POWER_PROFILE_HIGH_THROUGHPUT_INFERENCE
+    POWER_PROFILE_MEDIUM_THROUGHPUT_INFERENCE = NVML_POWER_PROFILE_MEDIUM_THROUGHPUT_INFERENCE
+    POWER_PROFILE_LOW_LATENCY_INFERENCE = NVML_POWER_PROFILE_LOW_LATENCY_INFERENCE
+    POWER_PROFILE_TRAINING = NVML_POWER_PROFILE_TRAINING
+    POWER_PROFILE_INFERENCE = NVML_POWER_PROFILE_INFERENCE
+    POWER_PROFILE_MAX_Q_2 = NVML_POWER_PROFILE_MAX_Q_2
+    POWER_PROFILE_MAX_Q_3 = NVML_POWER_PROFILE_MAX_Q_3
+    POWER_PROFILE_LOW_PRIORITY_BACKGROUND = NVML_POWER_PROFILE_LOW_PRIORITY_BACKGROUND
     POWER_PROFILE_MAX = NVML_POWER_PROFILE_MAX
 
-class DeviceAddressingModeType(_FastEnum):
+class DeviceAddressingModeType(_cyb_FastEnum):
     """
     Enum to represent device addressing mode values
 
@@ -1151,29 +1322,37 @@ class DeviceAddressingModeType(_FastEnum):
     DEVICE_ADDRESSING_MODE_HMM = (NVML_DEVICE_ADDRESSING_MODE_HMM, 'Heterogeneous Memory Management mode.')
     DEVICE_ADDRESSING_MODE_ATS = (NVML_DEVICE_ADDRESSING_MODE_ATS, 'Address Translation Services mode.')
 
-class PRMCounterId(_FastEnum):
+class PRMCounterId(_cyb_FastEnum):
     """
     PRM Counter IDs
 
     See `nvmlPRMCounterId_t`.
     """
-    NONE = NVML_PRM_COUNTER_ID_NONE
-    PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS
-    PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS
-    PPCNT_RECOVERY_CTRS_TOTAL_SUCCESSFUL_RECOVERY_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TOTAL_SUCCESSFUL_RECOVERY_EVENTS
-    PPCNT_RECOVERY_CTRS_TIME_SINCE_LAST_RECOVERY = NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TIME_SINCE_LAST_RECOVERY
-    PPCNT_RECOVERY_CTRS_TIME_BETWEEN_LAST_TWO_RECOVERIES = NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TIME_BETWEEN_LAST_TWO_RECOVERIES
-    PPCNT_PORTCOUNTERS_PORT_XMIT_WAIT = NVML_PRM_COUNTER_ID_PPCNT_PORTCOUNTERS_PORT_XMIT_WAIT
-    PPCNT_PLR_RCV_CODES = NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_CODES
-    PPCNT_PLR_RCV_CODE_ERR = NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_CODE_ERR
-    PPCNT_PLR_RCV_UNCORRECTABLE_CODE = NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_UNCORRECTABLE_CODE
-    PPCNT_PLR_XMIT_CODES = NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_CODES
-    PPCNT_PLR_XMIT_RETRY_CODES = NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_RETRY_CODES
-    PPCNT_PLR_XMIT_RETRY_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_RETRY_EVENTS
-    PPCNT_PLR_SYNC_EVENTS = NVML_PRM_COUNTER_ID_PPCNT_PLR_SYNC_EVENTS
-    PPRM_OPER_RECOVERY = NVML_PRM_COUNTER_ID_PPRM_OPER_RECOVERY
+    NONE = (NVML_PRM_COUNTER_ID_NONE, 'Sentinel.')
+    PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS = (NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS, 'PPCNT group 0x12, link_down_events.')
+    PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS = (NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS, 'PPCNT group 0x12, successful_recovery_events.')
+    PPCNT_RECOVERY_CTRS_TOTAL_SUCCESSFUL_RECOVERY_EVENTS = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TOTAL_SUCCESSFUL_RECOVERY_EVENTS, 'PPCNT group 0x1A, total_successful_recovery_events.')
+    PPCNT_RECOVERY_CTRS_TIME_SINCE_LAST_RECOVERY = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TIME_SINCE_LAST_RECOVERY, 'PPCNT group 0x1A, time_since_last_recovery.')
+    PPCNT_RECOVERY_CTRS_TIME_BETWEEN_LAST_TWO_RECOVERIES = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TIME_BETWEEN_LAST_TWO_RECOVERIES, 'PPCNT group 0x1A, time_between_last_two_recoveries.')
+    PPCNT_RECOVERY_CTRS_TIME_IN_LAST_HOST_SERDES_FEQ_RECOVERY = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TIME_IN_LAST_HOST_SERDES_FEQ_RECOVERY, 'PPCNT group 0x1A, time_in_last_host_serdes_feq_recovery.')
+    PPCNT_RECOVERY_CTRS_TOTAL_TIME_IN_HOST_SERDES_FEQ_RECOVERY = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TOTAL_TIME_IN_HOST_SERDES_FEQ_RECOVERY, 'PPCNT group 0x1A, total_time_in_host_serdes_feq_recovery.')
+    PPCNT_RECOVERY_CTRS_TOTAL_HOST_SERDES_FEQ_RECOVERY_COUNT = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TOTAL_HOST_SERDES_FEQ_RECOVERY_COUNT, 'PPCNT group 0x1A, total_host_serdes_feq_recovery_count.')
+    PPCNT_RECOVERY_CTRS_TOTAL_HOST_SERDES_FEQ_SUCCESSFUL_RECOVERY_COUNT = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TOTAL_HOST_SERDES_FEQ_SUCCESSFUL_RECOVERY_COUNT, 'PPCNT group 0x1A, total_host_serdes_feq_successful_recovery_count.')
+    PPCNT_RECOVERY_CTRS_LAST_HOST_SERDES_FEQ_ATTEMPTS_COUNT = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_LAST_HOST_SERDES_FEQ_ATTEMPTS_COUNT, 'PPCNT group 0x1A, last_host_serdes_feq_attempts_count.')
+    PPCNT_RECOVERY_CTRS_LAST_SUCCESSFUL_RECOVERY_STEP_ATTEMPTS = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_LAST_SUCCESSFUL_RECOVERY_STEP_ATTEMPTS, 'PPCNT group 0x1A, last_successful_recovery_step_attempts.')
+    PPCNT_RECOVERY_CTRS_LAST_SUCCESSFUL_RECOVERY_TIME = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_LAST_SUCCESSFUL_RECOVERY_TIME, 'PPCNT group 0x1A, last_successful_recovery_time.')
+    PPCNT_RECOVERY_CTRS_TOTAL_SUCCESSFUL_RECOVERY_TIME = (NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TOTAL_SUCCESSFUL_RECOVERY_TIME, 'PPCNT group 0x1A, total_successful_recovery_time.')
+    PPCNT_PORTCOUNTERS_PORT_XMIT_WAIT = (NVML_PRM_COUNTER_ID_PPCNT_PORTCOUNTERS_PORT_XMIT_WAIT, 'PPCNT group 0x20, port_xmit_wait.')
+    PPCNT_PLR_RCV_CODES = (NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_CODES, 'PPCNT group 0x22, plr_rcv_codes.')
+    PPCNT_PLR_RCV_CODE_ERR = (NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_CODE_ERR, 'PPCNT group 0x22, plr_rcv_code_err.')
+    PPCNT_PLR_RCV_UNCORRECTABLE_CODE = (NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_UNCORRECTABLE_CODE, 'PPCNT group 0x22, plr_rcv_uncorrectable_code.')
+    PPCNT_PLR_XMIT_CODES = (NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_CODES, 'PPCNT group 0x22, plr_xmit_codes.')
+    PPCNT_PLR_XMIT_RETRY_CODES = (NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_RETRY_CODES, 'PPCNT group 0x22, plr_xmit_retry_codes.')
+    PPCNT_PLR_XMIT_RETRY_EVENTS = (NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_RETRY_EVENTS, 'PPCNT group 0x22, plr_xmit_retry_events.')
+    PPCNT_PLR_SYNC_EVENTS = (NVML_PRM_COUNTER_ID_PPCNT_PLR_SYNC_EVENTS, 'PPCNT group 0x22, plr_sync_events.')
+    PPRM_OPER_RECOVERY = (NVML_PRM_COUNTER_ID_PPRM_OPER_RECOVERY, 'PPRM, oper_recovery.')
 
-class PowerProfileOperation(_FastEnum):
+class PowerProfileOperation(_cyb_FastEnum):
     """
     Enum for operation to perform on the requested profiles
 
@@ -1184,7 +1363,7 @@ class PowerProfileOperation(_FastEnum):
     SET_AND_OVERWRITE = (NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE, 'Overwrite the existing list of requested profiles with just the requested profiles.')
     MAX = (NVML_POWER_PROFILE_OPERATION_MAX, 'Max value above +1.')
 
-class ProcessMode(_FastEnum):
+class ProcessMode(_cyb_FastEnum):
     """
     Enum to represent process mode.
 
@@ -1196,7 +1375,7 @@ class ProcessMode(_FastEnum):
     ALL = (NVML_PROCESS_MODE_ALL, 'All processes running on the GPU (compute, graphics, MPS, and other types).')
     MAX = (NVML_PROCESS_MODE_MAX, 'Maximum value for bounds checking.')
 
-class CPERType(_FastEnum):
+class CPERType(_cyb_FastEnum):
     """
     Bitmask of CPER record types. Multiple values may be combined to
     request records from several sources in one call.
@@ -1204,6 +1383,64 @@ class CPERType(_FastEnum):
     See `nvmlCPERType_t`.
     """
     CPER_ACCESS_TYPE_GPU = (NVML_CPER_ACCESS_TYPE_GPU, 'Access GPU CPER records.')
+
+class GpuOperationalEventLogLevel(_cyb_FastEnum):
+    """
+    Log-level values used by GPU Operational Events.These values are used
+    both for event reporting in `nvmlEventData_v2_t` and for subscription
+    filtering in `nvmlGpuOperationalEventConfig_v1_t`. Higher numeric
+    values represent more selective log levels.
+    `NVML_GPU_OPERATIONAL_EVENT_LOG_LEVEL_ALL` disables log-level filtering
+    when used as a subscription threshold. Event data may contain newer
+    log-level values that are not named in this header; clients should
+    handle unrecognized numeric values.
+
+    See `nvmlGpuOperationalEventLogLevel_t`.
+    """
+    ALL = (NVML_GPU_OPERATIONAL_EVENT_LOG_LEVEL_ALL, 'Matches all GPU Operational Event log levels.')
+    TELEMETRY = (NVML_GPU_OPERATIONAL_EVENT_LOG_LEVEL_TELEMETRY, 'High-volume telemetry events.')
+    DIAG = (NVML_GPU_OPERATIONAL_EVENT_LOG_LEVEL_DIAG, 'Diagnostic events.')
+    NOTICE = (NVML_GPU_OPERATIONAL_EVENT_LOG_LEVEL_NOTICE, 'Notable operational events.')
+    WARNING = (NVML_GPU_OPERATIONAL_EVENT_LOG_LEVEL_WARNING, 'Warning events.')
+    ERROR = (NVML_GPU_OPERATIONAL_EVENT_LOG_LEVEL_ERROR, 'Error events.')
+
+class OperationalEventSeverity(_cyb_FastEnum):
+    """
+    Severity values used by Operational Events.These values are used both
+    for event reporting in `nvmlEventData_v2_t` and for subscription
+    filtering in `nvmlGpuOperationalEventConfig_v1_t`. Higher numeric
+    values represent more selective severities.
+    `NVML_OPERATIONAL_EVENT_SEVERITY_ALL` disables severity filtering when
+    used as a subscription threshold. Event data may contain newer severity
+    values that are not named in this header; clients should handle
+    unrecognized numeric values.
+
+    See `nvmlOperationalEventSeverity_t`.
+    """
+    ALL = (NVML_OPERATIONAL_EVENT_SEVERITY_ALL, 'Matches all Operational Event severities.')
+    INFORMATIONAL = (NVML_OPERATIONAL_EVENT_SEVERITY_INFORMATIONAL, 'Informational event.')
+    CORRECTED = (NVML_OPERATIONAL_EVENT_SEVERITY_CORRECTED, 'Corrected error event.')
+    RECOVERABLE = (NVML_OPERATIONAL_EVENT_SEVERITY_RECOVERABLE, 'Recoverable error event.')
+    FATAL = (NVML_OPERATIONAL_EVENT_SEVERITY_FATAL, 'Fatal error event.')
+
+class EventDataType(_cyb_FastEnum):
+    """
+    Event data formats returned by `nvmlEventSetWait_v3`.
+
+    See `nvmlEventDataType_t`.
+    """
+    EVENT = (NVML_EVENT_DATA_TYPE_NVML_EVENT, 'NVML event-bit data. `eventType` contains an NVML event bit.')
+    GPU_OPERATIONAL_EVENT = (NVML_EVENT_DATA_TYPE_GPU_OPERATIONAL_EVENT, 'Structured GPU Operational Event data.')
+
+class NvlinkTelemetrySampleType(_cyb_FastEnum):
+    """
+    Per-link NVLink telemetry sample types.
+
+    See `nvmlNvlinkTelemetrySampleType_t`.
+    """
+    THROUGHPUT_RAW_TX = (NVML_NVLINK_TELEMETRY_SAMPLE_TYPE_THROUGHPUT_RAW_TX, 'Raw TX flit counter for a single link.')
+    THROUGHPUT_RAW_RX = (NVML_NVLINK_TELEMETRY_SAMPLE_TYPE_THROUGHPUT_RAW_RX, 'Raw RX flit counter for a single link.')
+    COUNT = (NVML_NVLINK_TELEMETRY_SAMPLE_TYPE_COUNT, 'Number of valid sample types.')
 
 
 class AffinityScope(_FastEnum):
@@ -1788,6 +2025,8 @@ class ClocksEventReasons(_FastEnum):
     THROTTLE_REASON_HW_THERMAL_SLOWDOWN = 0x0000000000000040
     THROTTLE_REASON_HW_POWER_BRAKE_SLOWDOWN = 0x0000000000000080
     EVENT_REASON_DISPLAY_CLOCK_SETTING = 0x0000000000000100
+    EVENT_REASON_BOARD_LIMIT = 0x0000000000000200
+    EVENT_REASON_RELIABILITY = 0x0000000000000400
     EVENT_REASON_NONE = 0x0000000000000000
 
 
@@ -2180,7 +2419,7 @@ cdef class PciInfoExt_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPciInfoExt_v1_t *>calloc(1, sizeof(nvmlPciInfoExt_v1_t))
+        self._ptr = <nvmlPciInfoExt_v1_t *>_cyb_calloc(1, sizeof(nvmlPciInfoExt_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PciInfoExt_v1")
         self._owner = None
@@ -2192,7 +2431,7 @@ cdef class PciInfoExt_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PciInfoExt_v1 object at {hex(id(self))}>"
@@ -2213,20 +2452,20 @@ cdef class PciInfoExt_v1:
         if not isinstance(other, PciInfoExt_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPciInfoExt_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPciInfoExt_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPciInfoExt_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPciInfoExt_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPciInfoExt_v1_t *>malloc(sizeof(nvmlPciInfoExt_v1_t))
+            self._ptr = <nvmlPciInfoExt_v1_t *>_cyb_malloc(sizeof(nvmlPciInfoExt_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PciInfoExt_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPciInfoExt_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPciInfoExt_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -2324,7 +2563,7 @@ cdef class PciInfoExt_v1:
     @property
     def bus_id(self):
         """~_numpy.int8: (array of length 32).The tuple domain:bus:device.function PCI identifier (& NULL terminator)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].busId)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].busId)
 
     @bus_id.setter
     def bus_id(self, val):
@@ -2334,12 +2573,12 @@ cdef class PciInfoExt_v1:
         if len(buf) >= 32:
             raise ValueError("String too long for field bus_id, max length is 31")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].busId), <void *>ptr, 32)
+        _cyb_memcpy(<void *>(self._ptr[0].busId), <void *>ptr, 32)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an PciInfoExt_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlPciInfoExt_v1_t), PciInfoExt_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlPciInfoExt_v1_t), PciInfoExt_v1)
 
     @staticmethod
     def from_data(data):
@@ -2348,7 +2587,7 @@ cdef class PciInfoExt_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `pci_info_ext_v1_dtype` holding the data.
         """
-        return __from_data(data, "pci_info_ext_v1_dtype", pci_info_ext_v1_dtype, PciInfoExt_v1)
+        return _cyb_from_data(data, "pci_info_ext_v1_dtype", pci_info_ext_v1_dtype, PciInfoExt_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2363,10 +2602,10 @@ cdef class PciInfoExt_v1:
             raise ValueError("ptr must not be null (0)")
         cdef PciInfoExt_v1 obj = PciInfoExt_v1.__new__(PciInfoExt_v1)
         if owner is None:
-            obj._ptr = <nvmlPciInfoExt_v1_t *>malloc(sizeof(nvmlPciInfoExt_v1_t))
+            obj._ptr = <nvmlPciInfoExt_v1_t *>_cyb_malloc(sizeof(nvmlPciInfoExt_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PciInfoExt_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPciInfoExt_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPciInfoExt_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -2409,7 +2648,7 @@ cdef class PciInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPciInfo_t *>calloc(1, sizeof(nvmlPciInfo_t))
+        self._ptr = <nvmlPciInfo_t *>_cyb_calloc(1, sizeof(nvmlPciInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PciInfo")
         self._owner = None
@@ -2421,7 +2660,7 @@ cdef class PciInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PciInfo object at {hex(id(self))}>"
@@ -2442,20 +2681,20 @@ cdef class PciInfo:
         if not isinstance(other, PciInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPciInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPciInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPciInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPciInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPciInfo_t *>malloc(sizeof(nvmlPciInfo_t))
+            self._ptr = <nvmlPciInfo_t *>_cyb_malloc(sizeof(nvmlPciInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PciInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPciInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPciInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -2465,7 +2704,7 @@ cdef class PciInfo:
     @property
     def bus_id_legacy(self):
         """~_numpy.int8: (array of length 16)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].busIdLegacy)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].busIdLegacy)
 
     @bus_id_legacy.setter
     def bus_id_legacy(self, val):
@@ -2475,7 +2714,7 @@ cdef class PciInfo:
         if len(buf) >= 16:
             raise ValueError("String too long for field bus_id_legacy, max length is 15")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].busIdLegacy), <void *>ptr, 16)
+        _cyb_memcpy(<void *>(self._ptr[0].busIdLegacy), <void *>ptr, 16)
 
     @property
     def domain(self):
@@ -2535,7 +2774,7 @@ cdef class PciInfo:
     @property
     def bus_id(self):
         """~_numpy.int8: (array of length 32)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].busId)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].busId)
 
     @bus_id.setter
     def bus_id(self, val):
@@ -2545,12 +2784,12 @@ cdef class PciInfo:
         if len(buf) >= 32:
             raise ValueError("String too long for field bus_id, max length is 31")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].busId), <void *>ptr, 32)
+        _cyb_memcpy(<void *>(self._ptr[0].busId), <void *>ptr, 32)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an PciInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlPciInfo_t), PciInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlPciInfo_t), PciInfo)
 
     @staticmethod
     def from_data(data):
@@ -2559,7 +2798,7 @@ cdef class PciInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `pci_info_dtype` holding the data.
         """
-        return __from_data(data, "pci_info_dtype", pci_info_dtype, PciInfo)
+        return _cyb_from_data(data, "pci_info_dtype", pci_info_dtype, PciInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2574,10 +2813,10 @@ cdef class PciInfo:
             raise ValueError("ptr must not be null (0)")
         cdef PciInfo obj = PciInfo.__new__(PciInfo)
         if owner is None:
-            obj._ptr = <nvmlPciInfo_t *>malloc(sizeof(nvmlPciInfo_t))
+            obj._ptr = <nvmlPciInfo_t *>_cyb_malloc(sizeof(nvmlPciInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PciInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPciInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPciInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -2615,7 +2854,7 @@ cdef class Utilization:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlUtilization_t *>calloc(1, sizeof(nvmlUtilization_t))
+        self._ptr = <nvmlUtilization_t *>_cyb_calloc(1, sizeof(nvmlUtilization_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating Utilization")
         self._owner = None
@@ -2627,7 +2866,7 @@ cdef class Utilization:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Utilization object at {hex(id(self))}>"
@@ -2648,20 +2887,20 @@ cdef class Utilization:
         if not isinstance(other, Utilization):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUtilization_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUtilization_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlUtilization_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlUtilization_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlUtilization_t *>malloc(sizeof(nvmlUtilization_t))
+            self._ptr = <nvmlUtilization_t *>_cyb_malloc(sizeof(nvmlUtilization_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating Utilization")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUtilization_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUtilization_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -2693,7 +2932,7 @@ cdef class Utilization:
     @staticmethod
     def from_buffer(buffer):
         """Create an Utilization instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlUtilization_t), Utilization)
+        return _cyb_from_buffer(buffer, sizeof(nvmlUtilization_t), Utilization)
 
     @staticmethod
     def from_data(data):
@@ -2702,7 +2941,7 @@ cdef class Utilization:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `utilization_dtype` holding the data.
         """
-        return __from_data(data, "utilization_dtype", utilization_dtype, Utilization)
+        return _cyb_from_data(data, "utilization_dtype", utilization_dtype, Utilization)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2717,10 +2956,10 @@ cdef class Utilization:
             raise ValueError("ptr must not be null (0)")
         cdef Utilization obj = Utilization.__new__(Utilization)
         if owner is None:
-            obj._ptr = <nvmlUtilization_t *>malloc(sizeof(nvmlUtilization_t))
+            obj._ptr = <nvmlUtilization_t *>_cyb_malloc(sizeof(nvmlUtilization_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating Utilization")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUtilization_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUtilization_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -2759,7 +2998,7 @@ cdef class Memory:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlMemory_t *>calloc(1, sizeof(nvmlMemory_t))
+        self._ptr = <nvmlMemory_t *>_cyb_calloc(1, sizeof(nvmlMemory_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating Memory")
         self._owner = None
@@ -2771,7 +3010,7 @@ cdef class Memory:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Memory object at {hex(id(self))}>"
@@ -2792,20 +3031,20 @@ cdef class Memory:
         if not isinstance(other, Memory):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlMemory_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlMemory_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlMemory_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlMemory_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlMemory_t *>malloc(sizeof(nvmlMemory_t))
+            self._ptr = <nvmlMemory_t *>_cyb_malloc(sizeof(nvmlMemory_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating Memory")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMemory_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMemory_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -2848,7 +3087,7 @@ cdef class Memory:
     @staticmethod
     def from_buffer(buffer):
         """Create an Memory instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlMemory_t), Memory)
+        return _cyb_from_buffer(buffer, sizeof(nvmlMemory_t), Memory)
 
     @staticmethod
     def from_data(data):
@@ -2857,7 +3096,7 @@ cdef class Memory:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `memory_dtype` holding the data.
         """
-        return __from_data(data, "memory_dtype", memory_dtype, Memory)
+        return _cyb_from_data(data, "memory_dtype", memory_dtype, Memory)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2872,10 +3111,10 @@ cdef class Memory:
             raise ValueError("ptr must not be null (0)")
         cdef Memory obj = Memory.__new__(Memory)
         if owner is None:
-            obj._ptr = <nvmlMemory_t *>malloc(sizeof(nvmlMemory_t))
+            obj._ptr = <nvmlMemory_t *>_cyb_malloc(sizeof(nvmlMemory_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating Memory")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlMemory_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlMemory_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -2916,7 +3155,7 @@ cdef class Memory_v2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlMemory_v2_t *>calloc(1, sizeof(nvmlMemory_v2_t))
+        self._ptr = <nvmlMemory_v2_t *>_cyb_calloc(1, sizeof(nvmlMemory_v2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating Memory_v2")
         self._owner = None
@@ -2928,7 +3167,7 @@ cdef class Memory_v2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Memory_v2 object at {hex(id(self))}>"
@@ -2949,20 +3188,20 @@ cdef class Memory_v2:
         if not isinstance(other, Memory_v2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlMemory_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlMemory_v2_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlMemory_v2_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlMemory_v2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlMemory_v2_t *>malloc(sizeof(nvmlMemory_v2_t))
+            self._ptr = <nvmlMemory_v2_t *>_cyb_malloc(sizeof(nvmlMemory_v2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating Memory_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMemory_v2_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMemory_v2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -3027,7 +3266,7 @@ cdef class Memory_v2:
     @staticmethod
     def from_buffer(buffer):
         """Create an Memory_v2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlMemory_v2_t), Memory_v2)
+        return _cyb_from_buffer(buffer, sizeof(nvmlMemory_v2_t), Memory_v2)
 
     @staticmethod
     def from_data(data):
@@ -3036,7 +3275,7 @@ cdef class Memory_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `memory_v2_dtype` holding the data.
         """
-        return __from_data(data, "memory_v2_dtype", memory_v2_dtype, Memory_v2)
+        return _cyb_from_data(data, "memory_v2_dtype", memory_v2_dtype, Memory_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -3051,10 +3290,10 @@ cdef class Memory_v2:
             raise ValueError("ptr must not be null (0)")
         cdef Memory_v2 obj = Memory_v2.__new__(Memory_v2)
         if owner is None:
-            obj._ptr = <nvmlMemory_v2_t *>malloc(sizeof(nvmlMemory_v2_t))
+            obj._ptr = <nvmlMemory_v2_t *>_cyb_malloc(sizeof(nvmlMemory_v2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating Memory_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlMemory_v2_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlMemory_v2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -3093,7 +3332,7 @@ cdef class BAR1Memory:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlBAR1Memory_t *>calloc(1, sizeof(nvmlBAR1Memory_t))
+        self._ptr = <nvmlBAR1Memory_t *>_cyb_calloc(1, sizeof(nvmlBAR1Memory_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating BAR1Memory")
         self._owner = None
@@ -3105,7 +3344,7 @@ cdef class BAR1Memory:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.BAR1Memory object at {hex(id(self))}>"
@@ -3126,20 +3365,20 @@ cdef class BAR1Memory:
         if not isinstance(other, BAR1Memory):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlBAR1Memory_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlBAR1Memory_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlBAR1Memory_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlBAR1Memory_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlBAR1Memory_t *>malloc(sizeof(nvmlBAR1Memory_t))
+            self._ptr = <nvmlBAR1Memory_t *>_cyb_malloc(sizeof(nvmlBAR1Memory_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating BAR1Memory")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlBAR1Memory_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlBAR1Memory_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -3182,7 +3421,7 @@ cdef class BAR1Memory:
     @staticmethod
     def from_buffer(buffer):
         """Create an BAR1Memory instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlBAR1Memory_t), BAR1Memory)
+        return _cyb_from_buffer(buffer, sizeof(nvmlBAR1Memory_t), BAR1Memory)
 
     @staticmethod
     def from_data(data):
@@ -3191,7 +3430,7 @@ cdef class BAR1Memory:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `ba_r1memory_dtype` holding the data.
         """
-        return __from_data(data, "ba_r1memory_dtype", ba_r1memory_dtype, BAR1Memory)
+        return _cyb_from_data(data, "ba_r1memory_dtype", ba_r1memory_dtype, BAR1Memory)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -3206,10 +3445,10 @@ cdef class BAR1Memory:
             raise ValueError("ptr must not be null (0)")
         cdef BAR1Memory obj = BAR1Memory.__new__(BAR1Memory)
         if owner is None:
-            obj._ptr = <nvmlBAR1Memory_t *>malloc(sizeof(nvmlBAR1Memory_t))
+            obj._ptr = <nvmlBAR1Memory_t *>_cyb_malloc(sizeof(nvmlBAR1Memory_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating BAR1Memory")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlBAR1Memory_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlBAR1Memory_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -3285,10 +3524,10 @@ cdef class ProcessInfo:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def pid(self):
@@ -3388,8 +3627,8 @@ cdef class ProcessInfo:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef ProcessInfo obj = ProcessInfo.__new__(ProcessInfo)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlProcessInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=process_info_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -3463,10 +3702,10 @@ cdef class ProcessDetail_v1:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def pid(self):
@@ -3577,8 +3816,8 @@ cdef class ProcessDetail_v1:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef ProcessDetail_v1 obj = ProcessDetail_v1.__new__(ProcessDetail_v1)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlProcessDetail_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=process_detail_v1_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -3620,7 +3859,7 @@ cdef class DeviceAttributes:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlDeviceAttributes_t *>calloc(1, sizeof(nvmlDeviceAttributes_t))
+        self._ptr = <nvmlDeviceAttributes_t *>_cyb_calloc(1, sizeof(nvmlDeviceAttributes_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating DeviceAttributes")
         self._owner = None
@@ -3632,7 +3871,7 @@ cdef class DeviceAttributes:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.DeviceAttributes object at {hex(id(self))}>"
@@ -3653,20 +3892,20 @@ cdef class DeviceAttributes:
         if not isinstance(other, DeviceAttributes):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceAttributes_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceAttributes_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlDeviceAttributes_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlDeviceAttributes_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDeviceAttributes_t *>malloc(sizeof(nvmlDeviceAttributes_t))
+            self._ptr = <nvmlDeviceAttributes_t *>_cyb_malloc(sizeof(nvmlDeviceAttributes_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating DeviceAttributes")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceAttributes_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceAttributes_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -3775,7 +4014,7 @@ cdef class DeviceAttributes:
     @staticmethod
     def from_buffer(buffer):
         """Create an DeviceAttributes instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlDeviceAttributes_t), DeviceAttributes)
+        return _cyb_from_buffer(buffer, sizeof(nvmlDeviceAttributes_t), DeviceAttributes)
 
     @staticmethod
     def from_data(data):
@@ -3784,7 +4023,7 @@ cdef class DeviceAttributes:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `device_attributes_dtype` holding the data.
         """
-        return __from_data(data, "device_attributes_dtype", device_attributes_dtype, DeviceAttributes)
+        return _cyb_from_data(data, "device_attributes_dtype", device_attributes_dtype, DeviceAttributes)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -3799,10 +4038,10 @@ cdef class DeviceAttributes:
             raise ValueError("ptr must not be null (0)")
         cdef DeviceAttributes obj = DeviceAttributes.__new__(DeviceAttributes)
         if owner is None:
-            obj._ptr = <nvmlDeviceAttributes_t *>malloc(sizeof(nvmlDeviceAttributes_t))
+            obj._ptr = <nvmlDeviceAttributes_t *>_cyb_malloc(sizeof(nvmlDeviceAttributes_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating DeviceAttributes")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceAttributes_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceAttributes_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -3839,7 +4078,7 @@ cdef class C2cModeInfo_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlC2cModeInfo_v1_t *>calloc(1, sizeof(nvmlC2cModeInfo_v1_t))
+        self._ptr = <nvmlC2cModeInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlC2cModeInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating C2cModeInfo_v1")
         self._owner = None
@@ -3851,7 +4090,7 @@ cdef class C2cModeInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.C2cModeInfo_v1 object at {hex(id(self))}>"
@@ -3872,20 +4111,20 @@ cdef class C2cModeInfo_v1:
         if not isinstance(other, C2cModeInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlC2cModeInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlC2cModeInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlC2cModeInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlC2cModeInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlC2cModeInfo_v1_t *>malloc(sizeof(nvmlC2cModeInfo_v1_t))
+            self._ptr = <nvmlC2cModeInfo_v1_t *>_cyb_malloc(sizeof(nvmlC2cModeInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating C2cModeInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlC2cModeInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlC2cModeInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -3906,7 +4145,7 @@ cdef class C2cModeInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an C2cModeInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlC2cModeInfo_v1_t), C2cModeInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlC2cModeInfo_v1_t), C2cModeInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -3915,7 +4154,7 @@ cdef class C2cModeInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `c2c_mode_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "c2c_mode_info_v1_dtype", c2c_mode_info_v1_dtype, C2cModeInfo_v1)
+        return _cyb_from_data(data, "c2c_mode_info_v1_dtype", c2c_mode_info_v1_dtype, C2cModeInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -3930,10 +4169,10 @@ cdef class C2cModeInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef C2cModeInfo_v1 obj = C2cModeInfo_v1.__new__(C2cModeInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlC2cModeInfo_v1_t *>malloc(sizeof(nvmlC2cModeInfo_v1_t))
+            obj._ptr = <nvmlC2cModeInfo_v1_t *>_cyb_malloc(sizeof(nvmlC2cModeInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating C2cModeInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlC2cModeInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlC2cModeInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -3974,7 +4213,7 @@ cdef class RowRemapperHistogramValues:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlRowRemapperHistogramValues_t *>calloc(1, sizeof(nvmlRowRemapperHistogramValues_t))
+        self._ptr = <nvmlRowRemapperHistogramValues_t *>_cyb_calloc(1, sizeof(nvmlRowRemapperHistogramValues_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating RowRemapperHistogramValues")
         self._owner = None
@@ -3986,7 +4225,7 @@ cdef class RowRemapperHistogramValues:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.RowRemapperHistogramValues object at {hex(id(self))}>"
@@ -4007,20 +4246,20 @@ cdef class RowRemapperHistogramValues:
         if not isinstance(other, RowRemapperHistogramValues):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlRowRemapperHistogramValues_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlRowRemapperHistogramValues_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlRowRemapperHistogramValues_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlRowRemapperHistogramValues_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlRowRemapperHistogramValues_t *>malloc(sizeof(nvmlRowRemapperHistogramValues_t))
+            self._ptr = <nvmlRowRemapperHistogramValues_t *>_cyb_malloc(sizeof(nvmlRowRemapperHistogramValues_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating RowRemapperHistogramValues")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRowRemapperHistogramValues_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRowRemapperHistogramValues_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -4085,7 +4324,7 @@ cdef class RowRemapperHistogramValues:
     @staticmethod
     def from_buffer(buffer):
         """Create an RowRemapperHistogramValues instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlRowRemapperHistogramValues_t), RowRemapperHistogramValues)
+        return _cyb_from_buffer(buffer, sizeof(nvmlRowRemapperHistogramValues_t), RowRemapperHistogramValues)
 
     @staticmethod
     def from_data(data):
@@ -4094,7 +4333,7 @@ cdef class RowRemapperHistogramValues:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `row_remapper_histogram_values_dtype` holding the data.
         """
-        return __from_data(data, "row_remapper_histogram_values_dtype", row_remapper_histogram_values_dtype, RowRemapperHistogramValues)
+        return _cyb_from_data(data, "row_remapper_histogram_values_dtype", row_remapper_histogram_values_dtype, RowRemapperHistogramValues)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -4109,10 +4348,10 @@ cdef class RowRemapperHistogramValues:
             raise ValueError("ptr must not be null (0)")
         cdef RowRemapperHistogramValues obj = RowRemapperHistogramValues.__new__(RowRemapperHistogramValues)
         if owner is None:
-            obj._ptr = <nvmlRowRemapperHistogramValues_t *>malloc(sizeof(nvmlRowRemapperHistogramValues_t))
+            obj._ptr = <nvmlRowRemapperHistogramValues_t *>_cyb_malloc(sizeof(nvmlRowRemapperHistogramValues_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating RowRemapperHistogramValues")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlRowRemapperHistogramValues_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlRowRemapperHistogramValues_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -4186,10 +4425,10 @@ cdef class BridgeChipInfo:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def type(self):
@@ -4267,8 +4506,8 @@ cdef class BridgeChipInfo:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef BridgeChipInfo obj = BridgeChipInfo.__new__(BridgeChipInfo)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlBridgeChipInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=bridge_chip_info_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -4302,7 +4541,7 @@ cdef class Value:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlValue_t *>calloc(1, sizeof(nvmlValue_t))
+        self._ptr = <nvmlValue_t *>_cyb_calloc(1, sizeof(nvmlValue_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating Value")
         self._owner = None
@@ -4314,7 +4553,7 @@ cdef class Value:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Value object at {hex(id(self))}>"
@@ -4335,20 +4574,20 @@ cdef class Value:
         if not isinstance(other, Value):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlValue_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlValue_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlValue_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlValue_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlValue_t *>malloc(sizeof(nvmlValue_t))
+            self._ptr = <nvmlValue_t *>_cyb_malloc(sizeof(nvmlValue_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating Value")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlValue_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlValue_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -4435,7 +4674,7 @@ cdef class Value:
     @staticmethod
     def from_buffer(buffer):
         """Create an Value instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlValue_t), Value)
+        return _cyb_from_buffer(buffer, sizeof(nvmlValue_t), Value)
 
     @staticmethod
     def from_data(data):
@@ -4444,7 +4683,7 @@ cdef class Value:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `value_dtype` holding the data.
         """
-        return __from_data(data, "value_dtype", value_dtype, Value)
+        return _cyb_from_data(data, "value_dtype", value_dtype, Value)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -4459,10 +4698,10 @@ cdef class Value:
             raise ValueError("ptr must not be null (0)")
         cdef Value obj = Value.__new__(Value)
         if owner is None:
-            obj._ptr = <nvmlValue_t *>malloc(sizeof(nvmlValue_t))
+            obj._ptr = <nvmlValue_t *>_cyb_malloc(sizeof(nvmlValue_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating Value")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlValue_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlValue_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -4503,7 +4742,7 @@ cdef class _py_anon_pod0:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_nvml__anon_pod0 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod0))
+        self._ptr = <cuda_bindings_nvml__anon_pod0 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod0))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod0")
         self._owner = None
@@ -4515,7 +4754,7 @@ cdef class _py_anon_pod0:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod0 object at {hex(id(self))}>"
@@ -4536,20 +4775,20 @@ cdef class _py_anon_pod0:
         if not isinstance(other, _py_anon_pod0):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod0)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod0)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod0), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod0), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_nvml__anon_pod0 *>malloc(sizeof(cuda_bindings_nvml__anon_pod0))
+            self._ptr = <cuda_bindings_nvml__anon_pod0 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod0))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod0")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod0))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod0))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -4614,7 +4853,7 @@ cdef class _py_anon_pod0:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod0 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod0), _py_anon_pod0)
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod0), _py_anon_pod0)
 
     @staticmethod
     def from_data(data):
@@ -4623,7 +4862,7 @@ cdef class _py_anon_pod0:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod0_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod0_dtype", _py_anon_pod0_dtype, _py_anon_pod0)
+        return _cyb_from_data(data, "_py_anon_pod0_dtype", _py_anon_pod0_dtype, _py_anon_pod0)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -4638,10 +4877,10 @@ cdef class _py_anon_pod0:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod0 obj = _py_anon_pod0.__new__(_py_anon_pod0)
         if owner is None:
-            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>malloc(sizeof(cuda_bindings_nvml__anon_pod0))
+            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod0))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod0")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod0))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod0))
             obj._owner = None
             obj._owned = True
         else:
@@ -4681,7 +4920,7 @@ cdef class CoolerInfo_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlCoolerInfo_v1_t *>calloc(1, sizeof(nvmlCoolerInfo_v1_t))
+        self._ptr = <nvmlCoolerInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlCoolerInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating CoolerInfo_v1")
         self._owner = None
@@ -4693,7 +4932,7 @@ cdef class CoolerInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.CoolerInfo_v1 object at {hex(id(self))}>"
@@ -4714,20 +4953,20 @@ cdef class CoolerInfo_v1:
         if not isinstance(other, CoolerInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlCoolerInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlCoolerInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlCoolerInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlCoolerInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlCoolerInfo_v1_t *>malloc(sizeof(nvmlCoolerInfo_v1_t))
+            self._ptr = <nvmlCoolerInfo_v1_t *>_cyb_malloc(sizeof(nvmlCoolerInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating CoolerInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlCoolerInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlCoolerInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -4781,7 +5020,7 @@ cdef class CoolerInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an CoolerInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlCoolerInfo_v1_t), CoolerInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlCoolerInfo_v1_t), CoolerInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -4790,7 +5029,7 @@ cdef class CoolerInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `cooler_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "cooler_info_v1_dtype", cooler_info_v1_dtype, CoolerInfo_v1)
+        return _cyb_from_data(data, "cooler_info_v1_dtype", cooler_info_v1_dtype, CoolerInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -4805,10 +5044,10 @@ cdef class CoolerInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef CoolerInfo_v1 obj = CoolerInfo_v1.__new__(CoolerInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlCoolerInfo_v1_t *>malloc(sizeof(nvmlCoolerInfo_v1_t))
+            obj._ptr = <nvmlCoolerInfo_v1_t *>_cyb_malloc(sizeof(nvmlCoolerInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating CoolerInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlCoolerInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlCoolerInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -4882,10 +5121,10 @@ cdef class ClkMonFaultInfo:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def clk_api_domain(self):
@@ -4963,8 +5202,8 @@ cdef class ClkMonFaultInfo:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef ClkMonFaultInfo obj = ClkMonFaultInfo.__new__(ClkMonFaultInfo)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlClkMonFaultInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=clk_mon_fault_info_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -5003,7 +5242,7 @@ cdef class ClockOffset_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlClockOffset_v1_t *>calloc(1, sizeof(nvmlClockOffset_v1_t))
+        self._ptr = <nvmlClockOffset_v1_t *>_cyb_calloc(1, sizeof(nvmlClockOffset_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ClockOffset_v1")
         self._owner = None
@@ -5015,7 +5254,7 @@ cdef class ClockOffset_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ClockOffset_v1 object at {hex(id(self))}>"
@@ -5036,20 +5275,20 @@ cdef class ClockOffset_v1:
         if not isinstance(other, ClockOffset_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlClockOffset_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlClockOffset_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlClockOffset_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlClockOffset_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlClockOffset_v1_t *>malloc(sizeof(nvmlClockOffset_v1_t))
+            self._ptr = <nvmlClockOffset_v1_t *>_cyb_malloc(sizeof(nvmlClockOffset_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ClockOffset_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlClockOffset_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlClockOffset_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -5125,7 +5364,7 @@ cdef class ClockOffset_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an ClockOffset_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlClockOffset_v1_t), ClockOffset_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlClockOffset_v1_t), ClockOffset_v1)
 
     @staticmethod
     def from_data(data):
@@ -5134,7 +5373,7 @@ cdef class ClockOffset_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `clock_offset_v1_dtype` holding the data.
         """
-        return __from_data(data, "clock_offset_v1_dtype", clock_offset_v1_dtype, ClockOffset_v1)
+        return _cyb_from_data(data, "clock_offset_v1_dtype", clock_offset_v1_dtype, ClockOffset_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -5149,10 +5388,10 @@ cdef class ClockOffset_v1:
             raise ValueError("ptr must not be null (0)")
         cdef ClockOffset_v1 obj = ClockOffset_v1.__new__(ClockOffset_v1)
         if owner is None:
-            obj._ptr = <nvmlClockOffset_v1_t *>malloc(sizeof(nvmlClockOffset_v1_t))
+            obj._ptr = <nvmlClockOffset_v1_t *>_cyb_malloc(sizeof(nvmlClockOffset_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ClockOffset_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlClockOffset_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlClockOffset_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -5230,10 +5469,10 @@ cdef class ProcessUtilizationSample:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def pid(self):
@@ -5355,8 +5594,8 @@ cdef class ProcessUtilizationSample:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef ProcessUtilizationSample obj = ProcessUtilizationSample.__new__(ProcessUtilizationSample)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlProcessUtilizationSample_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=process_utilization_sample_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -5433,10 +5672,10 @@ cdef class ProcessUtilizationInfo_v1:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def time_stamp(self):
@@ -5580,8 +5819,8 @@ cdef class ProcessUtilizationInfo_v1:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef ProcessUtilizationInfo_v1 obj = ProcessUtilizationInfo_v1.__new__(ProcessUtilizationInfo_v1)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlProcessUtilizationInfo_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=process_utilization_info_v1_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -5627,7 +5866,7 @@ cdef class EccSramErrorStatus_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlEccSramErrorStatus_v1_t *>calloc(1, sizeof(nvmlEccSramErrorStatus_v1_t))
+        self._ptr = <nvmlEccSramErrorStatus_v1_t *>_cyb_calloc(1, sizeof(nvmlEccSramErrorStatus_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating EccSramErrorStatus_v1")
         self._owner = None
@@ -5639,7 +5878,7 @@ cdef class EccSramErrorStatus_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.EccSramErrorStatus_v1 object at {hex(id(self))}>"
@@ -5660,20 +5899,20 @@ cdef class EccSramErrorStatus_v1:
         if not isinstance(other, EccSramErrorStatus_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEccSramErrorStatus_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEccSramErrorStatus_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEccSramErrorStatus_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEccSramErrorStatus_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlEccSramErrorStatus_v1_t *>malloc(sizeof(nvmlEccSramErrorStatus_v1_t))
+            self._ptr = <nvmlEccSramErrorStatus_v1_t *>_cyb_malloc(sizeof(nvmlEccSramErrorStatus_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating EccSramErrorStatus_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEccSramErrorStatus_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEccSramErrorStatus_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -5826,7 +6065,7 @@ cdef class EccSramErrorStatus_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an EccSramErrorStatus_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlEccSramErrorStatus_v1_t), EccSramErrorStatus_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlEccSramErrorStatus_v1_t), EccSramErrorStatus_v1)
 
     @staticmethod
     def from_data(data):
@@ -5835,7 +6074,7 @@ cdef class EccSramErrorStatus_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `ecc_sram_error_status_v1_dtype` holding the data.
         """
-        return __from_data(data, "ecc_sram_error_status_v1_dtype", ecc_sram_error_status_v1_dtype, EccSramErrorStatus_v1)
+        return _cyb_from_data(data, "ecc_sram_error_status_v1_dtype", ecc_sram_error_status_v1_dtype, EccSramErrorStatus_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -5850,10 +6089,10 @@ cdef class EccSramErrorStatus_v1:
             raise ValueError("ptr must not be null (0)")
         cdef EccSramErrorStatus_v1 obj = EccSramErrorStatus_v1.__new__(EccSramErrorStatus_v1)
         if owner is None:
-            obj._ptr = <nvmlEccSramErrorStatus_v1_t *>malloc(sizeof(nvmlEccSramErrorStatus_v1_t))
+            obj._ptr = <nvmlEccSramErrorStatus_v1_t *>_cyb_malloc(sizeof(nvmlEccSramErrorStatus_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating EccSramErrorStatus_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccSramErrorStatus_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccSramErrorStatus_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -5897,7 +6136,7 @@ cdef class PlatformInfo_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPlatformInfo_v1_t *>calloc(1, sizeof(nvmlPlatformInfo_v1_t))
+        self._ptr = <nvmlPlatformInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlPlatformInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PlatformInfo_v1")
         self._owner = None
@@ -5909,7 +6148,7 @@ cdef class PlatformInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PlatformInfo_v1 object at {hex(id(self))}>"
@@ -5930,20 +6169,20 @@ cdef class PlatformInfo_v1:
         if not isinstance(other, PlatformInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPlatformInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPlatformInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPlatformInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPlatformInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPlatformInfo_v1_t *>malloc(sizeof(nvmlPlatformInfo_v1_t))
+            self._ptr = <nvmlPlatformInfo_v1_t *>_cyb_malloc(sizeof(nvmlPlatformInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PlatformInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPlatformInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPlatformInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -5964,7 +6203,7 @@ cdef class PlatformInfo_v1:
     @property
     def ib_guid(self):
         """~_numpy.uint8: (array of length 16).Infiniband GUID reported by platform (for Blackwell, ibGuid is 8 bytes so indices 8-15 are zero)."""
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].ibGuid))
         return _numpy.asarray(arr)
 
@@ -5974,14 +6213,14 @@ cdef class PlatformInfo_v1:
             raise ValueError("This PlatformInfo_v1 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field ib_guid, got {len(val)}")
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def rack_guid(self):
         """~_numpy.uint8: (array of length 16).GUID of the rack containing this GPU (for Blackwell rackGuid is 13 bytes so indices 13-15 are zero)."""
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].rackGuid))
         return _numpy.asarray(arr)
 
@@ -5991,9 +6230,9 @@ cdef class PlatformInfo_v1:
             raise ValueError("This PlatformInfo_v1 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field rack_guid, got {len(val)}")
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].rackGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].rackGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def chassis_physical_slot_number(self):
@@ -6053,7 +6292,7 @@ cdef class PlatformInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an PlatformInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlPlatformInfo_v1_t), PlatformInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlPlatformInfo_v1_t), PlatformInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -6062,7 +6301,7 @@ cdef class PlatformInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `platform_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "platform_info_v1_dtype", platform_info_v1_dtype, PlatformInfo_v1)
+        return _cyb_from_data(data, "platform_info_v1_dtype", platform_info_v1_dtype, PlatformInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6077,10 +6316,10 @@ cdef class PlatformInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef PlatformInfo_v1 obj = PlatformInfo_v1.__new__(PlatformInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlPlatformInfo_v1_t *>malloc(sizeof(nvmlPlatformInfo_v1_t))
+            obj._ptr = <nvmlPlatformInfo_v1_t *>_cyb_malloc(sizeof(nvmlPlatformInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PlatformInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPlatformInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPlatformInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -6124,7 +6363,7 @@ cdef class PlatformInfo_v2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPlatformInfo_v2_t *>calloc(1, sizeof(nvmlPlatformInfo_v2_t))
+        self._ptr = <nvmlPlatformInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlPlatformInfo_v2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PlatformInfo_v2")
         self._owner = None
@@ -6136,7 +6375,7 @@ cdef class PlatformInfo_v2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PlatformInfo_v2 object at {hex(id(self))}>"
@@ -6157,20 +6396,20 @@ cdef class PlatformInfo_v2:
         if not isinstance(other, PlatformInfo_v2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPlatformInfo_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPlatformInfo_v2_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPlatformInfo_v2_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPlatformInfo_v2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPlatformInfo_v2_t *>malloc(sizeof(nvmlPlatformInfo_v2_t))
+            self._ptr = <nvmlPlatformInfo_v2_t *>_cyb_malloc(sizeof(nvmlPlatformInfo_v2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PlatformInfo_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPlatformInfo_v2_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPlatformInfo_v2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -6191,7 +6430,7 @@ cdef class PlatformInfo_v2:
     @property
     def ib_guid(self):
         """~_numpy.uint8: (array of length 16).Infiniband GUID reported by platform (for Blackwell, ibGuid is 8 bytes so indices 8-15 are zero)."""
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].ibGuid))
         return _numpy.asarray(arr)
 
@@ -6201,14 +6440,14 @@ cdef class PlatformInfo_v2:
             raise ValueError("This PlatformInfo_v2 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field ib_guid, got {len(val)}")
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def chassis_serial_number(self):
         """~_numpy.uint8: (array of length 16).Serial number of the chassis containing this GPU (for Blackwell it is 13 bytes so indices 13-15 are zero)."""
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].chassisSerialNumber))
         return _numpy.asarray(arr)
 
@@ -6218,9 +6457,9 @@ cdef class PlatformInfo_v2:
             raise ValueError("This PlatformInfo_v2 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field chassis_serial_number, got {len(val)}")
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].chassisSerialNumber)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].chassisSerialNumber)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def slot_number(self):
@@ -6280,7 +6519,7 @@ cdef class PlatformInfo_v2:
     @staticmethod
     def from_buffer(buffer):
         """Create an PlatformInfo_v2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlPlatformInfo_v2_t), PlatformInfo_v2)
+        return _cyb_from_buffer(buffer, sizeof(nvmlPlatformInfo_v2_t), PlatformInfo_v2)
 
     @staticmethod
     def from_data(data):
@@ -6289,7 +6528,7 @@ cdef class PlatformInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `platform_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "platform_info_v2_dtype", platform_info_v2_dtype, PlatformInfo_v2)
+        return _cyb_from_data(data, "platform_info_v2_dtype", platform_info_v2_dtype, PlatformInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6304,10 +6543,10 @@ cdef class PlatformInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef PlatformInfo_v2 obj = PlatformInfo_v2.__new__(PlatformInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlPlatformInfo_v2_t *>malloc(sizeof(nvmlPlatformInfo_v2_t))
+            obj._ptr = <nvmlPlatformInfo_v2_t *>_cyb_malloc(sizeof(nvmlPlatformInfo_v2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PlatformInfo_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPlatformInfo_v2_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPlatformInfo_v2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -6347,7 +6586,7 @@ cdef class _py_anon_pod1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_nvml__anon_pod1 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod1))
+        self._ptr = <cuda_bindings_nvml__anon_pod1 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod1))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
@@ -6359,7 +6598,7 @@ cdef class _py_anon_pod1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
@@ -6380,20 +6619,20 @@ cdef class _py_anon_pod1:
         if not isinstance(other, _py_anon_pod1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod1)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod1)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod1), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod1), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_nvml__anon_pod1 *>malloc(sizeof(cuda_bindings_nvml__anon_pod1))
+            self._ptr = <cuda_bindings_nvml__anon_pod1 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod1))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod1))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod1))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -6447,7 +6686,7 @@ cdef class _py_anon_pod1:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod1), _py_anon_pod1)
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod1), _py_anon_pod1)
 
     @staticmethod
     def from_data(data):
@@ -6456,7 +6695,7 @@ cdef class _py_anon_pod1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod1_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
+        return _cyb_from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6471,10 +6710,10 @@ cdef class _py_anon_pod1:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
         if owner is None:
-            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>malloc(sizeof(cuda_bindings_nvml__anon_pod1))
+            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod1))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod1))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod1))
             obj._owner = None
             obj._owned = True
         else:
@@ -6516,7 +6755,7 @@ cdef class VgpuPlacementList_v2:
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuPlacementList_v2_t *>calloc(1, sizeof(nvmlVgpuPlacementList_v2_t))
+        self._ptr = <nvmlVgpuPlacementList_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuPlacementList_v2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuPlacementList_v2")
         self._owner = None
@@ -6529,7 +6768,7 @@ cdef class VgpuPlacementList_v2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuPlacementList_v2 object at {hex(id(self))}>"
@@ -6550,20 +6789,20 @@ cdef class VgpuPlacementList_v2:
         if not isinstance(other, VgpuPlacementList_v2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPlacementList_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPlacementList_v2_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuPlacementList_v2_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuPlacementList_v2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuPlacementList_v2_t *>malloc(sizeof(nvmlVgpuPlacementList_v2_t))
+            self._ptr = <nvmlVgpuPlacementList_v2_t *>_cyb_malloc(sizeof(nvmlVgpuPlacementList_v2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuPlacementList_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPlacementList_v2_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPlacementList_v2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -6597,7 +6836,7 @@ cdef class VgpuPlacementList_v2:
         """int: IN/OUT: Placement IDs for the vGPU type."""
         if self._ptr[0].placementIds == NULL:
             return []
-        cdef view.array arr = view.array(shape=(self._ptr[0].count,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].count,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(self._ptr[0].placementIds)
         return _numpy.asarray(arr)
 
@@ -6605,7 +6844,7 @@ cdef class VgpuPlacementList_v2:
     def placement_ids(self, val):
         if self._readonly:
             raise ValueError("This VgpuPlacementList_v2 instance is read-only")
-        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
         self._ptr[0].placementIds = <unsigned int*><intptr_t>(arr.data)
         self._ptr[0].count = len(val)
@@ -6625,7 +6864,7 @@ cdef class VgpuPlacementList_v2:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuPlacementList_v2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuPlacementList_v2_t), VgpuPlacementList_v2)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuPlacementList_v2_t), VgpuPlacementList_v2)
 
     @staticmethod
     def from_data(data):
@@ -6634,7 +6873,7 @@ cdef class VgpuPlacementList_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_placement_list_v2_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_placement_list_v2_dtype", vgpu_placement_list_v2_dtype, VgpuPlacementList_v2)
+        return _cyb_from_data(data, "vgpu_placement_list_v2_dtype", vgpu_placement_list_v2_dtype, VgpuPlacementList_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6649,10 +6888,10 @@ cdef class VgpuPlacementList_v2:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuPlacementList_v2 obj = VgpuPlacementList_v2.__new__(VgpuPlacementList_v2)
         if owner is None:
-            obj._ptr = <nvmlVgpuPlacementList_v2_t *>malloc(sizeof(nvmlVgpuPlacementList_v2_t))
+            obj._ptr = <nvmlVgpuPlacementList_v2_t *>_cyb_malloc(sizeof(nvmlVgpuPlacementList_v2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuPlacementList_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPlacementList_v2_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPlacementList_v2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -6691,7 +6930,7 @@ cdef class VgpuTypeBar1Info_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuTypeBar1Info_v1_t *>calloc(1, sizeof(nvmlVgpuTypeBar1Info_v1_t))
+        self._ptr = <nvmlVgpuTypeBar1Info_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuTypeBar1Info_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuTypeBar1Info_v1")
         self._owner = None
@@ -6703,7 +6942,7 @@ cdef class VgpuTypeBar1Info_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuTypeBar1Info_v1 object at {hex(id(self))}>"
@@ -6724,20 +6963,20 @@ cdef class VgpuTypeBar1Info_v1:
         if not isinstance(other, VgpuTypeBar1Info_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuTypeBar1Info_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuTypeBar1Info_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuTypeBar1Info_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuTypeBar1Info_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuTypeBar1Info_v1_t *>malloc(sizeof(nvmlVgpuTypeBar1Info_v1_t))
+            self._ptr = <nvmlVgpuTypeBar1Info_v1_t *>_cyb_malloc(sizeof(nvmlVgpuTypeBar1Info_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuTypeBar1Info_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuTypeBar1Info_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuTypeBar1Info_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -6769,7 +7008,7 @@ cdef class VgpuTypeBar1Info_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuTypeBar1Info_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuTypeBar1Info_v1_t), VgpuTypeBar1Info_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuTypeBar1Info_v1_t), VgpuTypeBar1Info_v1)
 
     @staticmethod
     def from_data(data):
@@ -6778,7 +7017,7 @@ cdef class VgpuTypeBar1Info_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_type_bar1info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_type_bar1info_v1_dtype", vgpu_type_bar1info_v1_dtype, VgpuTypeBar1Info_v1)
+        return _cyb_from_data(data, "vgpu_type_bar1info_v1_dtype", vgpu_type_bar1info_v1_dtype, VgpuTypeBar1Info_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6793,10 +7032,10 @@ cdef class VgpuTypeBar1Info_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuTypeBar1Info_v1 obj = VgpuTypeBar1Info_v1.__new__(VgpuTypeBar1Info_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuTypeBar1Info_v1_t *>malloc(sizeof(nvmlVgpuTypeBar1Info_v1_t))
+            obj._ptr = <nvmlVgpuTypeBar1Info_v1_t *>_cyb_malloc(sizeof(nvmlVgpuTypeBar1Info_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuTypeBar1Info_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuTypeBar1Info_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuTypeBar1Info_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -6878,10 +7117,10 @@ cdef class VgpuProcessUtilizationInfo_v1:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def process_name(self):
@@ -7045,8 +7284,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuProcessUtilizationInfo_v1 obj = VgpuProcessUtilizationInfo_v1.__new__(VgpuProcessUtilizationInfo_v1)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuProcessUtilizationInfo_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_info_v1_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -7081,7 +7320,7 @@ cdef class _py_anon_pod2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_nvml__anon_pod2 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod2))
+        self._ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod2))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
         self._owner = None
@@ -7093,7 +7332,7 @@ cdef class _py_anon_pod2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
@@ -7114,20 +7353,20 @@ cdef class _py_anon_pod2:
         if not isinstance(other, _py_anon_pod2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod2)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod2)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod2), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod2), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_nvml__anon_pod2 *>malloc(sizeof(cuda_bindings_nvml__anon_pod2))
+            self._ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod2))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod2))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod2))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7159,7 +7398,7 @@ cdef class _py_anon_pod2:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod2), _py_anon_pod2)
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod2), _py_anon_pod2)
 
     @staticmethod
     def from_data(data):
@@ -7168,7 +7407,7 @@ cdef class _py_anon_pod2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod2_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
+        return _cyb_from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -7183,10 +7422,10 @@ cdef class _py_anon_pod2:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
         if owner is None:
-            obj._ptr = <cuda_bindings_nvml__anon_pod2 *>malloc(sizeof(cuda_bindings_nvml__anon_pod2))
+            obj._ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod2))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod2))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod2))
             obj._owner = None
             obj._owned = True
         else:
@@ -7223,7 +7462,7 @@ cdef class _py_anon_pod3:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_nvml__anon_pod3 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod3))
+        self._ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod3))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
@@ -7235,7 +7474,7 @@ cdef class _py_anon_pod3:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
@@ -7256,20 +7495,20 @@ cdef class _py_anon_pod3:
         if not isinstance(other, _py_anon_pod3):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod3)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod3)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod3), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod3), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_nvml__anon_pod3 *>malloc(sizeof(cuda_bindings_nvml__anon_pod3))
+            self._ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod3))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod3))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod3))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7290,7 +7529,7 @@ cdef class _py_anon_pod3:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod3 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod3), _py_anon_pod3)
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod3), _py_anon_pod3)
 
     @staticmethod
     def from_data(data):
@@ -7299,7 +7538,7 @@ cdef class _py_anon_pod3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod3_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3)
+        return _cyb_from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -7314,10 +7553,10 @@ cdef class _py_anon_pod3:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
         if owner is None:
-            obj._ptr = <cuda_bindings_nvml__anon_pod3 *>malloc(sizeof(cuda_bindings_nvml__anon_pod3))
+            obj._ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod3))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod3))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod3))
             obj._owner = None
             obj._owned = True
         else:
@@ -7395,10 +7634,10 @@ cdef class VgpuSchedulerLogEntry:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def timestamp(self):
@@ -7520,8 +7759,8 @@ cdef class VgpuSchedulerLogEntry:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerLogEntry obj = VgpuSchedulerLogEntry.__new__(VgpuSchedulerLogEntry)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuSchedulerLogEntry_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -7556,7 +7795,7 @@ cdef class _py_anon_pod4:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_nvml__anon_pod4 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod4))
+        self._ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod4))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod4")
         self._owner = None
@@ -7568,7 +7807,7 @@ cdef class _py_anon_pod4:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod4 object at {hex(id(self))}>"
@@ -7589,20 +7828,20 @@ cdef class _py_anon_pod4:
         if not isinstance(other, _py_anon_pod4):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod4)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod4)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod4), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod4), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_nvml__anon_pod4 *>malloc(sizeof(cuda_bindings_nvml__anon_pod4))
+            self._ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod4))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod4))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod4))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7634,7 +7873,7 @@ cdef class _py_anon_pod4:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod4 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod4), _py_anon_pod4)
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod4), _py_anon_pod4)
 
     @staticmethod
     def from_data(data):
@@ -7643,7 +7882,7 @@ cdef class _py_anon_pod4:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod4_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod4_dtype", _py_anon_pod4_dtype, _py_anon_pod4)
+        return _cyb_from_data(data, "_py_anon_pod4_dtype", _py_anon_pod4_dtype, _py_anon_pod4)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -7658,10 +7897,10 @@ cdef class _py_anon_pod4:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod4 obj = _py_anon_pod4.__new__(_py_anon_pod4)
         if owner is None:
-            obj._ptr = <cuda_bindings_nvml__anon_pod4 *>malloc(sizeof(cuda_bindings_nvml__anon_pod4))
+            obj._ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod4))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod4))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod4))
             obj._owner = None
             obj._owned = True
         else:
@@ -7698,7 +7937,7 @@ cdef class _py_anon_pod5:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_nvml__anon_pod5 *>calloc(1, sizeof(cuda_bindings_nvml__anon_pod5))
+        self._ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod5))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod5")
         self._owner = None
@@ -7710,7 +7949,7 @@ cdef class _py_anon_pod5:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod5 object at {hex(id(self))}>"
@@ -7731,20 +7970,20 @@ cdef class _py_anon_pod5:
         if not isinstance(other, _py_anon_pod5):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod5)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod5)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod5), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod5), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_nvml__anon_pod5 *>malloc(sizeof(cuda_bindings_nvml__anon_pod5))
+            self._ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod5))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod5))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod5))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7765,7 +8004,7 @@ cdef class _py_anon_pod5:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod5 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod5), _py_anon_pod5)
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod5), _py_anon_pod5)
 
     @staticmethod
     def from_data(data):
@@ -7774,7 +8013,7 @@ cdef class _py_anon_pod5:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod5_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod5_dtype", _py_anon_pod5_dtype, _py_anon_pod5)
+        return _cyb_from_data(data, "_py_anon_pod5_dtype", _py_anon_pod5_dtype, _py_anon_pod5)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -7789,10 +8028,10 @@ cdef class _py_anon_pod5:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod5 obj = _py_anon_pod5.__new__(_py_anon_pod5)
         if owner is None:
-            obj._ptr = <cuda_bindings_nvml__anon_pod5 *>malloc(sizeof(cuda_bindings_nvml__anon_pod5))
+            obj._ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod5))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod5))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod5))
             obj._owner = None
             obj._owned = True
         else:
@@ -7836,7 +8075,7 @@ cdef class VgpuSchedulerCapabilities:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerCapabilities_t *>calloc(1, sizeof(nvmlVgpuSchedulerCapabilities_t))
+        self._ptr = <nvmlVgpuSchedulerCapabilities_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerCapabilities_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerCapabilities")
         self._owner = None
@@ -7848,7 +8087,7 @@ cdef class VgpuSchedulerCapabilities:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerCapabilities object at {hex(id(self))}>"
@@ -7869,20 +8108,20 @@ cdef class VgpuSchedulerCapabilities:
         if not isinstance(other, VgpuSchedulerCapabilities):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerCapabilities_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerCapabilities_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerCapabilities_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerCapabilities_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerCapabilities_t *>malloc(sizeof(nvmlVgpuSchedulerCapabilities_t))
+            self._ptr = <nvmlVgpuSchedulerCapabilities_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerCapabilities_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerCapabilities")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerCapabilities_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerCapabilities_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -7892,7 +8131,7 @@ cdef class VgpuSchedulerCapabilities:
     @property
     def supported_schedulers(self):
         """~_numpy.uint32: (array of length 3)."""
-        cdef view.array arr = view.array(shape=(3,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(3,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].supportedSchedulers))
         return _numpy.asarray(arr)
 
@@ -7902,9 +8141,9 @@ cdef class VgpuSchedulerCapabilities:
             raise ValueError("This VgpuSchedulerCapabilities instance is read-only")
         if len(val) != 3:
             raise ValueError(f"Expected length { 3 } for field supported_schedulers, got {len(val)}")
-        cdef view.array arr = view.array(shape=(3,), itemsize=sizeof(unsigned int), format="I", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(3,), itemsize=sizeof(unsigned int), format="I", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
-        memcpy(<void *>(&(self._ptr[0].supportedSchedulers)), <void *>(arr.data), sizeof(unsigned int) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].supportedSchedulers)), <void *>(arr.data), sizeof(unsigned int) * len(val))
 
     @property
     def max_timeslice(self):
@@ -7986,7 +8225,7 @@ cdef class VgpuSchedulerCapabilities:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerCapabilities instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerCapabilities_t), VgpuSchedulerCapabilities)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerCapabilities_t), VgpuSchedulerCapabilities)
 
     @staticmethod
     def from_data(data):
@@ -7995,7 +8234,7 @@ cdef class VgpuSchedulerCapabilities:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_capabilities_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_capabilities_dtype", vgpu_scheduler_capabilities_dtype, VgpuSchedulerCapabilities)
+        return _cyb_from_data(data, "vgpu_scheduler_capabilities_dtype", vgpu_scheduler_capabilities_dtype, VgpuSchedulerCapabilities)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8010,10 +8249,10 @@ cdef class VgpuSchedulerCapabilities:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerCapabilities obj = VgpuSchedulerCapabilities.__new__(VgpuSchedulerCapabilities)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerCapabilities_t *>malloc(sizeof(nvmlVgpuSchedulerCapabilities_t))
+            obj._ptr = <nvmlVgpuSchedulerCapabilities_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerCapabilities_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerCapabilities")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerCapabilities_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerCapabilities_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -8056,7 +8295,7 @@ cdef class VgpuLicenseExpiry:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuLicenseExpiry_t *>calloc(1, sizeof(nvmlVgpuLicenseExpiry_t))
+        self._ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlVgpuLicenseExpiry_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuLicenseExpiry")
         self._owner = None
@@ -8068,7 +8307,7 @@ cdef class VgpuLicenseExpiry:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuLicenseExpiry object at {hex(id(self))}>"
@@ -8089,20 +8328,20 @@ cdef class VgpuLicenseExpiry:
         if not isinstance(other, VgpuLicenseExpiry):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuLicenseExpiry_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuLicenseExpiry_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuLicenseExpiry_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuLicenseExpiry_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuLicenseExpiry_t *>malloc(sizeof(nvmlVgpuLicenseExpiry_t))
+            self._ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseExpiry_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuLicenseExpiry")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuLicenseExpiry_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuLicenseExpiry_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -8189,7 +8428,7 @@ cdef class VgpuLicenseExpiry:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuLicenseExpiry instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuLicenseExpiry_t), VgpuLicenseExpiry)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuLicenseExpiry_t), VgpuLicenseExpiry)
 
     @staticmethod
     def from_data(data):
@@ -8198,7 +8437,7 @@ cdef class VgpuLicenseExpiry:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_license_expiry_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_license_expiry_dtype", vgpu_license_expiry_dtype, VgpuLicenseExpiry)
+        return _cyb_from_data(data, "vgpu_license_expiry_dtype", vgpu_license_expiry_dtype, VgpuLicenseExpiry)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8213,10 +8452,10 @@ cdef class VgpuLicenseExpiry:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuLicenseExpiry obj = VgpuLicenseExpiry.__new__(VgpuLicenseExpiry)
         if owner is None:
-            obj._ptr = <nvmlVgpuLicenseExpiry_t *>malloc(sizeof(nvmlVgpuLicenseExpiry_t))
+            obj._ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseExpiry_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuLicenseExpiry")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuLicenseExpiry_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuLicenseExpiry_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -8259,7 +8498,7 @@ cdef class GridLicenseExpiry:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGridLicenseExpiry_t *>calloc(1, sizeof(nvmlGridLicenseExpiry_t))
+        self._ptr = <nvmlGridLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlGridLicenseExpiry_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GridLicenseExpiry")
         self._owner = None
@@ -8271,7 +8510,7 @@ cdef class GridLicenseExpiry:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GridLicenseExpiry object at {hex(id(self))}>"
@@ -8292,20 +8531,20 @@ cdef class GridLicenseExpiry:
         if not isinstance(other, GridLicenseExpiry):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGridLicenseExpiry_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGridLicenseExpiry_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGridLicenseExpiry_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGridLicenseExpiry_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGridLicenseExpiry_t *>malloc(sizeof(nvmlGridLicenseExpiry_t))
+            self._ptr = <nvmlGridLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlGridLicenseExpiry_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating GridLicenseExpiry")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGridLicenseExpiry_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGridLicenseExpiry_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -8392,7 +8631,7 @@ cdef class GridLicenseExpiry:
     @staticmethod
     def from_buffer(buffer):
         """Create an GridLicenseExpiry instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlGridLicenseExpiry_t), GridLicenseExpiry)
+        return _cyb_from_buffer(buffer, sizeof(nvmlGridLicenseExpiry_t), GridLicenseExpiry)
 
     @staticmethod
     def from_data(data):
@@ -8401,7 +8640,7 @@ cdef class GridLicenseExpiry:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `grid_license_expiry_dtype` holding the data.
         """
-        return __from_data(data, "grid_license_expiry_dtype", grid_license_expiry_dtype, GridLicenseExpiry)
+        return _cyb_from_data(data, "grid_license_expiry_dtype", grid_license_expiry_dtype, GridLicenseExpiry)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8416,10 +8655,10 @@ cdef class GridLicenseExpiry:
             raise ValueError("ptr must not be null (0)")
         cdef GridLicenseExpiry obj = GridLicenseExpiry.__new__(GridLicenseExpiry)
         if owner is None:
-            obj._ptr = <nvmlGridLicenseExpiry_t *>malloc(sizeof(nvmlGridLicenseExpiry_t))
+            obj._ptr = <nvmlGridLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlGridLicenseExpiry_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GridLicenseExpiry")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGridLicenseExpiry_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGridLicenseExpiry_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -8459,7 +8698,7 @@ cdef class VgpuTypeIdInfo_v1:
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuTypeIdInfo_v1_t *>calloc(1, sizeof(nvmlVgpuTypeIdInfo_v1_t))
+        self._ptr = <nvmlVgpuTypeIdInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuTypeIdInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuTypeIdInfo_v1")
         self._owner = None
@@ -8472,7 +8711,7 @@ cdef class VgpuTypeIdInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuTypeIdInfo_v1 object at {hex(id(self))}>"
@@ -8493,20 +8732,20 @@ cdef class VgpuTypeIdInfo_v1:
         if not isinstance(other, VgpuTypeIdInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuTypeIdInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuTypeIdInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuTypeIdInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuTypeIdInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuTypeIdInfo_v1_t *>malloc(sizeof(nvmlVgpuTypeIdInfo_v1_t))
+            self._ptr = <nvmlVgpuTypeIdInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuTypeIdInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuTypeIdInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuTypeIdInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuTypeIdInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -8529,7 +8768,7 @@ cdef class VgpuTypeIdInfo_v1:
         """int: OUT: List of vGPU type IDs."""
         if self._ptr[0].vgpuTypeIds == NULL:
             return []
-        cdef view.array arr = view.array(shape=(self._ptr[0].vgpuCount,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].vgpuCount,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(self._ptr[0].vgpuTypeIds)
         return _numpy.asarray(arr)
 
@@ -8537,7 +8776,7 @@ cdef class VgpuTypeIdInfo_v1:
     def vgpu_type_ids(self, val):
         if self._readonly:
             raise ValueError("This VgpuTypeIdInfo_v1 instance is read-only")
-        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
         self._ptr[0].vgpuTypeIds = <nvmlVgpuTypeId_t*><intptr_t>(arr.data)
         self._ptr[0].vgpuCount = len(val)
@@ -8546,7 +8785,7 @@ cdef class VgpuTypeIdInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuTypeIdInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuTypeIdInfo_v1_t), VgpuTypeIdInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuTypeIdInfo_v1_t), VgpuTypeIdInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -8555,7 +8794,7 @@ cdef class VgpuTypeIdInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_type_id_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_type_id_info_v1_dtype", vgpu_type_id_info_v1_dtype, VgpuTypeIdInfo_v1)
+        return _cyb_from_data(data, "vgpu_type_id_info_v1_dtype", vgpu_type_id_info_v1_dtype, VgpuTypeIdInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8570,10 +8809,10 @@ cdef class VgpuTypeIdInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuTypeIdInfo_v1 obj = VgpuTypeIdInfo_v1.__new__(VgpuTypeIdInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuTypeIdInfo_v1_t *>malloc(sizeof(nvmlVgpuTypeIdInfo_v1_t))
+            obj._ptr = <nvmlVgpuTypeIdInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuTypeIdInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuTypeIdInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuTypeIdInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuTypeIdInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -8614,7 +8853,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>calloc(1, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+        self._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ActiveVgpuInstanceInfo_v1")
         self._owner = None
@@ -8627,7 +8866,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ActiveVgpuInstanceInfo_v1 object at {hex(id(self))}>"
@@ -8648,20 +8887,20 @@ cdef class ActiveVgpuInstanceInfo_v1:
         if not isinstance(other, ActiveVgpuInstanceInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlActiveVgpuInstanceInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlActiveVgpuInstanceInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlActiveVgpuInstanceInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlActiveVgpuInstanceInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>malloc(sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+            self._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>_cyb_malloc(sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ActiveVgpuInstanceInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -8684,7 +8923,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
         """int: IN/OUT: list of active vGPU instances."""
         if self._ptr[0].vgpuInstances == NULL:
             return []
-        cdef view.array arr = view.array(shape=(self._ptr[0].vgpuCount,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].vgpuCount,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(self._ptr[0].vgpuInstances)
         return _numpy.asarray(arr)
 
@@ -8692,7 +8931,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
     def vgpu_instances(self, val):
         if self._readonly:
             raise ValueError("This ActiveVgpuInstanceInfo_v1 instance is read-only")
-        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
         self._ptr[0].vgpuInstances = <nvmlVgpuInstance_t*><intptr_t>(arr.data)
         self._ptr[0].vgpuCount = len(val)
@@ -8701,7 +8940,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an ActiveVgpuInstanceInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlActiveVgpuInstanceInfo_v1_t), ActiveVgpuInstanceInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlActiveVgpuInstanceInfo_v1_t), ActiveVgpuInstanceInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -8710,7 +8949,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `active_vgpu_instance_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "active_vgpu_instance_info_v1_dtype", active_vgpu_instance_info_v1_dtype, ActiveVgpuInstanceInfo_v1)
+        return _cyb_from_data(data, "active_vgpu_instance_info_v1_dtype", active_vgpu_instance_info_v1_dtype, ActiveVgpuInstanceInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8725,10 +8964,10 @@ cdef class ActiveVgpuInstanceInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef ActiveVgpuInstanceInfo_v1 obj = ActiveVgpuInstanceInfo_v1.__new__(ActiveVgpuInstanceInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>malloc(sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+            obj._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>_cyb_malloc(sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ActiveVgpuInstanceInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -8771,7 +9010,7 @@ cdef class VgpuCreatablePlacementInfo_v1:
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>calloc(1, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+        self._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuCreatablePlacementInfo_v1")
         self._owner = None
@@ -8784,7 +9023,7 @@ cdef class VgpuCreatablePlacementInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuCreatablePlacementInfo_v1 object at {hex(id(self))}>"
@@ -8805,20 +9044,20 @@ cdef class VgpuCreatablePlacementInfo_v1:
         if not isinstance(other, VgpuCreatablePlacementInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuCreatablePlacementInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuCreatablePlacementInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>malloc(sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+            self._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuCreatablePlacementInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -8863,7 +9102,7 @@ cdef class VgpuCreatablePlacementInfo_v1:
         """int: IN/OUT: Placement IDs for the vGPU type."""
         if self._ptr[0].placementIds == NULL:
             return []
-        cdef view.array arr = view.array(shape=(self._ptr[0].placementSize,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].placementSize,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(self._ptr[0].placementIds)
         return _numpy.asarray(arr)
 
@@ -8871,7 +9110,7 @@ cdef class VgpuCreatablePlacementInfo_v1:
     def placement_ids(self, val):
         if self._readonly:
             raise ValueError("This VgpuCreatablePlacementInfo_v1 instance is read-only")
-        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
         self._ptr[0].placementIds = <unsigned int*><intptr_t>(arr.data)
         self._ptr[0].placementSize = len(val)
@@ -8880,7 +9119,7 @@ cdef class VgpuCreatablePlacementInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuCreatablePlacementInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t), VgpuCreatablePlacementInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t), VgpuCreatablePlacementInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -8889,7 +9128,7 @@ cdef class VgpuCreatablePlacementInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_creatable_placement_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_creatable_placement_info_v1_dtype", vgpu_creatable_placement_info_v1_dtype, VgpuCreatablePlacementInfo_v1)
+        return _cyb_from_data(data, "vgpu_creatable_placement_info_v1_dtype", vgpu_creatable_placement_info_v1_dtype, VgpuCreatablePlacementInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8904,10 +9143,10 @@ cdef class VgpuCreatablePlacementInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuCreatablePlacementInfo_v1 obj = VgpuCreatablePlacementInfo_v1.__new__(VgpuCreatablePlacementInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>malloc(sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+            obj._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuCreatablePlacementInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -8982,10 +9221,10 @@ cdef class HwbcEntry:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def hwbc_id(self):
@@ -9061,8 +9300,8 @@ cdef class HwbcEntry:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef HwbcEntry obj = HwbcEntry.__new__(HwbcEntry)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlHwbcEntry_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=hwbc_entry_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -9097,7 +9336,7 @@ cdef class LedState:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlLedState_t *>calloc(1, sizeof(nvmlLedState_t))
+        self._ptr = <nvmlLedState_t *>_cyb_calloc(1, sizeof(nvmlLedState_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating LedState")
         self._owner = None
@@ -9109,7 +9348,7 @@ cdef class LedState:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.LedState object at {hex(id(self))}>"
@@ -9130,20 +9369,20 @@ cdef class LedState:
         if not isinstance(other, LedState):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlLedState_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlLedState_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlLedState_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlLedState_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlLedState_t *>malloc(sizeof(nvmlLedState_t))
+            self._ptr = <nvmlLedState_t *>_cyb_malloc(sizeof(nvmlLedState_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating LedState")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlLedState_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlLedState_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -9153,7 +9392,7 @@ cdef class LedState:
     @property
     def cause(self):
         """~_numpy.int8: (array of length 256)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].cause)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].cause)
 
     @cause.setter
     def cause(self, val):
@@ -9163,7 +9402,7 @@ cdef class LedState:
         if len(buf) >= 256:
             raise ValueError("String too long for field cause, max length is 255")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].cause), <void *>ptr, 256)
+        _cyb_memcpy(<void *>(self._ptr[0].cause), <void *>ptr, 256)
 
     @property
     def color(self):
@@ -9179,7 +9418,7 @@ cdef class LedState:
     @staticmethod
     def from_buffer(buffer):
         """Create an LedState instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlLedState_t), LedState)
+        return _cyb_from_buffer(buffer, sizeof(nvmlLedState_t), LedState)
 
     @staticmethod
     def from_data(data):
@@ -9188,7 +9427,7 @@ cdef class LedState:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `led_state_dtype` holding the data.
         """
-        return __from_data(data, "led_state_dtype", led_state_dtype, LedState)
+        return _cyb_from_data(data, "led_state_dtype", led_state_dtype, LedState)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -9203,10 +9442,10 @@ cdef class LedState:
             raise ValueError("ptr must not be null (0)")
         cdef LedState obj = LedState.__new__(LedState)
         if owner is None:
-            obj._ptr = <nvmlLedState_t *>malloc(sizeof(nvmlLedState_t))
+            obj._ptr = <nvmlLedState_t *>_cyb_malloc(sizeof(nvmlLedState_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating LedState")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlLedState_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlLedState_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -9246,7 +9485,7 @@ cdef class UnitInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlUnitInfo_t *>calloc(1, sizeof(nvmlUnitInfo_t))
+        self._ptr = <nvmlUnitInfo_t *>_cyb_calloc(1, sizeof(nvmlUnitInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating UnitInfo")
         self._owner = None
@@ -9258,7 +9497,7 @@ cdef class UnitInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.UnitInfo object at {hex(id(self))}>"
@@ -9279,20 +9518,20 @@ cdef class UnitInfo:
         if not isinstance(other, UnitInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUnitInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUnitInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlUnitInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlUnitInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlUnitInfo_t *>malloc(sizeof(nvmlUnitInfo_t))
+            self._ptr = <nvmlUnitInfo_t *>_cyb_malloc(sizeof(nvmlUnitInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating UnitInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUnitInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUnitInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -9302,7 +9541,7 @@ cdef class UnitInfo:
     @property
     def name(self):
         """~_numpy.int8: (array of length 96)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].name)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].name)
 
     @name.setter
     def name(self, val):
@@ -9312,12 +9551,12 @@ cdef class UnitInfo:
         if len(buf) >= 96:
             raise ValueError("String too long for field name, max length is 95")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
+        _cyb_memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
 
     @property
     def id(self):
         """~_numpy.int8: (array of length 96)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].id)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].id)
 
     @id.setter
     def id(self, val):
@@ -9327,12 +9566,12 @@ cdef class UnitInfo:
         if len(buf) >= 96:
             raise ValueError("String too long for field id, max length is 95")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].id), <void *>ptr, 96)
+        _cyb_memcpy(<void *>(self._ptr[0].id), <void *>ptr, 96)
 
     @property
     def serial(self):
         """~_numpy.int8: (array of length 96)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].serial)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].serial)
 
     @serial.setter
     def serial(self, val):
@@ -9342,12 +9581,12 @@ cdef class UnitInfo:
         if len(buf) >= 96:
             raise ValueError("String too long for field serial, max length is 95")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].serial), <void *>ptr, 96)
+        _cyb_memcpy(<void *>(self._ptr[0].serial), <void *>ptr, 96)
 
     @property
     def firmware_version(self):
         """~_numpy.int8: (array of length 96)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].firmwareVersion)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].firmwareVersion)
 
     @firmware_version.setter
     def firmware_version(self, val):
@@ -9357,12 +9596,12 @@ cdef class UnitInfo:
         if len(buf) >= 96:
             raise ValueError("String too long for field firmware_version, max length is 95")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].firmwareVersion), <void *>ptr, 96)
+        _cyb_memcpy(<void *>(self._ptr[0].firmwareVersion), <void *>ptr, 96)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an UnitInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlUnitInfo_t), UnitInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlUnitInfo_t), UnitInfo)
 
     @staticmethod
     def from_data(data):
@@ -9371,7 +9610,7 @@ cdef class UnitInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `unit_info_dtype` holding the data.
         """
-        return __from_data(data, "unit_info_dtype", unit_info_dtype, UnitInfo)
+        return _cyb_from_data(data, "unit_info_dtype", unit_info_dtype, UnitInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -9386,10 +9625,10 @@ cdef class UnitInfo:
             raise ValueError("ptr must not be null (0)")
         cdef UnitInfo obj = UnitInfo.__new__(UnitInfo)
         if owner is None:
-            obj._ptr = <nvmlUnitInfo_t *>malloc(sizeof(nvmlUnitInfo_t))
+            obj._ptr = <nvmlUnitInfo_t *>_cyb_malloc(sizeof(nvmlUnitInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating UnitInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUnitInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUnitInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -9429,7 +9668,7 @@ cdef class PSUInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPSUInfo_t *>calloc(1, sizeof(nvmlPSUInfo_t))
+        self._ptr = <nvmlPSUInfo_t *>_cyb_calloc(1, sizeof(nvmlPSUInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PSUInfo")
         self._owner = None
@@ -9441,7 +9680,7 @@ cdef class PSUInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PSUInfo object at {hex(id(self))}>"
@@ -9462,20 +9701,20 @@ cdef class PSUInfo:
         if not isinstance(other, PSUInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPSUInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPSUInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPSUInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPSUInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPSUInfo_t *>malloc(sizeof(nvmlPSUInfo_t))
+            self._ptr = <nvmlPSUInfo_t *>_cyb_malloc(sizeof(nvmlPSUInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PSUInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPSUInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPSUInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -9485,7 +9724,7 @@ cdef class PSUInfo:
     @property
     def state(self):
         """~_numpy.int8: (array of length 256)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].state)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].state)
 
     @state.setter
     def state(self, val):
@@ -9495,7 +9734,7 @@ cdef class PSUInfo:
         if len(buf) >= 256:
             raise ValueError("String too long for field state, max length is 255")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].state), <void *>ptr, 256)
+        _cyb_memcpy(<void *>(self._ptr[0].state), <void *>ptr, 256)
 
     @property
     def current(self):
@@ -9533,7 +9772,7 @@ cdef class PSUInfo:
     @staticmethod
     def from_buffer(buffer):
         """Create an PSUInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlPSUInfo_t), PSUInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlPSUInfo_t), PSUInfo)
 
     @staticmethod
     def from_data(data):
@@ -9542,7 +9781,7 @@ cdef class PSUInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `psu_info_dtype` holding the data.
         """
-        return __from_data(data, "psu_info_dtype", psu_info_dtype, PSUInfo)
+        return _cyb_from_data(data, "psu_info_dtype", psu_info_dtype, PSUInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -9557,10 +9796,10 @@ cdef class PSUInfo:
             raise ValueError("ptr must not be null (0)")
         cdef PSUInfo obj = PSUInfo.__new__(PSUInfo)
         if owner is None:
-            obj._ptr = <nvmlPSUInfo_t *>malloc(sizeof(nvmlPSUInfo_t))
+            obj._ptr = <nvmlPSUInfo_t *>_cyb_malloc(sizeof(nvmlPSUInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PSUInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPSUInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPSUInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -9634,10 +9873,10 @@ cdef class UnitFanInfo:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def speed(self):
@@ -9715,8 +9954,8 @@ cdef class UnitFanInfo:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef UnitFanInfo obj = UnitFanInfo.__new__(UnitFanInfo)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlUnitFanInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=unit_fan_info_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -9754,7 +9993,7 @@ cdef class EventData:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlEventData_t *>calloc(1, sizeof(nvmlEventData_t))
+        self._ptr = <nvmlEventData_t *>_cyb_calloc(1, sizeof(nvmlEventData_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating EventData")
         self._owner = None
@@ -9766,7 +10005,7 @@ cdef class EventData:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.EventData object at {hex(id(self))}>"
@@ -9787,20 +10026,20 @@ cdef class EventData:
         if not isinstance(other, EventData):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEventData_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEventData_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEventData_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEventData_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlEventData_t *>malloc(sizeof(nvmlEventData_t))
+            self._ptr = <nvmlEventData_t *>_cyb_malloc(sizeof(nvmlEventData_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating EventData")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEventData_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEventData_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -9865,7 +10104,7 @@ cdef class EventData:
     @staticmethod
     def from_buffer(buffer):
         """Create an EventData instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlEventData_t), EventData)
+        return _cyb_from_buffer(buffer, sizeof(nvmlEventData_t), EventData)
 
     @staticmethod
     def from_data(data):
@@ -9874,7 +10113,7 @@ cdef class EventData:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `event_data_dtype` holding the data.
         """
-        return __from_data(data, "event_data_dtype", event_data_dtype, EventData)
+        return _cyb_from_data(data, "event_data_dtype", event_data_dtype, EventData)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -9889,10 +10128,10 @@ cdef class EventData:
             raise ValueError("ptr must not be null (0)")
         cdef EventData obj = EventData.__new__(EventData)
         if owner is None:
-            obj._ptr = <nvmlEventData_t *>malloc(sizeof(nvmlEventData_t))
+            obj._ptr = <nvmlEventData_t *>_cyb_malloc(sizeof(nvmlEventData_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating EventData")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEventData_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEventData_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -9966,10 +10205,10 @@ cdef class SystemEventData_v1:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def event_type(self):
@@ -10047,8 +10286,8 @@ cdef class SystemEventData_v1:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef SystemEventData_v1 obj = SystemEventData_v1.__new__(SystemEventData_v1)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlSystemEventData_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=system_event_data_v1_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -10088,7 +10327,7 @@ cdef class AccountingStats:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlAccountingStats_t *>calloc(1, sizeof(nvmlAccountingStats_t))
+        self._ptr = <nvmlAccountingStats_t *>_cyb_calloc(1, sizeof(nvmlAccountingStats_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating AccountingStats")
         self._owner = None
@@ -10100,7 +10339,7 @@ cdef class AccountingStats:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.AccountingStats object at {hex(id(self))}>"
@@ -10121,20 +10360,20 @@ cdef class AccountingStats:
         if not isinstance(other, AccountingStats):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlAccountingStats_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlAccountingStats_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlAccountingStats_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlAccountingStats_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlAccountingStats_t *>malloc(sizeof(nvmlAccountingStats_t))
+            self._ptr = <nvmlAccountingStats_t *>_cyb_malloc(sizeof(nvmlAccountingStats_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating AccountingStats")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlAccountingStats_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlAccountingStats_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -10210,7 +10449,7 @@ cdef class AccountingStats:
     @staticmethod
     def from_buffer(buffer):
         """Create an AccountingStats instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlAccountingStats_t), AccountingStats)
+        return _cyb_from_buffer(buffer, sizeof(nvmlAccountingStats_t), AccountingStats)
 
     @staticmethod
     def from_data(data):
@@ -10219,7 +10458,7 @@ cdef class AccountingStats:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `accounting_stats_dtype` holding the data.
         """
-        return __from_data(data, "accounting_stats_dtype", accounting_stats_dtype, AccountingStats)
+        return _cyb_from_data(data, "accounting_stats_dtype", accounting_stats_dtype, AccountingStats)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -10234,10 +10473,10 @@ cdef class AccountingStats:
             raise ValueError("ptr must not be null (0)")
         cdef AccountingStats obj = AccountingStats.__new__(AccountingStats)
         if owner is None:
-            obj._ptr = <nvmlAccountingStats_t *>malloc(sizeof(nvmlAccountingStats_t))
+            obj._ptr = <nvmlAccountingStats_t *>_cyb_malloc(sizeof(nvmlAccountingStats_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating AccountingStats")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlAccountingStats_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlAccountingStats_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -10317,10 +10556,10 @@ cdef class EncoderSessionInfo:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def session_id(self):
@@ -10464,8 +10703,8 @@ cdef class EncoderSessionInfo:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef EncoderSessionInfo obj = EncoderSessionInfo.__new__(EncoderSessionInfo)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlEncoderSessionInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=encoder_session_info_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -10501,7 +10740,7 @@ cdef class FBCStats:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlFBCStats_t *>calloc(1, sizeof(nvmlFBCStats_t))
+        self._ptr = <nvmlFBCStats_t *>_cyb_calloc(1, sizeof(nvmlFBCStats_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating FBCStats")
         self._owner = None
@@ -10513,7 +10752,7 @@ cdef class FBCStats:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.FBCStats object at {hex(id(self))}>"
@@ -10534,20 +10773,20 @@ cdef class FBCStats:
         if not isinstance(other, FBCStats):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlFBCStats_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlFBCStats_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlFBCStats_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlFBCStats_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlFBCStats_t *>malloc(sizeof(nvmlFBCStats_t))
+            self._ptr = <nvmlFBCStats_t *>_cyb_malloc(sizeof(nvmlFBCStats_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating FBCStats")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlFBCStats_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlFBCStats_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -10590,7 +10829,7 @@ cdef class FBCStats:
     @staticmethod
     def from_buffer(buffer):
         """Create an FBCStats instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlFBCStats_t), FBCStats)
+        return _cyb_from_buffer(buffer, sizeof(nvmlFBCStats_t), FBCStats)
 
     @staticmethod
     def from_data(data):
@@ -10599,7 +10838,7 @@ cdef class FBCStats:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `fbc_stats_dtype` holding the data.
         """
-        return __from_data(data, "fbc_stats_dtype", fbc_stats_dtype, FBCStats)
+        return _cyb_from_data(data, "fbc_stats_dtype", fbc_stats_dtype, FBCStats)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -10614,10 +10853,10 @@ cdef class FBCStats:
             raise ValueError("ptr must not be null (0)")
         cdef FBCStats obj = FBCStats.__new__(FBCStats)
         if owner is None:
-            obj._ptr = <nvmlFBCStats_t *>malloc(sizeof(nvmlFBCStats_t))
+            obj._ptr = <nvmlFBCStats_t *>_cyb_malloc(sizeof(nvmlFBCStats_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating FBCStats")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlFBCStats_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlFBCStats_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -10701,10 +10940,10 @@ cdef class FBCSessionInfo:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def session_id(self):
@@ -10892,8 +11131,8 @@ cdef class FBCSessionInfo:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef FBCSessionInfo obj = FBCSessionInfo.__new__(FBCSessionInfo)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlFBCSessionInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=fbc_session_info_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -10928,7 +11167,7 @@ cdef class ConfComputeSystemCaps:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeSystemCaps_t *>calloc(1, sizeof(nvmlConfComputeSystemCaps_t))
+        self._ptr = <nvmlConfComputeSystemCaps_t *>_cyb_calloc(1, sizeof(nvmlConfComputeSystemCaps_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ConfComputeSystemCaps")
         self._owner = None
@@ -10940,7 +11179,7 @@ cdef class ConfComputeSystemCaps:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeSystemCaps object at {hex(id(self))}>"
@@ -10961,20 +11200,20 @@ cdef class ConfComputeSystemCaps:
         if not isinstance(other, ConfComputeSystemCaps):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeSystemCaps_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeSystemCaps_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeSystemCaps_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeSystemCaps_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeSystemCaps_t *>malloc(sizeof(nvmlConfComputeSystemCaps_t))
+            self._ptr = <nvmlConfComputeSystemCaps_t *>_cyb_malloc(sizeof(nvmlConfComputeSystemCaps_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeSystemCaps")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeSystemCaps_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeSystemCaps_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -11006,7 +11245,7 @@ cdef class ConfComputeSystemCaps:
     @staticmethod
     def from_buffer(buffer):
         """Create an ConfComputeSystemCaps instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlConfComputeSystemCaps_t), ConfComputeSystemCaps)
+        return _cyb_from_buffer(buffer, sizeof(nvmlConfComputeSystemCaps_t), ConfComputeSystemCaps)
 
     @staticmethod
     def from_data(data):
@@ -11015,7 +11254,7 @@ cdef class ConfComputeSystemCaps:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_system_caps_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_system_caps_dtype", conf_compute_system_caps_dtype, ConfComputeSystemCaps)
+        return _cyb_from_data(data, "conf_compute_system_caps_dtype", conf_compute_system_caps_dtype, ConfComputeSystemCaps)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11030,10 +11269,10 @@ cdef class ConfComputeSystemCaps:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeSystemCaps obj = ConfComputeSystemCaps.__new__(ConfComputeSystemCaps)
         if owner is None:
-            obj._ptr = <nvmlConfComputeSystemCaps_t *>malloc(sizeof(nvmlConfComputeSystemCaps_t))
+            obj._ptr = <nvmlConfComputeSystemCaps_t *>_cyb_malloc(sizeof(nvmlConfComputeSystemCaps_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeSystemCaps")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeSystemCaps_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeSystemCaps_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -11072,7 +11311,7 @@ cdef class ConfComputeSystemState:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeSystemState_t *>calloc(1, sizeof(nvmlConfComputeSystemState_t))
+        self._ptr = <nvmlConfComputeSystemState_t *>_cyb_calloc(1, sizeof(nvmlConfComputeSystemState_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ConfComputeSystemState")
         self._owner = None
@@ -11084,7 +11323,7 @@ cdef class ConfComputeSystemState:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeSystemState object at {hex(id(self))}>"
@@ -11105,20 +11344,20 @@ cdef class ConfComputeSystemState:
         if not isinstance(other, ConfComputeSystemState):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeSystemState_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeSystemState_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeSystemState_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeSystemState_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeSystemState_t *>malloc(sizeof(nvmlConfComputeSystemState_t))
+            self._ptr = <nvmlConfComputeSystemState_t *>_cyb_malloc(sizeof(nvmlConfComputeSystemState_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeSystemState")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeSystemState_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeSystemState_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -11161,7 +11400,7 @@ cdef class ConfComputeSystemState:
     @staticmethod
     def from_buffer(buffer):
         """Create an ConfComputeSystemState instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlConfComputeSystemState_t), ConfComputeSystemState)
+        return _cyb_from_buffer(buffer, sizeof(nvmlConfComputeSystemState_t), ConfComputeSystemState)
 
     @staticmethod
     def from_data(data):
@@ -11170,7 +11409,7 @@ cdef class ConfComputeSystemState:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_system_state_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_system_state_dtype", conf_compute_system_state_dtype, ConfComputeSystemState)
+        return _cyb_from_data(data, "conf_compute_system_state_dtype", conf_compute_system_state_dtype, ConfComputeSystemState)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11185,10 +11424,10 @@ cdef class ConfComputeSystemState:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeSystemState obj = ConfComputeSystemState.__new__(ConfComputeSystemState)
         if owner is None:
-            obj._ptr = <nvmlConfComputeSystemState_t *>malloc(sizeof(nvmlConfComputeSystemState_t))
+            obj._ptr = <nvmlConfComputeSystemState_t *>_cyb_malloc(sizeof(nvmlConfComputeSystemState_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeSystemState")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeSystemState_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeSystemState_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -11229,7 +11468,7 @@ cdef class SystemConfComputeSettings_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlSystemConfComputeSettings_v1_t *>calloc(1, sizeof(nvmlSystemConfComputeSettings_v1_t))
+        self._ptr = <nvmlSystemConfComputeSettings_v1_t *>_cyb_calloc(1, sizeof(nvmlSystemConfComputeSettings_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating SystemConfComputeSettings_v1")
         self._owner = None
@@ -11241,7 +11480,7 @@ cdef class SystemConfComputeSettings_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.SystemConfComputeSettings_v1 object at {hex(id(self))}>"
@@ -11262,20 +11501,20 @@ cdef class SystemConfComputeSettings_v1:
         if not isinstance(other, SystemConfComputeSettings_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlSystemConfComputeSettings_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlSystemConfComputeSettings_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlSystemConfComputeSettings_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlSystemConfComputeSettings_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlSystemConfComputeSettings_v1_t *>malloc(sizeof(nvmlSystemConfComputeSettings_v1_t))
+            self._ptr = <nvmlSystemConfComputeSettings_v1_t *>_cyb_malloc(sizeof(nvmlSystemConfComputeSettings_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating SystemConfComputeSettings_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlSystemConfComputeSettings_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlSystemConfComputeSettings_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -11340,7 +11579,7 @@ cdef class SystemConfComputeSettings_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an SystemConfComputeSettings_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlSystemConfComputeSettings_v1_t), SystemConfComputeSettings_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlSystemConfComputeSettings_v1_t), SystemConfComputeSettings_v1)
 
     @staticmethod
     def from_data(data):
@@ -11349,7 +11588,7 @@ cdef class SystemConfComputeSettings_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `system_conf_compute_settings_v1_dtype` holding the data.
         """
-        return __from_data(data, "system_conf_compute_settings_v1_dtype", system_conf_compute_settings_v1_dtype, SystemConfComputeSettings_v1)
+        return _cyb_from_data(data, "system_conf_compute_settings_v1_dtype", system_conf_compute_settings_v1_dtype, SystemConfComputeSettings_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11364,10 +11603,10 @@ cdef class SystemConfComputeSettings_v1:
             raise ValueError("ptr must not be null (0)")
         cdef SystemConfComputeSettings_v1 obj = SystemConfComputeSettings_v1.__new__(SystemConfComputeSettings_v1)
         if owner is None:
-            obj._ptr = <nvmlSystemConfComputeSettings_v1_t *>malloc(sizeof(nvmlSystemConfComputeSettings_v1_t))
+            obj._ptr = <nvmlSystemConfComputeSettings_v1_t *>_cyb_malloc(sizeof(nvmlSystemConfComputeSettings_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating SystemConfComputeSettings_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlSystemConfComputeSettings_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlSystemConfComputeSettings_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -11405,7 +11644,7 @@ cdef class ConfComputeMemSizeInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeMemSizeInfo_t *>calloc(1, sizeof(nvmlConfComputeMemSizeInfo_t))
+        self._ptr = <nvmlConfComputeMemSizeInfo_t *>_cyb_calloc(1, sizeof(nvmlConfComputeMemSizeInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ConfComputeMemSizeInfo")
         self._owner = None
@@ -11417,7 +11656,7 @@ cdef class ConfComputeMemSizeInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeMemSizeInfo object at {hex(id(self))}>"
@@ -11438,20 +11677,20 @@ cdef class ConfComputeMemSizeInfo:
         if not isinstance(other, ConfComputeMemSizeInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeMemSizeInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeMemSizeInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeMemSizeInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeMemSizeInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeMemSizeInfo_t *>malloc(sizeof(nvmlConfComputeMemSizeInfo_t))
+            self._ptr = <nvmlConfComputeMemSizeInfo_t *>_cyb_malloc(sizeof(nvmlConfComputeMemSizeInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeMemSizeInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeMemSizeInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeMemSizeInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -11483,7 +11722,7 @@ cdef class ConfComputeMemSizeInfo:
     @staticmethod
     def from_buffer(buffer):
         """Create an ConfComputeMemSizeInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlConfComputeMemSizeInfo_t), ConfComputeMemSizeInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlConfComputeMemSizeInfo_t), ConfComputeMemSizeInfo)
 
     @staticmethod
     def from_data(data):
@@ -11492,7 +11731,7 @@ cdef class ConfComputeMemSizeInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_mem_size_info_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_mem_size_info_dtype", conf_compute_mem_size_info_dtype, ConfComputeMemSizeInfo)
+        return _cyb_from_data(data, "conf_compute_mem_size_info_dtype", conf_compute_mem_size_info_dtype, ConfComputeMemSizeInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11507,10 +11746,10 @@ cdef class ConfComputeMemSizeInfo:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeMemSizeInfo obj = ConfComputeMemSizeInfo.__new__(ConfComputeMemSizeInfo)
         if owner is None:
-            obj._ptr = <nvmlConfComputeMemSizeInfo_t *>malloc(sizeof(nvmlConfComputeMemSizeInfo_t))
+            obj._ptr = <nvmlConfComputeMemSizeInfo_t *>_cyb_malloc(sizeof(nvmlConfComputeMemSizeInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeMemSizeInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeMemSizeInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeMemSizeInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -11550,7 +11789,7 @@ cdef class ConfComputeGpuCertificate:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeGpuCertificate_t *>calloc(1, sizeof(nvmlConfComputeGpuCertificate_t))
+        self._ptr = <nvmlConfComputeGpuCertificate_t *>_cyb_calloc(1, sizeof(nvmlConfComputeGpuCertificate_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ConfComputeGpuCertificate")
         self._owner = None
@@ -11562,7 +11801,7 @@ cdef class ConfComputeGpuCertificate:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeGpuCertificate object at {hex(id(self))}>"
@@ -11583,20 +11822,20 @@ cdef class ConfComputeGpuCertificate:
         if not isinstance(other, ConfComputeGpuCertificate):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeGpuCertificate_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeGpuCertificate_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeGpuCertificate_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeGpuCertificate_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeGpuCertificate_t *>malloc(sizeof(nvmlConfComputeGpuCertificate_t))
+            self._ptr = <nvmlConfComputeGpuCertificate_t *>_cyb_malloc(sizeof(nvmlConfComputeGpuCertificate_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeGpuCertificate")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeGpuCertificate_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeGpuCertificate_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -11608,7 +11847,7 @@ cdef class ConfComputeGpuCertificate:
         """~_numpy.uint8: (array of length 4096)."""
         if self._ptr[0].certChainSize == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].certChain))
         return _numpy.asarray(arr)
 
@@ -11621,16 +11860,16 @@ cdef class ConfComputeGpuCertificate:
         self._ptr[0].certChainSize = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].certChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].certChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def attestation_cert_chain(self):
         """~_numpy.uint8: (array of length 5120)."""
         if self._ptr[0].attestationCertChainSize == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].attestationCertChain))
         return _numpy.asarray(arr)
 
@@ -11643,14 +11882,14 @@ cdef class ConfComputeGpuCertificate:
         self._ptr[0].attestationCertChainSize = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].attestationCertChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].attestationCertChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @staticmethod
     def from_buffer(buffer):
         """Create an ConfComputeGpuCertificate instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlConfComputeGpuCertificate_t), ConfComputeGpuCertificate)
+        return _cyb_from_buffer(buffer, sizeof(nvmlConfComputeGpuCertificate_t), ConfComputeGpuCertificate)
 
     @staticmethod
     def from_data(data):
@@ -11659,7 +11898,7 @@ cdef class ConfComputeGpuCertificate:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_gpu_certificate_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_gpu_certificate_dtype", conf_compute_gpu_certificate_dtype, ConfComputeGpuCertificate)
+        return _cyb_from_data(data, "conf_compute_gpu_certificate_dtype", conf_compute_gpu_certificate_dtype, ConfComputeGpuCertificate)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11674,10 +11913,10 @@ cdef class ConfComputeGpuCertificate:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeGpuCertificate obj = ConfComputeGpuCertificate.__new__(ConfComputeGpuCertificate)
         if owner is None:
-            obj._ptr = <nvmlConfComputeGpuCertificate_t *>malloc(sizeof(nvmlConfComputeGpuCertificate_t))
+            obj._ptr = <nvmlConfComputeGpuCertificate_t *>_cyb_malloc(sizeof(nvmlConfComputeGpuCertificate_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeGpuCertificate")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeGpuCertificate_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeGpuCertificate_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -11719,7 +11958,7 @@ cdef class ConfComputeGpuAttestationReport:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeGpuAttestationReport_t *>calloc(1, sizeof(nvmlConfComputeGpuAttestationReport_t))
+        self._ptr = <nvmlConfComputeGpuAttestationReport_t *>_cyb_calloc(1, sizeof(nvmlConfComputeGpuAttestationReport_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ConfComputeGpuAttestationReport")
         self._owner = None
@@ -11731,7 +11970,7 @@ cdef class ConfComputeGpuAttestationReport:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeGpuAttestationReport object at {hex(id(self))}>"
@@ -11752,20 +11991,20 @@ cdef class ConfComputeGpuAttestationReport:
         if not isinstance(other, ConfComputeGpuAttestationReport):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeGpuAttestationReport_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlConfComputeGpuAttestationReport_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeGpuAttestationReport_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlConfComputeGpuAttestationReport_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeGpuAttestationReport_t *>malloc(sizeof(nvmlConfComputeGpuAttestationReport_t))
+            self._ptr = <nvmlConfComputeGpuAttestationReport_t *>_cyb_malloc(sizeof(nvmlConfComputeGpuAttestationReport_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeGpuAttestationReport")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeGpuAttestationReport_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeGpuAttestationReport_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -11786,7 +12025,7 @@ cdef class ConfComputeGpuAttestationReport:
     @property
     def nonce(self):
         """~_numpy.uint8: (array of length 32)."""
-        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].nonce))
         return _numpy.asarray(arr)
 
@@ -11796,16 +12035,16 @@ cdef class ConfComputeGpuAttestationReport:
             raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
         if len(val) != 32:
             raise ValueError(f"Expected length { 32 } for field nonce, got {len(val)}")
-        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].nonce)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].nonce)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def attestation_report(self):
         """~_numpy.uint8: (array of length 8192)."""
         if self._ptr[0].attestationReportSize == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].attestationReport))
         return _numpy.asarray(arr)
 
@@ -11818,16 +12057,16 @@ cdef class ConfComputeGpuAttestationReport:
         self._ptr[0].attestationReportSize = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].attestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].attestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def cec_attestation_report(self):
         """~_numpy.uint8: (array of length 4096)."""
         if self._ptr[0].cecAttestationReportSize == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].cecAttestationReport))
         return _numpy.asarray(arr)
 
@@ -11840,14 +12079,14 @@ cdef class ConfComputeGpuAttestationReport:
         self._ptr[0].cecAttestationReportSize = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].cecAttestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].cecAttestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @staticmethod
     def from_buffer(buffer):
         """Create an ConfComputeGpuAttestationReport instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlConfComputeGpuAttestationReport_t), ConfComputeGpuAttestationReport)
+        return _cyb_from_buffer(buffer, sizeof(nvmlConfComputeGpuAttestationReport_t), ConfComputeGpuAttestationReport)
 
     @staticmethod
     def from_data(data):
@@ -11856,7 +12095,7 @@ cdef class ConfComputeGpuAttestationReport:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_gpu_attestation_report_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_gpu_attestation_report_dtype", conf_compute_gpu_attestation_report_dtype, ConfComputeGpuAttestationReport)
+        return _cyb_from_data(data, "conf_compute_gpu_attestation_report_dtype", conf_compute_gpu_attestation_report_dtype, ConfComputeGpuAttestationReport)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11871,10 +12110,10 @@ cdef class ConfComputeGpuAttestationReport:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeGpuAttestationReport obj = ConfComputeGpuAttestationReport.__new__(ConfComputeGpuAttestationReport)
         if owner is None:
-            obj._ptr = <nvmlConfComputeGpuAttestationReport_t *>malloc(sizeof(nvmlConfComputeGpuAttestationReport_t))
+            obj._ptr = <nvmlConfComputeGpuAttestationReport_t *>_cyb_malloc(sizeof(nvmlConfComputeGpuAttestationReport_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ConfComputeGpuAttestationReport")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeGpuAttestationReport_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeGpuAttestationReport_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -11916,7 +12155,7 @@ cdef class GpuFabricInfo_v2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuFabricInfo_v2_t *>calloc(1, sizeof(nvmlGpuFabricInfo_v2_t))
+        self._ptr = <nvmlGpuFabricInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricInfo_v2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GpuFabricInfo_v2")
         self._owner = None
@@ -11928,7 +12167,7 @@ cdef class GpuFabricInfo_v2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuFabricInfo_v2 object at {hex(id(self))}>"
@@ -11949,20 +12188,20 @@ cdef class GpuFabricInfo_v2:
         if not isinstance(other, GpuFabricInfo_v2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuFabricInfo_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuFabricInfo_v2_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuFabricInfo_v2_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuFabricInfo_v2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuFabricInfo_v2_t *>malloc(sizeof(nvmlGpuFabricInfo_v2_t))
+            self._ptr = <nvmlGpuFabricInfo_v2_t *>_cyb_malloc(sizeof(nvmlGpuFabricInfo_v2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating GpuFabricInfo_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v2_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -11983,7 +12222,7 @@ cdef class GpuFabricInfo_v2:
     @property
     def cluster_uuid(self):
         """~_numpy.uint8: (array of length 16).Uuid of the cluster to which this GPU belongs."""
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].clusterUuid))
         return _numpy.asarray(arr)
 
@@ -11993,9 +12232,9 @@ cdef class GpuFabricInfo_v2:
             raise ValueError("This GpuFabricInfo_v2 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field cluster_uuid, got {len(val)}")
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def status(self):
@@ -12044,7 +12283,7 @@ cdef class GpuFabricInfo_v2:
     @staticmethod
     def from_buffer(buffer):
         """Create an GpuFabricInfo_v2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlGpuFabricInfo_v2_t), GpuFabricInfo_v2)
+        return _cyb_from_buffer(buffer, sizeof(nvmlGpuFabricInfo_v2_t), GpuFabricInfo_v2)
 
     @staticmethod
     def from_data(data):
@@ -12053,7 +12292,7 @@ cdef class GpuFabricInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_fabric_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "gpu_fabric_info_v2_dtype", gpu_fabric_info_v2_dtype, GpuFabricInfo_v2)
+        return _cyb_from_data(data, "gpu_fabric_info_v2_dtype", gpu_fabric_info_v2_dtype, GpuFabricInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12068,10 +12307,10 @@ cdef class GpuFabricInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef GpuFabricInfo_v2 obj = GpuFabricInfo_v2.__new__(GpuFabricInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlGpuFabricInfo_v2_t *>malloc(sizeof(nvmlGpuFabricInfo_v2_t))
+            obj._ptr = <nvmlGpuFabricInfo_v2_t *>_cyb_malloc(sizeof(nvmlGpuFabricInfo_v2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GpuFabricInfo_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricInfo_v2_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricInfo_v2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -12110,7 +12349,7 @@ cdef class NvlinkSupportedBwModes_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>calloc(1, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+        self._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkSupportedBwModes_v1")
         self._owner = None
@@ -12122,7 +12361,7 @@ cdef class NvlinkSupportedBwModes_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvlinkSupportedBwModes_v1 object at {hex(id(self))}>"
@@ -12143,20 +12382,20 @@ cdef class NvlinkSupportedBwModes_v1:
         if not isinstance(other, NvlinkSupportedBwModes_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSupportedBwModes_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSupportedBwModes_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSupportedBwModes_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSupportedBwModes_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>malloc(sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+            self._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkSupportedBwModes_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkSupportedBwModes_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -12179,7 +12418,7 @@ cdef class NvlinkSupportedBwModes_v1:
         """~_numpy.uint8: (array of length 23)."""
         if self._ptr[0].totalBwModes == 0:
             return _numpy.array([])
-        cdef view.array arr = view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].bwModes))
         return _numpy.asarray(arr)
 
@@ -12192,14 +12431,14 @@ cdef class NvlinkSupportedBwModes_v1:
         self._ptr[0].totalBwModes = len(val)
         if len(val) == 0:
             return
-        cdef view.array arr = view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].bwModes)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].bwModes)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @staticmethod
     def from_buffer(buffer):
         """Create an NvlinkSupportedBwModes_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlNvlinkSupportedBwModes_v1_t), NvlinkSupportedBwModes_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkSupportedBwModes_v1_t), NvlinkSupportedBwModes_v1)
 
     @staticmethod
     def from_data(data):
@@ -12208,7 +12447,7 @@ cdef class NvlinkSupportedBwModes_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_supported_bw_modes_v1_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_supported_bw_modes_v1_dtype", nvlink_supported_bw_modes_v1_dtype, NvlinkSupportedBwModes_v1)
+        return _cyb_from_data(data, "nvlink_supported_bw_modes_v1_dtype", nvlink_supported_bw_modes_v1_dtype, NvlinkSupportedBwModes_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12223,10 +12462,10 @@ cdef class NvlinkSupportedBwModes_v1:
             raise ValueError("ptr must not be null (0)")
         cdef NvlinkSupportedBwModes_v1 obj = NvlinkSupportedBwModes_v1.__new__(NvlinkSupportedBwModes_v1)
         if owner is None:
-            obj._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>malloc(sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+            obj._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkSupportedBwModes_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkSupportedBwModes_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -12265,7 +12504,7 @@ cdef class NvlinkGetBwMode_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvlinkGetBwMode_v1_t *>calloc(1, sizeof(nvmlNvlinkGetBwMode_v1_t))
+        self._ptr = <nvmlNvlinkGetBwMode_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkGetBwMode_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkGetBwMode_v1")
         self._owner = None
@@ -12277,7 +12516,7 @@ cdef class NvlinkGetBwMode_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvlinkGetBwMode_v1 object at {hex(id(self))}>"
@@ -12298,20 +12537,20 @@ cdef class NvlinkGetBwMode_v1:
         if not isinstance(other, NvlinkGetBwMode_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkGetBwMode_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkGetBwMode_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkGetBwMode_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkGetBwMode_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvlinkGetBwMode_v1_t *>malloc(sizeof(nvmlNvlinkGetBwMode_v1_t))
+            self._ptr = <nvmlNvlinkGetBwMode_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkGetBwMode_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkGetBwMode_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkGetBwMode_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkGetBwMode_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -12354,7 +12593,7 @@ cdef class NvlinkGetBwMode_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an NvlinkGetBwMode_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlNvlinkGetBwMode_v1_t), NvlinkGetBwMode_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkGetBwMode_v1_t), NvlinkGetBwMode_v1)
 
     @staticmethod
     def from_data(data):
@@ -12363,7 +12602,7 @@ cdef class NvlinkGetBwMode_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_get_bw_mode_v1_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_get_bw_mode_v1_dtype", nvlink_get_bw_mode_v1_dtype, NvlinkGetBwMode_v1)
+        return _cyb_from_data(data, "nvlink_get_bw_mode_v1_dtype", nvlink_get_bw_mode_v1_dtype, NvlinkGetBwMode_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12378,10 +12617,10 @@ cdef class NvlinkGetBwMode_v1:
             raise ValueError("ptr must not be null (0)")
         cdef NvlinkGetBwMode_v1 obj = NvlinkGetBwMode_v1.__new__(NvlinkGetBwMode_v1)
         if owner is None:
-            obj._ptr = <nvmlNvlinkGetBwMode_v1_t *>malloc(sizeof(nvmlNvlinkGetBwMode_v1_t))
+            obj._ptr = <nvmlNvlinkGetBwMode_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkGetBwMode_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkGetBwMode_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkGetBwMode_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkGetBwMode_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -12420,7 +12659,7 @@ cdef class NvlinkSetBwMode_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvlinkSetBwMode_v1_t *>calloc(1, sizeof(nvmlNvlinkSetBwMode_v1_t))
+        self._ptr = <nvmlNvlinkSetBwMode_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkSetBwMode_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkSetBwMode_v1")
         self._owner = None
@@ -12432,7 +12671,7 @@ cdef class NvlinkSetBwMode_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvlinkSetBwMode_v1 object at {hex(id(self))}>"
@@ -12453,20 +12692,20 @@ cdef class NvlinkSetBwMode_v1:
         if not isinstance(other, NvlinkSetBwMode_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSetBwMode_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSetBwMode_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSetBwMode_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSetBwMode_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvlinkSetBwMode_v1_t *>malloc(sizeof(nvmlNvlinkSetBwMode_v1_t))
+            self._ptr = <nvmlNvlinkSetBwMode_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkSetBwMode_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkSetBwMode_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkSetBwMode_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkSetBwMode_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -12509,7 +12748,7 @@ cdef class NvlinkSetBwMode_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an NvlinkSetBwMode_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlNvlinkSetBwMode_v1_t), NvlinkSetBwMode_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkSetBwMode_v1_t), NvlinkSetBwMode_v1)
 
     @staticmethod
     def from_data(data):
@@ -12518,7 +12757,7 @@ cdef class NvlinkSetBwMode_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_set_bw_mode_v1_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_set_bw_mode_v1_dtype", nvlink_set_bw_mode_v1_dtype, NvlinkSetBwMode_v1)
+        return _cyb_from_data(data, "nvlink_set_bw_mode_v1_dtype", nvlink_set_bw_mode_v1_dtype, NvlinkSetBwMode_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12533,10 +12772,10 @@ cdef class NvlinkSetBwMode_v1:
             raise ValueError("ptr must not be null (0)")
         cdef NvlinkSetBwMode_v1 obj = NvlinkSetBwMode_v1.__new__(NvlinkSetBwMode_v1)
         if owner is None:
-            obj._ptr = <nvmlNvlinkSetBwMode_v1_t *>malloc(sizeof(nvmlNvlinkSetBwMode_v1_t))
+            obj._ptr = <nvmlNvlinkSetBwMode_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkSetBwMode_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkSetBwMode_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkSetBwMode_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkSetBwMode_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -12574,7 +12813,7 @@ cdef class VgpuVersion:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuVersion_t *>calloc(1, sizeof(nvmlVgpuVersion_t))
+        self._ptr = <nvmlVgpuVersion_t *>_cyb_calloc(1, sizeof(nvmlVgpuVersion_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuVersion")
         self._owner = None
@@ -12586,7 +12825,7 @@ cdef class VgpuVersion:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuVersion object at {hex(id(self))}>"
@@ -12607,20 +12846,20 @@ cdef class VgpuVersion:
         if not isinstance(other, VgpuVersion):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuVersion_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuVersion_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuVersion_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuVersion_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuVersion_t *>malloc(sizeof(nvmlVgpuVersion_t))
+            self._ptr = <nvmlVgpuVersion_t *>_cyb_malloc(sizeof(nvmlVgpuVersion_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuVersion")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuVersion_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuVersion_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -12652,7 +12891,7 @@ cdef class VgpuVersion:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuVersion instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuVersion_t), VgpuVersion)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuVersion_t), VgpuVersion)
 
     @staticmethod
     def from_data(data):
@@ -12661,7 +12900,7 @@ cdef class VgpuVersion:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_version_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_version_dtype", vgpu_version_dtype, VgpuVersion)
+        return _cyb_from_data(data, "vgpu_version_dtype", vgpu_version_dtype, VgpuVersion)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12676,10 +12915,10 @@ cdef class VgpuVersion:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuVersion obj = VgpuVersion.__new__(VgpuVersion)
         if owner is None:
-            obj._ptr = <nvmlVgpuVersion_t *>malloc(sizeof(nvmlVgpuVersion_t))
+            obj._ptr = <nvmlVgpuVersion_t *>_cyb_malloc(sizeof(nvmlVgpuVersion_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuVersion")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuVersion_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuVersion_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -12725,7 +12964,7 @@ cdef class VgpuMetadata:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuMetadata_t *>calloc(1, sizeof(nvmlVgpuMetadata_t))
+        self._ptr = <nvmlVgpuMetadata_t *>_cyb_calloc(1, sizeof(nvmlVgpuMetadata_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuMetadata")
         self._owner = None
@@ -12737,7 +12976,7 @@ cdef class VgpuMetadata:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuMetadata object at {hex(id(self))}>"
@@ -12758,20 +12997,20 @@ cdef class VgpuMetadata:
         if not isinstance(other, VgpuMetadata):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuMetadata_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuMetadata_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuMetadata_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuMetadata_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuMetadata_t *>malloc(sizeof(nvmlVgpuMetadata_t))
+            self._ptr = <nvmlVgpuMetadata_t *>_cyb_malloc(sizeof(nvmlVgpuMetadata_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuMetadata")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuMetadata_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuMetadata_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -12814,7 +13053,7 @@ cdef class VgpuMetadata:
     @property
     def guest_driver_version(self):
         """~_numpy.int8: (array of length 80)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].guestDriverVersion)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].guestDriverVersion)
 
     @guest_driver_version.setter
     def guest_driver_version(self, val):
@@ -12824,12 +13063,12 @@ cdef class VgpuMetadata:
         if len(buf) >= 80:
             raise ValueError("String too long for field guest_driver_version, max length is 79")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].guestDriverVersion), <void *>ptr, 80)
+        _cyb_memcpy(<void *>(self._ptr[0].guestDriverVersion), <void *>ptr, 80)
 
     @property
     def host_driver_version(self):
         """~_numpy.int8: (array of length 80)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].hostDriverVersion)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].hostDriverVersion)
 
     @host_driver_version.setter
     def host_driver_version(self, val):
@@ -12839,7 +13078,7 @@ cdef class VgpuMetadata:
         if len(buf) >= 80:
             raise ValueError("String too long for field host_driver_version, max length is 79")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].hostDriverVersion), <void *>ptr, 80)
+        _cyb_memcpy(<void *>(self._ptr[0].hostDriverVersion), <void *>ptr, 80)
 
     @property
     def vgpu_virtualization_caps(self):
@@ -12877,7 +13116,7 @@ cdef class VgpuMetadata:
     @property
     def opaque_data(self):
         """~_numpy.int8: (array of length 4)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].opaqueData)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].opaqueData)
 
     @opaque_data.setter
     def opaque_data(self, val):
@@ -12887,12 +13126,12 @@ cdef class VgpuMetadata:
         if len(buf) >= 4:
             raise ValueError("String too long for field opaque_data, max length is 3")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].opaqueData), <void *>ptr, 4)
+        _cyb_memcpy(<void *>(self._ptr[0].opaqueData), <void *>ptr, 4)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuMetadata instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuMetadata_t), VgpuMetadata)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuMetadata_t), VgpuMetadata)
 
     @staticmethod
     def from_data(data):
@@ -12901,7 +13140,7 @@ cdef class VgpuMetadata:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_metadata_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_metadata_dtype", vgpu_metadata_dtype, VgpuMetadata)
+        return _cyb_from_data(data, "vgpu_metadata_dtype", vgpu_metadata_dtype, VgpuMetadata)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12916,10 +13155,10 @@ cdef class VgpuMetadata:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuMetadata obj = VgpuMetadata.__new__(VgpuMetadata)
         if owner is None:
-            obj._ptr = <nvmlVgpuMetadata_t *>malloc(sizeof(nvmlVgpuMetadata_t))
+            obj._ptr = <nvmlVgpuMetadata_t *>_cyb_malloc(sizeof(nvmlVgpuMetadata_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuMetadata")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuMetadata_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuMetadata_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -12957,7 +13196,7 @@ cdef class VgpuPgpuCompatibility:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuPgpuCompatibility_t *>calloc(1, sizeof(nvmlVgpuPgpuCompatibility_t))
+        self._ptr = <nvmlVgpuPgpuCompatibility_t *>_cyb_calloc(1, sizeof(nvmlVgpuPgpuCompatibility_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuPgpuCompatibility")
         self._owner = None
@@ -12969,7 +13208,7 @@ cdef class VgpuPgpuCompatibility:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuPgpuCompatibility object at {hex(id(self))}>"
@@ -12990,20 +13229,20 @@ cdef class VgpuPgpuCompatibility:
         if not isinstance(other, VgpuPgpuCompatibility):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPgpuCompatibility_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPgpuCompatibility_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuPgpuCompatibility_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuPgpuCompatibility_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuPgpuCompatibility_t *>malloc(sizeof(nvmlVgpuPgpuCompatibility_t))
+            self._ptr = <nvmlVgpuPgpuCompatibility_t *>_cyb_malloc(sizeof(nvmlVgpuPgpuCompatibility_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuPgpuCompatibility")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPgpuCompatibility_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPgpuCompatibility_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -13035,7 +13274,7 @@ cdef class VgpuPgpuCompatibility:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuPgpuCompatibility instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuPgpuCompatibility_t), VgpuPgpuCompatibility)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuPgpuCompatibility_t), VgpuPgpuCompatibility)
 
     @staticmethod
     def from_data(data):
@@ -13044,7 +13283,7 @@ cdef class VgpuPgpuCompatibility:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_pgpu_compatibility_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_pgpu_compatibility_dtype", vgpu_pgpu_compatibility_dtype, VgpuPgpuCompatibility)
+        return _cyb_from_data(data, "vgpu_pgpu_compatibility_dtype", vgpu_pgpu_compatibility_dtype, VgpuPgpuCompatibility)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -13059,10 +13298,10 @@ cdef class VgpuPgpuCompatibility:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuPgpuCompatibility obj = VgpuPgpuCompatibility.__new__(VgpuPgpuCompatibility)
         if owner is None:
-            obj._ptr = <nvmlVgpuPgpuCompatibility_t *>malloc(sizeof(nvmlVgpuPgpuCompatibility_t))
+            obj._ptr = <nvmlVgpuPgpuCompatibility_t *>_cyb_malloc(sizeof(nvmlVgpuPgpuCompatibility_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuPgpuCompatibility")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPgpuCompatibility_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPgpuCompatibility_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -13136,10 +13375,10 @@ cdef class GpuInstancePlacement:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def start(self):
@@ -13217,8 +13456,8 @@ cdef class GpuInstancePlacement:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef GpuInstancePlacement obj = GpuInstancePlacement.__new__(GpuInstancePlacement)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlGpuInstancePlacement_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=gpu_instance_placement_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -13264,7 +13503,7 @@ cdef class GpuInstanceProfileInfo_v3:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>calloc(1, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+        self._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GpuInstanceProfileInfo_v3")
         self._owner = None
@@ -13276,7 +13515,7 @@ cdef class GpuInstanceProfileInfo_v3:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuInstanceProfileInfo_v3 object at {hex(id(self))}>"
@@ -13297,20 +13536,20 @@ cdef class GpuInstanceProfileInfo_v3:
         if not isinstance(other, GpuInstanceProfileInfo_v3):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuInstanceProfileInfo_v3_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuInstanceProfileInfo_v3_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuInstanceProfileInfo_v3_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuInstanceProfileInfo_v3_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>malloc(sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+            self._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>_cyb_malloc(sizeof(nvmlGpuInstanceProfileInfo_v3_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating GpuInstanceProfileInfo_v3")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -13441,7 +13680,7 @@ cdef class GpuInstanceProfileInfo_v3:
     @property
     def name(self):
         """~_numpy.int8: (array of length 96)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].name)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].name)
 
     @name.setter
     def name(self, val):
@@ -13451,7 +13690,7 @@ cdef class GpuInstanceProfileInfo_v3:
         if len(buf) >= 96:
             raise ValueError("String too long for field name, max length is 95")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
+        _cyb_memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
 
     @property
     def capabilities(self):
@@ -13467,7 +13706,7 @@ cdef class GpuInstanceProfileInfo_v3:
     @staticmethod
     def from_buffer(buffer):
         """Create an GpuInstanceProfileInfo_v3 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlGpuInstanceProfileInfo_v3_t), GpuInstanceProfileInfo_v3)
+        return _cyb_from_buffer(buffer, sizeof(nvmlGpuInstanceProfileInfo_v3_t), GpuInstanceProfileInfo_v3)
 
     @staticmethod
     def from_data(data):
@@ -13476,7 +13715,7 @@ cdef class GpuInstanceProfileInfo_v3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_instance_profile_info_v3_dtype` holding the data.
         """
-        return __from_data(data, "gpu_instance_profile_info_v3_dtype", gpu_instance_profile_info_v3_dtype, GpuInstanceProfileInfo_v3)
+        return _cyb_from_data(data, "gpu_instance_profile_info_v3_dtype", gpu_instance_profile_info_v3_dtype, GpuInstanceProfileInfo_v3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -13491,10 +13730,10 @@ cdef class GpuInstanceProfileInfo_v3:
             raise ValueError("ptr must not be null (0)")
         cdef GpuInstanceProfileInfo_v3 obj = GpuInstanceProfileInfo_v3.__new__(GpuInstanceProfileInfo_v3)
         if owner is None:
-            obj._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>malloc(sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+            obj._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>_cyb_malloc(sizeof(nvmlGpuInstanceProfileInfo_v3_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GpuInstanceProfileInfo_v3")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -13568,10 +13807,10 @@ cdef class ComputeInstancePlacement:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def start(self):
@@ -13649,8 +13888,8 @@ cdef class ComputeInstancePlacement:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef ComputeInstancePlacement obj = ComputeInstancePlacement.__new__(ComputeInstancePlacement)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlComputeInstancePlacement_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=compute_instance_placement_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -13694,7 +13933,7 @@ cdef class ComputeInstanceProfileInfo_v2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>calloc(1, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+        self._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ComputeInstanceProfileInfo_v2")
         self._owner = None
@@ -13706,7 +13945,7 @@ cdef class ComputeInstanceProfileInfo_v2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ComputeInstanceProfileInfo_v2 object at {hex(id(self))}>"
@@ -13727,20 +13966,20 @@ cdef class ComputeInstanceProfileInfo_v2:
         if not isinstance(other, ComputeInstanceProfileInfo_v2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlComputeInstanceProfileInfo_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlComputeInstanceProfileInfo_v2_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlComputeInstanceProfileInfo_v2_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlComputeInstanceProfileInfo_v2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>malloc(sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+            self._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>_cyb_malloc(sizeof(nvmlComputeInstanceProfileInfo_v2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ComputeInstanceProfileInfo_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -13860,7 +14099,7 @@ cdef class ComputeInstanceProfileInfo_v2:
     @property
     def name(self):
         """~_numpy.int8: (array of length 96)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].name)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].name)
 
     @name.setter
     def name(self, val):
@@ -13870,12 +14109,12 @@ cdef class ComputeInstanceProfileInfo_v2:
         if len(buf) >= 96:
             raise ValueError("String too long for field name, max length is 95")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
+        _cyb_memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an ComputeInstanceProfileInfo_v2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlComputeInstanceProfileInfo_v2_t), ComputeInstanceProfileInfo_v2)
+        return _cyb_from_buffer(buffer, sizeof(nvmlComputeInstanceProfileInfo_v2_t), ComputeInstanceProfileInfo_v2)
 
     @staticmethod
     def from_data(data):
@@ -13884,7 +14123,7 @@ cdef class ComputeInstanceProfileInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `compute_instance_profile_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "compute_instance_profile_info_v2_dtype", compute_instance_profile_info_v2_dtype, ComputeInstanceProfileInfo_v2)
+        return _cyb_from_data(data, "compute_instance_profile_info_v2_dtype", compute_instance_profile_info_v2_dtype, ComputeInstanceProfileInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -13899,10 +14138,10 @@ cdef class ComputeInstanceProfileInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef ComputeInstanceProfileInfo_v2 obj = ComputeInstanceProfileInfo_v2.__new__(ComputeInstanceProfileInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>malloc(sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+            obj._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>_cyb_malloc(sizeof(nvmlComputeInstanceProfileInfo_v2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ComputeInstanceProfileInfo_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -13950,7 +14189,7 @@ cdef class ComputeInstanceProfileInfo_v3:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>calloc(1, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+        self._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ComputeInstanceProfileInfo_v3")
         self._owner = None
@@ -13962,7 +14201,7 @@ cdef class ComputeInstanceProfileInfo_v3:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ComputeInstanceProfileInfo_v3 object at {hex(id(self))}>"
@@ -13983,20 +14222,20 @@ cdef class ComputeInstanceProfileInfo_v3:
         if not isinstance(other, ComputeInstanceProfileInfo_v3):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlComputeInstanceProfileInfo_v3_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlComputeInstanceProfileInfo_v3_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlComputeInstanceProfileInfo_v3_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlComputeInstanceProfileInfo_v3_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>malloc(sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+            self._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>_cyb_malloc(sizeof(nvmlComputeInstanceProfileInfo_v3_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ComputeInstanceProfileInfo_v3")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -14116,7 +14355,7 @@ cdef class ComputeInstanceProfileInfo_v3:
     @property
     def name(self):
         """~_numpy.int8: (array of length 96)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].name)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].name)
 
     @name.setter
     def name(self, val):
@@ -14126,7 +14365,7 @@ cdef class ComputeInstanceProfileInfo_v3:
         if len(buf) >= 96:
             raise ValueError("String too long for field name, max length is 95")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
+        _cyb_memcpy(<void *>(self._ptr[0].name), <void *>ptr, 96)
 
     @property
     def capabilities(self):
@@ -14142,7 +14381,7 @@ cdef class ComputeInstanceProfileInfo_v3:
     @staticmethod
     def from_buffer(buffer):
         """Create an ComputeInstanceProfileInfo_v3 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlComputeInstanceProfileInfo_v3_t), ComputeInstanceProfileInfo_v3)
+        return _cyb_from_buffer(buffer, sizeof(nvmlComputeInstanceProfileInfo_v3_t), ComputeInstanceProfileInfo_v3)
 
     @staticmethod
     def from_data(data):
@@ -14151,7 +14390,7 @@ cdef class ComputeInstanceProfileInfo_v3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `compute_instance_profile_info_v3_dtype` holding the data.
         """
-        return __from_data(data, "compute_instance_profile_info_v3_dtype", compute_instance_profile_info_v3_dtype, ComputeInstanceProfileInfo_v3)
+        return _cyb_from_data(data, "compute_instance_profile_info_v3_dtype", compute_instance_profile_info_v3_dtype, ComputeInstanceProfileInfo_v3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -14166,10 +14405,10 @@ cdef class ComputeInstanceProfileInfo_v3:
             raise ValueError("ptr must not be null (0)")
         cdef ComputeInstanceProfileInfo_v3 obj = ComputeInstanceProfileInfo_v3.__new__(ComputeInstanceProfileInfo_v3)
         if owner is None:
-            obj._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>malloc(sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+            obj._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>_cyb_malloc(sizeof(nvmlComputeInstanceProfileInfo_v3_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ComputeInstanceProfileInfo_v3")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -14207,7 +14446,7 @@ cdef class DeviceAddressingMode_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlDeviceAddressingMode_v1_t *>calloc(1, sizeof(nvmlDeviceAddressingMode_v1_t))
+        self._ptr = <nvmlDeviceAddressingMode_v1_t *>_cyb_calloc(1, sizeof(nvmlDeviceAddressingMode_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating DeviceAddressingMode_v1")
         self._owner = None
@@ -14219,7 +14458,7 @@ cdef class DeviceAddressingMode_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.DeviceAddressingMode_v1 object at {hex(id(self))}>"
@@ -14240,20 +14479,20 @@ cdef class DeviceAddressingMode_v1:
         if not isinstance(other, DeviceAddressingMode_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceAddressingMode_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceAddressingMode_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlDeviceAddressingMode_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlDeviceAddressingMode_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDeviceAddressingMode_v1_t *>malloc(sizeof(nvmlDeviceAddressingMode_v1_t))
+            self._ptr = <nvmlDeviceAddressingMode_v1_t *>_cyb_malloc(sizeof(nvmlDeviceAddressingMode_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating DeviceAddressingMode_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceAddressingMode_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceAddressingMode_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -14285,7 +14524,7 @@ cdef class DeviceAddressingMode_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an DeviceAddressingMode_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlDeviceAddressingMode_v1_t), DeviceAddressingMode_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlDeviceAddressingMode_v1_t), DeviceAddressingMode_v1)
 
     @staticmethod
     def from_data(data):
@@ -14294,7 +14533,7 @@ cdef class DeviceAddressingMode_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `device_addressing_mode_v1_dtype` holding the data.
         """
-        return __from_data(data, "device_addressing_mode_v1_dtype", device_addressing_mode_v1_dtype, DeviceAddressingMode_v1)
+        return _cyb_from_data(data, "device_addressing_mode_v1_dtype", device_addressing_mode_v1_dtype, DeviceAddressingMode_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -14309,10 +14548,10 @@ cdef class DeviceAddressingMode_v1:
             raise ValueError("ptr must not be null (0)")
         cdef DeviceAddressingMode_v1 obj = DeviceAddressingMode_v1.__new__(DeviceAddressingMode_v1)
         if owner is None:
-            obj._ptr = <nvmlDeviceAddressingMode_v1_t *>malloc(sizeof(nvmlDeviceAddressingMode_v1_t))
+            obj._ptr = <nvmlDeviceAddressingMode_v1_t *>_cyb_malloc(sizeof(nvmlDeviceAddressingMode_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating DeviceAddressingMode_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceAddressingMode_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceAddressingMode_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -14351,7 +14590,7 @@ cdef class RepairStatus_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlRepairStatus_v1_t *>calloc(1, sizeof(nvmlRepairStatus_v1_t))
+        self._ptr = <nvmlRepairStatus_v1_t *>_cyb_calloc(1, sizeof(nvmlRepairStatus_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating RepairStatus_v1")
         self._owner = None
@@ -14363,7 +14602,7 @@ cdef class RepairStatus_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.RepairStatus_v1 object at {hex(id(self))}>"
@@ -14384,20 +14623,20 @@ cdef class RepairStatus_v1:
         if not isinstance(other, RepairStatus_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlRepairStatus_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlRepairStatus_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlRepairStatus_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlRepairStatus_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlRepairStatus_v1_t *>malloc(sizeof(nvmlRepairStatus_v1_t))
+            self._ptr = <nvmlRepairStatus_v1_t *>_cyb_malloc(sizeof(nvmlRepairStatus_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating RepairStatus_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRepairStatus_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRepairStatus_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -14440,7 +14679,7 @@ cdef class RepairStatus_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an RepairStatus_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlRepairStatus_v1_t), RepairStatus_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlRepairStatus_v1_t), RepairStatus_v1)
 
     @staticmethod
     def from_data(data):
@@ -14449,7 +14688,7 @@ cdef class RepairStatus_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `repair_status_v1_dtype` holding the data.
         """
-        return __from_data(data, "repair_status_v1_dtype", repair_status_v1_dtype, RepairStatus_v1)
+        return _cyb_from_data(data, "repair_status_v1_dtype", repair_status_v1_dtype, RepairStatus_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -14464,10 +14703,10 @@ cdef class RepairStatus_v1:
             raise ValueError("ptr must not be null (0)")
         cdef RepairStatus_v1 obj = RepairStatus_v1.__new__(RepairStatus_v1)
         if owner is None:
-            obj._ptr = <nvmlRepairStatus_v1_t *>malloc(sizeof(nvmlRepairStatus_v1_t))
+            obj._ptr = <nvmlRepairStatus_v1_t *>_cyb_malloc(sizeof(nvmlRepairStatus_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating RepairStatus_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlRepairStatus_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlRepairStatus_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -14506,7 +14745,7 @@ cdef class DevicePowerMizerModes_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlDevicePowerMizerModes_v1_t *>calloc(1, sizeof(nvmlDevicePowerMizerModes_v1_t))
+        self._ptr = <nvmlDevicePowerMizerModes_v1_t *>_cyb_calloc(1, sizeof(nvmlDevicePowerMizerModes_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating DevicePowerMizerModes_v1")
         self._owner = None
@@ -14518,7 +14757,7 @@ cdef class DevicePowerMizerModes_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.DevicePowerMizerModes_v1 object at {hex(id(self))}>"
@@ -14539,20 +14778,20 @@ cdef class DevicePowerMizerModes_v1:
         if not isinstance(other, DevicePowerMizerModes_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDevicePowerMizerModes_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDevicePowerMizerModes_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlDevicePowerMizerModes_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlDevicePowerMizerModes_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDevicePowerMizerModes_v1_t *>malloc(sizeof(nvmlDevicePowerMizerModes_v1_t))
+            self._ptr = <nvmlDevicePowerMizerModes_v1_t *>_cyb_malloc(sizeof(nvmlDevicePowerMizerModes_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating DevicePowerMizerModes_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDevicePowerMizerModes_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDevicePowerMizerModes_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -14595,7 +14834,7 @@ cdef class DevicePowerMizerModes_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an DevicePowerMizerModes_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlDevicePowerMizerModes_v1_t), DevicePowerMizerModes_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlDevicePowerMizerModes_v1_t), DevicePowerMizerModes_v1)
 
     @staticmethod
     def from_data(data):
@@ -14604,7 +14843,7 @@ cdef class DevicePowerMizerModes_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `device_power_mizer_modes_v1_dtype` holding the data.
         """
-        return __from_data(data, "device_power_mizer_modes_v1_dtype", device_power_mizer_modes_v1_dtype, DevicePowerMizerModes_v1)
+        return _cyb_from_data(data, "device_power_mizer_modes_v1_dtype", device_power_mizer_modes_v1_dtype, DevicePowerMizerModes_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -14619,10 +14858,10 @@ cdef class DevicePowerMizerModes_v1:
             raise ValueError("ptr must not be null (0)")
         cdef DevicePowerMizerModes_v1 obj = DevicePowerMizerModes_v1.__new__(DevicePowerMizerModes_v1)
         if owner is None:
-            obj._ptr = <nvmlDevicePowerMizerModes_v1_t *>malloc(sizeof(nvmlDevicePowerMizerModes_v1_t))
+            obj._ptr = <nvmlDevicePowerMizerModes_v1_t *>_cyb_malloc(sizeof(nvmlDevicePowerMizerModes_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating DevicePowerMizerModes_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDevicePowerMizerModes_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDevicePowerMizerModes_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -14701,10 +14940,10 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def unit(self):
@@ -14837,8 +15076,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef EccSramUniqueUncorrectedErrorEntry_v1 obj = EccSramUniqueUncorrectedErrorEntry_v1.__new__(EccSramUniqueUncorrectedErrorEntry_v1)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -14878,7 +15117,7 @@ cdef class GpuFabricInfo_v3:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuFabricInfo_v3_t *>calloc(1, sizeof(nvmlGpuFabricInfo_v3_t))
+        self._ptr = <nvmlGpuFabricInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricInfo_v3_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GpuFabricInfo_v3")
         self._owner = None
@@ -14890,7 +15129,7 @@ cdef class GpuFabricInfo_v3:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuFabricInfo_v3 object at {hex(id(self))}>"
@@ -14911,20 +15150,20 @@ cdef class GpuFabricInfo_v3:
         if not isinstance(other, GpuFabricInfo_v3):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuFabricInfo_v3_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuFabricInfo_v3_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuFabricInfo_v3_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuFabricInfo_v3_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuFabricInfo_v3_t *>malloc(sizeof(nvmlGpuFabricInfo_v3_t))
+            self._ptr = <nvmlGpuFabricInfo_v3_t *>_cyb_malloc(sizeof(nvmlGpuFabricInfo_v3_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating GpuFabricInfo_v3")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v3_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v3_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -14933,7 +15172,7 @@ cdef class GpuFabricInfo_v3:
 
     @property
     def version(self):
-        """int: Structure version identifier (set to nvmlGpuFabricInfo_v2)."""
+        """int: Structure version identifier (set to nvmlGpuFabricInfo_v3)."""
         return self._ptr[0].version
 
     @version.setter
@@ -14945,7 +15184,7 @@ cdef class GpuFabricInfo_v3:
     @property
     def cluster_uuid(self):
         """~_numpy.uint8: (array of length 16).Uuid of the cluster to which this GPU belongs."""
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].clusterUuid))
         return _numpy.asarray(arr)
 
@@ -14955,9 +15194,9 @@ cdef class GpuFabricInfo_v3:
             raise ValueError("This GpuFabricInfo_v3 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field cluster_uuid, got {len(val)}")
-        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
 
     @property
     def status(self):
@@ -15017,7 +15256,7 @@ cdef class GpuFabricInfo_v3:
     @staticmethod
     def from_buffer(buffer):
         """Create an GpuFabricInfo_v3 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlGpuFabricInfo_v3_t), GpuFabricInfo_v3)
+        return _cyb_from_buffer(buffer, sizeof(nvmlGpuFabricInfo_v3_t), GpuFabricInfo_v3)
 
     @staticmethod
     def from_data(data):
@@ -15026,7 +15265,7 @@ cdef class GpuFabricInfo_v3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_fabric_info_v3_dtype` holding the data.
         """
-        return __from_data(data, "gpu_fabric_info_v3_dtype", gpu_fabric_info_v3_dtype, GpuFabricInfo_v3)
+        return _cyb_from_data(data, "gpu_fabric_info_v3_dtype", gpu_fabric_info_v3_dtype, GpuFabricInfo_v3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -15041,10 +15280,10 @@ cdef class GpuFabricInfo_v3:
             raise ValueError("ptr must not be null (0)")
         cdef GpuFabricInfo_v3 obj = GpuFabricInfo_v3.__new__(GpuFabricInfo_v3)
         if owner is None:
-            obj._ptr = <nvmlGpuFabricInfo_v3_t *>malloc(sizeof(nvmlGpuFabricInfo_v3_t))
+            obj._ptr = <nvmlGpuFabricInfo_v3_t *>_cyb_malloc(sizeof(nvmlGpuFabricInfo_v3_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GpuFabricInfo_v3")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricInfo_v3_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricInfo_v3_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -15082,7 +15321,7 @@ cdef class NvLinkInfo_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvLinkInfo_v1_t *>calloc(1, sizeof(nvmlNvLinkInfo_v1_t))
+        self._ptr = <nvmlNvLinkInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlNvLinkInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvLinkInfo_v1")
         self._owner = None
@@ -15094,7 +15333,7 @@ cdef class NvLinkInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvLinkInfo_v1 object at {hex(id(self))}>"
@@ -15115,20 +15354,20 @@ cdef class NvLinkInfo_v1:
         if not isinstance(other, NvLinkInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvLinkInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvLinkInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvLinkInfo_v1_t *>malloc(sizeof(nvmlNvLinkInfo_v1_t))
+            self._ptr = <nvmlNvLinkInfo_v1_t *>_cyb_malloc(sizeof(nvmlNvLinkInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating NvLinkInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -15160,7 +15399,7 @@ cdef class NvLinkInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an NvLinkInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlNvLinkInfo_v1_t), NvLinkInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvLinkInfo_v1_t), NvLinkInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -15169,7 +15408,7 @@ cdef class NvLinkInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nv_link_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "nv_link_info_v1_dtype", nv_link_info_v1_dtype, NvLinkInfo_v1)
+        return _cyb_from_data(data, "nv_link_info_v1_dtype", nv_link_info_v1_dtype, NvLinkInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -15184,10 +15423,10 @@ cdef class NvLinkInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef NvLinkInfo_v1 obj = NvLinkInfo_v1.__new__(NvLinkInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlNvLinkInfo_v1_t *>malloc(sizeof(nvmlNvLinkInfo_v1_t))
+            obj._ptr = <nvmlNvLinkInfo_v1_t *>_cyb_malloc(sizeof(nvmlNvLinkInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvLinkInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvLinkInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvLinkInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -15227,7 +15466,7 @@ cdef class NvlinkFirmwareVersion:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvlinkFirmwareVersion_t *>calloc(1, sizeof(nvmlNvlinkFirmwareVersion_t))
+        self._ptr = <nvmlNvlinkFirmwareVersion_t *>_cyb_calloc(1, sizeof(nvmlNvlinkFirmwareVersion_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkFirmwareVersion")
         self._owner = None
@@ -15239,7 +15478,7 @@ cdef class NvlinkFirmwareVersion:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvlinkFirmwareVersion object at {hex(id(self))}>"
@@ -15260,20 +15499,20 @@ cdef class NvlinkFirmwareVersion:
         if not isinstance(other, NvlinkFirmwareVersion):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkFirmwareVersion_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkFirmwareVersion_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkFirmwareVersion_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkFirmwareVersion_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvlinkFirmwareVersion_t *>malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
+            self._ptr = <nvmlNvlinkFirmwareVersion_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkFirmwareVersion")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkFirmwareVersion_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkFirmwareVersion_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -15327,7 +15566,7 @@ cdef class NvlinkFirmwareVersion:
     @staticmethod
     def from_buffer(buffer):
         """Create an NvlinkFirmwareVersion instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlNvlinkFirmwareVersion_t), NvlinkFirmwareVersion)
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkFirmwareVersion_t), NvlinkFirmwareVersion)
 
     @staticmethod
     def from_data(data):
@@ -15336,7 +15575,7 @@ cdef class NvlinkFirmwareVersion:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_firmware_version_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_firmware_version_dtype", nvlink_firmware_version_dtype, NvlinkFirmwareVersion)
+        return _cyb_from_data(data, "nvlink_firmware_version_dtype", nvlink_firmware_version_dtype, NvlinkFirmwareVersion)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -15351,10 +15590,10 @@ cdef class NvlinkFirmwareVersion:
             raise ValueError("ptr must not be null (0)")
         cdef NvlinkFirmwareVersion obj = NvlinkFirmwareVersion.__new__(NvlinkFirmwareVersion)
         if owner is None:
-            obj._ptr = <nvmlNvlinkFirmwareVersion_t *>malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
+            obj._ptr = <nvmlNvlinkFirmwareVersion_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkFirmwareVersion")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareVersion_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareVersion_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -15391,7 +15630,7 @@ cdef class PRMCounterInput_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPRMCounterInput_v1_t *>calloc(1, sizeof(nvmlPRMCounterInput_v1_t))
+        self._ptr = <nvmlPRMCounterInput_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterInput_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterInput_v1")
         self._owner = None
@@ -15403,7 +15642,7 @@ cdef class PRMCounterInput_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PRMCounterInput_v1 object at {hex(id(self))}>"
@@ -15424,20 +15663,20 @@ cdef class PRMCounterInput_v1:
         if not isinstance(other, PRMCounterInput_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPRMCounterInput_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPRMCounterInput_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPRMCounterInput_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPRMCounterInput_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPRMCounterInput_v1_t *>malloc(sizeof(nvmlPRMCounterInput_v1_t))
+            self._ptr = <nvmlPRMCounterInput_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterInput_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterInput_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPRMCounterInput_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPRMCounterInput_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -15458,7 +15697,7 @@ cdef class PRMCounterInput_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an PRMCounterInput_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlPRMCounterInput_v1_t), PRMCounterInput_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlPRMCounterInput_v1_t), PRMCounterInput_v1)
 
     @staticmethod
     def from_data(data):
@@ -15467,7 +15706,7 @@ cdef class PRMCounterInput_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `prm_counter_input_v1_dtype` holding the data.
         """
-        return __from_data(data, "prm_counter_input_v1_dtype", prm_counter_input_v1_dtype, PRMCounterInput_v1)
+        return _cyb_from_data(data, "prm_counter_input_v1_dtype", prm_counter_input_v1_dtype, PRMCounterInput_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -15482,10 +15721,10 @@ cdef class PRMCounterInput_v1:
             raise ValueError("ptr must not be null (0)")
         cdef PRMCounterInput_v1 obj = PRMCounterInput_v1.__new__(PRMCounterInput_v1)
         if owner is None:
-            obj._ptr = <nvmlPRMCounterInput_v1_t *>malloc(sizeof(nvmlPRMCounterInput_v1_t))
+            obj._ptr = <nvmlPRMCounterInput_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterInput_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterInput_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterInput_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterInput_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -15525,7 +15764,7 @@ cdef class VgpuSchedulerStateInfo_v2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+        self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
         self._owner = None
@@ -15537,7 +15776,7 @@ cdef class VgpuSchedulerStateInfo_v2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerStateInfo_v2 object at {hex(id(self))}>"
@@ -15558,20 +15797,20 @@ cdef class VgpuSchedulerStateInfo_v2:
         if not isinstance(other, VgpuSchedulerStateInfo_v2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerStateInfo_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerStateInfo_v2_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -15625,7 +15864,7 @@ cdef class VgpuSchedulerStateInfo_v2:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerStateInfo_v2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerStateInfo_v2_t), VgpuSchedulerStateInfo_v2)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerStateInfo_v2_t), VgpuSchedulerStateInfo_v2)
 
     @staticmethod
     def from_data(data):
@@ -15634,7 +15873,7 @@ cdef class VgpuSchedulerStateInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_state_info_v2_dtype", vgpu_scheduler_state_info_v2_dtype, VgpuSchedulerStateInfo_v2)
+        return _cyb_from_data(data, "vgpu_scheduler_state_info_v2_dtype", vgpu_scheduler_state_info_v2_dtype, VgpuSchedulerStateInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -15649,10 +15888,10 @@ cdef class VgpuSchedulerStateInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerStateInfo_v2 obj = VgpuSchedulerStateInfo_v2.__new__(VgpuSchedulerStateInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            obj._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -15731,10 +15970,10 @@ cdef class VgpuSchedulerLogEntry_v2:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def timestamp(self):
@@ -15867,8 +16106,8 @@ cdef class VgpuSchedulerLogEntry_v2:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerLogEntry_v2 obj = VgpuSchedulerLogEntry_v2.__new__(VgpuSchedulerLogEntry_v2)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuSchedulerLogEntry_v2_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_v2_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -15905,7 +16144,7 @@ cdef class VgpuSchedulerState_v2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerState_v2_t *>calloc(1, sizeof(nvmlVgpuSchedulerState_v2_t))
+        self._ptr = <nvmlVgpuSchedulerState_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerState_v2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerState_v2")
         self._owner = None
@@ -15917,7 +16156,7 @@ cdef class VgpuSchedulerState_v2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerState_v2 object at {hex(id(self))}>"
@@ -15938,20 +16177,20 @@ cdef class VgpuSchedulerState_v2:
         if not isinstance(other, VgpuSchedulerState_v2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerState_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerState_v2_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerState_v2_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerState_v2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerState_v2_t *>malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
+            self._ptr = <nvmlVgpuSchedulerState_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerState_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v2_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -16005,7 +16244,7 @@ cdef class VgpuSchedulerState_v2:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerState_v2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerState_v2_t), VgpuSchedulerState_v2)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerState_v2_t), VgpuSchedulerState_v2)
 
     @staticmethod
     def from_data(data):
@@ -16014,7 +16253,7 @@ cdef class VgpuSchedulerState_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_v2_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_state_v2_dtype", vgpu_scheduler_state_v2_dtype, VgpuSchedulerState_v2)
+        return _cyb_from_data(data, "vgpu_scheduler_state_v2_dtype", vgpu_scheduler_state_v2_dtype, VgpuSchedulerState_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -16029,10 +16268,10 @@ cdef class VgpuSchedulerState_v2:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerState_v2 obj = VgpuSchedulerState_v2.__new__(VgpuSchedulerState_v2)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerState_v2_t *>malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
+            obj._ptr = <nvmlVgpuSchedulerState_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerState_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerState_v2_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerState_v2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -16070,7 +16309,7 @@ cdef class ExcludedDeviceInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlExcludedDeviceInfo_t *>calloc(1, sizeof(nvmlExcludedDeviceInfo_t))
+        self._ptr = <nvmlExcludedDeviceInfo_t *>_cyb_calloc(1, sizeof(nvmlExcludedDeviceInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ExcludedDeviceInfo")
         self._owner = None
@@ -16082,7 +16321,7 @@ cdef class ExcludedDeviceInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ExcludedDeviceInfo object at {hex(id(self))}>"
@@ -16103,20 +16342,20 @@ cdef class ExcludedDeviceInfo:
         if not isinstance(other, ExcludedDeviceInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlExcludedDeviceInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlExcludedDeviceInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlExcludedDeviceInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlExcludedDeviceInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlExcludedDeviceInfo_t *>malloc(sizeof(nvmlExcludedDeviceInfo_t))
+            self._ptr = <nvmlExcludedDeviceInfo_t *>_cyb_malloc(sizeof(nvmlExcludedDeviceInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ExcludedDeviceInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlExcludedDeviceInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlExcludedDeviceInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -16133,12 +16372,12 @@ cdef class ExcludedDeviceInfo:
         if self._readonly:
             raise ValueError("This ExcludedDeviceInfo instance is read-only")
         cdef PciInfo val_ = val
-        memcpy(<void *>&(self._ptr[0].pciInfo), <void *>(val_._get_ptr()), sizeof(nvmlPciInfo_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].pciInfo), <void *>(val_._get_ptr()), sizeof(nvmlPciInfo_t) * 1)
 
     @property
     def uuid(self):
         """~_numpy.int8: (array of length 80)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].uuid)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].uuid)
 
     @uuid.setter
     def uuid(self, val):
@@ -16148,12 +16387,12 @@ cdef class ExcludedDeviceInfo:
         if len(buf) >= 80:
             raise ValueError("String too long for field uuid, max length is 79")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].uuid), <void *>ptr, 80)
+        _cyb_memcpy(<void *>(self._ptr[0].uuid), <void *>ptr, 80)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an ExcludedDeviceInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlExcludedDeviceInfo_t), ExcludedDeviceInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlExcludedDeviceInfo_t), ExcludedDeviceInfo)
 
     @staticmethod
     def from_data(data):
@@ -16162,7 +16401,7 @@ cdef class ExcludedDeviceInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `excluded_device_info_dtype` holding the data.
         """
-        return __from_data(data, "excluded_device_info_dtype", excluded_device_info_dtype, ExcludedDeviceInfo)
+        return _cyb_from_data(data, "excluded_device_info_dtype", excluded_device_info_dtype, ExcludedDeviceInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -16177,10 +16416,10 @@ cdef class ExcludedDeviceInfo:
             raise ValueError("ptr must not be null (0)")
         cdef ExcludedDeviceInfo obj = ExcludedDeviceInfo.__new__(ExcludedDeviceInfo)
         if owner is None:
-            obj._ptr = <nvmlExcludedDeviceInfo_t *>malloc(sizeof(nvmlExcludedDeviceInfo_t))
+            obj._ptr = <nvmlExcludedDeviceInfo_t *>_cyb_malloc(sizeof(nvmlExcludedDeviceInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ExcludedDeviceInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlExcludedDeviceInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlExcludedDeviceInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -16221,7 +16460,7 @@ cdef class ProcessDetailList_v1:
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlProcessDetailList_v1_t *>calloc(1, sizeof(nvmlProcessDetailList_v1_t))
+        self._ptr = <nvmlProcessDetailList_v1_t *>_cyb_calloc(1, sizeof(nvmlProcessDetailList_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ProcessDetailList_v1")
         self._owner = None
@@ -16234,7 +16473,7 @@ cdef class ProcessDetailList_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ProcessDetailList_v1 object at {hex(id(self))}>"
@@ -16255,20 +16494,20 @@ cdef class ProcessDetailList_v1:
         if not isinstance(other, ProcessDetailList_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlProcessDetailList_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlProcessDetailList_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlProcessDetailList_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlProcessDetailList_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlProcessDetailList_v1_t *>malloc(sizeof(nvmlProcessDetailList_v1_t))
+            self._ptr = <nvmlProcessDetailList_v1_t *>_cyb_malloc(sizeof(nvmlProcessDetailList_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ProcessDetailList_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlProcessDetailList_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlProcessDetailList_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -16316,7 +16555,7 @@ cdef class ProcessDetailList_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an ProcessDetailList_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlProcessDetailList_v1_t), ProcessDetailList_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlProcessDetailList_v1_t), ProcessDetailList_v1)
 
     @staticmethod
     def from_data(data):
@@ -16325,7 +16564,7 @@ cdef class ProcessDetailList_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `process_detail_list_v1_dtype` holding the data.
         """
-        return __from_data(data, "process_detail_list_v1_dtype", process_detail_list_v1_dtype, ProcessDetailList_v1)
+        return _cyb_from_data(data, "process_detail_list_v1_dtype", process_detail_list_v1_dtype, ProcessDetailList_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -16340,10 +16579,10 @@ cdef class ProcessDetailList_v1:
             raise ValueError("ptr must not be null (0)")
         cdef ProcessDetailList_v1 obj = ProcessDetailList_v1.__new__(ProcessDetailList_v1)
         if owner is None:
-            obj._ptr = <nvmlProcessDetailList_v1_t *>malloc(sizeof(nvmlProcessDetailList_v1_t))
+            obj._ptr = <nvmlProcessDetailList_v1_t *>_cyb_malloc(sizeof(nvmlProcessDetailList_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ProcessDetailList_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlProcessDetailList_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlProcessDetailList_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -16382,7 +16621,7 @@ cdef class BridgeChipHierarchy:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlBridgeChipHierarchy_t *>calloc(1, sizeof(nvmlBridgeChipHierarchy_t))
+        self._ptr = <nvmlBridgeChipHierarchy_t *>_cyb_calloc(1, sizeof(nvmlBridgeChipHierarchy_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating BridgeChipHierarchy")
         self._owner = None
@@ -16394,7 +16633,7 @@ cdef class BridgeChipHierarchy:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.BridgeChipHierarchy object at {hex(id(self))}>"
@@ -16415,20 +16654,20 @@ cdef class BridgeChipHierarchy:
         if not isinstance(other, BridgeChipHierarchy):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlBridgeChipHierarchy_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlBridgeChipHierarchy_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlBridgeChipHierarchy_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlBridgeChipHierarchy_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlBridgeChipHierarchy_t *>malloc(sizeof(nvmlBridgeChipHierarchy_t))
+            self._ptr = <nvmlBridgeChipHierarchy_t *>_cyb_malloc(sizeof(nvmlBridgeChipHierarchy_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating BridgeChipHierarchy")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlBridgeChipHierarchy_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlBridgeChipHierarchy_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -16450,12 +16689,12 @@ cdef class BridgeChipHierarchy:
         self._ptr[0].bridgeCount = len(val)
         if len(val) == 0:
             return
-        memcpy(<void *>&(self._ptr[0].bridgeChipInfo), <void *>(val_._get_ptr()), sizeof(nvmlBridgeChipInfo_t) * self._ptr[0].bridgeCount)
+        _cyb_memcpy(<void *>&(self._ptr[0].bridgeChipInfo), <void *>(val_._get_ptr()), sizeof(nvmlBridgeChipInfo_t) * self._ptr[0].bridgeCount)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an BridgeChipHierarchy instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlBridgeChipHierarchy_t), BridgeChipHierarchy)
+        return _cyb_from_buffer(buffer, sizeof(nvmlBridgeChipHierarchy_t), BridgeChipHierarchy)
 
     @staticmethod
     def from_data(data):
@@ -16464,7 +16703,7 @@ cdef class BridgeChipHierarchy:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `bridge_chip_hierarchy_dtype` holding the data.
         """
-        return __from_data(data, "bridge_chip_hierarchy_dtype", bridge_chip_hierarchy_dtype, BridgeChipHierarchy)
+        return _cyb_from_data(data, "bridge_chip_hierarchy_dtype", bridge_chip_hierarchy_dtype, BridgeChipHierarchy)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -16479,10 +16718,10 @@ cdef class BridgeChipHierarchy:
             raise ValueError("ptr must not be null (0)")
         cdef BridgeChipHierarchy obj = BridgeChipHierarchy.__new__(BridgeChipHierarchy)
         if owner is None:
-            obj._ptr = <nvmlBridgeChipHierarchy_t *>malloc(sizeof(nvmlBridgeChipHierarchy_t))
+            obj._ptr = <nvmlBridgeChipHierarchy_t *>_cyb_malloc(sizeof(nvmlBridgeChipHierarchy_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating BridgeChipHierarchy")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlBridgeChipHierarchy_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlBridgeChipHierarchy_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -16556,10 +16795,10 @@ cdef class Sample:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def time_stamp(self):
@@ -16635,8 +16874,8 @@ cdef class Sample:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef Sample obj = Sample.__new__(Sample)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlSample_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=sample_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -16711,10 +16950,10 @@ cdef class VgpuInstanceUtilizationSample:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def vgpu_instance(self):
@@ -16828,8 +17067,8 @@ cdef class VgpuInstanceUtilizationSample:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuInstanceUtilizationSample obj = VgpuInstanceUtilizationSample.__new__(VgpuInstanceUtilizationSample)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuInstanceUtilizationSample_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_sample_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -16906,10 +17145,10 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def time_stamp(self):
@@ -17041,8 +17280,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuInstanceUtilizationInfo_v1 obj = VgpuInstanceUtilizationInfo_v1.__new__(VgpuInstanceUtilizationInfo_v1)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_info_v1_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -17118,10 +17357,10 @@ cdef class FieldValue:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def field_id(self):
@@ -17252,8 +17491,8 @@ cdef class FieldValue:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef FieldValue obj = FieldValue.__new__(FieldValue)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlFieldValue_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=field_value_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -17289,7 +17528,7 @@ cdef class PRMCounterValue_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPRMCounterValue_v1_t *>calloc(1, sizeof(nvmlPRMCounterValue_v1_t))
+        self._ptr = <nvmlPRMCounterValue_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterValue_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterValue_v1")
         self._owner = None
@@ -17301,7 +17540,7 @@ cdef class PRMCounterValue_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PRMCounterValue_v1 object at {hex(id(self))}>"
@@ -17322,20 +17561,20 @@ cdef class PRMCounterValue_v1:
         if not isinstance(other, PRMCounterValue_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPRMCounterValue_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPRMCounterValue_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPRMCounterValue_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlPRMCounterValue_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPRMCounterValue_v1_t *>malloc(sizeof(nvmlPRMCounterValue_v1_t))
+            self._ptr = <nvmlPRMCounterValue_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterValue_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterValue_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPRMCounterValue_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPRMCounterValue_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -17352,7 +17591,7 @@ cdef class PRMCounterValue_v1:
         if self._readonly:
             raise ValueError("This PRMCounterValue_v1 instance is read-only")
         cdef Value val_ = val
-        memcpy(<void *>&(self._ptr[0].outputValue), <void *>(val_._get_ptr()), sizeof(nvmlValue_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].outputValue), <void *>(val_._get_ptr()), sizeof(nvmlValue_t) * 1)
 
     @property
     def status(self):
@@ -17379,7 +17618,7 @@ cdef class PRMCounterValue_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an PRMCounterValue_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlPRMCounterValue_v1_t), PRMCounterValue_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlPRMCounterValue_v1_t), PRMCounterValue_v1)
 
     @staticmethod
     def from_data(data):
@@ -17388,7 +17627,7 @@ cdef class PRMCounterValue_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `prm_counter_value_v1_dtype` holding the data.
         """
-        return __from_data(data, "prm_counter_value_v1_dtype", prm_counter_value_v1_dtype, PRMCounterValue_v1)
+        return _cyb_from_data(data, "prm_counter_value_v1_dtype", prm_counter_value_v1_dtype, PRMCounterValue_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -17403,10 +17642,10 @@ cdef class PRMCounterValue_v1:
             raise ValueError("ptr must not be null (0)")
         cdef PRMCounterValue_v1 obj = PRMCounterValue_v1.__new__(PRMCounterValue_v1)
         if owner is None:
-            obj._ptr = <nvmlPRMCounterValue_v1_t *>malloc(sizeof(nvmlPRMCounterValue_v1_t))
+            obj._ptr = <nvmlPRMCounterValue_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterValue_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterValue_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterValue_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterValue_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -17444,7 +17683,7 @@ cdef class GpuThermalSettings:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuThermalSettings_t *>calloc(1, sizeof(nvmlGpuThermalSettings_t))
+        self._ptr = <nvmlGpuThermalSettings_t *>_cyb_calloc(1, sizeof(nvmlGpuThermalSettings_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GpuThermalSettings")
         self._owner = None
@@ -17456,7 +17695,7 @@ cdef class GpuThermalSettings:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuThermalSettings object at {hex(id(self))}>"
@@ -17477,20 +17716,20 @@ cdef class GpuThermalSettings:
         if not isinstance(other, GpuThermalSettings):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuThermalSettings_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuThermalSettings_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuThermalSettings_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuThermalSettings_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuThermalSettings_t *>malloc(sizeof(nvmlGpuThermalSettings_t))
+            self._ptr = <nvmlGpuThermalSettings_t *>_cyb_malloc(sizeof(nvmlGpuThermalSettings_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating GpuThermalSettings")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuThermalSettings_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuThermalSettings_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -17509,7 +17748,7 @@ cdef class GpuThermalSettings:
         cdef _py_anon_pod0 val_ = val
         if len(val) != 3:
             raise ValueError(f"Expected length { 3 } for field sensor, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].sensor), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod0) * 3)
+        _cyb_memcpy(<void *>&(self._ptr[0].sensor), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod0) * 3)
 
     @property
     def count(self):
@@ -17525,7 +17764,7 @@ cdef class GpuThermalSettings:
     @staticmethod
     def from_buffer(buffer):
         """Create an GpuThermalSettings instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlGpuThermalSettings_t), GpuThermalSettings)
+        return _cyb_from_buffer(buffer, sizeof(nvmlGpuThermalSettings_t), GpuThermalSettings)
 
     @staticmethod
     def from_data(data):
@@ -17534,7 +17773,7 @@ cdef class GpuThermalSettings:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_thermal_settings_dtype` holding the data.
         """
-        return __from_data(data, "gpu_thermal_settings_dtype", gpu_thermal_settings_dtype, GpuThermalSettings)
+        return _cyb_from_data(data, "gpu_thermal_settings_dtype", gpu_thermal_settings_dtype, GpuThermalSettings)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -17549,10 +17788,10 @@ cdef class GpuThermalSettings:
             raise ValueError("ptr must not be null (0)")
         cdef GpuThermalSettings obj = GpuThermalSettings.__new__(GpuThermalSettings)
         if owner is None:
-            obj._ptr = <nvmlGpuThermalSettings_t *>malloc(sizeof(nvmlGpuThermalSettings_t))
+            obj._ptr = <nvmlGpuThermalSettings_t *>_cyb_malloc(sizeof(nvmlGpuThermalSettings_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GpuThermalSettings")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuThermalSettings_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuThermalSettings_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -17591,7 +17830,7 @@ cdef class ClkMonStatus:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlClkMonStatus_t *>calloc(1, sizeof(nvmlClkMonStatus_t))
+        self._ptr = <nvmlClkMonStatus_t *>_cyb_calloc(1, sizeof(nvmlClkMonStatus_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ClkMonStatus")
         self._owner = None
@@ -17603,7 +17842,7 @@ cdef class ClkMonStatus:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ClkMonStatus object at {hex(id(self))}>"
@@ -17624,20 +17863,20 @@ cdef class ClkMonStatus:
         if not isinstance(other, ClkMonStatus):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlClkMonStatus_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlClkMonStatus_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlClkMonStatus_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlClkMonStatus_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlClkMonStatus_t *>malloc(sizeof(nvmlClkMonStatus_t))
+            self._ptr = <nvmlClkMonStatus_t *>_cyb_malloc(sizeof(nvmlClkMonStatus_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ClkMonStatus")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlClkMonStatus_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlClkMonStatus_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -17659,7 +17898,7 @@ cdef class ClkMonStatus:
         self._ptr[0].clkMonListSize = len(val)
         if len(val) == 0:
             return
-        memcpy(<void *>&(self._ptr[0].clkMonList), <void *>(val_._get_ptr()), sizeof(nvmlClkMonFaultInfo_t) * self._ptr[0].clkMonListSize)
+        _cyb_memcpy(<void *>&(self._ptr[0].clkMonList), <void *>(val_._get_ptr()), sizeof(nvmlClkMonFaultInfo_t) * self._ptr[0].clkMonListSize)
 
     @property
     def b_global_status(self):
@@ -17675,7 +17914,7 @@ cdef class ClkMonStatus:
     @staticmethod
     def from_buffer(buffer):
         """Create an ClkMonStatus instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlClkMonStatus_t), ClkMonStatus)
+        return _cyb_from_buffer(buffer, sizeof(nvmlClkMonStatus_t), ClkMonStatus)
 
     @staticmethod
     def from_data(data):
@@ -17684,7 +17923,7 @@ cdef class ClkMonStatus:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `clk_mon_status_dtype` holding the data.
         """
-        return __from_data(data, "clk_mon_status_dtype", clk_mon_status_dtype, ClkMonStatus)
+        return _cyb_from_data(data, "clk_mon_status_dtype", clk_mon_status_dtype, ClkMonStatus)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -17699,10 +17938,10 @@ cdef class ClkMonStatus:
             raise ValueError("ptr must not be null (0)")
         cdef ClkMonStatus obj = ClkMonStatus.__new__(ClkMonStatus)
         if owner is None:
-            obj._ptr = <nvmlClkMonStatus_t *>malloc(sizeof(nvmlClkMonStatus_t))
+            obj._ptr = <nvmlClkMonStatus_t *>_cyb_malloc(sizeof(nvmlClkMonStatus_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ClkMonStatus")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlClkMonStatus_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlClkMonStatus_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -17743,7 +17982,7 @@ cdef class ProcessesUtilizationInfo_v1:
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlProcessesUtilizationInfo_v1_t *>calloc(1, sizeof(nvmlProcessesUtilizationInfo_v1_t))
+        self._ptr = <nvmlProcessesUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlProcessesUtilizationInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ProcessesUtilizationInfo_v1")
         self._owner = None
@@ -17756,7 +17995,7 @@ cdef class ProcessesUtilizationInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ProcessesUtilizationInfo_v1 object at {hex(id(self))}>"
@@ -17777,20 +18016,20 @@ cdef class ProcessesUtilizationInfo_v1:
         if not isinstance(other, ProcessesUtilizationInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlProcessesUtilizationInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlProcessesUtilizationInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlProcessesUtilizationInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlProcessesUtilizationInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlProcessesUtilizationInfo_v1_t *>malloc(sizeof(nvmlProcessesUtilizationInfo_v1_t))
+            self._ptr = <nvmlProcessesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlProcessesUtilizationInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ProcessesUtilizationInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlProcessesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlProcessesUtilizationInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -17838,7 +18077,7 @@ cdef class ProcessesUtilizationInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an ProcessesUtilizationInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlProcessesUtilizationInfo_v1_t), ProcessesUtilizationInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlProcessesUtilizationInfo_v1_t), ProcessesUtilizationInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -17847,7 +18086,7 @@ cdef class ProcessesUtilizationInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `processes_utilization_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "processes_utilization_info_v1_dtype", processes_utilization_info_v1_dtype, ProcessesUtilizationInfo_v1)
+        return _cyb_from_data(data, "processes_utilization_info_v1_dtype", processes_utilization_info_v1_dtype, ProcessesUtilizationInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -17862,10 +18101,10 @@ cdef class ProcessesUtilizationInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef ProcessesUtilizationInfo_v1 obj = ProcessesUtilizationInfo_v1.__new__(ProcessesUtilizationInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlProcessesUtilizationInfo_v1_t *>malloc(sizeof(nvmlProcessesUtilizationInfo_v1_t))
+            obj._ptr = <nvmlProcessesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlProcessesUtilizationInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ProcessesUtilizationInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlProcessesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlProcessesUtilizationInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -17904,7 +18143,7 @@ cdef class GpuDynamicPstatesInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuDynamicPstatesInfo_t *>calloc(1, sizeof(nvmlGpuDynamicPstatesInfo_t))
+        self._ptr = <nvmlGpuDynamicPstatesInfo_t *>_cyb_calloc(1, sizeof(nvmlGpuDynamicPstatesInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GpuDynamicPstatesInfo")
         self._owner = None
@@ -17916,7 +18155,7 @@ cdef class GpuDynamicPstatesInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuDynamicPstatesInfo object at {hex(id(self))}>"
@@ -17937,20 +18176,20 @@ cdef class GpuDynamicPstatesInfo:
         if not isinstance(other, GpuDynamicPstatesInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuDynamicPstatesInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuDynamicPstatesInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuDynamicPstatesInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuDynamicPstatesInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuDynamicPstatesInfo_t *>malloc(sizeof(nvmlGpuDynamicPstatesInfo_t))
+            self._ptr = <nvmlGpuDynamicPstatesInfo_t *>_cyb_malloc(sizeof(nvmlGpuDynamicPstatesInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating GpuDynamicPstatesInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuDynamicPstatesInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuDynamicPstatesInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -17969,7 +18208,7 @@ cdef class GpuDynamicPstatesInfo:
         cdef _py_anon_pod1 val_ = val
         if len(val) != 8:
             raise ValueError(f"Expected length { 8 } for field utilization, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].utilization), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod1) * 8)
+        _cyb_memcpy(<void *>&(self._ptr[0].utilization), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod1) * 8)
 
     @property
     def flags_(self):
@@ -17985,7 +18224,7 @@ cdef class GpuDynamicPstatesInfo:
     @staticmethod
     def from_buffer(buffer):
         """Create an GpuDynamicPstatesInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlGpuDynamicPstatesInfo_t), GpuDynamicPstatesInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlGpuDynamicPstatesInfo_t), GpuDynamicPstatesInfo)
 
     @staticmethod
     def from_data(data):
@@ -17994,7 +18233,7 @@ cdef class GpuDynamicPstatesInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_dynamic_pstates_info_dtype` holding the data.
         """
-        return __from_data(data, "gpu_dynamic_pstates_info_dtype", gpu_dynamic_pstates_info_dtype, GpuDynamicPstatesInfo)
+        return _cyb_from_data(data, "gpu_dynamic_pstates_info_dtype", gpu_dynamic_pstates_info_dtype, GpuDynamicPstatesInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18009,10 +18248,10 @@ cdef class GpuDynamicPstatesInfo:
             raise ValueError("ptr must not be null (0)")
         cdef GpuDynamicPstatesInfo obj = GpuDynamicPstatesInfo.__new__(GpuDynamicPstatesInfo)
         if owner is None:
-            obj._ptr = <nvmlGpuDynamicPstatesInfo_t *>malloc(sizeof(nvmlGpuDynamicPstatesInfo_t))
+            obj._ptr = <nvmlGpuDynamicPstatesInfo_t *>_cyb_malloc(sizeof(nvmlGpuDynamicPstatesInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GpuDynamicPstatesInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuDynamicPstatesInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuDynamicPstatesInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -18053,7 +18292,7 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>calloc(1, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+        self._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuProcessesUtilizationInfo_v1")
         self._owner = None
@@ -18066,7 +18305,7 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuProcessesUtilizationInfo_v1 object at {hex(id(self))}>"
@@ -18087,20 +18326,20 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         if not isinstance(other, VgpuProcessesUtilizationInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>malloc(sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+            self._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuProcessesUtilizationInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -18148,7 +18387,7 @@ cdef class VgpuProcessesUtilizationInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuProcessesUtilizationInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t), VgpuProcessesUtilizationInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t), VgpuProcessesUtilizationInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -18157,7 +18396,7 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_processes_utilization_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_processes_utilization_info_v1_dtype", vgpu_processes_utilization_info_v1_dtype, VgpuProcessesUtilizationInfo_v1)
+        return _cyb_from_data(data, "vgpu_processes_utilization_info_v1_dtype", vgpu_processes_utilization_info_v1_dtype, VgpuProcessesUtilizationInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18172,10 +18411,10 @@ cdef class VgpuProcessesUtilizationInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuProcessesUtilizationInfo_v1 obj = VgpuProcessesUtilizationInfo_v1.__new__(VgpuProcessesUtilizationInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>malloc(sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+            obj._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuProcessesUtilizationInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -18208,7 +18447,7 @@ cdef class VgpuSchedulerParams:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerParams_t *>calloc(1, sizeof(nvmlVgpuSchedulerParams_t))
+        self._ptr = <nvmlVgpuSchedulerParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerParams_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerParams")
         self._owner = None
@@ -18220,7 +18459,7 @@ cdef class VgpuSchedulerParams:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerParams object at {hex(id(self))}>"
@@ -18241,20 +18480,20 @@ cdef class VgpuSchedulerParams:
         if not isinstance(other, VgpuSchedulerParams):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerParams_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerParams_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerParams_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerParams_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerParams_t *>malloc(sizeof(nvmlVgpuSchedulerParams_t))
+            self._ptr = <nvmlVgpuSchedulerParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerParams_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerParams")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerParams_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerParams_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -18271,7 +18510,7 @@ cdef class VgpuSchedulerParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerParams instance is read-only")
         cdef _py_anon_pod2 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod2) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod2) * 1)
 
     @property
     def vgpu_sched_data(self):
@@ -18283,12 +18522,12 @@ cdef class VgpuSchedulerParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerParams instance is read-only")
         cdef _py_anon_pod3 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod3) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod3) * 1)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerParams instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerParams_t), VgpuSchedulerParams)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerParams_t), VgpuSchedulerParams)
 
     @staticmethod
     def from_data(data):
@@ -18297,7 +18536,7 @@ cdef class VgpuSchedulerParams:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_params_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_params_dtype", vgpu_scheduler_params_dtype, VgpuSchedulerParams)
+        return _cyb_from_data(data, "vgpu_scheduler_params_dtype", vgpu_scheduler_params_dtype, VgpuSchedulerParams)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18312,10 +18551,10 @@ cdef class VgpuSchedulerParams:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerParams obj = VgpuSchedulerParams.__new__(VgpuSchedulerParams)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerParams_t *>malloc(sizeof(nvmlVgpuSchedulerParams_t))
+            obj._ptr = <nvmlVgpuSchedulerParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerParams_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerParams")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerParams_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerParams_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -18347,7 +18586,7 @@ cdef class VgpuSchedulerSetParams:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerSetParams_t *>calloc(1, sizeof(nvmlVgpuSchedulerSetParams_t))
+        self._ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerSetParams_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerSetParams")
         self._owner = None
@@ -18359,7 +18598,7 @@ cdef class VgpuSchedulerSetParams:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerSetParams object at {hex(id(self))}>"
@@ -18380,20 +18619,20 @@ cdef class VgpuSchedulerSetParams:
         if not isinstance(other, VgpuSchedulerSetParams):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerSetParams_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerSetParams_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerSetParams_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerSetParams_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerSetParams_t *>malloc(sizeof(nvmlVgpuSchedulerSetParams_t))
+            self._ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerSetParams_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerSetParams")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerSetParams_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerSetParams_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -18410,7 +18649,7 @@ cdef class VgpuSchedulerSetParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerSetParams instance is read-only")
         cdef _py_anon_pod4 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod4) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].vgpuSchedDataWithARR), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod4) * 1)
 
     @property
     def vgpu_sched_data(self):
@@ -18422,12 +18661,12 @@ cdef class VgpuSchedulerSetParams:
         if self._readonly:
             raise ValueError("This VgpuSchedulerSetParams instance is read-only")
         cdef _py_anon_pod5 val_ = val
-        memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod5) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].vgpuSchedData), <void *>(val_._get_ptr()), sizeof(cuda_bindings_nvml__anon_pod5) * 1)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerSetParams instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerSetParams_t), VgpuSchedulerSetParams)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerSetParams_t), VgpuSchedulerSetParams)
 
     @staticmethod
     def from_data(data):
@@ -18436,7 +18675,7 @@ cdef class VgpuSchedulerSetParams:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_set_params_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_set_params_dtype", vgpu_scheduler_set_params_dtype, VgpuSchedulerSetParams)
+        return _cyb_from_data(data, "vgpu_scheduler_set_params_dtype", vgpu_scheduler_set_params_dtype, VgpuSchedulerSetParams)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18451,10 +18690,10 @@ cdef class VgpuSchedulerSetParams:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerSetParams obj = VgpuSchedulerSetParams.__new__(VgpuSchedulerSetParams)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerSetParams_t *>malloc(sizeof(nvmlVgpuSchedulerSetParams_t))
+            obj._ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerSetParams_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerSetParams")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerSetParams_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerSetParams_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -18493,7 +18732,7 @@ cdef class VgpuLicenseInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuLicenseInfo_t *>calloc(1, sizeof(nvmlVgpuLicenseInfo_t))
+        self._ptr = <nvmlVgpuLicenseInfo_t *>_cyb_calloc(1, sizeof(nvmlVgpuLicenseInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuLicenseInfo")
         self._owner = None
@@ -18505,7 +18744,7 @@ cdef class VgpuLicenseInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuLicenseInfo object at {hex(id(self))}>"
@@ -18526,20 +18765,20 @@ cdef class VgpuLicenseInfo:
         if not isinstance(other, VgpuLicenseInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuLicenseInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuLicenseInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuLicenseInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuLicenseInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuLicenseInfo_t *>malloc(sizeof(nvmlVgpuLicenseInfo_t))
+            self._ptr = <nvmlVgpuLicenseInfo_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuLicenseInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuLicenseInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuLicenseInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -18556,7 +18795,7 @@ cdef class VgpuLicenseInfo:
         if self._readonly:
             raise ValueError("This VgpuLicenseInfo instance is read-only")
         cdef VgpuLicenseExpiry val_ = val
-        memcpy(<void *>&(self._ptr[0].licenseExpiry), <void *>(val_._get_ptr()), sizeof(nvmlVgpuLicenseExpiry_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].licenseExpiry), <void *>(val_._get_ptr()), sizeof(nvmlVgpuLicenseExpiry_t) * 1)
 
     @property
     def is_licensed(self):
@@ -18583,7 +18822,7 @@ cdef class VgpuLicenseInfo:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuLicenseInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuLicenseInfo_t), VgpuLicenseInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuLicenseInfo_t), VgpuLicenseInfo)
 
     @staticmethod
     def from_data(data):
@@ -18592,7 +18831,7 @@ cdef class VgpuLicenseInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_license_info_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_license_info_dtype", vgpu_license_info_dtype, VgpuLicenseInfo)
+        return _cyb_from_data(data, "vgpu_license_info_dtype", vgpu_license_info_dtype, VgpuLicenseInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18607,10 +18846,10 @@ cdef class VgpuLicenseInfo:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuLicenseInfo obj = VgpuLicenseInfo.__new__(VgpuLicenseInfo)
         if owner is None:
-            obj._ptr = <nvmlVgpuLicenseInfo_t *>malloc(sizeof(nvmlVgpuLicenseInfo_t))
+            obj._ptr = <nvmlVgpuLicenseInfo_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuLicenseInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuLicenseInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuLicenseInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -18688,10 +18927,10 @@ cdef class GridLicensableFeature:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def feature_code(self):
@@ -18807,8 +19046,8 @@ cdef class GridLicensableFeature:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef GridLicensableFeature obj = GridLicensableFeature.__new__(GridLicensableFeature)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlGridLicensableFeature_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=grid_licensable_feature_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -18843,7 +19082,7 @@ cdef class UnitFanSpeeds:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlUnitFanSpeeds_t *>calloc(1, sizeof(nvmlUnitFanSpeeds_t))
+        self._ptr = <nvmlUnitFanSpeeds_t *>_cyb_calloc(1, sizeof(nvmlUnitFanSpeeds_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating UnitFanSpeeds")
         self._owner = None
@@ -18855,7 +19094,7 @@ cdef class UnitFanSpeeds:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.UnitFanSpeeds object at {hex(id(self))}>"
@@ -18876,20 +19115,20 @@ cdef class UnitFanSpeeds:
         if not isinstance(other, UnitFanSpeeds):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUnitFanSpeeds_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlUnitFanSpeeds_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlUnitFanSpeeds_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlUnitFanSpeeds_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlUnitFanSpeeds_t *>malloc(sizeof(nvmlUnitFanSpeeds_t))
+            self._ptr = <nvmlUnitFanSpeeds_t *>_cyb_malloc(sizeof(nvmlUnitFanSpeeds_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating UnitFanSpeeds")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUnitFanSpeeds_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUnitFanSpeeds_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -18908,7 +19147,7 @@ cdef class UnitFanSpeeds:
         cdef UnitFanInfo val_ = val
         if len(val) != 24:
             raise ValueError(f"Expected length { 24 } for field fans, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].fans), <void *>(val_._get_ptr()), sizeof(nvmlUnitFanInfo_t) * 24)
+        _cyb_memcpy(<void *>&(self._ptr[0].fans), <void *>(val_._get_ptr()), sizeof(nvmlUnitFanInfo_t) * 24)
 
     @property
     def count(self):
@@ -18924,7 +19163,7 @@ cdef class UnitFanSpeeds:
     @staticmethod
     def from_buffer(buffer):
         """Create an UnitFanSpeeds instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlUnitFanSpeeds_t), UnitFanSpeeds)
+        return _cyb_from_buffer(buffer, sizeof(nvmlUnitFanSpeeds_t), UnitFanSpeeds)
 
     @staticmethod
     def from_data(data):
@@ -18933,7 +19172,7 @@ cdef class UnitFanSpeeds:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `unit_fan_speeds_dtype` holding the data.
         """
-        return __from_data(data, "unit_fan_speeds_dtype", unit_fan_speeds_dtype, UnitFanSpeeds)
+        return _cyb_from_data(data, "unit_fan_speeds_dtype", unit_fan_speeds_dtype, UnitFanSpeeds)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18948,10 +19187,10 @@ cdef class UnitFanSpeeds:
             raise ValueError("ptr must not be null (0)")
         cdef UnitFanSpeeds obj = UnitFanSpeeds.__new__(UnitFanSpeeds)
         if owner is None:
-            obj._ptr = <nvmlUnitFanSpeeds_t *>malloc(sizeof(nvmlUnitFanSpeeds_t))
+            obj._ptr = <nvmlUnitFanSpeeds_t *>_cyb_malloc(sizeof(nvmlUnitFanSpeeds_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating UnitFanSpeeds")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUnitFanSpeeds_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUnitFanSpeeds_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -18995,7 +19234,7 @@ cdef class VgpuPgpuMetadata:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuPgpuMetadata_t *>calloc(1, sizeof(nvmlVgpuPgpuMetadata_t))
+        self._ptr = <nvmlVgpuPgpuMetadata_t *>_cyb_calloc(1, sizeof(nvmlVgpuPgpuMetadata_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuPgpuMetadata")
         self._owner = None
@@ -19007,7 +19246,7 @@ cdef class VgpuPgpuMetadata:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuPgpuMetadata object at {hex(id(self))}>"
@@ -19028,20 +19267,20 @@ cdef class VgpuPgpuMetadata:
         if not isinstance(other, VgpuPgpuMetadata):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPgpuMetadata_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuPgpuMetadata_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuPgpuMetadata_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuPgpuMetadata_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuPgpuMetadata_t *>malloc(sizeof(nvmlVgpuPgpuMetadata_t))
+            self._ptr = <nvmlVgpuPgpuMetadata_t *>_cyb_malloc(sizeof(nvmlVgpuPgpuMetadata_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuPgpuMetadata")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPgpuMetadata_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPgpuMetadata_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -19058,7 +19297,7 @@ cdef class VgpuPgpuMetadata:
         if self._readonly:
             raise ValueError("This VgpuPgpuMetadata instance is read-only")
         cdef VgpuVersion val_ = val
-        memcpy(<void *>&(self._ptr[0].hostSupportedVgpuRange), <void *>(val_._get_ptr()), sizeof(nvmlVgpuVersion_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].hostSupportedVgpuRange), <void *>(val_._get_ptr()), sizeof(nvmlVgpuVersion_t) * 1)
 
     @property
     def version(self):
@@ -19085,7 +19324,7 @@ cdef class VgpuPgpuMetadata:
     @property
     def host_driver_version(self):
         """~_numpy.int8: (array of length 80)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].hostDriverVersion)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].hostDriverVersion)
 
     @host_driver_version.setter
     def host_driver_version(self, val):
@@ -19095,7 +19334,7 @@ cdef class VgpuPgpuMetadata:
         if len(buf) >= 80:
             raise ValueError("String too long for field host_driver_version, max length is 79")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].hostDriverVersion), <void *>ptr, 80)
+        _cyb_memcpy(<void *>(self._ptr[0].hostDriverVersion), <void *>ptr, 80)
 
     @property
     def pgpu_virtualization_caps(self):
@@ -19122,7 +19361,7 @@ cdef class VgpuPgpuMetadata:
     @property
     def opaque_data(self):
         """~_numpy.int8: (array of length 4)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].opaqueData)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].opaqueData)
 
     @opaque_data.setter
     def opaque_data(self, val):
@@ -19132,12 +19371,12 @@ cdef class VgpuPgpuMetadata:
         if len(buf) >= 4:
             raise ValueError("String too long for field opaque_data, max length is 3")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].opaqueData), <void *>ptr, 4)
+        _cyb_memcpy(<void *>(self._ptr[0].opaqueData), <void *>ptr, 4)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuPgpuMetadata instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuPgpuMetadata_t), VgpuPgpuMetadata)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuPgpuMetadata_t), VgpuPgpuMetadata)
 
     @staticmethod
     def from_data(data):
@@ -19146,7 +19385,7 @@ cdef class VgpuPgpuMetadata:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_pgpu_metadata_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_pgpu_metadata_dtype", vgpu_pgpu_metadata_dtype, VgpuPgpuMetadata)
+        return _cyb_from_data(data, "vgpu_pgpu_metadata_dtype", vgpu_pgpu_metadata_dtype, VgpuPgpuMetadata)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -19161,10 +19400,10 @@ cdef class VgpuPgpuMetadata:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuPgpuMetadata obj = VgpuPgpuMetadata.__new__(VgpuPgpuMetadata)
         if owner is None:
-            obj._ptr = <nvmlVgpuPgpuMetadata_t *>malloc(sizeof(nvmlVgpuPgpuMetadata_t))
+            obj._ptr = <nvmlVgpuPgpuMetadata_t *>_cyb_malloc(sizeof(nvmlVgpuPgpuMetadata_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuPgpuMetadata")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPgpuMetadata_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPgpuMetadata_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -19204,7 +19443,7 @@ cdef class GpuInstanceInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuInstanceInfo_t *>calloc(1, sizeof(nvmlGpuInstanceInfo_t))
+        self._ptr = <nvmlGpuInstanceInfo_t *>_cyb_calloc(1, sizeof(nvmlGpuInstanceInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GpuInstanceInfo")
         self._owner = None
@@ -19216,7 +19455,7 @@ cdef class GpuInstanceInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuInstanceInfo object at {hex(id(self))}>"
@@ -19237,20 +19476,20 @@ cdef class GpuInstanceInfo:
         if not isinstance(other, GpuInstanceInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuInstanceInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuInstanceInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuInstanceInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuInstanceInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuInstanceInfo_t *>malloc(sizeof(nvmlGpuInstanceInfo_t))
+            self._ptr = <nvmlGpuInstanceInfo_t *>_cyb_malloc(sizeof(nvmlGpuInstanceInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating GpuInstanceInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuInstanceInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuInstanceInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -19267,7 +19506,7 @@ cdef class GpuInstanceInfo:
         if self._readonly:
             raise ValueError("This GpuInstanceInfo instance is read-only")
         cdef GpuInstancePlacement val_ = val
-        memcpy(<void *>&(self._ptr[0].placement), <void *>(val_._get_ptr()), sizeof(nvmlGpuInstancePlacement_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].placement), <void *>(val_._get_ptr()), sizeof(nvmlGpuInstancePlacement_t) * 1)
 
     @property
     def device_(self):
@@ -19305,7 +19544,7 @@ cdef class GpuInstanceInfo:
     @staticmethod
     def from_buffer(buffer):
         """Create an GpuInstanceInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlGpuInstanceInfo_t), GpuInstanceInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlGpuInstanceInfo_t), GpuInstanceInfo)
 
     @staticmethod
     def from_data(data):
@@ -19314,7 +19553,7 @@ cdef class GpuInstanceInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_instance_info_dtype` holding the data.
         """
-        return __from_data(data, "gpu_instance_info_dtype", gpu_instance_info_dtype, GpuInstanceInfo)
+        return _cyb_from_data(data, "gpu_instance_info_dtype", gpu_instance_info_dtype, GpuInstanceInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -19329,10 +19568,10 @@ cdef class GpuInstanceInfo:
             raise ValueError("ptr must not be null (0)")
         cdef GpuInstanceInfo obj = GpuInstanceInfo.__new__(GpuInstanceInfo)
         if owner is None:
-            obj._ptr = <nvmlGpuInstanceInfo_t *>malloc(sizeof(nvmlGpuInstanceInfo_t))
+            obj._ptr = <nvmlGpuInstanceInfo_t *>_cyb_malloc(sizeof(nvmlGpuInstanceInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GpuInstanceInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuInstanceInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuInstanceInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -19373,7 +19612,7 @@ cdef class ComputeInstanceInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlComputeInstanceInfo_t *>calloc(1, sizeof(nvmlComputeInstanceInfo_t))
+        self._ptr = <nvmlComputeInstanceInfo_t *>_cyb_calloc(1, sizeof(nvmlComputeInstanceInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ComputeInstanceInfo")
         self._owner = None
@@ -19385,7 +19624,7 @@ cdef class ComputeInstanceInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ComputeInstanceInfo object at {hex(id(self))}>"
@@ -19406,20 +19645,20 @@ cdef class ComputeInstanceInfo:
         if not isinstance(other, ComputeInstanceInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlComputeInstanceInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlComputeInstanceInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlComputeInstanceInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlComputeInstanceInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlComputeInstanceInfo_t *>malloc(sizeof(nvmlComputeInstanceInfo_t))
+            self._ptr = <nvmlComputeInstanceInfo_t *>_cyb_malloc(sizeof(nvmlComputeInstanceInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ComputeInstanceInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -19436,7 +19675,7 @@ cdef class ComputeInstanceInfo:
         if self._readonly:
             raise ValueError("This ComputeInstanceInfo instance is read-only")
         cdef ComputeInstancePlacement val_ = val
-        memcpy(<void *>&(self._ptr[0].placement), <void *>(val_._get_ptr()), sizeof(nvmlComputeInstancePlacement_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].placement), <void *>(val_._get_ptr()), sizeof(nvmlComputeInstancePlacement_t) * 1)
 
     @property
     def device_(self):
@@ -19485,7 +19724,7 @@ cdef class ComputeInstanceInfo:
     @staticmethod
     def from_buffer(buffer):
         """Create an ComputeInstanceInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlComputeInstanceInfo_t), ComputeInstanceInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlComputeInstanceInfo_t), ComputeInstanceInfo)
 
     @staticmethod
     def from_data(data):
@@ -19494,7 +19733,7 @@ cdef class ComputeInstanceInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `compute_instance_info_dtype` holding the data.
         """
-        return __from_data(data, "compute_instance_info_dtype", compute_instance_info_dtype, ComputeInstanceInfo)
+        return _cyb_from_data(data, "compute_instance_info_dtype", compute_instance_info_dtype, ComputeInstanceInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -19509,10 +19748,10 @@ cdef class ComputeInstanceInfo:
             raise ValueError("ptr must not be null (0)")
         cdef ComputeInstanceInfo obj = ComputeInstanceInfo.__new__(ComputeInstanceInfo)
         if owner is None:
-            obj._ptr = <nvmlComputeInstanceInfo_t *>malloc(sizeof(nvmlComputeInstanceInfo_t))
+            obj._ptr = <nvmlComputeInstanceInfo_t *>_cyb_malloc(sizeof(nvmlComputeInstanceInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ComputeInstanceInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlComputeInstanceInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlComputeInstanceInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -19552,7 +19791,7 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>calloc(1, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+        self._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>_cyb_calloc(1, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating EccSramUniqueUncorrectedErrorCounts_v1")
         self._owner = None
@@ -19565,7 +19804,7 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.EccSramUniqueUncorrectedErrorCounts_v1 object at {hex(id(self))}>"
@@ -19586,20 +19825,20 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
         if not isinstance(other, EccSramUniqueUncorrectedErrorCounts_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>malloc(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            self._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>_cyb_malloc(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating EccSramUniqueUncorrectedErrorCounts_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -19636,7 +19875,7 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an EccSramUniqueUncorrectedErrorCounts_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t), EccSramUniqueUncorrectedErrorCounts_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t), EccSramUniqueUncorrectedErrorCounts_v1)
 
     @staticmethod
     def from_data(data):
@@ -19645,7 +19884,7 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `ecc_sram_unique_uncorrected_error_counts_v1_dtype` holding the data.
         """
-        return __from_data(data, "ecc_sram_unique_uncorrected_error_counts_v1_dtype", ecc_sram_unique_uncorrected_error_counts_v1_dtype, EccSramUniqueUncorrectedErrorCounts_v1)
+        return _cyb_from_data(data, "ecc_sram_unique_uncorrected_error_counts_v1_dtype", ecc_sram_unique_uncorrected_error_counts_v1_dtype, EccSramUniqueUncorrectedErrorCounts_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -19660,10 +19899,10 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
             raise ValueError("ptr must not be null (0)")
         cdef EccSramUniqueUncorrectedErrorCounts_v1 obj = EccSramUniqueUncorrectedErrorCounts_v1.__new__(EccSramUniqueUncorrectedErrorCounts_v1)
         if owner is None:
-            obj._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>malloc(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            obj._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>_cyb_malloc(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating EccSramUniqueUncorrectedErrorCounts_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -19702,7 +19941,7 @@ cdef class NvlinkFirmwareInfo:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvlinkFirmwareInfo_t *>calloc(1, sizeof(nvmlNvlinkFirmwareInfo_t))
+        self._ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_calloc(1, sizeof(nvmlNvlinkFirmwareInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkFirmwareInfo")
         self._owner = None
@@ -19714,7 +19953,7 @@ cdef class NvlinkFirmwareInfo:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvlinkFirmwareInfo object at {hex(id(self))}>"
@@ -19735,20 +19974,20 @@ cdef class NvlinkFirmwareInfo:
         if not isinstance(other, NvlinkFirmwareInfo):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkFirmwareInfo_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkFirmwareInfo_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkFirmwareInfo_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkFirmwareInfo_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvlinkFirmwareInfo_t *>malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
+            self._ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkFirmwareInfo")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkFirmwareInfo_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkFirmwareInfo_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -19767,7 +20006,7 @@ cdef class NvlinkFirmwareInfo:
         cdef NvlinkFirmwareVersion val_ = val
         if len(val) != 100:
             raise ValueError(f"Expected length { 100 } for field firmware_version, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].firmwareVersion), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareVersion_t) * 100)
+        _cyb_memcpy(<void *>&(self._ptr[0].firmwareVersion), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareVersion_t) * 100)
 
     @property
     def num_valid_entries(self):
@@ -19783,7 +20022,7 @@ cdef class NvlinkFirmwareInfo:
     @staticmethod
     def from_buffer(buffer):
         """Create an NvlinkFirmwareInfo instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlNvlinkFirmwareInfo_t), NvlinkFirmwareInfo)
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkFirmwareInfo_t), NvlinkFirmwareInfo)
 
     @staticmethod
     def from_data(data):
@@ -19792,7 +20031,7 @@ cdef class NvlinkFirmwareInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_firmware_info_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_firmware_info_dtype", nvlink_firmware_info_dtype, NvlinkFirmwareInfo)
+        return _cyb_from_data(data, "nvlink_firmware_info_dtype", nvlink_firmware_info_dtype, NvlinkFirmwareInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -19807,10 +20046,10 @@ cdef class NvlinkFirmwareInfo:
             raise ValueError("ptr must not be null (0)")
         cdef NvlinkFirmwareInfo obj = NvlinkFirmwareInfo.__new__(NvlinkFirmwareInfo)
         if owner is None:
-            obj._ptr = <nvmlNvlinkFirmwareInfo_t *>malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
+            obj._ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkFirmwareInfo")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareInfo_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareInfo_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -19852,7 +20091,7 @@ cdef class VgpuSchedulerLogInfo_v2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+        self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
         self._owner = None
@@ -19864,7 +20103,7 @@ cdef class VgpuSchedulerLogInfo_v2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerLogInfo_v2 object at {hex(id(self))}>"
@@ -19885,20 +20124,20 @@ cdef class VgpuSchedulerLogInfo_v2:
         if not isinstance(other, VgpuSchedulerLogInfo_v2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLogInfo_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLogInfo_v2_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -19917,7 +20156,7 @@ cdef class VgpuSchedulerLogInfo_v2:
         cdef VgpuSchedulerLogEntry_v2 val_ = val
         if len(val) != 200:
             raise ValueError(f"Expected length { 200 } for field log_entries, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_v2_t) * 200)
+        _cyb_memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_v2_t) * 200)
 
     @property
     def engine_id(self):
@@ -19977,7 +20216,7 @@ cdef class VgpuSchedulerLogInfo_v2:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerLogInfo_v2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerLogInfo_v2_t), VgpuSchedulerLogInfo_v2)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerLogInfo_v2_t), VgpuSchedulerLogInfo_v2)
 
     @staticmethod
     def from_data(data):
@@ -19986,7 +20225,7 @@ cdef class VgpuSchedulerLogInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_log_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_log_info_v2_dtype", vgpu_scheduler_log_info_v2_dtype, VgpuSchedulerLogInfo_v2)
+        return _cyb_from_data(data, "vgpu_scheduler_log_info_v2_dtype", vgpu_scheduler_log_info_v2_dtype, VgpuSchedulerLogInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -20001,10 +20240,10 @@ cdef class VgpuSchedulerLogInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerLogInfo_v2 obj = VgpuSchedulerLogInfo_v2.__new__(VgpuSchedulerLogInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            obj._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -20046,7 +20285,7 @@ cdef class VgpuInstancesUtilizationInfo_v1:
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>calloc(1, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+        self._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuInstancesUtilizationInfo_v1")
         self._owner = None
@@ -20059,7 +20298,7 @@ cdef class VgpuInstancesUtilizationInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuInstancesUtilizationInfo_v1 object at {hex(id(self))}>"
@@ -20080,20 +20319,20 @@ cdef class VgpuInstancesUtilizationInfo_v1:
         if not isinstance(other, VgpuInstancesUtilizationInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>malloc(sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+            self._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuInstancesUtilizationInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -20152,7 +20391,7 @@ cdef class VgpuInstancesUtilizationInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuInstancesUtilizationInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t), VgpuInstancesUtilizationInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t), VgpuInstancesUtilizationInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -20161,7 +20400,7 @@ cdef class VgpuInstancesUtilizationInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_instances_utilization_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_instances_utilization_info_v1_dtype", vgpu_instances_utilization_info_v1_dtype, VgpuInstancesUtilizationInfo_v1)
+        return _cyb_from_data(data, "vgpu_instances_utilization_info_v1_dtype", vgpu_instances_utilization_info_v1_dtype, VgpuInstancesUtilizationInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -20176,10 +20415,10 @@ cdef class VgpuInstancesUtilizationInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuInstancesUtilizationInfo_v1 obj = VgpuInstancesUtilizationInfo_v1.__new__(VgpuInstancesUtilizationInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>malloc(sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+            obj._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuInstancesUtilizationInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -20255,10 +20494,10 @@ cdef class PRMCounter_v1:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        cpython.PyBuffer_Release(buffer)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def counter_id(self):
@@ -20343,8 +20582,8 @@ cdef class PRMCounter_v1:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef PRMCounter_v1 obj = PRMCounter_v1.__new__(PRMCounter_v1)
-        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
-        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPRMCounter_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=prm_counter_v1_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -20383,7 +20622,7 @@ cdef class VgpuSchedulerLog:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerLog_t *>calloc(1, sizeof(nvmlVgpuSchedulerLog_t))
+        self._ptr = <nvmlVgpuSchedulerLog_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLog_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerLog")
         self._owner = None
@@ -20395,7 +20634,7 @@ cdef class VgpuSchedulerLog:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerLog object at {hex(id(self))}>"
@@ -20416,20 +20655,20 @@ cdef class VgpuSchedulerLog:
         if not isinstance(other, VgpuSchedulerLog):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLog_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLog_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLog_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLog_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerLog_t *>malloc(sizeof(nvmlVgpuSchedulerLog_t))
+            self._ptr = <nvmlVgpuSchedulerLog_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLog_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerLog")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLog_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLog_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -20446,7 +20685,7 @@ cdef class VgpuSchedulerLog:
         if self._readonly:
             raise ValueError("This VgpuSchedulerLog instance is read-only")
         cdef VgpuSchedulerParams val_ = val
-        memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerParams_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerParams_t) * 1)
 
     @property
     def log_entries(self):
@@ -20460,7 +20699,7 @@ cdef class VgpuSchedulerLog:
         cdef VgpuSchedulerLogEntry val_ = val
         if len(val) != 200:
             raise ValueError(f"Expected length { 200 } for field log_entries, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_t) * 200)
+        _cyb_memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_t) * 200)
 
     @property
     def engine_id(self):
@@ -20509,7 +20748,7 @@ cdef class VgpuSchedulerLog:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerLog instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerLog_t), VgpuSchedulerLog)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerLog_t), VgpuSchedulerLog)
 
     @staticmethod
     def from_data(data):
@@ -20518,7 +20757,7 @@ cdef class VgpuSchedulerLog:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_log_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_log_dtype", vgpu_scheduler_log_dtype, VgpuSchedulerLog)
+        return _cyb_from_data(data, "vgpu_scheduler_log_dtype", vgpu_scheduler_log_dtype, VgpuSchedulerLog)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -20533,10 +20772,10 @@ cdef class VgpuSchedulerLog:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerLog obj = VgpuSchedulerLog.__new__(VgpuSchedulerLog)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerLog_t *>malloc(sizeof(nvmlVgpuSchedulerLog_t))
+            obj._ptr = <nvmlVgpuSchedulerLog_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLog_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerLog")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLog_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLog_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -20575,7 +20814,7 @@ cdef class VgpuSchedulerGetState:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerGetState_t *>calloc(1, sizeof(nvmlVgpuSchedulerGetState_t))
+        self._ptr = <nvmlVgpuSchedulerGetState_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerGetState_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerGetState")
         self._owner = None
@@ -20587,7 +20826,7 @@ cdef class VgpuSchedulerGetState:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerGetState object at {hex(id(self))}>"
@@ -20608,20 +20847,20 @@ cdef class VgpuSchedulerGetState:
         if not isinstance(other, VgpuSchedulerGetState):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerGetState_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerGetState_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerGetState_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerGetState_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerGetState_t *>malloc(sizeof(nvmlVgpuSchedulerGetState_t))
+            self._ptr = <nvmlVgpuSchedulerGetState_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerGetState_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerGetState")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerGetState_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerGetState_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -20638,7 +20877,7 @@ cdef class VgpuSchedulerGetState:
         if self._readonly:
             raise ValueError("This VgpuSchedulerGetState instance is read-only")
         cdef VgpuSchedulerParams val_ = val
-        memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerParams_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerParams_t) * 1)
 
     @property
     def scheduler_policy(self):
@@ -20665,7 +20904,7 @@ cdef class VgpuSchedulerGetState:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerGetState instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerGetState_t), VgpuSchedulerGetState)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerGetState_t), VgpuSchedulerGetState)
 
     @staticmethod
     def from_data(data):
@@ -20674,7 +20913,7 @@ cdef class VgpuSchedulerGetState:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_get_state_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_get_state_dtype", vgpu_scheduler_get_state_dtype, VgpuSchedulerGetState)
+        return _cyb_from_data(data, "vgpu_scheduler_get_state_dtype", vgpu_scheduler_get_state_dtype, VgpuSchedulerGetState)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -20689,10 +20928,10 @@ cdef class VgpuSchedulerGetState:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerGetState obj = VgpuSchedulerGetState.__new__(VgpuSchedulerGetState)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerGetState_t *>malloc(sizeof(nvmlVgpuSchedulerGetState_t))
+            obj._ptr = <nvmlVgpuSchedulerGetState_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerGetState_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerGetState")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerGetState_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerGetState_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -20733,7 +20972,7 @@ cdef class VgpuSchedulerStateInfo_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+        self._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerStateInfo_v1")
         self._owner = None
@@ -20745,7 +20984,7 @@ cdef class VgpuSchedulerStateInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerStateInfo_v1 object at {hex(id(self))}>"
@@ -20766,20 +21005,20 @@ cdef class VgpuSchedulerStateInfo_v1:
         if not isinstance(other, VgpuSchedulerStateInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerStateInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerStateInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerStateInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerStateInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>malloc(sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+            self._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerStateInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -20796,7 +21035,7 @@ cdef class VgpuSchedulerStateInfo_v1:
         if self._readonly:
             raise ValueError("This VgpuSchedulerStateInfo_v1 instance is read-only")
         cdef VgpuSchedulerParams val_ = val
-        memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerParams_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerParams_t) * 1)
 
     @property
     def version(self):
@@ -20845,7 +21084,7 @@ cdef class VgpuSchedulerStateInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerStateInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerStateInfo_v1_t), VgpuSchedulerStateInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerStateInfo_v1_t), VgpuSchedulerStateInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -20854,7 +21093,7 @@ cdef class VgpuSchedulerStateInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_state_info_v1_dtype", vgpu_scheduler_state_info_v1_dtype, VgpuSchedulerStateInfo_v1)
+        return _cyb_from_data(data, "vgpu_scheduler_state_info_v1_dtype", vgpu_scheduler_state_info_v1_dtype, VgpuSchedulerStateInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -20869,10 +21108,10 @@ cdef class VgpuSchedulerStateInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerStateInfo_v1 obj = VgpuSchedulerStateInfo_v1.__new__(VgpuSchedulerStateInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>malloc(sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+            obj._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerStateInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -20915,7 +21154,7 @@ cdef class VgpuSchedulerLogInfo_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+        self._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerLogInfo_v1")
         self._owner = None
@@ -20927,7 +21166,7 @@ cdef class VgpuSchedulerLogInfo_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerLogInfo_v1 object at {hex(id(self))}>"
@@ -20948,20 +21187,20 @@ cdef class VgpuSchedulerLogInfo_v1:
         if not isinstance(other, VgpuSchedulerLogInfo_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLogInfo_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerLogInfo_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLogInfo_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerLogInfo_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>malloc(sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+            self._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerLogInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -20978,7 +21217,7 @@ cdef class VgpuSchedulerLogInfo_v1:
         if self._readonly:
             raise ValueError("This VgpuSchedulerLogInfo_v1 instance is read-only")
         cdef VgpuSchedulerParams val_ = val
-        memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerParams_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerParams_t) * 1)
 
     @property
     def log_entries(self):
@@ -20992,7 +21231,7 @@ cdef class VgpuSchedulerLogInfo_v1:
         cdef VgpuSchedulerLogEntry val_ = val
         if len(val) != 200:
             raise ValueError(f"Expected length { 200 } for field log_entries, got {len(val)}")
-        memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_t) * 200)
+        _cyb_memcpy(<void *>&(self._ptr[0].logEntries), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerLogEntry_t) * 200)
 
     @property
     def version(self):
@@ -21052,7 +21291,7 @@ cdef class VgpuSchedulerLogInfo_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerLogInfo_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerLogInfo_v1_t), VgpuSchedulerLogInfo_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerLogInfo_v1_t), VgpuSchedulerLogInfo_v1)
 
     @staticmethod
     def from_data(data):
@@ -21061,7 +21300,7 @@ cdef class VgpuSchedulerLogInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_log_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_log_info_v1_dtype", vgpu_scheduler_log_info_v1_dtype, VgpuSchedulerLogInfo_v1)
+        return _cyb_from_data(data, "vgpu_scheduler_log_info_v1_dtype", vgpu_scheduler_log_info_v1_dtype, VgpuSchedulerLogInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -21076,10 +21315,10 @@ cdef class VgpuSchedulerLogInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerLogInfo_v1 obj = VgpuSchedulerLogInfo_v1.__new__(VgpuSchedulerLogInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>malloc(sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+            obj._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerLogInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -21120,7 +21359,7 @@ cdef class VgpuSchedulerState_v1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerState_v1_t *>calloc(1, sizeof(nvmlVgpuSchedulerState_v1_t))
+        self._ptr = <nvmlVgpuSchedulerState_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerState_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerState_v1")
         self._owner = None
@@ -21132,7 +21371,7 @@ cdef class VgpuSchedulerState_v1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerState_v1 object at {hex(id(self))}>"
@@ -21153,20 +21392,20 @@ cdef class VgpuSchedulerState_v1:
         if not isinstance(other, VgpuSchedulerState_v1):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerState_v1_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlVgpuSchedulerState_v1_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerState_v1_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlVgpuSchedulerState_v1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerState_v1_t *>malloc(sizeof(nvmlVgpuSchedulerState_v1_t))
+            self._ptr = <nvmlVgpuSchedulerState_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerState_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerState_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v1_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -21183,7 +21422,7 @@ cdef class VgpuSchedulerState_v1:
         if self._readonly:
             raise ValueError("This VgpuSchedulerState_v1 instance is read-only")
         cdef VgpuSchedulerSetParams val_ = val
-        memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerSetParams_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].schedulerParams), <void *>(val_._get_ptr()), sizeof(nvmlVgpuSchedulerSetParams_t) * 1)
 
     @property
     def version(self):
@@ -21232,7 +21471,7 @@ cdef class VgpuSchedulerState_v1:
     @staticmethod
     def from_buffer(buffer):
         """Create an VgpuSchedulerState_v1 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlVgpuSchedulerState_v1_t), VgpuSchedulerState_v1)
+        return _cyb_from_buffer(buffer, sizeof(nvmlVgpuSchedulerState_v1_t), VgpuSchedulerState_v1)
 
     @staticmethod
     def from_data(data):
@@ -21241,7 +21480,7 @@ cdef class VgpuSchedulerState_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_state_v1_dtype", vgpu_scheduler_state_v1_dtype, VgpuSchedulerState_v1)
+        return _cyb_from_data(data, "vgpu_scheduler_state_v1_dtype", vgpu_scheduler_state_v1_dtype, VgpuSchedulerState_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -21256,10 +21495,10 @@ cdef class VgpuSchedulerState_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerState_v1 obj = VgpuSchedulerState_v1.__new__(VgpuSchedulerState_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerState_v1_t *>malloc(sizeof(nvmlVgpuSchedulerState_v1_t))
+            obj._ptr = <nvmlVgpuSchedulerState_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerState_v1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerState_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerState_v1_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerState_v1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -21298,7 +21537,7 @@ cdef class GridLicensableFeatures:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGridLicensableFeatures_t *>calloc(1, sizeof(nvmlGridLicensableFeatures_t))
+        self._ptr = <nvmlGridLicensableFeatures_t *>_cyb_calloc(1, sizeof(nvmlGridLicensableFeatures_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GridLicensableFeatures")
         self._owner = None
@@ -21310,7 +21549,7 @@ cdef class GridLicensableFeatures:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GridLicensableFeatures object at {hex(id(self))}>"
@@ -21331,20 +21570,20 @@ cdef class GridLicensableFeatures:
         if not isinstance(other, GridLicensableFeatures):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGridLicensableFeatures_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGridLicensableFeatures_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGridLicensableFeatures_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGridLicensableFeatures_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGridLicensableFeatures_t *>malloc(sizeof(nvmlGridLicensableFeatures_t))
+            self._ptr = <nvmlGridLicensableFeatures_t *>_cyb_malloc(sizeof(nvmlGridLicensableFeatures_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating GridLicensableFeatures")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGridLicensableFeatures_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGridLicensableFeatures_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -21366,7 +21605,7 @@ cdef class GridLicensableFeatures:
         self._ptr[0].licensableFeaturesCount = len(val)
         if len(val) == 0:
             return
-        memcpy(<void *>&(self._ptr[0].gridLicensableFeatures), <void *>(val_._get_ptr()), sizeof(nvmlGridLicensableFeature_t) * self._ptr[0].licensableFeaturesCount)
+        _cyb_memcpy(<void *>&(self._ptr[0].gridLicensableFeatures), <void *>(val_._get_ptr()), sizeof(nvmlGridLicensableFeature_t) * self._ptr[0].licensableFeaturesCount)
 
     @property
     def is_grid_license_supported(self):
@@ -21382,7 +21621,7 @@ cdef class GridLicensableFeatures:
     @staticmethod
     def from_buffer(buffer):
         """Create an GridLicensableFeatures instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlGridLicensableFeatures_t), GridLicensableFeatures)
+        return _cyb_from_buffer(buffer, sizeof(nvmlGridLicensableFeatures_t), GridLicensableFeatures)
 
     @staticmethod
     def from_data(data):
@@ -21391,7 +21630,7 @@ cdef class GridLicensableFeatures:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `grid_licensable_features_dtype` holding the data.
         """
-        return __from_data(data, "grid_licensable_features_dtype", grid_licensable_features_dtype, GridLicensableFeatures)
+        return _cyb_from_data(data, "grid_licensable_features_dtype", grid_licensable_features_dtype, GridLicensableFeatures)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -21406,10 +21645,10 @@ cdef class GridLicensableFeatures:
             raise ValueError("ptr must not be null (0)")
         cdef GridLicensableFeatures obj = GridLicensableFeatures.__new__(GridLicensableFeatures)
         if owner is None:
-            obj._ptr = <nvmlGridLicensableFeatures_t *>malloc(sizeof(nvmlGridLicensableFeatures_t))
+            obj._ptr = <nvmlGridLicensableFeatures_t *>_cyb_malloc(sizeof(nvmlGridLicensableFeatures_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GridLicensableFeatures")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGridLicensableFeatures_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGridLicensableFeatures_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -21448,7 +21687,7 @@ cdef class NvLinkInfo_v2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvLinkInfo_v2_t *>calloc(1, sizeof(nvmlNvLinkInfo_v2_t))
+        self._ptr = <nvmlNvLinkInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlNvLinkInfo_v2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvLinkInfo_v2")
         self._owner = None
@@ -21460,7 +21699,7 @@ cdef class NvLinkInfo_v2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvLinkInfo_v2 object at {hex(id(self))}>"
@@ -21481,20 +21720,20 @@ cdef class NvLinkInfo_v2:
         if not isinstance(other, NvLinkInfo_v2):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v2_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v2_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvLinkInfo_v2_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvLinkInfo_v2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvLinkInfo_v2_t *>malloc(sizeof(nvmlNvLinkInfo_v2_t))
+            self._ptr = <nvmlNvLinkInfo_v2_t *>_cyb_malloc(sizeof(nvmlNvLinkInfo_v2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating NvLinkInfo_v2")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v2_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -21511,7 +21750,7 @@ cdef class NvLinkInfo_v2:
         if self._readonly:
             raise ValueError("This NvLinkInfo_v2 instance is read-only")
         cdef NvlinkFirmwareInfo val_ = val
-        memcpy(<void *>&(self._ptr[0].firmwareInfo), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareInfo_t) * 1)
+        _cyb_memcpy(<void *>&(self._ptr[0].firmwareInfo), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareInfo_t) * 1)
 
     @property
     def version(self):
@@ -21538,7 +21777,7 @@ cdef class NvLinkInfo_v2:
     @staticmethod
     def from_buffer(buffer):
         """Create an NvLinkInfo_v2 instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(nvmlNvLinkInfo_v2_t), NvLinkInfo_v2)
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvLinkInfo_v2_t), NvLinkInfo_v2)
 
     @staticmethod
     def from_data(data):
@@ -21547,7 +21786,7 @@ cdef class NvLinkInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nv_link_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "nv_link_info_v2_dtype", nv_link_info_v2_dtype, NvLinkInfo_v2)
+        return _cyb_from_data(data, "nv_link_info_v2_dtype", nv_link_info_v2_dtype, NvLinkInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -21562,10 +21801,10 @@ cdef class NvLinkInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef NvLinkInfo_v2 obj = NvLinkInfo_v2.__new__(NvLinkInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlNvLinkInfo_v2_t *>malloc(sizeof(nvmlNvLinkInfo_v2_t))
+            obj._ptr = <nvmlNvLinkInfo_v2_t *>_cyb_malloc(sizeof(nvmlNvLinkInfo_v2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvLinkInfo_v2")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvLinkInfo_v2_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvLinkInfo_v2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -21577,7 +21816,7 @@ cdef class NvLinkInfo_v2:
 
 
 cpdef init_v2():
-    """Initialize NVML, but don't initialize any GPUs yet.
+    """Initialize the NVML Library lazily, without allocating any device state.
 
     .. seealso:: `nvmlInit_v2`
     """
@@ -21587,10 +21826,10 @@ cpdef init_v2():
 
 
 cpdef init_with_flags(unsigned int flags):
-    """nvmlInitWithFlags is a variant of ``nvmlInit()``, that allows passing a set of boolean values modifying the behaviour of ``nvmlInit()``. Other than the "flags" parameter it is completely similar to ``nvmlInit_v2``.
+    """Initialize the NVML Library lazily, without allocating any device state, with additional init flags.
 
     Args:
-        flags (unsigned int): behaviour modifier flags.
+        flags (unsigned int): NVML_INIT_FLAG_* flags that can modify NVML Init behavior.
 
     .. seealso:: `nvmlInitWithFlags`
     """
@@ -21600,7 +21839,7 @@ cpdef init_with_flags(unsigned int flags):
 
 
 cpdef shutdown():
-    """Shut down NVML by releasing all GPU resources previously allocated with :func:`init_v2`.
+    """Shut down and cleanup NVML Library state.
 
     .. seealso:: `nvmlShutdown`
     """
@@ -21635,7 +21874,7 @@ cpdef str system_get_driver_version():
     with nogil:
         __status__ = nvmlSystemGetDriverVersion(version, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(version)
+    return _cyb_cpython.PyUnicode_FromString(version)
 
 
 cpdef str system_get_nvml_version():
@@ -21651,7 +21890,7 @@ cpdef str system_get_nvml_version():
     with nogil:
         __status__ = nvmlSystemGetNVMLVersion(version, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(version)
+    return _cyb_cpython.PyUnicode_FromString(version)
 
 
 cpdef int system_get_cuda_driver_version() except *:
@@ -21700,7 +21939,7 @@ cpdef str system_get_process_name(unsigned int pid):
     with nogil:
         __status__ = nvmlSystemGetProcessName(pid, name, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(name)
+    return _cyb_cpython.PyUnicode_FromString(name)
 
 
 cpdef object system_get_hic_version():
@@ -21987,7 +22226,7 @@ cpdef str device_get_name(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetName(<Device>device, name, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(name)
+    return _cyb_cpython.PyUnicode_FromString(name)
 
 
 cpdef int device_get_brand(intptr_t device) except? -1:
@@ -22042,7 +22281,7 @@ cpdef str device_get_serial(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetSerial(<Device>device, serial, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(serial)
+    return _cyb_cpython.PyUnicode_FromString(serial)
 
 
 cpdef unsigned int device_get_module_id(intptr_t device) except? 0:
@@ -22096,8 +22335,8 @@ cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_s
     .. seealso:: `nvmlDeviceGetMemoryAffinity`
     """
     if node_set_size == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef view.array node_set = view.array(shape=(node_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
+        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
+    cdef _cyb_view.array node_set = _cyb_view.array(shape=(node_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
     cdef unsigned long *node_set_ptr = <unsigned long *>(node_set.data)
     with nogil:
         __status__ = nvmlDeviceGetMemoryAffinity(<Device>device, node_set_size, node_set_ptr, <nvmlAffinityScope_t>scope)
@@ -22119,8 +22358,8 @@ cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int 
     .. seealso:: `nvmlDeviceGetCpuAffinityWithinScope`
     """
     if cpu_set_size == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef view.array cpu_set = view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
+        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
+    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
     cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinityWithinScope(<Device>device, cpu_set_size, cpu_set_ptr, <nvmlAffinityScope_t>scope)
@@ -22141,8 +22380,8 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
     .. seealso:: `nvmlDeviceGetCpuAffinity`
     """
     if cpu_set_size == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef view.array cpu_set = view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
+        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
+    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
     cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinity(<Device>device, cpu_set_size, cpu_set_ptr)
@@ -22249,7 +22488,7 @@ cpdef str device_get_uuid(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetUUID(<Device>device, uuid, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(uuid)
+    return _cyb_cpython.PyUnicode_FromString(uuid)
 
 
 cpdef unsigned int device_get_minor_number(intptr_t device) except? 0:
@@ -22286,7 +22525,7 @@ cpdef str device_get_board_part_number(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetBoardPartNumber(<Device>device, part_number, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(part_number)
+    return _cyb_cpython.PyUnicode_FromString(part_number)
 
 
 cpdef str device_get_inforom_version(intptr_t device, int object):
@@ -22306,7 +22545,7 @@ cpdef str device_get_inforom_version(intptr_t device, int object):
     with nogil:
         __status__ = nvmlDeviceGetInforomVersion(<Device>device, <_InforomObject>object, version, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(version)
+    return _cyb_cpython.PyUnicode_FromString(version)
 
 
 cpdef str device_get_inforom_image_version(intptr_t device):
@@ -22325,7 +22564,7 @@ cpdef str device_get_inforom_image_version(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetInforomImageVersion(<Device>device, version, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(version)
+    return _cyb_cpython.PyUnicode_FromString(version)
 
 
 cpdef unsigned int device_get_inforom_configuration_checksum(intptr_t device) except? 0:
@@ -22712,8 +22951,8 @@ cpdef object device_get_supported_memory_clocks(intptr_t device):
         __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
     if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array clocks_m_hz = view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
+        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
+    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
     cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
     with nogil:
         __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, clocks_m_hz_ptr)
@@ -22738,8 +22977,8 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
         __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, NULL)
     check_status_size(__status__)
     if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array clocks_m_hz = view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
+        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
+    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
     cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
     with nogil:
         __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, clocks_m_hz_ptr)
@@ -23702,7 +23941,7 @@ cpdef str device_get_vbios_version(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetVbiosVersion(<Device>device, version, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(version)
+    return _cyb_cpython.PyUnicode_FromString(version)
 
 
 cpdef object device_get_bridge_chip_info(intptr_t device):
@@ -24262,8 +24501,8 @@ cpdef object device_get_accounting_pids(intptr_t device):
         __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
     if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array pids = view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
+        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
+    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
     cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
     with nogil:
         __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, pids_ptr)
@@ -24306,8 +24545,8 @@ cpdef object device_get_retired_pages(intptr_t device, int cause):
         __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL)
     check_status_size(__status__)
     if page_count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0]
-    cdef view.array addresses = view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0]
+    cdef _cyb_view.array addresses = _cyb_view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
     cdef unsigned long long *addresses_ptr = <unsigned long long *>(addresses.data)
     with nogil:
         __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr)
@@ -25245,7 +25484,7 @@ cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
     with nogil:
         __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_class, <unsigned int*>size)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(vgpu_type_class)
+    return _cyb_cpython.PyUnicode_FromString(vgpu_type_class)
 
 
 cpdef unsigned int vgpu_type_get_gpu_instance_profile_id(unsigned int vgpu_type_id) except? 0:
@@ -25363,7 +25602,7 @@ cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
     with nogil:
         __status__ = nvmlVgpuTypeGetLicense(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_license_string, size)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(vgpu_type_license_string)
+    return _cyb_cpython.PyUnicode_FromString(vgpu_type_license_string)
 
 
 cpdef unsigned int vgpu_type_get_frame_rate_limit(unsigned int vgpu_type_id) except? 0:
@@ -25457,7 +25696,7 @@ cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetUUID(<nvmlVgpuInstance_t>vgpu_instance, uuid, size)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(uuid)
+    return _cyb_cpython.PyUnicode_FromString(uuid)
 
 
 cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
@@ -25476,7 +25715,7 @@ cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetVmDriverVersion(<nvmlVgpuInstance_t>vgpu_instance, version, length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(version)
+    return _cyb_cpython.PyUnicode_FromString(version)
 
 
 cpdef unsigned long long vgpu_instance_get_fb_usage(unsigned int vgpu_instance) except? 0:
@@ -25734,7 +25973,7 @@ cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, vgpu_pci_id, <unsigned int*>length)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(vgpu_pci_id)
+    return _cyb_cpython.PyUnicode_FromString(vgpu_pci_id)
 
 
 cpdef unsigned int vgpu_type_get_capabilities(unsigned int vgpu_type_id, int capability) except? 0:
@@ -25772,7 +26011,7 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetMdevUUID(<nvmlVgpuInstance_t>vgpu_instance, mdev_uuid, size)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(mdev_uuid)
+    return _cyb_cpython.PyUnicode_FromString(mdev_uuid)
 
 
 cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_scheduler):
@@ -25852,7 +26091,7 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, pgpu_metadata, <unsigned int*>buffer_size)
     check_status(__status__)
-    return cpython.PyUnicode_FromString(pgpu_metadata)
+    return _cyb_cpython.PyUnicode_FromString(pgpu_metadata)
 
 
 cpdef object device_get_vgpu_scheduler_log(intptr_t device):
@@ -25996,8 +26235,8 @@ cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
         __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, NULL)
     check_status_size(__status__)
     if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array pids = view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
+        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
+    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
     cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
     with nogil:
         __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, pids_ptr)
@@ -28452,3 +28691,4 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
 device_get_virtualization_mode.__doc__ = device_get_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
 device_set_virtualization_mode.__doc__ = device_set_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
 GpmMetricId.GPM_METRIC_DRAM_BW_UTIL.__doc__ = "Percentage of DRAM bw used vs theoretical maximum. ``0.0 - 100.0 *\u200d/``."
+del _cyb_FastEnum

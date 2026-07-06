@@ -1,22 +1,28 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=db95fcc56a4df8bfa32ac08d8cadcaf2a7b3c69fd989f600673f3c48818d90b6
 #
-# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1844+ge04b6a4af. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.4.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
 
-from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
-
 
 ###############################################################################
 # Enum
 ###############################################################################
 
-class Result(_IntEnum):
+class Result(_cyb_FastEnum):
     """
     NVVM API call result code.
 
@@ -321,3 +327,4 @@ cpdef int llvm_version(arch) except? 0:
         __status__ = nvvmLLVMVersion(<const char*>_arch_, &major)
     check_status(__status__)
     return major
+del _cyb_FastEnum
