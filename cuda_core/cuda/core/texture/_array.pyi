@@ -105,8 +105,11 @@ class OpaqueArray:
         """Channels per element (1, 2, or 4)."""
 
     @property
-    def element_size(self):
-        """Bytes per element (format size * channels)."""
+    def element_bytes(self):
+        """Bytes per element (format size * channels).
+
+        .. versionadded:: 1.1.0
+        """
 
     @property
     def device(self):
@@ -153,7 +156,7 @@ class OpaqueArray:
 
     @property
     def size_bytes(self):
-        """Total bytes of array storage (``prod(shape) * element_size``)."""
+        """Total bytes of array storage (``prod(shape) * element_bytes``)."""
 
     def __enter__(self):
         ...

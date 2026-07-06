@@ -71,7 +71,7 @@ class ResourceDescriptor:
 
     Construct via the ``from_*`` classmethods:
 
-    - :meth:`from_array` wraps a :class:`OpaqueArray` (works for both
+    - :meth:`from_opaque_array` wraps a :class:`OpaqueArray` (works for both
       :class:`TextureObject` and :class:`SurfaceObject`).
     - :meth:`from_mipmapped_array` wraps a :class:`MipmappedArray` for mipmapped
       sampling (texture only, not surface).
@@ -99,8 +99,11 @@ class ResourceDescriptor:
         )
 
     @classmethod
-    def from_array(cls, array):
-        """Build a resource descriptor backed by a :class:`OpaqueArray`."""
+    def from_opaque_array(cls, array):
+        """Build a resource descriptor backed by a :class:`OpaqueArray`.
+
+        .. versionadded:: 1.1.0
+        """
         if not isinstance(array, OpaqueArray):
             raise TypeError(f"array must be a OpaqueArray, got {type(array).__name__}")
         self = cls.__new__(cls)

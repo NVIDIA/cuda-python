@@ -87,7 +87,7 @@ def main():
             arr.copy_from(pattern, stream=stream)
 
             # Build a linear-filtering, clamped, non-normalized texture.
-            res_desc = ResourceDescriptor.from_array(arr)
+            res_desc = ResourceDescriptor.from_opaque_array(arr)
             tex_desc = TextureDescriptor(
                 address_mode=AddressMode.CLAMP,
                 filter_mode=FilterMode.LINEAR,

@@ -349,8 +349,11 @@ cdef class OpaqueArray:
         return self._num_channels
 
     @property
-    def element_size(self):
-        """Bytes per element (format size * channels)."""
+    def element_bytes(self):
+        """Bytes per element (format size * channels).
+
+        .. versionadded:: 1.1.0
+        """
         return _FORMAT_ELEM_SIZE[self._format] * self._num_channels
 
     @property
@@ -411,7 +414,7 @@ cdef class OpaqueArray:
 
     @property
     def size_bytes(self):
-        """Total bytes of array storage (``prod(shape) * element_size``)."""
+        """Total bytes of array storage (``prod(shape) * element_bytes``)."""
         cdef size_t n = 1
         for s in self._shape:
             n *= <size_t>s

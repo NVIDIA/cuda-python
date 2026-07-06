@@ -414,7 +414,7 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 #                                       is what lets each field be sampled and
 #                                       then written back in the ping-pong.
 #
-#   ResourceDescriptor.from_array(arr) -> wraps the OpaqueArray as the resource a
+#   ResourceDescriptor.from_opaque_array(arr) -> wraps the OpaqueArray as the resource a
 #                                         TextureObject reads from.
 #   FilterMode.LINEAR                -> free HARDWARE bilinear interpolation;
 #                                       this is what makes semi-Lagrangian
@@ -479,7 +479,7 @@ def make_texture(arr):
     needs the bilinear interpolation, and the stencil reads (divergence, Jacobi,
     gradient) sample exactly at texel centers so LINEAR returns the exact value.
     """
-    res_desc = ResourceDescriptor.from_array(arr)
+    res_desc = ResourceDescriptor.from_opaque_array(arr)
     tex_desc = TextureDescriptor(
         address_mode=AddressMode.CLAMP,
         filter_mode=FilterMode.LINEAR,

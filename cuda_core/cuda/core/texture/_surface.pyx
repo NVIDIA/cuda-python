@@ -51,7 +51,7 @@ cdef class SurfaceObject:
         """
         if not isinstance(array, OpaqueArray):
             raise TypeError(f"array must be a OpaqueArray, got {type(array).__name__}")
-        return cls.from_descriptor(resource=ResourceDescriptor.from_array(array))
+        return cls.from_descriptor(resource=ResourceDescriptor.from_opaque_array(array))
 
     @classmethod
     def from_descriptor(cls, *, resource):

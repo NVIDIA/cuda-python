@@ -219,7 +219,7 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
 
         src_arr = mip.get_level(level - 1)
         dst_arr = mip.get_level(level)
-        src_res = ResourceDescriptor.from_array(src_arr)
+        src_res = ResourceDescriptor.from_opaque_array(src_arr)
         with (
             TextureObject.from_descriptor(resource=src_res, texture_descriptor=src_tex_desc) as src_tex,
             SurfaceObject.from_array(dst_arr) as dst_surf,
