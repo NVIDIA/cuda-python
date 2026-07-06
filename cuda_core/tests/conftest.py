@@ -147,6 +147,10 @@ class _CudaCoreParallelPlugin:
 
     This plugin looks for context specific fixtures and replaces them
     new context specific fixtures may have to be added.
+
+    This plugin approach is not ideal, it would be nicer to introduce hooks
+    into pytest-run-parallel.  Once that issue is closed this would be good
+    to refactor: https://github.com/Quansight-Labs/pytest-run-parallel/issues/189
     """
 
     @pytest.hookimpl(tryfirst=True)
