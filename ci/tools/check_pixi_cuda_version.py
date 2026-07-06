@@ -17,6 +17,7 @@ PIXI_FILES = [ROOT / d / "pixi.toml" for d in ("cuda_bindings", "cuda_core")]
 
 
 def main() -> int:
+    """Verify cuda_bindings/cuda_core pixi cu13 pins match ci/versions.yml."""
     if not VERSIONS_FILE_PATH.is_file():
         print(f"error: {VERSIONS_FILE_PATH} not found", file=sys.stderr)
         return 2
