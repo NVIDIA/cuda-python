@@ -43,12 +43,25 @@ def main() -> int:
             print(f"error: {rel} missing cuda-version key: {exc}", file=sys.stderr)
             return 2
         if expected not in variants:
-            errors.append(f"{rel}: build-variants missing {expected!r} (has {variants})")
+            errors.append(
+                f"{rel}: [workspace.build-variants] cuda-version={variants!r} "
+                f"does not include {expected!r} "
+                f"(from ci/versions.yml cuda.build.version={build_version!r})"
+            )
         if cu13 != expected:
-            errors.append(f"{rel}: cu13 pin is {cu13!r}, expected {expected!r}")
+            errors.append(
+                f"{rel}: [feature.cu13.dependencies] cuda-version={cu13!r} "
+                f"!= {expected!r} "
+                f"(from ci/versions.yml cuda.build.version={build_version!r})"
+            )
 
     if errors:
-        print(f"error: pixi cuda-version pins out of sync (expected {expected!r}):", file=sys.stderr)
+        print(
+            f"error: pixi cuda-version pins out of sync with "
+            f"ci/versions.yml cuda.build.version={build_version!r} "
+            f"(expected pin {expected!r}):",
+            file=sys.stderr,
+        )
         for err in errors:
             print(f"  - {err}", file=sys.stderr)
         return 1
