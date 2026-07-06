@@ -145,6 +145,8 @@ Data types used by CUDA driver
 
         Set blocking synchronization as default scheduling
 
+
+
         [Deprecated]
 
 
@@ -3490,6 +3492,8 @@ Data types used by CUDA driver
 
 
         This indicated that the context being supplied as a parameter to the API call was already the active context.
+
+
 
         [Deprecated]
 

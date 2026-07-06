@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated with version 12.9.1, generator version 0.3.1.dev1862+g538a87a98. Do not modify it directly.
+# This code was automatically generated with version 12.9.1, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
@@ -33,7 +33,7 @@ cdef extern from "<sys/socket.h>":
 
 
     # enums
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileOpError:
         CU_FILE_SUCCESS
         CU_FILE_DRIVER_NOT_INITIALIZED
@@ -74,7 +74,7 @@ cdef extern from 'cufile.h':
         CU_FILE_ASYNC_NOT_SUPPORTED
         CU_FILE_IO_MAX_ERROR
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileDriverStatusFlags_t:
         CU_FILE_LUSTRE_SUPPORTED
         CU_FILE_WEKAFS_SUPPORTED
@@ -89,30 +89,30 @@ cdef extern from 'cufile.h':
         CU_FILE_NVME_P2P_SUPPORTED
         CU_FILE_SCATEFS_SUPPORTED
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileDriverControlFlags_t:
         CU_FILE_USE_POLL_MODE
         CU_FILE_ALLOW_COMPAT_MODE
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileFeatureFlags_t:
         CU_FILE_DYN_ROUTING_SUPPORTED
         CU_FILE_BATCH_IO_SUPPORTED
         CU_FILE_STREAMS_SUPPORTED
         CU_FILE_PARALLEL_IO_SUPPORTED
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileFileHandleType:
         CU_FILE_HANDLE_TYPE_OPAQUE_FD
         CU_FILE_HANDLE_TYPE_OPAQUE_WIN32
         CU_FILE_HANDLE_TYPE_USERSPACE_FS
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileOpcode_t:
         CUFILE_READ
         CUFILE_WRITE
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileStatus_t:
         CUFILE_WAITING
         CUFILE_PENDING
@@ -122,11 +122,11 @@ cdef extern from 'cufile.h':
         CUFILE_TIMEOUT
         CUFILE_FAILED
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileBatchMode_t:
         CUFILE_BATCH
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUFileSizeTConfigParameter_t:
         CUFILE_PARAM_PROFILE_STATS
         CUFILE_PARAM_EXECUTION_MAX_IO_QUEUE_DEPTH
@@ -141,7 +141,7 @@ cdef extern from 'cufile.h':
         CUFILE_PARAM_POLLTHRESHOLD_SIZE_KB
         CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUFileBoolConfigParameter_t:
         CUFILE_PARAM_PROPERTIES_USE_POLL_MODE
         CUFILE_PARAM_PROPERTIES_ALLOW_COMPAT_MODE
@@ -156,28 +156,25 @@ cdef extern from 'cufile.h':
         CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
         CUFILE_PARAM_STREAM_MEMOPS_BYPASS
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef enum CUFileStringConfigParameter_t:
         CUFILE_PARAM_LOGGING_LEVEL
         CUFILE_PARAM_ENV_LOGFILE_PATH
         CUFILE_PARAM_LOG_DIR
-cdef enum: _CUFILEERROR_T_INTERNAL_LOADING_ERROR = -42
 
     # types
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef void* CUfileHandle_t 'CUfileHandle_t'
 
-
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef void* CUfileBatchHandle_t 'CUfileBatchHandle_t'
 
-
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileError_t 'CUfileError_t':
         CUfileOpError err
         CUresult cu_err
 
-cdef struct cuda_bindings_cufile__anon_pod0:
+cdef struct _anon_pod0 '_anon_pod0':
     unsigned int major_version
     unsigned int minor_version
     size_t poll_thresh_size
@@ -185,13 +182,13 @@ cdef struct cuda_bindings_cufile__anon_pod0:
     unsigned int dstatusflags
     unsigned int dcontrolflags
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef struct cufileRDMAInfo_t 'cufileRDMAInfo_t':
         int version
         int desc_len
         char* desc_str
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
         char* (*fs_type)(void*)
         int (*getRDMADeviceList)(void*, sockaddr_t**)
@@ -199,25 +196,25 @@ cdef extern from 'cufile.h':
         ssize_t (*read)(void*, char*, size_t, loff_t, cufileRDMAInfo_t*)
         ssize_t (*write)(void*, const char*, size_t, loff_t, cufileRDMAInfo_t*)
 
-cdef union cuda_bindings_cufile__anon_pod1:
+cdef union _anon_pod1 '_anon_pod1':
     int fd
     void* handle
 
-cdef struct cuda_bindings_cufile__anon_pod3:
+cdef struct _anon_pod3 '_anon_pod3':
     void* devPtr_base
     off_t file_offset
     off_t devPtr_offset
     size_t size
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileIOEvents_t 'CUfileIOEvents_t':
         void* cookie
         CUfileStatus_t status
         size_t ret
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileDrvProps_t 'CUfileDrvProps_t':
-        cuda_bindings_cufile__anon_pod0 nvfs
+        _anon_pod0 nvfs
         unsigned int fflags
         unsigned int max_device_cache_size
         unsigned int per_buffer_cache_size
@@ -225,22 +222,23 @@ cdef extern from 'cufile.h':
         unsigned int max_batch_io_size
         unsigned int max_batch_io_timeout_msecs
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileDescr_t 'CUfileDescr_t':
         CUfileFileHandleType type
-        cuda_bindings_cufile__anon_pod1 handle
+        _anon_pod1 handle
         CUfileFSOps_t* fs_ops
 
-cdef union cuda_bindings_cufile__anon_pod2:
-    cuda_bindings_cufile__anon_pod3 batch
+cdef union _anon_pod2 '_anon_pod2':
+    _anon_pod3 batch
 
-cdef extern from 'cufile.h':
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':
         CUfileBatchMode_t mode
-        cuda_bindings_cufile__anon_pod2 u
+        _anon_pod2 u
         CUfileHandle_t fh
         CUfileOpcode_t opcode
         void* cookie
+
 
 
 cdef extern from *:

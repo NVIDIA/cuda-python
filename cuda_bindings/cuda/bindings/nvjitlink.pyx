@@ -2,20 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1862+g538a87a98. Do not modify it directly.
-
-# <<<< PREAMBLE CONTENT >>>>
-
-from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
-
-# <<<< END OF PREAMBLE CONTENT >>>>
-
+# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
                                get_buffer_pointer, get_resource_ptrs)
 
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 from libcpp.vector cimport vector
 
 
@@ -23,10 +17,10 @@ from libcpp.vector cimport vector
 # Enum
 ###############################################################################
 
-class Result(_cyb_FastEnum):
+class Result(_FastEnum):
     """
-    The enumerated type `nvJitLinkResult` defines API call result codes.
-    nvJitLink APIs return `nvJitLinkResult` codes to indicate the result.
+    The enumerated type nvJitLinkResult defines API call result codes.
+    nvJitLink APIs return nvJitLinkResult codes to indicate the result.
 
     See `nvJitLinkResult`.
     """
@@ -50,10 +44,10 @@ class Result(_cyb_FastEnum):
     ERROR_UNSUPPORTED_ARCH = (NVJITLINK_ERROR_UNSUPPORTED_ARCH, 'Unsupported -arch value')
     ERROR_LTO_NOT_ENABLED = (NVJITLINK_ERROR_LTO_NOT_ENABLED, 'Requires -lto')
 
-class InputType(_cyb_FastEnum):
+class InputType(_FastEnum):
     """
-    The enumerated type `nvJitLinkInputType` defines the kind of inputs
-    that can be passed to nvJitLinkAdd* APIs.
+    The enumerated type nvJitLinkInputType defines the kind of inputs that
+    can be passed to nvJitLinkAdd* APIs.
 
     See `nvJitLinkInputType`.
     """
@@ -111,7 +105,7 @@ cpdef destroy(intptr_t handle):
 
 
 cpdef intptr_t create(uint32_t num_options, options) except -1:
-    """nvJitLinkCreate creates an instance of ``nvJitLinkHandle`` with the given input options, and sets the output parameter ``handle``.
+    """nvJitLinkCreate creates an instance of nvJitLinkHandle with the given input options, and sets the output parameter ``handle``.
 
     Args:
         num_options (uint32_t): Number of options passed.
@@ -340,4 +334,3 @@ cpdef tuple version():
         __status__ = nvJitLinkVersion(&major, &minor)
     check_status(__status__)
     return (major, minor)
-del _cyb_FastEnum
