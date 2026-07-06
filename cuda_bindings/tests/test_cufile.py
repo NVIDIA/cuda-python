@@ -90,8 +90,13 @@ def skipIfUnsupportedFilesystem(tmpdir_factory):
     cmd = ["findmnt", "-no", "FSTYPE", "-T", tmpdir_factory.getbasetemp()]
     fs_type = subprocess.check_output(cmd, text=True).strip()  # noqa: S603
     logging.info(f"Current filesystem type (findmnt): {fs_type}")
-    if fs_type not in ("ext4", "xfs"):
-        pytest.skip("cuFile handle_register requires ext4 or xfs filesystem")
+    # tmpfs is supported since 13.2 (probably), 1.18 definitely seems fine:
+    if cufileVersionLessThan(1180):
+        supported_fs_types = ("ext4", "xfs")
+    else:
+        supported_fs_types = ("ext4", "xfs", "tmpfs")
+    if fs_type not in supported_fs_types:
+        pytest.skip(f"cuFile handle_register does not support filesystem: {fs_type}")
 
 
 @cache
