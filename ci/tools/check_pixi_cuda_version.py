@@ -60,7 +60,7 @@ def main() -> int:
             )
 
         checked.append(
-            f"{rel} (build-variants.cuda-version={variants!r}, "
+            f"{rel} (workspace.build-variants.cuda-version={variants!r}, "
             f"feature.{cuda_feature}.dependencies.cuda-version={cuda_pin!r})"
         )
 
@@ -75,7 +75,10 @@ def main() -> int:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    print(f"OK: pixi cuda-version pins match ci/versions.yml ({expected!r}):")
+    print(
+        f"OK: pixi cuda-version pins match ci/versions.yml "
+        f"cuda.build.version={build_version!r} (expected pin {expected!r}):"
+    )
     for item in checked:
         print(f"  - {item}")
     return 0
