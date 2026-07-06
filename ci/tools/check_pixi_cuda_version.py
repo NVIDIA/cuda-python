@@ -32,6 +32,7 @@ def main() -> int:
     cuda_feature = f"cu{major}"
 
     errors: list[str] = []
+    checked: list[str] = []
     for path in PIXI_FILES:
         if not path.is_file():
             print(f"error: {path} not found", file=sys.stderr)
@@ -58,6 +59,11 @@ def main() -> int:
                 f"(from ci/versions.yml cuda.build.version={build_version!r})"
             )
 
+        checked.append(
+            f"{rel} (build-variants.cuda-version={variants!r}, "
+            f"feature.{cuda_feature}.dependencies.cuda-version={cuda_pin!r})"
+        )
+
     if errors:
         print(
             f"error: cuda_bindings/cuda_core pixi cuda-version pins out of sync with "
@@ -69,7 +75,9 @@ def main() -> int:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    print(f"OK: pixi cuda-version pins match ci/versions.yml ({expected!r})")
+    print(f"OK: pixi cuda-version pins match ci/versions.yml ({expected!r}):")
+    for item in checked:
+        print(f"  - {item}")
     return 0
 
 
