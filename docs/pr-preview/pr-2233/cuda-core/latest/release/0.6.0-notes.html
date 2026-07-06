@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9fdc3f4e"></script>
+    <script src="../_static/documentation_options.js?v=0f022cbe"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev88';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev115';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -593,12 +593,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Program.html">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.MipmappedArray.html">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -742,12 +746,12 @@ device attributes, clocks, temperatures, fans, events, and PCI information.</p><
 <li><p>Added public access to default CUDA streams via module-level constants
 <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> and <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code>, replacing the previous
 workaround of using <code class="docutils literal notranslate"><span class="pre">Stream.from_handle(0)</span></code>.</p></li>
-<li><p>Added <a class="reference internal" href="../generated/cuda.core.Kernel.html#cuda.core.Kernel.from_handle" title="cuda.core.Kernel.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Kernel.from_handle()</span></code></a> for wrapping an existing <code class="docutils literal notranslate"><span class="pre">CUfunction</span></code> handle into a
-<a class="reference internal" href="../generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code></a> object, enabling interoperability with foreign CUDA handles.</p></li>
+<li><p>Added <code class="xref py py-meth docutils literal notranslate"><span class="pre">Kernel.from_handle()</span></code> for wrapping an existing <code class="docutils literal notranslate"><span class="pre">CUfunction</span></code> handle into a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code> object, enabling interoperability with foreign CUDA handles.</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">__eq__</span></code>, <code class="docutils literal notranslate"><span class="pre">__hash__</span></code>, <code class="docutils literal notranslate"><span class="pre">__weakref__</span></code>, and <code class="docutils literal notranslate"><span class="pre">__repr__</span></code> support for core API classes
-including <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a>, <a class="reference internal" href="../generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>, <a class="reference internal" href="../generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code></a>, <a class="reference internal" href="../generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>,
+including <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a>, <a class="reference internal" href="../generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code>,
 <a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>, and <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>.</p></li>
-<li><p>Added NVVM <code class="docutils literal notranslate"><span class="pre">extra_sources</span></code> and <code class="docutils literal notranslate"><span class="pre">use_libdevice</span></code> options to <a class="reference internal" href="../generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a> for
+<li><p>Added NVVM <code class="docutils literal notranslate"><span class="pre">extra_sources</span></code> and <code class="docutils literal notranslate"><span class="pre">use_libdevice</span></code> options to <code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code> for
 multi-module NVVM compilation and automatic libdevice loading.</p></li>
 <li><p>Added CUDA version compatibility check at import time to detect mismatches between
 <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and the installed <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version.</p></li>
@@ -761,7 +765,7 @@ resources are destroyed in the correct order.</p></li>
 <li><p>Fixed a bug preventing weak references to core API objects.</p></li>
 <li><p>Fixed zero-sized allocations in legacy memory resources, which previously failed on
 certain platforms.</p></li>
-<li><p>Improved performance by Cythonizing <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> and <a class="reference internal" href="../generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> internals.</p></li>
+<li><p>Improved performance by Cythonizing <code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code> internals.</p></li>
 <li><p>Reduced <a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> construction overhead.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">__hash__</span></code> and <code class="docutils literal notranslate"><span class="pre">__eq__</span></code> on core API classes no longer require a CUDA context.</p></li>
 <li><p>Device attribute queries now gracefully handle unsupported attributes on older CUDA

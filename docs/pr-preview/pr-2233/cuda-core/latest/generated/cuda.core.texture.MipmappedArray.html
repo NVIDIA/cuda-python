@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.ObjectCode &#8212; cuda.core</title>
+    <title>cuda.core.texture.MipmappedArray &#8212; cuda.core</title>
   
   
   
@@ -44,28 +44,28 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9fdc3f4e"></script>
+    <script src="../_static/documentation_options.js?v=0f022cbe"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.ObjectCode';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.texture.MipmappedArray';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev88';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev115';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2233/cuda-core/latest/generated/cuda.core.ObjectCode.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2233/cuda-core/latest/generated/cuda.core.texture.MipmappedArray.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.Kernel" href="cuda.core.Kernel.html" />
-    <link rel="prev" title="cuda.core.Linker" href="cuda.core.Linker.html" />
+    <link rel="next" title="cuda.core.texture.ResourceDescriptor" href="cuda.core.texture.ResourceDescriptor.html" />
+    <link rel="prev" title="cuda.core.texture.OpaqueArray" href="cuda.core.texture.OpaqueArray.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -593,12 +593,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -690,7 +694,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.ObjectCode</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.texture.MipmappedArray</span></li>
   </ul>
 </nav>
 </div>
@@ -707,211 +711,134 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-objectcode">
-<h1>cuda.core.ObjectCode<a class="headerlink" href="#cuda-core-objectcode" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-texture-mipmappedarray">
+<h1>cuda.core.texture.MipmappedArray<a class="headerlink" href="#cuda-core-texture-mipmappedarray" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">ObjectCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ObjectCode" title="Link to this definition">#</a></dt>
-<dd><p>Represent a compiled program to be loaded onto the device.</p>
-<p>This object provides a unified interface for different types of
-compiled programs that will be loaded onto the device.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This class has no default constructor. If you already have a cubin that you would
-like to load, use the <a class="reference internal" href="#cuda.core.ObjectCode.from_cubin" title="cuda.core.ObjectCode.from_cubin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_cubin()</span></code></a> alternative constructor. Constructing directly
-from all other possible code types should be avoided in favor of compilation through
-<a class="reference internal" href="cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a></p>
-</div>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.texture.</span></span><span class="sig-name descname"><span class="pre">MipmappedArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.MipmappedArray" title="Link to this definition">#</a></dt>
+<dd><p>A mipmapped CUDA array for texture/surface access across levels.</p>
+<p>Wraps <code class="docutils literal notranslate"><span class="pre">CUmipmappedArray</span></code>. Each mip level is a distinct, hardware-laid-out
+allocation accessible only via a <a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a> (or by retrieving
+the level’s <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> and binding it as a <a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a>).
+Destroying the <a class="reference internal" href="#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> destroys all level arrays
+implicitly, so the <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> instances returned by <a class="reference internal" href="#cuda.core.texture.MipmappedArray.get_level" title="cuda.core.texture.MipmappedArray.get_level"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_level()</span></code></a>
+are non-owning and hold a strong reference back to their parent.</p>
+<p>Construct via <a class="reference internal" href="#cuda.core.texture.MipmappedArray.from_descriptor" title="cuda.core.texture.MipmappedArray.from_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_descriptor()</span></code></a>.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ObjectCode.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.from_cubin">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cubin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike[str],</span> <span class="pre">*,</span> <span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_cubin" title="Link to this definition">#</a></dt>
-<dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing cubin.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a><em>]</em>) – Either a bytes object containing the in-memory cubin to load, or
-a file path object (or its string representation) pointing to the
-on-disk cubin to load.</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – A dictionary specifying how the unmangled symbol names (as keys)
-should be mapped to the mangled names before trying to retrieve
-them (default to no mappings).</p></li>
-</ul>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.close" title="Link to this definition">#</a></dt>
+<dd><p>Release this object’s reference to the underlying <code class="docutils literal notranslate"><span class="pre">CUmipmappedArray</span></code>.</p>
+<p>Destruction (<code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayDestroy</span></code>) happens via the handle’s
+deleter when the last reference is dropped. A level <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a>
+from <a class="reference internal" href="#cuda.core.texture.MipmappedArray.get_level" title="cuda.core.texture.MipmappedArray.get_level"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_level()</span></code></a> holds its own reference to this mipmap’s storage,
+so it stays valid until both it and this object are released. Idempotent.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.from_fatbin">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_fatbin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike[str],</span> <span class="pre">*,</span> <span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_fatbin" title="Link to this definition">#</a></dt>
-<dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing fatbin.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a><em>]</em>) – Either a bytes object containing the in-memory fatbin to load, or
-or a file path object (or its string representation) pointing to the
-on-disk fatbin to load.</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – A dictionary specifying how the unmangled symbol names (as keys)
-should be mapped to the mangled names before trying to retrieve
-them (default to no mappings).</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.from_library">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_library</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.from_descriptor">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_descriptor</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">format</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">num_channels</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">num_levels</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">is_surface_load_store</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_library" title="Link to this definition">#</a></dt>
-<dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing library.</p>
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.from_descriptor" title="Link to this definition">#</a></dt>
+<dd><p>Allocate a new mipmapped CUDA array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Either a bytes object containing the in-memory library to load, or
-a file path string pointing to the on-disk library to load.</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – A dictionary specifying how the unmangled symbol names (as keys)
-should be mapped to the mangled names before trying to retrieve
-them (default to no mappings).</p></li>
+<li><p><strong>shape</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – <code class="docutils literal notranslate"><span class="pre">(width,)</span></code>, <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height)</span></code>, or <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height,</span> <span class="pre">depth)</span></code>
+in elements, for the base (level 0) mip.</p></li>
+<li><p><strong>format</strong> (<a class="reference internal" href="cuda.core.texture.ArrayFormat.html#cuda.core.texture.ArrayFormat" title="cuda.core.texture.ArrayFormat"><em>ArrayFormat</em></a>) – Element format.</p></li>
+<li><p><strong>num_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Channels per element. Must be 1, 2, or 4.</p></li>
+<li><p><strong>num_levels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of mip levels to allocate; must be &gt;= 1. The driver caps
+this at the log2 of the largest dimension; passing a larger value
+yields a driver error.</p></li>
+<li><p><strong>is_surface_load_store</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, allocate with <code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY3D_SURFACE_LDST</span></code> so individual
+levels (obtained via <a class="reference internal" href="#cuda.core.texture.MipmappedArray.get_level" title="cuda.core.texture.MipmappedArray.get_level"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_level()</span></code></a>) can be bound as
+<a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a> for kernel-side writes. Default False.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray">MipmappedArray</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.from_ltoir">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ltoir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike[str],</span> <span class="pre">*,</span> <span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_ltoir" title="Link to this definition">#</a></dt>
-<dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing LTOIR.</p>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.get_level">
+<span class="sig-name descname"><span class="pre">get_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.get_level" title="Link to this definition">#</a></dt>
+<dd><p>Return a non-owning <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> view of the given mip level.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a><em>]</em>) – Either a bytes object containing the in-memory ltoir code to load,
-or a file path object (or its string representation) pointing to the
-on-disk ltoir file to load.</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – A dictionary specifying how the unmangled symbol names (as keys)
-should be mapped to the mangled names before trying to retrieve
-them (default to no mappings).</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.from_object">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_object</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_object" title="Link to this definition">#</a></dt>
-<dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing object code.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – Either a bytes object containing the in-memory object code to load, or
-a file path string pointing to the on-disk object code to load.</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – A dictionary specifying how the unmangled symbol names (as keys)
-should be mapped to the mangled names before trying to retrieve
-them (default to no mappings).</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.from_ptx">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ptx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">module:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">PathLike[str],</span> <span class="pre">*,</span> <span class="pre">str</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">dict</span> <span class="pre">symbol_mapping:</span> <span class="pre">dict[str,</span> <span class="pre">str]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.from_ptx" title="Link to this definition">#</a></dt>
-<dd><p>Create an <a class="reference internal" href="#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> instance from an existing PTX.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a><em>]</em>) – Either a bytes object containing the in-memory ptx code to load, or
-a file path object (or its string representation) pointing to the
-on-disk ptx file to load.</p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A human-readable identifier representing this code object.</p></li>
-<li><p><strong>symbol_mapping</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – A dictionary specifying how the unmangled symbol names (as keys)
-should be mapped to the mangled names before trying to retrieve
-them (default to no mappings).</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.get_kernel">
-<span class="sig-name descname"><span class="pre">get_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><span class="pre">Kernel</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.get_kernel" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> of a specified name from this object code.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Name of the kernel to retrieve.</p>
+<dd class="field-odd"><p><strong>level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Mip level index in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">num_levels)</span></code>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Newly created kernel object.</p>
+<dd class="field-even"><p>A non-owning <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> wrapping the level’s <code class="docutils literal notranslate"><span class="pre">CUarray</span></code>.
+The <a class="reference internal" href="#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> is kept alive for the lifetime of the
+returned <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a>; the underlying storage is released only
+when this <a class="reference internal" href="#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> is destroyed.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray">OpaqueArray</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.code">
-<span class="sig-name descname"><span class="pre">code</span></span><a class="headerlink" href="#cuda.core.ObjectCode.code" title="Link to this definition">#</a></dt>
-<dd><p>Return the underlying code object.</p>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.device" title="Link to this definition">#</a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code> this mipmap was allocated on.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.code_type">
-<span class="sig-name descname"><span class="pre">code_type</span></span><a class="headerlink" href="#cuda.core.ObjectCode.code_type" title="Link to this definition">#</a></dt>
-<dd><p>Return the type of the underlying code object.</p>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.format">
+<span class="sig-name descname"><span class="pre">format</span></span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.format" title="Link to this definition">#</a></dt>
+<dd><p>The element <a class="reference internal" href="cuda.core.texture.ArrayFormat.html#cuda.core.texture.ArrayFormat" title="cuda.core.texture.ArrayFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayFormat</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.ObjectCode.handle" title="Link to this definition">#</a></dt>
-<dd><p>Return the underlying handle object.</p>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>This handle is a Python object. To get the memory address of the underlying C
-handle, call <code class="docutils literal notranslate"><span class="pre">int(ObjectCode.handle)</span></code>.</p>
-</div>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.handle" title="Link to this definition">#</a></dt>
+<dd><p>The underlying <code class="docutils literal notranslate"><span class="pre">CUmipmappedArray</span></code> as an integer.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cuda.core.ObjectCode.name" title="Link to this definition">#</a></dt>
-<dd><p>Return a human-readable name of this code object.</p>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.is_surface_load_store">
+<span class="sig-name descname"><span class="pre">is_surface_load_store</span></span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.is_surface_load_store" title="Link to this definition">#</a></dt>
+<dd><p>True if this mipmap (and each of its levels) was created with
+<code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY3D_SURFACE_LDST</span></code> and can back a <a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.ObjectCode.symbol_mapping">
-<span class="sig-name descname"><span class="pre">symbol_mapping</span></span><a class="headerlink" href="#cuda.core.ObjectCode.symbol_mapping" title="Link to this definition">#</a></dt>
-<dd><p>dict[str, str]</p>
-<p>Return a copy of the symbol mapping dictionary.</p>
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.num_channels">
+<span class="sig-name descname"><span class="pre">num_channels</span></span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.num_channels" title="Link to this definition">#</a></dt>
+<dd><p>Channels per element (1, 2, or 4).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.num_levels">
+<span class="sig-name descname"><span class="pre">num_levels</span></span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.num_levels" title="Link to this definition">#</a></dt>
+<dd><p>Number of mip levels.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#cuda.core.texture.MipmappedArray.shape" title="Link to this definition">#</a></dt>
+<dd><p>Base-level (level 0) allocation shape, in elements.</p>
 </dd></dl>
 
 </dd></dl>
@@ -929,20 +856,20 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Ob
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.Linker.html"
+       href="cuda.core.texture.OpaqueArray.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.Linker</p>
+        <p class="prev-next-title">cuda.core.texture.OpaqueArray</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.Kernel.html"
+       href="cuda.core.texture.ResourceDescriptor.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.Kernel</p>
+        <p class="prev-next-title">cuda.core.texture.ResourceDescriptor</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -967,20 +894,18 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Ob
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode"><code class="docutils literal notranslate"><span class="pre">ObjectCode</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.__init__"><code class="docutils literal notranslate"><span class="pre">ObjectCode.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_cubin"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_cubin()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_fatbin"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_fatbin()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_library"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_library()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_ltoir"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_ltoir()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_object"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_object()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_ptx"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_ptx()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.get_kernel"><code class="docutils literal notranslate"><span class="pre">ObjectCode.get_kernel()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.code"><code class="docutils literal notranslate"><span class="pre">ObjectCode.code</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.code_type"><code class="docutils literal notranslate"><span class="pre">ObjectCode.code_type</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.handle"><code class="docutils literal notranslate"><span class="pre">ObjectCode.handle</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.name"><code class="docutils literal notranslate"><span class="pre">ObjectCode.name</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.symbol_mapping"><code class="docutils literal notranslate"><span class="pre">ObjectCode.symbol_mapping</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray"><code class="docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.__init__"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.close"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.close()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.from_descriptor"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.from_descriptor()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.get_level"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.get_level()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.device"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.device</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.format"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.format</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.handle"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.is_surface_load_store"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.is_surface_load_store</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.num_channels"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.num_channels</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.num_levels"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.num_levels</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.MipmappedArray.shape"><code class="docutils literal notranslate"><span class="pre">MipmappedArray.shape</span></code></a></li>
 </ul>
 </li>
 </ul>
