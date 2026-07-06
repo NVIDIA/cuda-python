@@ -57,7 +57,7 @@ def main() -> int:
 
     if errors:
         print(
-            f"error: pixi cuda-version pins out of sync with "
+            f"error: cuda_bindings/cuda_core pixi cuda-version pins out of sync with "
             f"ci/versions.yml cuda.build.version={build_version!r} "
             f"(expected pin {expected!r}):",
             file=sys.stderr,
