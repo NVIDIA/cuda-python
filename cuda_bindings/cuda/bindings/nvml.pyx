@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0, generator version 0.3.1.dev1602+g3c8d84404. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0, generator version 0.3.1.dev1844+ge04b6a4af. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -62,6 +62,7 @@ cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bi
     buffer.shape = &buffer.len
     buffer.strides = &buffer.itemsize
     buffer.suboffsets = NULL
+
 
 
 cdef inline unsigned int NVML_VERSION_STRUCT(const unsigned int size, const unsigned int ver) nogil:
@@ -26815,13 +26816,13 @@ cpdef object unit_get_devices(intptr_t unit):
     """
     cdef unsigned int[1] deviceCount = [0]
     with nogil:
-        __status__ = nvmlUnitGetDevices(<nvmlUnit_t *>unit, <unsigned int*>deviceCount, NULL)
+        __status__ = nvmlUnitGetDevices(<nvmlUnit_t>unit, <unsigned int*>deviceCount, NULL)
     check_status_size(__status__)
     if deviceCount[0] == 0:
         return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
     cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
-        __status__ = nvmlUnitGetDevices(<nvmlUnit_t *>unit, <unsigned int*>deviceCount, <nvmlDevice_t *>deviceArray.data)
+        __status__ = nvmlUnitGetDevices(<nvmlUnit_t>unit, <unsigned int*>deviceCount, <nvmlDevice_t *>deviceArray.data)
     check_status(__status__)
     return deviceArray
 

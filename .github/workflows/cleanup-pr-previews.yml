@@ -28,7 +28,7 @@ jobs:
     if: github.repository_owner == 'NVIDIA'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           # Treeless clone: `git worktree add gh-pages` needs the commit graph,
           # but historical blobs aren't required.
