@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Check pixi cu13 cuda-version pins track ci/versions.yml (cuda.build.version)."""
+"""Check pixi cuda-version pins track ci/versions.yml (cuda.build.version)."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ PIXI_FILES = [ROOT / d / "pixi.toml" for d in ("cuda_bindings", "cuda_core")]
 
 
 def main() -> int:
-    """Verify cuda_bindings/cuda_core pixi cu13 pins match ci/versions.yml."""
+    """Verify cuda_bindings/cuda_core pixi pins match ci/versions.yml."""
     if not VERSIONS_FILE_PATH.is_file():
         print(f"error: {VERSIONS_FILE_PATH} not found", file=sys.stderr)
         return 2
@@ -29,6 +29,8 @@ def main() -> int:
 
     major, minor, *_ = build_version.split(".")
     expected = f"{major}.{minor}.*"
+    cuda_feature = f"cu{major}"
+
     errors: list[str] = []
     for path in PIXI_FILES:
         if not path.is_file():
@@ -39,7 +41,7 @@ def main() -> int:
         rel = path.relative_to(ROOT)
         try:
             variants = data["workspace"]["build-variants"]["cuda-version"]
-            cu13 = data["feature"]["cu13"]["dependencies"]["cuda-version"]
+            cuda_pin = data["feature"][cuda_feature]["dependencies"]["cuda-version"]
         except KeyError as exc:
             print(f"error: {rel} missing cuda-version key: {exc}", file=sys.stderr)
             return 2
@@ -49,9 +51,9 @@ def main() -> int:
                 f"does not include {expected!r} "
                 f"(from ci/versions.yml cuda.build.version={build_version!r})"
             )
-        if cu13 != expected:
+        if cuda_pin != expected:
             errors.append(
-                f"{rel}: [feature.cu13.dependencies] cuda-version={cu13!r} "
+                f"{rel}: [feature.{cuda_feature}.dependencies] cuda-version={cuda_pin!r} "
                 f"!= {expected!r} "
                 f"(from ci/versions.yml cuda.build.version={build_version!r})"
             )
