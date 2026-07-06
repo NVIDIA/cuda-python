@@ -60,6 +60,7 @@ def _wrap_worker_cuda_test(func):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        kwargs = dict(kwargs)  # copy before mutating
         with _thread_context() as (device, ctx):
             # device is None when reusing an existing context (defensive path);
             # keep whatever the fixture provided in kwargs as-is.

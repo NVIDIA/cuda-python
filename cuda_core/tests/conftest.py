@@ -123,6 +123,7 @@ def _wrap_worker_cuda_test(func):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        kwargs = dict(kwargs)  # copy before mutating
         with _init_cuda_context() as device:
             if "init_cuda" in kwargs:
                 kwargs["init_cuda"] = device
