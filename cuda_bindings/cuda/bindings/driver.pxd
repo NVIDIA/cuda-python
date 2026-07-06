@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cabdddc3010a0ec786a37c7059edfd295a5a669d31fb489bf61fa95a211a402f
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1622+g48467ab08.d20260421. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -4986,10 +4987,6 @@ cdef class CUcheckpointRestoreArgs_st:
 
 
     reserved : bytes
-        Reserved for future use, must be zeroed
-
-
-    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
 
 
@@ -10587,10 +10584,6 @@ cdef class CUcheckpointRestoreArgs(CUcheckpointRestoreArgs_st):
 
 
     reserved : bytes
-        Reserved for future use, must be zeroed
-
-
-    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
 
 

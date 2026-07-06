@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0a6a7c0de914a4d5f430df440e2c693bd168b5d9bb6eb3956b4d8b6683a69918
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
 cdef extern from "cuda_runtime_api.h":
 
     {{if 'cudaDeviceReset' in found_functions}}

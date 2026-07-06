@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=12523adba160813127c6cb1d9177baaa18b39bf066bb8836a03a97564848a296
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
 from typing import Any, Optional
 import cython
 import ctypes
@@ -23948,10 +23949,6 @@ cdef class CUcheckpointRestoreArgs_st:
         Reserved for future use, must be zeroed
 
 
-    reserved : list[cuuint64_t]
-        Reserved for future use, must be zeroed
-
-
     Methods
     -------
     getPtr()
@@ -24032,11 +24029,11 @@ cdef class CUcheckpointRestoreArgs_st:
 
     @property
     def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, {{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}})
+        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 52)
     @reserved.setter
     def reserved(self, reserved):
-        if len(reserved) != {{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}:
-            raise ValueError("reserved length must be {{struct_field_array_lengths['CUcheckpointRestoreArgs_st.reserved']}}, is " + str(len(reserved)))
+        if len(reserved) != 52:
+            raise ValueError("reserved length must be 52, is " + str(len(reserved)))
         if CHAR_MIN == 0:
             for i, b in enumerate(reserved):
                 if b < 0 and b > -129:
@@ -24047,15 +24044,6 @@ cdef class CUcheckpointRestoreArgs_st:
                 if b > 127 and b < 256:
                     b = b - 256
                 self._pvt_ptr[0].reserved[i] = b
-
-
-    @property
-    def reserved(self):
-        return [cuuint64_t(init_value=_reserved) for _reserved in self._pvt_ptr[0].reserved]
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
 
 
 cdef class CUcheckpointUnlockArgs_st:
