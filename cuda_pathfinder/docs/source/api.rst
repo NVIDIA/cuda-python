@@ -35,6 +35,7 @@ CUDA bitcode and static libraries.
 
    SUPPORTED_BITCODE_LIBS
    find_bitcode_lib
+   find_bitcode_lib_by_name
    locate_bitcode_lib
    LocatedBitcodeLib
    BitcodeLibNotFoundError
