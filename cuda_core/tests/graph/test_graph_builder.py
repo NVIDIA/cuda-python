@@ -513,6 +513,26 @@ def test_graph_definition_shares_ownership(init_cuda):
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_definition_raises_after_close(init_cuda):
+    """Accessing the property after close() must fail at the builder boundary.
+
+    close() resets the graph handle, so returning a view here would wrap a
+    null CUgraph and defer the failure to a later CUDA call. Reject fresh
+    access instead, matching complete() and debug_dot_print().
+    """
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb.end_building()
+    gb.close()
+
+    with pytest.raises(RuntimeError, match="closed"):
+        _ = gb.graph_definition
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_definition_round_trips_through_explicit_api(init_cuda):
     """Mutating via the explicit API survives complete() and runs correctly."""
     mod = compile_common_kernels()

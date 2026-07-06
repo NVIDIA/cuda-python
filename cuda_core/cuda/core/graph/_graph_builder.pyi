@@ -145,6 +145,8 @@ class GraphBuilder:
     def graph_definition(self) -> GraphDefinition:
         """The captured graph as an explicit :class:`~graph.GraphDefinition`.
 
+        .. versionadded:: 1.1.0
+
         The returned :class:`~graph.GraphDefinition` is a view of the same
         graph this builder is producing: nodes added through it appear in
         subsequent :meth:`complete` and :meth:`debug_dot_print` calls, and
@@ -179,8 +181,11 @@ class GraphBuilder:
         Raises
         ------
         RuntimeError
-            If the builder is forked, currently building, or (for primary
-            builders) has not started building yet.
+            If the builder is closed, forked, currently building, or (for
+            primary builders) has not started building yet. A
+            :class:`~graph.GraphDefinition` obtained before :meth:`close`
+            keeps working; only fresh access through this property is
+            rejected once the builder is closed.
         """
 
     def begin_building(self, mode: str | None='relaxed') -> GraphBuilder:
