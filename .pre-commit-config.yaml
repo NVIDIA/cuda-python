@@ -16,7 +16,7 @@ ci:
 # pre-commit autoupdate --freeze
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: c60c980e561ed3e73101667fe8365c609d19a438  # frozen: v0.15.9
+    rev: c59bba8fb259db0fec2bbb77ad8ba51ea7341b56  # frozen: v0.15.20
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
@@ -64,7 +64,7 @@ repos:
 
   # Link checking for authored documentation files
   - repo: https://github.com/lycheeverse/lychee
-    rev: 2bba271688c1abb1503097a064e6c3bc1d1b6a9b  # frozen: lychee-v0.24.2
+    rev: 3cc5cce3e010e9e8bb1ffe57da3de6930af74056  # frozen: nightly
     hooks:
       - id: lychee
         args:
@@ -108,7 +108,7 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 8e5c80792e2ec0c87804d8ef915bf35e2caea6da  # frozen: v1.20.0
+    rev: d2823d321df3af8f878f7ee3414dc94d037145b9  # frozen: v2.1.0
     hooks:
       - id: mypy
         alias: mypy-pathfinder
@@ -133,7 +133,7 @@ repos:
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "7c6152f6c8f9087684ff2e09a9227941e233bafb"  # frozen: v0.19.0
+    rev: "399947374c9564f1d3bf9921c94ff8b71fc15f4e"  # frozen: v0.21.0
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
