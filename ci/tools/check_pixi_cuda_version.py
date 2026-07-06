@@ -44,17 +44,20 @@ def main() -> int:
             variants = data["workspace"]["build-variants"]["cuda-version"]
             cuda_pin = data["feature"][cuda_feature]["dependencies"]["cuda-version"]
         except KeyError as exc:
-            print(f"error: {rel} missing cuda-version key: {exc}", file=sys.stderr)
+            print(
+                f"error: {rel} missing feature {cuda_feature!r} or cuda-version key: {exc}",
+                file=sys.stderr,
+            )
             return 2
         if expected not in variants:
             errors.append(
-                f"{rel}: [workspace.build-variants] cuda-version={variants!r} "
+                f"{rel}: workspace.build-variants.cuda-version={variants!r} "
                 f"does not include {expected!r} "
                 f"(from ci/versions.yml cuda.build.version={build_version!r})"
             )
         if cuda_pin != expected:
             errors.append(
-                f"{rel}: [feature.{cuda_feature}.dependencies] cuda-version={cuda_pin!r} "
+                f"{rel}: feature.{cuda_feature}.dependencies.cuda-version={cuda_pin!r} "
                 f"!= {expected!r} "
                 f"(from ci/versions.yml cuda.build.version={build_version!r})"
             )
