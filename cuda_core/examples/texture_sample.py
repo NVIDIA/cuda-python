@@ -30,14 +30,16 @@ from cuda.core import (
     launch,
 )
 from cuda.core.texture import (
-    AddressMode,
-    ArrayFormat,
-    FilterMode,
     OpaqueArray,
-    ReadMode,
     ResourceDescriptor,
     TextureDescriptor,
     TextureObject,
+)
+from cuda.core.typing import (
+    AddressModeType,
+    ArrayFormatType,
+    FilterModeType,
+    ReadModeType,
 )
 
 # Kernel reads N (x, y) coordinates from `coords` (interleaved float pairs) and
@@ -72,7 +74,7 @@ def main():
         width, height = 16, 16
         with OpaqueArray.from_descriptor(
             shape=(width, height),
-            format=ArrayFormat.FLOAT32,
+            format=ArrayFormatType.FLOAT32,
             num_channels=1,
         ) as arr:
             # Plant a known pattern: pattern[y, x] = x + 100*y.
@@ -89,9 +91,9 @@ def main():
             # Build a linear-filtering, clamped, non-normalized texture.
             res_desc = ResourceDescriptor.from_opaque_array(arr)
             tex_desc = TextureDescriptor(
-                address_mode=AddressMode.CLAMP,
-                filter_mode=FilterMode.LINEAR,
-                read_mode=ReadMode.ELEMENT_TYPE,
+                address_mode=AddressModeType.CLAMP,
+                filter_mode=FilterModeType.LINEAR,
+                read_mode=ReadModeType.ELEMENT_TYPE,
                 normalized_coords=False,
             )
             with TextureObject.from_descriptor(resource=res_desc, texture_descriptor=tex_desc) as tex:

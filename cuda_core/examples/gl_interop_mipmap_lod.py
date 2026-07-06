@@ -101,15 +101,17 @@ from cuda.core import (
     launch,
 )
 from cuda.core.texture import (
-    AddressMode,
-    ArrayFormat,
-    FilterMode,
     MipmappedArray,
-    ReadMode,
     ResourceDescriptor,
     SurfaceObject,
     TextureDescriptor,
     TextureObject,
+)
+from cuda.core.typing import (
+    AddressModeType,
+    ArrayFormatType,
+    FilterModeType,
+    ReadModeType,
 )
 
 # ---------------------------------------------------------------------------
@@ -206,9 +208,9 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
     # writes level L through a temporary SurfaceObject. Both close cleanly
     # at the end of their `with` blocks.
     src_tex_desc = TextureDescriptor(
-        address_mode=AddressMode.CLAMP,
-        filter_mode=FilterMode.POINT,  # explicit per-texel reads
-        read_mode=ReadMode.ELEMENT_TYPE,
+        address_mode=AddressModeType.CLAMP,
+        filter_mode=FilterModeType.POINT,  # explicit per-texel reads
+        read_mode=ReadModeType.ELEMENT_TYPE,
         normalized_coords=False,  # integer pixel coordinates
     )
     for level in range(1, num_levels):
@@ -410,7 +412,7 @@ def main():
     num_levels = int(math.log2(BASE_SIZE)) + 1
     mip = MipmappedArray.from_descriptor(
         shape=(BASE_SIZE, BASE_SIZE),
-        format=ArrayFormat.FLOAT32,
+        format=ArrayFormatType.FLOAT32,
         num_channels=4,
         num_levels=num_levels,
         is_surface_load_store=True,
@@ -424,11 +426,11 @@ def main():
     #     it into the tex2DLod call (avoids rebuilding the TextureObject
     #     whenever the user changes the bias).
     display_tex_desc = TextureDescriptor(
-        address_mode=AddressMode.WRAP,
-        filter_mode=FilterMode.LINEAR,
-        read_mode=ReadMode.ELEMENT_TYPE,
+        address_mode=AddressModeType.WRAP,
+        filter_mode=FilterModeType.LINEAR,
+        read_mode=ReadModeType.ELEMENT_TYPE,
         normalized_coords=True,
-        mipmap_filter_mode=FilterMode.LINEAR,  # trilinear
+        mipmap_filter_mode=FilterModeType.LINEAR,  # trilinear
         mipmap_level_bias=0.0,
         min_mipmap_level_clamp=0.0,
         max_mipmap_level_clamp=float(num_levels - 1),

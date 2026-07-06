@@ -195,13 +195,12 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
 
    TextureDescriptor
 
-.. autosummary::
-   :toctree: generated/
-
-   ArrayFormat
-   AddressMode
-   FilterMode
-   ReadMode
+The associated enumerations —
+:class:`~cuda.core.typing.ArrayFormatType`,
+:class:`~cuda.core.typing.AddressModeType`,
+:class:`~cuda.core.typing.FilterModeType`, and
+:class:`~cuda.core.typing.ReadModeType` — live in :mod:`cuda.core.typing`
+alongside the other ``cuda.core`` enumerations.
 
 
 CUDA compilation toolchain

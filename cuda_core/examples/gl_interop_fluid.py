@@ -108,15 +108,17 @@ from cuda.core import (
     launch,
 )
 from cuda.core.texture import (
-    AddressMode,
-    ArrayFormat,
-    FilterMode,
     OpaqueArray,
-    ReadMode,
     ResourceDescriptor,
     SurfaceObject,
     TextureDescriptor,
     TextureObject,
+)
+from cuda.core.typing import (
+    AddressModeType,
+    ArrayFormatType,
+    FilterModeType,
+    ReadModeType,
 )
 
 # ---------------------------------------------------------------------------
@@ -404,7 +406,7 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 #   OpaqueArray.from_descriptor(...)   -> allocates a CUDA *array* (opaque, tiled
 #                                       layout optimized for 2D texture fetches),
 #                                       not linear device memory.
-#   ArrayFormat.FLOAT32              -> each channel is a 32-bit float texel.
+#   ArrayFormatType.FLOAT32              -> each channel is a 32-bit float texel.
 #   num_channels=2 / num_channels=1  -> float2 (vx, vy) vs scalar (pressure /
 #                                       divergence / dye); also fixes the
 #                                       surf2Dwrite byte offset per element.
@@ -416,15 +418,15 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 #
 #   ResourceDescriptor.from_opaque_array(arr) -> wraps the OpaqueArray as the resource a
 #                                         TextureObject reads from.
-#   FilterMode.LINEAR                -> free HARDWARE bilinear interpolation;
+#   FilterModeType.LINEAR                -> free HARDWARE bilinear interpolation;
 #                                       this is what makes semi-Lagrangian
 #                                       advection a single tex2D fetch at a
 #                                       fractional back-traced position (no
 #                                       manual lerp, no neighbor gather).
-#   AddressMode.CLAMP                -> bounded box boundary: out-of-range traces
+#   AddressModeType.CLAMP                -> bounded box boundary: out-of-range traces
 #                                       read the edge texel (ink piles up at the
 #                                       walls instead of wrapping like a torus).
-#   ReadMode.ELEMENT_TYPE            -> return the stored float value as-is (no
+#   ReadModeType.ELEMENT_TYPE            -> return the stored float value as-is (no
 #                                       integer->[0,1] normalization of texels).
 #   normalized_coords=True           -> sample in [0, 1) so CLAMP is well-defined
 #                                       and texel centers are (i + 0.5) / N.
@@ -440,7 +442,7 @@ def make_velocity_array():
     """Allocate a `float2` velocity CUDA array (channel 0 = vx, channel 1 = vy)."""
     return OpaqueArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
-        format=ArrayFormat.FLOAT32,
+        format=ArrayFormatType.FLOAT32,
         num_channels=2,
         is_surface_load_store=True,
     )
@@ -450,7 +452,7 @@ def make_scalar_array():
     """Allocate a single-channel `float` CUDA array (pressure / divergence / dye)."""
     return OpaqueArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
-        format=ArrayFormat.FLOAT32,
+        format=ArrayFormatType.FLOAT32,
         num_channels=1,
         is_surface_load_store=True,
     )
@@ -466,7 +468,7 @@ def make_color_array():
     """
     return OpaqueArray.from_descriptor(
         shape=(WIDTH, HEIGHT),
-        format=ArrayFormat.FLOAT32,
+        format=ArrayFormatType.FLOAT32,
         num_channels=4,
         is_surface_load_store=True,
     )
@@ -481,9 +483,9 @@ def make_texture(arr):
     """
     res_desc = ResourceDescriptor.from_opaque_array(arr)
     tex_desc = TextureDescriptor(
-        address_mode=AddressMode.CLAMP,
-        filter_mode=FilterMode.LINEAR,
-        read_mode=ReadMode.ELEMENT_TYPE,
+        address_mode=AddressModeType.CLAMP,
+        filter_mode=FilterModeType.LINEAR,
+        read_mode=ReadModeType.ELEMENT_TYPE,
         # Normalized coordinates keep CLAMP addressing well-defined and let us
         # sample at texel centers as (i + 0.5) / N.
         normalized_coords=True,

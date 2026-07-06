@@ -37,7 +37,7 @@ class MipmappedArray:
         shape : tuple of int
             ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
             in elements, for the base (level 0) mip.
-        format : ArrayFormat
+        format : ArrayFormatType or str
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
@@ -82,7 +82,7 @@ class MipmappedArray:
 
     @property
     def format(self):
-        """The element :class:`ArrayFormat`."""
+        """The element :class:`~cuda.core.typing.ArrayFormatType`."""
 
     @property
     def num_channels(self):

@@ -2,24 +2,8 @@
 
 from __future__ import annotations
 
-from enum import IntEnum
+from cuda.core.typing import ArrayFormatType
 
-from cuda.bindings import cydriver
-
-
-class ArrayFormat(IntEnum):
-    """Element format for a :class:`OpaqueArray` allocation.
-
-    Mirrors ``CUarray_format`` from the CUDA driver API.
-    """
-    UINT8 = cydriver.CU_AD_FORMAT_UNSIGNED_INT8
-    UINT16 = cydriver.CU_AD_FORMAT_UNSIGNED_INT16
-    UINT32 = cydriver.CU_AD_FORMAT_UNSIGNED_INT32
-    INT8 = cydriver.CU_AD_FORMAT_SIGNED_INT8
-    INT16 = cydriver.CU_AD_FORMAT_SIGNED_INT16
-    INT32 = cydriver.CU_AD_FORMAT_SIGNED_INT32
-    FLOAT16 = cydriver.CU_AD_FORMAT_HALF
-    FLOAT32 = cydriver.CU_AD_FORMAT_FLOAT
 
 class OpaqueArray:
     """An opaque, hardware-laid-out GPU allocation for texture/surface access.
@@ -64,7 +48,7 @@ class OpaqueArray:
         shape : tuple of int
             ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
             in elements.
-        format : ArrayFormat
+        format : ArrayFormatType or str
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
@@ -98,7 +82,7 @@ class OpaqueArray:
 
     @property
     def format(self):
-        """The element :class:`ArrayFormat`."""
+        """The element :class:`~cuda.core.typing.ArrayFormatType`."""
 
     @property
     def num_channels(self):
@@ -166,11 +150,20 @@ class OpaqueArray:
 
     def __repr__(self):
         ...
-_FORMAT_ELEM_SIZE = {int(ArrayFormat.UINT8): 1, int(ArrayFormat.INT8): 1, int(ArrayFormat.UINT16): 2, int(ArrayFormat.INT16): 2, int(ArrayFormat.FLOAT16): 2, int(ArrayFormat.UINT32): 4, int(ArrayFormat.INT32): 4, int(ArrayFormat.FLOAT32): 4}
+_ARRAYFORMAT_TO_CU: dict
+_CU_TO_ARRAYFORMAT: dict
+_FORMAT_ELEM_SIZE: dict
+
+def _normalize_array_format(format):
+    """Coerce ``format`` to an :class:`ArrayFormatType`.
+
+    Accepts an :class:`ArrayFormatType` or a plain ``str`` naming one of its
+    values (e.g. ``"float32"``). Raises on anything else."""
 
 def _validate_format_channels(format, num_channels):
     """Validate the ``(format, num_channels)`` pair shared by the array,
-    mipmap, and texture factories. Raises on an invalid combination."""
+    mipmap, and texture factories. Returns the normalized
+    :class:`ArrayFormatType`. Raises on an invalid combination."""
 
 def _validate_array_shape(shape):
     """Coerce ``shape`` to a tuple of ints and validate rank (1-3) and that

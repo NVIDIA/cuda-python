@@ -25,44 +25,62 @@ from cuda.core._utils.cuda_utils cimport (
     _get_current_device_id,
 )
 
-from enum import IntEnum
+from cuda.core.typing import ArrayFormatType
 
 
-class ArrayFormat(IntEnum):
-    """Element format for a :class:`OpaqueArray` allocation.
-
-    Mirrors ``CUarray_format`` from the CUDA driver API.
-    """
-    UINT8   = cydriver.CU_AD_FORMAT_UNSIGNED_INT8
-    UINT16  = cydriver.CU_AD_FORMAT_UNSIGNED_INT16
-    UINT32  = cydriver.CU_AD_FORMAT_UNSIGNED_INT32
-    INT8    = cydriver.CU_AD_FORMAT_SIGNED_INT8
-    INT16   = cydriver.CU_AD_FORMAT_SIGNED_INT16
-    INT32   = cydriver.CU_AD_FORMAT_SIGNED_INT32
-    FLOAT16 = cydriver.CU_AD_FORMAT_HALF
-    FLOAT32 = cydriver.CU_AD_FORMAT_FLOAT
-
-
-# Bytes per element (single channel) for each format.
-_FORMAT_ELEM_SIZE = {
-    int(ArrayFormat.UINT8):   1,
-    int(ArrayFormat.INT8):    1,
-    int(ArrayFormat.UINT16):  2,
-    int(ArrayFormat.INT16):   2,
-    int(ArrayFormat.FLOAT16): 2,
-    int(ArrayFormat.UINT32):  4,
-    int(ArrayFormat.INT32):   4,
-    int(ArrayFormat.FLOAT32): 4,
+# Bridge between the public ArrayFormatType StrEnum and the driver
+# CUarray_format integer values. OpaqueArray stores the driver int internally
+# (see ._format), so all conversions funnel through these two maps.
+_ARRAYFORMAT_TO_CU = {
+    ArrayFormatType.UINT8:   int(cydriver.CU_AD_FORMAT_UNSIGNED_INT8),
+    ArrayFormatType.UINT16:  int(cydriver.CU_AD_FORMAT_UNSIGNED_INT16),
+    ArrayFormatType.UINT32:  int(cydriver.CU_AD_FORMAT_UNSIGNED_INT32),
+    ArrayFormatType.INT8:    int(cydriver.CU_AD_FORMAT_SIGNED_INT8),
+    ArrayFormatType.INT16:   int(cydriver.CU_AD_FORMAT_SIGNED_INT16),
+    ArrayFormatType.INT32:   int(cydriver.CU_AD_FORMAT_SIGNED_INT32),
+    ArrayFormatType.FLOAT16: int(cydriver.CU_AD_FORMAT_HALF),
+    ArrayFormatType.FLOAT32: int(cydriver.CU_AD_FORMAT_FLOAT),
 }
+_CU_TO_ARRAYFORMAT = {cu: fmt for fmt, cu in _ARRAYFORMAT_TO_CU.items()}
+
+
+# Bytes per element (single channel), keyed by the driver CUarray_format int.
+_FORMAT_ELEM_SIZE = {
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.UINT8]:   1,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.INT8]:    1,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.UINT16]:  2,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.INT16]:   2,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.FLOAT16]: 2,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.UINT32]:  4,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.INT32]:   4,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.FLOAT32]: 4,
+}
+
+
+def _normalize_array_format(format):
+    """Coerce ``format`` to an :class:`ArrayFormatType`.
+
+    Accepts an :class:`ArrayFormatType` or a plain ``str`` naming one of its
+    values (e.g. ``"float32"``). Raises on anything else."""
+    if isinstance(format, ArrayFormatType):
+        return format
+    try:
+        return ArrayFormatType(format)
+    except ValueError as e:
+        valid = ", ".join(repr(f.value) for f in ArrayFormatType)
+        raise ValueError(
+            f"format must be an ArrayFormatType or one of {{{valid}}}, got {format!r}"
+        ) from e
 
 
 def _validate_format_channels(format, num_channels):
     """Validate the ``(format, num_channels)`` pair shared by the array,
-    mipmap, and texture factories. Raises on an invalid combination."""
-    if not isinstance(format, ArrayFormat):
-        raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
+    mipmap, and texture factories. Returns the normalized
+    :class:`ArrayFormatType`. Raises on an invalid combination."""
+    fmt = _normalize_array_format(format)
     if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
         raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
+    return fmt
 
 
 def _validate_array_shape(shape):
@@ -264,7 +282,7 @@ cdef class OpaqueArray:
         shape : tuple of int
             ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
             in elements.
-        format : ArrayFormat
+        format : ArrayFormatType or str
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
@@ -277,10 +295,10 @@ cdef class OpaqueArray:
         -------
         OpaqueArray
         """
-        _validate_format_channels(format, num_channels)
+        fmt = _validate_format_channels(format, num_channels)
         shape_t = _validate_array_shape(shape)
 
-        cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format><int>format
+        cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format>_ARRAYFORMAT_TO_CU[fmt]
         cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
         cdef int rank = len(shape_t)
         cdef unsigned int flags = (
@@ -340,8 +358,8 @@ cdef class OpaqueArray:
 
     @property
     def format(self):
-        """The element :class:`ArrayFormat`."""
-        return ArrayFormat(self._format)
+        """The element :class:`~cuda.core.typing.ArrayFormatType`."""
+        return _CU_TO_ARRAYFORMAT[self._format]
 
     @property
     def num_channels(self):
@@ -439,7 +457,7 @@ cdef class OpaqueArray:
     def __repr__(self):
         return (
             f"OpaqueArray(shape={self._shape}, "
-            f"format={ArrayFormat(self._format).name}, "
+            f"format={_CU_TO_ARRAYFORMAT[self._format].name}, "
             f"num_channels={self._num_channels})"
         )
 

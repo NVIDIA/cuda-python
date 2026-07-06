@@ -8,7 +8,12 @@ from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
 from cuda.core.texture._array cimport _array_from_handle
-from cuda.core.texture._array import ArrayFormat, _validate_array_shape, _validate_format_channels
+from cuda.core.texture._array import (
+    _ARRAYFORMAT_TO_CU,
+    _CU_TO_ARRAYFORMAT,
+    _validate_array_shape,
+    _validate_format_channels,
+)
 from cuda.core._resource_handles cimport (
     OpaqueArrayHandle,
     MipmappedArrayHandle,
@@ -53,7 +58,7 @@ cdef class MipmappedArray:
         shape : tuple of int
             ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
             in elements, for the base (level 0) mip.
-        format : ArrayFormat
+        format : ArrayFormatType or str
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
@@ -70,14 +75,14 @@ cdef class MipmappedArray:
         -------
         MipmappedArray
         """
-        _validate_format_channels(format, num_channels)
+        fmt = _validate_format_channels(format, num_channels)
         shape_t = _validate_array_shape(shape)
 
         levels = int(num_levels)
         if levels < 1:
             raise ValueError(f"num_levels must be >= 1, got {levels}")
 
-        cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format><int>format
+        cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format>_ARRAYFORMAT_TO_CU[fmt]
         cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
         cdef int rank = len(shape_t)
         cdef unsigned int flags = (
@@ -153,8 +158,8 @@ cdef class MipmappedArray:
 
     @property
     def format(self):
-        """The element :class:`ArrayFormat`."""
-        return ArrayFormat(self._format)
+        """The element :class:`~cuda.core.typing.ArrayFormatType`."""
+        return _CU_TO_ARRAYFORMAT[self._format]
 
     @property
     def num_channels(self):
@@ -197,7 +202,7 @@ cdef class MipmappedArray:
     def __repr__(self):
         return (
             f"MipmappedArray(shape={self._shape}, "
-            f"format={ArrayFormat(self._format).name}, "
+            f"format={_CU_TO_ARRAYFORMAT[self._format].name}, "
             f"num_channels={self._num_channels}, "
             f"num_levels={self._num_levels})"
         )

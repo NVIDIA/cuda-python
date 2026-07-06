@@ -9,7 +9,13 @@ from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
 from cuda.core.texture._array cimport OpaqueArray
-from cuda.core.texture._array import ArrayFormat, _FORMAT_ELEM_SIZE, _validate_format_channels
+from cuda.core.texture._array import (
+    _ARRAYFORMAT_TO_CU,
+    _CU_TO_ARRAYFORMAT,
+    _FORMAT_ELEM_SIZE,
+    _normalize_array_format,
+    _validate_format_channels,
+)
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core.texture._mipmapped_array cimport MipmappedArray
 from cuda.core.texture._mipmapped_array import MipmappedArray as _PyMipmappedArray
@@ -27,8 +33,9 @@ from cuda.core._utils.cuda_utils cimport (
     _get_current_device_id,
 )
 
+from cuda.core.typing import AddressModeType, FilterModeType, ReadModeType
+
 from dataclasses import dataclass
-from enum import IntEnum
 
 
 # Driver texture-descriptor flag bits (CU_TRSF_*).
@@ -39,31 +46,30 @@ _TRSF_DISABLE_TRILINEAR_OPTIMIZATION = 0x20
 _TRSF_SEAMLESS_CUBEMAP = 0x40
 
 
-class AddressMode(IntEnum):
-    """Boundary behavior for out-of-range texture coordinates."""
-    WRAP   = cydriver.CU_TR_ADDRESS_MODE_WRAP
-    CLAMP  = cydriver.CU_TR_ADDRESS_MODE_CLAMP
-    MIRROR = cydriver.CU_TR_ADDRESS_MODE_MIRROR
-    BORDER = cydriver.CU_TR_ADDRESS_MODE_BORDER
+# Bridge between the public sampling StrEnums and the driver integer values.
+_ADDRESSMODE_TO_CU = {
+    AddressModeType.WRAP:   int(cydriver.CU_TR_ADDRESS_MODE_WRAP),
+    AddressModeType.CLAMP:  int(cydriver.CU_TR_ADDRESS_MODE_CLAMP),
+    AddressModeType.MIRROR: int(cydriver.CU_TR_ADDRESS_MODE_MIRROR),
+    AddressModeType.BORDER: int(cydriver.CU_TR_ADDRESS_MODE_BORDER),
+}
+_FILTERMODE_TO_CU = {
+    FilterModeType.POINT:  int(cydriver.CU_TR_FILTER_MODE_POINT),
+    FilterModeType.LINEAR: int(cydriver.CU_TR_FILTER_MODE_LINEAR),
+}
 
 
-class FilterMode(IntEnum):
-    """Texel sampling mode."""
-    POINT  = cydriver.CU_TR_FILTER_MODE_POINT
-    LINEAR = cydriver.CU_TR_FILTER_MODE_LINEAR
-
-
-class ReadMode(IntEnum):
-    """How sampled values are returned to the kernel.
-
-    - ``ELEMENT_TYPE``: return the raw element value (integer formats stay
-      integer, float stays float).
-    - ``NORMALIZED_FLOAT``: integer formats are promoted to a normalized
-      ``float`` in ``[0, 1]`` (unsigned) or ``[-1, 1]`` (signed).
-      Float formats are unaffected.
-    """
-    ELEMENT_TYPE     = 0
-    NORMALIZED_FLOAT = 1
+def _normalize_enum(name, value, enum_type):
+    """Coerce ``value`` to ``enum_type`` (a StrEnum), accepting a plain str."""
+    if isinstance(value, enum_type):
+        return value
+    try:
+        return enum_type(value)
+    except ValueError as e:
+        valid = ", ".join(repr(m.value) for m in enum_type)
+        raise ValueError(
+            f"{name} must be a {enum_type.__name__} or one of {{{valid}}}, got {value!r}"
+        ) from e
 
 
 class ResourceDescriptor:
@@ -151,7 +157,7 @@ class ResourceDescriptor:
         buffer : Buffer
             Device-memory backing. Must remain alive for the lifetime of any
             :class:`TextureObject` built from this descriptor.
-        format : ArrayFormat
+        format : ArrayFormatType or str
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
@@ -167,10 +173,11 @@ class ResourceDescriptor:
         """
         if not isinstance(buffer, Buffer):
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
-        _validate_format_channels(format, num_channels)
+        fmt = _validate_format_channels(format, num_channels)
+        cu_format = _ARRAYFORMAT_TO_CU[fmt]
 
         buf_size = int(buffer.size)
-        elem = _FORMAT_ELEM_SIZE[int(format)] * int(num_channels)
+        elem = _FORMAT_ELEM_SIZE[cu_format] * int(num_channels)
         if size_bytes is None:
             size = buf_size
         else:
@@ -186,13 +193,13 @@ class ResourceDescriptor:
         if size % elem != 0:
             raise ValueError(
                 f"size_bytes ({size}) must be a multiple of element size "
-                f"({elem} bytes for {format.name} x {num_channels})"
+                f"({elem} bytes for {fmt.name} x {num_channels})"
             )
 
         self = cls.__new__(cls)
         self._kind = "linear"
         self._source = buffer
-        self._format = int(format)
+        self._format = cu_format
         self._num_channels = int(num_channels)
         self._size_bytes = size
         self._width = None
@@ -211,7 +218,7 @@ class ResourceDescriptor:
         buffer : Buffer
             Device-memory backing. Must remain alive for the lifetime of any
             :class:`TextureObject` built from this descriptor.
-        format : ArrayFormat
+        format : ArrayFormatType or str
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
@@ -226,7 +233,8 @@ class ResourceDescriptor:
         """
         if not isinstance(buffer, Buffer):
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
-        _validate_format_channels(format, num_channels)
+        fmt = _validate_format_channels(format, num_channels)
+        cu_format = _ARRAYFORMAT_TO_CU[fmt]
 
         w = int(width)
         h = int(height)
@@ -235,11 +243,11 @@ class ResourceDescriptor:
             raise ValueError(f"width must be >= 1, got {w}")
         if h < 1:
             raise ValueError(f"height must be >= 1, got {h}")
-        elem = _FORMAT_ELEM_SIZE[int(format)] * int(num_channels)
+        elem = _FORMAT_ELEM_SIZE[cu_format] * int(num_channels)
         min_pitch = w * elem
         if p < min_pitch:
             raise ValueError(
-                f"pitch_bytes ({p}) must be >= width * element_size ({min_pitch})"
+                f"pitch_bytes ({p}) must be >= width * element_bytes ({min_pitch})"
             )
         if p * h > int(buffer.size):
             raise ValueError(
@@ -249,7 +257,7 @@ class ResourceDescriptor:
         self = cls.__new__(cls)
         self._kind = "pitch2d"
         self._source = buffer
-        self._format = int(format)
+        self._format = cu_format
         self._num_channels = int(num_channels)
         self._size_bytes = None
         self._width = w
@@ -267,8 +275,8 @@ class ResourceDescriptor:
 
     @property
     def format(self):
-        """The element :class:`ArrayFormat` (``None`` for array-backed)."""
-        return None if self._format is None else ArrayFormat(self._format)
+        """The element :class:`~cuda.core.typing.ArrayFormatType` (``None`` for array-backed)."""
+        return None if self._format is None else _CU_TO_ARRAYFORMAT[self._format]
 
     @property
     def num_channels(self):
@@ -317,12 +325,13 @@ class TextureDescriptor:
 
     Attributes
     ----------
-    address_mode : tuple of AddressMode
-        Boundary behavior per axis. May be a single :class:`AddressMode` (applied
-        to all axes) or a tuple of 1-3 entries (one per dimension).
-    filter_mode : FilterMode
+    address_mode : AddressModeType or tuple of AddressModeType
+        Boundary behavior per axis. May be a single
+        :class:`~cuda.core.typing.AddressModeType` (applied to all axes) or a
+        tuple of 1-3 entries (one per dimension). Plain strings are accepted.
+    filter_mode : FilterModeType
         Texel sampling mode. Default ``POINT``.
-    read_mode : ReadMode
+    read_mode : ReadModeType
         How sampled integer values are returned. Default ``ELEMENT_TYPE``.
     normalized_coords : bool
         If True, coordinates are in ``[0, 1]`` instead of pixel indices.
@@ -334,7 +343,7 @@ class TextureDescriptor:
         If True, enable seamless cubemap edge filtering.
     max_anisotropy : int
         Maximum anisotropy; 0 disables anisotropic filtering.
-    mipmap_filter_mode : FilterMode
+    mipmap_filter_mode : FilterModeType
         Filtering between mipmap levels. Default ``POINT``.
     mipmap_level_bias : float
     min_mipmap_level_clamp : float
@@ -344,40 +353,48 @@ class TextureDescriptor:
         zero.
     """
 
-    address_mode: AddressMode | tuple[AddressMode, ...] = AddressMode.CLAMP
-    filter_mode: FilterMode = FilterMode.POINT
-    read_mode: ReadMode = ReadMode.ELEMENT_TYPE
+    address_mode: AddressModeType | tuple[AddressModeType, ...] = AddressModeType.CLAMP
+    filter_mode: FilterModeType = FilterModeType.POINT
+    read_mode: ReadModeType = ReadModeType.ELEMENT_TYPE
     normalized_coords: bool = False
     srgb: bool = False
     disable_trilinear_optimization: bool = False
     seamless_cubemap: bool = False
     max_anisotropy: int = 0
-    mipmap_filter_mode: FilterMode = FilterMode.POINT
+    mipmap_filter_mode: FilterModeType = FilterModeType.POINT
     mipmap_level_bias: float = 0.0
     min_mipmap_level_clamp: float = 0.0
     max_mipmap_level_clamp: float = 0.0
     border_color: tuple[float, ...] | None = None
 
+    def __post_init__(self):
+        self.filter_mode = _normalize_enum("filter_mode", self.filter_mode, FilterModeType)
+        self.read_mode = _normalize_enum("read_mode", self.read_mode, ReadModeType)
+        self.mipmap_filter_mode = _normalize_enum(
+            "mipmap_filter_mode", self.mipmap_filter_mode, FilterModeType
+        )
+
 
 def _normalize_address_modes(address_mode):
-    """Return a 3-tuple of AddressMode values from a scalar or 1-3 tuple."""
-    if isinstance(address_mode, AddressMode):
-        return (address_mode, address_mode, address_mode)
+    """Return a 3-tuple of :class:`AddressModeType` values from a scalar or
+    1-3 tuple. Individual entries may be plain strings."""
+    if isinstance(address_mode, (AddressModeType, str)):
+        m = _normalize_enum("address_mode", address_mode, AddressModeType)
+        return (m, m, m)
     try:
         modes = tuple(address_mode)
     except TypeError as e:
         raise TypeError(
-            "address_mode must be an AddressMode or a tuple of AddressMode"
+            "address_mode must be an AddressModeType or a tuple of AddressModeType"
         ) from e
     if not 1 <= len(modes) <= 3:
         raise ValueError(
             f"address_mode tuple must have 1-3 entries, got {len(modes)}"
         )
-    for i, m in enumerate(modes):
-        if not isinstance(m, AddressMode):
-            raise TypeError(
-                f"address_mode[{i}] must be an AddressMode, got {type(m).__name__}"
-            )
+    modes = tuple(
+        _normalize_enum(f"address_mode[{i}]", m, AddressModeType)
+        for i, m in enumerate(modes)
+    )
     # Pad to 3 entries by repeating the last one.
     padded = list(modes) + [modes[-1]] * (3 - len(modes))
     return tuple(padded)
@@ -462,28 +479,20 @@ cdef class TextureObject:
             )
 
         # --- Texture descriptor ---
+        # filter_mode/read_mode/mipmap_filter_mode are normalized to their
+        # StrEnum types by TextureDescriptor.__post_init__; address_mode is
+        # normalized (and str-coerced) here.
         modes = _normalize_address_modes(texture_descriptor.address_mode)
-        tex_desc.addressMode[0] = <cydriver.CUaddress_mode><int>modes[0]
-        tex_desc.addressMode[1] = <cydriver.CUaddress_mode><int>modes[1]
-        tex_desc.addressMode[2] = <cydriver.CUaddress_mode><int>modes[2]
+        tex_desc.addressMode[0] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[0]]
+        tex_desc.addressMode[1] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[1]]
+        tex_desc.addressMode[2] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[2]]
 
-        if not isinstance(texture_descriptor.filter_mode, FilterMode):
-            raise TypeError(
-                f"filter_mode must be a FilterMode, got "
-                f"{type(texture_descriptor.filter_mode).__name__}"
-            )
-        tex_desc.filterMode = <cydriver.CUfilter_mode><int>texture_descriptor.filter_mode
-
-        if not isinstance(texture_descriptor.read_mode, ReadMode):
-            raise TypeError(
-                f"read_mode must be a ReadMode, got "
-                f"{type(texture_descriptor.read_mode).__name__}"
-            )
+        tex_desc.filterMode = <cydriver.CUfilter_mode>_FILTERMODE_TO_CU[texture_descriptor.filter_mode]
 
         cdef unsigned int flags = 0
         # CU_TRSF_READ_AS_INTEGER suppresses normalization, so it maps to
-        # ReadMode.ELEMENT_TYPE.
-        if texture_descriptor.read_mode == ReadMode.ELEMENT_TYPE:
+        # ReadModeType.ELEMENT_TYPE.
+        if texture_descriptor.read_mode == ReadModeType.ELEMENT_TYPE:
             flags |= _TRSF_READ_AS_INTEGER
         if texture_descriptor.normalized_coords:
             flags |= _TRSF_NORMALIZED_COORDINATES
@@ -499,12 +508,7 @@ cdef class TextureObject:
             raise ValueError("max_anisotropy must be >= 0")
         tex_desc.maxAnisotropy = <unsigned int>texture_descriptor.max_anisotropy
 
-        if not isinstance(texture_descriptor.mipmap_filter_mode, FilterMode):
-            raise TypeError(
-                f"mipmap_filter_mode must be a FilterMode, got "
-                f"{type(texture_descriptor.mipmap_filter_mode).__name__}"
-            )
-        tex_desc.mipmapFilterMode = <cydriver.CUfilter_mode><int>texture_descriptor.mipmap_filter_mode
+        tex_desc.mipmapFilterMode = <cydriver.CUfilter_mode>_FILTERMODE_TO_CU[texture_descriptor.mipmap_filter_mode]
         tex_desc.mipmapLevelBias = <float>texture_descriptor.mipmap_level_bias
         tex_desc.minMipmapLevelClamp = <float>texture_descriptor.min_mipmap_level_clamp
         tex_desc.maxMipmapLevelClamp = <float>texture_descriptor.max_mipmap_level_clamp

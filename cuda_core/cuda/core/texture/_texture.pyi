@@ -3,34 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import IntEnum
 
-from cuda.bindings import cydriver
+from cuda.core.typing import AddressModeType, ArrayFormatType, FilterModeType, ReadModeType
 
-
-class AddressMode(IntEnum):
-    """Boundary behavior for out-of-range texture coordinates."""
-    WRAP = cydriver.CU_TR_ADDRESS_MODE_WRAP
-    CLAMP = cydriver.CU_TR_ADDRESS_MODE_CLAMP
-    MIRROR = cydriver.CU_TR_ADDRESS_MODE_MIRROR
-    BORDER = cydriver.CU_TR_ADDRESS_MODE_BORDER
-
-class FilterMode(IntEnum):
-    """Texel sampling mode."""
-    POINT = cydriver.CU_TR_FILTER_MODE_POINT
-    LINEAR = cydriver.CU_TR_FILTER_MODE_LINEAR
-
-class ReadMode(IntEnum):
-    """How sampled values are returned to the kernel.
-
-    - ``ELEMENT_TYPE``: return the raw element value (integer formats stay
-      integer, float stays float).
-    - ``NORMALIZED_FLOAT``: integer formats are promoted to a normalized
-      ``float`` in ``[0, 1]`` (unsigned) or ``[-1, 1]`` (signed).
-      Float formats are unaffected.
-    """
-    ELEMENT_TYPE = 0
-    NORMALIZED_FLOAT = 1
 
 class ResourceDescriptor:
     """Describes the memory backing a :class:`TextureObject`.
@@ -81,7 +56,7 @@ class ResourceDescriptor:
         buffer : Buffer
             Device-memory backing. Must remain alive for the lifetime of any
             :class:`TextureObject` built from this descriptor.
-        format : ArrayFormat
+        format : ArrayFormatType or str
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
@@ -105,7 +80,7 @@ class ResourceDescriptor:
         buffer : Buffer
             Device-memory backing. Must remain alive for the lifetime of any
             :class:`TextureObject` built from this descriptor.
-        format : ArrayFormat
+        format : ArrayFormatType or str
             Element format.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
@@ -129,7 +104,7 @@ class ResourceDescriptor:
 
     @property
     def format(self):
-        """The element :class:`ArrayFormat` (``None`` for array-backed)."""
+        """The element :class:`~cuda.core.typing.ArrayFormatType` (``None`` for array-backed)."""
 
     @property
     def num_channels(self):
@@ -160,12 +135,13 @@ class TextureDescriptor:
 
     Attributes
     ----------
-    address_mode : tuple of AddressMode
-        Boundary behavior per axis. May be a single :class:`AddressMode` (applied
-        to all axes) or a tuple of 1-3 entries (one per dimension).
-    filter_mode : FilterMode
+    address_mode : AddressModeType or tuple of AddressModeType
+        Boundary behavior per axis. May be a single
+        :class:`~cuda.core.typing.AddressModeType` (applied to all axes) or a
+        tuple of 1-3 entries (one per dimension). Plain strings are accepted.
+    filter_mode : FilterModeType
         Texel sampling mode. Default ``POINT``.
-    read_mode : ReadMode
+    read_mode : ReadModeType
         How sampled integer values are returned. Default ``ELEMENT_TYPE``.
     normalized_coords : bool
         If True, coordinates are in ``[0, 1]`` instead of pixel indices.
@@ -177,7 +153,7 @@ class TextureDescriptor:
         If True, enable seamless cubemap edge filtering.
     max_anisotropy : int
         Maximum anisotropy; 0 disables anisotropic filtering.
-    mipmap_filter_mode : FilterMode
+    mipmap_filter_mode : FilterModeType
         Filtering between mipmap levels. Default ``POINT``.
     mipmap_level_bias : float
     min_mipmap_level_clamp : float
@@ -186,19 +162,22 @@ class TextureDescriptor:
         4-tuple used when ``address_mode`` includes ``BORDER``; ``None`` means
         zero.
     """
-    address_mode: AddressMode | tuple[AddressMode, ...] = AddressMode.CLAMP
-    filter_mode: FilterMode = FilterMode.POINT
-    read_mode: ReadMode = ReadMode.ELEMENT_TYPE
+    address_mode: AddressModeType | tuple[AddressModeType, ...] = AddressModeType.CLAMP
+    filter_mode: FilterModeType = FilterModeType.POINT
+    read_mode: ReadModeType = ReadModeType.ELEMENT_TYPE
     normalized_coords: bool = False
     srgb: bool = False
     disable_trilinear_optimization: bool = False
     seamless_cubemap: bool = False
     max_anisotropy: int = 0
-    mipmap_filter_mode: FilterMode = FilterMode.POINT
+    mipmap_filter_mode: FilterModeType = FilterModeType.POINT
     mipmap_level_bias: float = 0.0
     min_mipmap_level_clamp: float = 0.0
     max_mipmap_level_clamp: float = 0.0
     border_color: tuple[float, ...] | None = None
+
+    def __post_init__(self) -> None:
+        ...
 
 class TextureObject:
     """A bindless texture handle for kernel-side sampled reads.
@@ -261,6 +240,12 @@ _TRSF_NORMALIZED_COORDINATES = 2
 _TRSF_SRGB = 16
 _TRSF_DISABLE_TRILINEAR_OPTIMIZATION = 32
 _TRSF_SEAMLESS_CUBEMAP = 64
+_ADDRESSMODE_TO_CU: dict
+_FILTERMODE_TO_CU: dict
+
+def _normalize_enum(name, value, enum_type):
+    """Coerce ``value`` to ``enum_type`` (a StrEnum), accepting a plain str."""
 
 def _normalize_address_modes(address_mode):
-    """Return a 3-tuple of AddressMode values from a scalar or 1-3 tuple."""
+    """Return a 3-tuple of :class:`AddressModeType` values from a scalar or
+    1-3 tuple. Individual entries may be plain strings."""
