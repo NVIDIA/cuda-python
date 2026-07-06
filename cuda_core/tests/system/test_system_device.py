@@ -268,6 +268,7 @@ def test_unpack_bitmask_single_value():
         _device._unpack_bitmask(1)
 
 
+@pytest.mark.parallel_threads_limit(4)  # timeouts are slow
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Events not supported on WSL or Windows")
 def test_register_events():
     # This is not the world's greatest test.  All of the events are pretty
@@ -763,27 +764,45 @@ def test_compute_running_processes():
 
 def test_nvlink():
     for device in system.Device.get_all_devices():
-        max_links = _device.NvlinkInfo.max_links
-        assert isinstance(max_links, int)
-        assert max_links > 0
+        with unsupported_before(device, None):
+            for link in range(device.get_nvlink_count()):
+                with unsupported_before(device, None):
+                    nvlink_info = device.get_nvlink(link)
+                assert isinstance(nvlink_info, _device.NvlinkInfo)
 
-        for link in range(max_links):
-            with unsupported_before(device, None):
-                nvlink_info = device.get_nvlink(link)
-            assert isinstance(nvlink_info, _device.NvlinkInfo)
+                with unsupported_before(device, None):
+                    state = nvlink_info.state
+                assert isinstance(state, bool)
 
-            with unsupported_before(device, None):
-                state = nvlink_info.state
-            assert isinstance(state, bool)
+                if not state:
+                    continue
 
-            if not state:
-                continue
+                with unsupported_before(device, None):
+                    version = nvlink_info.version
+                assert isinstance(version, tuple)
+                assert len(version) == 2
+                assert all(isinstance(i, int) for i in version)
 
-            with unsupported_before(device, None):
-                version = nvlink_info.version
-            assert isinstance(version, tuple)
-            assert len(version) == 2
-            assert all(isinstance(i, int) for i in version)
+            for nvlink_info in device.get_nvlinks():
+                assert isinstance(nvlink_info, _device.NvlinkInfo)
+
+                with unsupported_before(device, None):
+                    state = nvlink_info.state
+                assert isinstance(state, bool)
+
+                if not state:
+                    continue
+
+                with unsupported_before(device, None):
+                    version = nvlink_info.version
+                assert isinstance(version, tuple)
+                assert len(version) == 2
+                assert all(isinstance(i, int) for i in version)
+
+
+def test_nvlink_max_links_deprecated():
+    with pytest.warns(DeprecationWarning, match="max_links"):
+        _ = _device.NvlinkInfo.max_links
 
 
 def test_utilization():

@@ -173,6 +173,7 @@ def test_find_binary_cache_negative_result(monkeypatch, mocker):
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.thread_unsafe(reason="functools.cache may replace entry.")
 def test_caching_per_utility():
     """Verify that different utilities have independent cache entries."""
     nvdisasm1 = find_nvidia_binary_utility("nvdisasm")

@@ -36,6 +36,14 @@ struct TaggedHandle {
 using NvvmProgramValue = TaggedHandle<nvvmProgram, 0>;
 using NvJitLinkValue = TaggedHandle<nvJitLink_t, 1>;
 
+// CUtexObject, CUsurfObject and CUdeviceptr are all `unsigned long long`, so
+// shared_ptr<const CUtexObject> et al. would be the *same* C++ type as
+// DevicePtrHandle (and each other), collapsing the as_cu/as_intptr/as_py
+// overload sets. Tag them to keep each handle type distinct, exactly as the
+// NVVM / nvJitLink handles above do.
+using TexObjectValue = TaggedHandle<CUtexObject, 2>;
+using SurfObjectValue = TaggedHandle<CUsurfObject, 3>;
+
 // ============================================================================
 // Thread-local error handling
 // ============================================================================
@@ -100,6 +108,7 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
 // Graph
 extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
+extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
 
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
@@ -107,6 +116,17 @@ extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
 // Graphics interop
 extern decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources;
 extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
+
+// Texture / surface / array (PR #467)
+extern decltype(&cuArray3DCreate) p_cuArray3DCreate;
+extern decltype(&cuArrayDestroy) p_cuArrayDestroy;
+extern decltype(&cuMipmappedArrayCreate) p_cuMipmappedArrayCreate;
+extern decltype(&cuMipmappedArrayDestroy) p_cuMipmappedArrayDestroy;
+extern decltype(&cuMipmappedArrayGetLevel) p_cuMipmappedArrayGetLevel;
+extern decltype(&cuTexObjectCreate) p_cuTexObjectCreate;
+extern decltype(&cuTexObjectDestroy) p_cuTexObjectDestroy;
+extern decltype(&cuSurfObjectCreate) p_cuSurfObjectCreate;
+extern decltype(&cuSurfObjectDestroy) p_cuSurfObjectDestroy;
 
 // SM resource split (13.1+ — may be null on older drivers/bindings)
 #if CUDA_VERSION >= 13010
@@ -164,6 +184,7 @@ using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
 using GraphHandle = std::shared_ptr<const CUgraph>;
+using GraphExecHandle = std::shared_ptr<const CUgraphExec>;
 using GraphNodeHandle = std::shared_ptr<const CUgraphNode>;
 using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
@@ -171,6 +192,10 @@ using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
 using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
 using CuLinkHandle = std::shared_ptr<const CUlinkState>;
 using FileDescriptorHandle = std::shared_ptr<const int>;
+using OpaqueArrayHandle = std::shared_ptr<const CUarray>;
+using MipmappedArrayHandle = std::shared_ptr<const CUmipmappedArray>;
+using TexObjectHandle = std::shared_ptr<const TexObjectValue>;
+using SurfObjectHandle = std::shared_ptr<const SurfObjectValue>;
 
 
 // ============================================================================
@@ -442,6 +467,14 @@ GraphHandle create_graph_handle(CUgraph graph);
 GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
 
 // ============================================================================
+// Graph exec handle functions
+// ============================================================================
+
+// Wrap an externally-created CUgraphExec with RAII cleanup.
+// When the last reference is released, cuGraphExecDestroy is called automatically.
+GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec);
+
+// ============================================================================
 // Graph node handle functions
 // ============================================================================
 
@@ -531,6 +564,61 @@ FileDescriptorHandle create_fd_handle(int fd);
 FileDescriptorHandle create_fd_handle_ref(int fd);
 
 // ============================================================================
+// Array / mipmapped-array / texture / surface handle functions (PR #467)
+//
+// These resources are managed exactly like every other cuda.core resource:
+// the owning handle's deleter calls the matching cu*Destroy with the GIL
+// released, structural dependencies are embedded in the box (so a backing
+// resource always outlives a texture/surface/level built on it), and
+// creation returns an empty handle + thread-local error on failure.
+// ============================================================================
+
+// Create an owning CUDA array via cuArray3DCreate.
+// When the last reference is released, cuArrayDestroy is called automatically.
+// Returns empty handle on error (caller must check).
+OpaqueArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc);
+
+// Create a non-owning array handle (references an existing CUarray).
+// Use for arrays owned elsewhere (e.g. graphics interop). Never destroyed here.
+OpaqueArrayHandle create_array_handle_ref(CUarray arr);
+
+// Create an owning array handle adopting an existing CUarray.
+// When the last reference is released, cuArrayDestroy is called automatically.
+OpaqueArrayHandle create_array_handle_owning(CUarray arr);
+
+// Create a non-owning handle to a mipmap level via cuMipmappedArrayGetLevel.
+// The level CUarray is owned by the mipmap; the parent MipmappedArrayHandle is
+// embedded in the box so it outlives the level view. No destroy in the deleter.
+// Returns empty handle on error (caller must check).
+OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level);
+
+// Create an owning mipmapped array via cuMipmappedArrayCreate.
+// When the last reference is released, cuMipmappedArrayDestroy is called.
+// Returns empty handle on error (caller must check).
+MipmappedArrayHandle create_mipmapped_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc,
+                                                   unsigned int num_levels);
+
+// Create an owning texture object via cuTexObjectCreate, embedding the backing
+// resource handle (array / mipmapped array / linear-or-pitch2d device pointer)
+// so the backing always outlives the texture. cuTexObjectDestroy runs in the
+// deleter. Returns empty handle on error (caller must check).
+TexObjectHandle create_tex_object_handle_array(const CUDA_RESOURCE_DESC& res,
+                                               const CUDA_TEXTURE_DESC& tex,
+                                               const OpaqueArrayHandle& h_backing);
+TexObjectHandle create_tex_object_handle_mipmap(const CUDA_RESOURCE_DESC& res,
+                                                const CUDA_TEXTURE_DESC& tex,
+                                                const MipmappedArrayHandle& h_backing);
+TexObjectHandle create_tex_object_handle_linear(const CUDA_RESOURCE_DESC& res,
+                                                const CUDA_TEXTURE_DESC& tex,
+                                                const DevicePtrHandle& h_backing);
+
+// Create an owning surface object via cuSurfObjectCreate, embedding the backing
+// array handle so it outlives the surface. cuSurfObjectDestroy runs in the
+// deleter. Returns empty handle on error (caller must check).
+SurfObjectHandle create_surf_object_handle(const CUDA_RESOURCE_DESC& res,
+                                           const OpaqueArrayHandle& h_backing);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
@@ -571,6 +659,10 @@ inline CUgraph as_cu(const GraphHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgraphExec as_cu(const GraphExecHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline CUgraphNode as_cu(const GraphNodeHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -593,6 +685,24 @@ inline nvJitLink_t as_cu(const NvJitLinkHandle& h) noexcept {
 
 inline CUlinkState as_cu(const CuLinkHandle& h) noexcept {
     return h ? *h : nullptr;
+}
+
+inline CUarray as_cu(const OpaqueArrayHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline CUmipmappedArray as_cu(const MipmappedArrayHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+// CUtexObject / CUsurfObject are integer-valued (like CUdeviceptr); null is 0.
+// The raw value lives in the tagged wrapper's `raw` field.
+inline CUtexObject as_cu(const TexObjectHandle& h) noexcept {
+    return h ? h->raw : 0;
+}
+
+inline CUsurfObject as_cu(const SurfObjectHandle& h) noexcept {
+    return h ? h->raw : 0;
 }
 
 // as_intptr() - extract handle as intptr_t for Python interop
@@ -633,6 +743,10 @@ inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
+inline std::intptr_t as_intptr(const GraphExecHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
 inline std::intptr_t as_intptr(const GraphNodeHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
@@ -659,6 +773,22 @@ inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
 
 inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
     return h ? static_cast<std::intptr_t>(*h) : -1;
+}
+
+inline std::intptr_t as_intptr(const OpaqueArrayHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const MipmappedArrayHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const TexObjectHandle& h) noexcept {
+    return static_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const SurfObjectHandle& h) noexcept {
+    return static_cast<std::intptr_t>(as_cu(h));
 }
 
 // as_py() - convert handle to Python wrapper object (returns new reference)
@@ -743,6 +873,10 @@ inline PyObject* as_py(const GraphHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUgraph", as_intptr(h));
 }
 
+inline PyObject* as_py(const GraphExecHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgraphExec", as_intptr(h));
+}
+
 inline PyObject* as_py(const GraphNodeHandle& h) noexcept {
     if (!as_intptr(h)) {
         Py_RETURN_NONE;
@@ -774,6 +908,22 @@ inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
 
 inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
     return PyLong_FromSsize_t(as_intptr(h));
+}
+
+inline PyObject* as_py(const OpaqueArrayHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUarray", as_intptr(h));
+}
+
+inline PyObject* as_py(const MipmappedArrayHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUmipmappedArray", as_intptr(h));
+}
+
+inline PyObject* as_py(const TexObjectHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUtexObject", as_intptr(h));
+}
+
+inline PyObject* as_py(const SurfObjectHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUsurfObject", as_intptr(h));
 }
 
 // ============================================================================

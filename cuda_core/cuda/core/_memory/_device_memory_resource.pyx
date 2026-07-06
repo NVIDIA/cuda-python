@@ -130,7 +130,16 @@ cdef class DeviceMemoryResource(_MemPool):
     an MMR is created and registered in the receiving process. Subsequently,
     buffers may be serialized and transferred using ordinary :mod:`pickle`
     methods.  The reconstruction procedure uses the registry to find the
-    associated MMR.
+    associated MMR. Unpickling a :class:`Buffer` performs an IPC import from
+    the embedded descriptor; only unpickle buffers received from trusted peers.
+
+    Warning
+    -------
+    IPC descriptors and pickled buffers cross a trust boundary between
+    cooperating same-host processes. A malicious peer can supply crafted
+    descriptor fields. Use :meth:`Buffer.from_ipc_descriptor` only with
+    descriptors from trusted peers, and do not unpickle buffers from
+    untrusted sources.
     """
 
     def __cinit__(self, *args, **kwargs) -> None:

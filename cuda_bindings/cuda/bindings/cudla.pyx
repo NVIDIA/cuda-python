@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated across versions from 1.5.0 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated across versions from 1.5.0 to 13.3.0, generator version 0.3.1.dev1465+gc5c5c8652. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc.stdint cimport intptr_t, uintptr_t
@@ -67,7 +67,7 @@ cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bi
 ###############################################################################
 
 cdef _get_external_memory_handle_desc_dtype_offsets():
-    cdef cudlaExternalMemoryHandleDesc_t pod = cudlaExternalMemoryHandleDesc_t()
+    cdef cudlaExternalMemoryHandleDesc_t pod
     return _numpy.dtype({
         'names': ['ext_buf_object', 'size_'],
         'formats': [_numpy.intp, _numpy.uint64],
@@ -210,7 +210,7 @@ cdef class ExternalMemoryHandleDesc:
 
 
 cdef _get_external_semaphore_handle_desc_dtype_offsets():
-    cdef cudlaExternalSemaphoreHandleDesc_t pod = cudlaExternalSemaphoreHandleDesc_t()
+    cdef cudlaExternalSemaphoreHandleDesc_t pod
     return _numpy.dtype({
         'names': ['ext_sync_object'],
         'formats': [_numpy.intp],
@@ -341,7 +341,7 @@ cdef class ExternalSemaphoreHandleDesc:
 
 
 cdef _get_module_tensor_descriptor_dtype_offsets():
-    cdef cudlaModuleTensorDescriptor pod = cudlaModuleTensorDescriptor()
+    cdef cudlaModuleTensorDescriptor pod
     return _numpy.dtype({
         'names': ['name', 'size_', 'n', 'c', 'h', 'w', 'data_format', 'data_type', 'data_category', 'pixel_format', 'pixel_mapping', 'stride'],
         'formats': [(_numpy.int8, 81), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, (_numpy.uint32, 8)],
@@ -614,7 +614,7 @@ cdef class ModuleTensorDescriptor:
 
 
 cdef _get_fence_dtype_offsets():
-    cdef CudlaFence pod = CudlaFence()
+    cdef CudlaFence pod
     return _numpy.dtype({
         'names': ['fence', 'type'],
         'formats': [_numpy.intp, _numpy.int32],
@@ -1055,7 +1055,7 @@ cdef class ModuleAttribute:
 
 
 cdef _get_wait_events_dtype_offsets():
-    cdef cudlaWaitEvents pod = cudlaWaitEvents()
+    cdef cudlaWaitEvents pod
     return _numpy.dtype({
         'names': ['pre_fences', 'num_events'],
         'formats': [_numpy.intp, _numpy.uint32],
@@ -1195,7 +1195,7 @@ cdef class WaitEvents:
 
 
 cdef _get_signal_events_dtype_offsets():
-    cdef cudlaSignalEvents pod = cudlaSignalEvents()
+    cdef cudlaSignalEvents pod
     return _numpy.dtype({
         'names': ['dev_ptrs', 'eof_fences', 'num_events'],
         'formats': [_numpy.intp, _numpy.intp, _numpy.uint32],
@@ -1361,7 +1361,7 @@ cdef class SignalEvents:
 
 
 cdef _get_task_dtype_offsets():
-    cdef cudlaTask pod = cudlaTask()
+    cdef cudlaTask pod
     return _numpy.dtype({
         'names': ['module_handle', 'output_tensor', 'num_output_tensors', 'num_input_tensors', 'input_tensor', 'wait_events', 'signal_events'],
         'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.intp],
