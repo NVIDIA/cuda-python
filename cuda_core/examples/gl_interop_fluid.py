@@ -401,10 +401,10 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 # TextureObjectOptions / TextureObject / SurfaceObject knob in this example is set.
 # Each visible setting maps to a concrete piece of cuda.core / CUDA behavior:
 #
-#   Device().create_opaque_array(OpaqueArrayOptions(...))   -> allocates a CUDA *array* (opaque, tiled
+#   Device.create_opaque_array(...)  -> allocates a CUDA *array* (opaque, tiled
 #                                       layout optimized for 2D texture fetches),
 #                                       not linear device memory.
-#   ArrayFormatType.FLOAT32              -> each channel is a 32-bit float texel.
+#   ArrayFormatType.FLOAT32          -> each channel is a 32-bit float texel.
 #   num_channels=2 / num_channels=1  -> float2 (vx, vy) vs scalar (pressure /
 #                                       divergence / dye); also fixes the
 #                                       surf2Dwrite byte offset per element.
@@ -414,17 +414,17 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 #                                       is what lets each field be sampled and
 #                                       then written back in the ping-pong.
 #
-#   ResourceDescriptor.from_opaque_array(arr) -> wraps the OpaqueArray as the resource a
-#                                         TextureObject reads from.
-#   FilterModeType.LINEAR                -> free HARDWARE bilinear interpolation;
+#   ResourceDescriptor.from_opaque_array -> wraps the OpaqueArray as the resource a
+#                                           TextureObject reads from.
+#   FilterModeType.LINEAR            -> free HARDWARE bilinear interpolation;
 #                                       this is what makes semi-Lagrangian
 #                                       advection a single tex2D fetch at a
 #                                       fractional back-traced position (no
 #                                       manual lerp, no neighbor gather).
-#   AddressModeType.CLAMP                -> bounded box boundary: out-of-range traces
+#   AddressModeType.CLAMP            -> bounded box boundary: out-of-range traces
 #                                       read the edge texel (ink piles up at the
 #                                       walls instead of wrapping like a torus).
-#   ReadModeType.ELEMENT_TYPE            -> return the stored float value as-is (no
+#   ReadModeType.ELEMENT_TYPE        -> return the stored float value as-is (no
 #                                       integer->[0,1] normalization of texels).
 #   normalized_coords=True           -> sample in [0, 1) so CLAMP is well-defined
 #                                       and texel centers are (i + 0.5) / N.

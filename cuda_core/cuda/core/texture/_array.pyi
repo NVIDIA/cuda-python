@@ -27,6 +27,8 @@ class OpaqueArrayOptions:
         If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so the array can be
         bound as a :class:`~cuda.core.texture.SurfaceObject` for kernel-side
         writes. Default False.
+
+    .. versionadded:: 1.1.0
     """
     shape: tuple[int, ...]
     format: object

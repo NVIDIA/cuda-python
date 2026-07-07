@@ -354,6 +354,8 @@ class TextureObjectOptions:
     border_color : tuple of float or None
         4-tuple used when ``address_mode`` includes ``BORDER``; ``None`` means
         zero.
+
+    .. versionadded:: 1.1.0
     """
 
     address_mode: AddressModeType | tuple[AddressModeType, ...] = AddressModeType.CLAMP
@@ -431,9 +433,12 @@ cdef class TextureObject:
         return self._source_ref
 
     @property
-    def texture_descriptor(self):
-        """The :class:`TextureObjectOptions` this texture was built from."""
-        return self._texture_desc
+    def options(self):
+        """The :class:`TextureObjectOptions` this texture was built from.
+
+        .. versionadded:: 1.1.0
+        """
+        return self._options
 
     @property
     def device(self):
@@ -578,6 +583,6 @@ def _create_texture_object(resource, options):
     cdef TextureObject self = TextureObject.__new__(TextureObject)
     self._handle = h
     self._source_ref = resource
-    self._texture_desc = opts
+    self._options = opts
     self._device_id = _get_current_device_id()
     return self

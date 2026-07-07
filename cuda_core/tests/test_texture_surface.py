@@ -196,7 +196,7 @@ def test_texture_object_create(init_cuda):
         try:
             assert tex.handle != 0
             assert tex.resource is res
-            assert tex.texture_descriptor is tex_desc
+            assert tex.options is tex_desc
         finally:
             tex.close()
     finally:
@@ -465,7 +465,7 @@ def test_mipmapped_array_init_disabled():
         cuda.core.texture._mipmapped_array.MipmappedArray()
 
 
-def test_mipmapped_array_from_descriptor_2d(init_cuda):
+def test_mipmapped_array_create_2d(init_cuda):
     mip = Device().create_mipmapped_array(
         MipmappedArrayOptions(
             shape=(64, 32),
@@ -718,17 +718,17 @@ def test_texture_surface_close_is_idempotent(init_cuda):
 # --- Negative-path validation tests ------------------------------------------
 
 
-def test_array_from_descriptor_rejects_bad_format(init_cuda):
+def test_array_create_rejects_bad_format(init_cuda):
     with pytest.raises(ValueError, match="format must be an ArrayFormatType"):
         Device().create_opaque_array(OpaqueArrayOptions(shape=(8,), format=0, num_channels=1))
 
 
-def test_array_from_descriptor_rejects_non_iterable_shape(init_cuda):
+def test_array_create_rejects_non_iterable_shape(init_cuda):
     with pytest.raises(TypeError, match="shape must be a tuple"):
         Device().create_opaque_array(OpaqueArrayOptions(shape=8, format=ArrayFormatType.UINT8, num_channels=1))
 
 
-def test_array_from_descriptor_rejects_zero_dim(init_cuda):
+def test_array_create_rejects_zero_dim(init_cuda):
     with pytest.raises(ValueError, match=r"shape\[1\] must be >= 1"):
         Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 0), format=ArrayFormatType.UINT8, num_channels=1))
 
@@ -884,11 +884,11 @@ def test_texture_object_rejects_non_resource_descriptor(init_cuda):
         Device().create_texture_object(resource=object(), options=TextureObjectOptions())
 
 
-def test_texture_object_rejects_non_texture_descriptor(init_cuda):
+def test_texture_object_rejects_bad_options_type(init_cuda):
     arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.FLOAT32, num_channels=1))
     try:
         res = ResourceDescriptor.from_opaque_array(arr)
-        with pytest.raises(TypeError, match="texture_descriptor must be a TextureObjectOptions"):
+        with pytest.raises(TypeError, match="must be provided as an object of type TextureObjectOptions"):
             Device().create_texture_object(resource=res, options="nope")
     finally:
         arr.close()
