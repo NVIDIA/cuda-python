@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 #include <stdio.h>
@@ -16,6 +16,8 @@ static const size_t sysrootName64_length = (sizeof("System32") - 1);
 static const char* sysrootName64 = "System32";
 static const size_t libcudaName64_length = (sizeof("\\nvcuda64.dll") - 1);
 static const char* libcudaName64 = "\\nvcuda64.dll";
+static const size_t libcudaNameArm64_length = (sizeof("\\nvcudaa64.dll") - 1);
+static const char* libcudaNameArm64 = "\\nvcudaa64.dll";
 static const size_t sysrootNameX86_length = (sizeof("SysWOW64") - 1);
 static const char* sysrootNameX86 = "SysWOW64";
 static const size_t libcudaNameX86_length = (sizeof("\\nvcuda32.dll") - 1);
@@ -311,8 +313,13 @@ int getCUDALibraryPath(char *libPath, bool isBit64)
     if (isBit64) {
         sysrootName_length = sysrootName64_length;
         sysrootName = sysrootName64;
+#if defined(_M_ARM64) || defined(__aarch64__)
+        libcudaName_length = libcudaNameArm64_length;
+        libcudaName = libcudaNameArm64;
+#else
         libcudaName_length = libcudaName64_length;
         libcudaName = libcudaName64;
+#endif
     }
     else {
         sysrootName_length = sysrootNameX86_length;
