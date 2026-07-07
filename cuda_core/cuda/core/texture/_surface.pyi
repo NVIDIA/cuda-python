@@ -53,4 +53,8 @@ class SurfaceObject:
 def _create_surface_object(resource):
     """Create a :class:`SurfaceObject` on the current device.
 
-    Backs :meth:`cuda.core.Device.create_surface_object`."""
+    Backs :meth:`cuda.core.Device.create_surface_object`. ``resource`` must be a
+    :class:`ResourceDescriptor` wrapping an :class:`OpaqueArray` allocated with
+    ``is_surface_load_store=True``; linear/pitch2d resources are not valid
+    surface backings.
+    """

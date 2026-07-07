@@ -13,7 +13,6 @@ from cuda.core.texture._array import (
     _ARRAYFORMAT_TO_CU,
     _CU_TO_ARRAYFORMAT,
     _FORMAT_ELEM_SIZE,
-    _normalize_array_format,
     _validate_format_channels,
 )
 from cuda.core._memory._buffer cimport Buffer

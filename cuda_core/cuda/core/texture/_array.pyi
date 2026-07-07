@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import numpy
+from cuda.bindings import cydriver
 from cuda.core.typing import ArrayFormatType
 
 
@@ -31,9 +33,8 @@ class OpaqueArrayOptions:
     num_channels: int
     is_surface_load_store: bool = False
 
-    def __post_init__(self) -> None:
+    def __post_init__(self):
         ...
-
 
 class OpaqueArray:
     """An opaque, hardware-laid-out GPU allocation for texture/surface access.
@@ -157,16 +158,23 @@ class OpaqueArray:
 
     def __repr__(self):
         ...
-_ARRAYFORMAT_TO_CU: dict
-_CU_TO_ARRAYFORMAT: dict
-_NUMPY_DTYPE_TO_ARRAYFORMAT: dict
-_FORMAT_ELEM_SIZE: dict
+_ARRAYFORMAT_TO_CU = {ArrayFormatType.UINT8: int(cydriver.CU_AD_FORMAT_UNSIGNED_INT8), ArrayFormatType.UINT16: int(cydriver.CU_AD_FORMAT_UNSIGNED_INT16), ArrayFormatType.UINT32: int(cydriver.CU_AD_FORMAT_UNSIGNED_INT32), ArrayFormatType.INT8: int(cydriver.CU_AD_FORMAT_SIGNED_INT8), ArrayFormatType.INT16: int(cydriver.CU_AD_FORMAT_SIGNED_INT16), ArrayFormatType.INT32: int(cydriver.CU_AD_FORMAT_SIGNED_INT32), ArrayFormatType.FLOAT16: int(cydriver.CU_AD_FORMAT_HALF), ArrayFormatType.FLOAT32: int(cydriver.CU_AD_FORMAT_FLOAT)}
+_CU_TO_ARRAYFORMAT = {cu: fmt for fmt, cu in _ARRAYFORMAT_TO_CU.items()}
+_NUMPY_DTYPE_TO_ARRAYFORMAT = {numpy.dtype(fmt.value): fmt for fmt in ArrayFormatType}
+_FORMAT_ELEM_SIZE = {_ARRAYFORMAT_TO_CU[ArrayFormatType.UINT8]: 1, _ARRAYFORMAT_TO_CU[ArrayFormatType.INT8]: 1, _ARRAYFORMAT_TO_CU[ArrayFormatType.UINT16]: 2, _ARRAYFORMAT_TO_CU[ArrayFormatType.INT16]: 2, _ARRAYFORMAT_TO_CU[ArrayFormatType.FLOAT16]: 2, _ARRAYFORMAT_TO_CU[ArrayFormatType.UINT32]: 4, _ARRAYFORMAT_TO_CU[ArrayFormatType.INT32]: 4, _ARRAYFORMAT_TO_CU[ArrayFormatType.FLOAT32]: 4}
 
 def _normalize_array_format(format):
     """Coerce ``format`` to an :class:`ArrayFormatType`.
 
-    Accepts an :class:`ArrayFormatType` or a plain ``str`` naming one of its
-    values (e.g. ``"float32"``). Raises on anything else."""
+    Accepts, in order of preference:
+
+    * an :class:`ArrayFormatType`;
+    * a plain ``str`` naming one of its values (e.g. ``"float32"``);
+    * a NumPy dtype object (or anything ``numpy.dtype()`` accepts, such as
+      ``numpy.float32``) whose canonical dtype maps 1:1 to one of the eight
+      supported formats.
+
+    Raises :class:`ValueError` on anything else."""
 
 def _validate_format_channels(format, num_channels):
     """Validate the ``(format, num_channels)`` pair shared by the array,
@@ -180,4 +188,8 @@ def _validate_array_shape(shape):
 def _create_opaque_array(options):
     """Allocate a new :class:`OpaqueArray` on the current device.
 
-    Backs :meth:`cuda.core.Device.create_opaque_array`."""
+    Backs :meth:`cuda.core.Device.create_opaque_array`. ``options`` is an
+    :class:`OpaqueArrayOptions` (or a mapping accepted by it); it is validated
+    at construction, so ``shape`` is already a normalized tuple and ``format``
+    an :class:`~cuda.core.typing.ArrayFormatType`.
+    """

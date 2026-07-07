@@ -438,22 +438,26 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 
 def make_velocity_array():
     """Allocate a `float2` velocity CUDA array (channel 0 = vx, channel 1 = vy)."""
-    return Device().create_opaque_array(OpaqueArrayOptions(
-        shape=(WIDTH, HEIGHT),
-        format=ArrayFormatType.FLOAT32,
-        num_channels=2,
-        is_surface_load_store=True,
-    ))
+    return Device().create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(WIDTH, HEIGHT),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=2,
+            is_surface_load_store=True,
+        )
+    )
 
 
 def make_scalar_array():
     """Allocate a single-channel `float` CUDA array (pressure / divergence / dye)."""
-    return Device().create_opaque_array(OpaqueArrayOptions(
-        shape=(WIDTH, HEIGHT),
-        format=ArrayFormatType.FLOAT32,
-        num_channels=1,
-        is_surface_load_store=True,
-    ))
+    return Device().create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(WIDTH, HEIGHT),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=1,
+            is_surface_load_store=True,
+        )
+    )
 
 
 def make_color_array():
@@ -464,12 +468,14 @@ def make_color_array():
     surface-write machinery as the scalar fields -- only the channel count
     (and the surf2Dwrite byte stride, sizeof(float4) = 16) differ.
     """
-    return Device().create_opaque_array(OpaqueArrayOptions(
-        shape=(WIDTH, HEIGHT),
-        format=ArrayFormatType.FLOAT32,
-        num_channels=4,
-        is_surface_load_store=True,
-    ))
+    return Device().create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(WIDTH, HEIGHT),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=4,
+            is_surface_load_store=True,
+        )
+    )
 
 
 def make_texture(arr):

@@ -71,11 +71,13 @@ def main():
         # buffer fed into copy_from must be laid out as H rows of W elements
         # (row-major), i.e. host_pattern.shape == (H, W).
         width, height = 16, 16
-        with Device().create_opaque_array(OpaqueArrayOptions(
-            shape=(width, height),
-            format=ArrayFormatType.FLOAT32,
-            num_channels=1,
-        )) as arr:
+        with Device().create_opaque_array(
+            OpaqueArrayOptions(
+                shape=(width, height),
+                format=ArrayFormatType.FLOAT32,
+                num_channels=1,
+            )
+        ) as arr:
             # Plant a known pattern: pattern[y, x] = x + 100*y.
             # Cast to float32 so the byte count matches the array's storage.
             ys, xs = np.meshgrid(

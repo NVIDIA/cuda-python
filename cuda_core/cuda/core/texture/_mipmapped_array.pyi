@@ -20,9 +20,14 @@ class MipmappedArrayOptions:
     num_channels : int
         Channels per element. Must be 1, 2, or 4.
     num_levels : int
-        Number of mip levels to allocate; must be >= 1.
+        Number of mip levels to allocate; must be >= 1. The driver caps this at
+        the log2 of the largest dimension; passing a larger value yields a
+        driver error.
     is_surface_load_store : bool
-        If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST``. Default False.
+        If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so individual
+        levels (obtained via :meth:`MipmappedArray.get_level`) can be bound as
+        a :class:`~cuda.core.texture.SurfaceObject` for kernel-side writes.
+        Default False.
     """
     shape: tuple[int, ...]
     format: object
@@ -30,9 +35,8 @@ class MipmappedArrayOptions:
     num_levels: int
     is_surface_load_store: bool = False
 
-    def __post_init__(self) -> None:
+    def __post_init__(self):
         ...
-
 
 class MipmappedArray:
     """A mipmapped CUDA array for texture/surface access across levels.
@@ -117,4 +121,7 @@ class MipmappedArray:
 def _create_mipmapped_array(options):
     """Allocate a new :class:`MipmappedArray` on the current device.
 
-    Backs :meth:`cuda.core.Device.create_mipmapped_array`."""
+    Backs :meth:`cuda.core.Device.create_mipmapped_array`. ``options`` is a
+    :class:`MipmappedArrayOptions` (or a mapping accepted by it); its fields are
+    validated at construction.
+    """

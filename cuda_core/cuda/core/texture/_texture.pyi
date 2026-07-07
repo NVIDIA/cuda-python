@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from cuda.core.typing import AddressModeType, ArrayFormatType, FilterModeType, ReadModeType
+from cuda.bindings import cydriver
+from cuda.core.typing import AddressModeType, FilterModeType, ReadModeType
 
 
 class ResourceDescriptor:
@@ -178,7 +179,7 @@ class TextureObjectOptions:
     max_mipmap_level_clamp: float = 0.0
     border_color: tuple[float, ...] | None = None
 
-    def __post_init__(self) -> None:
+    def __post_init__(self):
         ...
 
 class TextureObject:
@@ -232,8 +233,8 @@ _TRSF_NORMALIZED_COORDINATES = 2
 _TRSF_SRGB = 16
 _TRSF_DISABLE_TRILINEAR_OPTIMIZATION = 32
 _TRSF_SEAMLESS_CUBEMAP = 64
-_ADDRESSMODE_TO_CU: dict
-_FILTERMODE_TO_CU: dict
+_ADDRESSMODE_TO_CU = {AddressModeType.WRAP: int(cydriver.CU_TR_ADDRESS_MODE_WRAP), AddressModeType.CLAMP: int(cydriver.CU_TR_ADDRESS_MODE_CLAMP), AddressModeType.MIRROR: int(cydriver.CU_TR_ADDRESS_MODE_MIRROR), AddressModeType.BORDER: int(cydriver.CU_TR_ADDRESS_MODE_BORDER)}
+_FILTERMODE_TO_CU = {FilterModeType.POINT: int(cydriver.CU_TR_FILTER_MODE_POINT), FilterModeType.LINEAR: int(cydriver.CU_TR_FILTER_MODE_LINEAR)}
 
 def _normalize_enum(name, value, enum_type):
     """Coerce ``value`` to ``enum_type`` (a StrEnum), accepting a plain str."""
@@ -245,4 +246,7 @@ def _normalize_address_modes(address_mode):
 def _create_texture_object(resource, options):
     """Create a :class:`TextureObject` on the current device.
 
-    Backs :meth:`cuda.core.Device.create_texture_object`."""
+    Backs :meth:`cuda.core.Device.create_texture_object`. ``resource`` is a
+    :class:`ResourceDescriptor`; ``options`` is a :class:`TextureObjectOptions`
+    (or a mapping accepted by it).
+    """

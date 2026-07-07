@@ -11,13 +11,10 @@ from cuda.core import (
     Device,
 )
 from cuda.core.texture import (
-    MipmappedArray,
     MipmappedArrayOptions,
     OpaqueArray,
     OpaqueArrayOptions,
     ResourceDescriptor,
-    SurfaceObject,
-    TextureObject,
     TextureObjectOptions,
 )
 from cuda.core.typing import (
@@ -49,7 +46,9 @@ def test_resource_descriptor_init_disabled():
 
 
 def test_array_2d_create_and_properties(init_cuda):
-    arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(32, 16), format=ArrayFormatType.FLOAT32, num_channels=1))
+    arr = Device().create_opaque_array(
+        OpaqueArrayOptions(shape=(32, 16), format=ArrayFormatType.FLOAT32, num_channels=1)
+    )
     try:
         assert arr.shape == (32, 16)
         assert arr.format == ArrayFormatType.FLOAT32
@@ -64,12 +63,14 @@ def test_array_2d_create_and_properties(init_cuda):
 
 
 def test_array_3d_with_surface_flag(init_cuda):
-    arr = Device().create_opaque_array(OpaqueArrayOptions(
-        shape=(8, 8, 4),
-        format=ArrayFormatType.UINT8,
-        num_channels=4,
-        is_surface_load_store=True,
-    ))
+    arr = Device().create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(8, 8, 4),
+            format=ArrayFormatType.UINT8,
+            num_channels=4,
+            is_surface_load_store=True,
+        )
+    )
     try:
         assert arr.shape == (8, 8, 4)
         assert arr.is_surface_load_store is True
@@ -119,7 +120,9 @@ def test_array_rejects_bad_channels(init_cuda):
 
 def test_array_rejects_bad_rank(init_cuda):
     with pytest.raises(ValueError, match="shape rank"):
-        Device().create_opaque_array(OpaqueArrayOptions(shape=(2, 2, 2, 2), format=ArrayFormatType.UINT8, num_channels=1))
+        Device().create_opaque_array(
+            OpaqueArrayOptions(shape=(2, 2, 2, 2), format=ArrayFormatType.UINT8, num_channels=1)
+        )
 
 
 def test_array_roundtrip_copy(init_cuda):
@@ -178,7 +181,9 @@ def test_array_copy_rejects_undersized_device_buffer(init_cuda):
 
 
 def test_texture_object_create(init_cuda):
-    arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(32, 16), format=ArrayFormatType.FLOAT32, num_channels=1))
+    arr = Device().create_opaque_array(
+        OpaqueArrayOptions(shape=(32, 16), format=ArrayFormatType.FLOAT32, num_channels=1)
+    )
     try:
         res = ResourceDescriptor.from_opaque_array(arr)
         tex_desc = TextureObjectOptions(
@@ -199,12 +204,14 @@ def test_texture_object_create(init_cuda):
 
 
 def test_surface_object_create(init_cuda):
-    arr = Device().create_opaque_array(OpaqueArrayOptions(
-        shape=(8, 8),
-        format=ArrayFormatType.UINT8,
-        num_channels=4,
-        is_surface_load_store=True,
-    ))
+    arr = Device().create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(8, 8),
+            format=ArrayFormatType.UINT8,
+            num_channels=4,
+            is_surface_load_store=True,
+        )
+    )
     try:
         surf = Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(arr))
         try:
@@ -247,7 +254,9 @@ def test_address_mode_normalization(init_cuda):
     )
 
     # Smoke test: a 2-entry tuple is also accepted end-to-end.
-    arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 8, 4), format=ArrayFormatType.FLOAT32, num_channels=1))
+    arr = Device().create_opaque_array(
+        OpaqueArrayOptions(shape=(8, 8, 4), format=ArrayFormatType.FLOAT32, num_channels=1)
+    )
     try:
         res = ResourceDescriptor.from_opaque_array(arr)
         tex_desc = TextureObjectOptions(address_mode=(AddressModeType.WRAP, AddressModeType.CLAMP))
@@ -457,12 +466,14 @@ def test_mipmapped_array_init_disabled():
 
 
 def test_mipmapped_array_from_descriptor_2d(init_cuda):
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
-        shape=(64, 32),
-        format=ArrayFormatType.FLOAT32,
-        num_channels=1,
-        num_levels=4,
-    ))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(64, 32),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=1,
+            num_levels=4,
+        )
+    )
     try:
         assert mip.shape == (64, 32)
         assert mip.format == ArrayFormatType.FLOAT32
@@ -477,12 +488,14 @@ def test_mipmapped_array_from_descriptor_2d(init_cuda):
 
 def test_mipmapped_array_get_level_zero_matches_shape(init_cuda):
     shape = (64, 32)
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
-        shape=shape,
-        format=ArrayFormatType.UINT8,
-        num_channels=4,
-        num_levels=4,
-    ))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=shape,
+            format=ArrayFormatType.UINT8,
+            num_channels=4,
+            num_levels=4,
+        )
+    )
     try:
         lvl0 = mip.get_level(0)
         try:
@@ -501,12 +514,14 @@ def test_mipmapped_array_get_level_zero_matches_shape(init_cuda):
 def test_mipmapped_array_get_level_halves_dims(init_cuda):
     shape = (64, 32)
     num_levels = 4
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
-        shape=shape,
-        format=ArrayFormatType.UINT8,
-        num_channels=1,
-        num_levels=num_levels,
-    ))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=shape,
+            format=ArrayFormatType.UINT8,
+            num_channels=1,
+            num_levels=num_levels,
+        )
+    )
     try:
         for level in range(num_levels):
             lvl = mip.get_level(level)
@@ -521,12 +536,14 @@ def test_mipmapped_array_get_level_halves_dims(init_cuda):
 
 
 def test_mipmapped_array_get_level_out_of_range(init_cuda):
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
-        shape=(16, 16),
-        format=ArrayFormatType.UINT8,
-        num_channels=1,
-        num_levels=2,
-    ))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(16, 16),
+            format=ArrayFormatType.UINT8,
+            num_channels=1,
+            num_levels=2,
+        )
+    )
     try:
         with pytest.raises(ValueError, match="num_levels"):
             mip.get_level(mip.num_levels)
@@ -538,21 +555,25 @@ def test_mipmapped_array_get_level_out_of_range(init_cuda):
 
 def test_mipmapped_array_rejects_zero_levels(init_cuda):
     with pytest.raises(ValueError, match="num_levels"):
-        Device().create_mipmapped_array(MipmappedArrayOptions(
-            shape=(8, 8),
-            format=ArrayFormatType.UINT8,
-            num_channels=1,
-            num_levels=0,
-        ))
+        Device().create_mipmapped_array(
+            MipmappedArrayOptions(
+                shape=(8, 8),
+                format=ArrayFormatType.UINT8,
+                num_channels=1,
+                num_levels=0,
+            )
+        )
 
 
 def test_resource_descriptor_from_mipmapped_array(init_cuda):
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
-        shape=(32, 16),
-        format=ArrayFormatType.FLOAT32,
-        num_channels=1,
-        num_levels=3,
-    ))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(32, 16),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=1,
+            num_levels=3,
+        )
+    )
     try:
         res = ResourceDescriptor.from_mipmapped_array(mip)
         assert res.kind == "mipmapped_array"
@@ -567,12 +588,14 @@ def test_resource_descriptor_from_mipmapped_array_rejects_non_mipmap():
 
 
 def test_texture_object_from_mipmapped_array(init_cuda):
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
-        shape=(32, 32),
-        format=ArrayFormatType.FLOAT32,
-        num_channels=1,
-        num_levels=3,
-    ))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(32, 32),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=1,
+            num_levels=3,
+        )
+    )
     try:
         res = ResourceDescriptor.from_mipmapped_array(mip)
         # Use non-default mipmap params so the driver exercises that path.
@@ -596,13 +619,15 @@ def test_texture_object_from_mipmapped_array(init_cuda):
 
 
 def test_surface_rejects_mipmapped_array(init_cuda):
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
-        shape=(16, 16),
-        format=ArrayFormatType.UINT8,
-        num_channels=4,
-        num_levels=2,
-        is_surface_load_store=True,
-    ))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(16, 16),
+            format=ArrayFormatType.UINT8,
+            num_channels=4,
+            num_levels=2,
+            is_surface_load_store=True,
+        )
+    )
     try:
         res = ResourceDescriptor.from_mipmapped_array(mip)
         with pytest.raises(ValueError, match="array-backed"):
@@ -626,12 +651,14 @@ def test_mipmapped_array_level_outlives_dropped_parent(init_cuda):
 
     device = Device()
     stream = device.create_stream()
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
-        shape=(16, 16),
-        format=ArrayFormatType.UINT32,
-        num_channels=1,
-        num_levels=3,
-    ))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(16, 16),
+            format=ArrayFormatType.UINT32,
+            num_channels=1,
+            num_levels=3,
+        )
+    )
     lvl = mip.get_level(1)  # (8, 8)
     # Drop the only Python reference to the parent and force GC.
     del mip
@@ -659,21 +686,25 @@ def test_texture_surface_close_is_idempotent(init_cuda):
     assert arr.handle == 0
     arr.close()  # second close must not raise
 
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=1, num_levels=2))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=1, num_levels=2)
+    )
     mip.close()
     assert mip.handle == 0
     mip.close()
 
-    surf_arr = Device().create_opaque_array(OpaqueArrayOptions(
-        shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=4, is_surface_load_store=True
-    ))
+    surf_arr = Device().create_opaque_array(
+        OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=4, is_surface_load_store=True)
+    )
     surf = Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(surf_arr))
     surf.close()
     assert surf.handle == 0
     surf.close()
     surf_arr.close()
 
-    tex_arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.FLOAT32, num_channels=1))
+    tex_arr = Device().create_opaque_array(
+        OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.FLOAT32, num_channels=1)
+    )
     tex = Device().create_texture_object(
         resource=ResourceDescriptor.from_opaque_array(tex_arr),
         options=TextureObjectOptions(),
@@ -836,12 +867,16 @@ def test_mipmapped_array_rejects_bad_format(init_cuda):
 
 def test_mipmapped_array_rejects_bad_channels(init_cuda):
     with pytest.raises(ValueError, match="num_channels"):
-        Device().create_mipmapped_array(MipmappedArrayOptions(shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=3, num_levels=2))
+        Device().create_mipmapped_array(
+            MipmappedArrayOptions(shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=3, num_levels=2)
+        )
 
 
 def test_mipmapped_array_rejects_zero_dim(init_cuda):
     with pytest.raises(ValueError, match=r"shape\[0\] must be >= 1"):
-        Device().create_mipmapped_array(MipmappedArrayOptions(shape=(0, 8), format=ArrayFormatType.UINT8, num_channels=1, num_levels=1))
+        Device().create_mipmapped_array(
+            MipmappedArrayOptions(shape=(0, 8), format=ArrayFormatType.UINT8, num_channels=1, num_levels=1)
+        )
 
 
 def test_texture_object_rejects_non_resource_descriptor(init_cuda):
@@ -923,7 +958,9 @@ def test_address_mode_rejects_too_long_tuple(init_cuda):
     arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.FLOAT32, num_channels=1))
     try:
         res = ResourceDescriptor.from_opaque_array(arr)
-        td = TextureObjectOptions(address_mode=(AddressModeType.WRAP, AddressModeType.WRAP, AddressModeType.WRAP, AddressModeType.WRAP))
+        td = TextureObjectOptions(
+            address_mode=(AddressModeType.WRAP, AddressModeType.WRAP, AddressModeType.WRAP, AddressModeType.WRAP)
+        )
         with pytest.raises(ValueError, match="address_mode tuple must have 1-3"):
             Device().create_texture_object(resource=res, options=td)
     finally:
@@ -971,12 +1008,14 @@ def test_texture_object_keeps_backing_array_alive(init_cuda):
 
 
 def test_surface_object_keeps_backing_array_alive(init_cuda):
-    arr = Device().create_opaque_array(OpaqueArrayOptions(
-        shape=(8, 8),
-        format=ArrayFormatType.UINT8,
-        num_channels=4,
-        is_surface_load_store=True,
-    ))
+    arr = Device().create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(8, 8),
+            format=ArrayFormatType.UINT8,
+            num_channels=4,
+            is_surface_load_store=True,
+        )
+    )
     surf = Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(arr))
     arr_id = id(arr)
     del arr

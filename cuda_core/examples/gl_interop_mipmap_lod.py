@@ -183,9 +183,7 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
     """
     # ---- Level 0: seed the base image -------------------------------------
     base_arr = mip.get_level(0)  # non-owning view; do NOT use a `with` block
-    with Device().create_surface_object(
-        resource=ResourceDescriptor.from_opaque_array(base_arr)
-    ) as base_surf:
+    with Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(base_arr)) as base_surf:
         block = (16, 16, 1)
         grid = (
             (BASE_SIZE + block[0] - 1) // block[0],
@@ -224,9 +222,7 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
         src_res = ResourceDescriptor.from_opaque_array(src_arr)
         with (
             Device().create_texture_object(resource=src_res, options=src_tex_desc) as src_tex,
-            Device().create_surface_object(
-                resource=ResourceDescriptor.from_opaque_array(dst_arr)
-            ) as dst_surf,
+            Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(dst_arr)) as dst_surf,
         ):
             block = (16, 16, 1)
             grid = (
@@ -412,13 +408,15 @@ def main():
     # --- Step 2: Allocate the mipmap pyramid and build every level ---
     #     is_surface_load_store=True is required for kernel-side writes.
     num_levels = int(math.log2(BASE_SIZE)) + 1
-    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
-        shape=(BASE_SIZE, BASE_SIZE),
-        format=ArrayFormatType.FLOAT32,
-        num_channels=4,
-        num_levels=num_levels,
-        is_surface_load_store=True,
-    ))
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(BASE_SIZE, BASE_SIZE),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=4,
+            num_levels=num_levels,
+            is_surface_load_store=True,
+        )
+    )
     build_mipmap_pyramid(mip, num_levels, stream, kernels)
 
     # --- Step 3: Bind the WHOLE pyramid as a trilinear-filtered texture ---

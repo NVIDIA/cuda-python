@@ -12,16 +12,6 @@ from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._stream import IsStreamType, Stream
 from cuda.core._utils.cuda_utils import ComputeCapability
 from cuda.core.graph import GraphBuilder
-from cuda.core.texture import (
-    MipmappedArray,
-    MipmappedArrayOptions,
-    OpaqueArray,
-    OpaqueArrayOptions,
-    ResourceDescriptor,
-    SurfaceObject,
-    TextureObject,
-    TextureObjectOptions,
-)
 
 
 class DeviceProperties:
@@ -920,26 +910,106 @@ class Device:
 
         """
 
-    def create_opaque_array(self, options: OpaqueArrayOptions | None = None) -> OpaqueArray:
+    def create_opaque_array(self, options: object=None):
         """Create an :obj:`~cuda.core.texture.OpaqueArray` on this device.
 
+        Allocates an opaque, hardware-laid-out CUDA array for texture/surface
+        access. The array is bound to the device/context that is current at
+        construction.
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`~cuda.core.texture.OpaqueArrayOptions`
+            Allocation options (shape, format, channels, surface flag).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.OpaqueArray`
+            Newly created opaque array.
+
         .. versionadded:: 1.1.0
         """
 
-    def create_mipmapped_array(self, options: MipmappedArrayOptions | None = None) -> MipmappedArray:
+    def create_mipmapped_array(self, options: object=None):
         """Create a :obj:`~cuda.core.texture.MipmappedArray` on this device.
 
+        Allocates a mipmapped CUDA array for texture/surface access across
+        levels. The array is bound to the device/context that is current at
+        construction.
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`~cuda.core.texture.MipmappedArrayOptions`
+            Allocation options (shape, format, channels, levels, surface flag).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.MipmappedArray`
+            Newly created mipmapped array.
+
         .. versionadded:: 1.1.0
         """
 
-    def create_texture_object(self, *, resource: ResourceDescriptor, options: TextureObjectOptions | None = None) -> TextureObject:
+    def create_texture_object(self, *, resource, options: object=None):
         """Create a :obj:`~cuda.core.texture.TextureObject` on this device.
 
+        Binds a resource (an :obj:`~cuda.core.texture.OpaqueArray` /
+        :obj:`~cuda.core.texture.MipmappedArray` / linear or pitch2d
+        :obj:`~cuda.core.Buffer`, wrapped in a
+        :obj:`~cuda.core.texture.ResourceDescriptor`) as a bindless texture for
+        kernel-side sampled reads. The object is bound to the device/context
+        that is current at construction.
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        resource : :obj:`~cuda.core.texture.ResourceDescriptor`
+            The memory backing the texture.
+        options : :obj:`~cuda.core.texture.TextureObjectOptions`
+            Sampling state (address/filter/read modes, normalization, etc.).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.TextureObject`
+            Newly created texture object.
+
         .. versionadded:: 1.1.0
         """
 
-    def create_surface_object(self, *, resource: ResourceDescriptor) -> SurfaceObject:
+    def create_surface_object(self, *, resource):
         """Create a :obj:`~cuda.core.texture.SurfaceObject` on this device.
+
+        Binds an :obj:`~cuda.core.texture.OpaqueArray` (via a
+        :obj:`~cuda.core.texture.ResourceDescriptor`) as a bindless surface for
+        kernel-side typed load/store. The backing array must have been created
+        with ``is_surface_load_store=True``. The object is bound to the
+        device/context that is current at construction.
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        resource : :obj:`~cuda.core.texture.ResourceDescriptor`
+            Must wrap an :obj:`~cuda.core.texture.OpaqueArray` allocated with
+            ``is_surface_load_store=True``.
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.SurfaceObject`
+            Newly created surface object.
 
         .. versionadded:: 1.1.0
         """
