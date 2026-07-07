@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5b828e2ee0de9b245c71a6ba9361656ab10f7564caa7e3d9c162b2c6a07fb3df
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1853+g2b0a94a68. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
 from ._internal cimport driver as _driver
 

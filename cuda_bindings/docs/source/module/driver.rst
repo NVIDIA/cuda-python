@@ -1,5 +1,6 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
+.. CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=15f77ea651a2deffa7f7ae710189546cff9c23ba311b693207743eaf339a0a9c
 
 ------
 driver

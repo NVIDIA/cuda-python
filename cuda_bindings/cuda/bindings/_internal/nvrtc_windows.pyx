@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7e496ceaaaf75ed29455bb670e3b3af9ab7d4ba1ea155a129088c04aab9b3c16
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
