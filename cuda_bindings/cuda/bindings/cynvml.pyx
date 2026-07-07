@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ec221879a459b2de9b3dfe54cba58613e9c08b279a95f782a450c98fd7cea532
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
 
 from ._internal cimport nvml as _nvml
 
