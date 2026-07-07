@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -73,6 +73,8 @@ cdef void* __nvJitLinkGetErrorLog = NULL
 cdef void* __nvJitLinkGetInfoLogSize = NULL
 cdef void* __nvJitLinkGetInfoLog = NULL
 cdef void* __nvJitLinkVersion = NULL
+cdef void* __nvJitLinkGetLinkedLTOIRSize = NULL
+cdef void* __nvJitLinkGetLinkedLTOIR = NULL
 
 
 cdef void* load_library() except* with gil:
@@ -189,6 +191,20 @@ cdef int _init_nvjitlink() except -1 nogil:
                 handle = load_library()
             __nvJitLinkVersion = dlsym(handle, 'nvJitLinkVersion')
 
+        global __nvJitLinkGetLinkedLTOIRSize
+        __nvJitLinkGetLinkedLTOIRSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedLTOIRSize')
+        if __nvJitLinkGetLinkedLTOIRSize == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvJitLinkGetLinkedLTOIRSize = dlsym(handle, 'nvJitLinkGetLinkedLTOIRSize')
+
+        global __nvJitLinkGetLinkedLTOIR
+        __nvJitLinkGetLinkedLTOIR = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedLTOIR')
+        if __nvJitLinkGetLinkedLTOIR == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvJitLinkGetLinkedLTOIR = dlsym(handle, 'nvJitLinkGetLinkedLTOIR')
+
         __py_nvjitlink_init = True
         return 0
 
@@ -251,6 +267,12 @@ cpdef dict _inspect_function_pointers():
 
     global __nvJitLinkVersion
     data["__nvJitLinkVersion"] = <intptr_t>__nvJitLinkVersion
+
+    global __nvJitLinkGetLinkedLTOIRSize
+    data["__nvJitLinkGetLinkedLTOIRSize"] = <intptr_t>__nvJitLinkGetLinkedLTOIRSize
+
+    global __nvJitLinkGetLinkedLTOIR
+    data["__nvJitLinkGetLinkedLTOIR"] = <intptr_t>__nvJitLinkGetLinkedLTOIR
 
     func_ptrs = data
     return data
@@ -405,3 +427,23 @@ cdef nvJitLinkResult _nvJitLinkVersion(unsigned int* major, unsigned int* minor)
             raise FunctionNotFoundError("function nvJitLinkVersion is not found")
     return (<nvJitLinkResult (*)(unsigned int*, unsigned int*) noexcept nogil>__nvJitLinkVersion)(
         major, minor)
+
+
+cdef nvJitLinkResult _nvJitLinkGetLinkedLTOIRSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+    global __nvJitLinkGetLinkedLTOIRSize
+    _check_or_init_nvjitlink()
+    if __nvJitLinkGetLinkedLTOIRSize == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvJitLinkGetLinkedLTOIRSize is not found")
+    return (<nvJitLinkResult (*)(nvJitLinkHandle, size_t*) noexcept nogil>__nvJitLinkGetLinkedLTOIRSize)(
+        handle, size)
+
+
+cdef nvJitLinkResult _nvJitLinkGetLinkedLTOIR(nvJitLinkHandle handle, void* ltoir) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+    global __nvJitLinkGetLinkedLTOIR
+    _check_or_init_nvjitlink()
+    if __nvJitLinkGetLinkedLTOIR == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvJitLinkGetLinkedLTOIR is not found")
+    return (<nvJitLinkResult (*)(nvJitLinkHandle, void*) noexcept nogil>__nvJitLinkGetLinkedLTOIR)(
+        handle, ltoir)
