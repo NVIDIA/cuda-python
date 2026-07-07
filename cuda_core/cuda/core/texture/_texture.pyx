@@ -37,6 +37,8 @@ from cuda.core.typing import AddressModeType, FilterModeType, ReadModeType
 
 from dataclasses import dataclass
 
+from cuda.core._utils.cuda_utils import check_or_create_options
+
 
 # Driver texture-descriptor flag bits (CU_TRSF_*).
 _TRSF_READ_AS_INTEGER = 0x01
@@ -409,141 +411,15 @@ cdef class TextureObject:
     :class:`OpaqueArray` referenced by the descriptor) is kept alive for the
     lifetime of this object to prevent dangling handles.
 
-    Construct via :meth:`from_descriptor`. Passes to kernels as a 64-bit
-    handle (via the ``handle`` property).
+    Construct via :meth:`cuda.core.Device.create_texture_object`. Passes to
+    kernels as a 64-bit handle (via the ``handle`` property).
     """
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
             "TextureObject cannot be instantiated directly. "
-            "Use TextureObject.from_descriptor()."
+            "Use Device.create_texture_object()."
         )
-
-    @classmethod
-    def from_descriptor(cls, *, resource, texture_descriptor):
-        """Create a texture object from a resource + sampling descriptor.
-
-        Parameters
-        ----------
-        resource : ResourceDescriptor
-        texture_descriptor : TextureObjectOptions
-        """
-        if not isinstance(resource, ResourceDescriptor):
-            raise TypeError(
-                f"resource must be a ResourceDescriptor, got "
-                f"{type(resource).__name__}"
-            )
-        if not isinstance(texture_descriptor, TextureObjectOptions):
-            raise TypeError(
-                f"texture_descriptor must be a TextureObjectOptions, got "
-                f"{type(texture_descriptor).__name__}"
-            )
-
-        cdef cydriver.CUDA_RESOURCE_DESC res_desc
-        cdef cydriver.CUDA_TEXTURE_DESC tex_desc
-        memset(&res_desc, 0, sizeof(res_desc))
-        memset(&tex_desc, 0, sizeof(tex_desc))
-
-        # --- Resource descriptor ---
-        cdef OpaqueArray arr
-        cdef MipmappedArray mip
-        cdef Buffer buf
-        cdef intptr_t devptr
-        if resource.kind == "array":
-            arr = <OpaqueArray>resource.source
-            res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
-            res_desc.res.array.hArray = as_cu(arr._handle)
-        elif resource.kind == "mipmapped_array":
-            mip = <MipmappedArray>resource.source
-            res_desc.resType = cydriver.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
-            res_desc.res.mipmap.hMipmappedArray = as_cu(mip._handle)
-        elif resource.kind == "linear":
-            buf = <Buffer>resource.source
-            devptr = int(buf.handle)
-            res_desc.resType = cydriver.CU_RESOURCE_TYPE_LINEAR
-            res_desc.res.linear.devPtr = <cydriver.CUdeviceptr>devptr
-            res_desc.res.linear.format = <cydriver.CUarray_format><int>resource._format
-            res_desc.res.linear.numChannels = <unsigned int>resource._num_channels
-            res_desc.res.linear.sizeInBytes = <size_t>resource._size_bytes
-        elif resource.kind == "pitch2d":
-            buf = <Buffer>resource.source
-            devptr = int(buf.handle)
-            res_desc.resType = cydriver.CU_RESOURCE_TYPE_PITCH2D
-            res_desc.res.pitch2D.devPtr = <cydriver.CUdeviceptr>devptr
-            res_desc.res.pitch2D.format = <cydriver.CUarray_format><int>resource._format
-            res_desc.res.pitch2D.numChannels = <unsigned int>resource._num_channels
-            res_desc.res.pitch2D.width = <size_t>resource._width
-            res_desc.res.pitch2D.height = <size_t>resource._height
-            res_desc.res.pitch2D.pitchInBytes = <size_t>resource._pitch_bytes
-        else:
-            raise NotImplementedError(
-                f"ResourceDescriptor kind {resource.kind!r} is not yet supported"
-            )
-
-        # --- Texture descriptor ---
-        # filter_mode/read_mode/mipmap_filter_mode are normalized to their
-        # StrEnum types by TextureObjectOptions.__post_init__; address_mode is
-        # normalized (and str-coerced) here.
-        modes = _normalize_address_modes(texture_descriptor.address_mode)
-        tex_desc.addressMode[0] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[0]]
-        tex_desc.addressMode[1] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[1]]
-        tex_desc.addressMode[2] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[2]]
-
-        tex_desc.filterMode = <cydriver.CUfilter_mode>_FILTERMODE_TO_CU[texture_descriptor.filter_mode]
-
-        cdef unsigned int flags = 0
-        # CU_TRSF_READ_AS_INTEGER suppresses normalization, so it maps to
-        # ReadModeType.ELEMENT_TYPE.
-        if texture_descriptor.read_mode == ReadModeType.ELEMENT_TYPE:
-            flags |= _TRSF_READ_AS_INTEGER
-        if texture_descriptor.normalized_coords:
-            flags |= _TRSF_NORMALIZED_COORDINATES
-        if texture_descriptor.srgb:
-            flags |= _TRSF_SRGB
-        if texture_descriptor.disable_trilinear_optimization:
-            flags |= _TRSF_DISABLE_TRILINEAR_OPTIMIZATION
-        if texture_descriptor.seamless_cubemap:
-            flags |= _TRSF_SEAMLESS_CUBEMAP
-        tex_desc.flags = flags
-
-        if texture_descriptor.max_anisotropy < 0:
-            raise ValueError("max_anisotropy must be >= 0")
-        tex_desc.maxAnisotropy = <unsigned int>texture_descriptor.max_anisotropy
-
-        tex_desc.mipmapFilterMode = <cydriver.CUfilter_mode>_FILTERMODE_TO_CU[texture_descriptor.mipmap_filter_mode]
-        tex_desc.mipmapLevelBias = <float>texture_descriptor.mipmap_level_bias
-        tex_desc.minMipmapLevelClamp = <float>texture_descriptor.min_mipmap_level_clamp
-        tex_desc.maxMipmapLevelClamp = <float>texture_descriptor.max_mipmap_level_clamp
-
-        cdef int i
-        if texture_descriptor.border_color is None:
-            for i in range(4):
-                tex_desc.borderColor[i] = 0.0
-        else:
-            bc = tuple(texture_descriptor.border_color)
-            if len(bc) != 4:
-                raise ValueError(
-                    f"border_color must have 4 elements, got {len(bc)}"
-                )
-            for i in range(4):
-                tex_desc.borderColor[i] = <float>bc[i]
-
-        cdef TexObjectHandle h
-        if resource.kind == "array":
-            h = create_tex_object_handle_array(res_desc, tex_desc, arr._handle)
-        elif resource.kind == "mipmapped_array":
-            h = create_tex_object_handle_mipmap(res_desc, tex_desc, mip._handle)
-        else:  # linear or pitch2d — both backed by a device Buffer
-            h = create_tex_object_handle_linear(res_desc, tex_desc, buf._h_ptr)
-        if not h:
-            HANDLE_RETURN(get_last_error())
-
-        cdef TextureObject self = cls.__new__(cls)
-        self._handle = h
-        self._source_ref = resource
-        self._texture_desc = texture_descriptor
-        self._device_id = _get_current_device_id()
-        return self
 
     @property
     def handle(self):
@@ -583,3 +459,126 @@ cdef class TextureObject:
 
     def __repr__(self):
         return f"TextureObject(handle=0x{as_intptr(self._handle):x})"
+
+
+def _create_texture_object(resource, options):
+    """Create a :class:`TextureObject` on the current device.
+
+    Backs :meth:`cuda.core.Device.create_texture_object`. ``resource`` is a
+    :class:`ResourceDescriptor`; ``options`` is a :class:`TextureObjectOptions`
+    (or a mapping accepted by it).
+    """
+    if not isinstance(resource, ResourceDescriptor):
+        raise TypeError(
+            f"resource must be a ResourceDescriptor, got "
+            f"{type(resource).__name__}"
+        )
+    cdef object opts = check_or_create_options(
+        TextureObjectOptions, options, "Texture object options"
+    )
+
+    cdef cydriver.CUDA_RESOURCE_DESC res_desc
+    cdef cydriver.CUDA_TEXTURE_DESC tex_desc
+    memset(&res_desc, 0, sizeof(res_desc))
+    memset(&tex_desc, 0, sizeof(tex_desc))
+
+    # --- Resource descriptor ---
+    cdef OpaqueArray arr
+    cdef MipmappedArray mip
+    cdef Buffer buf
+    cdef intptr_t devptr
+    if resource.kind == "array":
+        arr = <OpaqueArray>resource.source
+        res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
+        res_desc.res.array.hArray = as_cu(arr._handle)
+    elif resource.kind == "mipmapped_array":
+        mip = <MipmappedArray>resource.source
+        res_desc.resType = cydriver.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
+        res_desc.res.mipmap.hMipmappedArray = as_cu(mip._handle)
+    elif resource.kind == "linear":
+        buf = <Buffer>resource.source
+        devptr = int(buf.handle)
+        res_desc.resType = cydriver.CU_RESOURCE_TYPE_LINEAR
+        res_desc.res.linear.devPtr = <cydriver.CUdeviceptr>devptr
+        res_desc.res.linear.format = <cydriver.CUarray_format><int>resource._format
+        res_desc.res.linear.numChannels = <unsigned int>resource._num_channels
+        res_desc.res.linear.sizeInBytes = <size_t>resource._size_bytes
+    elif resource.kind == "pitch2d":
+        buf = <Buffer>resource.source
+        devptr = int(buf.handle)
+        res_desc.resType = cydriver.CU_RESOURCE_TYPE_PITCH2D
+        res_desc.res.pitch2D.devPtr = <cydriver.CUdeviceptr>devptr
+        res_desc.res.pitch2D.format = <cydriver.CUarray_format><int>resource._format
+        res_desc.res.pitch2D.numChannels = <unsigned int>resource._num_channels
+        res_desc.res.pitch2D.width = <size_t>resource._width
+        res_desc.res.pitch2D.height = <size_t>resource._height
+        res_desc.res.pitch2D.pitchInBytes = <size_t>resource._pitch_bytes
+    else:
+        raise NotImplementedError(
+            f"ResourceDescriptor kind {resource.kind!r} is not yet supported"
+        )
+
+    # --- Texture descriptor ---
+    # filter_mode/read_mode/mipmap_filter_mode are normalized to their
+    # StrEnum types by TextureObjectOptions.__post_init__; address_mode is
+    # normalized (and str-coerced) here.
+    modes = _normalize_address_modes(opts.address_mode)
+    tex_desc.addressMode[0] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[0]]
+    tex_desc.addressMode[1] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[1]]
+    tex_desc.addressMode[2] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[2]]
+
+    tex_desc.filterMode = <cydriver.CUfilter_mode>_FILTERMODE_TO_CU[opts.filter_mode]
+
+    cdef unsigned int flags = 0
+    # CU_TRSF_READ_AS_INTEGER suppresses normalization, so it maps to
+    # ReadModeType.ELEMENT_TYPE.
+    if opts.read_mode == ReadModeType.ELEMENT_TYPE:
+        flags |= _TRSF_READ_AS_INTEGER
+    if opts.normalized_coords:
+        flags |= _TRSF_NORMALIZED_COORDINATES
+    if opts.srgb:
+        flags |= _TRSF_SRGB
+    if opts.disable_trilinear_optimization:
+        flags |= _TRSF_DISABLE_TRILINEAR_OPTIMIZATION
+    if opts.seamless_cubemap:
+        flags |= _TRSF_SEAMLESS_CUBEMAP
+    tex_desc.flags = flags
+
+    if opts.max_anisotropy < 0:
+        raise ValueError("max_anisotropy must be >= 0")
+    tex_desc.maxAnisotropy = <unsigned int>opts.max_anisotropy
+
+    tex_desc.mipmapFilterMode = <cydriver.CUfilter_mode>_FILTERMODE_TO_CU[opts.mipmap_filter_mode]
+    tex_desc.mipmapLevelBias = <float>opts.mipmap_level_bias
+    tex_desc.minMipmapLevelClamp = <float>opts.min_mipmap_level_clamp
+    tex_desc.maxMipmapLevelClamp = <float>opts.max_mipmap_level_clamp
+
+    cdef int i
+    if opts.border_color is None:
+        for i in range(4):
+            tex_desc.borderColor[i] = 0.0
+    else:
+        bc = tuple(opts.border_color)
+        if len(bc) != 4:
+            raise ValueError(
+                f"border_color must have 4 elements, got {len(bc)}"
+            )
+        for i in range(4):
+            tex_desc.borderColor[i] = <float>bc[i]
+
+    cdef TexObjectHandle h
+    if resource.kind == "array":
+        h = create_tex_object_handle_array(res_desc, tex_desc, arr._handle)
+    elif resource.kind == "mipmapped_array":
+        h = create_tex_object_handle_mipmap(res_desc, tex_desc, mip._handle)
+    else:  # linear or pitch2d — both backed by a device Buffer
+        h = create_tex_object_handle_linear(res_desc, tex_desc, buf._h_ptr)
+    if not h:
+        HANDLE_RETURN(get_last_error())
+
+    cdef TextureObject self = TextureObject.__new__(TextureObject)
+    self._handle = h
+    self._source_ref = resource
+    self._texture_desc = opts
+    self._device_id = _get_current_device_id()
+    return self

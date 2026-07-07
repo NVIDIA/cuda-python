@@ -32,7 +32,6 @@ from cuda.core import (
 from cuda.core.texture import (
     OpaqueArrayOptions,
     ResourceDescriptor,
-    TextureObject,
     TextureObjectOptions,
 )
 from cuda.core.typing import (
@@ -96,7 +95,7 @@ def main():
                 read_mode=ReadModeType.ELEMENT_TYPE,
                 normalized_coords=False,
             )
-            with TextureObject.from_descriptor(resource=res_desc, texture_descriptor=tex_desc) as tex:
+            with Device().create_texture_object(resource=res_desc, options=tex_desc) as tex:
                 _run_kernel_and_verify(dev, stream, tex, pattern, width, height, pinned_mr)
     finally:
         stream.close()

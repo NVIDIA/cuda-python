@@ -17,6 +17,10 @@ from cuda.core.texture import (
     MipmappedArrayOptions,
     OpaqueArray,
     OpaqueArrayOptions,
+    ResourceDescriptor,
+    SurfaceObject,
+    TextureObject,
+    TextureObjectOptions,
 )
 
 
@@ -924,6 +928,18 @@ class Device:
 
     def create_mipmapped_array(self, options: MipmappedArrayOptions | None = None) -> MipmappedArray:
         """Create a :obj:`~cuda.core.texture.MipmappedArray` on this device.
+
+        .. versionadded:: 1.1.0
+        """
+
+    def create_texture_object(self, *, resource: ResourceDescriptor, options: TextureObjectOptions | None = None) -> TextureObject:
+        """Create a :obj:`~cuda.core.texture.TextureObject` on this device.
+
+        .. versionadded:: 1.1.0
+        """
+
+    def create_surface_object(self, *, resource: ResourceDescriptor) -> SurfaceObject:
+        """Create a :obj:`~cuda.core.texture.SurfaceObject` on this device.
 
         .. versionadded:: 1.1.0
         """

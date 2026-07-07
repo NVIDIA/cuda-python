@@ -33,69 +33,15 @@ cdef class SurfaceObject:
     ``is_surface_load_store=True`` and is kept alive for the lifetime of this
     object to prevent dangling handles.
 
-    Construct via :meth:`from_array` or :meth:`from_descriptor`. Passes to
+    Construct via :meth:`cuda.core.Device.create_surface_object`. Passes to
     kernels as a 64-bit handle (via the ``handle`` property).
     """
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
             "SurfaceObject cannot be instantiated directly. "
-            "Use SurfaceObject.from_array() or SurfaceObject.from_descriptor()."
+            "Use Device.create_surface_object()."
         )
-
-    @classmethod
-    def from_array(cls, array):
-        """Create a surface object directly from an :class:`OpaqueArray`.
-
-        The array must have been created with ``is_surface_load_store=True``.
-        """
-        if not isinstance(array, OpaqueArray):
-            raise TypeError(f"array must be a OpaqueArray, got {type(array).__name__}")
-        return cls.from_descriptor(resource=ResourceDescriptor.from_opaque_array(array))
-
-    @classmethod
-    def from_descriptor(cls, *, resource):
-        """Create a surface object from a :class:`ResourceDescriptor`.
-
-        Parameters
-        ----------
-        resource : ResourceDescriptor
-            Must wrap an :class:`OpaqueArray` allocated with
-            ``is_surface_load_store=True``. Linear/pitch2d resources are not
-            valid surface backings.
-        """
-        if not isinstance(resource, ResourceDescriptor):
-            raise TypeError(
-                f"resource must be a ResourceDescriptor, got "
-                f"{type(resource).__name__}"
-            )
-        if resource.kind != "array":
-            raise ValueError(
-                f"SurfaceObject requires an array-backed ResourceDescriptor, "
-                f"got kind={resource.kind!r}"
-            )
-
-        cdef OpaqueArray arr = <OpaqueArray>resource.source
-        if not arr.is_surface_load_store:
-            raise ValueError(
-                "OpaqueArray must be created with is_surface_load_store=True to be "
-                "bound as a SurfaceObject"
-            )
-
-        cdef cydriver.CUDA_RESOURCE_DESC res_desc
-        memset(&res_desc, 0, sizeof(res_desc))
-        res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
-        res_desc.res.array.hArray = as_cu(arr._handle)
-
-        cdef SurfObjectHandle h = create_surf_object_handle(res_desc, arr._handle)
-        if not h:
-            HANDLE_RETURN(get_last_error())
-
-        cdef SurfaceObject self = cls.__new__(cls)
-        self._handle = h
-        self._source_ref = resource
-        self._device_id = _get_current_device_id()
-        return self
 
     @property
     def handle(self):
@@ -130,3 +76,45 @@ cdef class SurfaceObject:
 
     def __repr__(self):
         return f"SurfaceObject(handle=0x{as_intptr(self._handle):x})"
+
+
+def _create_surface_object(resource):
+    """Create a :class:`SurfaceObject` on the current device.
+
+    Backs :meth:`cuda.core.Device.create_surface_object`. ``resource`` must be a
+    :class:`ResourceDescriptor` wrapping an :class:`OpaqueArray` allocated with
+    ``is_surface_load_store=True``; linear/pitch2d resources are not valid
+    surface backings.
+    """
+    if not isinstance(resource, ResourceDescriptor):
+        raise TypeError(
+            f"resource must be a ResourceDescriptor, got "
+            f"{type(resource).__name__}"
+        )
+    if resource.kind != "array":
+        raise ValueError(
+            f"SurfaceObject requires an array-backed ResourceDescriptor, "
+            f"got kind={resource.kind!r}"
+        )
+
+    cdef OpaqueArray arr = <OpaqueArray>resource.source
+    if not arr.is_surface_load_store:
+        raise ValueError(
+            "OpaqueArray must be created with is_surface_load_store=True to be "
+            "bound as a SurfaceObject"
+        )
+
+    cdef cydriver.CUDA_RESOURCE_DESC res_desc
+    memset(&res_desc, 0, sizeof(res_desc))
+    res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
+    res_desc.res.array.hArray = as_cu(arr._handle)
+
+    cdef SurfObjectHandle h = create_surf_object_handle(res_desc, arr._handle)
+    if not h:
+        HANDLE_RETURN(get_last_error())
+
+    cdef SurfaceObject self = SurfaceObject.__new__(SurfaceObject)
+    self._handle = h
+    self._source_ref = resource
+    self._device_id = _get_current_device_id()
+    return self

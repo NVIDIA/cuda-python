@@ -103,8 +103,6 @@ from cuda.core import (
 from cuda.core.texture import (
     MipmappedArrayOptions,
     ResourceDescriptor,
-    SurfaceObject,
-    TextureObject,
     TextureObjectOptions,
 )
 from cuda.core.typing import (
@@ -185,7 +183,9 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
     """
     # ---- Level 0: seed the base image -------------------------------------
     base_arr = mip.get_level(0)  # non-owning view; do NOT use a `with` block
-    with SurfaceObject.from_array(base_arr) as base_surf:
+    with Device().create_surface_object(
+        resource=ResourceDescriptor.from_opaque_array(base_arr)
+    ) as base_surf:
         block = (16, 16, 1)
         grid = (
             (BASE_SIZE + block[0] - 1) // block[0],
@@ -223,8 +223,10 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
         dst_arr = mip.get_level(level)
         src_res = ResourceDescriptor.from_opaque_array(src_arr)
         with (
-            TextureObject.from_descriptor(resource=src_res, texture_descriptor=src_tex_desc) as src_tex,
-            SurfaceObject.from_array(dst_arr) as dst_surf,
+            Device().create_texture_object(resource=src_res, options=src_tex_desc) as src_tex,
+            Device().create_surface_object(
+                resource=ResourceDescriptor.from_opaque_array(dst_arr)
+            ) as dst_surf,
         ):
             block = (16, 16, 1)
             grid = (
@@ -435,9 +437,9 @@ def main():
         min_mipmap_level_clamp=0.0,
         max_mipmap_level_clamp=float(num_levels - 1),
     )
-    display_tex = TextureObject.from_descriptor(
+    display_tex = Device().create_texture_object(
         resource=ResourceDescriptor.from_mipmapped_array(mip),
-        texture_descriptor=display_tex_desc,
+        options=display_tex_desc,
     )
 
     # --- Step 4: Open a window and set up the GL/CUDA bridge ---

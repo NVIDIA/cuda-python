@@ -110,8 +110,6 @@ from cuda.core import (
 from cuda.core.texture import (
     OpaqueArrayOptions,
     ResourceDescriptor,
-    SurfaceObject,
-    TextureObject,
     TextureObjectOptions,
 )
 from cuda.core.typing import (
@@ -431,7 +429,7 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 #   normalized_coords=True           -> sample in [0, 1) so CLAMP is well-defined
 #                                       and texel centers are (i + 0.5) / N.
 #
-#   SurfaceObject.from_array(arr)    -> binds the array for surf2Dread/surf2Dwrite.
+#   make_surface(arr)                -> binds the array for surf2Dread/surf2Dwrite.
 #                                       The x coordinate is in BYTES, so it is
 #                                       x * sizeof(elem): sizeof(float2)=8 for
 #                                       velocity, sizeof(float)=4 for the scalars.
@@ -490,7 +488,13 @@ def make_texture(arr):
         # sample at texel centers as (i + 0.5) / N.
         normalized_coords=True,
     )
-    return TextureObject.from_descriptor(resource=res_desc, texture_descriptor=tex_desc)
+    return Device().create_texture_object(resource=res_desc, options=tex_desc)
+
+
+def make_surface(arr):
+    """Bind `arr` as a SurfaceObject for raw surf2Dwrite writes."""
+    res_desc = ResourceDescriptor.from_opaque_array(arr)
+    return Device().create_surface_object(resource=res_desc)
 
 
 def seed_field(stream, kernels, config, vel_surf, dye_surf, prs_surf, seed_value):
@@ -554,25 +558,25 @@ def main():
     #     up front and keep them alive for the whole run.
     #     API MAP: make_texture binds an array as a read-only TextureObject
     #     (LINEAR + CLAMP + normalized; see the API MAP block above), while
-    #     SurfaceObject.from_array binds the SAME array for raw surf2Dwrite
+    #     make_surface binds the SAME array for raw surf2Dwrite
     #     writes -- the read/write halves of one ping-pong buffer.
     vel_tex_a = make_texture(vel_a)
     vel_tex_b = make_texture(vel_b)
-    vel_surf_a = SurfaceObject.from_array(vel_a)
-    vel_surf_b = SurfaceObject.from_array(vel_b)
+    vel_surf_a = make_surface(vel_a)
+    vel_surf_b = make_surface(vel_b)
 
     prs_tex_a = make_texture(prs_a)
     prs_tex_b = make_texture(prs_b)
-    prs_surf_a = SurfaceObject.from_array(prs_a)
-    prs_surf_b = SurfaceObject.from_array(prs_b)
+    prs_surf_a = make_surface(prs_a)
+    prs_surf_b = make_surface(prs_b)
 
     div_tex = make_texture(div)
-    div_surf = SurfaceObject.from_array(div)
+    div_surf = make_surface(div)
 
     dye_tex_a = make_texture(dye_a)
     dye_tex_b = make_texture(dye_b)
-    dye_surf_a = SurfaceObject.from_array(dye_a)
-    dye_surf_b = SurfaceObject.from_array(dye_b)
+    dye_surf_a = make_surface(dye_a)
+    dye_surf_b = make_surface(dye_b)
 
     # --- Step 8: Seed the initial field (curl into vel_a, zero pressure/dye) ---
     seed_field(stream, kernels, config, vel_surf_a, dye_surf_a, prs_surf_a, seed_value=0)

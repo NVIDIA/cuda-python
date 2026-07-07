@@ -188,8 +188,8 @@ class TextureObject:
     :class:`OpaqueArray` referenced by the descriptor) is kept alive for the
     lifetime of this object to prevent dangling handles.
 
-    Construct via :meth:`from_descriptor`. Passes to kernels as a 64-bit
-    handle (via the ``handle`` property).
+    Construct via :meth:`cuda.core.Device.create_texture_object`. Passes to
+    kernels as a 64-bit handle (via the ``handle`` property).
     """
 
     def close(self):
@@ -202,16 +202,6 @@ class TextureObject:
 
     def __init__(self, *args, **kwargs):
         ...
-
-    @classmethod
-    def from_descriptor(cls, *, resource, texture_descriptor):
-        """Create a texture object from a resource + sampling descriptor.
-
-        Parameters
-        ----------
-        resource : ResourceDescriptor
-        texture_descriptor : TextureObjectOptions
-        """
 
     @property
     def handle(self):
@@ -251,3 +241,8 @@ def _normalize_enum(name, value, enum_type):
 def _normalize_address_modes(address_mode):
     """Return a 3-tuple of :class:`AddressModeType` values from a scalar or
     1-3 tuple. Individual entries may be plain strings."""
+
+def _create_texture_object(resource, options):
+    """Create a :class:`TextureObject` on the current device.
+
+    Backs :meth:`cuda.core.Device.create_texture_object`."""

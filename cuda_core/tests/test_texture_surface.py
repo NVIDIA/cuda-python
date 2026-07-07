@@ -187,7 +187,7 @@ def test_texture_object_create(init_cuda):
             read_mode=ReadModeType.ELEMENT_TYPE,
             normalized_coords=True,
         )
-        tex = TextureObject.from_descriptor(resource=res, texture_descriptor=tex_desc)
+        tex = Device().create_texture_object(resource=res, options=tex_desc)
         try:
             assert tex.handle != 0
             assert tex.resource is res
@@ -206,7 +206,7 @@ def test_surface_object_create(init_cuda):
         is_surface_load_store=True,
     ))
     try:
-        surf = SurfaceObject.from_array(arr)
+        surf = Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(arr))
         try:
             assert surf.handle != 0
             assert isinstance(surf.resource, ResourceDescriptor)
@@ -220,7 +220,7 @@ def test_surface_requires_ldst_flag(init_cuda):
     arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=4))
     try:
         with pytest.raises(ValueError, match="is_surface_load_store=True"):
-            SurfaceObject.from_array(arr)
+            Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(arr))
     finally:
         arr.close()
 
@@ -251,7 +251,7 @@ def test_address_mode_normalization(init_cuda):
     try:
         res = ResourceDescriptor.from_opaque_array(arr)
         tex_desc = TextureObjectOptions(address_mode=(AddressModeType.WRAP, AddressModeType.CLAMP))
-        tex = TextureObject.from_descriptor(resource=res, texture_descriptor=tex_desc)
+        tex = Device().create_texture_object(resource=res, options=tex_desc)
         try:
             assert tex.handle != 0
         finally:
@@ -347,7 +347,7 @@ def test_texture_object_from_linear(init_cuda):
     buf = _alloc_device_buffer(device, 1024 * 4)
     try:
         res = ResourceDescriptor.from_linear(buf, format=ArrayFormatType.FLOAT32, num_channels=1)
-        tex = TextureObject.from_descriptor(resource=res, texture_descriptor=TextureObjectOptions())
+        tex = Device().create_texture_object(resource=res, options=TextureObjectOptions())
         try:
             assert tex.handle != 0
             assert tex.resource is res
@@ -417,7 +417,7 @@ def test_texture_object_from_pitch2d(init_cuda):
         )
         assert res.kind == "pitch2d"
         assert "pitch2d" in repr(res)
-        tex = TextureObject.from_descriptor(resource=res, texture_descriptor=TextureObjectOptions())
+        tex = Device().create_texture_object(resource=res, options=TextureObjectOptions())
         try:
             assert tex.handle != 0
         finally:
@@ -432,7 +432,7 @@ def test_surface_rejects_linear_and_pitch2d(init_cuda):
     try:
         res_lin = ResourceDescriptor.from_linear(buf, format=ArrayFormatType.UINT32, num_channels=1)
         with pytest.raises(ValueError, match="array-backed"):
-            SurfaceObject.from_descriptor(resource=res_lin)
+            Device().create_surface_object(resource=res_lin)
 
         res_p2 = ResourceDescriptor.from_pitch2d(
             buf,
@@ -443,7 +443,7 @@ def test_surface_rejects_linear_and_pitch2d(init_cuda):
             pitch_bytes=64,
         )
         with pytest.raises(ValueError, match="array-backed"):
-            SurfaceObject.from_descriptor(resource=res_p2)
+            Device().create_surface_object(resource=res_p2)
     finally:
         buf.close()
 
@@ -585,7 +585,7 @@ def test_texture_object_from_mipmapped_array(init_cuda):
             min_mipmap_level_clamp=0.0,
             max_mipmap_level_clamp=float(mip.num_levels - 1),
         )
-        tex = TextureObject.from_descriptor(resource=res, texture_descriptor=tex_desc)
+        tex = Device().create_texture_object(resource=res, options=tex_desc)
         try:
             assert tex.handle != 0
             assert tex.resource is res
@@ -606,7 +606,7 @@ def test_surface_rejects_mipmapped_array(init_cuda):
     try:
         res = ResourceDescriptor.from_mipmapped_array(mip)
         with pytest.raises(ValueError, match="array-backed"):
-            SurfaceObject.from_descriptor(resource=res)
+            Device().create_surface_object(resource=res)
     finally:
         mip.close()
 
@@ -667,16 +667,16 @@ def test_texture_surface_close_is_idempotent(init_cuda):
     surf_arr = Device().create_opaque_array(OpaqueArrayOptions(
         shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=4, is_surface_load_store=True
     ))
-    surf = SurfaceObject.from_array(surf_arr)
+    surf = Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(surf_arr))
     surf.close()
     assert surf.handle == 0
     surf.close()
     surf_arr.close()
 
     tex_arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.FLOAT32, num_channels=1))
-    tex = TextureObject.from_descriptor(
+    tex = Device().create_texture_object(
         resource=ResourceDescriptor.from_opaque_array(tex_arr),
-        texture_descriptor=TextureObjectOptions(),
+        options=TextureObjectOptions(),
     )
     tex.close()
     assert tex.handle == 0
@@ -846,7 +846,7 @@ def test_mipmapped_array_rejects_zero_dim(init_cuda):
 
 def test_texture_object_rejects_non_resource_descriptor(init_cuda):
     with pytest.raises(TypeError, match="resource must be a ResourceDescriptor"):
-        TextureObject.from_descriptor(resource=object(), texture_descriptor=TextureObjectOptions())
+        Device().create_texture_object(resource=object(), options=TextureObjectOptions())
 
 
 def test_texture_object_rejects_non_texture_descriptor(init_cuda):
@@ -854,7 +854,7 @@ def test_texture_object_rejects_non_texture_descriptor(init_cuda):
     try:
         res = ResourceDescriptor.from_opaque_array(arr)
         with pytest.raises(TypeError, match="texture_descriptor must be a TextureObjectOptions"):
-            TextureObject.from_descriptor(resource=res, texture_descriptor="nope")
+            Device().create_texture_object(resource=res, options="nope")
     finally:
         arr.close()
 
@@ -881,7 +881,7 @@ def test_texture_object_rejects_negative_anisotropy(init_cuda):
         res = ResourceDescriptor.from_opaque_array(arr)
         td = TextureObjectOptions(max_anisotropy=-1)
         with pytest.raises(ValueError, match="max_anisotropy"):
-            TextureObject.from_descriptor(resource=res, texture_descriptor=td)
+            Device().create_texture_object(resource=res, options=td)
     finally:
         arr.close()
 
@@ -892,7 +892,7 @@ def test_texture_object_rejects_bad_border_color_length(init_cuda):
         res = ResourceDescriptor.from_opaque_array(arr)
         td = TextureObjectOptions(border_color=(0.0, 0.0))  # length 2, not 4
         with pytest.raises(ValueError, match="border_color must have 4"):
-            TextureObject.from_descriptor(resource=res, texture_descriptor=td)
+            Device().create_texture_object(resource=res, options=td)
     finally:
         arr.close()
 
@@ -903,7 +903,7 @@ def test_address_mode_rejects_non_addressmode_scalar(init_cuda):
         res = ResourceDescriptor.from_opaque_array(arr)
         td = TextureObjectOptions(address_mode=42)  # int, not AddressModeType / iterable
         with pytest.raises(TypeError, match="address_mode"):
-            TextureObject.from_descriptor(resource=res, texture_descriptor=td)
+            Device().create_texture_object(resource=res, options=td)
     finally:
         arr.close()
 
@@ -914,7 +914,7 @@ def test_address_mode_rejects_empty_tuple(init_cuda):
         res = ResourceDescriptor.from_opaque_array(arr)
         td = TextureObjectOptions(address_mode=())
         with pytest.raises(ValueError, match="address_mode tuple must have 1-3"):
-            TextureObject.from_descriptor(resource=res, texture_descriptor=td)
+            Device().create_texture_object(resource=res, options=td)
     finally:
         arr.close()
 
@@ -925,7 +925,7 @@ def test_address_mode_rejects_too_long_tuple(init_cuda):
         res = ResourceDescriptor.from_opaque_array(arr)
         td = TextureObjectOptions(address_mode=(AddressModeType.WRAP, AddressModeType.WRAP, AddressModeType.WRAP, AddressModeType.WRAP))
         with pytest.raises(ValueError, match="address_mode tuple must have 1-3"):
-            TextureObject.from_descriptor(resource=res, texture_descriptor=td)
+            Device().create_texture_object(resource=res, options=td)
     finally:
         arr.close()
 
@@ -936,7 +936,7 @@ def test_address_mode_rejects_non_addressmode_entry(init_cuda):
         res = ResourceDescriptor.from_opaque_array(arr)
         td = TextureObjectOptions(address_mode=(AddressModeType.WRAP, "bad", AddressModeType.CLAMP))
         with pytest.raises(TypeError, match=r"address_mode\[1\]"):
-            TextureObject.from_descriptor(resource=res, texture_descriptor=td)
+            Device().create_texture_object(resource=res, options=td)
     finally:
         arr.close()
 
@@ -947,7 +947,7 @@ def test_texture_object_keeps_backing_array_alive(init_cuda):
     TextureObject holds a strong ref through its _source_ref slot."""
     arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.FLOAT32, num_channels=1))
     res = ResourceDescriptor.from_opaque_array(arr)
-    tex = TextureObject.from_descriptor(resource=res, texture_descriptor=TextureObjectOptions())
+    tex = Device().create_texture_object(resource=res, options=TextureObjectOptions())
     # Verify the keepalive chain via gc referents: TextureObject -> _source_ref
     # -> ResourceDescriptor -> _source -> OpaqueArray. We can only walk one level
     # at a time, so check tex's referents include the ResourceDescriptor.
@@ -977,7 +977,7 @@ def test_surface_object_keeps_backing_array_alive(init_cuda):
         num_channels=4,
         is_surface_load_store=True,
     ))
-    surf = SurfaceObject.from_array(arr)
+    surf = Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(arr))
     arr_id = id(arr)
     del arr
     gc.collect()
