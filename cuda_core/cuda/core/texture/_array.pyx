@@ -336,6 +336,8 @@ cdef class OpaqueArray:
     Construct via :meth:`cuda.core.Device.create_opaque_array`. Only plain
     1D/2D/3D allocations are supported in this initial version; layered/cubemap/
     sparse variants will follow once their shape semantics are settled.
+
+    .. versionadded:: 1.1.0
     """
 
     def __init__(self, *args, **kwargs):
@@ -384,10 +386,7 @@ cdef class OpaqueArray:
 
     @property
     def element_bytes(self):
-        """Bytes per element (format size * channels).
-
-        .. versionadded:: 1.1.0
-        """
+        """Bytes per element (format size * channels)."""
         return _FORMAT_ELEM_SIZE[self._format] * self._num_channels
 
     @property

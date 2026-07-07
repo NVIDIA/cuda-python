@@ -51,6 +51,8 @@ class MipmappedArray:
     are non-owning and hold a strong reference back to their parent.
 
     Construct via :meth:`cuda.core.Device.create_mipmapped_array`.
+
+    .. versionadded:: 1.1.0
     """
 
     def close(self):

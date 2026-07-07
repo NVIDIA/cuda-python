@@ -58,6 +58,8 @@ class OpaqueArray:
     Construct via :meth:`cuda.core.Device.create_opaque_array`. Only plain
     1D/2D/3D allocations are supported in this initial version; layered/cubemap/
     sparse variants will follow once their shape semantics are settled.
+
+    .. versionadded:: 1.1.0
     """
 
     def close(self):
@@ -100,10 +102,7 @@ class OpaqueArray:
 
     @property
     def element_bytes(self):
-        """Bytes per element (format size * channels).
-
-        .. versionadded:: 1.1.0
-        """
+        """Bytes per element (format size * channels)."""
 
     @property
     def device(self):

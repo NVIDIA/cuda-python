@@ -16,6 +16,8 @@ class SurfaceObject:
 
     Construct via :meth:`cuda.core.Device.create_surface_object`. Passes to
     kernels as a 64-bit handle (via the ``handle`` property).
+
+    .. versionadded:: 1.1.0
     """
 
     def close(self):

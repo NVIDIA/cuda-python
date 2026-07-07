@@ -232,6 +232,8 @@ class ArrayFormatType(StrEnum):
     * ``UINT8`` / ``UINT16`` / ``UINT32`` — unsigned integer elements.
     * ``INT8`` / ``INT16`` / ``INT32`` — signed integer elements.
     * ``FLOAT16`` / ``FLOAT32`` — half- and single-precision float elements.
+
+    .. versionadded:: 1.1.0
     """
 
     UINT8 = "uint8"
@@ -253,6 +255,8 @@ class AddressModeType(StrEnum):
     * ``CLAMP`` — clamp to the edge texel.
     * ``MIRROR`` — reflect coordinates at the boundary.
     * ``BORDER`` — return the configured border color.
+
+    .. versionadded:: 1.1.0
     """
 
     WRAP = "wrap"
@@ -268,6 +272,8 @@ class FilterModeType(StrEnum):
 
     * ``POINT`` — nearest-texel sampling.
     * ``LINEAR`` — (bi/tri)linear interpolation.
+
+    .. versionadded:: 1.1.0
     """
 
     POINT = "point"
@@ -282,6 +288,8 @@ class ReadModeType(StrEnum):
     * ``NORMALIZED_FLOAT`` — integer formats are promoted to a normalized
       ``float`` in ``[0, 1]`` (unsigned) or ``[-1, 1]`` (signed). Float
       formats are unaffected.
+
+    .. versionadded:: 1.1.0
     """
 
     ELEMENT_TYPE = "element_type"

@@ -90,6 +90,8 @@ class ResourceDescriptor:
 
     Linear and pitch2D resources cannot back a :class:`SurfaceObject` — those
     require an :class:`OpaqueArray` allocated with ``is_surface_load_store=True``.
+
+    .. versionadded:: 1.1.0
     """
 
     __slots__ = (
@@ -107,10 +109,7 @@ class ResourceDescriptor:
 
     @classmethod
     def from_opaque_array(cls, array):
-        """Build a resource descriptor backed by a :class:`OpaqueArray`.
-
-        .. versionadded:: 1.1.0
-        """
+        """Build a resource descriptor backed by a :class:`OpaqueArray`."""
         if not isinstance(array, OpaqueArray):
             raise TypeError(f"array must be a OpaqueArray, got {type(array).__name__}")
         self = cls.__new__(cls)
@@ -333,9 +332,10 @@ class TextureObjectOptions:
         :class:`~cuda.core.typing.AddressModeType` (applied to all axes) or a
         tuple of 1-3 entries (one per dimension). Plain strings are accepted.
     filter_mode : FilterModeType
-        Texel sampling mode. Default ``POINT``.
+        Texel sampling mode. Default ``POINT``. Plain strings are accepted.
     read_mode : ReadModeType
         How sampled integer values are returned. Default ``ELEMENT_TYPE``.
+        Plain strings are accepted.
     normalized_coords : bool
         If True, coordinates are in ``[0, 1]`` instead of pixel indices.
     srgb : bool
@@ -347,7 +347,8 @@ class TextureObjectOptions:
     max_anisotropy : int
         Maximum anisotropy; 0 disables anisotropic filtering.
     mipmap_filter_mode : FilterModeType
-        Filtering between mipmap levels. Default ``POINT``.
+        Filtering between mipmap levels. Default ``POINT``. Plain strings are
+        accepted.
     mipmap_level_bias : float
     min_mipmap_level_clamp : float
     max_mipmap_level_clamp : float
@@ -358,15 +359,15 @@ class TextureObjectOptions:
     .. versionadded:: 1.1.0
     """
 
-    address_mode: AddressModeType | tuple[AddressModeType, ...] = AddressModeType.CLAMP
-    filter_mode: FilterModeType = FilterModeType.POINT
-    read_mode: ReadModeType = ReadModeType.ELEMENT_TYPE
+    address_mode: AddressModeType | str | tuple[AddressModeType | str, ...] = AddressModeType.CLAMP
+    filter_mode: FilterModeType | str = FilterModeType.POINT
+    read_mode: ReadModeType | str = ReadModeType.ELEMENT_TYPE
     normalized_coords: bool = False
     srgb: bool = False
     disable_trilinear_optimization: bool = False
     seamless_cubemap: bool = False
     max_anisotropy: int = 0
-    mipmap_filter_mode: FilterModeType = FilterModeType.POINT
+    mipmap_filter_mode: FilterModeType | str = FilterModeType.POINT
     mipmap_level_bias: float = 0.0
     min_mipmap_level_clamp: float = 0.0
     max_mipmap_level_clamp: float = 0.0
@@ -414,6 +415,8 @@ cdef class TextureObject:
 
     Construct via :meth:`cuda.core.Device.create_texture_object`. Passes to
     kernels as a 64-bit handle (via the ``handle`` property).
+
+    .. versionadded:: 1.1.0
     """
 
     def __init__(self, *args, **kwargs):
@@ -434,10 +437,7 @@ cdef class TextureObject:
 
     @property
     def options(self):
-        """The :class:`TextureObjectOptions` this texture was built from.
-
-        .. versionadded:: 1.1.0
-        """
+        """The :class:`TextureObjectOptions` this texture was built from."""
         return self._options
 
     @property
