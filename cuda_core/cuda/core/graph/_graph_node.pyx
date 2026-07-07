@@ -9,8 +9,6 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
-from cpython.ref cimport Py_INCREF
-
 from libc.stddef cimport size_t
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset as c_memset
@@ -22,6 +20,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._event cimport Event
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
+from cuda.core._memory._buffer cimport Buffer
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
 from cuda.core.graph._subclasses cimport (
@@ -42,26 +41,27 @@ from cuda.core.graph._subclasses cimport (
     WhileNode,
 )
 from cuda.core._resource_handles cimport (
-    EventHandle,
     GraphHandle,
     GraphNodeHandle,
-    KernelHandle,
+    OpaqueHandle,
     as_cu,
     as_intptr,
     as_py,
     create_graph_handle_ref,
     create_graph_node_handle,
     graph_node_get_graph,
+    graph_set_slot,
     invalidate_graph_node,
-    py_object_user_object_destroy,
+    make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
-from cuda.core.graph._utils cimport (
-    _attach_host_callback_to_graph,
-    _attach_user_object,
+from cuda.core.graph._host_callback cimport (
+    _attach_host_callback_owners,
+    _resolve_host_callback,
 )
 
+import ctypes as ct
 import weakref
 
 from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
@@ -283,13 +283,25 @@ cdef class GraphNode:
         """
         return GN_free(self, <cydriver.CUdeviceptr>dptr)
 
-    def memset(self, dst: int, value, size_t width, size_t height=1, size_t pitch=0) -> MemsetNode:
+    def memset(
+        self,
+        dst: Buffer | int,
+        value,
+        size_t width,
+        size_t height=1,
+        size_t pitch=0,
+        *,
+        dst_owner=None,
+    ) -> MemsetNode:
         """Add a memset node depending on this node.
 
         Parameters
         ----------
-        dst : int
-            Destination device pointer.
+        dst : Buffer or int
+            Destination. When ``dst`` is a :class:`Buffer`, the underlying
+            allocation is retained for the graph's lifetime. A raw pointer
+            (``int``) is used as-is; the caller must keep the underlying memory
+            alive, or supply ``dst_owner`` to have the graph retain it.
         value : int or buffer-protocol object
             Fill value. int for 1-byte fill (range [0, 256)),
             or buffer-protocol object of 1, 2, or 4 bytes.
@@ -299,18 +311,38 @@ cdef class GraphNode:
             Number of rows (default 1).
         pitch : int, optional
             Pitch of destination in bytes (default 0, unused if height is 1).
+        dst_owner : object, optional
+            Object retained for the graph's lifetime when ``dst`` is a raw
+            pointer. A :class:`Buffer` owner retains its underlying allocation,
+            not the wrapper. Must not be passed when ``dst`` is a :class:`Buffer`.
 
         Returns
         -------
         MemsetNode
             A new MemsetNode representing the memset operation.
+
+        Raises
+        ------
+        ValueError
+            If ``dst_owner`` is given together with a :class:`Buffer` ``dst``.
         """
+        cdef cydriver.CUdeviceptr c_dst
         cdef unsigned int val
         cdef unsigned int elem_size
+        cdef OpaqueHandle dst_slot_owner
+        dst_slot_owner = _resolve_memcpy_operand(dst, dst_owner, "dst", &c_dst)
         val, elem_size = _parse_fill_value(value)
-        return GN_memset(self, <cydriver.CUdeviceptr>dst, val, elem_size, width, height, pitch)
+        return GN_memset(self, c_dst, dst_slot_owner, val, elem_size, width, height, pitch)
 
-    def memcpy(self, dst: int, src: int, size_t size) -> MemcpyNode:
+    def memcpy(
+        self,
+        dst: Buffer | int,
+        src: Buffer | int,
+        size_t size,
+        *,
+        dst_owner=None,
+        src_owner=None,
+    ) -> MemcpyNode:
         """Add a memcpy node depending on this node.
 
         Copies ``size`` bytes from ``src`` to ``dst``. Memory types are
@@ -319,19 +351,42 @@ cdef class GraphNode:
 
         Parameters
         ----------
-        dst : int
-            Destination pointer (device or pinned host).
-        src : int
-            Source pointer (device or pinned host).
+        dst : Buffer or int
+            Destination (device or pinned host). When a :class:`Buffer` is given,
+            the underlying allocation is retained for the graph's lifetime. A raw
+            pointer (``int``) is used as-is; the caller must keep the underlying
+            memory alive, or supply ``dst_owner`` to have the graph retain it.
+        src : Buffer or int
+            Source (device or pinned host). Same retention rules as ``dst``;
+            use ``src_owner`` for a raw pointer.
         size : int
             Number of bytes to copy.
+        dst_owner : object, optional
+            Object retained for the graph's lifetime when ``dst`` is a raw
+            pointer. A :class:`Buffer` owner retains its underlying allocation.
+            Must not be passed when ``dst`` is a :class:`Buffer`.
+        src_owner : object, optional
+            Object retained for the graph's lifetime when ``src`` is a raw
+            pointer. A :class:`Buffer` owner retains its underlying allocation.
+            Must not be passed when ``src`` is a :class:`Buffer`.
 
         Returns
         -------
         MemcpyNode
             A new MemcpyNode representing the copy operation.
+
+        Raises
+        ------
+        ValueError
+            If ``dst_owner`` or ``src_owner`` is given together with a
+            :class:`Buffer` ``dst`` or ``src`` respectively.
         """
-        return GN_memcpy(self, <cydriver.CUdeviceptr>dst, <cydriver.CUdeviceptr>src, size)
+        cdef cydriver.CUdeviceptr c_dst
+        cdef cydriver.CUdeviceptr c_src
+        cdef OpaqueHandle dst_slot_owner, src_slot_owner
+        dst_slot_owner = _resolve_memcpy_operand(dst, dst_owner, "dst", &c_dst)
+        src_slot_owner = _resolve_memcpy_operand(src, src_owner, "src", &c_src)
+        return GN_memcpy(self, c_dst, dst_slot_owner, c_src, src_slot_owner, size)
 
     def embed(self, child: GraphDefinition) -> ChildGraphNode:
         """Add a child graph node depending on this node.
@@ -501,16 +556,6 @@ cdef class GraphNode:
             cydriver.CU_GRAPH_COND_TYPE_SWITCH, count, SwitchNode)
 
 
-cdef void _destroy_event_handle_copy(void* ptr) noexcept nogil:
-    cdef EventHandle* p = <EventHandle*>ptr
-    del p
-
-
-cdef void _destroy_kernel_handle_copy(void* ptr) noexcept nogil:
-    cdef KernelHandle* p = <KernelHandle*>ptr
-    del p
-
-
 cdef inline ConditionalNode _make_conditional_node(
         GraphNode pred,
         GraphCondition condition,
@@ -627,6 +672,7 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef OpaqueHandle owner
 
     if pred_node != NULL:
         deps = &pred_node
@@ -649,14 +695,20 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
         HANDLE_RETURN(cydriver.cuGraphAddKernelNode(
             &new_node, as_cu(h_graph), deps, num_deps, &node_params))
 
-    _attach_user_object(as_cu(h_graph), <void*>new KernelHandle(ker._h_kernel),
-                        <cydriver.CUhostFn>_destroy_kernel_handle_copy)
-
-    cdef object kernel_args = ker_args.kernel_args
-    if kernel_args is not None:
-        Py_INCREF(kernel_args)
-        _attach_user_object(as_cu(h_graph), <void*>kernel_args,
-                            <cydriver.CUhostFn>py_object_user_object_destroy)
+    # Slot 0 keeps the kernel loaded; slot 1 keeps the Python kernel-argument
+    # objects (notably device Buffers) alive for the graph's lifetime. The
+    # driver copies argument values into the node at add time but does not own
+    # the device memory they reference.
+    owner = ker._h_kernel
+    try:
+        HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, owner))
+        kernel_args = ker_args.kernel_args
+        if kernel_args is not None:
+            owner = make_opaque_py(kernel_args)
+            HANDLE_RETURN(graph_set_slot(h_graph, new_node, 1, owner))
+    except:
+        cydriver.cuGraphDestroyNode(new_node)  # best effort
+        raise
 
     return _registered(KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),
@@ -785,8 +837,52 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
     return _registered(FreeNode._create_with_params(create_graph_node_handle(new_node, h_graph), c_dptr))
 
 
+cdef inline OpaqueHandle _buffer_slot_owner(Buffer buf, str label):
+    """Copy a Buffer's device-pointer handle into a graph slot owner."""
+    cdef OpaqueHandle slot_owner
+    if not buf._h_ptr:
+        raise ValueError(f"{label} Buffer has no active allocation")
+    slot_owner = buf._h_ptr
+    return slot_owner
+
+
+cdef inline OpaqueHandle _resolve_memcpy_operand(
+        object operand, object owner, str side, cydriver.CUdeviceptr* out_ptr):
+    """Resolve a memcpy/memset operand to a pointer and optional slot owner.
+
+    ``operand`` is a :class:`Buffer` or a raw integer address; its device
+    pointer is written to ``out_ptr``. For a :class:`Buffer` operand, returns an
+    owner that retains the underlying allocation (not the wrapper). For a raw
+    pointer, returns an owner built from ``owner`` (or an empty handle when
+    ``owner`` is ``None``).
+
+    Raises
+    ------
+    ValueError
+        If ``operand`` is a :class:`Buffer` and ``owner`` is not ``None``.
+        If a :class:`Buffer` operand or ``*_owner`` has no active allocation.
+    """
+    cdef Buffer buf
+
+    if isinstance(operand, Buffer):
+        if owner is not None:
+            raise ValueError(
+                f"{side}_owner cannot be used when {side} is a Buffer"
+            )
+        buf = operand
+        slot_owner = _buffer_slot_owner(buf, side)
+        out_ptr[0] = as_cu(buf._h_ptr)
+        return slot_owner
+    out_ptr[0] = <cydriver.CUdeviceptr><uintptr_t>operand
+    if owner is None:
+        return OpaqueHandle()
+    if isinstance(owner, Buffer):
+        return _buffer_slot_owner(owner, f"{side}_owner")
+    return make_opaque_py(owner)
+
+
 cdef inline MemsetNode GN_memset(
-        GraphNode self, cydriver.CUdeviceptr c_dst,
+        GraphNode self, cydriver.CUdeviceptr c_dst, OpaqueHandle dst_owner,
         unsigned int val, unsigned int elem_size,
         size_t width, size_t height, size_t pitch):
     cdef cydriver.CUDA_MEMSET_NODE_PARAMS memset_params
@@ -817,14 +913,24 @@ cdef inline MemsetNode GN_memset(
             &new_node, as_cu(h_graph), deps, num_deps,
             &memset_params, ctx))
 
+    # Retain the destination allocation for the graph's lifetime (slot 0). Roll
+    # the node back if slot attachment fails, so it cannot outlive an
+    # unretained allocation.
+    if dst_owner:
+        try:
+            HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, dst_owner))
+        except:
+            cydriver.cuGraphDestroyNode(new_node)  # best effort
+            raise
+
     return _registered(MemsetNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst,
         val, elem_size, width, height, pitch))
 
 
 cdef inline MemcpyNode GN_memcpy(
-        GraphNode self, cydriver.CUdeviceptr c_dst,
-        cydriver.CUdeviceptr c_src, size_t size):
+        GraphNode self, cydriver.CUdeviceptr c_dst, OpaqueHandle dst_owner,
+        cydriver.CUdeviceptr c_src, OpaqueHandle src_owner, size_t size):
     cdef unsigned int dst_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
     cdef unsigned int src_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
     cdef cydriver.CUresult ret
@@ -878,6 +984,17 @@ cdef inline MemcpyNode GN_memcpy(
         HANDLE_RETURN(cydriver.cuGraphAddMemcpyNode(
             &new_node, as_cu(h_graph), deps, num_deps, &params, ctx))
 
+    # Retain operand allocations for the graph's lifetime (dst -> slot 0, src ->
+    # slot 1). Roll the node back if slot attachment fails.
+    try:
+        if dst_owner:
+            HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, dst_owner))
+        if src_owner:
+            HANDLE_RETURN(graph_set_slot(h_graph, new_node, 1, src_owner))
+    except:
+        cydriver.cuGraphDestroyNode(new_node)  # best effort
+        raise
+
     return _registered(MemcpyNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst, c_src, size,
         c_dst_type, c_src_type))
@@ -915,6 +1032,7 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef OpaqueHandle owner
 
     if pred_node != NULL:
         deps = &pred_node
@@ -924,8 +1042,12 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
         HANDLE_RETURN(cydriver.cuGraphAddEventRecordNode(
             &new_node, as_cu(h_graph), deps, num_deps, as_cu(ev._h_event)))
 
-    _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
-                        <cydriver.CUhostFn>_destroy_event_handle_copy)
+    owner = ev._h_event
+    try:
+        HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, owner))
+    except:
+        cydriver.cuGraphDestroyNode(new_node)  # best effort
+        raise
 
     return _registered(EventRecordNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), ev._h_event))
@@ -937,6 +1059,7 @@ cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef OpaqueHandle owner
 
     if pred_node != NULL:
         deps = &pred_node
@@ -946,34 +1069,45 @@ cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
         HANDLE_RETURN(cydriver.cuGraphAddEventWaitNode(
             &new_node, as_cu(h_graph), deps, num_deps, as_cu(ev._h_event)))
 
-    _attach_user_object(as_cu(h_graph), <void*>new EventHandle(ev._h_event),
-                        <cydriver.CUhostFn>_destroy_event_handle_copy)
+    owner = ev._h_event
+    try:
+        HANDLE_RETURN(graph_set_slot(h_graph, new_node, 0, owner))
+    except:
+        cydriver.cuGraphDestroyNode(new_node)  # best effort
+        raise
 
     return _registered(EventWaitNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), ev._h_event))
 
 
 cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_data):
-    import ctypes as ct
-
     cdef cydriver.CUDA_HOST_NODE_PARAMS node_params
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef OpaqueHandle fn_owner, data_owner
 
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
 
-    _attach_host_callback_to_graph(
-        as_cu(h_graph), fn, user_data,
-        &node_params.fn, &node_params.userData)
+    _resolve_host_callback(
+        fn, user_data, &node_params.fn, &node_params.userData,
+        &fn_owner, &data_owner)
 
     with nogil:
         HANDLE_RETURN(cydriver.cuGraphAddHostNode(
             &new_node, as_cu(h_graph), deps, num_deps, &node_params))
+
+    # Roll the node back if owner attachment fails: an unretained host node
+    # leaves the driver holding a raw pointer into freed Python memory.
+    try:
+        _attach_host_callback_owners(h_graph, new_node, fn_owner, data_owner)
+    except:
+        cydriver.cuGraphDestroyNode(new_node)  # best effort
+        raise
 
     cdef object callable_obj = fn if not isinstance(fn, ct._CFuncPtr) else None
     return _registered(HostCallbackNode._create_with_params(

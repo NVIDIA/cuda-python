@@ -6,6 +6,7 @@ from __future__ import annotations
 from cuda.core._device import Device
 from cuda.core._event import Event
 from cuda.core._launch_config import LaunchConfig
+from cuda.core._memory._buffer import Buffer
 from cuda.core._module import Kernel
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph._graph_builder import (Graph, GraphCompleteOptions,
@@ -85,7 +86,7 @@ class GraphDefinition:
         See :meth:`GraphNode.deallocate` for full documentation.
         """
 
-    def memset(self, dst: int, value, width: int, height: int=1, pitch: int=0) -> MemsetNode:
+    def memset(self, dst: Buffer | int, value, width: int, height: int=1, pitch: int=0, *, dst_owner=None) -> MemsetNode:
         """Add an entry-point memset node (no dependencies).
 
         See :meth:`GraphNode.memset` for full documentation.
@@ -120,7 +121,7 @@ class GraphDefinition:
             A new EmptyNode that depends on all input nodes.
         """
 
-    def memcpy(self, dst: int, src: int, size: int) -> MemcpyNode:
+    def memcpy(self, dst: Buffer | int, src: Buffer | int, size: int, *, dst_owner=None, src_owner=None) -> MemcpyNode:
         """Add an entry-point memcpy node (no dependencies).
 
         See :meth:`GraphNode.memcpy` for full documentation.
