@@ -276,7 +276,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../license.html">
-    Software License Agreement
+    Apache License 2.0
   </a>
 </li>
 
@@ -493,7 +493,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../license.html">
-    Software License Agreement
+    Apache License 2.0
   </a>
 </li>
 
@@ -1246,7 +1246,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Apache License 2.0</a></li>
 </ul>
 </div>
 </nav></div>
@@ -1309,8 +1309,9 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult" title="Link to this definition">#</a></dt>
-<dd><p>The enumerated type nvrtcResult defines API call result codes.
-NVRTC API functions return nvrtcResult to indicate the call result.</p>
+<dd><p>The enumerated type <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> defines API call result
+codes. NVRTC API functions return <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> to
+indicate the call result.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS">
 <span class="sig-name descname"><span class="pre">NVRTC_SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;nvrtcResult.NVRTC_SUCCESS:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="Link to this definition">#</a></dt>
@@ -1411,7 +1412,7 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetErrorString">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetErrorString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><span class="pre">nvrtcResult</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetErrorString" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to <cite>“NVRTC_SUCCESS”</cite>. For unrecognized enumeration values, it returns <cite>“NVRTC_ERROR unknown”</cite>.</p>
+<dd><p>nvrtcGetErrorString is a helper function that returns a string describing the given <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> code, e.g., NVRTC_SUCCESS to <cite>“NVRTC_SUCCESS”</cite>. For unrecognized enumeration values, it returns <cite>“NVRTC_ERROR unknown”</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a>) – CUDA Runtime Compilation API result code.</p>
@@ -1513,7 +1514,7 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcCreateProgram">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCreateProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">char</span> <span class="pre">*src,</span> <span class="pre">char</span> <span class="pre">*name,</span> <span class="pre">int</span> <span class="pre">numHeaders,</span> <span class="pre">headers:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]],</span> <span class="pre">includeNames:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcCreateProgram" title="Link to this definition">#</a></dt>
-<dd><p>nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter <cite>prog</cite> with it.</p>
+<dd><p>nvrtcCreateProgram creates an instance of <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a> with the given input parameters, and sets the output parameter <cite>prog</cite> with it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2974,7 +2975,7 @@ needed.</p></li>
 
   <p class="copyright">
     
-      Copyright © 2021-2025, NVIDIA.
+      Copyright © 2021-2026, NVIDIA.
       <br/>
     
   </p>
