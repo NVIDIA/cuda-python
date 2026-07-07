@@ -32,8 +32,8 @@ from cuda.core import (
 from cuda.core.texture import (
     OpaqueArray,
     ResourceDescriptor,
-    TextureDescriptor,
     TextureObject,
+    TextureObjectOptions,
 )
 from cuda.core.typing import (
     AddressModeType,
@@ -90,7 +90,7 @@ def main():
 
             # Build a linear-filtering, clamped, non-normalized texture.
             res_desc = ResourceDescriptor.from_opaque_array(arr)
-            tex_desc = TextureDescriptor(
+            tex_desc = TextureObjectOptions(
                 address_mode=AddressModeType.CLAMP,
                 filter_mode=FilterModeType.LINEAR,
                 read_mode=ReadModeType.ELEMENT_TYPE,

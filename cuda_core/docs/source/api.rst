@@ -193,7 +193,7 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
 
    :template: dataclass.rst
 
-   TextureDescriptor
+   TextureObjectOptions
 
 The associated enumerations —
 :class:`~cuda.core.typing.ArrayFormatType`,

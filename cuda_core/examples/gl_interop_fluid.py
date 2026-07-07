@@ -111,8 +111,8 @@ from cuda.core.texture import (
     OpaqueArray,
     ResourceDescriptor,
     SurfaceObject,
-    TextureDescriptor,
     TextureObject,
+    TextureObjectOptions,
 )
 from cuda.core.typing import (
     AddressModeType,
@@ -400,7 +400,7 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 # ============================ API MAP (cuda.core) ===========================
 #
 # The three helpers below are where every OpaqueArray / ResourceDescriptor /
-# TextureDescriptor / TextureObject / SurfaceObject knob in this example is set.
+# TextureObjectOptions / TextureObject / SurfaceObject knob in this example is set.
 # Each visible setting maps to a concrete piece of cuda.core / CUDA behavior:
 #
 #   OpaqueArray.from_descriptor(...)   -> allocates a CUDA *array* (opaque, tiled
@@ -482,7 +482,7 @@ def make_texture(arr):
     gradient) sample exactly at texel centers so LINEAR returns the exact value.
     """
     res_desc = ResourceDescriptor.from_opaque_array(arr)
-    tex_desc = TextureDescriptor(
+    tex_desc = TextureObjectOptions(
         address_mode=AddressModeType.CLAMP,
         filter_mode=FilterModeType.LINEAR,
         read_mode=ReadModeType.ELEMENT_TYPE,

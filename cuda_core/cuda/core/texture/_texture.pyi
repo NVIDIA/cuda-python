@@ -68,7 +68,7 @@ class ResourceDescriptor:
         Notes
         -----
         Texture objects built from a linear resource ignore the
-        :class:`TextureDescriptor` addressing/filtering fields — kernels read
+        :class:`TextureObjectOptions` addressing/filtering fields — kernels read
         through a typed 1D fetch with bounds checking only.
         """
 
@@ -132,7 +132,7 @@ class ResourceDescriptor:
         ...
 
 @dataclass
-class TextureDescriptor:
+class TextureObjectOptions:
     """Sampling state for a :class:`TextureObject` (mirrors ``CUDA_TEXTURE_DESC``).
 
     Attributes
@@ -210,7 +210,7 @@ class TextureObject:
         Parameters
         ----------
         resource : ResourceDescriptor
-        texture_descriptor : TextureDescriptor
+        texture_descriptor : TextureObjectOptions
         """
 
     @property
@@ -223,7 +223,7 @@ class TextureObject:
 
     @property
     def texture_descriptor(self):
-        """The :class:`TextureDescriptor` this texture was built from."""
+        """The :class:`TextureObjectOptions` this texture was built from."""
 
     @property
     def device(self):

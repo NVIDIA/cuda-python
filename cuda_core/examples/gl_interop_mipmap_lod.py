@@ -104,8 +104,8 @@ from cuda.core.texture import (
     MipmappedArray,
     ResourceDescriptor,
     SurfaceObject,
-    TextureDescriptor,
     TextureObject,
+    TextureObjectOptions,
 )
 from cuda.core.typing import (
     AddressModeType,
@@ -207,7 +207,7 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
     # Each iteration reads level (L-1) through a temporary TextureObject and
     # writes level L through a temporary SurfaceObject. Both close cleanly
     # at the end of their `with` blocks.
-    src_tex_desc = TextureDescriptor(
+    src_tex_desc = TextureObjectOptions(
         address_mode=AddressModeType.CLAMP,
         filter_mode=FilterModeType.POINT,  # explicit per-texel reads
         read_mode=ReadModeType.ELEMENT_TYPE,
@@ -425,7 +425,7 @@ def main():
     #     receives the user-controlled bias as a kernel argument and folds
     #     it into the tex2DLod call (avoids rebuilding the TextureObject
     #     whenever the user changes the bias).
-    display_tex_desc = TextureDescriptor(
+    display_tex_desc = TextureObjectOptions(
         address_mode=AddressModeType.WRAP,
         filter_mode=FilterModeType.LINEAR,
         read_mode=ReadModeType.ELEMENT_TYPE,

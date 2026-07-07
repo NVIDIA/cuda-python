@@ -169,7 +169,7 @@ class ResourceDescriptor:
         Notes
         -----
         Texture objects built from a linear resource ignore the
-        :class:`TextureDescriptor` addressing/filtering fields — kernels read
+        :class:`TextureObjectOptions` addressing/filtering fields — kernels read
         through a typed 1D fetch with bounds checking only.
         """
         if not isinstance(buffer, Buffer):
@@ -322,7 +322,7 @@ class ResourceDescriptor:
 
 
 @dataclass
-class TextureDescriptor:
+class TextureObjectOptions:
     """Sampling state for a :class:`TextureObject` (mirrors ``CUDA_TEXTURE_DESC``).
 
     Attributes
@@ -426,16 +426,16 @@ cdef class TextureObject:
         Parameters
         ----------
         resource : ResourceDescriptor
-        texture_descriptor : TextureDescriptor
+        texture_descriptor : TextureObjectOptions
         """
         if not isinstance(resource, ResourceDescriptor):
             raise TypeError(
                 f"resource must be a ResourceDescriptor, got "
                 f"{type(resource).__name__}"
             )
-        if not isinstance(texture_descriptor, TextureDescriptor):
+        if not isinstance(texture_descriptor, TextureObjectOptions):
             raise TypeError(
-                f"texture_descriptor must be a TextureDescriptor, got "
+                f"texture_descriptor must be a TextureObjectOptions, got "
                 f"{type(texture_descriptor).__name__}"
             )
 
@@ -482,7 +482,7 @@ cdef class TextureObject:
 
         # --- Texture descriptor ---
         # filter_mode/read_mode/mipmap_filter_mode are normalized to their
-        # StrEnum types by TextureDescriptor.__post_init__; address_mode is
+        # StrEnum types by TextureObjectOptions.__post_init__; address_mode is
         # normalized (and str-coerced) here.
         modes = _normalize_address_modes(texture_descriptor.address_mode)
         tex_desc.addressMode[0] = <cydriver.CUaddress_mode>_ADDRESSMODE_TO_CU[modes[0]]
@@ -557,7 +557,7 @@ cdef class TextureObject:
 
     @property
     def texture_descriptor(self):
-        """The :class:`TextureDescriptor` this texture was built from."""
+        """The :class:`TextureObjectOptions` this texture was built from."""
         return self._texture_desc
 
     @property
