@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=62a7957d"></script>
+    <script src="_static/documentation_options.js?v=0f022cbe"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev29';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev115';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/api_nvml.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2312/cuda-core/latest/api_nvml.html" />
     <link rel="icon" href="_static/favicon.png"/>
 
     <link rel="index" title="Index" href="genindex.html" />
@@ -593,12 +593,16 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Program.html">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArray.html">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -710,7 +714,7 @@
 through the NVIDIA Management Library (NVML).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> support requires <code class="docutils literal notranslate"><span class="pre">cuda_bindings</span></code> 12.9.6 or later, or 13.2.0 or later.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> support requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.6 or later for CUDA 12.x, or <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.2.0 or later for CUDA 13.x.</p>
 </div>
 <section id="basic-functions">
 <h2>Basic functions<a class="headerlink" href="#basic-functions" title="Link to this heading">#</a></h2>
@@ -762,8 +766,8 @@ through the NVIDIA Management Library (NVML).</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a>(int index, *, uuid, pci_bus_id)</p></td>
 <td><p>Representation of a device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html#cuda.core.system.NvlinkInfo" title="cuda.core.system.NvlinkInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkInfo</span></code></a>(Device device, int link)</p></td>
-<td><p>Nvlink information for a device.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html#cuda.core.system.NvlinkInfo" title="cuda.core.system.NvlinkInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkInfo</span></code></a></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>

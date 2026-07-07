@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=62a7957d"></script>
+    <script src="../_static/documentation_options.js?v=0f022cbe"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev29';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev115';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.typing.ObjectCodeFormatType.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2312/cuda-core/latest/generated/cuda.core.typing.ObjectCodeFormatType.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -591,12 +591,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArray.html">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -720,13 +724,71 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.typing.ObjectCodeFormatType" title="Link to this definition">#</a></dt>
-<dd><p>ObjectCodeFormatType</p>
-<p><strong>PTX</strong>: ptx</p>
-<p><strong>CUBIN</strong>: cubin</p>
-<p><strong>LTOIR</strong>: ltoir</p>
-<p><strong>FATBIN</strong>: fatbin</p>
-<p><strong>OBJECT</strong>: object</p>
-<p><strong>LIBRARY</strong>: library</p>
+<dd><p>Output format for <code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PTX</span></code> — PTX assembly text.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p></li>
+</ul>
+<dl class="simple">
+<dt><strong>PTX</strong>: ptx</dt><dd><p>Output format for <code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
+
+    * <code class="docutils literal notranslate"><span class="pre">PTX</span></code> — PTX assembly text.
+    * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
+    * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
+    * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
+    * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
+</dd>
+<dt><strong>CUBIN</strong>: cubin</dt><dd><p>Output format for <code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
+
+    * <code class="docutils literal notranslate"><span class="pre">PTX</span></code> — PTX assembly text.
+    * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
+    * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
+    * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
+    * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
+</dd>
+<dt><strong>LTOIR</strong>: ltoir</dt><dd><p>Output format for <code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
+
+    * <code class="docutils literal notranslate"><span class="pre">PTX</span></code> — PTX assembly text.
+    * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
+    * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
+    * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
+    * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
+</dd>
+<dt><strong>FATBIN</strong>: fatbin</dt><dd><p>Output format for <code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
+
+    * <code class="docutils literal notranslate"><span class="pre">PTX</span></code> — PTX assembly text.
+    * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
+    * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
+    * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
+    * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
+</dd>
+<dt><strong>OBJECT</strong>: object</dt><dd><p>Output format for <code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
+
+    * <code class="docutils literal notranslate"><span class="pre">PTX</span></code> — PTX assembly text.
+    * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
+    * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
+    * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
+    * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
+</dd>
+<dt><strong>LIBRARY</strong>: library</dt><dd><p>Output format for <code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.
+
+    * <code class="docutils literal notranslate"><span class="pre">PTX</span></code> — PTX assembly text.
+    * <code class="docutils literal notranslate"><span class="pre">CUBIN</span></code> — device-native CUDA binary.
+    * <code class="docutils literal notranslate"><span class="pre">LTOIR</span></code> — LTO (link-time optimization) IR for later linking.
+    * <code class="docutils literal notranslate"><span class="pre">FATBIN</span></code> — fat binary bundling multiple device images.
+    * <code class="docutils literal notranslate"><span class="pre">OBJECT</span></code> — relocatable device object.
+    * <code class="docutils literal notranslate"><span class="pre">LIBRARY</span></code> — device code library.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

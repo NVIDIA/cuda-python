@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../_static/documentation_options.js?v=a86adfc4"></script>
+    <script src="../../_static/documentation_options.js?v=ee471ff7"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.2.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.3.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/module/generated/cuda.bindings.nvml.GpmMetricId.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2312/cuda-bindings/latest/module/generated/cuda.bindings.nvml.GpmMetricId.html" />
     <link rel="icon" href="../../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -276,7 +276,7 @@
 
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../../license.html">
-    Software License Agreement
+    Apache License 2.0
   </a>
 </li>
 
@@ -493,7 +493,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../license.html">
-    Software License Agreement
+    Apache License 2.0
   </a>
 </li>
 
@@ -537,8 +537,8 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.0-notes.html">13.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../release/13.2.1-notes.html">13.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.2.0-notes.html">13.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.1.0-notes.html">13.1.0</a></li>
@@ -546,6 +546,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release/12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.6-notes.html">12.9.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/12.9.4-notes.html">12.9.4</a></li>
@@ -1245,7 +1246,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contribute.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../license.html">Software License Agreement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">Apache License 2.0</a></li>
 </ul>
 </div>
 </nav></div>
@@ -1308,11 +1309,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.nvml.GpmMetricId">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvml.</span></span><span class="sig-name descname"><span class="pre">GpmMetricId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvml.GpmMetricId" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>GPM Metric Identifiers.
-
-See ``nvmlGpmMetricId_t``.
-</pre></div>
-</div>
+<dd><p>GPM Metric Identifiers.</p>
+<p>See <code class="docutils literal notranslate"><span class="pre">nvmlGpmMetricId_t</span></code>.</p>
 <dl class="simple">
 <dt><strong>GPM_METRIC_GRAPHICS_UTIL</strong>: 1</dt><dd><p>Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.</p>
 </dd>
@@ -1567,6 +1565,42 @@ See ``nvmlGpmMetricId_t``.
 <p><strong>GPM_METRIC_GR7_CTXSW_REQUESTS</strong>: 207</p>
 <p><strong>GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ</strong>: 208</p>
 <p><strong>GPM_METRIC_GR7_CTXSW_ACTIVE_PCT</strong>: 209</p>
+<p><strong>GPM_METRIC_NVLINK_L18_RX_PER_SEC</strong>: 212</p>
+<p><strong>GPM_METRIC_NVLINK_L18_TX_PER_SEC</strong>: 213</p>
+<p><strong>GPM_METRIC_NVLINK_L19_RX_PER_SEC</strong>: 214</p>
+<p><strong>GPM_METRIC_NVLINK_L19_TX_PER_SEC</strong>: 215</p>
+<p><strong>GPM_METRIC_NVLINK_L20_RX_PER_SEC</strong>: 216</p>
+<p><strong>GPM_METRIC_NVLINK_L20_TX_PER_SEC</strong>: 217</p>
+<p><strong>GPM_METRIC_NVLINK_L21_RX_PER_SEC</strong>: 218</p>
+<p><strong>GPM_METRIC_NVLINK_L21_TX_PER_SEC</strong>: 219</p>
+<p><strong>GPM_METRIC_NVLINK_L22_RX_PER_SEC</strong>: 220</p>
+<p><strong>GPM_METRIC_NVLINK_L22_TX_PER_SEC</strong>: 221</p>
+<p><strong>GPM_METRIC_NVLINK_L23_RX_PER_SEC</strong>: 222</p>
+<p><strong>GPM_METRIC_NVLINK_L23_TX_PER_SEC</strong>: 223</p>
+<p><strong>GPM_METRIC_NVLINK_L24_RX_PER_SEC</strong>: 224</p>
+<p><strong>GPM_METRIC_NVLINK_L24_TX_PER_SEC</strong>: 225</p>
+<p><strong>GPM_METRIC_NVLINK_L25_RX_PER_SEC</strong>: 226</p>
+<p><strong>GPM_METRIC_NVLINK_L25_TX_PER_SEC</strong>: 227</p>
+<p><strong>GPM_METRIC_NVLINK_L26_RX_PER_SEC</strong>: 228</p>
+<p><strong>GPM_METRIC_NVLINK_L26_TX_PER_SEC</strong>: 229</p>
+<p><strong>GPM_METRIC_NVLINK_L27_RX_PER_SEC</strong>: 230</p>
+<p><strong>GPM_METRIC_NVLINK_L27_TX_PER_SEC</strong>: 231</p>
+<p><strong>GPM_METRIC_NVLINK_L28_RX_PER_SEC</strong>: 232</p>
+<p><strong>GPM_METRIC_NVLINK_L28_TX_PER_SEC</strong>: 233</p>
+<p><strong>GPM_METRIC_NVLINK_L29_RX_PER_SEC</strong>: 234</p>
+<p><strong>GPM_METRIC_NVLINK_L29_TX_PER_SEC</strong>: 235</p>
+<p><strong>GPM_METRIC_NVLINK_L30_RX_PER_SEC</strong>: 236</p>
+<p><strong>GPM_METRIC_NVLINK_L30_TX_PER_SEC</strong>: 237</p>
+<p><strong>GPM_METRIC_NVLINK_L31_RX_PER_SEC</strong>: 238</p>
+<p><strong>GPM_METRIC_NVLINK_L31_TX_PER_SEC</strong>: 239</p>
+<p><strong>GPM_METRIC_NVLINK_L32_RX_PER_SEC</strong>: 240</p>
+<p><strong>GPM_METRIC_NVLINK_L32_TX_PER_SEC</strong>: 241</p>
+<p><strong>GPM_METRIC_NVLINK_L33_RX_PER_SEC</strong>: 242</p>
+<p><strong>GPM_METRIC_NVLINK_L33_TX_PER_SEC</strong>: 243</p>
+<p><strong>GPM_METRIC_NVLINK_L34_RX_PER_SEC</strong>: 244</p>
+<p><strong>GPM_METRIC_NVLINK_L34_TX_PER_SEC</strong>: 245</p>
+<p><strong>GPM_METRIC_NVLINK_L35_RX_PER_SEC</strong>: 246</p>
+<p><strong>GPM_METRIC_NVLINK_L35_TX_PER_SEC</strong>: 247</p>
 <dl class="simple">
 <dt><strong>GPM_METRIC_SM_CYCLES_ELAPSED</strong>: 248</dt><dd><p>The GPU’s SM cycles elapsed since reboot.</p>
 </dd>
@@ -1665,6 +1699,78 @@ See ``nvmlGpmMetricId_t``.
 <dt><strong>GPM_METRIC_NVLINK_L17_RX</strong>: 295</dt><dd><p>NvLink read for link 17 in bytes since reboot.</p>
 </dd>
 <dt><strong>GPM_METRIC_NVLINK_L17_TX</strong>: 296</dt><dd><p>NvLink write for link 17 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L18_RX</strong>: 297</dt><dd><p>NvLink read for link 18 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L18_TX</strong>: 298</dt><dd><p>NvLink write for link 18 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L19_RX</strong>: 299</dt><dd><p>NvLink read for link 19 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L19_TX</strong>: 300</dt><dd><p>NvLink write for link 19 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L20_RX</strong>: 301</dt><dd><p>NvLink read for link 20 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L20_TX</strong>: 302</dt><dd><p>NvLink write for link 20 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L21_RX</strong>: 303</dt><dd><p>NvLink read for link 21 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L21_TX</strong>: 304</dt><dd><p>NvLink write for link 21 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L22_RX</strong>: 305</dt><dd><p>NvLink read for link 22 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L22_TX</strong>: 306</dt><dd><p>NvLink write for link 22 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L23_RX</strong>: 307</dt><dd><p>NvLink read for link 23 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L23_TX</strong>: 308</dt><dd><p>NvLink write for link 23 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L24_RX</strong>: 309</dt><dd><p>NvLink read for link 24 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L24_TX</strong>: 310</dt><dd><p>NvLink write for link 24 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L25_RX</strong>: 311</dt><dd><p>NvLink read for link 25 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L25_TX</strong>: 312</dt><dd><p>NvLink write for link 25 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L26_RX</strong>: 313</dt><dd><p>NvLink read for link 26 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L26_TX</strong>: 314</dt><dd><p>NvLink write for link 26 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L27_RX</strong>: 315</dt><dd><p>NvLink read for link 27 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L27_TX</strong>: 316</dt><dd><p>NvLink write for link 27 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L28_RX</strong>: 317</dt><dd><p>NvLink read for link 28 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L28_TX</strong>: 318</dt><dd><p>NvLink write for link 28 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L29_RX</strong>: 319</dt><dd><p>NvLink read for link 29 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L29_TX</strong>: 320</dt><dd><p>NvLink write for link 29 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L30_RX</strong>: 321</dt><dd><p>NvLink read for link 30 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L30_TX</strong>: 322</dt><dd><p>NvLink write for link 30 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L31_RX</strong>: 323</dt><dd><p>NvLink read for link 31 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L31_TX</strong>: 324</dt><dd><p>NvLink write for link 31 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L32_RX</strong>: 325</dt><dd><p>NvLink read for link 32 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L32_TX</strong>: 326</dt><dd><p>NvLink write for link 32 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L33_RX</strong>: 327</dt><dd><p>NvLink read for link 33 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L33_TX</strong>: 328</dt><dd><p>NvLink write for link 33 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L34_RX</strong>: 329</dt><dd><p>NvLink read for link 34 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L34_TX</strong>: 330</dt><dd><p>NvLink write for link 34 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L35_RX</strong>: 331</dt><dd><p>NvLink read for link 35 in bytes since reboot.</p>
+</dd>
+<dt><strong>GPM_METRIC_NVLINK_L35_TX</strong>: 332</dt><dd><p>NvLink write for link 35 in bytes since reboot.</p>
 </dd>
 <dt><strong>GPM_METRIC_MAX</strong>: 333</dt><dd><p>Maximum value above +1.</p>
 </dd>
@@ -1805,7 +1911,7 @@ See ``nvmlGpmMetricId_t``.
 
   <p class="copyright">
     
-      Copyright © 2021-2025, NVIDIA.
+      Copyright © 2021-2026, NVIDIA.
       <br/>
     
   </p>

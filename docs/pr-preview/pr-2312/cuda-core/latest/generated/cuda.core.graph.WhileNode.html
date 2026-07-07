@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=62a7957d"></script>
+    <script src="../_static/documentation_options.js?v=0f022cbe"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,13 +53,13 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev29';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev115';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.graph.WhileNode.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2312/cuda-core/latest/generated/cuda.core.graph.WhileNode.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -593,12 +593,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html">cuda.core.texture.OpaqueArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArray.html">cuda.core.texture.MipmappedArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -727,9 +731,9 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">device:</span> <span class="pre">'Device'</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">device:</span> <span class="pre">Device</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">memory_type:</span> <span class="pre">GraphMemoryType</span> <span class="pre">=</span> <span class="pre">GraphMemoryType.DEVICE</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">list</span> <span class="pre">peer_access:</span> <span class="pre">list['Device'</span> <span class="pre">|</span> <span class="pre">int]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">list</span> <span class="pre">peer_access:</span> <span class="pre">list[Device</span> <span class="pre">|</span> <span class="pre">int]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode"><span class="pre">AllocNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.allocate" title="Link to this definition">#</a></dt>
@@ -773,7 +777,7 @@ memory allocation nodes per CUDA documentation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.WhileNode.callback">
-<span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><span class="pre">HostCallbackNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.callback" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.callback" title="Link to this definition">#</a></dt>
 <dd><p>Add a host callback node depending on this node.</p>
 <p>The callback runs on the host CPU when the graph reaches this node.
 Two modes are supported:</p>
@@ -828,7 +832,7 @@ copied and its lifetime is tied to the graph.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.WhileNode.destroy">
-<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.graph.WhileNode.destroy" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.destroy" title="Link to this definition">#</a></dt>
 <dd><p>Destroy this node and remove all its edges from the parent graph.</p>
 <p>After this call, <a class="reference internal" href="#cuda.core.graph.WhileNode.is_valid" title="cuda.core.graph.WhileNode.is_valid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_valid</span></code></a> returns <code class="docutils literal notranslate"><span class="pre">False</span></code> and the node
 cannot be re-added to any graph.  Safe to call on an
@@ -950,7 +954,7 @@ a non-zero value at runtime.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> (<a class="reference internal" href="cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><em>LaunchConfig</em></a>) – Launch configuration (grid, block, shared memory, etc.)</p></li>
-<li><p><strong>kernel</strong> (<a class="reference internal" href="cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><em>Kernel</em></a>) – The kernel to launch.</p></li>
+<li><p><strong>kernel</strong> (<em>Kernel</em>) – The kernel to launch.</p></li>
 <li><p><strong>*args</strong> – Kernel arguments.</p></li>
 </ul>
 </dd>
@@ -1131,7 +1135,7 @@ evaluates to a non-zero value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.WhileNode.branches">
 <span class="sig-name descname"><span class="pre">branches</span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.branches" title="Link to this definition">#</a></dt>
-<dd><p>tuple</p>
+<dd><p>tuple[GraphDefinition, …]</p>
 <p>The body graphs for each branch as a tuple of GraphDefinition.</p>
 <p>Returns an empty tuple when reconstructed from the driver
 pre-CUDA 13.2.</p>
@@ -1171,7 +1175,7 @@ as the conditional type cannot be determined.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.WhileNode.graph">
 <span class="sig-name descname"><span class="pre">graph</span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.graph" title="Link to this definition">#</a></dt>
-<dd><p>‘GraphDefinition’</p>
+<dd><p>GraphDefinition</p>
 <p>Return the GraphDefinition this node belongs to.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -1196,32 +1200,54 @@ as the conditional type cannot be determined.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.WhileNode.is_valid">
 <span class="sig-name descname"><span class="pre">is_valid</span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.is_valid" title="Link to this definition">#</a></dt>
-<dd><p>Whether this node is valid (not destroyed).</p>
+<dd><p>bool</p>
+<p>Whether this node is valid (not destroyed).</p>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">False</span></code> after <a class="reference internal" href="#cuda.core.graph.WhileNode.destroy" title="cuda.core.graph.WhileNode.destroy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">destroy()</span></code></a> has been called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.is_valid</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.WhileNode.pred">
 <span class="sig-name descname"><span class="pre">pred</span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.pred" title="Link to this definition">#</a></dt>
-<dd><p>A mutable set-like view of this node’s predecessors.</p>
+<dd><p>AdjacencySetProxy</p>
+<p>A mutable set-like view of this node’s predecessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.pred</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.WhileNode.succ">
 <span class="sig-name descname"><span class="pre">succ</span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.succ" title="Link to this definition">#</a></dt>
-<dd><p>A mutable set-like view of this node’s successors.</p>
+<dd><p>AdjacencySetProxy</p>
+<p>A mutable set-like view of this node’s successors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.succ</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.WhileNode.type">
 <span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#cuda.core.graph.WhileNode.type" title="Link to this definition">#</a></dt>
-<dd><p>Return the CUDA graph node type.</p>
+<dd><p>driver.CUgraphNodeType | None</p>
+<p>Return the CUDA graph node type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The node type enum value, or None for the entry node.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>CUgraphNodeType or None</p>
+</dd>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.type</p>
 </dd>
 </dl>
 </dd></dl>

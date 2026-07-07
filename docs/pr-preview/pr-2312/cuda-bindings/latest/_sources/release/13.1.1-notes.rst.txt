@@ -1,5 +1,5 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
 .. module:: cuda.bindings
 
@@ -12,7 +12,7 @@ Highlights
 ----------
 
 * Add missing driver & runtime bindings for functions new in CTK 13.1.0
-  (`PR #1321 <https://github.com/NVIDIA/cuda-python/pull/1321>`_)
+  (`PR #1337 <https://github.com/NVIDIA/cuda-python/pull/1337>`_)
 
 Experimental
 ------------
