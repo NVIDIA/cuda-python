@@ -967,12 +967,15 @@ def test_address_mode_rejects_too_long_tuple(init_cuda):
         arr.close()
 
 
-def test_address_mode_rejects_non_addressmode_entry(init_cuda):
+def test_address_mode_rejects_invalid_entry(init_cuda):
     arr = Device().create_opaque_array(OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.FLOAT32, num_channels=1))
     try:
         res = ResourceDescriptor.from_opaque_array(arr)
+        # "bad" is a valid *type* (str is accepted anywhere an AddressModeType
+        # is) but an invalid *value*, so it is rejected with a ValueError naming
+        # the offending tuple position.
         td = TextureObjectOptions(address_mode=(AddressModeType.WRAP, "bad", AddressModeType.CLAMP))
-        with pytest.raises(TypeError, match=r"address_mode\[1\]"):
+        with pytest.raises(ValueError, match=r"address_mode\[1\]"):
             Device().create_texture_object(resource=res, options=td)
     finally:
         arr.close()
