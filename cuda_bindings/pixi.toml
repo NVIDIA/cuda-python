@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 [workspace]
 channels = ["conda-forge"]
@@ -10,7 +10,7 @@ preview = ["pixi-build"]
 [workspace.build-variants]
 python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 # Keep source-package metadata aligned with the consuming environment's CUDA major.
-cuda-version = ["12.*", "13.2.*"]
+cuda-version = ["12.*", "13.3.*"]
 
 [feature.test.dependencies]
 cuda-bindings = { path = "." }
@@ -74,7 +74,7 @@ CUDA_HOME = "$CONDA_PREFIX/Library"
 cuda-version = "12.*"
 
 [feature.cu13.dependencies]
-cuda-version = "13.2.*"
+cuda-version = "13.3.*"
 
 [environments]
 default = { features = ["test", "cython-tests"], solve-group = "default" }

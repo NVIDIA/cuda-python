@@ -18,7 +18,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 
 skip_if_nvml_unsupported = pytest.mark.skipif(
     SHOULD_SKIP_NVML_TESTS,
-    reason="NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+, and hardware that supports NVML",
+    reason="NVML support requires cuda.bindings version 12.9.6+ for CUDA 12.x or 13.2.0+ for CUDA 13.x, and hardware that supports NVML",
 )
 
 

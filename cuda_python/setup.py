@@ -1,6 +1,6 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 import ast
 
@@ -32,6 +32,7 @@ setup(
     version=version,
     install_requires=[
         f"cuda-bindings{matcher}{version}",
+        "cuda-core~=1.0.0",
         "cuda-pathfinder~=1.1",
     ],
     extras_require={

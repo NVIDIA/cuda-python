@@ -23,6 +23,11 @@ HOST_PLATFORM_TO_SUBDIR: dict[str, str] = {
     "win-64": "windows-x86_64",
 }
 
+# CTK 13.3.0 renamed the redistrib key from cuda_cccl to cccl.
+COMPONENT_ALIASES: dict[str, tuple[str, ...]] = {
+    "cuda_cccl": ("cccl",),
+}
+
 
 def host_platform_to_subdir(host_platform: str) -> str:
     try:
@@ -73,6 +78,17 @@ def load_metadata(*, metadata_path: str | None, metadata_url: str | None) -> dic
         return json.load(response)
 
 
+def resolve_component_name(metadata: dict[str, Any], component: str) -> str:
+    if component in metadata:
+        return component
+
+    for alias in COMPONENT_ALIASES.get(component, ()):
+        if alias in metadata:
+            return alias
+
+    return component
+
+
 def filter_components(
     metadata: dict[str, Any],
     *,
@@ -84,8 +100,9 @@ def filter_components(
     filtered = []
     skipped = []
     for component in filter_static_components(split_components(components), host_platform, cuda_version):
-        if ctk_subdir in metadata.get(component, {}):
-            filtered.append(component)
+        resolved_component = resolve_component_name(metadata, component)
+        if ctk_subdir in metadata.get(resolved_component, {}):
+            filtered.append(resolved_component)
         else:
             skipped.append(component)
     return filtered, skipped
@@ -93,6 +110,7 @@ def filter_components(
 
 def get_component_relative_path(metadata: dict[str, Any], *, host_platform: str, component: str) -> str:
     ctk_subdir = host_platform_to_subdir(host_platform)
+    component = resolve_component_name(metadata, component)
     component_info = metadata.get(component)
     if component_info is None:
         raise KeyError(f"unknown CTK component {component!r}")

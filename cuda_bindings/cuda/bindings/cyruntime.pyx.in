@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cython
 
@@ -351,6 +351,12 @@ cdef cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream, void* devPtr, siz
 
 cdef cudaError_t cudaStreamBeginCapture(cudaStream_t stream, cudaStreamCaptureMode mode) except ?cudaErrorCallRequiresNewerDriver nogil:
     return cyruntime._cudaStreamBeginCapture(stream, mode)
+{{endif}}
+
+{{if 'cudaStreamBeginRecaptureToGraph' in found_functions}}
+
+cdef cudaError_t cudaStreamBeginRecaptureToGraph(cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaStreamBeginRecaptureToGraph(stream, mode, graph, callbackData)
 {{endif}}
 
 {{if 'cudaStreamBeginCaptureToGraph' in found_functions}}

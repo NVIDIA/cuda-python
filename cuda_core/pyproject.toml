@@ -5,7 +5,7 @@
 [build-system]
 requires = [
     "setuptools>=80",
-    "setuptools-scm[simple]>=8",
+    "setuptools-scm[simple]>=8,!=10.1",
     "Cython>=3.2,<3.3",
     "cuda-pathfinder>=1.5"
 ]
@@ -54,11 +54,24 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-cu12 = ["cuda-bindings[all]==12.*"]
-cu13 = ["cuda-bindings[all]==13.*"]
+cu12 = ["cuda-bindings[all]==12.*", "cuda-toolkit==12.*"]
+cu13 = ["cuda-bindings[all]==13.*", "cuda-toolkit==13.*"]
 
 [dependency-groups]
-test = ["cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-benchmark", "pytest-randomly", "pytest-repeat", "pytest-rerunfailures", "cloudpickle", "psutil", "cffi"]
+test = [
+    "cython>=3.2,<3.3",
+    "setuptools>=80",
+    "pytest==9.1.0",
+    "pytest-benchmark==5.2.3",
+    "pytest-randomly==4.1.0",
+    "pytest-repeat==0.9.4",
+    "pytest-rerunfailures==16.3",
+    "pytest-timeout==2.4.0",
+    "cloudpickle==3.1.2",
+    "psutil==7.2.2",
+    # TODO: remove the Python 3.15 guard once 3.15 is officially supported
+    "cffi==2.0.0; python_version < '3.15'",
+]
 ml-dtypes = ["ml-dtypes>=0.5.4,<0.6.0"]
 test-cu12 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.14'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
 test-cu13 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda13x; python_version < '3.14'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
@@ -94,7 +107,7 @@ include = ["cuda.core*"]
 include-package-data = false
 
 [tool.setuptools.package-data]
-"*" = ["*.pxd"]
+"*" = ["*.pxd", "*.pyi", "py.typed"]
 "cuda.core._include" = ["*.h", "*.hpp"]
 "cuda.core._cpp" = ["*.hpp"]
 
@@ -107,6 +120,42 @@ version_file = "cuda/core/_version.py"
 # Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
 tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"]
+
+[tool.mypy]
+# Try to keep the mypy configuration similar between the subprojects
+
+# Basic settings
+python_version = "3.10"
+namespace_packages = true
+mypy_path = "cuda_core"
+
+explicit_package_bases = true
+warn_return_any = true
+warn_unused_configs = true
+
+# Start strict, but allow some flexibility
+check_untyped_defs = true
+disallow_any_generics = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+# Allow some common patterns to keep it simple
+allow_redefinition = true
+implicit_reexport = true
+
+# Ignore missing imports for now (you can tighten this later)
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "cuda.core._vendored.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+# cpdef functions with Cython-native tuple return types can't carry type args
+# through stubgen-pyx; suppress the resulting type-arg error for this module.
+module = "cuda.core._utils.cuda_utils"
+disable_error_code = ["type-arg"]
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"

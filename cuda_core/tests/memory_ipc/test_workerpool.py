@@ -10,12 +10,14 @@ from helpers.buffers import PatternGen
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
-CHILD_TIMEOUT_SEC = 30
 NBYTES = 64
 NWORKERS = 2
 NMRS = 3
 NTASKS = 20
 POOL_SIZE = 2097152
+
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
 class TestIpcWorkerPool:
@@ -33,6 +35,7 @@ class TestIpcWorkerPool:
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = []
 
         try:
             buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
@@ -43,8 +46,11 @@ class TestIpcWorkerPool:
             pgen = PatternGen(device, NBYTES)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
-                buffer.close()
         finally:
+            for buffer in buffers:
+                buffer.close()
+            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+            device.sync()
             for mr in mrs:
                 mr.close()
 
@@ -75,6 +81,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = []
 
         try:
             buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
@@ -88,8 +95,11 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
             pgen = PatternGen(device, NBYTES)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
-                buffer.close()
         finally:
+            for buffer in buffers:
+                buffer.close()
+            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+            device.sync()
             for mr in mrs:
                 mr.close()
 
@@ -125,6 +135,7 @@ class TestIpcWorkerPoolUsingRegistry:
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = []
 
         try:
             buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
@@ -135,8 +146,11 @@ class TestIpcWorkerPoolUsingRegistry:
             pgen = PatternGen(device, NBYTES)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
-                buffer.close()
         finally:
+            for buffer in buffers:
+                buffer.close()
+            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+            device.sync()
             for mr in mrs:
                 mr.close()
 

@@ -34,15 +34,20 @@ jobs:
           - "3.13"
           - "3.14"
           - "3.14t"
+          - "3.15"
+          - "3.15t"
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
                  (inputs.host-platform == 'win-64' && 'windows-2022') }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
+          # Treeless clone: setuptools-scm needs the commit graph (`git describe`)
+          # but not historical blobs.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Install latest rapidsai/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') }}
@@ -50,7 +55,6 @@ jobs:
           curl -fsSL "https://github.com/rapidsai/sccache/releases/latest/download/sccache-$(uname -m)-unknown-linux-musl.tar.gz" \
             | sudo tar -C /usr/local/bin -xvzf - --wildcards --strip-components=1 -x '*/sccache'
           echo "SCCACHE_PATH=/usr/local/bin/sccache" >> "$GITHUB_ENV"
-          echo "SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=true" >> "$GITHUB_ENV"
 
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
@@ -73,7 +77,7 @@ jobs:
 
       - name: Set up Python
         id: setup-python1
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           # WAR: setup-python is not relocatable, and cibuildwheel hard-wires to 3.12...
           # see https://github.com/actions/setup-python/issues/871
@@ -162,12 +166,17 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # TODO: remove cpython-prerelease once 3.15 is officially supported
+          # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
+          # no-op for stable Python versions because CIBW_BUILD still filters
+          # the target version.
+          CIBW_ENABLE: cpython-prerelease
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -180,7 +189,6 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
-            SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=${{ env.SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
@@ -226,12 +234,17 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # TODO: remove cpython-prerelease once 3.15 is officially supported
+          # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
+          # no-op for stable Python versions because CIBW_BUILD still filters
+          # the target version.
+          CIBW_ENABLE: cpython-prerelease
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -246,7 +259,6 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
-            SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=${{ env.SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
@@ -324,9 +336,11 @@ jobs:
 
       - name: Set up Python
         id: setup-python2
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          # TODO: remove allow-prereleases once 3.15 is officially supported
+          allow-prereleases: ${{ startsWith(matrix.python-version, '3.15') }}
 
       - name: verify free-threaded build
         if: endsWith(matrix.python-version, 't')
@@ -345,6 +359,71 @@ jobs:
       - name: Install cuda.pathfinder (required for next step)
         run: |
           pip install cuda_pathfinder/*.whl
+
+      - name: Hide GNU link.exe so Meson finds MSVC link.exe
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        run: |
+          if [ -f "/c/Program Files/Git/usr/bin/link.exe" ]; then
+            mv "/c/Program Files/Git/usr/bin/link.exe" "/c/Program Files/Git/usr/bin/link.exe.bak"
+          fi
+
+      # TODO: remove the numpy pre-build steps once 3.15 is officially supported
+      # (numpy will publish pre-built 3.15 wheels at that point)
+      - name: Download and patch numpy sdist (pre-release Python)
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        run: |
+          pip download --no-binary numpy --no-deps "numpy>=1.21.1" -d numpy-sdist/
+          cd numpy-sdist && tar xf numpy-*.tar.gz && rm numpy-*.tar.gz
+          # WAR: numpy 2.4.x ships [tool.cibuildwheel] config that is
+          # incompatible with cibuildwheel v4.0 (cpython-freethreading enable
+          # group, OpenBLAS before-build scripts, etc.). Strip the cibuildwheel
+          # sections but preserve [tool.meson-python] (vendored meson path).
+          python -c "
+          import glob
+          for f in glob.glob('numpy-*/pyproject.toml'):
+              lines, skip = open(f).readlines(), False
+              out = []
+              for line in lines:
+                  hdr = line.strip()
+                  if hdr.startswith('[tool.cibuildwheel') or hdr.startswith('[[tool.cibuildwheel'):
+                      skip = True
+                      continue
+                  if skip and hdr.startswith('[') and 'cibuildwheel' not in hdr:
+                      skip = False
+                  if not skip:
+                      out.append(line)
+              open(f, 'w').writelines(out)
+          "
+          echo "NUMPY_SRC_DIR=$(pwd)/$(ls -d numpy-*/)" >> $GITHUB_ENV
+
+      - name: Build numpy wheel (pre-release Python)
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_SKIP: "*-musllinux* *-win32"
+          CIBW_ARCHS_LINUX: "native"
+          CIBW_BUILD_VERBOSITY: 1
+          CIBW_CONFIG_SETTINGS: "setup-args=-Dallow-noblas=true"
+          CIBW_CONFIG_SETTINGS_WINDOWS: "setup-args=--vsenv setup-args=-Dallow-noblas=true"
+          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel}"
+          CIBW_ENABLE: "cpython-prerelease"
+        with:
+          package-dir: ${{ env.NUMPY_SRC_DIR }}
+          output-dir: numpy-wheel/
+
+      - name: Upload numpy wheel
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: numpy-python${{ env.PYTHON_VERSION_FORMATTED }}-${{ inputs.host-platform }}
+          path: numpy-wheel/*.whl
+          if-no-files-found: error
+
+      - name: Install numpy wheel
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        run: pip install numpy-wheel/*.whl
 
       - name: Build cuda.bindings Cython tests
         run: |
@@ -383,6 +462,19 @@ jobs:
           cuda-version: ${{ inputs.prev-cuda-version }}
           cuda-path: "./cuda_toolkit_prev"
 
+      - name: Build cuda.core test binaries
+        run: bash ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/build_test_binaries.sh
+
+      - name: Upload cuda.core test binaries
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
+          path: |
+            ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.o
+            ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.a
+            ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.lib
+          if-no-files-found: error
+
       - name: Download cuda.bindings build artifacts from the prior branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -411,12 +503,17 @@ jobs:
           rmdir $OLD_BASENAME
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # TODO: remove cpython-prerelease once 3.15 is officially supported
+          # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
+          # no-op for stable Python versions because CIBW_BUILD still filters
+          # the target version.
+          CIBW_ENABLE: cpython-prerelease
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -431,7 +528,6 @@ jobs:
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
-            SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE=${{ env.SCCACHE_GHA_USE_PREPROCESSOR_CACHE_MODE }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >

@@ -7,3 +7,4 @@
 self-hosted-runner:
   labels:
     - linux-amd64-cpu8
+    - linux-amd64-gpu-l4-latest-1

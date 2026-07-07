@@ -143,12 +143,21 @@ def _build_cuda_core(debug=False):
         # cuda-bindings not available in editable mode, will use installed version
         pass
 
+    _posix_only_modules = frozenset(
+        {
+            "_utils/_wsl_locale",
+        }
+    )
+
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
     def module_names():
         root_path = os.path.sep.join(["cuda", "core", ""])
         for filename in glob.glob(f"{root_path}/**/*.pyx", recursive=True):
-            yield filename[len(root_path) : -4]
+            mod = filename[len(root_path) : -4]
+            if sys.platform == "win32" and mod.replace(os.path.sep, "/") in _posix_only_modules:
+                continue
+            yield mod
 
     def get_sources(mod_name):
         """Get source files for a module, including any .cpp files."""

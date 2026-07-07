@@ -44,7 +44,6 @@ subpackage in the `cuda-python` monorepo.
   - run: `pytest tests/cython/`
 - **Examples**: example coverage is pytest-based under `examples/`.
 - **Benchmarks**: run with `pytest --benchmark-only benchmarks/` when needed.
-- **Orchestrated run**: from repo root, `scripts/run_tests.sh bindings`.
 
 ## Build and environment notes
 

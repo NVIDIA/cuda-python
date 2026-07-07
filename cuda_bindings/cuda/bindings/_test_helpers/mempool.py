@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 import sys
 
@@ -8,6 +8,9 @@ import pytest
 from cuda.bindings import driver, runtime
 
 
+# Keep in sync with the fallback in cuda_core/tests/conftest.py. The cuda_core
+# copy is intentionally simpler because it only handles cuda_core CUDAError
+# exceptions when this helper is absent from older published bindings.
 def is_windows_mcdm_device(device=0):
     if sys.platform != "win32":
         return False

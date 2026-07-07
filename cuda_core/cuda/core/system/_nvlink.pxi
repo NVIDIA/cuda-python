@@ -13,8 +13,30 @@ _NVLINK_VERSION_MAPPING = {
     nvml.NvlinkVersion.VERSION_5_0: (5, 0),
 }
 
+_NVLINK_VERSION_6_0 = getattr(nvml.NvlinkVersion, "VERSION_6_0", None)
+if _NVLINK_VERSION_6_0 is not None:
+    _NVLINK_VERSION_MAPPING[_NVLINK_VERSION_6_0] = (6, 0)
 
-cdef class NvlinkInfo:
+
+class _NvlinkInfoMeta(type):
+    @property
+    @deprecated(
+        version="1.1.0",
+        reason="Use Device.get_nvlink_count instead to get the actual number of Nvlinks available on a specific device."
+    )
+    def max_links(cls):
+        """
+        The statically-defined maximum number of Nvlinks available.  Defined in
+        upstream NVML as ``NVML_NVLINK_MAX_LINKS``.
+
+        To find the actual number of Nvlinks available on a device, use
+        :py:attr:`Device.get_nvlink_count`.
+        """
+        # This will always return 18, even on CTK 13.3 where it should be 36.
+        return nvml.NVLINK_MAX_LINKS
+
+
+cdef class _NvlinkInfo:
     """
     Nvlink information for a device.
     """
@@ -63,4 +85,6 @@ cdef class NvlinkInfo:
             nvml.device_get_nvlink_state(self._device._handle, self._link) == nvml.EnableState.FEATURE_ENABLED
         )
 
-    max_links = nvml.NVLINK_MAX_LINKS
+
+class NvlinkInfo(_NvlinkInfo, metaclass=_NvlinkInfoMeta):
+    pass

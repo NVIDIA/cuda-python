@@ -11,7 +11,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import threading
+from typing import TYPE_CHECKING
 from warnings import warn
+
+if TYPE_CHECKING:
+    from cuda.core.utils._program_cache import ProgramCacheResource  # no-cython-lint
 
 from cuda.bindings import nvrtc
 from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
@@ -76,7 +80,7 @@ cdef class Program:
     def __init__(self, code: str | bytes | bytearray, code_type: SourceCodeType | str, options: ProgramOptions | None = None):
         Program_init(self, code, str(code_type), options)
 
-    def close(self):
+    def close(self) -> None:
         """Destroy this program."""
         if self._linker:
             self._linker.close()
@@ -87,10 +91,10 @@ cdef class Program:
     def compile(
         self,
         target_type: ObjectCodeFormatType | str,
-        name_expressions: tuple | list = (),
-        logs=None,
+        name_expressions: tuple[str, ...] | list[str] = (),
+        logs: object = None,
         *,
-        cache: "ProgramCacheResource | None" = None,
+        cache: ProgramCacheResource | None = None,
     ) -> ObjectCode:
         """Compile the program to the specified target type.
 
@@ -518,7 +522,7 @@ class ProgramOptions:
     use_libdevice: bool | None = None  # For libdevice execution
     numba_debug: bool | None = None  # Custom option for Numba debugging
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._name = self.name.encode()
         # Set arch to default if not provided
         if self.arch is None:
@@ -598,7 +602,7 @@ class ProgramOptions:
         else:
             raise ValueError(f"Unknown backend '{backend}'. Must be one of: 'nvrtc', 'nvvm'")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"ProgramOptions(name={self.name!r}, arch={self.arch!r})"
 
     def _prepare_extra_sources_bytes(self) -> list[tuple[bytes, bytes]] | None:
@@ -641,7 +645,7 @@ _nvvm_module = None
 _nvvm_import_attempted = False
 
 
-def _get_nvvm_module():
+def _get_nvvm_module() -> object:
     """Get the NVVM module, importing it lazily with availability checks."""
     global _nvvm_module, _nvvm_import_attempted
 
@@ -676,7 +680,7 @@ def _get_nvvm_module():
         _nvvm_module = None
         raise
 
-def _find_libdevice_path():
+def _find_libdevice_path() -> object:
     """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
     from cuda.pathfinder import find_bitcode_lib
     return find_bitcode_lib("device")
@@ -734,6 +738,7 @@ cdef inline object _translate_program_options(object options):
         split_compile=options.split_compile,
         ptxas_options=options.ptxas_options,
         no_cache=options.no_cache,
+        numba_debug = options.numba_debug
     )
 
 
@@ -1223,6 +1228,8 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
     options.append(f"-arch={arch}")
     if opts.debug is not None and opts.debug:
         options.append("-g")
+    if opts.numba_debug:
+        options.append("--numba-debug")
     if opts.device_code_optimize is False:
         options.append("-opt=0")
     elif opts.device_code_optimize is True:
@@ -1299,8 +1306,6 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
         unsupported.append("fdevice_syntax_only")
     if opts.minimal is not None and opts.minimal:
         unsupported.append("minimal")
-    if opts.numba_debug is not None and opts.numba_debug:
-        unsupported.append("numba_debug")
     if unsupported:
         raise CUDAError(f"The following options are not supported by NVVM backend: {', '.join(unsupported)}")
 

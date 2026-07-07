@@ -12,6 +12,8 @@ from cuda.core._utils.cuda_utils import CUDAError
 
 NBYTES = 1024
 
+pytestmark = pytest.mark.thread_unsafe(reason="peer access tests mutate process-global CUDA memory-pool access state")
+
 
 def test_peer_access_basic(mempool_device_x2):
     """Basic tests for dmr.peer_accessible_by."""

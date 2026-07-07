@@ -1,20 +1,24 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import mmap
+
 import pytest
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource
 
 from conftest import create_managed_memory_resource_or_skip
+from cuda.bindings import driver
 from cuda.core import Device, Host, ManagedBuffer
 from cuda.core._memory._managed_buffer import _get_int_attr
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
-
-_MANAGED_TEST_ALLOCATION_SIZE = 4096
+# Managed-memory prefetch and CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION
+# operate at physical-page granularity. Test buffers must each occupy a full
+# page; otherwise the pool packs sub-page allocations into one page and
+# per-buffer prefetch locations become indistinguishable. ``mmap.PAGESIZE``
+# tracks the OS page size (4 KiB on most x86, 64 KiB on nvidia-64k aarch64
+# kernels), so allocations stay one-page-per-buffer on every platform.
+_PAGE_SIZE = mmap.PAGESIZE
+_MANAGED_TEST_ALLOCATION_SIZE = _PAGE_SIZE
 _READ_MOSTLY_ENABLED = 1
 _HOST_LOCATION_ID = -1
 _INVALID_HOST_DEVICE_ORDINAL = 0
@@ -24,6 +28,12 @@ _INVALID_HOST_DEVICE_ORDINAL = 0
 # ``ManagedBuffer`` exposes mem-range attributes directly.
 def _last_prefetch_location(buf):
     return _get_int_attr(buf, driver.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION)
+
+
+def _page_base(buf):
+    # Page-aligned base of the buffer's start address; two buffers sharing a
+    # page cannot be prefetched to different locations independently.
+    return int(buf.handle) & ~(_PAGE_SIZE - 1)
 
 
 def _skip_if_raw_managed_alloc_unsupported(device):
@@ -221,6 +231,10 @@ class TestPrefetchBatch:
 
         device = location_ops_device
         bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream) for _ in range(2)]
+        # Per-buffer prefetch locations are only observable when the buffers sit
+        # on distinct physical pages; assert that here so a pool-packing change
+        # fails loudly instead of silently migrating one shared page.
+        assert _page_base(bufs[0]) != _page_base(bufs[1])
         stream = device.create_stream()
 
         prefetch_batch(stream, bufs, [Host(), device])
@@ -430,6 +444,25 @@ class TestManagedBuffer:
 
         buf.accessed_by = set()
         assert device not in buf.accessed_by
+
+    def test_accessed_by_set_assignment_validates_kind_before_mutation(
+        self, location_ops_device, external_managed_buffer
+    ):
+        """Invalid kinds in bulk assignment must not partially mutate driver state."""
+        device = location_ops_device
+        buf = external_managed_buffer
+        buf.accessed_by = {device, Host()}
+        assert device in buf.accessed_by
+        assert Host() in buf.accessed_by
+
+        with pytest.raises(
+            (ValueError, TypeError),
+            match=r"does not support location_type='host_numa'|cuda-bindings 13\.0\+",
+        ):
+            buf.accessed_by = {device, Host(numa_id=0)}
+
+        assert device in buf.accessed_by
+        assert Host() in buf.accessed_by
 
     def test_instance_prefetch(self, location_ops_device, managed_buffer):
         device = location_ops_device

@@ -9,6 +9,7 @@ ci:
     autoupdate_branch: ''
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: quarterly
+    skip: [lychee, check-precommit-installed]
     submodules: false
 
 # Please update the rev: SHAs below with this command:
@@ -19,18 +20,27 @@ repos:
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
-        exclude: ^cuda_bindings/cuda/bindings/_internal/_fast_enum\.py$
+        exclude: (^cuda_bindings/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
       - id: ruff-format
+        exclude: .*\.pyi$
 
   - repo: local
     hooks:
+      - id: check-precommit-installed
+        name: Warn if the pre-commit git hook is not installed
+        entry: python ./toolshed/check_precommit_installed.py
+        language: python
+        always_run: true
+        pass_filenames: false
+        verbose: true
+
       - id: check-spdx
         name: Check SPDX Headers
         entry: python ./toolshed/check_spdx.py
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
-        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)'
+        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
         args: ["--fix"]
 
       - id: no-markdown-in-docs-source
@@ -41,6 +51,28 @@ repos:
           - "_" # fake script name, because bash considers $0 (the first argument) to be the script name
         language: system
         files: '^.*/docs/source/.*\.md$'
+
+      - id: stubgen-pyx-cuda-core
+        name: Generate .pyi stubs for cuda_core
+        entry: stubgen-pyx cuda_core/cuda --continue-on-error --include-private
+        language: python
+        files: ^cuda_core/cuda/.*\.(pyx|pxd)$
+        pass_filenames: false
+        additional_dependencies:
+          - stubgen-pyx==0.2.6
+          - Cython==3.2.4
+
+  # Link checking for authored documentation files
+  - repo: https://github.com/lycheeverse/lychee
+    rev: 2bba271688c1abb1503097a064e6c3bc1d1b6a9b  # frozen: lychee-v0.24.2
+    hooks:
+      - id: lychee
+        args:
+          - --cache
+          - --max-concurrency=4
+          - --max-retries=3
+          - --no-progress
+        files: '\.(md|rst)$'
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -56,7 +88,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
@@ -79,9 +111,19 @@ repos:
     rev: 8e5c80792e2ec0c87804d8ef915bf35e2caea6da  # frozen: v1.20.0
     hooks:
       - id: mypy
+        alias: mypy-pathfinder
         name: mypy-pathfinder
         files: ^cuda_pathfinder/cuda/.*\.py$  # Exclude tests directory
         args: [--config-file=cuda_pathfinder/pyproject.toml]
+      - id: mypy
+        alias: mypy-cuda-core
+        name: mypy-cuda-core
+        files: ^cuda_core/cuda/.*\.(py|pyi)$
+        exclude: ^cuda_core/cuda/core/_vendored/
+        pass_filenames: false
+        args: [--config-file=cuda_core/pyproject.toml, cuda_core/cuda/core]
+        additional_dependencies:
+          - numpy
 
   - repo: https://github.com/rhysd/actionlint
     rev: "914e7df21a07ef503a81201c76d2b11c789d3fca"  # frozen: v1.7.12

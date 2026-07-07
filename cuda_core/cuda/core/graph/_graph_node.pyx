@@ -6,6 +6,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
+
 from cpython.ref cimport Py_INCREF
 
 from libc.stddef cimport size_t
@@ -41,8 +44,8 @@ from cuda.core.graph._subclasses cimport (
 from cuda.core._resource_handles cimport (
     EventHandle,
     GraphHandle,
-    KernelHandle,
     GraphNodeHandle,
+    KernelHandle,
     as_cu,
     as_intptr,
     as_py,
@@ -50,13 +53,13 @@ from cuda.core._resource_handles cimport (
     create_graph_node_handle,
     graph_node_get_graph,
     invalidate_graph_node,
+    py_object_user_object_destroy,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 from cuda.core.graph._utils cimport (
     _attach_host_callback_to_graph,
     _attach_user_object,
-    _py_host_destructor,
 )
 
 import weakref
@@ -65,15 +68,17 @@ from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.typing import GraphMemoryType
 
+if TYPE_CHECKING:
+    from cuda.core._device import Device
+
 __all__ = ['GraphNode']
 
 # See _cpp/REGISTRY_DESIGN.md (Level 2: Resource Handle -> Python Object)
-_node_registry = weakref.WeakValueDictionary()
+_node_registry: weakref.WeakValueDictionary[int, GraphNode] = weakref.WeakValueDictionary()
 
 
 cdef inline GraphNode _registered(GraphNode n):
-    _node_registry[<uintptr_t>n._h_node.get()] = n
-    return n
+    return _node_registry.setdefault(<uintptr_t>n._h_node.get(), n)
 
 
 cdef class GraphNode:
@@ -95,7 +100,7 @@ cdef class GraphNode:
             return "<GraphNode entry>"
         return f"<GraphNode handle=0x{<uintptr_t>node:x}>"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, GraphNode):
             return NotImplemented
         cdef GraphNode o = <GraphNode>other
@@ -109,7 +114,7 @@ cdef class GraphNode:
         return hash((as_intptr(self._h_node), as_intptr(g)))
 
     @property
-    def type(self):
+    def type(self) -> driver.CUgraphNodeType | None:
         """Return the CUDA graph node type.
 
         Returns
@@ -126,7 +131,7 @@ cdef class GraphNode:
         return driver.CUgraphNodeType(<int>node_type)
 
     @property
-    def graph(self) -> "GraphDefinition":
+    def graph(self) -> GraphDefinition:
         """Return the GraphDefinition this node belongs to."""
         return GraphDefinition._from_handle(graph_node_get_graph(self._h_node))
 
@@ -139,14 +144,14 @@ cdef class GraphNode:
         return as_py(self._h_node)
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Whether this node is valid (not destroyed).
 
         Returns ``False`` after :meth:`destroy` has been called.
         """
         return as_intptr(self._h_node) != 0
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy this node and remove all its edges from the parent graph.
 
         After this call, :attr:`is_valid` returns ``False`` and the node
@@ -162,23 +167,23 @@ cdef class GraphNode:
         invalidate_graph_node(self._h_node)
 
     @property
-    def pred(self):
+    def pred(self) -> AdjacencySetProxy:
         """A mutable set-like view of this node's predecessors."""
         return AdjacencySetProxy(self, False)
 
     @pred.setter
-    def pred(self, value):
+    def pred(self, value: Iterable[GraphNode]) -> None:
         p = AdjacencySetProxy(self, False)
         p.clear()
         p.update(value)
 
     @property
-    def succ(self):
+    def succ(self) -> AdjacencySetProxy:
         """A mutable set-like view of this node's successors."""
         return AdjacencySetProxy(self, True)
 
     @succ.setter
-    def succ(self, value):
+    def succ(self, value: Iterable[GraphNode]) -> None:
         s = AdjacencySetProxy(self, True)
         s.clear()
         s.update(value)
@@ -219,9 +224,9 @@ cdef class GraphNode:
         """
         return GN_join(self, nodes)
 
-    def allocate(self, size_t size, *, device: "Device" | int | None = None,
+    def allocate(self, size_t size, *, device: Device | int | None = None,
                  memory_type: GraphMemoryType = GraphMemoryType.DEVICE,
-                 peer_access: list["Device" | int] | None = None) -> AllocNode:
+                 peer_access: list[Device | int] | None = None) -> AllocNode:
         """Add a memory allocation node depending on this node.
 
         Parameters
@@ -376,7 +381,7 @@ cdef class GraphNode:
         """
         return GN_wait_event(self, <Event>event)
 
-    def callback(self, fn, *, user_data=None) -> HostCallbackNode:
+    def callback(self, fn, *, user_data=None) -> object:
         """Add a host callback node depending on this node.
 
         The callback runs on the host CPU when the graph reaches this node.
@@ -650,7 +655,7 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     if kernel_args is not None:
         Py_INCREF(kernel_args)
         _attach_user_object(as_cu(h_graph), <void*>kernel_args,
-                            <cydriver.CUhostFn>_py_host_destructor)
+                            <cydriver.CUhostFn>py_object_user_object_destroy)
 
     return _registered(KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),

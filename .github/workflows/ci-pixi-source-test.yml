@@ -1,0 +1,149 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Validates the `pixi run test` developer workflow (source build + Cython
+# codegen + test suite via the pixi-managed environment).
+#
+# WHY THIS EXISTS: the main CI (ci.yml / test-wheel-*.yml) tests prebuilt
+# *wheels*; it never exercises the pixi *source build*. That path rots silently
+# whenever the CUDA pin, generated bindings, conda-forge packages, or the
+# cython-test build mechanics drift (see #2182, #2183). This workflow is the
+# only thing that runs the pixi source build end to end.
+#
+# Two tiers, to spend GPU minutes deliberately (GPUs are scarce):
+#   - build-smoke (PRs): CPU-only. Source-builds bindings + core, imports them,
+#     builds the cython test extensions and checks placement. Catches the
+#     compile / ABI / .so-placement regressions WITHOUT a GPU.
+#   - full-test (nightly + manual): GPU runner, full `pixi run test`.
+
+name: "CI: pixi run test (source build)"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    # 2:37 AM UTC daily — offset from ci-nightly.yml (2:17) to avoid contending
+    # for the same scheduled-workflow window.
+    - cron: "37 2 * * *"
+  pull_request:
+    # Only the files that can break the source-build path (see #2182/#2183).
+    paths:
+      - "**/pixi.toml"
+      - "**/pixi.lock"
+      - "cuda_bindings/build_hooks.py"
+      - "cuda_core/build_hooks.py"
+      - "cuda_bindings/cuda/bindings/**" # generated bindings sources
+      - "cuda_bindings/tests/cython/**"
+      - "cuda_core/tests/cython/**"
+      - "ci/versions.yml"
+      - ".github/workflows/ci-pixi-source-test.yml"
+  workflow_dispatch:
+    inputs:
+      cuda-env:
+        description: "pixi environment to test (cu13 or cu12)."
+        type: string
+        default: "cu13"
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+env:
+  PIXI_VERSION: "v0.66.0" # keep in sync with the version developers run locally
+
+jobs:
+  # ── PR guard: CPU-only build + import + placement smoke ──
+  build-smoke:
+    name: "build smoke (cu13, linux-64, CPU)"
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Full history + tags so setuptools-scm derives the real (13.x)
+          # package version; a shallow checkout yields 0.1.dev1, which trips
+          # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
+          fetch-depth: 0
+
+      - name: Setup pixi
+        # Pinned to a commit SHA; install logic lives in the action and is
+        # auditable/pinned (vs. a curl|bash of an unverified installer).
+        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          run-install: false
+
+      - name: Source-build + import + cython-placement smoke
+        env:
+          CUDA_ENV: ${{ inputs.cuda-env || 'cu13' }}
+        run: |
+          # pathfinder: pure-Python, no GPU.
+          pixi run -e "${CUDA_ENV}" test-pathfinder
+
+          # bindings + core: force the source build (catches nvrtc/driver
+          # compile errors like #2182) and import them (catches ABI mismatches).
+          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" \
+            python -c "import cuda.bindings.driver, cuda.bindings.nvrtc, cuda.bindings.runtime; print('bindings import OK')"
+          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" \
+            python -c "import cuda.core; print('core import OK')"
+
+          # cython test extensions: build them and confirm each .so landed next
+          # to its .pyx in tests/cython (catches the placement regression #2180).
+          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" build-cython-tests
+          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" build-cython-tests
+          for d in cuda_bindings/tests/cython cuda_core/tests/cython; do
+            if ! compgen -G "${d}/*.cpython-*.so" > /dev/null; then
+              echo "::error::no compiled cython test .so in ${d} (placement regression)"
+              exit 1
+            fi
+          done
+          echo "cython test extensions placed correctly"
+
+  # ── Nightly: full `pixi run test` on a GPU runner ──
+  full-test:
+    name: "pixi run test (${{ inputs.cuda-env || 'cu13' }}, linux-64, GPU)"
+    if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
+    runs-on: "linux-amd64-gpu-l4-latest-1" # same label scheme as test-wheel-linux.yml
+    timeout-minutes: 90
+    container:
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g
+      image: ubuntu:24.04
+    steps:
+      - name: Ensure GPU is working
+        run: nvidia-smi
+
+      - name: Install system packages
+        run: |
+          apt-get update
+          # ca-certificates + git for checkout; libgl1/libegl1 for pyglet
+          # (pulled in by the test env). pixi itself is installed by setup-pixi.
+          apt-get install -y --no-install-recommends \
+            ca-certificates git libgl1 libegl1
+
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Full history + tags so setuptools-scm derives the real (13.x)
+          # package version; a shallow checkout yields 0.1.dev1, which trips
+          # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
+          fetch-depth: 0
+
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+
+      - name: Setup pixi
+        # Pinned to a commit SHA; install logic lives in the action and is
+        # auditable/pinned (vs. a curl|bash of an unverified installer).
+        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          run-install: false
+
+      - name: pixi run test
+        run: pixi run -e "${{ inputs.cuda-env || 'cu13' }}" test

@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 import re
 
@@ -50,6 +50,7 @@ _ptx_to_cuda = {
     "9.0": (13, 0),
     "9.1": (13, 1),
     "9.2": (13, 2),
+    "9.3": (13, 3),
 }
 
 

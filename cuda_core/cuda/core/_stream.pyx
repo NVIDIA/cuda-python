@@ -18,11 +18,12 @@ from cuda.core._utils.cuda_utils cimport (
 import cython
 import warnings
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, TYPE_CHECKING
 
 from cuda.core._context cimport Context
 from cuda.core._device_resources cimport DeviceResources
 from cuda.core._event import Event, EventOptions
+
 from cuda.core._resource_handles cimport (
     ContextHandle,
     EventHandle,
@@ -41,7 +42,10 @@ from cuda.core._resource_handles cimport (
     as_py,
 )
 
-
+if TYPE_CHECKING:
+    import cuda.bindings.driver  # no-cython-lint
+    from cuda.core._device import Device
+    from cuda.core.graph import GraphBuilder
 
 @dataclass
 cdef class StreamOptions:
@@ -88,7 +92,7 @@ cdef class Stream:
     object, or created directly through using an existing handle
     using Stream.from_handle().
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "Stream objects cannot be instantiated directly. "
             "Please use Device APIs (create_stream) or other Stream APIs (from_handle)."
@@ -106,18 +110,18 @@ cdef class Stream:
         return s
 
     @classmethod
-    def _legacy_default(cls):
+    def _legacy_default(cls) -> Stream:
         """Return the legacy default stream (supports subclassing)."""
         return Stream._from_handle(cls, get_legacy_stream())
 
     @classmethod
-    def _per_thread_default(cls):
+    def _per_thread_default(cls) -> Stream:
         """Return the per-thread default stream (supports subclassing)."""
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    def _init(cls, obj: IsStreamType | None = None, options=None, device_id: int = None,
-              ctx: Context = None):
+    def _init(cls, obj: IsStreamType | None = None, options: object = None,
+              device_id: int | None = None, ctx: Context | None = None) -> Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
@@ -204,7 +208,7 @@ cdef class Stream:
     def __hash__(self) -> int:
         return hash(as_intptr(self._h_stream))
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Stream):
             return NotImplemented
         return as_intptr(self._h_stream) == as_intptr((<Stream>other)._h_stream)
@@ -244,12 +248,12 @@ cdef class Stream:
             self._priority = prio
         return self._priority
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize the stream."""
         with nogil:
             HANDLE_RETURN(cydriver.cuStreamSynchronize(as_cu(self._h_stream)))
 
-    def record(self, event: Event = None, options: EventOptions = None) -> Event:
+    def record(self, event: Event | None = None, options: EventOptions | None = None) -> Event:
         """Record an event onto the stream.
 
         Creates an :obj:`~_event.Event` object (or reuses the given one) by
@@ -285,7 +289,7 @@ cdef class Stream:
             HANDLE_RETURN(cydriver.cuEventRecord(e, as_cu(self._h_stream)))
         return event
 
-    def wait(self, event_or_stream: Event | Stream):
+    def wait(self, event_or_stream: Event | Stream) -> None:
         """Wait for a CUDA event or a CUDA stream.
 
         Waiting for an event or a stream establishes a stream order.
@@ -355,7 +359,7 @@ cdef class Stream:
         return Context._from_handle(Context, self._h_context, self._device_id)
 
     @property
-    def resources(self):
+    def resources(self) -> DeviceResources:
         """Query the hardware resources provisioned for this stream's context.
 
         For streams created from a green context, returns the resources
@@ -367,7 +371,7 @@ cdef class Stream:
         return DeviceResources._init_from_ctx(self._h_context, self._device_id)
 
     @staticmethod
-    def from_handle(handle: int) -> Stream:
+    def from_handle(handle) -> Stream:
         """Create a new :obj:`~_stream.Stream` object from a foreign stream handle.
 
         Uses a cudaStream_t pointer address represented as a Python int
@@ -392,12 +396,12 @@ cdef class Stream:
         """
 
         class _stream_holder:
-            def __cuda_stream__(self):
+            def __cuda_stream__(self) -> tuple[int, int]:
                 return (0, handle)
 
         return Stream._init(obj=_stream_holder())
 
-    def create_graph_builder(self) -> "GraphBuilder":
+    def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~graph.GraphBuilder` object.
 
         The new graph builder will be associated with this stream.
@@ -410,16 +414,11 @@ cdef class Stream:
         """
         from cuda.core.graph._graph_builder import GraphBuilder
 
-        return GraphBuilder._init(stream=self, is_stream_owner=False)
+        return GraphBuilder._init(self)
 
 
-# c-only python objects, not public
-cdef Stream C_LEGACY_DEFAULT_STREAM = Stream._legacy_default()
-cdef Stream C_PER_THREAD_DEFAULT_STREAM = Stream._per_thread_default()
-
-# standard python objects, public
-LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
-PER_THREAD_DEFAULT_STREAM = C_PER_THREAD_DEFAULT_STREAM
+LEGACY_DEFAULT_STREAM: Stream = Stream._legacy_default()
+PER_THREAD_DEFAULT_STREAM: Stream = Stream._per_thread_default()
 
 
 cpdef Stream default_stream():
@@ -441,9 +440,9 @@ cpdef Stream default_stream():
 
     # value is non-zero, including for weird stuff like 123foo
     if use_ptds:
-        return C_PER_THREAD_DEFAULT_STREAM
+        return PER_THREAD_DEFAULT_STREAM
     else:
-        return C_LEGACY_DEFAULT_STREAM
+        return LEGACY_DEFAULT_STREAM
 
 
 cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:

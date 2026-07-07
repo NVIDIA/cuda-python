@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -33,6 +33,16 @@ on:
         required: false
         default: false
         type: boolean
+      deploy-docs:
+        description: "Deploy generated docs to GitHub Pages or preview branches"
+        required: false
+        default: true
+        type: boolean
+      docs-branch:
+        description: "Branch that receives deployed docs"
+        required: false
+        default: "gh-pages"
+        type: string
 
 jobs:
   build:
@@ -45,14 +55,21 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           ref: ${{ inputs.git-tag }}
 
       - name: Read build CTK version
         run: |
-          BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
+          if [[ -f ci/versions.yml ]]; then
+            BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
+          elif [[ -f ci/versions.json ]]; then
+            BUILD_CTK_VER=$(jq -r '.cuda.build.version' ci/versions.json)
+          else
+            echo "error: cannot find ci/versions.yml or ci/versions.json" >&2
+            exit 1
+          fi
           if [[ ! "${BUILD_CTK_VER}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "error: derived CTK build version ${BUILD_CTK_VER} does not match MAJOR.MINOR.MICRO" >&2
             exit 1
@@ -91,15 +108,18 @@ jobs:
 
           if [[ ${{ inputs.is-release }} == "true" ]]; then
             FILE_HASH="*"
-            COMMIT_HASH="${{ inputs.git-tag }}"
+            DOCS_GITHUB_REF="${{ inputs.git-tag }}"
+            if [[ -z "${DOCS_GITHUB_REF}" ]]; then
+              DOCS_GITHUB_REF="${GITHUB_REF_NAME}"
+            fi
           else
             FILE_HASH="${{ github.sha }}"
-            COMMIT_HASH="${{ github.sha }}"
+            DOCS_GITHUB_REF="${{ github.sha }}"
           fi
 
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
-          echo "COMMIT_HASH=${COMMIT_HASH}" >> $GITHUB_ENV
+          echo "CUDA_PYTHON_DOCS_GITHUB_REF=${DOCS_GITHUB_REF}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
@@ -242,15 +262,82 @@ jobs:
           fi
           mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
-      # TODO: Consider removing this step?
-      - name: Upload doc artifacts
+      - name: Write rendered docs file list
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        run: |
+          find "${GITHUB_WORKSPACE}/artifacts/docs" -type f -name '*.html' ! -path '*/_static/*' \
+            | LC_ALL=C sort > lychee-rendered-html-files.txt
+          if [[ ! -s lychee-rendered-html-files.txt ]]; then
+            echo "error: no rendered HTML pages found for lychee" >&2
+            exit 1
+          fi
+          wc -l lychee-rendered-html-files.txt
+
+      - name: Restore lychee cache
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        id: restore-lychee-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: .lycheecache
+          key: docs-rendered-lychee-${{ env.PR_NUMBER }}-${{ github.sha }}
+          restore-keys: |
+            docs-rendered-lychee-${{ env.PR_NUMBER }}-
+
+      - name: Check rendered docs links
+        if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+        uses: lycheeverse/lychee-action@6da1d14f3a43098a294b7696d93d938aa8d20fc0  # unreleased: supports v0.24.x archive layout
+        with:
+          # PR-preview canonical URLs are checked by the preview deployment workflow.
+          # The cuda-bindings #id links are docutils "problematic" anchors from generated API docs.
+          # TODO: Remove this exclusion after cybind stops emitting those problematic anchors.
+          # Preferred Networks rejects hosted-runner GETs, but the URL is browser reachable.
+          args: >-
+            --files-from ${{ github.workspace }}/lychee-rendered-html-files.txt
+            --include-fragments=full
+            --cache
+            --max-cache-age 1d
+            --max-concurrency 16
+            --host-concurrency 2
+            --host-request-interval 250ms
+            --max-retries 3
+            --retry-wait-time 5
+            --timeout 30
+            --no-progress
+            --exclude '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/'
+            --exclude '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$'
+            --exclude '^https://www\.preferred\.jp/en/?$'
+          fail: true
+          failIfEmpty: true
+          format: markdown
+          jobSummary: false
+          lycheeVersion: v0.24.2
+          output: lychee-rendered-html.md
+          token: ${{ github.token }}
+
+      - name: Save lychee cache
+        if: ${{ always() && !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: .lycheecache
+          key: ${{ steps.restore-lychee-cache.outputs.cache-primary-key }}
+
+      - name: Upload docs GitHub Pages artifact
+        if: ${{ inputs.deploy-docs }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: artifacts/
           retention-days: 3
 
+      - name: Upload dry-run docs artifact
+        if: ${{ !inputs.deploy-docs || (inputs.is-release && inputs.docs-branch != 'gh-pages') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: release-docs-dry-run-${{ inputs.component }}-${{ inputs.git-tag }}
+          path: artifacts/docs/
+          retention-days: 3
+
       - name: Deploy or clean up doc preview
-        if: ${{ !inputs.is-release }}
+        if: ${{ inputs.deploy-docs && !inputs.is-release }}
         uses: ./.github/actions/doc_preview
         with:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
@@ -258,12 +345,13 @@ jobs:
           pr-number: ${{ env.PR_NUMBER }}
 
       - name: Deploy doc update
-        if: ${{ github.ref_name == 'main' || inputs.is-release }}
+        if: ${{ inputs.deploy-docs && (github.ref_name == 'main' || inputs.is-release) }}
         uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f  # v4.8.0
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
+          branch: ${{ inputs.docs-branch }}
           folder: artifacts/docs/
           target-folder: docs/
-          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.COMMIT_HASH }}"
+          commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.CUDA_PYTHON_DOCS_GITHUB_REF }}"
           clean: false
