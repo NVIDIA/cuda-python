@@ -5,7 +5,7 @@
 [build-system]
 requires = [
     "setuptools>=80",
-    "setuptools-scm[simple]>=8",
+    "setuptools-scm[simple]>=8,!=10.1",
     "Cython>=3.2,<3.3",
     "cuda-pathfinder>=1.5"
 ]
@@ -59,11 +59,18 @@ cu13 = ["cuda-bindings[all]==13.*", "cuda-toolkit==13.*"]
 
 [dependency-groups]
 test = [
-    "cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-benchmark",
-    "pytest-randomly", "pytest-repeat", "pytest-rerunfailures", "pytest-timeout",
-    "cloudpickle", "psutil",
+    "cython>=3.2,<3.3",
+    "setuptools>=80",
+    "pytest==9.1.0",
+    "pytest-benchmark==5.2.3",
+    "pytest-randomly==4.1.0",
+    "pytest-repeat==0.9.4",
+    "pytest-rerunfailures==16.3",
+    "pytest-timeout==2.4.0",
+    "cloudpickle==3.1.2",
+    "psutil==7.2.2",
     # TODO: remove the Python 3.15 guard once 3.15 is officially supported
-    "cffi; python_version < '3.15'",
+    "cffi==2.0.0; python_version < '3.15'",
 ]
 ml-dtypes = ["ml-dtypes>=0.5.4,<0.6.0"]
 test-cu12 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.14'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
@@ -139,6 +146,10 @@ implicit_reexport = true
 
 # Ignore missing imports for now (you can tighten this later)
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "cuda.core._vendored.*"
+ignore_errors = true
 
 [[tool.mypy.overrides]]
 # cpdef functions with Cython-native tuple return types can't carry type args

@@ -25,6 +25,11 @@ cdef int HANDLE_RETURN_NVJITLINK(
     cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except?-1 nogil
 
 
+# Helper for retrieving the current CUDA device. Raises if no active context
+# is bound to the calling thread.
+cdef int _get_current_device_id() except? -1
+
+
 # TODO: stop exposing these within the codebase?
 cpdef int _check_driver_error(cydriver.CUresult error) except?-1 nogil
 cpdef int _check_runtime_error(error) except?-1

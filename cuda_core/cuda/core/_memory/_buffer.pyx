@@ -86,6 +86,13 @@ cdef class Buffer:
     allocations.
 
     Support for data interchange mechanisms are provided by DLPack.
+
+    Note
+    ----
+    Pickling an IPC-enabled :class:`Buffer` embeds an
+    :class:`~_memory.IPCBufferDescriptor`. Unpickling reconstructs the buffer
+    by calling :meth:`from_ipc_descriptor` and therefore performs an IPC
+    import. Do not unpickle buffers from untrusted sources.
     """
     def __cinit__(self) -> None:
         self._clear()
@@ -96,7 +103,7 @@ cdef class Buffer:
         self._memory_resource = None
         self._ipc_data = None
         self._owner = None
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
 
     def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Buffer objects cannot be instantiated directly. "
@@ -126,7 +133,7 @@ cdef class Buffer:
         self._memory_resource = mr
         self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._owner = owner
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
         return self
 
     @staticmethod
@@ -138,6 +145,8 @@ cdef class Buffer:
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self) -> tuple[object, ...]:
+        # Unpickling performs a live CUDA IPC import from descriptor bytes in the
+        # pickle stream. Only deserialize Buffers from a trusted principal.
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
@@ -187,6 +196,12 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream`
             Keyword-only. The stream used for asynchronous deallocation when
             the buffer is closed or garbage collected.
+
+        Note
+        ----
+        The descriptor payload and ``size`` are supplied by the exporting peer
+        and must be treated as untrusted input unless the peer is known to be
+        cooperating.
         """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
@@ -448,9 +463,9 @@ cdef class Buffer:
 # ------------------------------
 cdef inline void _init_mem_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
-    if not self._mem_attrs_inited:
+    if not self._mem_attrs_inited.load(memory_order_acquire):
         _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
-        self._mem_attrs_inited = True
+        self._mem_attrs_inited.store(True, memory_order_release)
 
 
 cdef inline int _query_memory_attrs(
@@ -598,7 +613,7 @@ cdef Buffer Buffer_from_deviceptr_handle(
     buf._memory_resource = mr
     buf._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
     buf._owner = None
-    buf._mem_attrs_inited = False
+    buf._mem_attrs_inited.store(False)
     return buf
 
 

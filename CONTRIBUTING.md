@@ -21,6 +21,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Table of Contents](#table-of-contents)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
+  - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
   - [CI infrastructure overview](#ci-infrastructure-overview)
@@ -60,21 +61,41 @@ This project uses [pre-commit.ci](https://pre-commit.ci/) with GitHub Actions. A
 To set yourself up for running pre-commit checks locally and to catch issues before pushing your changes, follow these steps:
 
 * Install pre-commit with: `pip install pre-commit`
+* Run this once per checkout: `pre-commit install`
 * You can manually check all files at any time by running: `pre-commit run --all-files`
 
 This command runs all configured hooks (such as linters and formatters) across your repository, letting you review and address issues before committing.
 
-**Optional: Enable automatic checks on every commit**
-If you want pre-commit hooks to run automatically each time you make a commit, install the git hook with:
+Installing the hook is required, not optional. Some of the automated checks
+(the SPDX header updater and the `.pyi` stub generator for `cuda_core`) only
+keep the tree consistent if they run on *every* commit. Relying on manual
+`pre-commit run --all-files` invocations means these checks can be skipped
+between commits, leaving stale headers or out-of-date stubs in the history.
+If the hook isn't installed, `pre-commit run` (and CI) will print a visible
+warning reminding you to run `pre-commit install`.
 
-`pre-commit install`
 
-This sets up a git pre-commit hook so that all configured checks will run before each commit is accepted. If any hook fails, the commit will be blocked until the issues are resolved.
+## Signing Your Work
 
-**Note on workflow flexibility**
-Some contributors prefer to commit intermediate or work-in-progress changes that may not pass all pre-commit checks, and only clean up their commits before pushing (for example, by squashing and running `pre-commit run --all-files` manually at the end). If this fits your workflow, you may choose not to run `pre-commit install` and instead rely on manual checks. This approach avoids disruption during iterative development, while still ensuring code quality before code is shared or merged.
+Contributions to files licensed under Apache 2.0 must be certified under the
+[Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco).
+Sign off every commit with the `-s` option:
 
-Choose the setup that best fits your workflow and development style.
+```console
+git commit -s -m "Describe your change"
+```
+
+Git uses your configured name and email address to add a trailer like this to
+the commit message:
+
+```text
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+Use your real name and an email address associated with your contribution. The
+sign-off certifies that you have the right to submit the contribution under the
+DCO below. DCO sign-off is separate from the cryptographic commit signing
+described in the next section; both requirements apply.
 
 
 ## Code signing

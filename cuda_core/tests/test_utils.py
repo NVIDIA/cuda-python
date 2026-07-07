@@ -1060,37 +1060,90 @@ def test_dlpack_export_non_native_endian_rejected():
         bad_view.__dlpack__()
 
 
-@pytest.mark.parametrize(
-    "dtype",
-    [
-        np.uint8,
-        np.uint16,
-        np.uint32,
-        np.uint64,
-        np.int8,
-        np.int16,
-        np.int32,
-        np.int64,
-        np.float16,
-        np.float32,
-        np.float64,
-        np.complex64,
-        np.complex128,
-        np.bool_,
-    ],
-)
-def test_strided_memory_view_dtype_roundtrip_all(dtype):
-    """Exercise dtype_dlpack_to_numpy for every NumPy-native DLPack dtype.
+def test_strided_memory_view_proxy_cai_only_has_dlpack_false():
+    """``_StridedMemoryViewProxy`` records ``has_dlpack=False`` for an object
+    that exposes only ``__cuda_array_interface__`` (check_has_dlpack CAI branch)."""
+    from cuda.core._memoryview import _StridedMemoryViewProxy
 
-    bfloat16 (kDLBfloat) is excluded -- NumPy's __dlpack__ doesn't reliably
-    export ml_dtypes-extended dtypes; cover separately via jax/torch if needed.
+    obj = _make_cuda_array_interface_obj(shape=(2,), strides=None)
+    proxy = _StridedMemoryViewProxy(obj)
+    assert proxy.has_dlpack is False
+    assert proxy.obj is obj
+
+
+def test_view_as_cai_device_pointer_and_stream_ordering(init_cuda):
+    """``view_as_cai`` on a real device pointer resolves the device ordinal via
+    ``cuPointerGetAttribute`` and takes the cross-stream branch when the CAI
+    ``stream`` differs from the consumer stream.
+
+    This only exercises the code path and checks *device* correctness (ptr,
+    device_id, shape); it does NOT verify stream-order correctness. Uses a
+    synthetic CAI object backed by a genuine device allocation, so the
+    cupy/numba-only device branch is exercised without those optional deps.
     """
-    src = np.zeros(3, dtype=dtype)
-    # Probe NumPy first: if it can't export this dtype, skip as env limit.
-    # Any failure AFTER the probe is OUR consumer regression and must fail.
-    try:
-        src.__dlpack__()
-    except (BufferError, TypeError) as e:
-        pytest.skip(f"NumPy does not export {np.dtype(dtype)} via DLPack: {e}")
-    view = StridedMemoryView.from_dlpack(src, stream_ptr=-1)
-    assert view.dtype == np.dtype(dtype)  # .dtype triggers dtype_dlpack_to_numpy
+    dev = init_cuda
+    buffer = dev.memory_resource.allocate(64, stream=dev.default_stream)
+    producer = dev.create_stream()
+    consumer = dev.create_stream()
+    obj = _make_cuda_array_interface_obj(
+        shape=(8,),
+        strides=None,
+        typestr="<f4",
+        data=(int(buffer.handle), False),
+    )
+    obj.__cuda_array_interface__["stream"] = int(producer.handle)
+
+    view = StridedMemoryView.from_cuda_array_interface(obj, stream_ptr=consumer.handle)
+
+    assert view.is_device_accessible is True
+    assert view.ptr == int(buffer.handle)
+    assert view.device_id == dev.device_id
+    assert view.shape == (8,)
+    dev.default_stream.sync()
+
+
+def test_strided_memory_view_init_cai_path_deprecated(init_cuda):
+    """The deprecated ``StridedMemoryView(obj)`` constructor routes a CAI-only
+    object through the CAI branch (warn + ``view_as_cai``), not the DLPack one."""
+    obj = _make_cuda_array_interface_obj(shape=(4,), strides=None, typestr="<f4", data=(0, False))
+    with pytest.deprecated_call(match="CUDA-array-interface-supporting object is deprecated"):
+        view = StridedMemoryView(obj, stream_ptr=-1)
+    assert view.is_device_accessible is True
+    assert view.shape == (4,)
+    assert view.device_id == init_cuda.device_id
+
+
+def test_dlpack_export_device_accessible_cai_view(init_cuda):
+    """Exporting a device-accessible CAI-backed view (no dl_tensor) drives the
+    ``_smv_get_dl_device`` branch that calls ``get_buffer``/``classify_dl_device``
+    and reports a CUDA device via ``__dlpack_device__``."""
+    dev = init_cuda
+    buffer = dev.memory_resource.allocate(64, stream=dev.default_stream)
+    obj = _make_cuda_array_interface_obj(
+        shape=(8,),
+        strides=None,
+        typestr="<f4",
+        data=(int(buffer.handle), False),
+    )
+    view = StridedMemoryView.from_cuda_array_interface(obj, stream_ptr=-1)
+
+    device_type, device_id = view.__dlpack_device__()
+    assert device_type == int(DLDeviceType.kDLCUDA)
+    assert device_id == dev.device_id
+
+    capsule = view.__dlpack__()
+    assert _PyCapsule_IsValid(capsule, b"dltensor") == 1
+    del capsule  # unconsumed -> deleter frees the managed tensor
+    dev.default_stream.sync()
+
+
+def test_strided_memory_view_repr_with_none_dtype(init_cuda):
+    """``__repr__`` of a view whose dtype is None renders the dtype via
+    ``get_simple_repr`` taking the builtins branch (NoneType)."""
+    dev = init_cuda
+    buffer = dev.memory_resource.allocate(16, stream=dev.default_stream)
+    view = StridedMemoryView.from_buffer(buffer, shape=(16,), itemsize=1, dtype=None)
+    assert view.dtype is None
+    r = repr(view)
+    assert r.startswith("StridedMemoryView(ptr=")
+    assert "dtype=NoneType" in r

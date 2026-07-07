@@ -33,7 +33,7 @@ cpdef void _initialize() except *
 
 cpdef inline initialize():
     """
-    Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.
+    Initializes NVIDIA Management Library (NVML), ensuring it only happens once per process.
     """
     if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND or (
         _NVML_STATE == _NVMLState.INITIALIZED and getpid() == _NVML_OWNER_PID

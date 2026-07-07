@@ -161,6 +161,49 @@ Tensor Memory Accelerator (TMA)
    TensorMapDescriptorOptions
 
 
+Textures and surfaces
+---------------------
+
+CUDA arrays back bindless texture and surface objects for kernel-side sampled
+reads and typed load/store. These types live in the :mod:`cuda.core.texture`
+namespace. :class:`OpaqueArray` is allocated through
+:meth:`OpaqueArray.from_descriptor` and bound through a :class:`ResourceDescriptor`
+factory; linear (1D) and row-pitched 2D :class:`Buffer` views as well as
+mipmapped allocations (:class:`MipmappedArray`) are also supported as texture
+backings.
+
+A :class:`OpaqueArray` has an opaque, hardware-defined layout with no linear
+device pointer, so it cannot participate in ``__cuda_array_interface__`` /
+DLPack zero-copy interop. Data is moved in and out only by copying — use
+:meth:`OpaqueArray.copy_from` / :meth:`OpaqueArray.copy_to` against a linear
+:class:`Buffer` or a host buffer-protocol object.
+
+.. currentmodule:: cuda.core.texture
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   OpaqueArray
+   MipmappedArray
+   ResourceDescriptor
+   TextureObject
+   SurfaceObject
+
+   :template: dataclass.rst
+
+   TextureDescriptor
+
+.. autosummary::
+   :toctree: generated/
+
+   ArrayFormat
+   AddressMode
+   FilterMode
+   ReadMode
+
+
 CUDA compilation toolchain
 --------------------------
 

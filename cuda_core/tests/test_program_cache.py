@@ -1927,6 +1927,7 @@ def test_filestream_cache_tracker_reconciles_after_external_drift(tmp_path):
         assert cache._tracked_size_bytes <= 1100  # actual on-disk is 'b' + 'c' or just 'c'
 
 
+@pytest.mark.thread_unsafe(reason="already threaded and patches _file_stream")
 def test_filestream_cache_tracker_clamps_at_zero_under_delete_race(tmp_path):
     """Two-thread reproduction of the ``__delitem__`` vs
     ``_enforce_size_cap`` race. Thread A is mid-delete: it has stat'd the

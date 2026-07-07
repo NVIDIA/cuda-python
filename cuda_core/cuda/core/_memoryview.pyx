@@ -81,7 +81,7 @@ cdef inline bint _is_torch_tensor(object obj):
     cdef str mod = tp.__module__ or ""
     cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr") \
         and _torch_version_check()
-    _torch_type_cache[tp] = result
+    _torch_type_cache[tp] = result  # setdefault not needed for bools
     return result
 
 

@@ -84,7 +84,7 @@ cdef class KernelAttributes:
         cdef int result
         with nogil:
             HANDLE_RETURN(cydriver.cuKernelGetAttribute(&result, attribute, as_cu(self._h_kernel), device_id))
-        self._cache[cache_key] = result
+        self._cache[cache_key] = result  # setdefault not needed for ints
         return result
 
     def __getitem__(self, device: Device | int) -> KernelAttributes:

@@ -9,11 +9,16 @@ import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core._memory import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 POOL_SIZE = 2097152
+
+
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
 def test_outer_timeout_marker_is_applied(request):
@@ -29,6 +34,21 @@ def test_outer_timeout_marker_is_applied(request):
     marker = request.node.get_closest_marker("timeout")
     assert marker is not None, "memory_ipc/conftest.py did not apply a timeout marker"
     assert marker.args == (expected,), f"unexpected timeout value: {marker.args!r}"
+
+
+def test_import_truncated_buffer_descriptor(ipc_device, ipc_memory_resource):
+    """Truncated IPC buffer descriptor payload is rejected before driver import."""
+    desc = IPCBufferDescriptor._init(b"\x00" * 8, NBYTES)
+    with pytest.raises(ValueError, match=r"payload is 8 bytes; expected at least 64"):
+        Buffer.from_ipc_descriptor(ipc_memory_resource, desc, stream=ipc_device.default_stream)
+
+
+def test_ipc_allocation_handle_rejects_negative_fd():
+    """Negative fds are rejected even when CPython runs with -O (Glasswing V3.2)."""
+    from cuda.core._memory._ipc import IPCAllocationHandle
+
+    with pytest.raises(ValueError, match=r"Invalid allocation handle \(fd\) -1: must be non-negative"):
+        IPCAllocationHandle._init(-1, None)
 
 
 class ChildErrorHarness:
@@ -78,6 +98,25 @@ class ChildErrorHarness:
         else:
             exc_info = None, None
         pipe[1].put(exc_info)
+
+
+class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
+    """Reject peer-supplied sizes larger than the mapped allocation extent."""
+
+    def PARENT_ACTION(self, queue):
+        self.buffer = self.mr.allocate(NBYTES, stream=self.device.default_stream)
+        payload, _ = self.buffer.ipc_descriptor.__reduce__()[1]
+        oversized = IPCBufferDescriptor._init(payload, NBYTES * 100)
+        queue.put(oversized)
+
+    def CHILD_ACTION(self, queue):
+        oversized = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        Buffer.from_ipc_descriptor(self.mr, oversized, stream=self.device.default_stream)
+
+    def ASSERT(self, exc_type, exc_msg):
+        assert exc_type is ValueError
+        assert "exceeds" in exc_msg
+        assert "mapped allocation extent" in exc_msg
 
 
 class TestAllocFromImportedMr(ChildErrorHarness):

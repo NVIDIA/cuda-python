@@ -8,6 +8,8 @@ from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph._graph_definition import GraphCondition, GraphDefinition
 
+_BuilderKind = int
+_CaptureState = int
 
 @dataclass
 class GraphDebugPrintOptions:
@@ -106,22 +108,18 @@ class GraphBuilder:
 
     """
 
-    class _MembersNeededForFinalize:
-        __slots__ = ('conditional_graph', 'graph', 'is_join_required', 'is_stream_owner', 'stream')
-
-        def __init__(self, graph_builder_obj: GraphBuilder, stream_obj: Stream | None, is_stream_owner: bool, conditional_graph, is_join_required: bool) -> None:
-            ...
-
-        def close(self) -> None:
-            ...
-    __slots__ = ('__weakref__', '_building_ended', '_mnff')
-
-    def __init__(self) -> None:
+    def __init__(self):
         ...
 
-    @classmethod
-    def _init(cls, stream: Stream | None, is_stream_owner: bool, conditional_graph: object=None, is_join_required: bool=False) -> GraphBuilder:
+    def __dealloc__(self):
         ...
+
+    @staticmethod
+    def _init(stream: Stream):
+        ...
+
+    def close(self):
+        """Destroy the graph builder."""
 
     @property
     def stream(self) -> Stream:
@@ -130,6 +128,53 @@ class GraphBuilder:
     @property
     def is_join_required(self) -> bool:
         """Returns True if this graph builder must be joined before building is ended."""
+
+    @property
+    def graph_definition(self) -> GraphDefinition:
+        """The captured graph as an explicit :class:`~graph.GraphDefinition`.
+
+        .. versionadded:: 1.1.0
+
+        The returned :class:`~graph.GraphDefinition` is a view of the same
+        graph this builder is producing: nodes added through it appear in
+        subsequent :meth:`complete` and :meth:`debug_dot_print` calls, and
+        the view stays valid even after the builder is closed.
+
+        This lets you mix the capture and explicit APIs on a single graph,
+        for example to inspect what was captured, augment it with extra
+        nodes, or build a conditional body entirely with the explicit API.
+
+        Availability:
+
+        - **Primary builders** (created by :meth:`Device.create_graph_builder`
+          or :meth:`Stream.create_graph_builder`): only after
+          :meth:`end_building`.
+
+        - **Conditional-body builders** (returned by :meth:`if_then`,
+          :meth:`if_else`, :meth:`while_loop`, :meth:`switch`): both before
+          :meth:`begin_building` and after :meth:`end_building`. The body
+          graph already exists when the conditional is created, so you may
+          populate it through this view without ever calling
+          :meth:`begin_building` on the body builder.
+
+        - **Forked builders** (returned by :meth:`split`): never. Forked
+          builders share the primary builder's graph; access it through the
+          primary instead.
+
+        Returns
+        -------
+        GraphDefinition
+            A view of the graph being built.
+
+        Raises
+        ------
+        RuntimeError
+            If the builder is closed, forked, currently building, or (for
+            primary builders) has not started building yet. A
+            :class:`~graph.GraphDefinition` obtained before :meth:`close`
+            keeps working; only fresh access through this property is
+            rejected once the builder is closed.
+        """
 
     def begin_building(self, mode: str | None='relaxed') -> GraphBuilder:
         """Begins the building process.
@@ -155,7 +200,7 @@ class GraphBuilder:
     def end_building(self) -> GraphBuilder:
         """Ends the building process."""
 
-    def complete(self, options: GraphCompleteOptions | None=None) -> 'Graph':
+    def complete(self, options: GraphCompleteOptions | None=None) -> Graph:
         """Completes the graph builder and returns the built :obj:`~graph.Graph` object.
 
         Parameters
@@ -245,9 +290,6 @@ class GraphBuilder:
             A condition variable for controlling conditional execution.
         """
 
-    def _cond_with_params(self, node_params: object) -> tuple[GraphBuilder, ...]:
-        ...
-
     def if_then(self, condition: GraphCondition) -> GraphBuilder:
         """Adds an if condition branch and returns a new graph builder for it.
 
@@ -335,15 +377,7 @@ class GraphBuilder:
 
         """
 
-    def close(self) -> None:
-        """Destroy the graph builder.
-
-        Closes the associated stream if we own it. Borrowed stream
-        object will instead have their references released.
-
-        """
-
-    def embed(self, child: GraphBuilder) -> None:
+    def embed(self, child: GraphBuilder):
         """Embed a previously-built :obj:`~graph.GraphBuilder` as a child node.
 
         Parameters
@@ -392,21 +426,7 @@ class Graph:
 
     """
 
-    class _MembersNeededForFinalize:
-        __slots__ = 'graph'
-
-        def __init__(self, graph_obj: Graph, graph: driver.CUgraphExec) -> None:
-            ...
-
-        def close(self) -> None:
-            ...
-    __slots__ = ('__weakref__', '_mnff')
-
-    def __init__(self) -> None:
-        ...
-
-    @classmethod
-    def _init(cls, graph: driver.CUgraphExec) -> Graph:
+    def __init__(self):
         ...
 
     def close(self) -> None:
@@ -457,5 +477,5 @@ class Graph:
         """
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
-def _instantiate_graph(h_graph, options: GraphCompleteOptions | None=None) -> 'Graph':
+def _instantiate_graph(h_graph, options: GraphCompleteOptions | None=None) -> Graph:
     ...

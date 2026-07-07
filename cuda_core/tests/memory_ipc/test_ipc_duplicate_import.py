@@ -24,6 +24,9 @@ POOL_SIZE = 2097152
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
+
 
 def child_main(log, queue):
     log.prefix = " child: "
