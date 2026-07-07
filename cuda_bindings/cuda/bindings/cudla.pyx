@@ -3,6 +3,7 @@
 
 # <<<< PREAMBLE CONTENT >>>>
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6e7ac86c22e602c08df8250f3b50c135945378aa8ae4ddb4e10174fd979c4aa5
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 from cython cimport view as _cyb_view

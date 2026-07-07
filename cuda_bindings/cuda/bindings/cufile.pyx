@@ -6,6 +6,7 @@
 
 # <<<< PREAMBLE CONTENT >>>>
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=359f9b42f4f97b9a74570e1f7d20eb6f5faae2df194a6161f4d5a9512c3ffbe3
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 cimport cpython.memoryview as _cyb_cpython_memoryview

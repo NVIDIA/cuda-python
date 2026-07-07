@@ -6,6 +6,7 @@
 
 # <<<< PREAMBLE CONTENT >>>>
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=663773bbe4ae03ad1e170d44b06d5a924b5e4a3a0bd901c2f276976b82943bcb
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 
 # <<<< END OF PREAMBLE CONTENT >>>>
