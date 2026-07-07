@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b52d99b7f07615d6c5ecb869a5c632e6e9cb4d0cb4f6cb1e43977d29ecd9995c
 #
-# This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
 
 from ..cynvfatbin cimport *
 

@@ -1,29 +1,56 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=359f9b42f4f97b9a74570e1f7d20eb6f5faae2df194a6161f4d5a9512c3ffbe3
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0, generator version 0.3.1.dev1844+ge04b6a4af. Do not modify it directly.
 
-# <<<< PREAMBLE CONTENT >>>>
+cimport cython  # NOQA
+from libc cimport errno
+from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
+                               nested_resource)
+from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 
-cimport cpython as _cyb_cpython
-cimport cpython.buffer as _cyb_cpython_buffer
-cimport cpython.memoryview as _cyb_cpython_memoryview
-from cython cimport view as _cyb_view
-from libc.stdlib cimport (
-    calloc as _cyb_calloc,
-    free as _cyb_free,
-    malloc as _cyb_malloc,
-)
-from libc.string cimport (
-    memcmp as _cyb_memcmp,
-    memcpy as _cyb_memcpy,
-)
-from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+import cython
+
+from cuda.bindings.driver import CUresult as pyCUresult
+
+from libc.stdlib cimport calloc, free, malloc
+from cython cimport view
+cimport cpython.buffer
+cimport cpython.memoryview
+cimport cpython
+from libc.string cimport memcmp, memcpy
 import numpy as _numpy
 
-cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
+
+cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
+    # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
+    if isinstance(data, lowpp_type):
+        return data
+    if not isinstance(data, _numpy.ndarray):
+        raise TypeError("data argument must be a NumPy ndarray")
+    if data.size != 1:
+        raise ValueError("data array must have a size of 1")
+    if data.dtype != expected_dtype:
+        raise ValueError(f"data array must be of dtype {dtype_name}")
+    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
+
+
+cdef __from_buffer(buffer, size, lowpp_type):
+    cdef Py_buffer view
+    if cpython.PyObject_GetBuffer(buffer, &view, cpython.PyBUF_SIMPLE) != 0:
+        raise TypeError("buffer argument does not support the buffer protocol")
+    try:
+        if view.itemsize != 1:
+            raise ValueError("buffer itemsize must be 1 byte")
+        if view.len != size:
+            raise ValueError(f"buffer length must be {size} bytes")
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+    finally:
+        cpython.PyBuffer_Release(&view)
+
+
+cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
     buffer.buf = <char *>ptr
     buffer.format = 'b'
     buffer.internal = NULL
@@ -36,42 +63,6 @@ cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, in
     buffer.strides = &buffer.itemsize
     buffer.suboffsets = NULL
 
-cdef _cyb_from_buffer(buffer, size, lowpp_type):
-    cdef _cyb_cpython.Py_buffer view
-    if _cyb_cpython.PyObject_GetBuffer(buffer, &view, _cyb_cpython_buffer.PyBUF_SIMPLE) != 0:
-        raise TypeError("buffer argument does not support the buffer protocol")
-    try:
-        if view.itemsize != 1:
-            raise ValueError("buffer itemsize must be 1 byte")
-        if view.len != size:
-            raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
-    finally:
-        _cyb_cpython.PyBuffer_Release(&view)
-
-cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
-    # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
-    if isinstance(data, lowpp_type):
-        return data
-    if not isinstance(data, _numpy.ndarray):
-        raise TypeError("data argument must be a NumPy ndarray")
-    if data.size != 1:
-        raise ValueError("data array must have a size of 1")
-    if data.dtype != expected_dtype:
-        raise ValueError(f"data array must be of dtype {dtype_name}")
-    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
-
-# <<<< END OF PREAMBLE CONTENT >>>>
-
-
-cimport cython  # NOQA
-from libc cimport errno
-from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
-                               nested_resource)
-
-import cython
-
-from cuda.bindings.driver import CUresult as pyCUresult
 
 ###############################################################################
 # POD
@@ -98,7 +89,7 @@ cdef class _py_anon_pod1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
+        self._ptr = <cuda_bindings_cufile__anon_pod1 *>calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
@@ -110,7 +101,7 @@ cdef class _py_anon_pod1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            _cyb_free(ptr)
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
@@ -131,20 +122,20 @@ cdef class _py_anon_pod1:
         if not isinstance(other, _py_anon_pod1):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileDescr_t*>NULL).handle)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileDescr_t*>NULL).handle)) == 0)
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileDescr_t*>NULL).handle), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileDescr_t*>NULL).handle), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            self._ptr = <cuda_bindings_cufile__anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileDescr_t*>NULL).handle))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileDescr_t*>NULL).handle))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -176,7 +167,7 @@ cdef class _py_anon_pod1:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof((<CUfileDescr_t*>NULL).handle), _py_anon_pod1)
+        return __from_buffer(buffer, sizeof((<CUfileDescr_t*>NULL).handle), _py_anon_pod1)
 
     @staticmethod
     def from_data(data):
@@ -185,7 +176,7 @@ cdef class _py_anon_pod1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
+        return __from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -200,10 +191,10 @@ cdef class _py_anon_pod1:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
         if owner is None:
-            obj._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            obj._ptr = <cuda_bindings_cufile__anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileDescr_t*>NULL).handle))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileDescr_t*>NULL).handle))
             obj._owner = None
             obj._owned = True
         else:
@@ -243,7 +234,7 @@ cdef class _py_anon_pod3:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+        self._ptr = <cuda_bindings_cufile__anon_pod3 *>calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
@@ -255,7 +246,7 @@ cdef class _py_anon_pod3:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            _cyb_free(ptr)
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
@@ -276,20 +267,20 @@ cdef class _py_anon_pod3:
         if not isinstance(other, _py_anon_pod3):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u.batch)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u.batch)) == 0)
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            self._ptr = <cuda_bindings_cufile__anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u.batch))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -343,7 +334,7 @@ cdef class _py_anon_pod3:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod3 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u.batch), _py_anon_pod3)
+        return __from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u.batch), _py_anon_pod3)
 
     @staticmethod
     def from_data(data):
@@ -352,7 +343,7 @@ cdef class _py_anon_pod3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod3_dtype` holding the data.
         """
-        return _cyb_from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3)
+        return __from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -367,10 +358,10 @@ cdef class _py_anon_pod3:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
         if owner is None:
-            obj._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            obj._ptr = <cuda_bindings_cufile__anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch))
             obj._owner = None
             obj._owned = True
         else:
@@ -445,10 +436,10 @@ cdef class IOEvents:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        _cyb_cpython.PyBuffer_Release(buffer)
+        cpython.PyBuffer_Release(buffer)
 
     @property
     def cookie(self):
@@ -537,8 +528,8 @@ cdef class IOEvents:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef IOEvents obj = IOEvents.__new__(IOEvents)
-        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
-        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileIOEvents_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=io_events_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -573,7 +564,7 @@ cdef class OpCounter:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <CUfileOpCounter_t *>_cyb_calloc(1, sizeof(CUfileOpCounter_t))
+        self._ptr = <CUfileOpCounter_t *>calloc(1, sizeof(CUfileOpCounter_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating OpCounter")
         self._owner = None
@@ -585,7 +576,7 @@ cdef class OpCounter:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            _cyb_free(ptr)
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.OpCounter object at {hex(id(self))}>"
@@ -606,20 +597,20 @@ cdef class OpCounter:
         if not isinstance(other, OpCounter):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileOpCounter_t)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileOpCounter_t)) == 0)
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileOpCounter_t), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileOpCounter_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <CUfileOpCounter_t *>_cyb_malloc(sizeof(CUfileOpCounter_t))
+            self._ptr = <CUfileOpCounter_t *>malloc(sizeof(CUfileOpCounter_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating OpCounter")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileOpCounter_t))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileOpCounter_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -651,7 +642,7 @@ cdef class OpCounter:
     @staticmethod
     def from_buffer(buffer):
         """Create an OpCounter instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUfileOpCounter_t), OpCounter)
+        return __from_buffer(buffer, sizeof(CUfileOpCounter_t), OpCounter)
 
     @staticmethod
     def from_data(data):
@@ -660,7 +651,7 @@ cdef class OpCounter:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `op_counter_dtype` holding the data.
         """
-        return _cyb_from_data(data, "op_counter_dtype", op_counter_dtype, OpCounter)
+        return __from_data(data, "op_counter_dtype", op_counter_dtype, OpCounter)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -675,10 +666,10 @@ cdef class OpCounter:
             raise ValueError("ptr must not be null (0)")
         cdef OpCounter obj = OpCounter.__new__(OpCounter)
         if owner is None:
-            obj._ptr = <CUfileOpCounter_t *>_cyb_malloc(sizeof(CUfileOpCounter_t))
+            obj._ptr = <CUfileOpCounter_t *>malloc(sizeof(CUfileOpCounter_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating OpCounter")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileOpCounter_t))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileOpCounter_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -780,10 +771,10 @@ cdef class PerGpuStats:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        _cyb_cpython.PyBuffer_Release(buffer)
+        cpython.PyBuffer_Release(buffer)
 
     @property
     def uuid(self):
@@ -1167,8 +1158,8 @@ cdef class PerGpuStats:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef PerGpuStats obj = PerGpuStats.__new__(PerGpuStats)
-        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
-        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfilePerGpuStats_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=per_gpu_stats_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -1240,10 +1231,10 @@ cdef class Descr:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        _cyb_cpython.PyBuffer_Release(buffer)
+        cpython.PyBuffer_Release(buffer)
 
     @property
     def type(self):
@@ -1330,8 +1321,8 @@ cdef class Descr:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef Descr obj = Descr.__new__(Descr)
-        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
-        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -1359,7 +1350,7 @@ cdef class _py_anon_pod2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u))
+        self._ptr = <cuda_bindings_cufile__anon_pod2 *>calloc(1, sizeof((<CUfileIOParams_t*>NULL).u))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
         self._owner = None
@@ -1371,7 +1362,7 @@ cdef class _py_anon_pod2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            _cyb_free(ptr)
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
@@ -1392,20 +1383,20 @@ cdef class _py_anon_pod2:
         if not isinstance(other, _py_anon_pod2):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u)) == 0)
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            self._ptr = <cuda_bindings_cufile__anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -1422,12 +1413,12 @@ cdef class _py_anon_pod2:
         if self._readonly:
             raise ValueError("This _py_anon_pod2 instance is read-only")
         cdef _py_anon_pod3 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(cuda_bindings_cufile__anon_pod3) * 1)
+        memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(cuda_bindings_cufile__anon_pod3) * 1)
 
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod2 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u), _py_anon_pod2)
+        return __from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u), _py_anon_pod2)
 
     @staticmethod
     def from_data(data):
@@ -1436,7 +1427,7 @@ cdef class _py_anon_pod2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod2_dtype` holding the data.
         """
-        return _cyb_from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
+        return __from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1451,10 +1442,10 @@ cdef class _py_anon_pod2:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
         if owner is None:
-            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u))
             obj._owner = None
             obj._owned = True
         else:
@@ -1533,7 +1524,7 @@ cdef class StatsLevel1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <CUfileStatsLevel1_t *>_cyb_calloc(1, sizeof(CUfileStatsLevel1_t))
+        self._ptr = <CUfileStatsLevel1_t *>calloc(1, sizeof(CUfileStatsLevel1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating StatsLevel1")
         self._owner = None
@@ -1545,7 +1536,7 @@ cdef class StatsLevel1:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            _cyb_free(ptr)
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.StatsLevel1 object at {hex(id(self))}>"
@@ -1566,20 +1557,20 @@ cdef class StatsLevel1:
         if not isinstance(other, StatsLevel1):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel1_t)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel1_t)) == 0)
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel1_t), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel1_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <CUfileStatsLevel1_t *>_cyb_malloc(sizeof(CUfileStatsLevel1_t))
+            self._ptr = <CUfileStatsLevel1_t *>malloc(sizeof(CUfileStatsLevel1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel1_t))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel1_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -1596,7 +1587,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].read_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].read_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def write_ops(self):
@@ -1608,7 +1599,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].write_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].write_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def hdl_register_ops(self):
@@ -1620,7 +1611,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].hdl_register_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].hdl_register_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def hdl_deregister_ops(self):
@@ -1632,7 +1623,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].hdl_deregister_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].hdl_deregister_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def buf_register_ops(self):
@@ -1644,7 +1635,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].buf_register_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].buf_register_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def buf_deregister_ops(self):
@@ -1656,7 +1647,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].buf_deregister_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].buf_deregister_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_submit_ops(self):
@@ -1668,7 +1659,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_complete_ops(self):
@@ -1680,7 +1671,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_complete_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_complete_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_setup_ops(self):
@@ -1692,7 +1683,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_setup_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_setup_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_cancel_ops(self):
@@ -1704,7 +1695,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_cancel_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_cancel_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_destroy_ops(self):
@@ -1716,7 +1707,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_destroy_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_destroy_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_enqueued_ops(self):
@@ -1728,7 +1719,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_enqueued_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_enqueued_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_posix_enqueued_ops(self):
@@ -1740,7 +1731,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_posix_enqueued_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_posix_enqueued_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_processed_ops(self):
@@ -1752,7 +1743,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_processed_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_processed_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_posix_processed_ops(self):
@@ -1764,7 +1755,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_posix_processed_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_posix_processed_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_nvfs_submit_ops(self):
@@ -1776,7 +1767,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_nvfs_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_nvfs_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_p2p_submit_ops(self):
@@ -1788,7 +1779,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_p2p_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_p2p_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_aio_submit_ops(self):
@@ -1800,7 +1791,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_aio_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_aio_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_iouring_submit_ops(self):
@@ -1812,7 +1803,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_iouring_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_iouring_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_mixed_io_submit_ops(self):
@@ -1824,7 +1815,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_mixed_io_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_mixed_io_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_total_submit_ops(self):
@@ -1836,7 +1827,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch_total_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+        memcpy(<void *>&(self._ptr[0].batch_total_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def read_bytes(self):
@@ -2083,7 +2074,7 @@ cdef class StatsLevel1:
     @staticmethod
     def from_buffer(buffer):
         """Create an StatsLevel1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUfileStatsLevel1_t), StatsLevel1)
+        return __from_buffer(buffer, sizeof(CUfileStatsLevel1_t), StatsLevel1)
 
     @staticmethod
     def from_data(data):
@@ -2092,7 +2083,7 @@ cdef class StatsLevel1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `stats_level1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "stats_level1_dtype", stats_level1_dtype, StatsLevel1)
+        return __from_data(data, "stats_level1_dtype", stats_level1_dtype, StatsLevel1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2107,10 +2098,10 @@ cdef class StatsLevel1:
             raise ValueError("ptr must not be null (0)")
         cdef StatsLevel1 obj = StatsLevel1.__new__(StatsLevel1)
         if owner is None:
-            obj._ptr = <CUfileStatsLevel1_t *>_cyb_malloc(sizeof(CUfileStatsLevel1_t))
+            obj._ptr = <CUfileStatsLevel1_t *>malloc(sizeof(CUfileStatsLevel1_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel1_t))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel1_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -2187,10 +2178,10 @@ cdef class IOParams:
         return bool((self_data == other._data).all())
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+        cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        _cyb_cpython.PyBuffer_Release(buffer)
+        cpython.PyBuffer_Release(buffer)
 
     @property
     def mode(self):
@@ -2299,8 +2290,8 @@ cdef class IOParams:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef IOParams obj = IOParams.__new__(IOParams)
-        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
-        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileIOParams_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=io_params_dtype)
         obj._data = data.view(_numpy.recarray)
@@ -2336,7 +2327,7 @@ cdef class StatsLevel2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <CUfileStatsLevel2_t *>_cyb_calloc(1, sizeof(CUfileStatsLevel2_t))
+        self._ptr = <CUfileStatsLevel2_t *>calloc(1, sizeof(CUfileStatsLevel2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating StatsLevel2")
         self._owner = None
@@ -2348,7 +2339,7 @@ cdef class StatsLevel2:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            _cyb_free(ptr)
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.StatsLevel2 object at {hex(id(self))}>"
@@ -2369,20 +2360,20 @@ cdef class StatsLevel2:
         if not isinstance(other, StatsLevel2):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel2_t)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel2_t)) == 0)
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel2_t), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel2_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <CUfileStatsLevel2_t *>_cyb_malloc(sizeof(CUfileStatsLevel2_t))
+            self._ptr = <CUfileStatsLevel2_t *>malloc(sizeof(CUfileStatsLevel2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel2_t))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel2_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -2399,12 +2390,12 @@ cdef class StatsLevel2:
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
         cdef StatsLevel1 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].basic), <void *>(val_._get_ptr()), sizeof(CUfileStatsLevel1_t) * 1)
+        memcpy(<void *>&(self._ptr[0].basic), <void *>(val_._get_ptr()), sizeof(CUfileStatsLevel1_t) * 1)
 
     @property
     def read_size_kb_hist(self):
         """~_numpy.uint64: (array of length 32)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
+        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].read_size_kb_hist))
         return _numpy.asarray(arr)
 
@@ -2414,14 +2405,14 @@ cdef class StatsLevel2:
             raise ValueError("This StatsLevel2 instance is read-only")
         if len(val) != 32:
             raise ValueError(f"Expected length { 32 } for field read_size_kb_hist, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
+        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
-        _cyb_memcpy(<void *>(&(self._ptr[0].read_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
+        memcpy(<void *>(&(self._ptr[0].read_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
 
     @property
     def write_size_kb_hist(self):
         """~_numpy.uint64: (array of length 32)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
+        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].write_size_kb_hist))
         return _numpy.asarray(arr)
 
@@ -2431,14 +2422,14 @@ cdef class StatsLevel2:
             raise ValueError("This StatsLevel2 instance is read-only")
         if len(val) != 32:
             raise ValueError(f"Expected length { 32 } for field write_size_kb_hist, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
+        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
-        _cyb_memcpy(<void *>(&(self._ptr[0].write_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
+        memcpy(<void *>(&(self._ptr[0].write_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
 
     @staticmethod
     def from_buffer(buffer):
         """Create an StatsLevel2 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUfileStatsLevel2_t), StatsLevel2)
+        return __from_buffer(buffer, sizeof(CUfileStatsLevel2_t), StatsLevel2)
 
     @staticmethod
     def from_data(data):
@@ -2447,7 +2438,7 @@ cdef class StatsLevel2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `stats_level2_dtype` holding the data.
         """
-        return _cyb_from_data(data, "stats_level2_dtype", stats_level2_dtype, StatsLevel2)
+        return __from_data(data, "stats_level2_dtype", stats_level2_dtype, StatsLevel2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2462,10 +2453,10 @@ cdef class StatsLevel2:
             raise ValueError("ptr must not be null (0)")
         cdef StatsLevel2 obj = StatsLevel2.__new__(StatsLevel2)
         if owner is None:
-            obj._ptr = <CUfileStatsLevel2_t *>_cyb_malloc(sizeof(CUfileStatsLevel2_t))
+            obj._ptr = <CUfileStatsLevel2_t *>malloc(sizeof(CUfileStatsLevel2_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel2_t))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel2_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -2504,7 +2495,7 @@ cdef class StatsLevel3:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <CUfileStatsLevel3_t *>_cyb_calloc(1, sizeof(CUfileStatsLevel3_t))
+        self._ptr = <CUfileStatsLevel3_t *>calloc(1, sizeof(CUfileStatsLevel3_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating StatsLevel3")
         self._owner = None
@@ -2516,7 +2507,7 @@ cdef class StatsLevel3:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            _cyb_free(ptr)
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.StatsLevel3 object at {hex(id(self))}>"
@@ -2537,20 +2528,20 @@ cdef class StatsLevel3:
         if not isinstance(other, StatsLevel3):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel3_t)) == 0)
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfileStatsLevel3_t)) == 0)
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel3_t), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CUfileStatsLevel3_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <CUfileStatsLevel3_t *>_cyb_malloc(sizeof(CUfileStatsLevel3_t))
+            self._ptr = <CUfileStatsLevel3_t *>malloc(sizeof(CUfileStatsLevel3_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel3")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel3_t))
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel3_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -2567,7 +2558,7 @@ cdef class StatsLevel3:
         if self._readonly:
             raise ValueError("This StatsLevel3 instance is read-only")
         cdef StatsLevel2 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].detailed), <void *>(val_._get_ptr()), sizeof(CUfileStatsLevel2_t) * 1)
+        memcpy(<void *>&(self._ptr[0].detailed), <void *>(val_._get_ptr()), sizeof(CUfileStatsLevel2_t) * 1)
 
     @property
     def per_gpu_stats(self):
@@ -2581,7 +2572,7 @@ cdef class StatsLevel3:
         cdef PerGpuStats val_ = val
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field per_gpu_stats, got {len(val)}")
-        _cyb_memcpy(<void *>&(self._ptr[0].per_gpu_stats), <void *>(val_._get_ptr()), sizeof(CUfilePerGpuStats_t) * 16)
+        memcpy(<void *>&(self._ptr[0].per_gpu_stats), <void *>(val_._get_ptr()), sizeof(CUfilePerGpuStats_t) * 16)
 
     @property
     def num_gpus(self):
@@ -2597,7 +2588,7 @@ cdef class StatsLevel3:
     @staticmethod
     def from_buffer(buffer):
         """Create an StatsLevel3 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUfileStatsLevel3_t), StatsLevel3)
+        return __from_buffer(buffer, sizeof(CUfileStatsLevel3_t), StatsLevel3)
 
     @staticmethod
     def from_data(data):
@@ -2606,7 +2597,7 @@ cdef class StatsLevel3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `stats_level3_dtype` holding the data.
         """
-        return _cyb_from_data(data, "stats_level3_dtype", stats_level3_dtype, StatsLevel3)
+        return __from_data(data, "stats_level3_dtype", stats_level3_dtype, StatsLevel3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2621,10 +2612,10 @@ cdef class StatsLevel3:
             raise ValueError("ptr must not be null (0)")
         cdef StatsLevel3 obj = StatsLevel3.__new__(StatsLevel3)
         if owner is None:
-            obj._ptr = <CUfileStatsLevel3_t *>_cyb_malloc(sizeof(CUfileStatsLevel3_t))
+            obj._ptr = <CUfileStatsLevel3_t *>malloc(sizeof(CUfileStatsLevel3_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel3")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel3_t))
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel3_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -2639,7 +2630,7 @@ cdef class StatsLevel3:
 # Enum
 ###############################################################################
 
-class OpError(_cyb_FastEnum):
+class OpError(_FastEnum):
     """
     See `CUfileOpError`.
     """
@@ -2693,7 +2684,7 @@ class OpError(_cyb_FastEnum):
     BATCH_NOCOMPAT_ERROR = CU_FILE_BATCH_NOCOMPAT_ERROR
     IO_MAX_ERROR = CU_FILE_IO_MAX_ERROR
 
-class DriverStatusFlags(_cyb_FastEnum):
+class DriverStatusFlags(_FastEnum):
     """
     See `CUfileDriverStatusFlags_t`.
     """
@@ -2712,7 +2703,7 @@ class DriverStatusFlags(_cyb_FastEnum):
     VIRTIOFS_SUPPORTED = (CU_FILE_VIRTIOFS_SUPPORTED, 'Support for VirtioFS')
     MAX_TARGET_TYPES = (CU_FILE_MAX_TARGET_TYPES, 'Maximum FS supported')
 
-class DriverControlFlags(_cyb_FastEnum):
+class DriverControlFlags(_FastEnum):
     """
     See `CUfileDriverControlFlags_t`.
     """
@@ -2721,7 +2712,7 @@ class DriverControlFlags(_cyb_FastEnum):
     POSIX_IO_MODE = (CU_FILE_POSIX_IO_MODE, 'Vanilla posix io mode. properties.posix_io_mode')
     FALLBACK_IO_MODE = (CU_FILE_FALLBACK_IO_MODE, 'Fallback io mode. properties.gds_fallback_io')
 
-class FeatureFlags(_cyb_FastEnum):
+class FeatureFlags(_FastEnum):
     """
     See `CUfileFeatureFlags_t`.
     """
@@ -2731,7 +2722,7 @@ class FeatureFlags(_cyb_FastEnum):
     PARALLEL_IO_SUPPORTED = (CU_FILE_PARALLEL_IO_SUPPORTED, 'Supported')
     P2P_SUPPORTED = (CU_FILE_P2P_SUPPORTED, 'Support for PCI P2PDMA')
 
-class FileHandleType(_cyb_FastEnum):
+class FileHandleType(_FastEnum):
     """
     See `CUfileFileHandleType`.
     """
@@ -2739,14 +2730,14 @@ class FileHandleType(_cyb_FastEnum):
     OPAQUE_WIN32 = (CU_FILE_HANDLE_TYPE_OPAQUE_WIN32, 'Windows based handle (unsupported)')
     USERSPACE_FS = CU_FILE_HANDLE_TYPE_USERSPACE_FS
 
-class Opcode(_cyb_FastEnum):
+class Opcode(_FastEnum):
     """
     See `CUfileOpcode_t`.
     """
     READ = CUFILE_READ
     WRITE = CUFILE_WRITE
 
-class Status(_cyb_FastEnum):
+class Status(_FastEnum):
     """
     See `CUfileStatus_t`.
     """
@@ -2758,13 +2749,13 @@ class Status(_cyb_FastEnum):
     TIMEOUT = CUFILE_TIMEOUT
     FAILED = CUFILE_FAILED
 
-class BatchMode(_cyb_FastEnum):
+class BatchMode(_FastEnum):
     """
     See `CUfileBatchMode_t`.
     """
     BATCH = CUFILE_BATCH
 
-class SizeTConfigParameter(_cyb_FastEnum):
+class SizeTConfigParameter(_FastEnum):
     """
     See `CUFileSizeTConfigParameter_t`.
     """
@@ -2781,7 +2772,7 @@ class SizeTConfigParameter(_cyb_FastEnum):
     POLLTHRESHOLD_SIZE_KB = CUFILE_PARAM_POLLTHRESHOLD_SIZE_KB
     PROPERTIES_BATCH_IO_TIMEOUT_MS = CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS
 
-class BoolConfigParameter(_cyb_FastEnum):
+class BoolConfigParameter(_FastEnum):
     """
     See `CUFileBoolConfigParameter_t`.
     """
@@ -2798,7 +2789,7 @@ class BoolConfigParameter(_cyb_FastEnum):
     SKIP_TOPOLOGY_DETECTION = CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
     STREAM_MEMOPS_BYPASS = CUFILE_PARAM_STREAM_MEMOPS_BYPASS
 
-class StringConfigParameter(_cyb_FastEnum):
+class StringConfigParameter(_FastEnum):
     """
     See `CUFileStringConfigParameter_t`.
     """
@@ -2806,7 +2797,7 @@ class StringConfigParameter(_cyb_FastEnum):
     ENV_LOGFILE_PATH = CUFILE_PARAM_ENV_LOGFILE_PATH
     LOG_DIR = CUFILE_PARAM_LOG_DIR
 
-class ArrayConfigParameter(_cyb_FastEnum):
+class ArrayConfigParameter(_FastEnum):
     """
     See `CUFileArrayConfigParameter_t`.
     """
@@ -2815,7 +2806,7 @@ class ArrayConfigParameter(_cyb_FastEnum):
     GPU_BOUNCE_BUFFER_SLAB_SIZE_KB = CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_SIZE_KB
     GPU_BOUNCE_BUFFER_SLAB_COUNT = CUFILE_PARAM_GPU_BOUNCE_BUFFER_SLAB_COUNT
 
-class P2PFlags(_cyb_FastEnum):
+class P2PFlags(_FastEnum):
     """
     See `CUfileP2PFlags_t`.
     """
@@ -3103,7 +3094,7 @@ cpdef str get_parameter_string(int param, int len):
     with nogil:
         __status__ = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
     check_status(__status__)
-    return _cyb_cpython.PyUnicode_FromString(desc_str)
+    return cpython.PyUnicode_FromString(desc_str)
 
 
 cpdef set_parameter_size_t(int param, size_t value):
@@ -3341,4 +3332,3 @@ cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, 
         status = cuFileWrite(<Handle>fh, <const void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
     check_status(status)
     return status
-del _cyb_FastEnum

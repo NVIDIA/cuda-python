@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e507515291c3bc20b88d0b58ab5b01a1cc38c5d21bca87a4f379cc846b869ed4
 #
-# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
 
 from ._internal cimport nvjitlink as _nvjitlink
 

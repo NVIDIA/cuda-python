@@ -1,22 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d5a4eb978220598892471233ffd8b7caa8cee7b6b0c27d2d9c458f1d91979f8b
 #
-# This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
-
-# <<<< PREAMBLE CONTENT >>>>
-
-from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
-
-# <<<< END OF PREAMBLE CONTENT >>>>
-
+# This code was automatically generated across versions from 12.4.1 to 13.3.0, generator version 0.3.1.dev1844+ge04b6a4af. Do not modify it directly.
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
                                get_buffer_pointer, get_resource_ptrs)
 
+from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
 from libcpp.vector cimport vector
 
 
@@ -24,7 +17,7 @@ from libcpp.vector cimport vector
 # Enum
 ###############################################################################
 
-class Result(_cyb_FastEnum):
+class Result(_IntEnum):
     """
     The enumerated type `nvFatbinResult` defines API call result codes.
     nvFatbin APIs return `nvFatbinResult` codes to indicate the result.
@@ -330,4 +323,3 @@ cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_li
     with nogil:
         __status__ = nvFatbinAddTileIR(<Handle>handle, <const void*>_code_, size, <const char*>_identifier_, <const char*>_options_cmd_line_)
     check_status(__status__)
-del _cyb_FastEnum
