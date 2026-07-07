@@ -1,8 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8eaac6db08318ecc59f425f779f230fc18f12a64d077e6c9b3d0197725b747a4
 
-# This code was automatically generated with version 13.3.0. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cython
 
