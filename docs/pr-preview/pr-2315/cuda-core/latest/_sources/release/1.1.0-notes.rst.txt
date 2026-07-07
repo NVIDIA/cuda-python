@@ -77,6 +77,10 @@ New features
   body entirely through the explicit API.
   (`#2026 <https://github.com/NVIDIA/cuda-python/pull/2026>`__)
 
+- ``cuda.core`` now ships with ``.pyi`` stubs for all public APIs, enabling
+  users' IDEs and type checkers to provide better autocompletion and static
+  analysis.
+
 Bug fixes
 ---------
 
