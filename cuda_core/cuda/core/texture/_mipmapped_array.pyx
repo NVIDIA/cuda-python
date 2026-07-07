@@ -58,8 +58,9 @@ cdef class MipmappedArray:
         shape : tuple of int
             ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
             in elements, for the base (level 0) mip.
-        format : ArrayFormatType or str
-            Element format.
+        format : ArrayFormatType, str, or numpy.dtype
+            Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+            a plain string (e.g. ``"float32"``), or a NumPy dtype object.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
         num_levels : int

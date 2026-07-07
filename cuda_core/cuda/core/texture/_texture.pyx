@@ -157,8 +157,9 @@ class ResourceDescriptor:
         buffer : Buffer
             Device-memory backing. Must remain alive for the lifetime of any
             :class:`TextureObject` built from this descriptor.
-        format : ArrayFormatType or str
-            Element format.
+        format : ArrayFormatType, str, or numpy.dtype
+            Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+            a plain string (e.g. ``"float32"``), or a NumPy dtype object.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
         size_bytes : int, optional
@@ -218,8 +219,9 @@ class ResourceDescriptor:
         buffer : Buffer
             Device-memory backing. Must remain alive for the lifetime of any
             :class:`TextureObject` built from this descriptor.
-        format : ArrayFormatType or str
-            Element format.
+        format : ArrayFormatType, str, or numpy.dtype
+            Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+            a plain string (e.g. ``"float32"``), or a NumPy dtype object.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
         width : int

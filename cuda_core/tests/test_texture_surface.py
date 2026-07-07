@@ -3,6 +3,7 @@
 
 import gc
 
+import numpy as np
 import pytest
 
 import cuda.core
@@ -73,6 +74,40 @@ def test_array_3d_with_surface_flag(init_cuda):
         assert arr.element_bytes == 4
     finally:
         arr.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+@pytest.mark.parametrize(
+    "dtype, expected",
+    [
+        (np.float32, ArrayFormatType.FLOAT32),
+        (np.dtype("float16"), ArrayFormatType.FLOAT16),
+        (np.uint8, ArrayFormatType.UINT8),
+        (np.dtype("i4"), ArrayFormatType.INT32),
+    ],
+)
+def test_array_accepts_numpy_dtype_format(init_cuda, dtype, expected):
+    arr = OpaqueArray.from_descriptor(shape=(8, 8), format=dtype, num_channels=1)
+    try:
+        assert arr.format == expected
+    finally:
+        arr.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_array_accepts_str_format(init_cuda):
+    arr = OpaqueArray.from_descriptor(shape=(8, 8), format="float32", num_channels=1)
+    try:
+        assert arr.format == ArrayFormatType.FLOAT32
+    finally:
+        arr.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_array_rejects_unsupported_dtype_format(init_cuda):
+    # float64 has no ArrayFormatType equivalent.
+    with pytest.raises(ValueError, match="no ArrayFormatType equivalent"):
+        OpaqueArray.from_descriptor(shape=(8,), format=np.float64, num_channels=1)
 
 
 def test_array_rejects_bad_channels(init_cuda):

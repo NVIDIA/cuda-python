@@ -25,6 +25,8 @@ from cuda.core._utils.cuda_utils cimport (
     _get_current_device_id,
 )
 
+import numpy
+
 from cuda.core.typing import ArrayFormatType
 
 
@@ -44,6 +46,15 @@ _ARRAYFORMAT_TO_CU = {
 _CU_TO_ARRAYFORMAT = {cu: fmt for fmt, cu in _ARRAYFORMAT_TO_CU.items()}
 
 
+# Every ArrayFormatType value is spelled as a NumPy dtype name, so the eight
+# formats map 1:1 to NumPy dtypes. This lets callers pass a dtype object (or
+# anything numpy.dtype() accepts) instead of the enum, matching the precedent
+# set by TensorMapDescriptorOptions.data_type.
+_NUMPY_DTYPE_TO_ARRAYFORMAT = {
+    numpy.dtype(fmt.value): fmt for fmt in ArrayFormatType
+}
+
+
 # Bytes per element (single channel), keyed by the driver CUarray_format int.
 _FORMAT_ELEM_SIZE = {
     _ARRAYFORMAT_TO_CU[ArrayFormatType.UINT8]:   1,
@@ -60,16 +71,40 @@ _FORMAT_ELEM_SIZE = {
 def _normalize_array_format(format):
     """Coerce ``format`` to an :class:`ArrayFormatType`.
 
-    Accepts an :class:`ArrayFormatType` or a plain ``str`` naming one of its
-    values (e.g. ``"float32"``). Raises on anything else."""
+    Accepts, in order of preference:
+
+    * an :class:`ArrayFormatType`;
+    * a plain ``str`` naming one of its values (e.g. ``"float32"``);
+    * a NumPy dtype object (or anything ``numpy.dtype()`` accepts, such as
+      ``numpy.float32``) whose canonical dtype maps 1:1 to one of the eight
+      supported formats.
+
+    Raises :class:`ValueError` on anything else."""
     if isinstance(format, ArrayFormatType):
         return format
+    if isinstance(format, str):
+        try:
+            return ArrayFormatType(format)
+        except ValueError as e:
+            valid = ", ".join(repr(f.value) for f in ArrayFormatType)
+            raise ValueError(
+                f"format must be an ArrayFormatType or one of {{{valid}}}, got {format!r}"
+            ) from e
+    # Fall back to interpreting ``format`` as a NumPy dtype (dtype object,
+    # scalar type, etc.). Unknown dtypes are reported against the supported set.
     try:
-        return ArrayFormatType(format)
-    except ValueError as e:
+        dt = numpy.dtype(format)
+    except TypeError as e:
+        raise ValueError(
+            f"format must be an ArrayFormatType, str, or NumPy dtype, got {format!r}"
+        ) from e
+    try:
+        return _NUMPY_DTYPE_TO_ARRAYFORMAT[dt]
+    except KeyError as e:
         valid = ", ".join(repr(f.value) for f in ArrayFormatType)
         raise ValueError(
-            f"format must be an ArrayFormatType or one of {{{valid}}}, got {format!r}"
+            f"NumPy dtype {dt!r} has no ArrayFormatType equivalent; "
+            f"supported formats: {{{valid}}}"
         ) from e
 
 
@@ -282,8 +317,9 @@ cdef class OpaqueArray:
         shape : tuple of int
             ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
             in elements.
-        format : ArrayFormatType or str
-            Element format.
+        format : ArrayFormatType, str, or numpy.dtype
+            Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+            a plain string (e.g. ``"float32"``), or a NumPy dtype object.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
         is_surface_load_store : bool

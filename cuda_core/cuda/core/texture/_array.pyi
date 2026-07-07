@@ -48,8 +48,9 @@ class OpaqueArray:
         shape : tuple of int
             ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
             in elements.
-        format : ArrayFormatType or str
-            Element format.
+        format : ArrayFormatType, str, or numpy.dtype
+            Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+            a plain string (e.g. ``"float32"``), or a NumPy dtype object.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
         is_surface_load_store : bool
@@ -152,6 +153,7 @@ class OpaqueArray:
         ...
 _ARRAYFORMAT_TO_CU: dict
 _CU_TO_ARRAYFORMAT: dict
+_NUMPY_DTYPE_TO_ARRAYFORMAT: dict
 _FORMAT_ELEM_SIZE: dict
 
 def _normalize_array_format(format):
