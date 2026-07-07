@@ -654,7 +654,7 @@ class Device:
     def to_system_device(self) -> 'cuda.core.system.Device':
         """
         Get the corresponding :class:`cuda.core.system.Device` (which is used
-        for NVIDIA Machine Library (NVML) access) for this
+        for NVIDIA Management Library (NVML) access) for this
         :class:`cuda.core.Device` (which is used for CUDA access).
 
         The devices are mapped to one another by their UUID.
