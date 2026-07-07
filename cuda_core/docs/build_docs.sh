@@ -38,6 +38,7 @@ SPHINXOPTS="${HTML_SPHINXOPTS}"
 make html
 
 # to support version dropdown menu
+cp ./versions.json build/html
 cp ./nv-versions.json build/html
 
 # to have a redirection page (to the latest docs)
