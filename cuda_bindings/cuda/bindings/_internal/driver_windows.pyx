@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated with version 12.9.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
+# This code was automatically generated with version 12.9.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -594,7 +594,7 @@ cdef int _init_driver() except -1 nogil:
         if __cuGetProcAddress_v2 == NULL:
             raise RuntimeError("Failed to get __cuGetProcAddress_v2")
         _F_cuGetProcAddress_v2 = <__cuGetProcAddress_v2_T>__cuGetProcAddress_v2
-        
+
         if bool(int(os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0))):
             ptds_mode = CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM
         else:

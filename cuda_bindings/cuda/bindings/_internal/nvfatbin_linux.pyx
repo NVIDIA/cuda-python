@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.4.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -68,6 +68,7 @@ cdef void* __nvFatbinAddLTOIR = NULL
 cdef void* __nvFatbinSize = NULL
 cdef void* __nvFatbinGet = NULL
 cdef void* __nvFatbinVersion = NULL
+cdef void* __nvFatbinAddIndex = NULL
 cdef void* __nvFatbinAddReloc = NULL
 cdef void* __nvFatbinAddTileIR = NULL
 
@@ -151,6 +152,13 @@ cdef int _init_nvfatbin() except -1 nogil:
                 handle = load_library()
             __nvFatbinVersion = dlsym(handle, 'nvFatbinVersion')
 
+        global __nvFatbinAddIndex
+        __nvFatbinAddIndex = dlsym(RTLD_DEFAULT, 'nvFatbinAddIndex')
+        if __nvFatbinAddIndex == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvFatbinAddIndex = dlsym(handle, 'nvFatbinAddIndex')
+
         global __nvFatbinAddReloc
         __nvFatbinAddReloc = dlsym(RTLD_DEFAULT, 'nvFatbinAddReloc')
         if __nvFatbinAddReloc == NULL:
@@ -212,6 +220,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvFatbinVersion
     data["__nvFatbinVersion"] = <intptr_t>__nvFatbinVersion
+
+    global __nvFatbinAddIndex
+    data["__nvFatbinAddIndex"] = <intptr_t>__nvFatbinAddIndex
 
     global __nvFatbinAddReloc
     data["__nvFatbinAddReloc"] = <intptr_t>__nvFatbinAddReloc
@@ -322,6 +333,16 @@ cdef nvFatbinResult _nvFatbinVersion(unsigned int* major, unsigned int* minor) e
             raise FunctionNotFoundError("function nvFatbinVersion is not found")
     return (<nvFatbinResult (*)(unsigned int*, unsigned int*) noexcept nogil>__nvFatbinVersion)(
         major, minor)
+
+
+cdef nvFatbinResult _nvFatbinAddIndex(nvFatbinHandle handle, const void* code, size_t size, const char* identifier) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+    global __nvFatbinAddIndex
+    _check_or_init_nvfatbin()
+    if __nvFatbinAddIndex == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvFatbinAddIndex is not found")
+    return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t, const char*) noexcept nogil>__nvFatbinAddIndex)(
+        handle, code, size, identifier)
 
 
 cdef nvFatbinResult _nvFatbinAddReloc(nvFatbinHandle handle, const void* code, size_t size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:

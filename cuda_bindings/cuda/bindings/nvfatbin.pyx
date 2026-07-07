@@ -2,14 +2,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.4.1 to 13.2.0, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
                                get_buffer_pointer, get_resource_ptrs)
 
-from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
 from libcpp.vector cimport vector
 
 
@@ -17,10 +23,10 @@ from libcpp.vector cimport vector
 # Enum
 ###############################################################################
 
-class Result(_IntEnum):
+class Result(_cyb_FastEnum):
     """
-    The enumerated type nvFatbinResult defines API call result codes.
-    nvFatbin APIs return nvFatbinResult codes to indicate the result.
+    The enumerated type `nvFatbinResult` defines API call result codes.
+    nvFatbin APIs return `nvFatbinResult` codes to indicate the result.
 
     See `nvFatbinResult`.
     """
@@ -272,6 +278,17 @@ cpdef tuple version():
     return (major, minor)
 
 
+cpdef add_index(intptr_t handle, code, size_t size, identifier):
+    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    if not isinstance(identifier, str):
+        raise TypeError("identifier must be a Python str")
+    cdef bytes _temp_identifier_ = (<str>identifier).encode()
+    cdef char* _identifier_ = _temp_identifier_
+    with nogil:
+        __status__ = nvFatbinAddIndex(<Handle>handle, <const void*>_code_, size, <const char*>_identifier_)
+    check_status(__status__)
+
+
 cpdef add_reloc(intptr_t handle, code, size_t size):
     """nvFatbinAddReloc adds relocatable PTX entries from a host object to the fatbinary.
 
@@ -312,3 +329,4 @@ cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_li
     with nogil:
         __status__ = nvFatbinAddTileIR(<Handle>handle, <const void*>_code_, size, <const char*>_identifier_, <const char*>_options_cmd_line_)
     check_status(__status__)
+del _cyb_FastEnum
