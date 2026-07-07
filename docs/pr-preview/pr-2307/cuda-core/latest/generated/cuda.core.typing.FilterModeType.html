@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a2525c72"></script>
+    <script src="../_static/documentation_options.js?v=95aad618"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev125';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev126';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -728,20 +728,27 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">POINT</span></code> — nearest-texel sampling.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">LINEAR</span></code> — (bi/tri)linear interpolation.</p></li>
 </ul>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
+</div>
 <dl class="simple">
 <dt><strong>POINT</strong>: point</dt><dd><p>Texel sampling mode for a <a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a>.
 
     Corresponds to <code class="docutils literal notranslate"><span class="pre">CUfilter_mode</span></code> from the CUDA driver API.
 
     * <code class="docutils literal notranslate"><span class="pre">POINT</span></code> — nearest-texel sampling.
-    * <code class="docutils literal notranslate"><span class="pre">LINEAR</span></code> — (bi/tri)linear interpolation.</p>
+    * <code class="docutils literal notranslate"><span class="pre">LINEAR</span></code> — (bi/tri)linear interpolation.
+
+    .. versionadded:: 1.1.0</p>
 </dd>
 <dt><strong>LINEAR</strong>: linear</dt><dd><p>Texel sampling mode for a <a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a>.
 
     Corresponds to <code class="docutils literal notranslate"><span class="pre">CUfilter_mode</span></code> from the CUDA driver API.
 
     * <code class="docutils literal notranslate"><span class="pre">POINT</span></code> — nearest-texel sampling.
-    * <code class="docutils literal notranslate"><span class="pre">LINEAR</span></code> — (bi/tri)linear interpolation.</p>
+    * <code class="docutils literal notranslate"><span class="pre">LINEAR</span></code> — (bi/tri)linear interpolation.
+
+    .. versionadded:: 1.1.0</p>
 </dd>
 </dl>
 </dd></dl>

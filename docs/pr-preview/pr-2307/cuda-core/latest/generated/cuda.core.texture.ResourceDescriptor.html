@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a2525c72"></script>
+    <script src="../_static/documentation_options.js?v=95aad618"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev125';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev126';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -729,6 +729,9 @@ Supports filtering and 2D addressing, but only 2D access.</p></li>
 </ul>
 <p>Linear and pitch2D resources cannot back a <a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a> — those
 require an <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocated with <code class="docutils literal notranslate"><span class="pre">is_surface_load_store=True</span></code>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
+</div>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.texture.ResourceDescriptor.__init__">
@@ -783,9 +786,6 @@ require a single <a class="reference internal" href="cuda.core.texture.OpaqueArr
 <dt class="sig sig-object py" id="cuda.core.texture.ResourceDescriptor.from_opaque_array">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_opaque_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.ResourceDescriptor.from_opaque_array" title="Link to this definition">#</a></dt>
 <dd><p>Build a resource descriptor backed by a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a>.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
-</div>
 </dd></dl>
 
 <dl class="py method">

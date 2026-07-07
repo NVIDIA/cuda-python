@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a2525c72"></script>
+    <script src="../_static/documentation_options.js?v=95aad618"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev125';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev126';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -722,6 +722,9 @@ Destroying the <a class="reference internal" href="#cuda.core.texture.MipmappedA
 implicitly, so the <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> instances returned by <a class="reference internal" href="#cuda.core.texture.MipmappedArray.get_level" title="cuda.core.texture.MipmappedArray.get_level"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_level()</span></code></a>
 are non-owning and hold a strong reference back to their parent.</p>
 <p>Construct via <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device.create_mipmapped_array" title="cuda.core.Device.create_mipmapped_array"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core.Device.create_mipmapped_array()</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
+</div>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.texture.MipmappedArray.__init__">

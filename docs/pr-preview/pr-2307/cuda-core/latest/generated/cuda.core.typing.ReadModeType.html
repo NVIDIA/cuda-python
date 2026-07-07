@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a2525c72"></script>
+    <script src="../_static/documentation_options.js?v=95aad618"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev125';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev126';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -730,6 +730,9 @@ integer, float stays float).</p></li>
 <code class="docutils literal notranslate"><span class="pre">float</span></code> in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> (unsigned) or <code class="docutils literal notranslate"><span class="pre">[-1,</span> <span class="pre">1]</span></code> (signed). Float
 formats are unaffected.</p></li>
 </ul>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
+</div>
 <dl class="simple">
 <dt><strong>ELEMENT_TYPE</strong>: element_type</dt><dd><p>How sampled values are returned to the kernel.
 
@@ -737,7 +740,9 @@ formats are unaffected.</p></li>
       integer, float stays float).
     * <code class="docutils literal notranslate"><span class="pre">NORMALIZED_FLOAT</span></code> — integer formats are promoted to a normalized
       <code class="docutils literal notranslate"><span class="pre">float</span></code> in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> (unsigned) or <code class="docutils literal notranslate"><span class="pre">[-1,</span> <span class="pre">1]</span></code> (signed). Float
-      formats are unaffected.</p>
+      formats are unaffected.
+
+    .. versionadded:: 1.1.0</p>
 </dd>
 <dt><strong>NORMALIZED_FLOAT</strong>: normalized_float</dt><dd><p>How sampled values are returned to the kernel.
 
@@ -745,7 +750,9 @@ formats are unaffected.</p></li>
       integer, float stays float).
     * <code class="docutils literal notranslate"><span class="pre">NORMALIZED_FLOAT</span></code> — integer formats are promoted to a normalized
       <code class="docutils literal notranslate"><span class="pre">float</span></code> in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> (unsigned) or <code class="docutils literal notranslate"><span class="pre">[-1,</span> <span class="pre">1]</span></code> (signed). Float
-      formats are unaffected.</p>
+      formats are unaffected.
+
+    .. versionadded:: 1.1.0</p>
 </dd>
 </dl>
 </dd></dl>
