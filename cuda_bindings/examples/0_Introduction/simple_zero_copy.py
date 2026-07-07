@@ -1,5 +1,5 @@
-# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# Copyright 2021-2026 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # ################################################################################
 #

@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0, generator version 0.3.1.dev1844+ge04b6a4af. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -62,6 +62,7 @@ cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bi
     buffer.shape = &buffer.len
     buffer.strides = &buffer.itemsize
     buffer.suboffsets = NULL
+
 
 ###############################################################################
 # POD

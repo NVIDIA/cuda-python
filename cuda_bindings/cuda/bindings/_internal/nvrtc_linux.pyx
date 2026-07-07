@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 

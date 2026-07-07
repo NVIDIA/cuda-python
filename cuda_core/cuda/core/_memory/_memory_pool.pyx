@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+cimport cython
 from libc.limits cimport ULLONG_MAX
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset
@@ -177,6 +178,7 @@ cdef class _MemPool(MemoryResource):
         _MP_deallocate(self, <uintptr_t>ptr, size, s)
 
     @property
+    @cython.critical_section
     def attributes(self) -> _MemPoolAttributes:
         """Memory pool attributes."""
         if self._attributes is None:
