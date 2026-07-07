@@ -207,6 +207,8 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
 CUDA compilation toolchain
 --------------------------
 
+.. currentmodule:: cuda.core
+
 .. autosummary::
    :toctree: generated/
 
