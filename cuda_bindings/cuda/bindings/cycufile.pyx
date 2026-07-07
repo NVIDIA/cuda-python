@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4ca4a099a14408433ad4896ffe04c88588a0c0bad943384b39ef89ce1277af86
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
 
 from ._internal cimport cufile as _cufile
 
