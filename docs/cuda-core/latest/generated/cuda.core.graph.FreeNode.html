@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7498810f"></script>
+    <script src="../_static/documentation_options.js?v=d0e00516"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev118';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev119';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -979,9 +979,12 @@ a non-zero value at runtime.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dst:</span> <span class="pre">int</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">src:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">src:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst_owner=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">src_owner=None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode"><span class="pre">MemcpyNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.memcpy" title="Link to this definition">#</a></dt>
@@ -992,9 +995,19 @@ pointers are supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dst</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Destination pointer (device or pinned host).</p></li>
-<li><p><strong>src</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Source pointer (device or pinned host).</p></li>
+<li><p><strong>dst</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Destination (device or pinned host). When a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> is given,
+the underlying allocation is retained for the graph’s lifetime. A raw
+pointer (<code class="docutils literal notranslate"><span class="pre">int</span></code>) is used as-is; the caller must keep the underlying
+memory alive, or supply <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> to have the graph retain it.</p></li>
+<li><p><strong>src</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Source (device or pinned host). Same retention rules as <code class="docutils literal notranslate"><span class="pre">dst</span></code>;
+use <code class="docutils literal notranslate"><span class="pre">src_owner</span></code> for a raw pointer.</p></li>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of bytes to copy.</p></li>
+<li><p><strong>dst_owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object retained for the graph’s lifetime when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a raw
+pointer. A <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> owner retains its underlying allocation.
+Must not be passed when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>.</p></li>
+<li><p><strong>src_owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object retained for the graph’s lifetime when <code class="docutils literal notranslate"><span class="pre">src</span></code> is a raw
+pointer. A <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> owner retains its underlying allocation.
+Must not be passed when <code class="docutils literal notranslate"><span class="pre">src</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1002,6 +1015,10 @@ pointers are supported.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode">MemcpyNode</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> or <code class="docutils literal notranslate"><span class="pre">src_owner</span></code> is given together with a
+    <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> <code class="docutils literal notranslate"><span class="pre">dst</span></code> or <code class="docutils literal notranslate"><span class="pre">src</span></code> respectively.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1012,11 +1029,13 @@ pointers are supported.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dst:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">width</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">height=1</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">pitch=0</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst_owner=None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><span class="pre">MemsetNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.FreeNode.memset" title="Link to this definition">#</a></dt>
@@ -1024,12 +1043,18 @@ pointers are supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dst</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Destination device pointer.</p></li>
+<li><p><strong>dst</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Destination. When <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>, the underlying
+allocation is retained for the graph’s lifetime. A raw pointer
+(<code class="docutils literal notranslate"><span class="pre">int</span></code>) is used as-is; the caller must keep the underlying memory
+alive, or supply <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> to have the graph retain it.</p></li>
 <li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>buffer-protocol object</em>) – Fill value. int for 1-byte fill (range [0, 256)),
 or buffer-protocol object of 1, 2, or 4 bytes.</p></li>
 <li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Width of the row in elements.</p></li>
 <li><p><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of rows (default 1).</p></li>
 <li><p><strong>pitch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Pitch of destination in bytes (default 0, unused if height is 1).</p></li>
+<li><p><strong>dst_owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object retained for the graph’s lifetime when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a raw
+pointer. A <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> owner retains its underlying allocation,
+not the wrapper. Must not be passed when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1037,6 +1062,9 @@ or buffer-protocol object of 1, 2, or 4 bytes.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode">MemsetNode</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> is given together with a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> <code class="docutils literal notranslate"><span class="pre">dst</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
