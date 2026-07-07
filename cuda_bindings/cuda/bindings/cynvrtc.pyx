@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fb1b6808a82eb184282bf20605f297efa5791e112fb06ff9e2113abd2635b0ff
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 
 from ._internal cimport nvrtc as _nvrtc
 

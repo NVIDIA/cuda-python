@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5dc400b98d4696fcedfd11c4b05021de9b150edb836be62bd07034a8811524e0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1853+g2b0a94a68. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -587,6 +586,9 @@ cdef extern from 'cuda.h':
         CU_TARGET_COMPUTE_103F
         CU_TARGET_COMPUTE_120F
         CU_TARGET_COMPUTE_121F
+        CU_TARGET_COMPUTE_101
+        CU_TARGET_COMPUTE_101A
+        CU_TARGET_COMPUTE_101F
     ctypedef CUjit_target_enum CUjit_target
 
 cdef extern from 'cuda.h':
@@ -3645,8 +3647,6 @@ cdef enum: CU_COMPUTE_FAMILY_TARGET_BASE = 131072
 
 cdef enum: CU_GRAPH_COND_ASSIGN_DEFAULT = 1
 
-cdef enum: CU_GRAPH_NODE_TYPE_RESERVED_16 = 16
-
 cdef enum: CU_GRAPH_KERNEL_NODE_PORT_DEFAULT = 0
 
 cdef enum: CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC = 1
@@ -3714,8 +3714,6 @@ cdef enum: CUDA_NVSCISYNC_ATTR_WAIT = 2
 cdef enum: CU_MEM_CREATE_USAGE_TILE_POOL = 1
 
 cdef enum: CU_MEM_CREATE_USAGE_HW_DECOMPRESS = 2
-
-cdef enum: CU_MEM_CREATE_USAGE_GPU_DIRECT_RDMA_OVER_PCIE = 4
 
 cdef enum: CU_MEM_POOL_CREATE_USAGE_HW_DECOMPRESS = 2
 

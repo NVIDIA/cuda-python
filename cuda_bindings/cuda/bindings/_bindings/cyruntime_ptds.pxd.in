@@ -1,8 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-# CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3d0cc46c1986151a738226de05cb687a17f22d889db8f7d25f9963f201b01dbd
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1881+g248da917e. Do not modify it directly.
+# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 cdef extern from "":
     """
     #define CUDA_API_PER_THREAD_DEFAULT_STREAM
