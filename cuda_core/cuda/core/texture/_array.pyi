@@ -2,7 +2,37 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from cuda.core.typing import ArrayFormatType
+
+
+@dataclass
+class OpaqueArrayOptions:
+    """Options for :meth:`cuda.core.Device.create_opaque_array`.
+
+    Attributes
+    ----------
+    shape : tuple of int
+        ``(width,)``, ``(width, height)``, or ``(width, height, depth)`` in
+        elements.
+    format : ArrayFormatType, str, or numpy.dtype
+        Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+        a plain string (e.g. ``"float32"``), or a NumPy dtype object.
+    num_channels : int
+        Channels per element. Must be 1, 2, or 4.
+    is_surface_load_store : bool
+        If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so the array can be
+        bound as a :class:`~cuda.core.texture.SurfaceObject` for kernel-side
+        writes. Default False.
+    """
+    shape: tuple[int, ...]
+    format: object
+    num_channels: int
+    is_surface_load_store: bool = False
+
+    def __post_init__(self) -> None:
+        ...
 
 
 class OpaqueArray:
@@ -22,9 +52,9 @@ class OpaqueArray:
     linear :class:`Buffer` yourself (e.g. ``mr.allocate(arr.size_bytes,
     stream=s)``) and copy.
 
-    Construct via :meth:`from_descriptor`. Only plain 1D/2D/3D allocations are
-    supported in this initial version; layered/cubemap/sparse variants will
-    follow once their shape semantics are settled.
+    Construct via :meth:`cuda.core.Device.create_opaque_array`. Only plain
+    1D/2D/3D allocations are supported in this initial version; layered/cubemap/
+    sparse variants will follow once their shape semantics are settled.
     """
 
     def close(self):
@@ -38,30 +68,6 @@ class OpaqueArray:
 
     def __init__(self, *args, **kwargs):
         ...
-
-    @classmethod
-    def from_descriptor(cls, *, shape, format, num_channels, is_surface_load_store=False):
-        """Allocate a new CUDA array.
-
-        Parameters
-        ----------
-        shape : tuple of int
-            ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
-            in elements.
-        format : ArrayFormatType, str, or numpy.dtype
-            Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
-            a plain string (e.g. ``"float32"``), or a NumPy dtype object.
-        num_channels : int
-            Channels per element. Must be 1, 2, or 4.
-        is_surface_load_store : bool
-            If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so the array
-            can be bound as a :class:`SurfaceObject` for kernel-side writes.
-            Default False.
-
-        Returns
-        -------
-        OpaqueArray
-        """
 
     @classmethod
     def _from_handle(cls, handle: int, owning: bool, *, device_id=None):
@@ -170,3 +176,8 @@ def _validate_format_channels(format, num_channels):
 def _validate_array_shape(shape):
     """Coerce ``shape`` to a tuple of ints and validate rank (1-3) and that
     every extent is >= 1. Returns the normalized tuple."""
+
+def _create_opaque_array(options):
+    """Allocate a new :class:`OpaqueArray` on the current device.
+
+    Backs :meth:`cuda.core.Device.create_opaque_array`."""

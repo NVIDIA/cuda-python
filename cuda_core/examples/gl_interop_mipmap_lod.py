@@ -101,7 +101,7 @@ from cuda.core import (
     launch,
 )
 from cuda.core.texture import (
-    MipmappedArray,
+    MipmappedArrayOptions,
     ResourceDescriptor,
     SurfaceObject,
     TextureObject,
@@ -410,13 +410,13 @@ def main():
     # --- Step 2: Allocate the mipmap pyramid and build every level ---
     #     is_surface_load_store=True is required for kernel-side writes.
     num_levels = int(math.log2(BASE_SIZE)) + 1
-    mip = MipmappedArray.from_descriptor(
+    mip = Device().create_mipmapped_array(MipmappedArrayOptions(
         shape=(BASE_SIZE, BASE_SIZE),
         format=ArrayFormatType.FLOAT32,
         num_channels=4,
         num_levels=num_levels,
         is_surface_load_store=True,
-    )
+    ))
     build_mipmap_pyramid(mip, num_levels, stream, kernels)
 
     # --- Step 3: Bind the WHOLE pyramid as a trilinear-filtered texture ---

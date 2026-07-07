@@ -27,6 +27,9 @@ from cuda.core._utils.cuda_utils cimport (
 
 import numpy
 
+from dataclasses import dataclass
+
+from cuda.core._utils.cuda_utils import check_or_create_options
 from cuda.core.typing import ArrayFormatType
 
 
@@ -131,6 +134,36 @@ def _validate_array_shape(shape):
         if dim < 1:
             raise ValueError(f"shape[{i}] must be >= 1, got {dim}")
     return shape_t
+
+
+@dataclass
+class OpaqueArrayOptions:
+    """Options for :meth:`cuda.core.Device.create_opaque_array`.
+
+    Attributes
+    ----------
+    shape : tuple of int
+        ``(width,)``, ``(width, height)``, or ``(width, height, depth)`` in
+        elements.
+    format : ArrayFormatType, str, or numpy.dtype
+        Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+        a plain string (e.g. ``"float32"``), or a NumPy dtype object.
+    num_channels : int
+        Channels per element. Must be 1, 2, or 4.
+    is_surface_load_store : bool
+        If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so the array can be
+        bound as a :class:`~cuda.core.texture.SurfaceObject` for kernel-side
+        writes. Default False.
+    """
+
+    shape: tuple[int, ...]
+    format: object
+    num_channels: int
+    is_surface_load_store: bool = False
+
+    def __post_init__(self):
+        self.format = _validate_format_channels(self.format, self.num_channels)
+        self.shape = _validate_array_shape(self.shape)
 
 
 cdef void _fill_array_endpoint(
@@ -298,71 +331,16 @@ cdef class OpaqueArray:
     linear :class:`Buffer` yourself (e.g. ``mr.allocate(arr.size_bytes,
     stream=s)``) and copy.
 
-    Construct via :meth:`from_descriptor`. Only plain 1D/2D/3D allocations are
-    supported in this initial version; layered/cubemap/sparse variants will
-    follow once their shape semantics are settled.
+    Construct via :meth:`cuda.core.Device.create_opaque_array`. Only plain
+    1D/2D/3D allocations are supported in this initial version; layered/cubemap/
+    sparse variants will follow once their shape semantics are settled.
     """
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
-            "OpaqueArray cannot be instantiated directly. Use OpaqueArray.from_descriptor()."
+            "OpaqueArray cannot be instantiated directly. "
+            "Use Device.create_opaque_array()."
         )
-
-    @classmethod
-    def from_descriptor(cls, *, shape, format, num_channels, is_surface_load_store=False):
-        """Allocate a new CUDA array.
-
-        Parameters
-        ----------
-        shape : tuple of int
-            ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
-            in elements.
-        format : ArrayFormatType, str, or numpy.dtype
-            Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
-            a plain string (e.g. ``"float32"``), or a NumPy dtype object.
-        num_channels : int
-            Channels per element. Must be 1, 2, or 4.
-        is_surface_load_store : bool
-            If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so the array
-            can be bound as a :class:`SurfaceObject` for kernel-side writes.
-            Default False.
-
-        Returns
-        -------
-        OpaqueArray
-        """
-        fmt = _validate_format_channels(format, num_channels)
-        shape_t = _validate_array_shape(shape)
-
-        cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format>_ARRAYFORMAT_TO_CU[fmt]
-        cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
-        cdef int rank = len(shape_t)
-        cdef unsigned int flags = (
-            cydriver.CUDA_ARRAY3D_SURFACE_LDST if is_surface_load_store else 0
-        )
-
-        # cuArray3DCreate handles 1D/2D/3D uniformly (Height/Depth 0 sentinels),
-        # so a single descriptor + create_array_handle covers every shape.
-        memset(&desc3d, 0, sizeof(desc3d))
-        desc3d.Width = <size_t>shape_t[0]
-        desc3d.Height = <size_t>(shape_t[1] if rank >= 2 else 0)
-        desc3d.Depth = <size_t>(shape_t[2] if rank >= 3 else 0)
-        desc3d.Format = c_format
-        desc3d.NumChannels = <unsigned int>num_channels
-        desc3d.Flags = flags
-
-        cdef OpaqueArrayHandle h = create_array_handle(desc3d)
-        if not h:
-            HANDLE_RETURN(get_last_error())
-
-        cdef OpaqueArray self = cls.__new__(cls)
-        self._handle = h
-        self._shape = shape_t
-        self._format = c_format
-        self._num_channels = num_channels
-        self._surface_load_store = bool(is_surface_load_store)
-        self._device_id = _get_current_device_id()
-        return self
 
     @classmethod
     def _from_handle(cls, intptr_t handle, bint owning, *, device_id=None):
@@ -526,4 +504,48 @@ cdef OpaqueArray _array_from_handle(OpaqueArrayHandle h, int device_id):
     self._format = desc.Format
     self._num_channels = desc.NumChannels
     self._surface_load_store = bool(desc.Flags & cydriver.CUDA_ARRAY3D_SURFACE_LDST)
+    return self
+
+
+def _create_opaque_array(options):
+    """Allocate a new :class:`OpaqueArray` on the current device.
+
+    Backs :meth:`cuda.core.Device.create_opaque_array`. ``options`` is an
+    :class:`OpaqueArrayOptions` (or a mapping accepted by it); it is validated
+    at construction, so ``shape`` is already a normalized tuple and ``format``
+    an :class:`~cuda.core.typing.ArrayFormatType`.
+    """
+    cdef object opts = check_or_create_options(
+        OpaqueArrayOptions, options, "Opaque array options"
+    )
+    shape_t = opts.shape
+
+    cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format>_ARRAYFORMAT_TO_CU[opts.format]
+    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
+    cdef int rank = len(shape_t)
+    cdef unsigned int flags = (
+        cydriver.CUDA_ARRAY3D_SURFACE_LDST if opts.is_surface_load_store else 0
+    )
+
+    # cuArray3DCreate handles 1D/2D/3D uniformly (Height/Depth 0 sentinels),
+    # so a single descriptor + create_array_handle covers every shape.
+    memset(&desc3d, 0, sizeof(desc3d))
+    desc3d.Width = <size_t>shape_t[0]
+    desc3d.Height = <size_t>(shape_t[1] if rank >= 2 else 0)
+    desc3d.Depth = <size_t>(shape_t[2] if rank >= 3 else 0)
+    desc3d.Format = c_format
+    desc3d.NumChannels = <unsigned int>opts.num_channels
+    desc3d.Flags = flags
+
+    cdef OpaqueArrayHandle h = create_array_handle(desc3d)
+    if not h:
+        HANDLE_RETURN(get_last_error())
+
+    cdef OpaqueArray self = OpaqueArray.__new__(OpaqueArray)
+    self._handle = h
+    self._shape = shape_t
+    self._format = c_format
+    self._num_channels = opts.num_channels
+    self._surface_load_store = bool(opts.is_surface_load_store)
+    self._device_id = _get_current_device_id()
     return self

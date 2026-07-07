@@ -19,8 +19,8 @@ The associated enumerations (:class:`~cuda.core.typing.ArrayFormatType`,
 alongside the other ``cuda.core`` enumerations.
 """
 
-from cuda.core.texture._array import OpaqueArray
-from cuda.core.texture._mipmapped_array import MipmappedArray
+from cuda.core.texture._array import OpaqueArray, OpaqueArrayOptions
+from cuda.core.texture._mipmapped_array import MipmappedArray, MipmappedArrayOptions
 from cuda.core.texture._surface import SurfaceObject
 from cuda.core.texture._texture import (
     ResourceDescriptor,
@@ -30,7 +30,9 @@ from cuda.core.texture._texture import (
 
 __all__ = [
     "MipmappedArray",
+    "MipmappedArrayOptions",
     "OpaqueArray",
+    "OpaqueArrayOptions",
     "ResourceDescriptor",
     "SurfaceObject",
     "TextureObject",

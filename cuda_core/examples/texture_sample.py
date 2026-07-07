@@ -30,7 +30,7 @@ from cuda.core import (
     launch,
 )
 from cuda.core.texture import (
-    OpaqueArray,
+    OpaqueArrayOptions,
     ResourceDescriptor,
     TextureObject,
     TextureObjectOptions,
@@ -68,15 +68,15 @@ def main():
     pinned_mr = LegacyPinnedMemoryResource()
     try:
         # Allocate a 2D OpaqueArray: shape=(W, H), single-channel float32.
-        # Note: OpaqueArray.from_descriptor takes shape=(width, height), so the host
+        # Note: create_opaque_array takes shape=(width, height), so the host
         # buffer fed into copy_from must be laid out as H rows of W elements
         # (row-major), i.e. host_pattern.shape == (H, W).
         width, height = 16, 16
-        with OpaqueArray.from_descriptor(
+        with Device().create_opaque_array(OpaqueArrayOptions(
             shape=(width, height),
             format=ArrayFormatType.FLOAT32,
             num_channels=1,
-        ) as arr:
+        )) as arr:
             # Plant a known pattern: pattern[y, x] = x + 100*y.
             # Cast to float32 so the byte count matches the array's storage.
             ys, xs = np.meshgrid(

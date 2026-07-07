@@ -1456,6 +1456,62 @@ class Device:
         self._check_context_initialized()
         return GraphBuilder._init(self.create_stream())
 
+    def create_opaque_array(self, options: object = None):
+        """Create an :obj:`~cuda.core.texture.OpaqueArray` on this device.
+
+        Allocates an opaque, hardware-laid-out CUDA array for texture/surface
+        access. The array is bound to the device/context that is current at
+        construction.
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`~cuda.core.texture.OpaqueArrayOptions`
+            Allocation options (shape, format, channels, surface flag).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.OpaqueArray`
+            Newly created opaque array.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._array import _create_opaque_array
+
+        self._check_context_initialized()
+        return _create_opaque_array(options)
+
+    def create_mipmapped_array(self, options: object = None):
+        """Create a :obj:`~cuda.core.texture.MipmappedArray` on this device.
+
+        Allocates a mipmapped CUDA array for texture/surface access across
+        levels. The array is bound to the device/context that is current at
+        construction.
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`~cuda.core.texture.MipmappedArrayOptions`
+            Allocation options (shape, format, channels, levels, surface flag).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.MipmappedArray`
+            Newly created mipmapped array.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._mipmapped_array import _create_mipmapped_array
+
+        self._check_context_initialized()
+        return _create_mipmapped_array(options)
+
 
 cdef inline int Device_ensure_cuda_initialized() except? -1:
     """Initialize CUDA driver and check version compatibility (once per process)."""

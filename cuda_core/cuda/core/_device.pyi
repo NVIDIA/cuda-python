@@ -12,6 +12,12 @@ from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._stream import IsStreamType, Stream
 from cuda.core._utils.cuda_utils import ComputeCapability
 from cuda.core.graph import GraphBuilder
+from cuda.core.texture import (
+    MipmappedArray,
+    MipmappedArrayOptions,
+    OpaqueArray,
+    OpaqueArrayOptions,
+)
 
 
 class DeviceProperties:
@@ -908,6 +914,18 @@ class Device:
         :obj:`~graph.GraphBuilder`
             Newly created graph builder object.
 
+        """
+
+    def create_opaque_array(self, options: OpaqueArrayOptions | None = None) -> OpaqueArray:
+        """Create an :obj:`~cuda.core.texture.OpaqueArray` on this device.
+
+        .. versionadded:: 1.1.0
+        """
+
+    def create_mipmapped_array(self, options: MipmappedArrayOptions | None = None) -> MipmappedArray:
+        """Create a :obj:`~cuda.core.texture.MipmappedArray` on this device.
+
+        .. versionadded:: 1.1.0
         """
 _tls = threading.local()
 _lock = threading.Lock()
