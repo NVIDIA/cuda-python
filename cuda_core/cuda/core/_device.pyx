@@ -1026,7 +1026,7 @@ class Device:
     def to_system_device(self) -> 'cuda.core.system.Device':
         """
         Get the corresponding :class:`cuda.core.system.Device` (which is used
-        for NVIDIA Machine Library (NVML) access) for this
+        for NVIDIA Management Library (NVML) access) for this
         :class:`cuda.core.Device` (which is used for CUDA access).
 
         The devices are mapped to one another by their UUID.
@@ -1040,7 +1040,7 @@ class Device:
 
         if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             raise RuntimeError(
-                "cuda.core.system.Device requires cuda_bindings 13.1.2+ or 12.9.6+"
+                "cuda.core.system.Device requires cuda-bindings 12.9.6+ for CUDA 12.x, or cuda-bindings 13.2.0+ for CUDA 13.x"
             )
 
         from cuda.core.system import Device as SystemDevice
