@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -6,7 +6,29 @@ name: "CI: Release"
 
 # Manually-triggered release workflow. Creates a release draft if one doesn't exist
 # for the given tag, or uses an existing draft, then publishes the selected wheels
-# to TestPyPI followed by PyPI.
+# to TestPyPI followed by PyPI. The dry-run mode validates the release path
+# without publishing to external release surfaces.
+#
+# Maintenance note: non-trivial changes to this workflow should be validated
+# with dry-run workflow_dispatch runs before merging. Suggested focused matrix:
+# - mainline:
+#   component=cuda-bindings
+#   git-tag=<latest cuda-bindings release tag>
+#   backport-git-tag=not planned
+#   run-id=<blank>
+#   dry-run-docs-branch=gh-pages-dry-run
+# - backport sequence:
+#   1. component=cuda-bindings
+#      git-tag=<latest cuda-bindings backport release tag>
+#      backport-git-tag=<blank>
+#   2. component=cuda-python
+#      git-tag=<matching cuda-python backport release tag>
+#      backport-git-tag=<blank>
+#   run-id=<blank>
+#   dry-run-docs-branch=gh-pages-dry-run
+# Leave run-id blank so determine-run-id is exercised. For exhaustive coverage,
+# add a mainline cuda-python dry-run when changes could affect metapackage
+# artifact validation, docs routing, or component-specific release behavior.
 
 on:
   workflow_dispatch:
@@ -20,12 +42,30 @@ on:
           - cuda-bindings
           - cuda-pathfinder
           - cuda-python
+      release-action:
+        description: "What to run"
+        required: true
+        type: choice
+        options:
+          - dry-run
+          - full-release
+        default: dry-run
       git-tag:
         description: "The release git tag"
         required: true
         type: string
+      backport-git-tag:
+        description: "Mainline cuda-bindings/cuda-python only: planned backport tag, or 'not planned'. Leave blank for backport releases."
+        required: false
+        type: string
+        default: ""
       run-id:
         description: "The GHA run ID that generated validated artifacts (optional - auto-detects successful tag-triggered CI run for git-tag)"
+        required: false
+        type: string
+        default: ""
+      dry-run-docs-branch:
+        description: "Dry-run only: optional gh-pages-* branch to receive generated docs, for example gh-pages-dry-run"
         required: false
         type: string
         default: ""
@@ -41,7 +81,7 @@ jobs:
       run-id: ${{ steps.lookup-run-id.outputs.run-id }}
     steps:
       - name: Checkout Source
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           # lookup-run-id resolves the git tag to a SHA; we need tags but not history.
           fetch-depth: 1
@@ -52,23 +92,47 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
-          RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
-          echo "Auto-detected run ID: $RUN_ID"
+          if [[ -n "${{ inputs.run-id }}" ]]; then
+            echo "Using provided run ID: ${{ inputs.run-id }}"
+            RUN_ID="${{ inputs.run-id }}"
+          else
+            echo "Auto-detecting successful tag-triggered run ID for tag: ${{ inputs.git-tag }}"
+            RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
+            echo "Auto-detected run ID: $RUN_ID"
+          fi
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
   check-tag:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
+          # Dry-run validation resolves the requested tag locally; we need tags but not history.
           fetch-depth: 1
+          fetch-tags: true
 
-      - name: Check or create draft release for the tag
+      - name: Check release tag and draft state
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_ACTION: ${{ inputs.release-action }}
+          RELEASE_GIT_TAG: ${{ inputs.git-tag }}
+          DRY_RUN_DOCS_BRANCH: ${{ inputs.dry-run-docs-branch }}
         run: |
+          if [[ "$RELEASE_ACTION" == "full-release" && -n "$DRY_RUN_DOCS_BRANCH" ]]; then
+            echo "error: dry-run-docs-branch is only valid with release-action=dry-run" >&2
+            exit 1
+          fi
+          if [[ "$RELEASE_ACTION" == "dry-run" && -n "$DRY_RUN_DOCS_BRANCH" && ! "$DRY_RUN_DOCS_BRANCH" =~ ^gh-pages-[[:alnum:]._/-]+$ ]]; then
+            echo "error: dry-run-docs-branch must be a non-production gh-pages-* branch" >&2
+            exit 1
+          fi
+          if [[ "$RELEASE_ACTION" == "dry-run" ]]; then
+            git rev-parse --verify "${RELEASE_GIT_TAG}^{commit}"
+            echo "Dry-run selected; not checking or creating a GitHub release draft."
+            exit 0
+          fi
+
           mapfile -t tags < <(gh release list -R "${{ github.repository }}" --json tagName --jq '.[] | .tagName')
           mapfile -t is_draft < <(gh release list -R "${{ github.repository }}" --json isDraft --jq '.[] | .isDraft')
 
@@ -93,25 +157,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-        with:
-          ref: ${{ inputs.git-tag }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
       - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: "3.12"
-
-      # - name: Self-test release-notes checker
-      #   run: |
-      #     pip install pytest
-      #     pytest ci/tools/tests
 
       - name: Check versioned release notes exist
         run: |
           python ci/tools/check_release_notes.py \
             --git-tag "${{ inputs.git-tag }}" \
-            --component "${{ inputs.component }}"
+            --component "${{ inputs.component }}" \
+            --backport-git-tag "${{ inputs.backport-git-tag }}"
 
   doc:
     name: Build release docs
@@ -132,9 +190,11 @@ jobs:
       git-tag: ${{ inputs.git-tag }}
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
       is-release: true
+      deploy-docs: ${{ inputs.release-action == 'full-release' || inputs.dry-run-docs-branch != '' }}
+      docs-branch: ${{ (inputs.release-action == 'dry-run' && inputs.dry-run-docs-branch) || 'gh-pages' }}
 
   upload-archive:
-    name: Upload source archive
+    name: Validate release artifacts
     permissions:
       contents: write
     needs:
@@ -148,9 +208,11 @@ jobs:
       git-tag: ${{ inputs.git-tag }}
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
       component: ${{ inputs.component }}
+      dry-run: ${{ inputs.release-action == 'dry-run' }}
 
   publish-testpypi:
     name: Publish wheels to TestPyPI
+    if: ${{ inputs.release-action == 'full-release' }}
     runs-on: ubuntu-latest
     needs:
       - check-tag
@@ -164,7 +226,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout Source
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
       - name: Download component wheels
         env:
@@ -183,6 +245,7 @@ jobs:
 
   publish-pypi:
     name: Publish wheels to PyPI
+    if: ${{ inputs.release-action == 'full-release' }}
     runs-on: ubuntu-latest
     needs:
       - determine-run-id
@@ -194,7 +257,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout Source
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
       - name: Download component wheels
         env:

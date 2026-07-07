@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
 from libc.stdlib cimport calloc, free
@@ -135,13 +135,13 @@ cdef class _HelperInputVoidPtr:
 
     @property
     def cptr(self):
-        return <void_ptr>self._cptr 
+        return <void_ptr>self._cptr
 
 
 cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *helper):
     helper[0]._pybuffer.buf = NULL
     try:
-        return <void *><void_ptr>ptr        
+        return <void *><void_ptr>ptr
     except:
         if ptr is None:
             return NULL
@@ -155,22 +155,22 @@ cdef void * _helper_input_void_ptr(ptr, _HelperInputVoidPtrStruct *helper):
             raise TypeError("Provided argument is of type {} but expected Type {}, {} or object with Buffer Protocol".format(type(ptr), type(None), type(int)))
 
 
-{{if 'CUmemPool_attribute_enum' in found_types}}
+
 
 cdef class _HelperCUmemPool_attribute:
     def __cinit__(self, attr, init_value, is_getter=False):
         self._is_getter = is_getter
         self._attr = attr.value
-        if self._attr in ({{if 'CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES,{{endif}}
-                          {{if 'CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC,{{endif}}
-                          {{if 'CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES,{{endif}}):
+        if self._attr in (cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES,
+                          cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC,
+                          cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES,):
             self._int_val = init_value
             self._cptr = <void*>&self._int_val
-        elif self._attr in ({{if 'CU_MEMPOOL_ATTR_RELEASE_THRESHOLD'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,{{endif}}
-                            {{if 'CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT,{{endif}}
-                            {{if 'CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH,{{endif}}
-                            {{if 'CU_MEMPOOL_ATTR_USED_MEM_CURRENT'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_CURRENT,{{endif}}
-                            {{if 'CU_MEMPOOL_ATTR_USED_MEM_HIGH'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,{{endif}}):
+        elif self._attr in (cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_CURRENT,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,):
             if self._is_getter:
                 self._cuuint64_t_val = _driver["cuuint64_t"]()
                 self._cptr = <void*><void_ptr>self._cuuint64_t_val.getPtr()
@@ -188,37 +188,37 @@ cdef class _HelperCUmemPool_attribute:
 
     def pyObj(self):
         assert(self._is_getter == True)
-        if self._attr in ({{if 'CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES,{{endif}}
-                          {{if 'CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC,{{endif}}
-                          {{if 'CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES,{{endif}}):
+        if self._attr in (cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES,
+                          cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC,
+                          cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES,):
             return self._int_val
-        elif self._attr in ({{if 'CU_MEMPOOL_ATTR_RELEASE_THRESHOLD'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,{{endif}}
-                            {{if 'CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT,{{endif}}
-                            {{if 'CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH,{{endif}}
-                            {{if 'CU_MEMPOOL_ATTR_USED_MEM_CURRENT'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_CURRENT,{{endif}}
-                            {{if 'CU_MEMPOOL_ATTR_USED_MEM_HIGH'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,{{endif}}):
+        elif self._attr in (cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_CURRENT,
+                            cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,):
             return self._cuuint64_t_val
         else:
             raise TypeError('Unsupported attribute value: {}'.format(self._attr))
-{{endif}}
-{{if 'CUmem_range_attribute_enum' in found_types}}
+
+
 
 cdef class _HelperCUmem_range_attribute:
     def __cinit__(self, attr, data_size):
         self._data_size = data_size
         self._attr = attr.value
-        if self._attr in ({{if 'CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY'}}cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,{{endif}}
-                          {{if 'CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION'}}cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,{{endif}}
-                          {{if 'CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION'}}cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,{{endif}}):
+        if self._attr in (cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,):
             self._cptr = <void*>&self._int_val
-        elif self._attr in ({{if 'CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY'}}cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,{{endif}}):
+        elif self._attr in (cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,):
             self._cptr = _callocWrapper(1, self._data_size)
             self._int_val_list = <int*>self._cptr
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
     def __dealloc__(self):
-        if self._attr in ({{if 'CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY'}}cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,{{endif}}):
+        if self._attr in (cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,):
             free(self._cptr)
 
     @property
@@ -226,65 +226,65 @@ cdef class _HelperCUmem_range_attribute:
         return <void_ptr>self._cptr
 
     def pyObj(self):
-        if self._attr in ({{if 'CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY'}}cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,{{endif}}
-                          {{if 'CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION'}}cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,{{endif}}
-                          {{if 'CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION'}}cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,{{endif}}):
+        if self._attr in (cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,
+                          cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,):
             return self._int_val
-        elif self._attr in ({{if 'CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY'}}cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,{{endif}}):
+        elif self._attr in (cydriver.CUmem_range_attribute_enum.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,):
             return [self._int_val_list[idx] for idx in range(int(self._data_size/4))]
         else:
             raise TypeError('Unsupported attribute value: {}'.format(self._attr))
-{{endif}}
-{{if 'CUpointer_attribute_enum' in found_types}}
+
+
 
 cdef class _HelperCUpointer_attribute:
     def __cinit__(self, attr, init_value, is_getter=False):
         self._is_getter = is_getter
         self._attr = attr.value
-        if self._attr in ({{if 'CU_POINTER_ATTRIBUTE_CONTEXT'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_CONTEXT,{{endif}}):
+        if self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_CONTEXT,):
             if self._is_getter:
                 self._ctx = _driver["CUcontext"]()
                 self._cptr = <void*><void_ptr>self._ctx.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_MEMORY_TYPE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_ACCESS_FLAGS'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,):
             self._uint = init_value
             self._cptr = <void*>&self._uint
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,):
             self._int = init_value
             self._cptr = <void*>&self._int
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_DEVICE_POINTER'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_POINTER,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_RANGE_START_ADDR'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_POINTER,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR,):
             if self._is_getter:
                 self._devptr = _driver["CUdeviceptr"]()
                 self._cptr = <void*><void_ptr>self._devptr.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_HOST_POINTER'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_HOST_POINTER,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_HOST_POINTER,):
             self._void = <void**><void_ptr>init_value
             self._cptr = <void*>&self._void
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_P2P_TOKENS'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_P2P_TOKENS,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_P2P_TOKENS,):
             if self._is_getter:
                 self._token = _driver["CUDA_POINTER_ATTRIBUTE_P2P_TOKENS"]()
                 self._cptr = <void*><void_ptr>self._token.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_SYNC_MEMOPS'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_IS_MANAGED'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_MANAGED,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_MAPPED'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPED,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_MANAGED,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPED,):
             self._bool = init_value
             self._cptr = <void*>&self._bool
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_BUFFER_ID'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,):
             self._ull = init_value
             self._cptr = <void*>&self._ull
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_RANGE_SIZE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,):
             self._size = init_value
             self._cptr = <void*>&self._size
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE,):
             if self._is_getter:
                 self._mempool = _driver["CUmemoryPool"]()
                 self._cptr = <void*><void_ptr>self._mempool.getPtr()
@@ -302,45 +302,45 @@ cdef class _HelperCUpointer_attribute:
 
     def pyObj(self):
         assert(self._is_getter == True)
-        if self._attr in ({{if 'CU_POINTER_ATTRIBUTE_CONTEXT'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_CONTEXT,{{endif}}):
+        if self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_CONTEXT,):
             return self._ctx
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_MEMORY_TYPE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_ACCESS_FLAGS'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,):
             return self._uint
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_DEVICE_POINTER'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_POINTER,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_RANGE_START_ADDR'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_POINTER,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR,):
             return self._devptr
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_HOST_POINTER'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_HOST_POINTER,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_HOST_POINTER,):
             return <void_ptr>self._void
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_P2P_TOKENS'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_P2P_TOKENS,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_P2P_TOKENS,):
             return self._token
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_SYNC_MEMOPS'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_IS_MANAGED'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_MANAGED,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_MAPPED'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPED,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_MANAGED,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE,
+                            cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MAPPED,):
             return self._bool
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_BUFFER_ID'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_BUFFER_ID,):
             return self._ull
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_RANGE_SIZE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_SIZE,):
             return self._size
-        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE,{{endif}}):
+        elif self._attr in (cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE,):
             return self._mempool
         else:
             raise TypeError('Unsupported attribute value: {}'.format(self._attr))
-{{endif}}
-{{if 'CUgraphMem_attribute_enum' in found_types}}
+
+
 
 cdef class _HelperCUgraphMem_attribute:
     def __cinit__(self, attr, init_value, is_getter=False):
         self._is_getter = is_getter
         self._attr = attr.value
-        if self._attr in ({{if 'CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT,{{endif}}
-                          {{if 'CU_GRAPH_MEM_ATTR_USED_MEM_HIGH' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH,{{endif}}
-                          {{if 'CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT,{{endif}}
-                          {{if 'CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH,{{endif}}):
+        if self._attr in (cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT,
+                          cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH,
+                          cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT,
+                          cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH,):
             if self._is_getter:
                 self._cuuint64_t_val = _driver["cuuint64_t"]()
                 self._cptr = <void*><void_ptr>self._cuuint64_t_val.getPtr()
@@ -358,65 +358,65 @@ cdef class _HelperCUgraphMem_attribute:
 
     def pyObj(self):
         assert(self._is_getter == True)
-        if self._attr in ({{if 'CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT,{{endif}}
-                          {{if 'CU_GRAPH_MEM_ATTR_USED_MEM_HIGH' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH,{{endif}}
-                          {{if 'CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT,{{endif}}
-                          {{if 'CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH,{{endif}}):
+        if self._attr in (cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT,
+                          cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH,
+                          cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT,
+                          cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH,):
             return self._cuuint64_t_val
         else:
             raise TypeError('Unsupported attribute value: {}'.format(self._attr))
-{{endif}}
-{{if 'CUjit_option_enum' in found_types}}
+
+
 
 cdef class _HelperCUjit_option:
     def __cinit__(self, attr, init_value):
         self._attr = attr.value
-        if self._attr in ({{if 'CU_JIT_MAX_REGISTERS' in found_values}}cydriver.CUjit_option_enum.CU_JIT_MAX_REGISTERS,{{endif}}
-                          {{if 'CU_JIT_THREADS_PER_BLOCK' in found_values}}cydriver.CUjit_option_enum.CU_JIT_THREADS_PER_BLOCK,{{endif}}
-                          {{if 'CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES' in found_values}}cydriver.CUjit_option_enum.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,{{endif}}
-                          {{if 'CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES' in found_values}}cydriver.CUjit_option_enum.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,{{endif}}
-                          {{if 'CU_JIT_OPTIMIZATION_LEVEL' in found_values}}cydriver.CUjit_option_enum.CU_JIT_OPTIMIZATION_LEVEL,{{endif}}
-                          {{if 'CU_JIT_GLOBAL_SYMBOL_COUNT' in found_values}}cydriver.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_COUNT,{{endif}}
-                          {{if 'CU_JIT_TARGET_FROM_CUCONTEXT' in found_values}}cydriver.CUjit_option_enum.CU_JIT_TARGET_FROM_CUCONTEXT,{{endif}}
-                          {{if 'CU_JIT_REFERENCED_KERNEL_COUNT' in found_values}}cydriver.CUjit_option_enum.CU_JIT_REFERENCED_KERNEL_COUNT,{{endif}}
-                          {{if 'CU_JIT_REFERENCED_VARIABLE_COUNT' in found_values}}cydriver.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_COUNT,{{endif}}
-                          {{if 'CU_JIT_MIN_CTA_PER_SM' in found_values}}cydriver.CUjit_option_enum.CU_JIT_MIN_CTA_PER_SM,{{endif}}
-                          {{if 'CU_JIT_SPLIT_COMPILE' in found_values}}cydriver.CUjit_option_enum.CU_JIT_SPLIT_COMPILE,{{endif}}):
+        if self._attr in (cydriver.CUjit_option_enum.CU_JIT_MAX_REGISTERS,
+                          cydriver.CUjit_option_enum.CU_JIT_THREADS_PER_BLOCK,
+                          cydriver.CUjit_option_enum.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,
+                          cydriver.CUjit_option_enum.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,
+                          cydriver.CUjit_option_enum.CU_JIT_OPTIMIZATION_LEVEL,
+                          cydriver.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_COUNT,
+                          cydriver.CUjit_option_enum.CU_JIT_TARGET_FROM_CUCONTEXT,
+                          cydriver.CUjit_option_enum.CU_JIT_REFERENCED_KERNEL_COUNT,
+                          cydriver.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_COUNT,
+                          cydriver.CUjit_option_enum.CU_JIT_MIN_CTA_PER_SM,
+                          cydriver.CUjit_option_enum.CU_JIT_SPLIT_COMPILE,):
             self._uint = init_value
             self._cptr = <void*><void_ptr>self._uint
-        elif self._attr in ({{if 'CU_JIT_WALL_TIME' in found_values}}cydriver.CUjit_option_enum.CU_JIT_WALL_TIME,{{endif}}):
+        elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_WALL_TIME,):
             self._float = init_value
             self._cptr = <void*><void_ptr>self._float
-        elif self._attr in ({{if 'CU_JIT_INFO_LOG_BUFFER' in found_values}}cydriver.CUjit_option_enum.CU_JIT_INFO_LOG_BUFFER,{{endif}}
-                            {{if 'CU_JIT_ERROR_LOG_BUFFER' in found_values}}cydriver.CUjit_option_enum.CU_JIT_ERROR_LOG_BUFFER{{endif}}):
+        elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_INFO_LOG_BUFFER,
+                            cydriver.CUjit_option_enum.CU_JIT_ERROR_LOG_BUFFER):
             self._charstar = init_value
             self._cptr = <void*><void_ptr>self._charstar
-        elif self._attr in ({{if 'CU_JIT_TARGET' in found_values}}cydriver.CUjit_option_enum.CU_JIT_TARGET,{{endif}}):
+        elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_TARGET,):
             self._target = init_value.value
             self._cptr = <void*><void_ptr>self._target
-        elif self._attr in ({{if 'CU_JIT_FALLBACK_STRATEGY' in found_values}}cydriver.CUjit_option_enum.CU_JIT_FALLBACK_STRATEGY,{{endif}}):
+        elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_FALLBACK_STRATEGY,):
             self._fallback = init_value.value
             self._cptr = <void*><void_ptr>self._fallback
-        elif self._attr in ({{if 'CU_JIT_GENERATE_DEBUG_INFO' in found_values}}cydriver.CUjit_option_enum.CU_JIT_GENERATE_DEBUG_INFO,{{endif}}
-                            {{if 'CU_JIT_LOG_VERBOSE' in found_values}}cydriver.CUjit_option_enum.CU_JIT_LOG_VERBOSE,{{endif}}
-                            {{if 'CU_JIT_GENERATE_LINE_INFO' in found_values}}cydriver.CUjit_option_enum.CU_JIT_GENERATE_LINE_INFO,{{endif}}
-                            {{if 'CU_JIT_LTO' in found_values}}cydriver.CUjit_option_enum.CU_JIT_LTO,{{endif}}
-                            {{if 'CU_JIT_FTZ' in found_values}}cydriver.CUjit_option_enum.CU_JIT_FTZ,{{endif}}
-                            {{if 'CU_JIT_PREC_DIV' in found_values}}cydriver.CUjit_option_enum.CU_JIT_PREC_DIV,{{endif}}
-                            {{if 'CU_JIT_PREC_SQRT' in found_values}}cydriver.CUjit_option_enum.CU_JIT_PREC_SQRT,{{endif}}
-                            {{if 'CU_JIT_FMA' in found_values}}cydriver.CUjit_option_enum.CU_JIT_FMA,{{endif}}
-                            {{if 'CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES' in found_values}}cydriver.CUjit_option_enum.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES,{{endif}}):
+        elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_GENERATE_DEBUG_INFO,
+                            cydriver.CUjit_option_enum.CU_JIT_LOG_VERBOSE,
+                            cydriver.CUjit_option_enum.CU_JIT_GENERATE_LINE_INFO,
+                            cydriver.CUjit_option_enum.CU_JIT_LTO,
+                            cydriver.CUjit_option_enum.CU_JIT_FTZ,
+                            cydriver.CUjit_option_enum.CU_JIT_PREC_DIV,
+                            cydriver.CUjit_option_enum.CU_JIT_PREC_SQRT,
+                            cydriver.CUjit_option_enum.CU_JIT_FMA,
+                            cydriver.CUjit_option_enum.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES,):
             self._int = init_value
             self._cptr = <void*><void_ptr>self._int
-        elif self._attr in ({{if 'CU_JIT_CACHE_MODE' in found_values}}cydriver.CUjit_option_enum.CU_JIT_CACHE_MODE,{{endif}}):
+        elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_CACHE_MODE,):
             self._cacheMode = init_value.value
             self._cptr = <void*><void_ptr>self._cacheMode
-        elif self._attr in ({{if 'CU_JIT_GLOBAL_SYMBOL_NAMES' in found_values}}cydriver.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_NAMES,{{endif}}
-                            {{if 'CU_JIT_REFERENCED_KERNEL_NAMES' in found_values}}cydriver.CUjit_option_enum.CU_JIT_REFERENCED_KERNEL_NAMES,{{endif}}
-                            {{if 'CU_JIT_REFERENCED_VARIABLE_NAMES' in found_values}}cydriver.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_NAMES,{{endif}}):
+        elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_NAMES,
+                            cydriver.CUjit_option_enum.CU_JIT_REFERENCED_KERNEL_NAMES,
+                            cydriver.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_NAMES,):
             self._charstarstar = init_value
             self._cptr = <void*>&self._charstarstar[0]
-        elif self._attr in ({{if 'CU_JIT_GLOBAL_SYMBOL_ADDRESSES' in found_values}}cydriver.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_ADDRESSES,{{endif}}):
+        elif self._attr in (cydriver.CUjit_option_enum.CU_JIT_GLOBAL_SYMBOL_ADDRESSES,):
             pylist = [_HelperInputVoidPtr(val) for val in init_value]
             self._voidstarstar = _InputVoidPtrPtrHelper(pylist)
             self._cptr = <void*><void_ptr>self._voidstarstar.cptr
@@ -429,40 +429,40 @@ cdef class _HelperCUjit_option:
     @property
     def cptr(self):
         return <void_ptr>self._cptr
-{{endif}}
 
-{{if 'cudaJitOption' in found_types}}
+
+
 
 cdef class _HelperCudaJitOption:
     def __cinit__(self, attr, init_value):
         self._attr = attr.value
-        if self._attr in ({{if 'cudaJitMaxRegisters' in found_values}}cyruntime.cudaJitOption.cudaJitMaxRegisters,{{endif}}
-                          {{if 'cudaJitThreadsPerBlock' in found_values}}cyruntime.cudaJitOption.cudaJitThreadsPerBlock,{{endif}}
-                          {{if 'cudaJitInfoLogBufferSizeBytes' in found_values}}cyruntime.cudaJitOption.cudaJitInfoLogBufferSizeBytes,{{endif}}
-                          {{if 'cudaJitErrorLogBufferSizeBytes' in found_values}}cyruntime.cudaJitOption.cudaJitErrorLogBufferSizeBytes,{{endif}}
-                          {{if 'cudaJitOptimizationLevel' in found_values}}cyruntime.cudaJitOption.cudaJitOptimizationLevel,{{endif}}
-                          {{if 'cudaJitMinCtaPerSm' in found_values}}cyruntime.cudaJitOption.cudaJitMinCtaPerSm,{{endif}}):
+        if self._attr in (cyruntime.cudaJitOption.cudaJitMaxRegisters,
+                          cyruntime.cudaJitOption.cudaJitThreadsPerBlock,
+                          cyruntime.cudaJitOption.cudaJitInfoLogBufferSizeBytes,
+                          cyruntime.cudaJitOption.cudaJitErrorLogBufferSizeBytes,
+                          cyruntime.cudaJitOption.cudaJitOptimizationLevel,
+                          cyruntime.cudaJitOption.cudaJitMinCtaPerSm,):
             self._uint = init_value
             self._cptr = <void*><void_ptr>self._uint
-        elif self._attr in ({{if 'cudaJitWallTime' in found_values}}cyruntime.cudaJitOption.cudaJitWallTime,{{endif}}):
+        elif self._attr in (cyruntime.cudaJitOption.cudaJitWallTime,):
             self._float = init_value
             self._cptr = <void*><void_ptr>self._float
-        elif self._attr in ({{if 'cudaJitInfoLogBuffer' in found_values}}cyruntime.cudaJitOption.cudaJitInfoLogBuffer,{{endif}}
-                            {{if 'cudaJitErrorLogBuffer' in found_values}}cyruntime.cudaJitOption.cudaJitErrorLogBuffer{{endif}}):
+        elif self._attr in (cyruntime.cudaJitOption.cudaJitInfoLogBuffer,
+                            cyruntime.cudaJitOption.cudaJitErrorLogBuffer):
             self._charstar = init_value
             self._cptr = <void*><void_ptr>self._charstar
-        elif self._attr in ({{if 'cudaJitFallbackStrategy' in found_values}}cyruntime.cudaJitOption.cudaJitFallbackStrategy,{{endif}}):
+        elif self._attr in (cyruntime.cudaJitOption.cudaJitFallbackStrategy,):
             self._fallback = init_value.value
             self._cptr = <void*><void_ptr>self._fallback
-        elif self._attr in ({{if 'cudaJitGenerateDebugInfo' in found_values}}cyruntime.cudaJitOption.cudaJitGenerateDebugInfo,{{endif}}
-                            {{if 'cudaJitLogVerbose' in found_values}}cyruntime.cudaJitOption.cudaJitLogVerbose,{{endif}}
-                            {{if 'cudaJitGenerateLineInfo' in found_values}}cyruntime.cudaJitOption.cudaJitGenerateLineInfo,{{endif}}
-                            {{if 'cudaJitPositionIndependentCode' in found_values}}cyruntime.cudaJitOption.cudaJitPositionIndependentCode,{{endif}}
-                            {{if 'cudaJitMaxThreadsPerBlock' in found_values}}cyruntime.cudaJitOption.cudaJitMaxThreadsPerBlock,{{endif}}
-                            {{if 'cudaJitOverrideDirectiveValues' in found_values}}cyruntime.cudaJitOption.cudaJitOverrideDirectiveValues,{{endif}}):
+        elif self._attr in (cyruntime.cudaJitOption.cudaJitGenerateDebugInfo,
+                            cyruntime.cudaJitOption.cudaJitLogVerbose,
+                            cyruntime.cudaJitOption.cudaJitGenerateLineInfo,
+                            cyruntime.cudaJitOption.cudaJitPositionIndependentCode,
+                            cyruntime.cudaJitOption.cudaJitMaxThreadsPerBlock,
+                            cyruntime.cudaJitOption.cudaJitOverrideDirectiveValues,):
             self._int = init_value
             self._cptr = <void*><void_ptr>self._int
-        elif self._attr in ({{if 'cudaJitCacheMode' in found_values}}cyruntime.cudaJitOption.cudaJitCacheMode,{{endif}}):
+        elif self._attr in (cyruntime.cudaJitOption.cudaJitCacheMode,):
             self._cacheMode = init_value.value
             self._cptr = <void*><void_ptr>self._cacheMode
         else:
@@ -474,24 +474,24 @@ cdef class _HelperCudaJitOption:
     @property
     def cptr(self):
         return <void_ptr>self._cptr
-{{endif}}
 
-{{if 'CUlibraryOption_enum' in found_types}}
+
+
 
 cdef class _HelperCUlibraryOption:
     def __cinit__(self, attr, init_value):
         self._attr = attr.value
         if False:
             pass
-        {{if 'CU_LIBRARY_HOST_UNIVERSAL_FUNCTION_AND_DATA_TABLE' in found_values}}
+
         elif self._attr in (cydriver.CUlibraryOption_enum.CU_LIBRARY_HOST_UNIVERSAL_FUNCTION_AND_DATA_TABLE,):
             self._cptr = <void*><void_ptr>init_value.getPtr()
-        {{endif}}
-        {{if 'CU_LIBRARY_BINARY_IS_PRESERVED' in found_values}}
+
+
         elif self._attr in (cydriver.CUlibraryOption_enum.CU_LIBRARY_BINARY_IS_PRESERVED,):
             self._uint = init_value
             self._cptr = <void*><void_ptr>self._uint
-        {{endif}}
+
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
@@ -501,24 +501,24 @@ cdef class _HelperCUlibraryOption:
     @property
     def cptr(self):
         return <void_ptr>self._cptr
-{{endif}}
 
-{{if 'cudaLibraryOption' in found_types}}
+
+
 
 cdef class _HelperCudaLibraryOption:
     def __cinit__(self, attr, init_value):
         self._attr = attr.value
         if False:
             pass
-        {{if 'cudaLibraryHostUniversalFunctionAndDataTable' in found_values}}
+
         elif self._attr in (cyruntime.cudaLibraryOption.cudaLibraryHostUniversalFunctionAndDataTable,):
             self._cptr = <void*><void_ptr>init_value.getPtr()
-        {{endif}}
-        {{if 'cudaLibraryBinaryIsPreserved' in found_values}}
+
+
         elif self._attr in (cyruntime.cudaLibraryOption.cudaLibraryBinaryIsPreserved,):
             self._uint = init_value
             self._cptr = <void*><void_ptr>self._uint
-        {{endif}}
+
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
@@ -528,36 +528,36 @@ cdef class _HelperCudaLibraryOption:
     @property
     def cptr(self):
         return <void_ptr>self._cptr
-{{endif}}
 
-{{if 'CUmemAllocationHandleType_enum' in found_types}}
+
+
 
 cdef class _HelperCUmemAllocationHandleType:
     def __cinit__(self, attr):
         self._type = attr.value
         if False:
             pass
-        {{if 'CU_MEM_HANDLE_TYPE_NONE' in found_values}}
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_NONE,):
             self._cptr = <void*>&self._int
-        {{endif}}
-        {{if 'CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR' in found_values}}
+
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,):
             self._cptr = <void*>&self._int
-        {{endif}}
-        {{if 'CU_MEM_HANDLE_TYPE_WIN32' in found_values}}
+
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32,):
             self._cptr = <void*>&self._handle
-        {{endif}}
-        {{if 'CU_MEM_HANDLE_TYPE_WIN32_KMT' in found_values}}
+
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32_KMT,):
             self._cptr = <void*>&self._d3dkmt_handle
-        {{endif}}
-        {{if 'CU_MEM_HANDLE_TYPE_FABRIC' in found_values}}
+
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_FABRIC,):
             self._mem_fabric_handle = _driver["CUmemFabricHandle"]()
             self._cptr = <void*><void_ptr>self._mem_fabric_handle.getPtr()
-        {{endif}}
+
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
@@ -571,45 +571,45 @@ cdef class _HelperCUmemAllocationHandleType:
     def pyObj(self):
         if False:
             pass
-        {{if 'CU_MEM_HANDLE_TYPE_NONE' in found_values}}
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_NONE,):
             return self._int
-        {{endif}}
-        {{if 'CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR' in found_values}}
+
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,):
             return self._int
-        {{endif}}
-        {{if 'CU_MEM_HANDLE_TYPE_WIN32' in found_values}}
+
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32,):
             return <void_ptr>self._handle
-        {{endif}}
-        {{if 'CU_MEM_HANDLE_TYPE_WIN32_KMT' in found_values}}
+
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_WIN32_KMT,):
             return self._d3dkmt_handle
-        {{endif}}
-        {{if 'CU_MEM_HANDLE_TYPE_FABRIC' in found_values}}
+
+
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_FABRIC,):
             return self._mem_fabric_handle
-        {{endif}}
+
         else:
             raise TypeError('Unsupported attribute: {}'.format(self._type))
-{{endif}}
-{{if 'CUlogicalEndpointIpcHandleType_enum' in found_types}}
+
+
 
 cdef class _HelperCUlogicalEndpointIpcHandleType:
     def __cinit__(self, attr):
         self._type = attr.value
         if False:
             pass
-        {{if 'CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE' in found_values}}
+
         elif self._type in (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE,):
             self._cptr = <void*>&self._int
-        {{endif}}
-        {{if 'CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC' in found_values}}
+
+
         elif self._type in (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC,):
             self._fabric_handle = _driver["CUlogicalEndpointFabricHandle"]()
             self._cptr = <void*><void_ptr>self._fabric_handle.getPtr()
-        {{endif}}
+
         else:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
@@ -623,17 +623,17 @@ cdef class _HelperCUlogicalEndpointIpcHandleType:
     def pyObj(self):
         if False:
             pass
-        {{if 'CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE' in found_values}}
+
         elif self._type in (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE,):
             return self._int
-        {{endif}}
-        {{if 'CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC' in found_values}}
+
+
         elif self._type in (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC,):
             return self._fabric_handle
-        {{endif}}
+
         else:
             raise TypeError('Unsupported attribute: {}'.format(self._type))
-{{endif}}
+
 
 cdef class _InputVoidPtrPtrHelper:
     def __cinit__(self, lst):
@@ -651,14 +651,14 @@ cdef class _InputVoidPtrPtrHelper:
     def cptr(self):
         return <void_ptr>self._cptr
 
-{{if 'CUcoredumpSettings_enum' in found_types}}
+
 
 cdef class _HelperCUcoredumpSettings:
     def __cinit__(self, attr, init_value, is_getter=False):
         self._is_getter = is_getter
         self._attrib = attr.value
-        if self._attrib in ({{if 'CU_COREDUMP_FILE' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_FILE,{{endif}}
-                          {{if 'CU_COREDUMP_PIPE' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_PIPE,{{endif}}):
+        if self._attrib in (cydriver.CUcoredumpSettings_enum.CU_COREDUMP_FILE,
+                          cydriver.CUcoredumpSettings_enum.CU_COREDUMP_PIPE,):
             if self._is_getter:
                 self._charstar = <char*>_callocWrapper(1024, 1)
                 self._cptr = <void*><void_ptr>self._charstar
@@ -667,13 +667,13 @@ cdef class _HelperCUcoredumpSettings:
                 self._charstar = init_value
                 self._cptr = <void*><void_ptr>self._charstar
                 self._size = len(init_value)
-        elif self._attrib in ({{if 'CU_COREDUMP_ENABLE_ON_EXCEPTION' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_ON_EXCEPTION,{{endif}}
-                            {{if 'CU_COREDUMP_TRIGGER_HOST' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_TRIGGER_HOST,{{endif}}
-                            {{if 'CU_COREDUMP_LIGHTWEIGHT' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_LIGHTWEIGHT,{{endif}}
-                            {{if 'CU_COREDUMP_ENABLE_USER_TRIGGER' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_USER_TRIGGER,{{endif}}):
+        elif self._attrib in (cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_ON_EXCEPTION,
+                            cydriver.CUcoredumpSettings_enum.CU_COREDUMP_TRIGGER_HOST,
+                            cydriver.CUcoredumpSettings_enum.CU_COREDUMP_LIGHTWEIGHT,
+                            cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_USER_TRIGGER,):
             if self._is_getter == False:
                 self._bool = init_value
-            
+
             self._cptr = <void*>&self._bool
             self._size = 1
         else:
@@ -691,14 +691,13 @@ cdef class _HelperCUcoredumpSettings:
 
     def pyObj(self):
         assert(self._is_getter == True)
-        if self._attrib in ({{if 'CU_COREDUMP_FILE' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_FILE,{{endif}}
-                          {{if 'CU_COREDUMP_PIPE' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_PIPE,{{endif}}):
+        if self._attrib in (cydriver.CUcoredumpSettings_enum.CU_COREDUMP_FILE,
+                          cydriver.CUcoredumpSettings_enum.CU_COREDUMP_PIPE,):
             return self._charstar
-        elif self._attrib in ({{if 'CU_COREDUMP_ENABLE_ON_EXCEPTION' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_ON_EXCEPTION,{{endif}}
-                            {{if 'CU_COREDUMP_TRIGGER_HOST' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_TRIGGER_HOST,{{endif}}
-                            {{if 'CU_COREDUMP_LIGHTWEIGHT' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_LIGHTWEIGHT,{{endif}}
-                            {{if 'CU_COREDUMP_ENABLE_USER_TRIGGER' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_USER_TRIGGER,{{endif}}):
+        elif self._attrib in (cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_ON_EXCEPTION,
+                            cydriver.CUcoredumpSettings_enum.CU_COREDUMP_TRIGGER_HOST,
+                            cydriver.CUcoredumpSettings_enum.CU_COREDUMP_LIGHTWEIGHT,
+                            cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_USER_TRIGGER,):
             return self._bool
         else:
             raise TypeError('Unsupported attribute value: {}'.format(self._attrib))
-{{endif}}

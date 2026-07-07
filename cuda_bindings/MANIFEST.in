@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 recursive-include cuda/ *.pyx *.pxd *.pxi *.pyx.in *.pxd.in *.pxi.in *.h
 # at least with setuptools 75.0.0 this folder was added erroneously

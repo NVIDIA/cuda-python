@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -68,6 +68,8 @@ cdef int get_cuda_version():
 
     return driver_ver
 
+
+
 ###############################################################################
 # Wrapper init
 ###############################################################################
@@ -104,6 +106,7 @@ cdef void* __nvrtcGetTileIR = NULL
 cdef void* __nvrtcInstallBundledHeaders = NULL
 cdef void* __nvrtcGetBundledHeadersInfo = NULL
 cdef void* __nvrtcRemoveBundledHeaders = NULL
+
 
 cdef int _init_nvrtc() except -1 nogil:
     global __py_nvrtc_init
@@ -207,6 +210,7 @@ cdef int _init_nvrtc() except -1 nogil:
         __py_nvrtc_init = True
         return 0
 
+
 cdef inline int _check_or_init_nvrtc() except -1 nogil:
     if __py_nvrtc_init:
         return 0
@@ -214,6 +218,7 @@ cdef inline int _check_or_init_nvrtc() except -1 nogil:
     return _init_nvrtc()
 
 cdef dict func_ptrs = None
+
 
 cpdef dict _inspect_function_pointers():
     global func_ptrs
@@ -313,23 +318,27 @@ cpdef dict _inspect_function_pointers():
     func_ptrs = data
     return data
 
+
 cpdef _inspect_function_pointer(str name):
     global func_ptrs
     if func_ptrs is None:
         func_ptrs = _inspect_function_pointers()
     return func_ptrs[name]
 
+
 ###############################################################################
 # Wrapper functions
 ###############################################################################
 
-cdef const char* _nvrtcGetErrorString(nvrtcResult result) except ?NULL nogil:
+cdef const char* _nvrtcGetErrorString(nvrtcResult result) except?NULL nogil:
     global __nvrtcGetErrorString
     _check_or_init_nvrtc()
     if __nvrtcGetErrorString == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetErrorString is not found")
-    return (<const char* (*)(nvrtcResult) noexcept nogil>__nvrtcGetErrorString)(result)
+    return (<const char* (*)(nvrtcResult) noexcept nogil>__nvrtcGetErrorString)(
+        result)
+
 
 cdef nvrtcResult _nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcVersion
@@ -337,7 +346,9 @@ cdef nvrtcResult _nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVAL
     if __nvrtcVersion == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcVersion is not found")
-    return (<nvrtcResult (*)(int*, int*) noexcept nogil>__nvrtcVersion)(major, minor)
+    return (<nvrtcResult (*)(int*, int*) noexcept nogil>__nvrtcVersion)(
+        major, minor)
+
 
 cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetNumSupportedArchs
@@ -345,7 +356,9 @@ cdef nvrtcResult _nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_I
     if __nvrtcGetNumSupportedArchs == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetNumSupportedArchs is not found")
-    return (<nvrtcResult (*)(int*) noexcept nogil>__nvrtcGetNumSupportedArchs)(numArchs)
+    return (<nvrtcResult (*)(int*) noexcept nogil>__nvrtcGetNumSupportedArchs)(
+        numArchs)
+
 
 cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetSupportedArchs
@@ -353,7 +366,9 @@ cdef nvrtcResult _nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERRO
     if __nvrtcGetSupportedArchs == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetSupportedArchs is not found")
-    return (<nvrtcResult (*)(int*) noexcept nogil>__nvrtcGetSupportedArchs)(supportedArchs)
+    return (<nvrtcResult (*)(int*) noexcept nogil>__nvrtcGetSupportedArchs)(
+        supportedArchs)
+
 
 cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcCreateProgram
@@ -361,7 +376,9 @@ cdef nvrtcResult _nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const 
     if __nvrtcCreateProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcCreateProgram is not found")
-    return (<nvrtcResult (*)(nvrtcProgram*, const char*, const char*, int, const char**, const char**) noexcept nogil>__nvrtcCreateProgram)(prog, src, name, numHeaders, headers, includeNames)
+    return (<nvrtcResult (*)(nvrtcProgram*, const char*, const char*, int, const char**, const char**) noexcept nogil>__nvrtcCreateProgram)(
+        prog, src, name, numHeaders, headers, includeNames)
+
 
 cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcDestroyProgram
@@ -369,7 +386,9 @@ cdef nvrtcResult _nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_IN
     if __nvrtcDestroyProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcDestroyProgram is not found")
-    return (<nvrtcResult (*)(nvrtcProgram*) noexcept nogil>__nvrtcDestroyProgram)(prog)
+    return (<nvrtcResult (*)(nvrtcProgram*) noexcept nogil>__nvrtcDestroyProgram)(
+        prog)
+
 
 cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcCompileProgram
@@ -377,7 +396,9 @@ cdef nvrtcResult _nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const c
     if __nvrtcCompileProgram == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcCompileProgram is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, int, const char**) noexcept nogil>__nvrtcCompileProgram)(prog, numOptions, options)
+    return (<nvrtcResult (*)(nvrtcProgram, int, const char**) noexcept nogil>__nvrtcCompileProgram)(
+        prog, numOptions, options)
+
 
 cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPTXSize
@@ -385,7 +406,9 @@ cdef nvrtcResult _nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except 
     if __nvrtcGetPTXSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetPTXSize is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetPTXSize)(prog, ptxSizeRet)
+    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetPTXSize)(
+        prog, ptxSizeRet)
+
 
 cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPTX
@@ -393,7 +416,9 @@ cdef nvrtcResult _nvrtcGetPTX(nvrtcProgram prog, char* ptx) except ?NVRTC_ERROR_
     if __nvrtcGetPTX == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetPTX is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetPTX)(prog, ptx)
+    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetPTX)(
+        prog, ptx)
+
 
 cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetCUBINSize
@@ -401,7 +426,9 @@ cdef nvrtcResult _nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) exc
     if __nvrtcGetCUBINSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetCUBINSize is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetCUBINSize)(prog, cubinSizeRet)
+    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetCUBINSize)(
+        prog, cubinSizeRet)
+
 
 cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetCUBIN
@@ -409,7 +436,9 @@ cdef nvrtcResult _nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ER
     if __nvrtcGetCUBIN == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetCUBIN is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetCUBIN)(prog, cubin)
+    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetCUBIN)(
+        prog, cubin)
+
 
 cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetLTOIRSize
@@ -417,7 +446,9 @@ cdef nvrtcResult _nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) exc
     if __nvrtcGetLTOIRSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetLTOIRSize is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetLTOIRSize)(prog, LTOIRSizeRet)
+    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetLTOIRSize)(
+        prog, LTOIRSizeRet)
+
 
 cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetLTOIR
@@ -425,7 +456,9 @@ cdef nvrtcResult _nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ER
     if __nvrtcGetLTOIR == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetLTOIR is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetLTOIR)(prog, LTOIR)
+    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetLTOIR)(
+        prog, LTOIR)
+
 
 cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetOptiXIRSize
@@ -433,7 +466,9 @@ cdef nvrtcResult _nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet)
     if __nvrtcGetOptiXIRSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetOptiXIRSize is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetOptiXIRSize)(prog, optixirSizeRet)
+    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetOptiXIRSize)(
+        prog, optixirSizeRet)
+
 
 cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetOptiXIR
@@ -441,7 +476,9 @@ cdef nvrtcResult _nvrtcGetOptiXIR(nvrtcProgram prog, char* optixir) except ?NVRT
     if __nvrtcGetOptiXIR == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetOptiXIR is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetOptiXIR)(prog, optixir)
+    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetOptiXIR)(
+        prog, optixir)
+
 
 cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetProgramLogSize
@@ -449,7 +486,9 @@ cdef nvrtcResult _nvrtcGetProgramLogSize(nvrtcProgram prog, size_t* logSizeRet) 
     if __nvrtcGetProgramLogSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetProgramLogSize is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetProgramLogSize)(prog, logSizeRet)
+    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetProgramLogSize)(
+        prog, logSizeRet)
+
 
 cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetProgramLog
@@ -457,7 +496,9 @@ cdef nvrtcResult _nvrtcGetProgramLog(nvrtcProgram prog, char* log) except ?NVRTC
     if __nvrtcGetProgramLog == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetProgramLog is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetProgramLog)(prog, log)
+    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetProgramLog)(
+        prog, log)
+
 
 cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_expression) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcAddNameExpression
@@ -465,7 +506,9 @@ cdef nvrtcResult _nvrtcAddNameExpression(nvrtcProgram prog, const char* name_exp
     if __nvrtcAddNameExpression == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcAddNameExpression is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, const char*) noexcept nogil>__nvrtcAddNameExpression)(prog, name_expression)
+    return (<nvrtcResult (*)(nvrtcProgram, const char*) noexcept nogil>__nvrtcAddNameExpression)(
+        prog, name_expression)
+
 
 cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetLoweredName
@@ -473,7 +516,9 @@ cdef nvrtcResult _nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expres
     if __nvrtcGetLoweredName == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetLoweredName is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, const char*, const char**) noexcept nogil>__nvrtcGetLoweredName)(prog, name_expression, lowered_name)
+    return (<nvrtcResult (*)(nvrtcProgram, const char*, const char**) noexcept nogil>__nvrtcGetLoweredName)(
+        prog, name_expression, lowered_name)
+
 
 cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPCHHeapSize
@@ -481,7 +526,9 @@ cdef nvrtcResult _nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_I
     if __nvrtcGetPCHHeapSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetPCHHeapSize is not found")
-    return (<nvrtcResult (*)(size_t*) noexcept nogil>__nvrtcGetPCHHeapSize)(ret)
+    return (<nvrtcResult (*)(size_t*) noexcept nogil>__nvrtcGetPCHHeapSize)(
+        ret)
+
 
 cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcSetPCHHeapSize
@@ -489,7 +536,9 @@ cdef nvrtcResult _nvrtcSetPCHHeapSize(size_t size) except ?NVRTC_ERROR_INVALID_I
     if __nvrtcSetPCHHeapSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcSetPCHHeapSize is not found")
-    return (<nvrtcResult (*)(size_t) noexcept nogil>__nvrtcSetPCHHeapSize)(size)
+    return (<nvrtcResult (*)(size_t) noexcept nogil>__nvrtcSetPCHHeapSize)(
+        size)
+
 
 cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPCHCreateStatus
@@ -497,7 +546,9 @@ cdef nvrtcResult _nvrtcGetPCHCreateStatus(nvrtcProgram prog) except ?NVRTC_ERROR
     if __nvrtcGetPCHCreateStatus == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetPCHCreateStatus is not found")
-    return (<nvrtcResult (*)(nvrtcProgram) noexcept nogil>__nvrtcGetPCHCreateStatus)(prog)
+    return (<nvrtcResult (*)(nvrtcProgram) noexcept nogil>__nvrtcGetPCHCreateStatus)(
+        prog)
+
 
 cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetPCHHeapSizeRequired
@@ -505,15 +556,19 @@ cdef nvrtcResult _nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t* size) e
     if __nvrtcGetPCHHeapSizeRequired == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetPCHHeapSizeRequired is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetPCHHeapSizeRequired)(prog, size)
+    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetPCHHeapSizeRequired)(
+        prog, size)
 
-cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void* callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:
+
+cdef nvrtcResult _nvrtcSetFlowCallback(nvrtcProgram prog, void * callback, void* payload) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcSetFlowCallback
     _check_or_init_nvrtc()
     if __nvrtcSetFlowCallback == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcSetFlowCallback is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, void*, void*) noexcept nogil>__nvrtcSetFlowCallback)(prog, callback, payload)
+    return (<nvrtcResult (*)(nvrtcProgram, void *, void*) noexcept nogil>__nvrtcSetFlowCallback)(
+        prog, callback, payload)
+
 
 cdef nvrtcResult _nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetTileIRSize
@@ -521,7 +576,9 @@ cdef nvrtcResult _nvrtcGetTileIRSize(nvrtcProgram prog, size_t* TileIRSizeRet) e
     if __nvrtcGetTileIRSize == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetTileIRSize is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetTileIRSize)(prog, TileIRSizeRet)
+    return (<nvrtcResult (*)(nvrtcProgram, size_t*) noexcept nogil>__nvrtcGetTileIRSize)(
+        prog, TileIRSizeRet)
+
 
 cdef nvrtcResult _nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetTileIR
@@ -529,7 +586,9 @@ cdef nvrtcResult _nvrtcGetTileIR(nvrtcProgram prog, char* TileIR) except ?NVRTC_
     if __nvrtcGetTileIR == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetTileIR is not found")
-    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetTileIR)(prog, TileIR)
+    return (<nvrtcResult (*)(nvrtcProgram, char*) noexcept nogil>__nvrtcGetTileIR)(
+        prog, TileIR)
+
 
 cdef nvrtcResult _nvrtcInstallBundledHeaders(const char* installPath, unsigned int flags, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcInstallBundledHeaders
@@ -537,7 +596,9 @@ cdef nvrtcResult _nvrtcInstallBundledHeaders(const char* installPath, unsigned i
     if __nvrtcInstallBundledHeaders == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcInstallBundledHeaders is not found")
-    return (<nvrtcResult (*)(const char*, unsigned int, const char**) noexcept nogil>__nvrtcInstallBundledHeaders)(installPath, flags, errorLog)
+    return (<nvrtcResult (*)(const char*, unsigned int, const char**) noexcept nogil>__nvrtcInstallBundledHeaders)(
+        installPath, flags, errorLog)
+
 
 cdef nvrtcResult _nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcGetBundledHeadersInfo
@@ -545,7 +606,9 @@ cdef nvrtcResult _nvrtcGetBundledHeadersInfo(nvrtcBundledHeadersInfo* info, cons
     if __nvrtcGetBundledHeadersInfo == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcGetBundledHeadersInfo is not found")
-    return (<nvrtcResult (*)(nvrtcBundledHeadersInfo*, const char**) noexcept nogil>__nvrtcGetBundledHeadersInfo)(info, errorLog)
+    return (<nvrtcResult (*)(nvrtcBundledHeadersInfo*, const char**) noexcept nogil>__nvrtcGetBundledHeadersInfo)(
+        info, errorLog)
+
 
 cdef nvrtcResult _nvrtcRemoveBundledHeaders(const char* installPath, const char** errorLog) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     global __nvrtcRemoveBundledHeaders
@@ -553,4 +616,5 @@ cdef nvrtcResult _nvrtcRemoveBundledHeaders(const char* installPath, const char*
     if __nvrtcRemoveBundledHeaders == NULL:
         with gil:
             raise FunctionNotFoundError("function nvrtcRemoveBundledHeaders is not found")
-    return (<nvrtcResult (*)(const char*, const char**) noexcept nogil>__nvrtcRemoveBundledHeaders)(installPath, errorLog)
+    return (<nvrtcResult (*)(const char*, const char**) noexcept nogil>__nvrtcRemoveBundledHeaders)(
+        installPath, errorLog)

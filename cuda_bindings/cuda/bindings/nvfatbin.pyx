@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.4.1 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.3.0, generator version 0.3.1.dev1844+ge04b6a4af. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -19,8 +19,8 @@ from libcpp.vector cimport vector
 
 class Result(_IntEnum):
     """
-    The enumerated type nvFatbinResult defines API call result codes.
-    nvFatbin APIs return nvFatbinResult codes to indicate the result.
+    The enumerated type `nvFatbinResult` defines API call result codes.
+    nvFatbin APIs return `nvFatbinResult` codes to indicate the result.
 
     See `nvFatbinResult`.
     """

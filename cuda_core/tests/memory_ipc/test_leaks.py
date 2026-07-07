@@ -23,6 +23,8 @@ skip_if_unrunnable = pytest.mark.skipif(
     not USING_FDS or not HAVE_PSUTIL, reason="mempool allocation handle is not using fds or psutil is unavailable"
 )
 
+pytestmark = pytest.mark.thread_unsafe(reason="Tests number of fds which is shared.")
+
 
 @pytest.mark.flaky(reruns=2)
 @skip_if_unrunnable
