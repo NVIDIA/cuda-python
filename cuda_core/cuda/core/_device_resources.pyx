@@ -498,10 +498,11 @@ cdef class SMResource:
         )
         _resolve_group_count(opts)
         _check_green_ctx_support()
-        if _can_use_structured_sm_split():
-            return _split_with_general_api(self, opts, dry_run)
-        # SplitByCount requires the same 12.4+ as green ctx support (already checked above)
-        return _split_with_count_api(self, opts, dry_run)
+        with self._split_mutex:
+            if _can_use_structured_sm_split():
+                return _split_with_general_api(self, opts, dry_run)
+            # SplitByCount requires the same 12.4+ as green ctx support (already checked above)
+            return _split_with_count_api(self, opts, dry_run)
 
 
 cdef class WorkqueueResource:

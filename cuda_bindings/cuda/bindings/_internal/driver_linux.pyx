@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1853+g2b0a94a68. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
