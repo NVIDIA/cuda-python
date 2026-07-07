@@ -56,6 +56,10 @@ New features
   inspecting or augmenting a captured graph, or populating a conditional
   body entirely through the explicit API.
 
+- ``cuda.core`` now ships with ``.pyi`` stubs for all public APIs, enabling
+  users' IDEs and type checkers to provide better autocompletion and static
+  analysis.
+
 Bug fixes
 ---------
 
