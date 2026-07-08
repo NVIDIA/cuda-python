@@ -71,25 +71,6 @@ Python Version Support
 When a new Python feature version is released and the oldest supported version reaches EOL,
 ``cuda.core`` will bump its minor version accordingly.
 
-Concurrency and Thread Safety
------------------------------
-
-``cuda.core`` does not currently guarantee thread safety for concurrent operations on the
-same object. Concurrently mutating a single ``cuda.core`` object from multiple threads --
-for example, adding nodes to the same graph, or closing a resource while another thread uses
-it -- is **not supported**. The application must provide external synchronization, as is
-customary for Python GPU libraries such as NumPy, CuPy, and PyTorch, and consistent with the
-CUDA driver's own rules (for example, CUDA graph objects are not thread-safe to modify
-concurrently).
-
-The library does protect the integrity of its own internal state (such as cached attributes
-and reference counting) so that concurrent use of *distinct* objects does not corrupt
-interpreter state. This is an integrity guarantee only; the ordering or outcome of concurrent
-operations on shared objects is otherwise undefined.
-
-Known thread-safety gaps are tracked in `#1389
-<https://github.com/NVIDIA/cuda-python/issues/1389>`__.
-
 Free-threading Build Support
 ----------------------------
 

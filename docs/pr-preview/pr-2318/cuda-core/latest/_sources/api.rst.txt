@@ -167,10 +167,13 @@ Textures and surfaces
 CUDA arrays back bindless texture and surface objects for kernel-side sampled
 reads and typed load/store. These types live in the :mod:`cuda.core.texture`
 namespace. :class:`OpaqueArray` is allocated through
-:meth:`OpaqueArray.from_descriptor` and bound through a :class:`ResourceDescriptor`
-factory; linear (1D) and row-pitched 2D :class:`Buffer` views as well as
-mipmapped allocations (:class:`MipmappedArray`) are also supported as texture
-backings.
+:meth:`cuda.core.Device.create_opaque_array` and bound through a
+:class:`ResourceDescriptor` factory; linear (1D) and row-pitched 2D
+:class:`Buffer` views as well as mipmapped allocations (:class:`MipmappedArray`,
+via :meth:`cuda.core.Device.create_mipmapped_array`) are also supported as
+texture backings. Bindless handles are created with
+:meth:`cuda.core.Device.create_texture_object` and
+:meth:`cuda.core.Device.create_surface_object`.
 
 A :class:`OpaqueArray` has an opaque, hardware-defined layout with no linear
 device pointer, so it cannot participate in ``__cuda_array_interface__`` /
@@ -193,15 +196,16 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
 
    :template: dataclass.rst
 
-   TextureDescriptor
+   OpaqueArrayOptions
+   MipmappedArrayOptions
+   TextureObjectOptions
 
-.. autosummary::
-   :toctree: generated/
-
-   ArrayFormat
-   AddressMode
-   FilterMode
-   ReadMode
+The associated enumerations —
+:class:`~cuda.core.typing.ArrayFormatType`,
+:class:`~cuda.core.typing.AddressModeType`,
+:class:`~cuda.core.typing.FilterModeType`, and
+:class:`~cuda.core.typing.ReadModeType` — live in :mod:`cuda.core.typing`
+alongside the other ``cuda.core`` enumerations.
 
 
 CUDA compilation toolchain
