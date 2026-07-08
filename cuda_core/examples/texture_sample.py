@@ -30,14 +30,15 @@ from cuda.core import (
     launch,
 )
 from cuda.core.texture import (
-    AddressMode,
-    ArrayFormat,
-    FilterMode,
-    OpaqueArray,
-    ReadMode,
+    OpaqueArrayOptions,
     ResourceDescriptor,
-    TextureDescriptor,
-    TextureObject,
+    TextureObjectOptions,
+)
+from cuda.core.typing import (
+    AddressModeType,
+    ArrayFormatType,
+    FilterModeType,
+    ReadModeType,
 )
 
 # Kernel reads N (x, y) coordinates from `coords` (interleaved float pairs) and
@@ -66,14 +67,16 @@ def main():
     pinned_mr = LegacyPinnedMemoryResource()
     try:
         # Allocate a 2D OpaqueArray: shape=(W, H), single-channel float32.
-        # Note: OpaqueArray.from_descriptor takes shape=(width, height), so the host
+        # Note: create_opaque_array takes shape=(width, height), so the host
         # buffer fed into copy_from must be laid out as H rows of W elements
         # (row-major), i.e. host_pattern.shape == (H, W).
         width, height = 16, 16
-        with OpaqueArray.from_descriptor(
-            shape=(width, height),
-            format=ArrayFormat.FLOAT32,
-            num_channels=1,
+        with Device().create_opaque_array(
+            OpaqueArrayOptions(
+                shape=(width, height),
+                format=ArrayFormatType.FLOAT32,
+                num_channels=1,
+            )
         ) as arr:
             # Plant a known pattern: pattern[y, x] = x + 100*y.
             # Cast to float32 so the byte count matches the array's storage.
@@ -87,14 +90,14 @@ def main():
             arr.copy_from(pattern, stream=stream)
 
             # Build a linear-filtering, clamped, non-normalized texture.
-            res_desc = ResourceDescriptor.from_array(arr)
-            tex_desc = TextureDescriptor(
-                address_mode=AddressMode.CLAMP,
-                filter_mode=FilterMode.LINEAR,
-                read_mode=ReadMode.ELEMENT_TYPE,
+            res_desc = ResourceDescriptor.from_opaque_array(arr)
+            tex_desc = TextureObjectOptions(
+                address_mode=AddressModeType.CLAMP,
+                filter_mode=FilterModeType.LINEAR,
+                read_mode=ReadModeType.ELEMENT_TYPE,
                 normalized_coords=False,
             )
-            with TextureObject.from_descriptor(resource=res_desc, texture_descriptor=tex_desc) as tex:
+            with Device().create_texture_object(resource=res_desc, options=tex_desc) as tex:
                 _run_kernel_and_verify(dev, stream, tex, pattern, width, height, pinned_mr)
     finally:
         stream.close()
