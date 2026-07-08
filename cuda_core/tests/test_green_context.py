@@ -518,9 +518,13 @@ class TestGreenContextKernelLaunch:
                 ctx_a.close()
 
     def test_with_workqueue_resource(self, init_cuda, sm_resource, wq_resource, fill_kernel):
-        """Green context with SM + workqueue resources can launch a kernel."""
+        """Green context with SM + configured workqueue can launch a kernel."""
         dev = init_cuda
         groups, _ = sm_resource.split(SMResourceOptions(count=None))
+        wq_resource.configure(WorkqueueResourceOptions(
+            sharing_scope="green_ctx_balanced",
+            concurrency_limit=4,
+        ))
 
         try:
             ctx = dev.create_context(ContextOptions(resources=[groups[0], wq_resource]))
