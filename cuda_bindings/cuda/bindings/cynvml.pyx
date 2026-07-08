@@ -4,6 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ec221879a459b2de9b3dfe54cba58613e9c08b279a95f782a450c98fd7cea532
 from ._internal cimport nvml as _nvml
 
 

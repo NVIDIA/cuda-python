@@ -101,15 +101,15 @@ from cuda.core import (
     launch,
 )
 from cuda.core.texture import (
-    AddressMode,
-    ArrayFormat,
-    FilterMode,
-    MipmappedArray,
-    ReadMode,
+    MipmappedArrayOptions,
     ResourceDescriptor,
-    SurfaceObject,
-    TextureDescriptor,
-    TextureObject,
+    TextureObjectOptions,
+)
+from cuda.core.typing import (
+    AddressModeType,
+    ArrayFormatType,
+    FilterModeType,
+    ReadModeType,
 )
 
 # ---------------------------------------------------------------------------
@@ -183,7 +183,7 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
     """
     # ---- Level 0: seed the base image -------------------------------------
     base_arr = mip.get_level(0)  # non-owning view; do NOT use a `with` block
-    with SurfaceObject.from_array(base_arr) as base_surf:
+    with Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(base_arr)) as base_surf:
         block = (16, 16, 1)
         grid = (
             (BASE_SIZE + block[0] - 1) // block[0],
@@ -205,10 +205,10 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
     # Each iteration reads level (L-1) through a temporary TextureObject and
     # writes level L through a temporary SurfaceObject. Both close cleanly
     # at the end of their `with` blocks.
-    src_tex_desc = TextureDescriptor(
-        address_mode=AddressMode.CLAMP,
-        filter_mode=FilterMode.POINT,  # explicit per-texel reads
-        read_mode=ReadMode.ELEMENT_TYPE,
+    src_tex_desc = TextureObjectOptions(
+        address_mode=AddressModeType.CLAMP,
+        filter_mode=FilterModeType.POINT,  # explicit per-texel reads
+        read_mode=ReadModeType.ELEMENT_TYPE,
         normalized_coords=False,  # integer pixel coordinates
     )
     for level in range(1, num_levels):
@@ -219,10 +219,10 @@ def build_mipmap_pyramid(mip, num_levels, stream, kernels):
 
         src_arr = mip.get_level(level - 1)
         dst_arr = mip.get_level(level)
-        src_res = ResourceDescriptor.from_array(src_arr)
+        src_res = ResourceDescriptor.from_opaque_array(src_arr)
         with (
-            TextureObject.from_descriptor(resource=src_res, texture_descriptor=src_tex_desc) as src_tex,
-            SurfaceObject.from_array(dst_arr) as dst_surf,
+            Device().create_texture_object(resource=src_res, options=src_tex_desc) as src_tex,
+            Device().create_surface_object(resource=ResourceDescriptor.from_opaque_array(dst_arr)) as dst_surf,
         ):
             block = (16, 16, 1)
             grid = (
@@ -408,12 +408,14 @@ def main():
     # --- Step 2: Allocate the mipmap pyramid and build every level ---
     #     is_surface_load_store=True is required for kernel-side writes.
     num_levels = int(math.log2(BASE_SIZE)) + 1
-    mip = MipmappedArray.from_descriptor(
-        shape=(BASE_SIZE, BASE_SIZE),
-        format=ArrayFormat.FLOAT32,
-        num_channels=4,
-        num_levels=num_levels,
-        is_surface_load_store=True,
+    mip = Device().create_mipmapped_array(
+        MipmappedArrayOptions(
+            shape=(BASE_SIZE, BASE_SIZE),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=4,
+            num_levels=num_levels,
+            is_surface_load_store=True,
+        )
     )
     build_mipmap_pyramid(mip, num_levels, stream, kernels)
 
@@ -423,19 +425,19 @@ def main():
     #     receives the user-controlled bias as a kernel argument and folds
     #     it into the tex2DLod call (avoids rebuilding the TextureObject
     #     whenever the user changes the bias).
-    display_tex_desc = TextureDescriptor(
-        address_mode=AddressMode.WRAP,
-        filter_mode=FilterMode.LINEAR,
-        read_mode=ReadMode.ELEMENT_TYPE,
+    display_tex_desc = TextureObjectOptions(
+        address_mode=AddressModeType.WRAP,
+        filter_mode=FilterModeType.LINEAR,
+        read_mode=ReadModeType.ELEMENT_TYPE,
         normalized_coords=True,
-        mipmap_filter_mode=FilterMode.LINEAR,  # trilinear
+        mipmap_filter_mode=FilterModeType.LINEAR,  # trilinear
         mipmap_level_bias=0.0,
         min_mipmap_level_clamp=0.0,
         max_mipmap_level_clamp=float(num_levels - 1),
     )
-    display_tex = TextureObject.from_descriptor(
+    display_tex = Device().create_texture_object(
         resource=ResourceDescriptor.from_mipmapped_array(mip),
-        texture_descriptor=display_tex_desc,
+        options=display_tex_desc,
     )
 
     # --- Step 4: Open a window and set up the GL/CUDA bridge ---

@@ -4,6 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f840820f160e36eebe6e052b5a5d3a35b55704060301ee2ab7d5cd7a7d580418
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
 from libcpp cimport bool as cpp_bool
