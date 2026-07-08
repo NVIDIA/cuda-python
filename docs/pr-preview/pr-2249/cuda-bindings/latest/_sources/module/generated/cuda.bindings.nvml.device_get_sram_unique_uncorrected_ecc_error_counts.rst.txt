@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_sram\_unique\_uncorrected\_ecc\_error\_counts
-=============================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_sram_unique_uncorrected_ecc_error_counts
