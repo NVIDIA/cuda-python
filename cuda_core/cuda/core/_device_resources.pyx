@@ -129,9 +129,17 @@ cdef class WorkqueueResourceOptions:
     sharing_scope : str, optional
         Workqueue sharing scope. Accepted values: ``"device_ctx"``
         or ``"green_ctx_balanced"``. (Default to ``None``)
+    concurrency_limit : int, optional
+        Expected maximum number of concurrent stream-ordered
+        workloads. Must be ``>= 1`` when set. The effective
+        driver-side cap is ``CUDA_DEVICE_MAX_CONNECTIONS``
+        (typically ``[1, 32]``); configurations may exceed
+        this cap, but the driver will not guarantee that work
+        submission remains non-overlapping. (Default to ``None``)
     """
 
     sharing_scope: str | None = None
+    concurrency_limit: int | None = None
 
 
 cdef inline int _validate_split_field_length(
@@ -535,23 +543,49 @@ cdef class WorkqueueResource:
         """Return the address of the underlying config ``CUdevResource`` struct."""
         return <intptr_t>(&self._wq_config_resource)
 
+    @property
+    def concurrency_limit(self) -> int:
+        """Expected maximum concurrent stream-ordered workloads.
+
+        Reflects the ``wqConcurrencyLimit`` field of the underlying
+        workqueue-config struct. When first queried, this matches
+        the driver-populated cap (typically
+        ``CUDA_DEVICE_MAX_CONNECTIONS``). It can be updated via
+        :meth:`configure` with
+        :attr:`WorkqueueResourceOptions.concurrency_limit`.
+        """
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            return self._wq_config_resource.wqConfig.wqConcurrencyLimit
+        ELSE:
+            raise RuntimeError(
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+            )
+
     def configure(self, options: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.
 
         Parameters
         ----------
         options : :obj:`WorkqueueResourceOptions`
-            Configuration options (sharing scope, etc.).
+            Configuration options (sharing scope, concurrency limit).
         """
         cdef WorkqueueResourceOptions opts = check_or_create_options(
             WorkqueueResourceOptions, options, "Workqueue resource options"
         )
         _check_green_ctx_support()
         _check_workqueue_support()
-        if opts.sharing_scope is None:
+        if opts.sharing_scope is None and opts.concurrency_limit is None:
             return None
 
         IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if opts.concurrency_limit is not None:
+                if opts.concurrency_limit < 1:
+                    raise ValueError(
+                        f"concurrency_limit must be >= 1, got {opts.concurrency_limit}"
+                    )
+                self._wq_config_resource.wqConfig.wqConcurrencyLimit = (
+                    <unsigned int>opts.concurrency_limit
+                )
             if opts.sharing_scope == "device_ctx":
                 self._wq_config_resource.wqConfig.sharingScope = (
                     cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX
@@ -560,7 +594,7 @@ cdef class WorkqueueResource:
                 self._wq_config_resource.wqConfig.sharingScope = (
                     cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
                 )
-            else:
+            elif opts.sharing_scope is not None:
                 raise ValueError(
                     f"Unknown sharing_scope: {opts.sharing_scope!r}. "
                     "Expected 'device_ctx' or 'green_ctx_balanced'."

@@ -220,6 +220,29 @@ class TestWorkqueueResource:
         with pytest.raises(ValueError, match="Unknown sharing_scope"):
             wq_resource.configure(WorkqueueResourceOptions(sharing_scope="bogus"))
 
+    def test_query_concurrency_limit_nonzero(self, wq_resource):
+        # driver populates from CUDA_DEVICE_MAX_CONNECTIONS
+        assert wq_resource.concurrency_limit >= 1
+
+    def test_configure_concurrency_limit(self, wq_resource):
+        wq_resource.configure(WorkqueueResourceOptions(concurrency_limit=4))
+        assert wq_resource.concurrency_limit == 4
+
+    def test_configure_concurrency_and_scope(self, wq_resource):
+        wq_resource.configure(WorkqueueResourceOptions(
+            sharing_scope="green_ctx_balanced",
+            concurrency_limit=2,
+        ))
+        assert wq_resource.concurrency_limit == 2
+
+    def test_configure_concurrency_limit_zero_raises(self, wq_resource):
+        with pytest.raises(ValueError, match="concurrency_limit must be >= 1"):
+            wq_resource.configure(WorkqueueResourceOptions(concurrency_limit=0))
+
+    def test_configure_concurrency_limit_negative_raises(self, wq_resource):
+        with pytest.raises(ValueError, match="concurrency_limit must be >= 1"):
+            wq_resource.configure(WorkqueueResourceOptions(concurrency_limit=-3))
+
 
 # ---------------------------------------------------------------------------
 # SM resource split — validation
