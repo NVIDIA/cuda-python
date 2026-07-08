@@ -131,6 +131,17 @@ def _wrap_worker_cuda_test(func):
                 kwargs["mempool_device_x2"] = _mempool_device_impl(2)
             if "mempool_device_x3" in kwargs:
                 kwargs["mempool_device_x3"] = _mempool_device_impl(3)
+
+            # These are used by test_green_context.py.  The original fixtures include
+            # pytest.skip() but that should have correctly fired by this time.
+            if "sm_resource" in kwargs:
+                kwargs["sm_resource"] = device.resources.sm
+            if "wq_resource" in kwargs:
+                kwargs["wq_resource"] = device.resources.workqueue
+            if "green_ctx" in kwargs:
+                from cuda.core import ContextOptions, SMResourceOptions
+                groups, _ = device.resources.sm.split(SMResourceOptions(count=None))
+                kwargs["green_ctx"] = device.create_context(ContextOptions(resources=[groups[0]]))
             return func(*args, **kwargs)
 
     wrapper._cuda_core_worker_cuda_wrapped = True

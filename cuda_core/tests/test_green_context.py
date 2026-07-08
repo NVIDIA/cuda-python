@@ -40,6 +40,8 @@ extern "C" __global__ void fill(int* out, int value, int n) {
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+# Note that the following fixtures (except fill_kernel) require per-thread setup
+# and are currently special cased to work with pytest-run-parallel in conftest.
 
 
 @pytest.fixture
