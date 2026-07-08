@@ -211,6 +211,8 @@ alongside the other ``cuda.core`` enumerations.
 CUDA compilation toolchain
 --------------------------
 
+.. currentmodule:: cuda.core
+
 .. autosummary::
    :toctree: generated/
 
