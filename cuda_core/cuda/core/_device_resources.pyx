@@ -554,24 +554,6 @@ cdef class WorkqueueResource:
         """Return the address of the underlying config ``CUdevResource`` struct."""
         return <intptr_t>(&self._wq_config_resource)
 
-    @property
-    def concurrency_limit(self) -> int:
-        """Expected maximum concurrent stream-ordered workloads.
-
-        Reflects the ``wqConcurrencyLimit`` field of the underlying
-        workqueue-config struct. When first queried, this matches
-        the driver-populated cap (typically
-        ``CUDA_DEVICE_MAX_CONNECTIONS``). It can be updated via
-        :meth:`configure` with
-        :attr:`WorkqueueResourceOptions.concurrency_limit`.
-        """
-        IF CUDA_CORE_BUILD_MAJOR >= 13:
-            return self._wq_config_resource.wqConfig.wqConcurrencyLimit
-        ELSE:
-            raise RuntimeError(
-                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
-            )
-
     def configure(self, options: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.
 
