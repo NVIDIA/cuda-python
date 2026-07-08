@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=60f3386a"></script>
+    <script src="../_static/documentation_options.js?v=cda348a6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev113';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev123';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -723,6 +723,18 @@ driver activities associated with CUDA kernel launches and CUDA API calls.</p>
 <p>Directly creating a <code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code> is not supported due
 to ambiguity. New graph builders should instead be created through a
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code>, or a <code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code> object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Operations recorded during capture reference your memory but do not
+take ownership of it. As with ordinary stream work, you must keep the
+operands alive for as long as the completed graph may execute – for
+example, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code> objects passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code>
+or <code class="xref py py-meth docutils literal notranslate"><span class="pre">copy_to()</span></code>. Host callbacks added with
+<a class="reference internal" href="#cuda.core.graph.GraphBuilder.callback" title="cuda.core.graph.GraphBuilder.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">callback()</span></code></a> are the exception: the callable (and any copied
+<code class="docutils literal notranslate"><span class="pre">user_data</span></code>) are retained for the graph’s lifetime. This differs from
+building a graph explicitly with <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code>, which
+retains the operands it is given.</p>
+</div>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphBuilder.__init__">

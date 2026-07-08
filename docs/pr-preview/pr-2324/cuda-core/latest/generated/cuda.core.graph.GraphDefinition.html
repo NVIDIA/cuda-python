@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=60f3386a"></script>
+    <script src="../_static/documentation_options.js?v=cda348a6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev113';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev123';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -952,9 +952,12 @@ a dependency edge in the graph.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dst:</span> <span class="pre">int</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">src:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">src:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst_owner=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">src_owner=None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode"><span class="pre">MemcpyNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.memcpy" title="Link to this definition">#</a></dt>
@@ -968,11 +971,13 @@ a dependency edge in the graph.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dst:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">width</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">height=1</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">pitch=0</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst_owner=None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><span class="pre">MemsetNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.GraphDefinition.memset" title="Link to this definition">#</a></dt>
