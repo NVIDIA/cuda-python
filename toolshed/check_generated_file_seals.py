@@ -8,8 +8,10 @@ import subprocess
 import sys
 from pathlib import Path, PureWindowsPath
 
-GENERATED_FILE_MARKER_FRAGMENT = "-GENERATED-DO-NOT-MODIFY-THIS-FILE"
-GENERATED_FILE_SEAL_TOKEN = "CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE:"  # noqa: S105
+# Intentionally assemble these markers so git grep finds only generated files,
+# not the checker that validates them.
+GENERATED_FILE_MARKER_FRAGMENT = "-" + "-".join(("GENERATED", "DO", "NOT", "MODIFY", "THIS", "FILE"))
+GENERATED_FILE_SEAL_TOKEN = "-".join(("CYTHON", "BINDINGS")) + GENERATED_FILE_MARKER_FRAGMENT + ":"
 SUPPORTED_GENERATED_FILE_SEAL_FORMATS = frozenset({1})
 
 assert GENERATED_FILE_MARKER_FRAGMENT in GENERATED_FILE_SEAL_TOKEN
