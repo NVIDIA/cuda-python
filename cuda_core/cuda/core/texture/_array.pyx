@@ -25,44 +25,100 @@ from cuda.core._utils.cuda_utils cimport (
     _get_current_device_id,
 )
 
-from enum import IntEnum
+import numpy
+
+from dataclasses import dataclass
+
+from cuda.core._utils.cuda_utils import check_or_create_options
+from cuda.core.typing import ArrayFormatType
 
 
-class ArrayFormat(IntEnum):
-    """Element format for a :class:`OpaqueArray` allocation.
-
-    Mirrors ``CUarray_format`` from the CUDA driver API.
-    """
-    UINT8   = cydriver.CU_AD_FORMAT_UNSIGNED_INT8
-    UINT16  = cydriver.CU_AD_FORMAT_UNSIGNED_INT16
-    UINT32  = cydriver.CU_AD_FORMAT_UNSIGNED_INT32
-    INT8    = cydriver.CU_AD_FORMAT_SIGNED_INT8
-    INT16   = cydriver.CU_AD_FORMAT_SIGNED_INT16
-    INT32   = cydriver.CU_AD_FORMAT_SIGNED_INT32
-    FLOAT16 = cydriver.CU_AD_FORMAT_HALF
-    FLOAT32 = cydriver.CU_AD_FORMAT_FLOAT
-
-
-# Bytes per element (single channel) for each format.
-_FORMAT_ELEM_SIZE = {
-    int(ArrayFormat.UINT8):   1,
-    int(ArrayFormat.INT8):    1,
-    int(ArrayFormat.UINT16):  2,
-    int(ArrayFormat.INT16):   2,
-    int(ArrayFormat.FLOAT16): 2,
-    int(ArrayFormat.UINT32):  4,
-    int(ArrayFormat.INT32):   4,
-    int(ArrayFormat.FLOAT32): 4,
+# Bridge between the public ArrayFormatType StrEnum and the driver
+# CUarray_format integer values. OpaqueArray stores the driver int internally
+# (see ._format), so all conversions funnel through these two maps.
+_ARRAYFORMAT_TO_CU = {
+    ArrayFormatType.UINT8:   int(cydriver.CU_AD_FORMAT_UNSIGNED_INT8),
+    ArrayFormatType.UINT16:  int(cydriver.CU_AD_FORMAT_UNSIGNED_INT16),
+    ArrayFormatType.UINT32:  int(cydriver.CU_AD_FORMAT_UNSIGNED_INT32),
+    ArrayFormatType.INT8:    int(cydriver.CU_AD_FORMAT_SIGNED_INT8),
+    ArrayFormatType.INT16:   int(cydriver.CU_AD_FORMAT_SIGNED_INT16),
+    ArrayFormatType.INT32:   int(cydriver.CU_AD_FORMAT_SIGNED_INT32),
+    ArrayFormatType.FLOAT16: int(cydriver.CU_AD_FORMAT_HALF),
+    ArrayFormatType.FLOAT32: int(cydriver.CU_AD_FORMAT_FLOAT),
 }
+_CU_TO_ARRAYFORMAT = {cu: fmt for fmt, cu in _ARRAYFORMAT_TO_CU.items()}
+
+
+# Every ArrayFormatType value is spelled as a NumPy dtype name, so the eight
+# formats map 1:1 to NumPy dtypes. This lets callers pass a dtype object (or
+# anything numpy.dtype() accepts) instead of the enum, matching the precedent
+# set by TensorMapDescriptorOptions.data_type.
+_NUMPY_DTYPE_TO_ARRAYFORMAT = {
+    numpy.dtype(fmt.value): fmt for fmt in ArrayFormatType
+}
+
+
+# Bytes per element (single channel), keyed by the driver CUarray_format int.
+_FORMAT_ELEM_SIZE = {
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.UINT8]:   1,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.INT8]:    1,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.UINT16]:  2,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.INT16]:   2,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.FLOAT16]: 2,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.UINT32]:  4,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.INT32]:   4,
+    _ARRAYFORMAT_TO_CU[ArrayFormatType.FLOAT32]: 4,
+}
+
+
+def _normalize_array_format(format):
+    """Coerce ``format`` to an :class:`ArrayFormatType`.
+
+    Accepts, in order of preference:
+
+    * an :class:`ArrayFormatType`;
+    * a plain ``str`` naming one of its values (e.g. ``"float32"``);
+    * a NumPy dtype object (or anything ``numpy.dtype()`` accepts, such as
+      ``numpy.float32``) whose canonical dtype maps 1:1 to one of the eight
+      supported formats.
+
+    Raises :class:`ValueError` on anything else."""
+    if isinstance(format, ArrayFormatType):
+        return format
+    if isinstance(format, str):
+        try:
+            return ArrayFormatType(format)
+        except ValueError as e:
+            valid = ", ".join(repr(f.value) for f in ArrayFormatType)
+            raise ValueError(
+                f"format must be an ArrayFormatType or one of {{{valid}}}, got {format!r}"
+            ) from e
+    # Fall back to interpreting ``format`` as a NumPy dtype (dtype object,
+    # scalar type, etc.). Unknown dtypes are reported against the supported set.
+    try:
+        dt = numpy.dtype(format)
+    except TypeError as e:
+        raise ValueError(
+            f"format must be an ArrayFormatType, str, or NumPy dtype, got {format!r}"
+        ) from e
+    try:
+        return _NUMPY_DTYPE_TO_ARRAYFORMAT[dt]
+    except KeyError as e:
+        valid = ", ".join(repr(f.value) for f in ArrayFormatType)
+        raise ValueError(
+            f"NumPy dtype {dt!r} has no ArrayFormatType equivalent; "
+            f"supported formats: {{{valid}}}"
+        ) from e
 
 
 def _validate_format_channels(format, num_channels):
     """Validate the ``(format, num_channels)`` pair shared by the array,
-    mipmap, and texture factories. Raises on an invalid combination."""
-    if not isinstance(format, ArrayFormat):
-        raise TypeError(f"format must be an ArrayFormat, got {type(format).__name__}")
+    mipmap, and texture factories. Returns the normalized
+    :class:`ArrayFormatType`. Raises on an invalid combination."""
+    fmt = _normalize_array_format(format)
     if isinstance(num_channels, bool) or num_channels not in (1, 2, 4):
         raise ValueError(f"num_channels must be 1, 2, or 4, got {num_channels!r}")
+    return fmt
 
 
 def _validate_array_shape(shape):
@@ -78,6 +134,38 @@ def _validate_array_shape(shape):
         if dim < 1:
             raise ValueError(f"shape[{i}] must be >= 1, got {dim}")
     return shape_t
+
+
+@dataclass
+class OpaqueArrayOptions:
+    """Options for :meth:`cuda.core.Device.create_opaque_array`.
+
+    Attributes
+    ----------
+    shape : tuple of int
+        ``(width,)``, ``(width, height)``, or ``(width, height, depth)`` in
+        elements.
+    format : ArrayFormatType, str, or numpy.dtype
+        Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+        a plain string (e.g. ``"float32"``), or a NumPy dtype object.
+    num_channels : int
+        Channels per element. Must be 1, 2, or 4.
+    is_surface_load_store : bool
+        If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so the array can be
+        bound as a :class:`~cuda.core.texture.SurfaceObject` for kernel-side
+        writes. Default False.
+
+    .. versionadded:: 1.1.0
+    """
+
+    shape: tuple[int, ...]
+    format: object
+    num_channels: int
+    is_surface_load_store: bool = False
+
+    def __post_init__(self):
+        self.format = _validate_format_channels(self.format, self.num_channels)
+        self.shape = _validate_array_shape(self.shape)
 
 
 cdef void _fill_array_endpoint(
@@ -245,70 +333,18 @@ cdef class OpaqueArray:
     linear :class:`Buffer` yourself (e.g. ``mr.allocate(arr.size_bytes,
     stream=s)``) and copy.
 
-    Construct via :meth:`from_descriptor`. Only plain 1D/2D/3D allocations are
-    supported in this initial version; layered/cubemap/sparse variants will
-    follow once their shape semantics are settled.
+    Construct via :meth:`cuda.core.Device.create_opaque_array`. Only plain
+    1D/2D/3D allocations are supported in this initial version; layered/cubemap/
+    sparse variants will follow once their shape semantics are settled.
+
+    .. versionadded:: 1.1.0
     """
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
-            "OpaqueArray cannot be instantiated directly. Use OpaqueArray.from_descriptor()."
+            "OpaqueArray cannot be instantiated directly. "
+            "Use Device.create_opaque_array()."
         )
-
-    @classmethod
-    def from_descriptor(cls, *, shape, format, num_channels, is_surface_load_store=False):
-        """Allocate a new CUDA array.
-
-        Parameters
-        ----------
-        shape : tuple of int
-            ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
-            in elements.
-        format : ArrayFormat
-            Element format.
-        num_channels : int
-            Channels per element. Must be 1, 2, or 4.
-        is_surface_load_store : bool
-            If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so the array
-            can be bound as a :class:`SurfaceObject` for kernel-side writes.
-            Default False.
-
-        Returns
-        -------
-        OpaqueArray
-        """
-        _validate_format_channels(format, num_channels)
-        shape_t = _validate_array_shape(shape)
-
-        cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format><int>format
-        cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
-        cdef int rank = len(shape_t)
-        cdef unsigned int flags = (
-            cydriver.CUDA_ARRAY3D_SURFACE_LDST if is_surface_load_store else 0
-        )
-
-        # cuArray3DCreate handles 1D/2D/3D uniformly (Height/Depth 0 sentinels),
-        # so a single descriptor + create_array_handle covers every shape.
-        memset(&desc3d, 0, sizeof(desc3d))
-        desc3d.Width = <size_t>shape_t[0]
-        desc3d.Height = <size_t>(shape_t[1] if rank >= 2 else 0)
-        desc3d.Depth = <size_t>(shape_t[2] if rank >= 3 else 0)
-        desc3d.Format = c_format
-        desc3d.NumChannels = <unsigned int>num_channels
-        desc3d.Flags = flags
-
-        cdef OpaqueArrayHandle h = create_array_handle(desc3d)
-        if not h:
-            HANDLE_RETURN(get_last_error())
-
-        cdef OpaqueArray self = cls.__new__(cls)
-        self._handle = h
-        self._shape = shape_t
-        self._format = c_format
-        self._num_channels = num_channels
-        self._surface_load_store = bool(is_surface_load_store)
-        self._device_id = _get_current_device_id()
-        return self
 
     @classmethod
     def _from_handle(cls, intptr_t handle, bint owning, *, device_id=None):
@@ -340,8 +376,8 @@ cdef class OpaqueArray:
 
     @property
     def format(self):
-        """The element :class:`ArrayFormat`."""
-        return ArrayFormat(self._format)
+        """The element :class:`~cuda.core.typing.ArrayFormatType`."""
+        return _CU_TO_ARRAYFORMAT[self._format]
 
     @property
     def num_channels(self):
@@ -349,7 +385,7 @@ cdef class OpaqueArray:
         return self._num_channels
 
     @property
-    def element_size(self):
+    def element_bytes(self):
         """Bytes per element (format size * channels)."""
         return _FORMAT_ELEM_SIZE[self._format] * self._num_channels
 
@@ -411,7 +447,7 @@ cdef class OpaqueArray:
 
     @property
     def size_bytes(self):
-        """Total bytes of array storage (``prod(shape) * element_size``)."""
+        """Total bytes of array storage (``prod(shape) * element_bytes``)."""
         cdef size_t n = 1
         for s in self._shape:
             n *= <size_t>s
@@ -436,7 +472,7 @@ cdef class OpaqueArray:
     def __repr__(self):
         return (
             f"OpaqueArray(shape={self._shape}, "
-            f"format={ArrayFormat(self._format).name}, "
+            f"format={_CU_TO_ARRAYFORMAT[self._format].name}, "
             f"num_channels={self._num_channels})"
         )
 
@@ -469,4 +505,48 @@ cdef OpaqueArray _array_from_handle(OpaqueArrayHandle h, int device_id):
     self._format = desc.Format
     self._num_channels = desc.NumChannels
     self._surface_load_store = bool(desc.Flags & cydriver.CUDA_ARRAY3D_SURFACE_LDST)
+    return self
+
+
+def _create_opaque_array(options):
+    """Allocate a new :class:`OpaqueArray` on the current device.
+
+    Backs :meth:`cuda.core.Device.create_opaque_array`. ``options`` is an
+    :class:`OpaqueArrayOptions` (or a mapping accepted by it); it is validated
+    at construction, so ``shape`` is already a normalized tuple and ``format``
+    an :class:`~cuda.core.typing.ArrayFormatType`.
+    """
+    cdef object opts = check_or_create_options(
+        OpaqueArrayOptions, options, "Opaque array options"
+    )
+    shape_t = opts.shape
+
+    cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format>_ARRAYFORMAT_TO_CU[opts.format]
+    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
+    cdef int rank = len(shape_t)
+    cdef unsigned int flags = (
+        cydriver.CUDA_ARRAY3D_SURFACE_LDST if opts.is_surface_load_store else 0
+    )
+
+    # cuArray3DCreate handles 1D/2D/3D uniformly (Height/Depth 0 sentinels),
+    # so a single descriptor + create_array_handle covers every shape.
+    memset(&desc3d, 0, sizeof(desc3d))
+    desc3d.Width = <size_t>shape_t[0]
+    desc3d.Height = <size_t>(shape_t[1] if rank >= 2 else 0)
+    desc3d.Depth = <size_t>(shape_t[2] if rank >= 3 else 0)
+    desc3d.Format = c_format
+    desc3d.NumChannels = <unsigned int>opts.num_channels
+    desc3d.Flags = flags
+
+    cdef OpaqueArrayHandle h = create_array_handle(desc3d)
+    if not h:
+        HANDLE_RETURN(get_last_error())
+
+    cdef OpaqueArray self = OpaqueArray.__new__(OpaqueArray)
+    self._handle = h
+    self._shape = shape_t
+    self._format = c_format
+    self._num_channels = opts.num_channels
+    self._surface_load_store = bool(opts.is_surface_load_store)
+    self._device_id = _get_current_device_id()
     return self
