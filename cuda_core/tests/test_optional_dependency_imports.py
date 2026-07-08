@@ -114,28 +114,16 @@ def test_decide_nvjitlink_or_driver_falls_back_when_module_missing(monkeypatch):
 
 
 @pytest.mark.agent_authored(model="gpt-5")
-def test_decide_nvjitlink_or_driver_uses_nvjitlink_when_majors_match(monkeypatch):
-    monkeypatch.setattr(
-        _linker,
-        "_optional_cuda_import",
-        lambda *_args, **_kwargs: FakeNvJitLinkModule((12, 9)),
-    )
-    monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: True)
-    monkeypatch.setattr(_linker, "driver_version", lambda: (12, 8, 0))
-
-    assert _linker._decide_nvjitlink_or_driver() is False
-    assert _linker._use_nvjitlink_backend is True
-
-
-@pytest.mark.agent_authored(model="gpt-5")
 @pytest.mark.parametrize(
     ("driver_version", "nvjitlink_version"),
     [
-        ((13, 0, 0), (12, 9)),
+        ((12, 8, 0), (12, 9)),
         ((12, 9, 0), (13, 0)),
     ],
 )
-def test_decide_nvjitlink_or_driver_falls_back_when_major_mismatches(monkeypatch, driver_version, nvjitlink_version):
+def test_decide_nvjitlink_or_driver_uses_nvjitlink_when_driver_is_not_newer(
+    monkeypatch, driver_version, nvjitlink_version
+):
     monkeypatch.setattr(
         _linker,
         "_optional_cuda_import",
@@ -144,25 +132,22 @@ def test_decide_nvjitlink_or_driver_falls_back_when_major_mismatches(monkeypatch
     monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: True)
     monkeypatch.setattr(_linker, "driver_version", lambda: driver_version)
 
-    with pytest.warns(RuntimeWarning, match="does not match nvJitLink major version"):
-        use_driver_backend = _linker._decide_nvjitlink_or_driver()
-
-    assert use_driver_backend is True
-    assert _linker._use_nvjitlink_backend is False
+    assert _linker._decide_nvjitlink_or_driver() is False
+    assert _linker._use_nvjitlink_backend is True
 
 
 @pytest.mark.agent_authored(model="gpt-5")
-def test_decide_nvjitlink_or_driver_uses_nvjitlink_when_driver_version_unknown(monkeypatch):
-    def raise_cuda_error():
-        raise _linker.CUDAError("driver unavailable")
-
+def test_decide_nvjitlink_or_driver_falls_back_when_driver_is_newer(monkeypatch):
     monkeypatch.setattr(
         _linker,
         "_optional_cuda_import",
         lambda *_args, **_kwargs: FakeNvJitLinkModule((12, 9)),
     )
     monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: True)
-    monkeypatch.setattr(_linker, "driver_version", raise_cuda_error)
+    monkeypatch.setattr(_linker, "driver_version", lambda: (13, 0, 0))
 
-    assert _linker._decide_nvjitlink_or_driver() is False
-    assert _linker._use_nvjitlink_backend is True
+    with pytest.warns(RuntimeWarning, match="is newer than nvJitLink major version"):
+        use_driver_backend = _linker._decide_nvjitlink_or_driver()
+
+    assert use_driver_backend is True
+    assert _linker._use_nvjitlink_backend is False

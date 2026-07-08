@@ -208,8 +208,8 @@ class LinkerOptions:
 
     Since the linker may choose to use nvJitLink or the driver APIs as the linking backend,
     not all options are applicable. When the system's installed nvJitLink is too old (<12.3),
-    not installed, or does not match the CUDA driver major version, the driver APIs
-    (cuLink) will be used instead.
+    not installed, or older than the CUDA driver major version, the driver APIs (cuLink)
+    will be used instead.
 
     Attributes
     ----------
@@ -683,17 +683,13 @@ def _decide_nvjitlink_or_driver() -> bool:
 
         if _nvjitlink_has_version_symbol(nvjitlink):
             nvjitlink_version = nvjitlink_module.version()
-            try:
-                driver_major = driver_version()[0]
-            except CUDAError:
-                driver_major = None
-
-            if driver_major is None or driver_major == nvjitlink_version[0]:
+            driver_major = driver_version()[0]
+            if driver_major <= nvjitlink_version[0]:
                 _use_nvjitlink_backend = True
                 return False  # Use nvjitlink
 
             warn_txt = (
-                f"CUDA driver major version {driver_major} does not match "
+                f"CUDA driver major version {driver_major} is newer than "
                 f"nvJitLink major version {nvjitlink_version[0]}; therefore "
                 f"{warn_txt_common} nvJitLink."
             )
