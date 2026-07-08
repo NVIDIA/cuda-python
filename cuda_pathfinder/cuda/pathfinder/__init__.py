@@ -47,6 +47,9 @@ from cuda.pathfinder._static_libs.find_bitcode_lib import (
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
     locate_bitcode_lib as locate_bitcode_lib,
 )
+from cuda.pathfinder._static_libs.find_bitcode_lib import (
+    locate_bitcode_lib_by_name as locate_bitcode_lib_by_name,
+)
 from cuda.pathfinder._static_libs.find_static_lib import (
     SUPPORTED_STATIC_LIBS as _SUPPORTED_STATIC_LIBS,
 )
@@ -80,8 +83,8 @@ SUPPORTED_HEADERS_CTK = _SUPPORTED_HEADERS_CTK
 SUPPORTED_BINARY_UTILITIES = _SUPPORTED_BINARIES
 
 #: Tuple of supported bitcode library names that can be resolved
-#: via ``locate_bitcode_lib()``, ``find_bitcode_lib()``, and
-#: ``find_bitcode_lib_by_name()``.
+#: via ``locate_bitcode_lib()``, ``locate_bitcode_lib_by_name()``,
+#: ``find_bitcode_lib()``, and ``find_bitcode_lib_by_name()``.
 #: Example value: ``"device"``.
 SUPPORTED_BITCODE_LIBS = _SUPPORTED_BITCODE_LIBS
 

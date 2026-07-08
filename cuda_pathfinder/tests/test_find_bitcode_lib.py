@@ -13,6 +13,7 @@ from cuda.pathfinder._static_libs.find_bitcode_lib import (
     find_bitcode_lib,
     find_bitcode_lib_by_name,
     locate_bitcode_lib,
+    locate_bitcode_lib_by_name,
 )
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
@@ -141,7 +142,7 @@ def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path, libname):
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
 @pytest.mark.agent_authored(model="gpt-5")
-def test_find_bitcode_lib_by_name_search_order(monkeypatch, tmp_path):
+def test_bitcode_lib_by_name_search_order(monkeypatch, tmp_path):
     libname = "device"
     filename = "libdevice_sm_90.bc"
     site_packages_lib_dir = _site_packages_bitcode_lib_dir_under(tmp_path / "site-packages", libname)
@@ -172,14 +173,26 @@ def test_find_bitcode_lib_by_name_search_order(monkeypatch, tmp_path):
     monkeypatch.setenv("CUDA_HOME", str(cuda_home))
     monkeypatch.delenv("CUDA_PATH", raising=False)
 
+    located_lib = locate_bitcode_lib_by_name(libname, filename)
+    assert located_lib.abs_path == site_packages_path
+    assert located_lib.filename == filename
+    assert located_lib.found_via == "site-packages"
     assert find_bitcode_lib_by_name(libname, filename) == site_packages_path
     os.remove(site_packages_path)
     find_bitcode_lib_by_name.cache_clear()
 
+    located_lib = locate_bitcode_lib_by_name(libname, filename)
+    assert located_lib.abs_path == conda_path
+    assert located_lib.filename == filename
+    assert located_lib.found_via == "conda"
     assert find_bitcode_lib_by_name(libname, filename) == conda_path
     os.remove(conda_path)
     find_bitcode_lib_by_name.cache_clear()
 
+    located_lib = locate_bitcode_lib_by_name(libname, filename)
+    assert located_lib.abs_path == cuda_home_path
+    assert located_lib.filename == filename
+    assert located_lib.found_via == "CUDA_PATH"
     assert find_bitcode_lib_by_name(libname, filename) == cuda_home_path
 
 
@@ -283,20 +296,23 @@ def test_find_bitcode_lib_invalid_name():
     "filename",
     ("", ".", "..", "../file.bc", "subdir/file.bc", r"subdir\file.bc", r"C:\lib\file.bc", "bad\0name.bc"),
 )
+@pytest.mark.parametrize("lookup", (find_bitcode_lib_by_name, locate_bitcode_lib_by_name))
 @pytest.mark.agent_authored(model="gpt-5")
-def test_find_bitcode_lib_by_name_rejects_paths(filename):
+def test_bitcode_lib_by_name_rejects_paths(lookup, filename):
     with pytest.raises(ValueError, match="without a directory"):
-        find_bitcode_lib_by_name("device", filename)
+        lookup("device", filename)
 
 
 @pytest.mark.parametrize("filename", (None, 90))
+@pytest.mark.parametrize("lookup", (find_bitcode_lib_by_name, locate_bitcode_lib_by_name))
 @pytest.mark.agent_authored(model="gpt-5")
-def test_find_bitcode_lib_by_name_requires_string(filename):
+def test_bitcode_lib_by_name_requires_string(lookup, filename):
     with pytest.raises(TypeError, match="filename must be a string"):
-        find_bitcode_lib_by_name("device", filename)
+        lookup("device", filename)
 
 
+@pytest.mark.parametrize("lookup", (find_bitcode_lib_by_name, locate_bitcode_lib_by_name))
 @pytest.mark.agent_authored(model="gpt-5")
-def test_find_bitcode_lib_by_name_invalid_project():
+def test_bitcode_lib_by_name_invalid_project(lookup):
     with pytest.raises(ValueError, match="Unknown bitcode library"):
-        find_bitcode_lib_by_name("not_a_real_lib", "libdevice_sm_90.bc")
+        lookup("not_a_real_lib", "libdevice_sm_90.bc")

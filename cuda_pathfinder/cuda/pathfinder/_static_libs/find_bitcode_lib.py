@@ -182,6 +182,25 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
     return _locate_bitcode_lib(name)
 
 
+def locate_bitcode_lib_by_name(name: str, filename: str) -> LocatedBitcodeLib:
+    """Locate an exact bitcode filename using a supported library's search paths.
+
+    This lets a library define its own filename convention, including any
+    architecture or other attributes encoded in the filename.
+
+    Args:
+        name: Supported bitcode library whose configured directories to search.
+        filename: Exact file name to locate. Directory components are not allowed.
+
+    Raises:
+        TypeError: If ``filename`` is not a string.
+        ValueError: If ``name`` is unsupported or ``filename`` is not a file name.
+        BitcodeLibNotFoundError: If ``filename`` cannot be found.
+    """
+    _validate_filename(filename)
+    return _locate_bitcode_lib(name, filename=filename)
+
+
 @functools.cache
 def find_bitcode_lib(name: str) -> str:
     """Find the absolute path to a bitcode library.
@@ -209,5 +228,4 @@ def find_bitcode_lib_by_name(name: str, filename: str) -> str:
         ValueError: If ``name`` is unsupported or ``filename`` is not a file name.
         BitcodeLibNotFoundError: If ``filename`` cannot be found.
     """
-    _validate_filename(filename)
-    return _locate_bitcode_lib(name, filename=filename).abs_path
+    return locate_bitcode_lib_by_name(name, filename).abs_path
