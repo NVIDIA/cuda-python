@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import namedtuple
 from os import PathLike
 
+import cython
 from cuda.core._device import Device
 from cuda.core._launch_config import LaunchConfig
 from cuda.core._stream import Stream
@@ -253,6 +254,7 @@ class Kernel:
         ...
 
     @property
+    @cython.critical_section
     def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
 
@@ -265,6 +267,7 @@ class Kernel:
         """list[ParamInfo]: (offset, size) for each argument of this function"""
 
     @property
+    @cython.critical_section
     def occupancy(self) -> KernelOccupancy:
         """Get the occupancy information for launching this kernel."""
 

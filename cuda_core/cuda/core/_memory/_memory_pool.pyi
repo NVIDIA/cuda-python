@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 
+import cython
 from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._stream import Stream
 from cuda.core.graph import GraphBuilder
@@ -97,6 +98,7 @@ class _MemPool(MemoryResource):
         """
 
     @property
+    @cython.critical_section
     def attributes(self) -> _MemPoolAttributes:
         """Memory pool attributes."""
 
