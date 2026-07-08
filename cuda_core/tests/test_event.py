@@ -119,6 +119,7 @@ def test_error_timing_recorded():
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@pytest.mark.parallel_threads_limit(8)  # Very many threads may cause latch to time out
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
