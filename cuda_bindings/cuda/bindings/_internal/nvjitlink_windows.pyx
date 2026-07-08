@@ -4,6 +4,7 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9043dd9e45a69e2bd6c7984832fca8cc1ccd7c66b605b384e4cff18b0c713027
 from libc.stdint cimport intptr_t
 
 import threading

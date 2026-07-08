@@ -4,6 +4,7 @@
 #
 # This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=bae30bbdaff2009b86c05de2a46bbaecad9e63327c93a10b6f2e8a2d95fd6a60
 from ._internal cimport nvfatbin as _nvfatbin
 
 
