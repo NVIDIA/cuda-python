@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5e2346d5"></script>
+    <script src="../_static/documentation_options.js?v=69dbccbf"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev121';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev122';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -598,11 +598,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -863,6 +861,72 @@ device and the specified peer device.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Device.create_mipmapped_array">
+<span class="sig-name descname"><span class="pre">create_mipmapped_array</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html#cuda.core.texture.MipmappedArrayOptions" title="cuda.core.texture.MipmappedArrayOptions"><span class="pre">MipmappedArrayOptions</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><span class="pre">MipmappedArray</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_mipmapped_array" title="Link to this definition">#</a></dt>
+<dd><p>Create a <a class="reference internal" href="cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> on the current device.</p>
+<p>Allocates a mipmapped CUDA array for texture/surface access across
+levels. The array is created in the current CUDA context, so make this
+device current with <a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> before calling (mirroring
+<a class="reference internal" href="#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_stream()</span></code></a> / <a class="reference internal" href="#cuda.core.Device.create_event" title="cuda.core.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_event()</span></code></a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Device must be initialized.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>options</strong> (<a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html#cuda.core.texture.MipmappedArrayOptions" title="cuda.core.texture.MipmappedArrayOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArrayOptions</span></code></a>) – Allocation options (shape, format, channels, levels, surface flag).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> – Newly created mipmapped array.</p></li>
+<li><p><em>.. versionadded:: 1.1.0</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Device.create_opaque_array">
+<span class="sig-name descname"><span class="pre">create_opaque_array</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html#cuda.core.texture.OpaqueArrayOptions" title="cuda.core.texture.OpaqueArrayOptions"><span class="pre">OpaqueArrayOptions</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><span class="pre">OpaqueArray</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_opaque_array" title="Link to this definition">#</a></dt>
+<dd><p>Create an <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> on the current device.</p>
+<p>Allocates an opaque, hardware-laid-out CUDA array for texture/surface
+access. The array is created in the current CUDA context, so make this
+device current with <a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> before calling (mirroring
+<a class="reference internal" href="#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_stream()</span></code></a> / <a class="reference internal" href="#cuda.core.Device.create_event" title="cuda.core.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_event()</span></code></a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Device must be initialized.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>options</strong> (<a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html#cuda.core.texture.OpaqueArrayOptions" title="cuda.core.texture.OpaqueArrayOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArrayOptions</span></code></a>) – Allocation options (shape, format, channels, surface flag).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> – Newly created opaque array.</p></li>
+<li><p><em>.. versionadded:: 1.1.0</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Device.create_stream">
 <span class="sig-name descname"><span class="pre">create_stream</span></span><span class="sig-paren">(</span>
 
@@ -897,6 +961,85 @@ such that the lifetime is managed.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Device.create_surface_object">
+<span class="sig-name descname"><span class="pre">create_surface_object</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">resource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><span class="pre">ResourceDescriptor</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><span class="pre">SurfaceObject</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_surface_object" title="Link to this definition">#</a></dt>
+<dd><p>Create a <a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a> on the current device.</p>
+<p>Binds an <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> (via a
+<a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a>) as a bindless surface for
+kernel-side typed load/store. The backing array must have been created
+with <code class="docutils literal notranslate"><span class="pre">is_surface_load_store=True</span></code>. The object is created in the
+current CUDA context, so make this device current with
+<a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> before calling (mirroring <a class="reference internal" href="#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_stream()</span></code></a> /
+<a class="reference internal" href="#cuda.core.Device.create_event" title="cuda.core.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_event()</span></code></a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Device must be initialized.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>resource</strong> (<a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a>) – Must wrap an <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocated with
+<code class="docutils literal notranslate"><span class="pre">is_surface_load_store=True</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a> – Newly created surface object.</p></li>
+<li><p><em>.. versionadded:: 1.1.0</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Device.create_texture_object">
+<span class="sig-name descname"><span class="pre">create_texture_object</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">resource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><span class="pre">ResourceDescriptor</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html#cuda.core.texture.TextureObjectOptions" title="cuda.core.texture.TextureObjectOptions"><span class="pre">TextureObjectOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><span class="pre">TextureObject</span></a></span></span><a class="headerlink" href="#cuda.core.Device.create_texture_object" title="Link to this definition">#</a></dt>
+<dd><p>Create a <a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TextureObject</span></code></a> on the current device.</p>
+<p>Binds a resource (an <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> /
+<a class="reference internal" href="cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> / linear or pitch2d
+<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a>, wrapped in a
+<a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a>) as a bindless texture for
+kernel-side sampled reads. The object is created in the current CUDA
+context, so make this device current with <a class="reference internal" href="#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_current()</span></code></a> before
+calling (mirroring <a class="reference internal" href="#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_stream()</span></code></a> / <a class="reference internal" href="#cuda.core.Device.create_event" title="cuda.core.Device.create_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_event()</span></code></a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Device must be initialized.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resource</strong> (<a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a>) – The memory backing the texture.</p></li>
+<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html#cuda.core.texture.TextureObjectOptions" title="cuda.core.texture.TextureObjectOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TextureObjectOptions</span></code></a>) – Sampling state (address/filter/read modes, normalization, etc.).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TextureObject</span></code></a> – Newly created texture object.</p></li>
+<li><p><em>.. versionadded:: 1.1.0</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1128,7 +1271,11 @@ driver is older than CUDA 11.4.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_context"><code class="docutils literal notranslate"><span class="pre">Device.create_context()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_event"><code class="docutils literal notranslate"><span class="pre">Device.create_event()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_graph_builder"><code class="docutils literal notranslate"><span class="pre">Device.create_graph_builder()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_mipmapped_array"><code class="docutils literal notranslate"><span class="pre">Device.create_mipmapped_array()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_opaque_array"><code class="docutils literal notranslate"><span class="pre">Device.create_opaque_array()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_stream"><code class="docutils literal notranslate"><span class="pre">Device.create_stream()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_surface_object"><code class="docutils literal notranslate"><span class="pre">Device.create_surface_object()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_texture_object"><code class="docutils literal notranslate"><span class="pre">Device.create_texture_object()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.get_all_devices"><code class="docutils literal notranslate"><span class="pre">Device.get_all_devices()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.set_current"><code class="docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.sync"><code class="docutils literal notranslate"><span class="pre">Device.sync()</span></code></a></li>
