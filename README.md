@@ -48,3 +48,8 @@ The list of available interfaces is:
 * nvFatbin
 * cuFile
 * NVML
+
+## License
+
+CUDA Python is licensed under the [Apache License 2.0](./LICENSE). Third-party
+attributions for `cuda.core` are listed in [`cuda_core/NOTICE`](./cuda_core/NOTICE).

@@ -9,7 +9,7 @@ _lock = threading.Lock()
 
 def _initialize() -> None:
     """
-    Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.
+    Initializes NVIDIA Management Library (NVML), ensuring it only happens once per process.
     """
 
 def validate() -> None:

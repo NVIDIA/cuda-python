@@ -3,13 +3,16 @@
 
 """GraphBuilder stream capture tests."""
 
+import gc
+
 import numpy as np
 import pytest
-from helpers.graph_kernels import compile_common_kernels
+from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 from helpers.marks import requires_module
+from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
-from cuda.core.graph import GraphBuilder
+from cuda.core.graph import GraphBuilder, GraphDefinition
 
 
 def test_graph_is_building(init_cuda):
@@ -289,6 +292,55 @@ def test_graph_capture_callback_ctypes(init_cuda):
     assert result[0] == 0xAB
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_capture_callback_python_survives_del(init_cuda):
+    """Captured host callback is retained in the graph slot table after del."""
+    called = [False]
+
+    def my_callback():
+        called[0] = True
+
+    launch_stream = Device().create_stream()
+    gb = launch_stream.create_graph_builder().begin_building()
+    gb.callback(my_callback)
+    graph = gb.end_building().complete()
+
+    del my_callback
+    gc.collect()
+
+    graph.launch(launch_stream)
+    launch_stream.sync()
+
+    assert called[0]
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_capture_callback_ctypes_user_data_survives_del(init_cuda):
+    """Captured ctypes callback and copied user_data survive after del."""
+    import ctypes
+
+    CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    result = [0]
+
+    @CALLBACK
+    def read_byte(data):
+        result[0] = ctypes.cast(data, ctypes.POINTER(ctypes.c_uint8))[0]
+
+    payload = bytes([0xAB])
+    launch_stream = Device().create_stream()
+    gb = launch_stream.create_graph_builder().begin_building()
+    gb.callback(read_byte, user_data=payload)
+    graph = gb.end_building().complete()
+
+    del read_byte, payload
+    gc.collect()
+
+    graph.launch(launch_stream)
+    launch_stream.sync()
+
+    assert result[0] == 0xAB
+
+
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_child_graph(init_cuda):
     mod = compile_common_kernels()
@@ -384,3 +436,219 @@ def test_graph_stream_lifetime(init_cuda):
 
     # Destroy the stream
     stream.close()
+
+
+# ---------------------------------------------------------------------------
+# GraphBuilder.graph_definition
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_definition_returns_graph_definition_after_end_building(init_cuda):
+    """Primary builder exposes its captured graph as a GraphDefinition after end_building()."""
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb.end_building()
+
+    gd = gb.graph_definition
+    assert isinstance(gd, GraphDefinition)
+    # The captured graph must contain the launched kernels.
+    assert len(gd.nodes()) == 2
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_definition_raises_before_begin_building(init_cuda):
+    """Primary builder has no graph allocated before begin_building()."""
+    gb = Device().create_graph_builder()
+    with pytest.raises(RuntimeError, match="before begin_building"):
+        _ = gb.graph_definition
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_definition_raises_during_capture(init_cuda):
+    """graph_definition is unsafe while the driver is actively capturing."""
+    gb = Device().create_graph_builder().begin_building()
+    try:
+        with pytest.raises(RuntimeError, match="capture is in"):
+            _ = gb.graph_definition
+    finally:
+        gb.end_building()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_definition_raises_for_forked(init_cuda):
+    """Forked builders share the primary's graph; their property must raise."""
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    primary, sibling = gb.split(2)
+    try:
+        with pytest.raises(RuntimeError, match="forked"):
+            _ = sibling.graph_definition
+    finally:
+        sibling = GraphBuilder.join(primary, sibling)
+        sibling.end_building()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_definition_shares_ownership(init_cuda):
+    """Closing the builder must not invalidate a held GraphDefinition."""
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb.end_building()
+
+    gd = gb.graph_definition
+    gb.close()
+    # The shared CUgraph keeps the graph alive.
+    assert len(gd.nodes()) == 1
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_definition_raises_after_close(init_cuda):
+    """Accessing the property after close() must fail at the builder boundary.
+
+    close() resets the graph handle, so returning a view here would wrap a
+    null CUgraph and defer the failure to a later CUDA call. Reject fresh
+    access instead, matching complete() and debug_dot_print().
+    """
+    mod = compile_common_kernels()
+    empty_kernel = mod.get_kernel("empty_kernel")
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), empty_kernel)
+    gb.end_building()
+    gb.close()
+
+    with pytest.raises(RuntimeError, match="closed"):
+        _ = gb.graph_definition
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_graph_definition_round_trips_through_explicit_api(init_cuda):
+    """Mutating via the explicit API survives complete() and runs correctly."""
+    mod = compile_common_kernels()
+    add_one = mod.get_kernel("add_one")
+
+    launch_stream = Device().create_stream()
+    mr = LegacyPinnedMemoryResource()
+    b = mr.allocate(4)
+    arr = np.from_dlpack(b).view(np.int32)
+    arr[0] = 0
+
+    gb = launch_stream.create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+    gb.end_building()
+
+    # Add a second add_one through the explicit GraphDefinition view.
+    gd = gb.graph_definition
+    captured_node = next(iter(gd.nodes()))
+    captured_node.launch(LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+    assert len(gd.nodes()) == 2
+
+    graph = gb.complete()
+    graph.launch(launch_stream)
+    launch_stream.sync()
+    assert arr[0] == 2
+
+    b.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+@requires_module(np, "2.1")
+def test_graph_definition_hybrid_conditional_body(init_cuda):
+    """Populate a conditional body entirely through the explicit API.
+
+    This is the headline hybrid flow enabled by the new property:
+    ``if_then`` returns a ``GraphBuilder`` for the body, but instead of
+    calling ``begin_building`` and capturing into it, we reach for
+    ``graph_definition`` and add nodes through the explicit API.
+    """
+    mod = compile_conditional_kernels(int)
+    add_one = mod.get_kernel("add_one")
+    set_handle = mod.get_kernel("set_handle")
+
+    launch_stream = Device().create_stream()
+    mr = LegacyPinnedMemoryResource()
+    b = mr.allocate(4)
+    arr = np.from_dlpack(b).view(np.int32)
+    arr[0] = 0
+
+    gb = Device().create_graph_builder().begin_building()
+    condition = try_create_condition(gb)
+    launch(gb, LaunchConfig(grid=1, block=1), set_handle, condition, 1)
+    body_gb = gb.if_then(condition)
+
+    # Skip body_gb.begin_building() entirely -- the body graph already
+    # exists at conditional-node creation time and is exposed here.
+    body_def = body_gb.graph_definition
+    assert isinstance(body_def, GraphDefinition)
+    assert len(body_def.nodes()) == 0
+    body_def.launch(LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+
+    graph = gb.end_building().complete()
+    graph.launch(launch_stream)
+    launch_stream.sync()
+    assert arr[0] == 1
+
+    b.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+@requires_module(np, "2.1")
+def test_graph_definition_conditional_body_after_capture(init_cuda):
+    """Capture into a conditional body, then augment it via the explicit API."""
+    mod = compile_conditional_kernels(int)
+    add_one = mod.get_kernel("add_one")
+    set_handle = mod.get_kernel("set_handle")
+
+    launch_stream = Device().create_stream()
+    mr = LegacyPinnedMemoryResource()
+    b = mr.allocate(4)
+    arr = np.from_dlpack(b).view(np.int32)
+    arr[0] = 0
+
+    gb = Device().create_graph_builder().begin_building()
+    condition = try_create_condition(gb)
+    launch(gb, LaunchConfig(grid=1, block=1), set_handle, condition, 1)
+    body_gb = gb.if_then(condition).begin_building()
+
+    # Capture one increment into the body.
+    launch(body_gb, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+    body_gb.end_building()
+
+    # Add a second increment via the explicit API on the same body graph.
+    body_def = body_gb.graph_definition
+    captured_node = next(iter(body_def.nodes()))
+    captured_node.launch(LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+    assert len(body_def.nodes()) == 2
+
+    graph = gb.end_building().complete()
+    graph.launch(launch_stream)
+    launch_stream.sync()
+    assert arr[0] == 2
+
+    b.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+@requires_module(np, "2.1")
+def test_graph_definition_conditional_body_during_capture_raises(init_cuda):
+    """The CAPTURING-state guard fires for conditional bodies too."""
+    gb = Device().create_graph_builder().begin_building()
+    condition = try_create_condition(gb)
+    body_gb = gb.if_then(condition).begin_building()
+    try:
+        with pytest.raises(RuntimeError, match="capture is in"):
+            _ = body_gb.graph_definition
+    finally:
+        body_gb.end_building()
+        gb.end_building()
