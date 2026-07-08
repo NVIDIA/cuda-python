@@ -4,6 +4,7 @@
 # This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
 
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5791f341ee9bb6573f42300fbed50cc52fc5e808c1d6bb9156e6aabb9db29b17
 """
 This is a replacement for the stdlib enum.IntEnum.
 

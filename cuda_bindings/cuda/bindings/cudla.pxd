@@ -3,6 +3,7 @@
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e64a78a1b3e010d167373d7c9635ff4637dfd1a6a38ffafb671dcde4e12aaaad
 from libc.stdint cimport intptr_t
 
 from .cycudla cimport *

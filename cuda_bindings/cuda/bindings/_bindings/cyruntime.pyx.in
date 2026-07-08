@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ccadd478eafb421b735d8fc0c44e1c03e873885646a81381f1d995bd573b5120
 include "../cyruntime_functions.pxi"
 
 import os

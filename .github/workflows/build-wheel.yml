@@ -85,7 +85,7 @@ jobs:
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
-        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1
+        uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
 
       - name: Set up yq
         # GitHub made an unprofessional decision to not provide it in their Windows VMs,

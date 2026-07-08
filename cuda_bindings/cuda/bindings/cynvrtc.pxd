@@ -4,6 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0da658de603326899002d26fdbea39e6f469626207e7b40435f7f24a7e5accf0
 from libc.stdint cimport uint32_t, uint64_t
 
 

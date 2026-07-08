@@ -3,6 +3,7 @@
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=93953ce179542f5c6172446b305a7568ce2b5190b3bfba1f1c9da282c3b965f0
 cdef extern from "vector_types.h":
 
     cdef struct dim3:

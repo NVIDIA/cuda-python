@@ -10,30 +10,31 @@ single namespace, mirroring how the CUDA driver documentation organizes them.
 
 Import these types from here, e.g.::
 
-    from cuda.core.texture import OpaqueArray, TextureObject, TextureDescriptor
+    from cuda.core.texture import OpaqueArray, TextureObject, TextureObjectOptions
+
+The associated enumerations (:class:`~cuda.core.typing.ArrayFormatType`,
+:class:`~cuda.core.typing.AddressModeType`,
+:class:`~cuda.core.typing.FilterModeType`,
+:class:`~cuda.core.typing.ReadModeType`) live in :mod:`cuda.core.typing`
+alongside the other ``cuda.core`` enumerations.
 """
 
-from cuda.core.texture._array import ArrayFormat, OpaqueArray
-from cuda.core.texture._mipmapped_array import MipmappedArray
+from cuda.core.texture._array import OpaqueArray, OpaqueArrayOptions
+from cuda.core.texture._mipmapped_array import MipmappedArray, MipmappedArrayOptions
 from cuda.core.texture._surface import SurfaceObject
 from cuda.core.texture._texture import (
-    AddressMode,
-    FilterMode,
-    ReadMode,
     ResourceDescriptor,
-    TextureDescriptor,
     TextureObject,
+    TextureObjectOptions,
 )
 
 __all__ = [
-    "AddressMode",
-    "ArrayFormat",
-    "FilterMode",
     "MipmappedArray",
+    "MipmappedArrayOptions",
     "OpaqueArray",
-    "ReadMode",
+    "OpaqueArrayOptions",
     "ResourceDescriptor",
     "SurfaceObject",
-    "TextureDescriptor",
     "TextureObject",
+    "TextureObjectOptions",
 ]
