@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=52642c2c289dbd93191f019468630c0c7935bf99bc15c9c7c0de3797a109e8b0
 
 # <<<< PREAMBLE CONTENT >>>>
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=52642c2c289dbd93191f019468630c0c7935bf99bc15c9c7c0de3797a109e8b0
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 cimport cpython.memoryview as _cyb_cpython_memoryview
