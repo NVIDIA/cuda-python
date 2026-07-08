@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import importlib.metadata
 import os
+import re
 from pathlib import Path
 
 import pytest
@@ -19,6 +21,10 @@ from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
+
+_NVSHMEM_DISTRIBUTION_PATTERN = re.compile(r"^nvidia-nvshmem-cu(?:12|13)$", re.IGNORECASE)
+_NVSHMEM_LIB_DIR_PARTS = ("nvidia", "nvshmem", "lib")
+_NVSHMEM_LEGACY_FILENAME = "libnvshmem_device.bc"
 
 
 def _bitcode_lib_info(libname: str):
@@ -62,6 +68,26 @@ def _conda_anchor(conda_prefix: Path) -> Path:
     return conda_prefix
 
 
+def _installed_nvshmem_distributions():
+    return tuple(
+        dist
+        for dist in importlib.metadata.distributions()
+        if "Name" in dist.metadata and _NVSHMEM_DISTRIBUTION_PATTERN.fullmatch(dist.metadata["Name"])
+    )
+
+
+def _installed_nvshmem_bitcode_paths(distributions):
+    paths = {
+        Path(dist.locate_file(file))
+        for dist in distributions
+        for file in (dist.files or ())
+        if file.parts[-4:-1] == _NVSHMEM_LIB_DIR_PARTS
+        and file.name.startswith("libnvshmem_device")
+        and file.suffix == ".bc"
+    }
+    return tuple(sorted(paths))
+
+
 def _located_bitcode_lib_asserts(located_bitcode_lib):
     """Common assertions for a located bitcode library."""
     assert located_bitcode_lib is not None
@@ -74,7 +100,7 @@ def _located_bitcode_lib_asserts(located_bitcode_lib):
 
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
-@pytest.mark.parametrize("libname", SUPPORTED_BITCODE_LIBS)
+@pytest.mark.parametrize("libname", tuple(name for name in SUPPORTED_BITCODE_LIBS if name != "nvshmem_device"))
 def test_locate_bitcode_lib(info_summary_append, libname):
     try:
         located_lib = locate_bitcode_lib(libname)
@@ -91,6 +117,40 @@ def test_locate_bitcode_lib(info_summary_append, libname):
     assert lib_path == located_lib.abs_path
     expected_filename = located_lib.filename
     assert os.path.basename(lib_path) == expected_filename
+
+
+@pytest.mark.skipif(
+    find_bitcode_lib_module.IS_WINDOWS,
+    reason="NVSHMEM wheel test dependencies are not installed on Windows",
+)
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+@pytest.mark.agent_authored(model="gpt-5")
+def test_locate_installed_nvshmem_bitcode(info_summary_append):
+    distributions = _installed_nvshmem_distributions()
+    if not distributions:
+        if STRICTNESS == "all_must_work":
+            pytest.fail("No nvidia-nvshmem-cu12/13 distribution is installed")
+        info_summary_append("NVSHMEM distribution not installed")
+        return
+
+    bitcode_paths = _installed_nvshmem_bitcode_paths(distributions)
+    versions = ", ".join(f"{dist.metadata['Name']}=={dist.version}" for dist in distributions)
+    info_summary_append(f"{versions}: {[path.name for path in bitcode_paths]}")
+    assert bitcode_paths, f"No NVSHMEM device bitcode files found in {versions}"
+
+    for expected_path in bitcode_paths:
+        located_lib = locate_bitcode_lib_by_name("nvshmem_device", expected_path.name)
+        assert Path(located_lib.abs_path).samefile(expected_path)
+        assert located_lib.filename == expected_path.name
+        assert located_lib.found_via == "site-packages"
+        assert Path(find_bitcode_lib_by_name("nvshmem_device", expected_path.name)).samefile(expected_path)
+
+    legacy_paths = [path for path in bitcode_paths if path.name == _NVSHMEM_LEGACY_FILENAME]
+    if legacy_paths:
+        assert len(legacy_paths) == 1
+        located_lib = locate_bitcode_lib("nvshmem_device")
+        assert Path(located_lib.abs_path).samefile(legacy_paths[0])
+        assert Path(find_bitcode_lib("nvshmem_device")).samefile(legacy_paths[0])
 
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
@@ -138,6 +198,42 @@ def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path, libname):
     located_lib = locate_bitcode_lib(libname)
     assert located_lib.abs_path == cuda_home_path
     assert located_lib.found_via == "CUDA_PATH"
+
+
+@pytest.mark.skipif(
+    find_bitcode_lib_module.IS_WINDOWS,
+    reason="NVSHMEM wheel test dependencies are not installed on Windows",
+)
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+@pytest.mark.agent_authored(model="gpt-5")
+def test_nvshmem_legacy_unversioned_bitcode_filename(monkeypatch, tmp_path):
+    libname = "nvshmem_device"
+    assert _bitcode_lib_filename(libname) == _NVSHMEM_LEGACY_FILENAME
+
+    lib_dir = _site_packages_bitcode_lib_dir_under(tmp_path / "site-packages", libname)
+    expected_path = _make_bitcode_lib_file(lib_dir, _NVSHMEM_LEGACY_FILENAME)
+    expected_sub_dir = tuple(_bitcode_lib_info(libname)["site_packages_dirs"][0].split("/"))
+
+    def find_expected_sub_dir(sub_dir):
+        assert sub_dir == expected_sub_dir
+        return [str(lib_dir)]
+
+    monkeypatch.setattr(find_bitcode_lib_module, "find_sub_dirs_all_sitepackages", find_expected_sub_dir)
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.delenv("CUDA_HOME", raising=False)
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+
+    located_lib = locate_bitcode_lib(libname)
+    assert located_lib.abs_path == expected_path
+    assert located_lib.filename == _NVSHMEM_LEGACY_FILENAME
+    assert located_lib.found_via == "site-packages"
+    assert find_bitcode_lib(libname) == expected_path
+
+    located_by_name = locate_bitcode_lib_by_name(libname, _NVSHMEM_LEGACY_FILENAME)
+    assert located_by_name.abs_path == expected_path
+    assert located_by_name.filename == _NVSHMEM_LEGACY_FILENAME
+    assert located_by_name.found_via == "site-packages"
+    assert find_bitcode_lib_by_name(libname, _NVSHMEM_LEGACY_FILENAME) == expected_path
 
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
