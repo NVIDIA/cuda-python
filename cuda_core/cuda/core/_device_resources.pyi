@@ -47,8 +47,19 @@ class WorkqueueResourceOptions:
     sharing_scope : str, optional
         Workqueue sharing scope. Accepted values: ``"device_ctx"``
         or ``"green_ctx_balanced"``. (Default to ``None``)
+    concurrency_limit : int, optional
+        Expected maximum number of concurrent stream-ordered
+        workloads. Must be ``>= 1`` when set. The effective
+        driver-side cap is ``CUDA_DEVICE_MAX_CONNECTIONS``
+        (typically ``[1, 32]``); configurations may exceed
+        this cap, but the driver will not guarantee that work
+        submission remains non-overlapping. (Default to ``None``)
     """
     sharing_scope: str | None = None
+    concurrency_limit: int | None = None
+
+    def __post_init__(self):
+        ...
 
 class SMResource:
     """Represent an SM (streaming multiprocessor) resource partition.
@@ -114,13 +125,25 @@ class WorkqueueResource:
     def handle(self) -> int:
         """Return the address of the underlying config ``CUdevResource`` struct."""
 
+    @property
+    def concurrency_limit(self) -> int:
+        """Expected maximum concurrent stream-ordered workloads.
+
+        Reflects the ``wqConcurrencyLimit`` field of the underlying
+        workqueue-config struct. When first queried, this matches
+        the driver-populated cap (typically
+        ``CUDA_DEVICE_MAX_CONNECTIONS``). It can be updated via
+        :meth:`configure` with
+        :attr:`WorkqueueResourceOptions.concurrency_limit`.
+        """
+
     def configure(self, options: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.
 
         Parameters
         ----------
         options : :obj:`WorkqueueResourceOptions`
-            Configuration options (sharing scope, etc.).
+            Configuration options (sharing scope, concurrency limit).
         """
 
 class DeviceResources:

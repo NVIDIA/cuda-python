@@ -229,10 +229,12 @@ class TestWorkqueueResource:
         assert wq_resource.concurrency_limit == 4
 
     def test_configure_concurrency_and_scope(self, wq_resource):
-        wq_resource.configure(WorkqueueResourceOptions(
-            sharing_scope="green_ctx_balanced",
-            concurrency_limit=2,
-        ))
+        wq_resource.configure(
+            WorkqueueResourceOptions(
+                sharing_scope="green_ctx_balanced",
+                concurrency_limit=2,
+            )
+        )
         assert wq_resource.concurrency_limit == 2
 
     def test_concurrency_limit_zero_raises_at_construction(self):
@@ -521,10 +523,12 @@ class TestGreenContextKernelLaunch:
         """Green context with SM + configured workqueue can launch a kernel."""
         dev = init_cuda
         groups, _ = sm_resource.split(SMResourceOptions(count=None))
-        wq_resource.configure(WorkqueueResourceOptions(
-            sharing_scope="green_ctx_balanced",
-            concurrency_limit=4,
-        ))
+        wq_resource.configure(
+            WorkqueueResourceOptions(
+                sharing_scope="green_ctx_balanced",
+                concurrency_limit=4,
+            )
+        )
 
         try:
             ctx = dev.create_context(ContextOptions(resources=[groups[0], wq_resource]))
