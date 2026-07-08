@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/graph/_host_callback.pyx: 83.87%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/graph/test_graph_builder.py::test_graph_capture_callback_ctypes_user_data_survives_del|run",
+  "b": "tests/graph/test_graph_builder.py::test_graph_capture_callback_ctypes|run",
+  "c": "tests/graph/test_graph_definition.py::test_host_callback_cfunc_with_user_data|run",
+  "d": "tests/graph/test_graph_definition_lifetime.py::test_cfunc_bytes_user_data_survives_del|run",
+  "e": "tests/graph/test_graph_builder.py::test_graph_capture_callback_python|run",
+  "f": "tests/graph/test_graph_builder.py::test_graph_capture_callback_python_survives_del|run",
+  "g": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_host_callback_cfunc|run",
+  "h": "tests/graph/test_graph_definition.py::test_instantiate_and_execute_host_callback|run",
+  "i": "tests/graph/test_graph_definition.py::test_node_attrs[host_callback]|setup",
+  "j": "tests/graph/test_graph_definition.py::test_node_attrs[host_callback_cfunc]|setup",
+  "k": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[host_callback]|setup",
+  "l": "tests/graph/test_graph_definition.py::test_node_attrs_preserved_by_nodes[host_callback_cfunc]|setup",
+  "m": "tests/graph/test_graph_definition.py::test_node_isinstance[host_callback]|setup",
+  "n": "tests/graph/test_graph_definition.py::test_node_isinstance[host_callback_cfunc]|setup",
+  "o": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[host_callback]|setup",
+  "p": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[host_callback_cfunc]|setup",
+  "q": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[host_callback]|setup",
+  "r": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[host_callback_cfunc]|setup",
+  "s": "tests/graph/test_graph_definition.py::test_node_type_property[host_callback]|setup",
+  "t": "tests/graph/test_graph_definition.py::test_node_type_property[host_callback_cfunc]|setup",
+  "u": "tests/graph/test_graph_definition_lifetime.py::test_cfunc_callback_survives_del|run",
+  "v": "tests/graph/test_graph_definition_lifetime.py::test_python_callable_callback_survives_del|run",
+  "w": "tests/test_object_protocols.py::test_equality_basic[sample_host_callback_node]|run",
+  "x": "tests/test_object_protocols.py::test_hash_consistency[sample_host_callback_node]|run",
+  "y": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_host_callback_node]|run",
+  "z": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_host_callback_node]|run",
+  "A": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_child_graph_node-sample_host_callback_node]|run",
+  "B": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_condition-sample_host_callback_node]|run",
+  "C": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_host_callback_node]|run",
+  "D": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_host_callback_node]|run",
+  "E": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_host_callback_node]|run",
+  "F": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_host_callback_node]|run",
+  "G": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_record_node-sample_host_callback_node]|run",
+  "H": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event_wait_node-sample_host_callback_node]|run",
+  "I": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_free_node-sample_host_callback_node]|run",
+  "J": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_graphdef-sample_host_callback_node]|run",
+  "K": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_if_else_node]|run",
+  "L": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_if_node]|run",
+  "M": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_switch_node]|run",
+  "N": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_host_callback_node-sample_while_node]|run",
+  "O": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_host_callback_node]|run",
+  "P": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel_node-sample_host_callback_node]|run",
+  "Q": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_host_callback_node]|run",
+  "R": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memcpy_node-sample_host_callback_node]|run",
+  "S": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_memset_node-sample_host_callback_node]|run",
+  "T": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_host_callback_node]|run",
+  "U": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_root_node-sample_host_callback_node]|run",
+  "V": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_host_callback_node]|run",
+  "W": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_host_callback_node-sample_host_callback_node_alt]|run",
+  "X": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_alloc_node-sample_host_callback_node]|run",
+  "Y": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_host_callback_node]|run",
+  "Z": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_child_graph_node-sample_host_callback_node]|run",
+  "0": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_condition-sample_host_callback_node]|run",
+  "1": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_host_callback_node]|run",
+  "2": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_host_callback_node]|run",
+  "3": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_empty_node-sample_host_callback_node]|run",
+  "4": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_host_callback_node]|run",
+  "5": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_record_node-sample_host_callback_node]|run",
+  "6": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event_wait_node-sample_host_callback_node]|run",
+  "7": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_free_node-sample_host_callback_node]|run",
+  "8": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_graphdef-sample_host_callback_node]|run",
+  "9": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_if_else_node]|run",
+  "!": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_if_node]|run",
+  "#": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_switch_node]|run",
+  "$": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_host_callback_node-sample_while_node]|run",
+  "%": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_host_callback_node]|run",
+  "'": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel_node-sample_host_callback_node]|run",
+  "(": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_host_callback_node]|run",
+  ")": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memcpy_node-sample_host_callback_node]|run",
+  "*": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_memset_node-sample_host_callback_node]|run",
+  "+": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_host_callback_node]|run",
+  ",": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_host_callback_node]|run",
+  "-": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_host_callback_node]|run",
+  ".": "tests/test_object_protocols.py::test_repr_format[sample_host_callback_node-<HostCallbackNode handle=0x[0-9a-f]+ callback=\\\\w+>]|run",
+  "/": "tests/test_object_protocols.py::test_same_type_inequality[sample_host_callback_node-sample_host_callback_node_alt]|run",
+  ":": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_host_callback_node]|run",
+  ";": "tests/test_object_protocols.py::test_usable_in_set[sample_host_callback_node]|run",
+  "=": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_host_callback_node]|run",
+  "?": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_host_callback_node]|run",
+  "@": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_host_callback_node]|run",
+  "[": "tests/test_object_protocols.py::test_weakref_supported[sample_host_callback_node]|run",
+  "]": "(empty)",
+  "^": "tests/graph/test_graph_definition.py::test_host_callback_user_data_rejected_for_python_callable|run"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>graph<span class="sep">/</span>_host_callback.pyx</b>:
+            <span class="pc_cov">83.87%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">31 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">26<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">5<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_2f8b98bdecb6e8b7__graph_node_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_2f8b98bdecb6e8b7__subclasses_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
+            created at 2026-07-08 01:44 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from libc.stdint cimport uintptr_t</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">from libc.stdlib cimport malloc</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from libc.string cimport memcpy as c_memcpy</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">from cuda.bindings cimport cydriver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">from cuda.core._resource_handles cimport (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">    GraphHandle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">    OpaqueHandle,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    graph_set_slot,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    make_opaque_malloc,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    make_opaque_py,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">from cuda.core._utils.cuda_utils cimport HANDLE_RETURN</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">import ctypes as ct</span>&nbsp;</span><span class="r"><label for="ctxs20" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">cdef void _py_host_trampoline(void* data) noexcept with gil:</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">    (&lt;object>data)()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">cdef bint _is_py_host_trampoline(cydriver.CUhostFn fn) noexcept nogil:</span>&nbsp;</span><span class="r"><label for="ctxs27" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">    return fn == &lt;cydriver.CUhostFn>_py_host_trampoline</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cdef void _resolve_host_callback(</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">        object fn, object user_data,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">        cydriver.CUhostFn* out_fn, void** out_user_data,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">        OpaqueHandle* out_fn_owner, OpaqueHandle* out_data_owner) except *:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    """Resolve a Python callable or ctypes CFuncPtr into a C callback pair and</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    the owners that keep it alive.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">    On return ``*out_fn`` / ``*out_user_data`` are ready to pass to</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">    ``cuGraphAddHostNode`` or ``cuLaunchHostFunc``. ``*out_fn_owner`` owns the</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">    callback object; ``*out_data_owner`` owns a copied ``user_data`` buffer and</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">    is left null otherwise. The caller attaches the owners to the node's graph</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">    slots.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">    if isinstance(fn, ct._CFuncPtr):</span>&nbsp;</span><input type="checkbox" id="ctxs44"><span class="r"><label for="ctxs44" class="ctx">82 ctx</label></span><span class="ctxs">1abfec^ghijklmnopqrstduvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        out_fn[0] = &lt;cydriver.CUhostFn>&lt;uintptr_t>ct.cast(fn, ct.c_void_p).value</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">12 ctx</label></span><span class="ctxs">1abcgjlnprtdu</span></p>
+    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">        if user_data is None:</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">12 ctx</label></span><span class="ctxs">1abcgjlnprtdu</span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">            out_user_data[0] = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">8 ctx</label></span><span class="ctxs">1gjlnprtu</span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">        elif isinstance(user_data, int):</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">4 ctx</label></span><span class="ctxs">1abcd</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">            out_user_data[0] = &lt;void*>&lt;uintptr_t>user_data</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">            buf = bytes(user_data)</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">4 ctx</label></span><span class="ctxs">1abcd</span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">            if len(buf):</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">5 ctx</label></span><span class="ctxs">1]abcd</span></p>
+    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">                out_user_data[0] = malloc(len(buf))</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">4 ctx</label></span><span class="ctxs">1abcd</span></p>
+    <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">                if out_user_data[0] == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs54"><span class="r"><label for="ctxs54" class="ctx">4 ctx</label></span><span class="ctxs">1abcd</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">                    raise MemoryError("failed to allocate user_data buffer")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">                c_memcpy(out_user_data[0], &lt;const char*>buf, len(buf))</span>&nbsp;</span><input type="checkbox" id="ctxs56"><span class="r"><label for="ctxs56" class="ctx">4 ctx</label></span><span class="ctxs">1abcd</span></p>
+    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">                out_data_owner[0] = make_opaque_malloc(out_user_data[0])</span>&nbsp;</span><input type="checkbox" id="ctxs57"><span class="r"><label for="ctxs57" class="ctx">4 ctx</label></span><span class="ctxs">1abcd</span></p>
+    <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">            else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">                out_user_data[0] = NULL</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">        if user_data is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs61"><span class="r"><label for="ctxs61" class="ctx">70 ctx</label></span><span class="ctxs">1fe^hikmoqsvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">2 ctx</label></span><span class="ctxs">1e^</span></p>
+    <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">                "user_data is only supported with ctypes function pointers")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">        out_fn[0] = &lt;cydriver.CUhostFn>_py_host_trampoline</span>&nbsp;</span><input type="checkbox" id="ctxs64"><span class="r"><label for="ctxs64" class="ctx">69 ctx</label></span><span class="ctxs">1fehikmoqsvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">        out_user_data[0] = &lt;void*>fn</span>&nbsp;</span><input type="checkbox" id="ctxs65"><span class="r"><label for="ctxs65" class="ctx">69 ctx</label></span><span class="ctxs">1fehikmoqsvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    out_fn_owner[0] = make_opaque_py(fn)</span>&nbsp;</span><input type="checkbox" id="ctxs67"><span class="r"><label for="ctxs67" class="ctx">81 ctx</label></span><span class="ctxs">1abfecghijklmnopqrstduvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">cdef int _attach_host_callback_owners(</span>&nbsp;</span><span class="r"><label for="ctxs70" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">        const GraphHandle&amp; h_graph, cydriver.CUgraphNode node,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">        OpaqueHandle fn_owner, OpaqueHandle data_owner) except -1:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">    """Attach a resolved host callback's owners to its node's graph slots: the</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">    callback in slot 0 and any copied ``user_data`` buffer in slot 1.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">    HANDLE_RETURN(graph_set_slot(h_graph, node, 0, fn_owner))</span>&nbsp;</span><input type="checkbox" id="ctxs76"><span class="r"><label for="ctxs76" class="ctx">81 ctx</label></span><span class="ctxs">1abfecghijklmnopqrstduvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">    if data_owner:</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">81 ctx</label></span><span class="ctxs">1abfecghijklmnopqrstduvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        HANDLE_RETURN(graph_set_slot(h_graph, node, 1, data_owner))</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">4 ctx</label></span><span class="ctxs">1abcd</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">81 ctx</label></span><span class="ctxs">1abfecghijklmnopqrstduvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*+,-./:;=?@[</span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_2f8b98bdecb6e8b7__graph_node_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_2f8b98bdecb6e8b7__subclasses_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
+            created at 2026-07-08 01:44 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>
