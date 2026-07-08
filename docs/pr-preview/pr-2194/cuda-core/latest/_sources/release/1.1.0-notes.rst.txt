@@ -44,6 +44,22 @@ New features
   :attr:`~ManagedBuffer.accessed_by`). Locations are expressed via
   :class:`Device` or :class:`Host`.
 
+- Added :meth:`system.Device.get_nvlink_count` and
+  :meth:`system.Device.get_nvlinks` for device-specific NVLink enumeration.
+  These APIs avoid relying on the static NVML ``NVML_NVLINK_MAX_LINKS`` macro
+  when querying the links available on a particular device.
+
+- Added the :attr:`graph.GraphBuilder.graph_definition` property, which
+  exposes a captured graph as an explicit :class:`graph.GraphDefinition`
+  view sharing ownership of the same underlying graph. This enables hybrid
+  flows that mix the capture and explicit graph-building APIs, such as
+  inspecting or augmenting a captured graph, or populating a conditional
+  body entirely through the explicit API.
+
+- ``cuda.core`` now ships with ``.pyi`` stubs for all public APIs, enabling
+  users' IDEs and type checkers to provide better autocompletion and static
+  analysis.
+
 Bug fixes
 ---------
 
@@ -52,3 +68,12 @@ Bug fixes
 - Calling ``cuda.core.system.get_process_name`` before querying any device's
   ``compute_running_processes`` would raise a ``NvmlNotFoundError``.  Now it will
   correctly return the process name, if it is a GPU-using process.
+- :meth:`system.Device.get_nvlink` now validates link numbers against the
+  device-specific NVLink count and raises ``ValueError`` for unsupported links.
+
+Deprecated APIs
+---------------
+
+- Deprecated :attr:`system.NvlinkInfo.max_links`. Use
+  :meth:`system.Device.get_nvlink_count` or :meth:`system.Device.get_nvlinks`
+  to query NVLink availability for a specific device.
