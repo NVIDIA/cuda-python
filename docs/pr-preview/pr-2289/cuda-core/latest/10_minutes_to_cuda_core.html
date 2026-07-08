@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=a0446c37"></script>
+    <script src="_static/documentation_options.js?v=043ce82e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev102';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev103';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -759,7 +759,7 @@ a kernel” using small, runnable snippets. For the full reference, see the
 <p>These snippets target CUDA 13 and need a working CUDA 13 installation plus
 <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and a matching <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> (13.x). The quickest way to get
 both from PyPI is:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>cuda-core<span class="o">[</span>cu13<span class="o">]</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;cuda-core[cu13]&quot;</span>
 </pre></div>
 </div>
 <p>The <a class="reference internal" href="install.html"><span class="doc">install page</span></a> covers driver requirements, conda, CUDA 12,
@@ -775,7 +775,7 @@ and installing from source.</p>
 <p><a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> is your entry point. Creating one does <strong>not</strong> initialize the
 GPU; calling <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a> is what sets up a <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-programming-guide/03-advanced/driver-api.html#context">CUDA context</a>
 on the current host thread. Always call it before doing GPU work.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dev</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span>        <span class="c1"># device 0 by default; Device(1) selects another GPU</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dev</span> <span class="o">=</span> <span class="n">Device</span><span class="p">()</span>        <span class="c1"># current device (device 0 if none is current); Device(1) picks a specific GPU</span>
 <span class="n">dev</span><span class="o">.</span><span class="n">set_current</span><span class="p">()</span>     <span class="c1"># initialize CUDA and make this device current</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>                 <span class="c1"># e.g. &#39;NVIDIA GB10&#39;</span>
@@ -783,10 +783,9 @@ on the current host thread. Always call it before doing GPU work.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">dev</span><span class="o">.</span><span class="n">arch</span><span class="p">)</span>                 <span class="c1"># &#39;121&#39;  (handy for building kernels below)</span>
 </pre></div>
 </div>
-<p><a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> objects are thread-local singletons: <code class="docutils literal notranslate"><span class="pre">Device(0)</span></code> always hands
-you back the same object for device 0 on that thread, so libraries sharing your
-process see and use the same GPU. Rich device attributes live under
-<a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.properties" title="cuda.core.Device.properties"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.properties</span></code></a> (for example
+<p><a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> is a thread-local singleton: on the same thread, <code class="docutils literal notranslate"><span class="pre">Device(0)</span></code>
+always returns the same object, so repeated calls are cheap. Rich device
+attributes live under <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.properties" title="cuda.core.Device.properties"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.properties</span></code></a> (for example
 <code class="docutils literal notranslate"><span class="pre">dev.properties.multiprocessor_count</span></code>).</p>
 </section>
 <section id="compiling-a-kernel">
@@ -820,16 +819,17 @@ exception carries the compiler’s log, so you can see exactly what went wrong
 <span class="k">try</span><span class="p">:</span>
     <span class="n">Program</span><span class="p">(</span><span class="n">bad</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">opts</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>        <span class="c1"># includes: error: identifier &quot;not_a_real_symbol&quot; is undefined</span>
+    <span class="c1"># the exception carries the compiler log</span>
+    <span class="k">assert</span> <span class="s1">&#39;identifier &quot;not_a_real_symbol&quot; is undefined&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="streams">
 <h2>Streams<a class="headerlink" href="#streams" title="Link to this heading">#</a></h2>
 <p>A <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> is an ordered queue of GPU work. Operations on the same stream
-run in order; separate streams may overlap. Most <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> operations that
-touch the GPU take a stream so you stay in control of ordering. Create one from
-the device:</p>
+run sequentially; operations on separate streams may run concurrently. Most
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> operations that touch the GPU take a stream so you stay in control
+of ordering. Create one from the device:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stream</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_stream</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -881,8 +881,8 @@ gives a CuPy array backed by the device buffer.</p>
 </section>
 <section id="copying-and-launching">
 <h2>Copying and launching<a class="headerlink" href="#copying-and-launching" title="Link to this heading">#</a></h2>
-<p>Copy host → device with <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_from" title="cuda.core.Buffer.copy_from"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a>, run the kernel with
-<a class="reference internal" href="generated/cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code></a>, then copy device → host with <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to" title="cuda.core.Buffer.copy_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a>. These are
+<p>Copy host to device with <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_from" title="cuda.core.Buffer.copy_from"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a>, run the kernel with
+<a class="reference internal" href="generated/cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code></a>, then copy device to host with <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to" title="cuda.core.Buffer.copy_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a>. These are
 all stream-ordered and asynchronous; <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream.sync" title="cuda.core.Stream.sync"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Stream.sync()</span></code></a> blocks until the queued
 work finishes.</p>
 <p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a> describes the grid and block; <a class="reference internal" href="generated/cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code></a> takes the
@@ -910,7 +910,7 @@ copy, launch, sync.</strong> Everything below builds on it.</p>
 <h2>Timing with events<a class="headerlink" href="#timing-with-events" title="Link to this heading">#</a></h2>
 <p>An <a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> marks a point in a stream. Create timing-enabled events,
 <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream.record" title="cuda.core.Stream.record"><code class="xref py py-meth docutils literal notranslate"><span class="pre">record</span></code></a> them around some work, synchronize, and subtract
-to get elapsed GPU time in milliseconds.</p>
+to get the elapsed time between them in milliseconds.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;timing_enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 <span class="n">end</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_event</span><span class="p">({</span><span class="s2">&quot;timing_enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 
@@ -965,10 +965,11 @@ independent and lets the runtime overlap it when it can. The
 </section>
 <section id="capturing-work-in-a-cuda-graph">
 <h2>Capturing work in a CUDA graph<a class="headerlink" href="#capturing-work-in-a-cuda-graph" title="Link to this heading">#</a></h2>
-<p>When you launch the same sequence of operations repeatedly, per-launch CPU
-overhead adds up. A CUDA graph lets you record that sequence once and replay it
-with a single launch. Use the stream’s graph builder: begin building, issue the
-launches into the <em>builder</em> instead of the stream, then complete the graph.</p>
+<p>Repeating the same GPU work many times means paying the CPU cost of submitting
+each operation on every repeat. A CUDA graph lets you record that work once and
+then launch the whole graph repeatedly, instead of re-issuing each operation
+every time. Use the stream’s graph builder: begin building, issue your
+operations into the <em>builder</em> instead of the stream, then complete the graph.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gb</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">create_graph_builder</span><span class="p">()</span>
 <span class="n">gb</span><span class="o">.</span><span class="n">begin_building</span><span class="p">()</span>
 
@@ -978,12 +979,17 @@ launches into the <em>builder</em> instead of the stream, then complete the grap
 <span class="n">graph</span> <span class="o">=</span> <span class="n">gb</span><span class="o">.</span><span class="n">end_building</span><span class="p">()</span><span class="o">.</span><span class="n">complete</span><span class="p">()</span>
 
 <span class="n">graph</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
-<span class="n">graph</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>     <span class="c1"># replay the whole sequence in one shot</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>     <span class="c1"># replay the whole graph in one shot</span>
 <span class="n">stream</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>See <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/046eac264025a2f80ee0ea9ca56c47ffc4fe471d/cuda_core/examples/cuda_graphs.py">cuda_graphs.py</a>
+<p>See <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/7e61d6d2932bd690c2d8d0756d711c0bb6d851f6/cuda_core/examples/cuda_graphs.py">cuda_graphs.py</a>
 for a complete capture-and-replay example with a measured speedup.</p>
+<p>Beyond the stream capture shown here, <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> also provides an explicit
+graph interface (the <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.graph</span></code> module) for building, inspecting, and
+modifying graphs directly, including graphs first produced by capture. The
+project’s <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/tests/graph">graph tests</a> have
+many usage examples.</p>
 </section>
 <section id="working-with-cupy-and-pytorch">
 <h2>Working with CuPy and PyTorch<a class="headerlink" href="#working-with-cupy-and-pytorch" title="Link to this heading">#</a></h2>
@@ -1008,26 +1014,21 @@ array of ones:</p>
 <span class="k">assert</span> <span class="nb">bool</span><span class="p">((</span><span class="n">a</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># PyTorch: wrap torch&#39;s stream via the __cuda_stream__ protocol</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># PyTorch streams implement the __cuda_stream__ protocol natively</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">PyTorchStreamWrapper</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt_stream</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pt_stream</span> <span class="o">=</span> <span class="n">pt_stream</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__cuda_stream__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pt_stream</span><span class="o">.</span><span class="n">cuda_stream</span><span class="p">)</span>
-
 <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
-<span class="n">ts</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_stream</span><span class="p">(</span><span class="n">PyTorchStreamWrapper</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">()))</span>
+<span class="n">ts</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">create_stream</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_stream</span><span class="p">())</span>
 <span class="n">launch</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">data_ptr</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">2.0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">numel</span><span class="p">()))</span>
 <span class="n">ts</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
-<span class="k">assert</span> <span class="n">torch</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">))</span>
+<span class="k">assert</span> <span class="nb">bool</span><span class="p">((</span><span class="n">t</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> protocol is how any object advertises that it represents
-a CUDA stream; <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_stream()</span></code></a> accepts such objects so you can drive
-<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> work on another library’s stream. See the
-<a class="reference internal" href="interoperability.html"><span class="doc">interoperability guide</span></a> for details.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> protocol is how an object advertises that it represents a
+CUDA stream, so <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.create_stream" title="cuda.core.Device.create_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_stream()</span></code></a> can accept it and drive <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>
+work on another library’s stream. PyTorch implements it natively as of version
+2.10. See the <a class="reference internal" href="interoperability.html"><span class="doc">interoperability guide</span></a> for the protocol
+details and how to support it in your own types.</p>
 <p><strong>Array-library-agnostic views.</strong> To accept <em>any</em> CuPy/PyTorch/NumPy-like array
 that supports DLPack or the CUDA Array Interface, decorate a function with
 <a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html#cuda.core.utils.args_viewable_as_strided_memory" title="cuda.core.utils.args_viewable_as_strided_memory"><code class="xref py py-func docutils literal notranslate"><span class="pre">args_viewable_as_strided_memory()</span></code></a>. The chosen arguments
@@ -1059,17 +1060,13 @@ can be handed to any DLPack importer for zero-copy exchange.</p>
 <h2>Cleaning up<a class="headerlink" href="#cleaning-up" title="Link to this heading">#</a></h2>
 <p>Buffers, streams, events, graphs, and graph builders hold CUDA resources. They
 are released when garbage-collected, but you can release them explicitly with
-<code class="docutils literal notranslate"><span class="pre">close()</span></code>, which the <a class="extlink-cuda-core-examples reference external" href="https://github.com/NVIDIA/cuda-python/tree/046eac264025a2f80ee0ea9ca56c47ffc4fe471d/cuda_core/examples/">cuda.core examples</a> do in a
-<code class="docutils literal notranslate"><span class="pre">finally</span></code> block. Buffers are also context managers.</p>
+<code class="docutils literal notranslate"><span class="pre">close()</span></code>, which the <a class="extlink-cuda-core-examples reference external" href="https://github.com/NVIDIA/cuda-python/tree/7e61d6d2932bd690c2d8d0756d711c0bb6d851f6/cuda_core/examples/">cuda.core examples</a> do in a
+<code class="docutils literal notranslate"><span class="pre">finally</span></code> block.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="n">gb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="n">dbuf</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
 <span class="n">host</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
 <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-<span class="c1"># or scope a buffer with a with-statement:</span>
-<span class="k">with</span> <span class="n">dev</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">nbytes</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-    <span class="o">...</span>  <span class="c1"># tmp is freed at the end of the block</span>
 </pre></div>
 </div>
 </section>
