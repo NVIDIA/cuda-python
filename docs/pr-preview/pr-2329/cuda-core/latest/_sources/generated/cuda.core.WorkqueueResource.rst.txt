@@ -24,7 +24,6 @@ cuda.core.WorkqueueResource
    .. rubric:: Attributes
 
    
-   .. autoattribute:: concurrency_limit
    .. autoattribute:: handle
    
    

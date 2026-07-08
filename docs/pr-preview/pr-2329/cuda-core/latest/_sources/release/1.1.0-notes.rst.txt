@@ -106,8 +106,7 @@ New features
   (`#2068 <https://github.com/NVIDIA/cuda-python/pull/2068>`__,
   closes `#2049 <https://github.com/NVIDIA/cuda-python/issues/2049>`__)
 
-- Added ``concurrency_limit`` to :class:`WorkqueueResourceOptions` and a
-  read-only :attr:`WorkqueueResource.concurrency_limit` property to
+- Added ``concurrency_limit`` to :class:`WorkqueueResourceOptions` to
   configure the expected maximum concurrent stream-ordered workloads.
   (`#2329 <https://github.com/NVIDIA/cuda-python/pull/2329>`__)
 

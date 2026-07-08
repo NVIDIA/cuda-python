@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0d141cfb"></script>
+    <script src="../_static/documentation_options.js?v=c69d8c36"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev132';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev135';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -766,18 +766,6 @@ cannot be instantiated directly.</p>
 
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.WorkqueueResource.concurrency_limit">
-<span class="sig-name descname"><span class="pre">concurrency_limit</span></span><a class="headerlink" href="#cuda.core.WorkqueueResource.concurrency_limit" title="Link to this definition">#</a></dt>
-<dd><p>Expected maximum concurrent stream-ordered workloads.</p>
-<p>Reflects the <code class="docutils literal notranslate"><span class="pre">wqConcurrencyLimit</span></code> field of the underlying
-workqueue-config struct. When first queried, this matches
-the driver-populated cap (typically
-<code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code>). It can be updated via
-<a class="reference internal" href="#cuda.core.WorkqueueResource.configure" title="cuda.core.WorkqueueResource.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">configure()</span></code></a> with
-<a class="reference internal" href="cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions.concurrency_limit" title="cuda.core.WorkqueueResourceOptions.concurrency_limit"><code class="xref py py-attr docutils literal notranslate"><span class="pre">WorkqueueResourceOptions.concurrency_limit</span></code></a>.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.WorkqueueResource.handle">
 <span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.WorkqueueResource.handle" title="Link to this definition">#</a></dt>
 <dd><p>Return the address of the underlying config <code class="docutils literal notranslate"><span class="pre">CUdevResource</span></code> struct.</p>
@@ -839,7 +827,6 @@ the driver-populated cap (typically
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.WorkqueueResource"><code class="docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.WorkqueueResource.__init__"><code class="docutils literal notranslate"><span class="pre">WorkqueueResource.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.WorkqueueResource.configure"><code class="docutils literal notranslate"><span class="pre">WorkqueueResource.configure()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.WorkqueueResource.concurrency_limit"><code class="docutils literal notranslate"><span class="pre">WorkqueueResource.concurrency_limit</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.WorkqueueResource.handle"><code class="docutils literal notranslate"><span class="pre">WorkqueueResource.handle</span></code></a></li>
 </ul>
 </li>
