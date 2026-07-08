@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=cda348a6"></script>
+    <script src="../_static/documentation_options.js?v=0d141cfb"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev123';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev132';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -205,6 +205,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../10_minutes_to_cuda_core.html">
+    10 minutes to cuda.core
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../examples.html">
     Examples
   </a>
@@ -217,13 +224,6 @@
   </a>
 </li>
 
-
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../api.html">
-    cuda.core API Reference
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -232,6 +232,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../api.html">
+    cuda.core API Reference
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../api_nvml.html">
     cuda.core.system API Reference
@@ -429,6 +436,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../10_minutes_to_cuda_core.html">
+    10 minutes to cuda.core
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../examples.html">
     Examples
   </a>
@@ -538,6 +552,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10_minutes_to_cuda_core.html">10 minutes to <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -568,6 +583,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
@@ -598,15 +623,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
@@ -720,8 +739,11 @@
 <p>Wraps <code class="docutils literal notranslate"><span class="pre">cuTexObjectCreate</span></code>. The underlying memory resource (e.g. the
 <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> referenced by the descriptor) is kept alive for the
 lifetime of this object to prevent dangling handles.</p>
-<p>Construct via <a class="reference internal" href="#cuda.core.texture.TextureObject.from_descriptor" title="cuda.core.texture.TextureObject.from_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_descriptor()</span></code></a>. Passes to kernels as a 64-bit
-handle (via the <code class="docutils literal notranslate"><span class="pre">handle</span></code> property).</p>
+<p>Construct via <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device.create_texture_object" title="cuda.core.Device.create_texture_object"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuda.core.Device.create_texture_object()</span></code></a>. Passes to
+kernels as a 64-bit handle (via the <code class="docutils literal notranslate"><span class="pre">handle</span></code> property).</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
+</div>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.texture.TextureObject.__init__">
@@ -737,20 +759,6 @@ happen via the handle’s deleter when the last reference is dropped.
 Idempotent.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.texture.TextureObject.from_descriptor">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texture_descriptor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.TextureObject.from_descriptor" title="Link to this definition">#</a></dt>
-<dd><p>Create a texture object from a resource + sampling descriptor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>resource</strong> (<a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><em>ResourceDescriptor</em></a>)</p></li>
-<li><p><strong>texture_descriptor</strong> (<a class="reference internal" href="cuda.core.texture.TextureDescriptor.html#cuda.core.texture.TextureDescriptor" title="cuda.core.texture.TextureDescriptor"><em>TextureDescriptor</em></a>)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.texture.TextureObject.device">
@@ -764,15 +772,15 @@ Idempotent.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.texture.TextureObject.resource">
-<span class="sig-name descname"><span class="pre">resource</span></span><a class="headerlink" href="#cuda.core.texture.TextureObject.resource" title="Link to this definition">#</a></dt>
-<dd><p>The <a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a> this texture was built from.</p>
+<dt class="sig sig-object py" id="cuda.core.texture.TextureObject.options">
+<span class="sig-name descname"><span class="pre">options</span></span><a class="headerlink" href="#cuda.core.texture.TextureObject.options" title="Link to this definition">#</a></dt>
+<dd><p>The <a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html#cuda.core.texture.TextureObjectOptions" title="cuda.core.texture.TextureObjectOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObjectOptions</span></code></a> this texture was built from.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.texture.TextureObject.texture_descriptor">
-<span class="sig-name descname"><span class="pre">texture_descriptor</span></span><a class="headerlink" href="#cuda.core.texture.TextureObject.texture_descriptor" title="Link to this definition">#</a></dt>
-<dd><p>The <a class="reference internal" href="cuda.core.texture.TextureDescriptor.html#cuda.core.texture.TextureDescriptor" title="cuda.core.texture.TextureDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureDescriptor</span></code></a> this texture was built from.</p>
+<dt class="sig sig-object py" id="cuda.core.texture.TextureObject.resource">
+<span class="sig-name descname"><span class="pre">resource</span></span><a class="headerlink" href="#cuda.core.texture.TextureObject.resource" title="Link to this definition">#</a></dt>
+<dd><p>The <a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a> this texture was built from.</p>
 </dd></dl>
 
 </dd></dl>
@@ -831,11 +839,10 @@ Idempotent.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureObject"><code class="docutils literal notranslate"><span class="pre">TextureObject</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureObject.__init__"><code class="docutils literal notranslate"><span class="pre">TextureObject.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureObject.close"><code class="docutils literal notranslate"><span class="pre">TextureObject.close()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureObject.from_descriptor"><code class="docutils literal notranslate"><span class="pre">TextureObject.from_descriptor()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureObject.device"><code class="docutils literal notranslate"><span class="pre">TextureObject.device</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureObject.handle"><code class="docutils literal notranslate"><span class="pre">TextureObject.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureObject.options"><code class="docutils literal notranslate"><span class="pre">TextureObject.options</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureObject.resource"><code class="docutils literal notranslate"><span class="pre">TextureObject.resource</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.TextureObject.texture_descriptor"><code class="docutils literal notranslate"><span class="pre">TextureObject.texture_descriptor</span></code></a></li>
 </ul>
 </li>
 </ul>

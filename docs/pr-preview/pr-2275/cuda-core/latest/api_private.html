@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=cda348a6"></script>
+    <script src="_static/documentation_options.js?v=0d141cfb"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev123';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev132';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -203,6 +203,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="10_minutes_to_cuda_core.html">
+    10 minutes to cuda.core
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="examples.html">
     Examples
   </a>
@@ -215,13 +222,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="api.html">
-    cuda.core API Reference
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -230,6 +230,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api.html">
+    cuda.core API Reference
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="api_nvml.html">
     cuda.core.system API Reference
@@ -427,6 +434,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="10_minutes_to_cuda_core.html">
+    10 minutes to cuda.core
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="examples.html">
     Examples
   </a>
@@ -536,6 +550,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_minutes_to_cuda_core.html">10 minutes to <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -566,6 +581,16 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Program.html">cuda.core.Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
@@ -596,15 +621,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
@@ -725,8 +744,14 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._module.ParamInfo.html#cuda.core._module.ParamInfo" title="cuda.core._module.ParamInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.ParamInfo</span></code></a>(offset, size)</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.AddressModeType.html#cuda.core.typing.AddressModeType" title="cuda.core.typing.AddressModeType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.AddressModeType</span></code></a>(value[, names, ...])</p></td>
+<td><p>Boundary behavior for out-of-range texture coordinates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ArrayFormatType</span></code></a>(value[, names, ...])</p></td>
+<td><p>Element format for an <a class="reference internal" href="generated/cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.CompilerBackendType.html#cuda.core.typing.CompilerBackendType" title="cuda.core.typing.CompilerBackendType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.CompilerBackendType</span></code></a>(value[, names, ...])</p></td>
-<td><p>Compiler backend inferred from the program's code type and exposed on <code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code>.</p></td>
+<td><p>Compiler backend inferred from the program's code type and exposed on <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program.backend" title="cuda.core.Program.backend"><code class="xref py py-attr docutils literal notranslate"><span class="pre">backend</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.DevicePointerType.html#cuda.core.typing.DevicePointerType" title="cuda.core.typing.DevicePointerType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.DevicePointerType</span></code></a></p></td>
 <td><p>Represent a PEP 604 union type</p></td>
@@ -734,26 +759,32 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.DeviceResourcesType.html#cuda.core.typing.DeviceResourcesType" title="cuda.core.typing.DeviceResourcesType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.DeviceResourcesType</span></code></a></p></td>
 <td><p>All the operations on a read-only sequence.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.GraphConditionalType.html#cuda.core.typing.GraphConditionalType" title="cuda.core.typing.GraphConditionalType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.GraphConditionalType</span></code></a>(value[, names, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.FilterModeType.html#cuda.core.typing.FilterModeType" title="cuda.core.typing.FilterModeType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.FilterModeType</span></code></a>(value[, names, ...])</p></td>
+<td><p>Texel sampling mode for a <a class="reference internal" href="generated/cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.GraphConditionalType.html#cuda.core.typing.GraphConditionalType" title="cuda.core.typing.GraphConditionalType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.GraphConditionalType</span></code></a>(value[, names, ...])</p></td>
 <td><p>Conditional node flavor for <a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.GraphMemoryType.html#cuda.core.typing.GraphMemoryType" title="cuda.core.typing.GraphMemoryType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.GraphMemoryType</span></code></a>(value[, names, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.GraphMemoryType.html#cuda.core.typing.GraphMemoryType" title="cuda.core.typing.GraphMemoryType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.GraphMemoryType</span></code></a>(value[, names, ...])</p></td>
 <td><p>Memory space for a graph memory-allocation or free node.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.ManagedMemoryLocationType.html#cuda.core.typing.ManagedMemoryLocationType" title="cuda.core.typing.ManagedMemoryLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ManagedMemoryLocationType</span></code></a>(value[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.ManagedMemoryLocationType.html#cuda.core.typing.ManagedMemoryLocationType" title="cuda.core.typing.ManagedMemoryLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ManagedMemoryLocationType</span></code></a>(value[, ...])</p></td>
 <td><p>Destination type for managed-memory prefetch and advise operations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.ObjectCodeFormatType.html#cuda.core.typing.ObjectCodeFormatType" title="cuda.core.typing.ObjectCodeFormatType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ObjectCodeFormatType</span></code></a>(value[, names, ...])</p></td>
-<td><p>Output format for <code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.ObjectCodeFormatType.html#cuda.core.typing.ObjectCodeFormatType" title="cuda.core.typing.ObjectCodeFormatType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ObjectCodeFormatType</span></code></a>(value[, names, ...])</p></td>
+<td><p>Output format for <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>, <a class="reference internal" href="generated/cuda.core.Linker.html#cuda.core.Linker.link" title="cuda.core.Linker.link"><code class="xref py py-meth docutils literal notranslate"><span class="pre">link()</span></code></a>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_bytes()</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.PCHStatusType.html#cuda.core.typing.PCHStatusType" title="cuda.core.typing.PCHStatusType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.PCHStatusType</span></code></a>(value[, names, module, ...])</p></td>
-<td><p>Precompiled-header (PCH) outcome reported by <code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code>.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.PCHStatusType.html#cuda.core.typing.PCHStatusType" title="cuda.core.typing.PCHStatusType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.PCHStatusType</span></code></a>(value[, names, module, ...])</p></td>
+<td><p>Precompiled-header (PCH) outcome reported by <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compile()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.ProcessStateType.html#cuda.core.typing.ProcessStateType" title="cuda.core.typing.ProcessStateType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ProcessStateType</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.ProcessStateType.html#cuda.core.typing.ProcessStateType" title="cuda.core.typing.ProcessStateType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ProcessStateType</span></code></a></p></td>
 <td><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>['running', 'locked', 'checkpointed', 'failed']</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.ReadModeType.html#cuda.core.typing.ReadModeType" title="cuda.core.typing.ReadModeType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.ReadModeType</span></code></a>(value[, names, module, ...])</p></td>
+<td><p>How sampled values are returned to the kernel.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.typing.SourceCodeType.html#cuda.core.typing.SourceCodeType" title="cuda.core.typing.SourceCodeType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.SourceCodeType</span></code></a>(value[, names, ...])</p></td>
-<td><p>Source language passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code>.</p></td>
+<td><p>Source language passed to <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.VirtualMemoryAccessType.html#cuda.core.typing.VirtualMemoryAccessType" title="cuda.core.typing.VirtualMemoryAccessType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.VirtualMemoryAccessType</span></code></a>(value[, ...])</p></td>
 <td><p>Access permissions for a virtual memory mapping.</p></td>
