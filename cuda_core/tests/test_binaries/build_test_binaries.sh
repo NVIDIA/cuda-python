@@ -20,9 +20,9 @@ NVCC="${NVCC:-nvcc}"
     -o "${SCRIPTPATH}/saxpy.o" "${SCRIPTPATH}/saxpy.cu"
 
 if [[ "${OS:-}" == "Windows_NT" ]]; then
-    nvcc -lib -o "${SCRIPTPATH}/saxpy.lib" "${SCRIPTPATH}/saxpy.o"
+    "${NVCC}" -lib -o "${SCRIPTPATH}/saxpy.lib" "${SCRIPTPATH}/saxpy.o"
     ls -lah "${SCRIPTPATH}/saxpy.o" "${SCRIPTPATH}/saxpy.lib"
 else
-    nvcc -lib -o "${SCRIPTPATH}/saxpy.a" "${SCRIPTPATH}/saxpy.o"
+    "${NVCC}" -lib -o "${SCRIPTPATH}/saxpy.a" "${SCRIPTPATH}/saxpy.o"
     ls -lah "${SCRIPTPATH}/saxpy.o" "${SCRIPTPATH}/saxpy.a"
 fi
