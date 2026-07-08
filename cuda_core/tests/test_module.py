@@ -178,7 +178,6 @@ def get_saxpy_fatbin(init_cuda):
     return bytes(fatbin), sym_map
 
 
-
 @pytest.fixture(params=["object", "library"], ids=["object", "library"])
 def saxpy_rdc(request):
     """Read a pre-built saxpy RDC object or library.

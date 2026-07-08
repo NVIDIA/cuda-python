@@ -140,6 +140,7 @@ def _wrap_worker_cuda_test(func):
                 kwargs["wq_resource"] = device.resources.workqueue
             if "green_ctx" in kwargs:
                 from cuda.core import ContextOptions, SMResourceOptions
+
                 groups, _ = device.resources.sm.split(SMResourceOptions(count=None))
                 kwargs["green_ctx"] = device.create_context(ContextOptions(resources=[groups[0]]))
             return func(*args, **kwargs)
