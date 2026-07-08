@@ -3,41 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import IntEnum
 
 from cuda.bindings import cydriver
+from cuda.core.typing import AddressModeType, FilterModeType, ReadModeType
 
-
-class AddressMode(IntEnum):
-    """Boundary behavior for out-of-range texture coordinates."""
-    WRAP = cydriver.CU_TR_ADDRESS_MODE_WRAP
-    CLAMP = cydriver.CU_TR_ADDRESS_MODE_CLAMP
-    MIRROR = cydriver.CU_TR_ADDRESS_MODE_MIRROR
-    BORDER = cydriver.CU_TR_ADDRESS_MODE_BORDER
-
-class FilterMode(IntEnum):
-    """Texel sampling mode."""
-    POINT = cydriver.CU_TR_FILTER_MODE_POINT
-    LINEAR = cydriver.CU_TR_FILTER_MODE_LINEAR
-
-class ReadMode(IntEnum):
-    """How sampled values are returned to the kernel.
-
-    - ``ELEMENT_TYPE``: return the raw element value (integer formats stay
-      integer, float stays float).
-    - ``NORMALIZED_FLOAT``: integer formats are promoted to a normalized
-      ``float`` in ``[0, 1]`` (unsigned) or ``[-1, 1]`` (signed).
-      Float formats are unaffected.
-    """
-    ELEMENT_TYPE = 0
-    NORMALIZED_FLOAT = 1
 
 class ResourceDescriptor:
     """Describes the memory backing a :class:`TextureObject`.
 
     Construct via the ``from_*`` classmethods:
 
-    - :meth:`from_array` wraps a :class:`OpaqueArray` (works for both
+    - :meth:`from_opaque_array` wraps a :class:`OpaqueArray` (works for both
       :class:`TextureObject` and :class:`SurfaceObject`).
     - :meth:`from_mipmapped_array` wraps a :class:`MipmappedArray` for mipmapped
       sampling (texture only, not surface).
@@ -49,6 +25,8 @@ class ResourceDescriptor:
 
     Linear and pitch2D resources cannot back a :class:`SurfaceObject` — those
     require an :class:`OpaqueArray` allocated with ``is_surface_load_store=True``.
+
+    .. versionadded:: 1.1.0
     """
     __slots__ = ('_kind', '_source', '_format', '_num_channels', '_size_bytes', '_width', '_height', '_pitch_bytes')
 
@@ -56,7 +34,7 @@ class ResourceDescriptor:
         ...
 
     @classmethod
-    def from_array(cls, array):
+    def from_opaque_array(cls, array):
         """Build a resource descriptor backed by a :class:`OpaqueArray`."""
 
     @classmethod
@@ -78,8 +56,9 @@ class ResourceDescriptor:
         buffer : Buffer
             Device-memory backing. Must remain alive for the lifetime of any
             :class:`TextureObject` built from this descriptor.
-        format : ArrayFormat
-            Element format.
+        format : ArrayFormatType, str, or numpy.dtype
+            Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+            a plain string (e.g. ``"float32"``), or a NumPy dtype object.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
         size_bytes : int, optional
@@ -89,7 +68,7 @@ class ResourceDescriptor:
         Notes
         -----
         Texture objects built from a linear resource ignore the
-        :class:`TextureDescriptor` addressing/filtering fields — kernels read
+        :class:`TextureObjectOptions` addressing/filtering fields — kernels read
         through a typed 1D fetch with bounds checking only.
         """
 
@@ -102,8 +81,9 @@ class ResourceDescriptor:
         buffer : Buffer
             Device-memory backing. Must remain alive for the lifetime of any
             :class:`TextureObject` built from this descriptor.
-        format : ArrayFormat
-            Element format.
+        format : ArrayFormatType, str, or numpy.dtype
+            Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+            a plain string (e.g. ``"float32"``), or a NumPy dtype object.
         num_channels : int
             Channels per element. Must be 1, 2, or 4.
         width : int
@@ -126,7 +106,7 @@ class ResourceDescriptor:
 
     @property
     def format(self):
-        """The element :class:`ArrayFormat` (``None`` for array-backed)."""
+        """The element :class:`~cuda.core.typing.ArrayFormatType` (``None`` for array-backed)."""
 
     @property
     def num_channels(self):
@@ -152,18 +132,20 @@ class ResourceDescriptor:
         ...
 
 @dataclass
-class TextureDescriptor:
+class TextureObjectOptions:
     """Sampling state for a :class:`TextureObject` (mirrors ``CUDA_TEXTURE_DESC``).
 
     Attributes
     ----------
-    address_mode : tuple of AddressMode
-        Boundary behavior per axis. May be a single :class:`AddressMode` (applied
-        to all axes) or a tuple of 1-3 entries (one per dimension).
-    filter_mode : FilterMode
-        Texel sampling mode. Default ``POINT``.
-    read_mode : ReadMode
+    address_mode : AddressModeType or tuple of AddressModeType
+        Boundary behavior per axis. May be a single
+        :class:`~cuda.core.typing.AddressModeType` (applied to all axes) or a
+        tuple of 1-3 entries (one per dimension). Plain strings are accepted.
+    filter_mode : FilterModeType
+        Texel sampling mode. Default ``POINT``. Plain strings are accepted.
+    read_mode : ReadModeType
         How sampled integer values are returned. Default ``ELEMENT_TYPE``.
+        Plain strings are accepted.
     normalized_coords : bool
         If True, coordinates are in ``[0, 1]`` instead of pixel indices.
     srgb : bool
@@ -174,28 +156,34 @@ class TextureDescriptor:
         If True, enable seamless cubemap edge filtering.
     max_anisotropy : int
         Maximum anisotropy; 0 disables anisotropic filtering.
-    mipmap_filter_mode : FilterMode
-        Filtering between mipmap levels. Default ``POINT``.
+    mipmap_filter_mode : FilterModeType
+        Filtering between mipmap levels. Default ``POINT``. Plain strings are
+        accepted.
     mipmap_level_bias : float
     min_mipmap_level_clamp : float
     max_mipmap_level_clamp : float
     border_color : tuple of float or None
         4-tuple used when ``address_mode`` includes ``BORDER``; ``None`` means
         zero.
+
+    .. versionadded:: 1.1.0
     """
-    address_mode: AddressMode | tuple[AddressMode, ...] = AddressMode.CLAMP
-    filter_mode: FilterMode = FilterMode.POINT
-    read_mode: ReadMode = ReadMode.ELEMENT_TYPE
+    address_mode: AddressModeType | str | tuple[AddressModeType | str, ...] = AddressModeType.CLAMP
+    filter_mode: FilterModeType | str = FilterModeType.POINT
+    read_mode: ReadModeType | str = ReadModeType.ELEMENT_TYPE
     normalized_coords: bool = False
     srgb: bool = False
     disable_trilinear_optimization: bool = False
     seamless_cubemap: bool = False
     max_anisotropy: int = 0
-    mipmap_filter_mode: FilterMode = FilterMode.POINT
+    mipmap_filter_mode: FilterModeType | str = FilterModeType.POINT
     mipmap_level_bias: float = 0.0
     min_mipmap_level_clamp: float = 0.0
     max_mipmap_level_clamp: float = 0.0
     border_color: tuple[float, ...] | None = None
+
+    def __post_init__(self):
+        ...
 
 class TextureObject:
     """A bindless texture handle for kernel-side sampled reads.
@@ -204,8 +192,10 @@ class TextureObject:
     :class:`OpaqueArray` referenced by the descriptor) is kept alive for the
     lifetime of this object to prevent dangling handles.
 
-    Construct via :meth:`from_descriptor`. Passes to kernels as a 64-bit
-    handle (via the ``handle`` property).
+    Construct via :meth:`cuda.core.Device.create_texture_object`. Passes to
+    kernels as a 64-bit handle (via the ``handle`` property).
+
+    .. versionadded:: 1.1.0
     """
 
     def close(self):
@@ -219,16 +209,6 @@ class TextureObject:
     def __init__(self, *args, **kwargs):
         ...
 
-    @classmethod
-    def from_descriptor(cls, *, resource, texture_descriptor):
-        """Create a texture object from a resource + sampling descriptor.
-
-        Parameters
-        ----------
-        resource : ResourceDescriptor
-        texture_descriptor : TextureDescriptor
-        """
-
     @property
     def handle(self):
         """The underlying ``CUtexObject`` as an integer (64-bit kernel arg)."""
@@ -238,8 +218,8 @@ class TextureObject:
         """The :class:`ResourceDescriptor` this texture was built from."""
 
     @property
-    def texture_descriptor(self):
-        """The :class:`TextureDescriptor` this texture was built from."""
+    def options(self):
+        """The :class:`TextureObjectOptions` this texture was built from."""
 
     @property
     def device(self):
@@ -258,6 +238,20 @@ _TRSF_NORMALIZED_COORDINATES = 2
 _TRSF_SRGB = 16
 _TRSF_DISABLE_TRILINEAR_OPTIMIZATION = 32
 _TRSF_SEAMLESS_CUBEMAP = 64
+_ADDRESSMODE_TO_CU = {AddressModeType.WRAP: int(cydriver.CU_TR_ADDRESS_MODE_WRAP), AddressModeType.CLAMP: int(cydriver.CU_TR_ADDRESS_MODE_CLAMP), AddressModeType.MIRROR: int(cydriver.CU_TR_ADDRESS_MODE_MIRROR), AddressModeType.BORDER: int(cydriver.CU_TR_ADDRESS_MODE_BORDER)}
+_FILTERMODE_TO_CU = {FilterModeType.POINT: int(cydriver.CU_TR_FILTER_MODE_POINT), FilterModeType.LINEAR: int(cydriver.CU_TR_FILTER_MODE_LINEAR)}
+
+def _normalize_enum(name, value, enum_type):
+    """Coerce ``value`` to ``enum_type`` (a StrEnum), accepting a plain str."""
 
 def _normalize_address_modes(address_mode):
-    """Return a 3-tuple of AddressMode values from a scalar or 1-3 tuple."""
+    """Return a 3-tuple of :class:`AddressModeType` values from a scalar or
+    1-3 tuple. Individual entries may be plain strings."""
+
+def _create_texture_object(resource, options):
+    """Create a :class:`TextureObject` on the current device.
+
+    Backs :meth:`cuda.core.Device.create_texture_object`. ``resource`` is a
+    :class:`ResourceDescriptor`; ``options`` is a :class:`TextureObjectOptions`
+    (or a mapping accepted by it).
+    """

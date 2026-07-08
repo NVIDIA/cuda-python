@@ -2,6 +2,43 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
+
+@dataclass
+class MipmappedArrayOptions:
+    """Options for :meth:`cuda.core.Device.create_mipmapped_array`.
+
+    Attributes
+    ----------
+    shape : tuple of int
+        ``(width,)``, ``(width, height)``, or ``(width, height, depth)`` in
+        elements, for the base (level 0) mip.
+    format : ArrayFormatType, str, or numpy.dtype
+        Element format. Accepts an :class:`~cuda.core.typing.ArrayFormatType`,
+        a plain string (e.g. ``"float32"``), or a NumPy dtype object.
+    num_channels : int
+        Channels per element. Must be 1, 2, or 4.
+    num_levels : int
+        Number of mip levels to allocate; must be >= 1. The driver caps this at
+        the log2 of the largest dimension; passing a larger value yields a
+        driver error.
+    is_surface_load_store : bool
+        If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so individual
+        levels (obtained via :meth:`MipmappedArray.get_level`) can be bound as
+        a :class:`~cuda.core.texture.SurfaceObject` for kernel-side writes.
+        Default False.
+
+    .. versionadded:: 1.1.0
+    """
+    shape: tuple[int, ...]
+    format: object
+    num_channels: int
+    num_levels: int
+    is_surface_load_store: bool = False
+
+    def __post_init__(self):
+        ...
 
 class MipmappedArray:
     """A mipmapped CUDA array for texture/surface access across levels.
@@ -13,7 +50,9 @@ class MipmappedArray:
     implicitly, so the :class:`OpaqueArray` instances returned by :meth:`get_level`
     are non-owning and hold a strong reference back to their parent.
 
-    Construct via :meth:`from_descriptor`.
+    Construct via :meth:`cuda.core.Device.create_mipmapped_array`.
+
+    .. versionadded:: 1.1.0
     """
 
     def close(self):
@@ -27,33 +66,6 @@ class MipmappedArray:
 
     def __init__(self, *args, **kwargs):
         ...
-
-    @classmethod
-    def from_descriptor(cls, *, shape, format, num_channels, num_levels, is_surface_load_store=False):
-        """Allocate a new mipmapped CUDA array.
-
-        Parameters
-        ----------
-        shape : tuple of int
-            ``(width,)``, ``(width, height)``, or ``(width, height, depth)``
-            in elements, for the base (level 0) mip.
-        format : ArrayFormat
-            Element format.
-        num_channels : int
-            Channels per element. Must be 1, 2, or 4.
-        num_levels : int
-            Number of mip levels to allocate; must be >= 1. The driver caps
-            this at the log2 of the largest dimension; passing a larger value
-            yields a driver error.
-        is_surface_load_store : bool
-            If True, allocate with ``CUDA_ARRAY3D_SURFACE_LDST`` so individual
-            levels (obtained via :meth:`get_level`) can be bound as
-            :class:`SurfaceObject` for kernel-side writes. Default False.
-
-        Returns
-        -------
-        MipmappedArray
-        """
 
     def get_level(self, level):
         """Return a non-owning :class:`OpaqueArray` view of the given mip level.
@@ -82,7 +94,7 @@ class MipmappedArray:
 
     @property
     def format(self):
-        """The element :class:`ArrayFormat`."""
+        """The element :class:`~cuda.core.typing.ArrayFormatType`."""
 
     @property
     def num_channels(self):
@@ -109,3 +121,11 @@ class MipmappedArray:
 
     def __repr__(self):
         ...
+
+def _create_mipmapped_array(options):
+    """Allocate a new :class:`MipmappedArray` on the current device.
+
+    Backs :meth:`cuda.core.Device.create_mipmapped_array`. ``options`` is a
+    :class:`MipmappedArrayOptions` (or a mapping accepted by it); its fields are
+    validated at construction.
+    """

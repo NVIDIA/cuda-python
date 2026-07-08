@@ -43,6 +43,13 @@ repos:
         exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
         args: ["--fix"]
 
+      - id: check-generated-file-seals
+        name: Check generated-file seals
+        entry: python ./toolshed/check_generated_file_seals.py
+        language: python
+        files: ^cuda_bindings/
+        types: [text]
+
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
@@ -123,7 +130,7 @@ repos:
         pass_filenames: false
         args: [--config-file=cuda_core/pyproject.toml, cuda_core/cuda/core]
         additional_dependencies:
-          - numpy
+          - numpy==2.4.2
 
   - repo: https://github.com/rhysd/actionlint
     rev: "914e7df21a07ef503a81201c76d2b11c789d3fca"  # frozen: v1.7.12
