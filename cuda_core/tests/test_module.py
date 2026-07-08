@@ -5,6 +5,7 @@ import ctypes
 import os
 import pickle
 import subprocess
+import types
 import warnings
 from pathlib import Path
 
@@ -177,20 +178,21 @@ def get_saxpy_fatbin(init_cuda):
     return bytes(fatbin), sym_map
 
 
-def _read_saxpy_rdc(kind: str) -> bytes:
+
+@pytest.fixture(params=["object", "library"], ids=["object", "library"])
+def saxpy_rdc(request):
     """Read a pre-built saxpy RDC object or library.
 
     In CI: produced by the build stage.
     In local dev: auto-built on demand if nvcc is available; if you edit
     saxpy.cu, remove stale RDC files (i.e. saxpy.o, saxpy.a, or saxpy.lib) to force a rebuild.
     """
+    kind = request.param
+
     binaries_dir = Path(__file__).parent / "test_binaries"
-    if kind == "object":
-        rdc_path = binaries_dir / "saxpy.o"
-    elif kind == "library":
-        rdc_path = binaries_dir / ("saxpy.lib" if os.name == "nt" else "saxpy.a")
-    else:
-        raise ValueError(f"unknown saxpy RDC kind: {kind!r}")
+    suffix = ".o" if kind == "object" else ".lib" if os.name == "nt" else ".a"
+
+    rdc_path = binaries_dir / f"saxpy{suffix}"
 
     if not rdc_path.is_file():
         nvcc_path = find_nvidia_binary_utility("nvcc")
@@ -206,7 +208,13 @@ def _read_saxpy_rdc(kind: str) -> bytes:
             check=True,
             env=env,
         )
-    return rdc_path.read_bytes()
+
+    return types.SimpleNamespace(
+        kind=kind,
+        data=rdc_path.read_bytes(),
+        from_fn=ObjectCode.from_object if kind == "object" else ObjectCode.from_library,
+        suffix=suffix,
+    )
 
 
 def test_get_kernel(init_cuda):
@@ -367,47 +375,26 @@ def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path, convert_p
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
 
-@pytest.mark.parametrize(
-    ("kind", "from_fn"),
-    [
-        ("object", ObjectCode.from_object),
-        ("library", ObjectCode.from_library),
-    ],
-)
-def test_object_code_load_rdc(kind, from_fn):
-    data = _read_saxpy_rdc(kind)
+def test_object_code_load_rdc(saxpy_rdc):
+    data = saxpy_rdc.data
     assert isinstance(data, bytes)
-    mod_obj = from_fn(data)
+    mod_obj = saxpy_rdc.from_fn(data)
     assert mod_obj.code == data
-    assert mod_obj.code_type == kind
-    with pytest.raises(RuntimeError, match=rf'Unsupported code type "{kind}"'):
+    assert mod_obj.code_type == saxpy_rdc.kind
+    with pytest.raises(RuntimeError, match=rf'Unsupported code type "{saxpy_rdc.kind}"'):
         mod_obj.get_kernel("saxpy<float>")
 
 
-@pytest.mark.parametrize(
-    ("kind", "from_fn", "suffix"),
-    [
-        ("object", ObjectCode.from_object, ".o"),
-        ("library", ObjectCode.from_library, ".lib" if os.name == "nt" else ".a"),
-    ],
-)
-def test_object_code_load_rdc_from_file(kind, from_fn, suffix, tmp_path):
-    rdc_file = tmp_path / f"test{suffix}"
-    rdc_file.write_bytes(_read_saxpy_rdc(kind))
+def test_object_code_load_rdc_from_file(saxpy_rdc, tmp_path):
+    rdc_file = tmp_path / f"test{saxpy_rdc.suffix}"
+    rdc_file.write_bytes(saxpy_rdc.data)
     arg = str(rdc_file)
-    mod_obj = from_fn(arg)
+    mod_obj = saxpy_rdc.from_fn(arg)
     assert mod_obj.code == arg
-    assert mod_obj.code_type == kind
+    assert mod_obj.code_type == saxpy_rdc.kind
 
 
-@pytest.mark.parametrize(
-    ("kind", "from_fn"),
-    [
-        ("object", ObjectCode.from_object),
-        ("library", ObjectCode.from_library),
-    ],
-)
-def test_object_code_load_rdc_with_linker(kind, from_fn, init_cuda):
+def test_object_code_load_rdc_with_linker(init_cuda, saxpy_rdc):
     arch = f"sm_{init_cuda.arch}"
     kernel_code = Program(
         r"""
@@ -421,7 +408,7 @@ def test_object_code_load_rdc_with_linker(kind, from_fn, init_cuda):
     ).compile("cubin")
     linked = Linker(
         kernel_code,
-        from_fn(_read_saxpy_rdc(kind)),
+        saxpy_rdc.from_fn(saxpy_rdc.data),
         options=LinkerOptions(arch=arch),
     ).link("cubin")
     kernel = linked.get_kernel("linked_kernel")
