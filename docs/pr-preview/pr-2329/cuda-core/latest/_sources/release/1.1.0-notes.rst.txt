@@ -1,0 +1,182 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.1.0 Release Notes
+=================================
+
+
+Highlights
+----------
+
+- ``cuda.core`` now ships with ``.pyi`` type stubs for all public APIs,
+  giving IDEs and type checkers full autocompletion and static analysis.
+- New :mod:`cuda.core.texture` module for texture and surface memory:
+  :class:`~texture.OpaqueArray`, :class:`~texture.MipmappedArray`,
+  :class:`~texture.TextureObject`, and :class:`~texture.SurfaceObject`,
+  constructed through the corresponding ``Device.create_*`` factories.
+- Richer managed-memory support: the new :class:`ManagedBuffer` exposes a
+  property-style advice API (:attr:`~ManagedBuffer.read_mostly`,
+  :attr:`~ManagedBuffer.preferred_location`,
+  :attr:`~ManagedBuffer.accessed_by`) with NUMA-aware host locations via the
+  new :class:`Host` type, plus batched range operations in
+  :mod:`cuda.core.utils` for prefetching and discarding many buffers at once.
+- CUDA 13.3 toolkit support.
+  (`#2139 <https://github.com/NVIDIA/cuda-python/pull/2139>`__)
+
+
+New features
+------------
+
+- Added :class:`Host` as the symmetric counterpart of :class:`Device` for
+  expressing managed-memory locations: ``Host()`` (any host),
+  ``Host(numa_id=N)`` (specific NUMA node), and ``Host.numa_current()``
+  (calling thread's NUMA node).
+  (`#1775 <https://github.com/NVIDIA/cuda-python/pull/1775>`__)
+
+- Added :class:`ManagedBuffer`, a :class:`Buffer` subclass returned by
+  :meth:`ManagedMemoryResource.allocate` that exposes a property-style
+  advice API:
+
+  - ``buf.read_mostly`` (bool) — driver-backed get/set.
+  - ``buf.preferred_location`` (:class:`Device` | :class:`Host` | None) —
+    driver-backed get/set; assigning ``None`` unsets.
+  - ``buf.accessed_by`` — a live, set-like view; ``add()`` / ``discard()``
+    issue advice, iteration queries the driver.
+  - ``buf.prefetch(location, *, stream)``, ``buf.discard(*, stream)``,
+    ``buf.discard_prefetch(location, *, stream)`` — instance methods that
+    delegate to the matching free functions.
+
+  Use :meth:`ManagedBuffer.from_handle` to wrap an existing managed-memory
+  pointer.
+  (`#1775 <https://github.com/NVIDIA/cuda-python/pull/1775>`__)
+
+- Added batched managed-memory range operations to :mod:`cuda.core.utils`
+  (CUDA 13+): :func:`~utils.prefetch_batch`, :func:`~utils.discard_batch`,
+  and :func:`~utils.discard_prefetch_batch`. Each takes a sequence of
+  managed :class:`Buffer` instances and dispatches to the corresponding
+  ``cuMem*BatchAsync`` driver entry point, addressing the managed-memory
+  portion of
+  `#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__. Single-buffer
+  operations are exposed as instance
+  methods on :class:`ManagedBuffer` (:meth:`~ManagedBuffer.prefetch`,
+  :meth:`~ManagedBuffer.discard`, :meth:`~ManagedBuffer.discard_prefetch`)
+  and as property setters (:attr:`~ManagedBuffer.read_mostly`,
+  :attr:`~ManagedBuffer.preferred_location`,
+  :attr:`~ManagedBuffer.accessed_by`). Locations are expressed via
+  :class:`Device` or :class:`Host`.
+
+- Added :meth:`system.Device.get_nvlink_count` and
+  :meth:`system.Device.get_nvlinks` for device-specific NVLink enumeration.
+  These APIs avoid relying on the static NVML ``NVML_NVLINK_MAX_LINKS`` macro
+  when querying the links available on a particular device.
+  (`#2192 <https://github.com/NVIDIA/cuda-python/pull/2192>`__)
+
+- Added the :attr:`graph.GraphBuilder.graph_definition` property, which
+  exposes a captured graph as an explicit :class:`graph.GraphDefinition`
+  view sharing ownership of the same underlying graph. This enables hybrid
+  flows that mix the capture and explicit graph-building APIs, such as
+  inspecting or augmenting a captured graph, or populating a conditional
+  body entirely through the explicit API.
+  (`#2026 <https://github.com/NVIDIA/cuda-python/pull/2026>`__)
+
+- Added the :mod:`cuda.core.texture` module for texture and surface memory:
+  :class:`~texture.OpaqueArray` and :class:`~texture.MipmappedArray` for
+  hardware-laid-out array allocations, and :class:`~texture.TextureObject` and
+  :class:`~texture.SurfaceObject` for bindless kernel-side sampled reads and
+  typed load/store. Objects are constructed from a
+  :class:`~texture.ResourceDescriptor` via
+  :meth:`Device.create_opaque_array`, :meth:`Device.create_mipmapped_array`,
+  :meth:`Device.create_texture_object`, and :meth:`Device.create_surface_object`.
+  (`#467 <https://github.com/NVIDIA/cuda-python/issues/467>`__,
+  `#2095 <https://github.com/NVIDIA/cuda-python/pull/2095>`__,
+  `#2307 <https://github.com/NVIDIA/cuda-python/pull/2307>`__)
+
+- ``cuda.core`` now ships with ``.pyi`` stubs for all public APIs, enabling
+  users' IDEs and type checkers to provide better autocompletion and static
+  analysis.
+  (`#2061 <https://github.com/NVIDIA/cuda-python/pull/2061>`__)
+
+- :class:`ObjectCode` and :class:`Program` now accept path-like inputs in
+  addition to strings and bytes.
+  (`#2123 <https://github.com/NVIDIA/cuda-python/pull/2123>`__)
+
+- Exposed a :attr:`Buffer.size` accessor to Python.
+  (`#2068 <https://github.com/NVIDIA/cuda-python/pull/2068>`__,
+  closes `#2049 <https://github.com/NVIDIA/cuda-python/issues/2049>`__)
+
+- Added ``concurrency_limit`` to :class:`WorkqueueResourceOptions` and a
+  read-only :attr:`WorkqueueResource.concurrency_limit` property to
+  configure the expected maximum concurrent stream-ordered workloads.
+  (`#2329 <https://github.com/NVIDIA/cuda-python/pull/2329>`__)
+
+Fixes and enhancements
+----------------------
+
+- On WSL, ``cuda.core.system.get_process_name`` would raise a
+  ``UnicodeDecodeError``.  It should now return the correct result.
+  (`#2118 <https://github.com/NVIDIA/cuda-python/pull/2118>`__)
+- Calling ``cuda.core.system.get_process_name`` before querying any device's
+  ``compute_running_processes`` would raise a ``NvmlNotFoundError``.  Now it will
+  correctly return the process name, if it is a GPU-using process.
+- :meth:`system.Device.get_nvlink` now validates link numbers against the
+  device-specific NVLink count and raises ``ValueError`` for unsupported links.
+  (`#2192 <https://github.com/NVIDIA/cuda-python/pull/2192>`__)
+- Hardened the IPC buffer import path against malformed or untrusted peer
+  descriptors: descriptor payloads shorter than the driver struct are now
+  rejected before import
+  (`#2223 <https://github.com/NVIDIA/cuda-python/pull/2223>`__), an imported
+  buffer's size is validated against the mapped allocation extent before any
+  copy (`#2224 <https://github.com/NVIDIA/cuda-python/pull/2224>`__), and
+  negative allocation handles are always rejected, including under ``-O``
+  (`#2219 <https://github.com/NVIDIA/cuda-python/pull/2219>`__).
+- :attr:`ManagedBuffer.accessed_by` now validates every location before
+  issuing any advice, so a bulk assignment containing an invalid entry can no
+  longer leave the applied advice in a torn state.
+  (`#2222 <https://github.com/NVIDIA/cuda-python/pull/2222>`__)
+- Graph nodes now keep their Python-owned attachments (kernel-argument
+  buffers, host-callback functions and user data, and memcpy/memset operands)
+  alive for the lifetime of the graph. Previously, keeping these objects alive
+  was the caller's responsibility.
+  (`#2280 <https://github.com/NVIDIA/cuda-python/pull/2280>`__)
+- Hardened the graph user-object destructor against races during Python
+  interpreter shutdown.
+  (`#2074 <https://github.com/NVIDIA/cuda-python/pull/2074>`__)
+- Free-threading correctness fixes: buffer and memory-resource threading
+  (`#2162 <https://github.com/NVIDIA/cuda-python/pull/2162>`__), critical-section
+  guards on shared accessors
+  (`#2215 <https://github.com/NVIDIA/cuda-python/pull/2215>`__), and an atomic
+  flag guarding buffer memory-attribute initialization
+  (`#2216 <https://github.com/NVIDIA/cuda-python/pull/2216>`__).
+- :meth:`Program.compile` cache keys are now FIPS-safe.
+  (`#2087 <https://github.com/NVIDIA/cuda-python/pull/2087>`__)
+- Memory-pool driver errors are now preserved instead of being masked by
+  out-of-memory handling.
+  (`#2084 <https://github.com/NVIDIA/cuda-python/pull/2084>`__)
+- DLPack export now raises ``BufferError`` (the intended exception) instead of
+  ``RuntimeError`` when a buffer cannot be exported.
+  (`#2160 <https://github.com/NVIDIA/cuda-python/pull/2160>`__)
+- Corrected the :class:`Buffer` and :class:`MemoryResource` ``__eq__``
+  implementations.
+  (`#2067 <https://github.com/NVIDIA/cuda-python/pull/2067>`__,
+  closes `#2050 <https://github.com/NVIDIA/cuda-python/issues/2050>`__)
+- Checkpoint restore now validates GPU UUID inputs early.
+  (`#2086 <https://github.com/NVIDIA/cuda-python/pull/2086>`__)
+- Bumped the PyTorch tensor-bridge upper bound to 2.12.
+  (`#2099 <https://github.com/NVIDIA/cuda-python/pull/2099>`__)
+
+Documentation
+-------------
+
+- Documented the IPC buffer pickle trust boundary: :meth:`Buffer.__reduce__`
+  and multi-process IPC users should review the security note before
+  unpickling buffer handles from untrusted sources.
+  (`#2225 <https://github.com/NVIDIA/cuda-python/pull/2225>`__)
+
+Deprecated APIs
+---------------
+
+- Deprecated :attr:`system.NvlinkInfo.max_links`. Use
+  :meth:`system.Device.get_nvlink_count` or :meth:`system.Device.get_nvlinks`
+  to query NVLink availability for a specific device.
