@@ -10,16 +10,18 @@
 Highlights
 ----------
 
+- ``cuda.core`` now ships with ``.pyi`` type stubs for all public APIs,
+  giving IDEs and type checkers full autocompletion and static analysis.
+- New :mod:`cuda.core.texture` module for texture and surface memory:
+  :class:`~texture.OpaqueArray`, :class:`~texture.MipmappedArray`,
+  :class:`~texture.TextureObject`, and :class:`~texture.SurfaceObject`,
+  constructed through the corresponding ``Device.create_*`` factories.
 - Richer managed-memory support: the new :class:`ManagedBuffer` exposes a
   property-style advice API (:attr:`~ManagedBuffer.read_mostly`,
   :attr:`~ManagedBuffer.preferred_location`,
   :attr:`~ManagedBuffer.accessed_by`) with NUMA-aware host locations via the
   new :class:`Host` type, plus batched range operations in
   :mod:`cuda.core.utils` for prefetching and discarding many buffers at once.
-- Device-specific NVLink enumeration through
-  :meth:`system.Device.get_nvlink_count` and
-  :meth:`system.Device.get_nvlinks`, replacing reliance on the static
-  ``NVML_NVLINK_MAX_LINKS`` macro.
 
 
 New features
@@ -77,6 +79,18 @@ New features
   body entirely through the explicit API.
   (`#2026 <https://github.com/NVIDIA/cuda-python/pull/2026>`__)
 
+- Added the :mod:`cuda.core.texture` module for texture and surface memory:
+  :class:`~texture.OpaqueArray` and :class:`~texture.MipmappedArray` for
+  hardware-laid-out array allocations, and :class:`~texture.TextureObject` and
+  :class:`~texture.SurfaceObject` for bindless kernel-side sampled reads and
+  typed load/store. Objects are constructed from a
+  :class:`~texture.ResourceDescriptor` via
+  :meth:`Device.create_opaque_array`, :meth:`Device.create_mipmapped_array`,
+  :meth:`Device.create_texture_object`, and :meth:`Device.create_surface_object`.
+  (`#467 <https://github.com/NVIDIA/cuda-python/issues/467>`__,
+  `#2095 <https://github.com/NVIDIA/cuda-python/pull/2095>`__,
+  `#2307 <https://github.com/NVIDIA/cuda-python/pull/2307>`__)
+
 - ``cuda.core`` now ships with ``.pyi`` stubs for all public APIs, enabling
   users' IDEs and type checkers to provide better autocompletion and static
   analysis.
@@ -103,6 +117,11 @@ Bug fixes
   issuing any advice, so a bulk assignment containing an invalid entry can no
   longer leave the applied advice in a torn state.
   (`#2222 <https://github.com/NVIDIA/cuda-python/pull/2222>`__)
+- Graph nodes now keep their Python-owned attachments (kernel-argument
+  buffers, host-callback functions and user data, and memcpy/memset operands)
+  alive for the lifetime of the graph. Previously, keeping these objects alive
+  was the caller's responsibility.
+  (`#2280 <https://github.com/NVIDIA/cuda-python/pull/2280>`__)
 
 Deprecated APIs
 ---------------

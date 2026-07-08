@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0f022cbe"></script>
+    <script src="../_static/documentation_options.js?v=cda348a6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev115';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev123';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -597,11 +597,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ArrayFormat.html">cuda.core.texture.ArrayFormat</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
@@ -715,16 +713,18 @@
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now ships with <code class="docutils literal notranslate"><span class="pre">.pyi</span></code> type stubs for all public APIs,
+giving IDEs and type checkers full autocompletion and static analysis.</p></li>
+<li><p>New <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.texture</span></code> module for texture and surface memory:
+<a class="reference internal" href="../generated/cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a>, <a class="reference internal" href="../generated/cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a>, and <a class="reference internal" href="../generated/cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a>,
+constructed through the corresponding <code class="docutils literal notranslate"><span class="pre">Device.create_*</span></code> factories.</p></li>
 <li><p>Richer managed-memory support: the new <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer" title="cuda.core.ManagedBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedBuffer</span></code></a> exposes a
 property-style advice API (<a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.read_mostly" title="cuda.core.ManagedBuffer.read_mostly"><code class="xref py py-attr docutils literal notranslate"><span class="pre">read_mostly</span></code></a>,
 <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.preferred_location" title="cuda.core.ManagedBuffer.preferred_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">preferred_location</span></code></a>,
 <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.accessed_by" title="cuda.core.ManagedBuffer.accessed_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">accessed_by</span></code></a>) with NUMA-aware host locations via the
 new <a class="reference internal" href="../generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a> type, plus batched range operations in
 <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.utils</span></code> for prefetching and discarding many buffers at once.</p></li>
-<li><p>Device-specific NVLink enumeration through
-<a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlink_count" title="cuda.core.system.Device.get_nvlink_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlink_count()</span></code></a> and
-<a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlinks" title="cuda.core.system.Device.get_nvlinks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlinks()</span></code></a>, replacing reliance on the static
-<code class="docutils literal notranslate"><span class="pre">NVML_NVLINK_MAX_LINKS</span></code> macro.</p></li>
 </ul>
 </section>
 <section id="new-features">
@@ -778,6 +778,17 @@ flows that mix the capture and explicit graph-building APIs, such as
 inspecting or augmenting a captured graph, or populating a conditional
 body entirely through the explicit API.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2026">#2026</a>)</p></li>
+<li><p>Added the <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.texture</span></code> module for texture and surface memory:
+<a class="reference internal" href="../generated/cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> and <a class="reference internal" href="../generated/cuda.core.texture.MipmappedArray.html#cuda.core.texture.MipmappedArray" title="cuda.core.texture.MipmappedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">MipmappedArray</span></code></a> for
+hardware-laid-out array allocations, and <a class="reference internal" href="../generated/cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject" title="cuda.core.texture.SurfaceObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">SurfaceObject</span></code></a> for bindless kernel-side sampled reads and
+typed load/store. Objects are constructed from a
+<a class="reference internal" href="../generated/cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor" title="cuda.core.texture.ResourceDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceDescriptor</span></code></a> via
+<a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.create_opaque_array" title="cuda.core.Device.create_opaque_array"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_opaque_array()</span></code></a>, <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.create_mipmapped_array" title="cuda.core.Device.create_mipmapped_array"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_mipmapped_array()</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.create_texture_object" title="cuda.core.Device.create_texture_object"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_texture_object()</span></code></a>, and <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.create_surface_object" title="cuda.core.Device.create_surface_object"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_surface_object()</span></code></a>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/467">#467</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2095">#2095</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2307">#2307</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now ships with <code class="docutils literal notranslate"><span class="pre">.pyi</span></code> stubs for all public APIs, enabling
 users’ IDEs and type checkers to provide better autocompletion and static
 analysis.</p></li>
@@ -805,6 +816,11 @@ negative allocation handles are always rejected, including under <code class="do
 issuing any advice, so a bulk assignment containing an invalid entry can no
 longer leave the applied advice in a torn state.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2222">#2222</a>)</p></li>
+<li><p>Graph nodes now keep their Python-owned attachments (kernel-argument
+buffers, host-callback functions and user data, and memcpy/memset operands)
+alive for the lifetime of the graph. Previously, keeping these objects alive
+was the caller’s responsibility.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2280">#2280</a>)</p></li>
 </ul>
 </section>
 <section id="deprecated-apis">
