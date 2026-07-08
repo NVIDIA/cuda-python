@@ -47,7 +47,7 @@ a kernel" using small, runnable snippets. For the full reference, see the
 
    .. code-block:: console
 
-      $ pip install cuda-core[cu13]
+      $ pip install "cuda-core[cu13]"
 
    The :doc:`install page <install>` covers driver requirements, conda, CUDA 12,
    and installing from source.
@@ -69,17 +69,16 @@ on the current host thread. Always call it before doing GPU work.
 
 .. code-block:: python
 
-   dev = Device()        # device 0 by default; Device(1) selects another GPU
+   dev = Device()        # current device (device 0 if none is current); Device(1) picks a specific GPU
    dev.set_current()     # initialize CUDA and make this device current
 
    print(dev.name)                 # e.g. 'NVIDIA GB10'
    print(dev.compute_capability)   # ComputeCapability(major=12, minor=1)
    print(dev.arch)                 # '121'  (handy for building kernels below)
 
-:class:`Device` objects are thread-local singletons: ``Device(0)`` always hands
-you back the same object for device 0 on that thread, so libraries sharing your
-process see and use the same GPU. Rich device attributes live under
-:attr:`Device.properties` (for example
+:class:`Device` is a thread-local singleton: on the same thread, ``Device(0)``
+always returns the same object, so repeated calls are cheap. Rich device
+attributes live under :attr:`Device.properties` (for example
 ``dev.properties.multiprocessor_count``).
 
 
@@ -121,16 +120,17 @@ exception carries the compiler's log, so you can see exactly what went wrong
    try:
        Program(bad, code_type="c++", options=opts).compile("cubin")
    except Exception as e:
-       print(e)        # includes: error: identifier "not_a_real_symbol" is undefined
+       # the exception carries the compiler log
+       assert 'identifier "not_a_real_symbol" is undefined' in str(e)
 
 
 Streams
 -------
 
 A :class:`Stream` is an ordered queue of GPU work. Operations on the same stream
-run in order; separate streams may overlap. Most ``cuda.core`` operations that
-touch the GPU take a stream so you stay in control of ordering. Create one from
-the device:
+run sequentially; operations on separate streams may run concurrently. Most
+``cuda.core`` operations that touch the GPU take a stream so you stay in control
+of ordering. Create one from the device:
 
 .. code-block:: python
 
@@ -193,8 +193,8 @@ gives a CuPy array backed by the device buffer.
 Copying and launching
 ---------------------
 
-Copy host → device with :meth:`Buffer.copy_from`, run the kernel with
-:func:`launch`, then copy device → host with :meth:`Buffer.copy_to`. These are
+Copy host to device with :meth:`Buffer.copy_from`, run the kernel with
+:func:`launch`, then copy device to host with :meth:`Buffer.copy_to`. These are
 all stream-ordered and asynchronous; :meth:`Stream.sync` blocks until the queued
 work finishes.
 
@@ -227,7 +227,7 @@ Timing with events
 
 An :class:`Event` marks a point in a stream. Create timing-enabled events,
 :meth:`record <Stream.record>` them around some work, synchronize, and subtract
-to get elapsed GPU time in milliseconds.
+to get the elapsed time between them in milliseconds.
 
 .. code-block:: python
 
@@ -290,10 +290,11 @@ independent and lets the runtime overlap it when it can. The
 Capturing work in a CUDA graph
 ------------------------------
 
-When you launch the same sequence of operations repeatedly, per-launch CPU
-overhead adds up. A CUDA graph lets you record that sequence once and replay it
-with a single launch. Use the stream's graph builder: begin building, issue the
-launches into the *builder* instead of the stream, then complete the graph.
+Repeating the same GPU work many times means paying the CPU cost of submitting
+each operation on every repeat. A CUDA graph lets you record that work once and
+then launch the whole graph repeatedly, instead of re-issuing each operation
+every time. Use the stream's graph builder: begin building, issue your
+operations into the *builder* instead of the stream, then complete the graph.
 
 .. code-block:: python
 
@@ -306,11 +307,18 @@ launches into the *builder* instead of the stream, then complete the graph.
    graph = gb.end_building().complete()
 
    graph.upload(stream)
-   graph.launch(stream)     # replay the whole sequence in one shot
+   graph.launch(stream)     # replay the whole graph in one shot
    stream.sync()
 
 See :cuda-core-example:`cuda_graphs.py <cuda_graphs.py>`
 for a complete capture-and-replay example with a measured speedup.
+
+Beyond the stream capture shown here, ``cuda.core`` also provides an explicit
+graph interface (the :mod:`cuda.core.graph` module) for building, inspecting, and
+modifying graphs directly, including graphs first produced by capture. The
+project's `graph tests
+<https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/tests/graph>`_ have
+many usage examples.
 
 
 Working with CuPy and PyTorch
@@ -343,25 +351,20 @@ array of ones:
 
 .. code-block:: python
 
-   # PyTorch: wrap torch's stream via the __cuda_stream__ protocol
+   # PyTorch streams implement the __cuda_stream__ protocol natively
    import torch
 
-   class PyTorchStreamWrapper:
-       def __init__(self, pt_stream):
-           self.pt_stream = pt_stream
-       def __cuda_stream__(self):
-           return (0, self.pt_stream.cuda_stream)
-
    t = torch.ones(n, dtype=torch.float32, device="cuda")
-   ts = dev.create_stream(PyTorchStreamWrapper(torch.cuda.current_stream()))
+   ts = dev.create_stream(torch.cuda.current_stream())
    launch(ts, config, scale, t.data_ptr(), np.float32(2.0), np.uint64(t.numel()))
    ts.sync()
-   assert torch.allclose(t, torch.full_like(t, 2.0))
+   assert bool((t == 2).all())
 
-The ``__cuda_stream__`` protocol is how any object advertises that it represents
-a CUDA stream; :meth:`Device.create_stream` accepts such objects so you can drive
-``cuda.core`` work on another library's stream. See the
-:doc:`interoperability guide <interoperability>` for details.
+The ``__cuda_stream__`` protocol is how an object advertises that it represents a
+CUDA stream, so :meth:`Device.create_stream` can accept it and drive ``cuda.core``
+work on another library's stream. PyTorch implements it natively as of version
+2.10. See the :doc:`interoperability guide <interoperability>` for the protocol
+details and how to support it in your own types.
 
 **Array-library-agnostic views.** To accept *any* CuPy/PyTorch/NumPy-like array
 that supports DLPack or the CUDA Array Interface, decorate a function with
@@ -399,7 +402,7 @@ Cleaning up
 Buffers, streams, events, graphs, and graph builders hold CUDA resources. They
 are released when garbage-collected, but you can release them explicitly with
 ``close()``, which the :cuda-core-examples:`cuda.core examples </>` do in a
-``finally`` block. Buffers are also context managers.
+``finally`` block.
 
 .. code-block:: python
 
@@ -408,10 +411,6 @@ are released when garbage-collected, but you can release them explicitly with
    dbuf.close(stream=stream)
    host.close(stream=stream)
    stream.close()
-
-   # or scope a buffer with a with-statement:
-   with dev.allocate(nbytes, stream=stream) as tmp:
-       ...  # tmp is freed at the end of the block
 
 
 Where to go next
