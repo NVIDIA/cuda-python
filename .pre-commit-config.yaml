@@ -43,9 +43,9 @@ repos:
         exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
         args: ["--fix"]
 
-      - id: check-cybind-generated-file-seals
-        name: Check cybind-generated file seals
-        entry: python ./toolshed/check_cybind-generated_file_seals.py
+      - id: check-generated-file-seals
+        name: Check generated-file seals
+        entry: python ./toolshed/check_generated_file_seals.py
         language: python
         files: ^cuda_bindings/
         types: [text]

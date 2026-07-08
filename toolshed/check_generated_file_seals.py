@@ -8,9 +8,11 @@ import subprocess
 import sys
 from pathlib import Path, PureWindowsPath
 
-GENERATED_FILE_SEAL_TOKEN = "CYBIND-GENERATED-DO-NOT-MODIFY-THIS-FILE:"  # noqa: S105
+GENERATED_FILE_MARKER_FRAGMENT = "-GENERATED-DO-NOT-MODIFY-THIS-FILE"
+GENERATED_FILE_SEAL_TOKEN = "CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE:"  # noqa: S105
 SUPPORTED_GENERATED_FILE_SEAL_FORMATS = frozenset({1})
 
+assert GENERATED_FILE_MARKER_FRAGMENT in GENERATED_FILE_SEAL_TOKEN
 _TOKEN_BYTES = GENERATED_FILE_SEAL_TOKEN.encode("ascii")
 _MARKER_REGEX = re.compile(
     rb"^(?P<prefix>#|\.\.) "
@@ -38,7 +40,7 @@ def expected_comment_prefix(filepath):
 
 def load_previously_sealed_paths():
     process = subprocess.run(  # noqa: S603
-        ["git", "grep", "-l", "-I", "-F", GENERATED_FILE_SEAL_TOKEN, "HEAD", "--"],  # noqa: S607
+        ["git", "grep", "-l", "-I", "-F", "-e", GENERATED_FILE_MARKER_FRAGMENT, "HEAD", "--"],  # noqa: S607
         capture_output=True,
         text=True,
     )
@@ -67,23 +69,23 @@ def validate_generated_file_seal(filepath, previously_sealed_paths):
 
     if not marker_indexes:
         if normalized_path in previously_sealed_paths:
-            print(f"MISSING cybind-generated file seal in {filepath!r}")
+            print(f"MISSING generated-file seal in {filepath!r}")
             return False
         return True
 
     if len(marker_indexes) != 1:
-        print(f"INVALID cybind-generated file seal count in {filepath!r}: found {len(marker_indexes)}, expected 1")
+        print(f"INVALID generated-file seal count in {filepath!r}: found {len(marker_indexes)}, expected 1")
         return False
 
     marker_index = marker_indexes[0]
     match = _MARKER_REGEX.fullmatch(lines[marker_index])
     if match is None:
-        print(f"MALFORMED cybind-generated file seal in {filepath!r}")
+        print(f"MALFORMED generated-file seal in {filepath!r}")
         return False
 
     seal_format = int(match.group("format"))
     if seal_format not in SUPPORTED_GENERATED_FILE_SEAL_FORMATS:
-        print(f"UNSUPPORTED cybind-generated file seal format {seal_format} in {filepath!r}")
+        print(f"UNSUPPORTED generated-file seal format {seal_format} in {filepath!r}")
         return False
 
     expected_prefix = expected_comment_prefix(filepath)
@@ -91,7 +93,7 @@ def validate_generated_file_seal(filepath, previously_sealed_paths):
         print(f"UNSUPPORTED sealed generated-file extension in {filepath!r}")
         return False
     if match.group("prefix") != expected_prefix:
-        print(f"INVALID cybind-generated file seal comment prefix in {filepath!r}")
+        print(f"INVALID generated-file seal comment prefix in {filepath!r}")
         return False
 
     unsealed_blob = b"".join(lines[:marker_index] + lines[marker_index + 1 :])
@@ -99,7 +101,7 @@ def validate_generated_file_seal(filepath, previously_sealed_paths):
     recorded_digest = match.group("digest")
     if recorded_digest != computed_digest:
         print(
-            f"MISMATCHED cybind-generated file seal in {filepath!r}: "
+            f"MISMATCHED generated-file seal in {filepath!r}: "
             f"recorded {recorded_digest.decode()}, computed {computed_digest.decode()}"
         )
         return False
