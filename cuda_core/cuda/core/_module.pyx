@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+cimport cython
 from libc.stddef cimport size_t
 
 from collections import namedtuple
@@ -454,6 +455,7 @@ cdef class Kernel:
         return ker
 
     @property
+    @cython.critical_section
     def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
         if self._attributes is None:
@@ -501,6 +503,7 @@ cdef class Kernel:
         return param_info
 
     @property
+    @cython.critical_section
     def occupancy(self) -> KernelOccupancy:
         """Get the occupancy information for launching this kernel."""
         if self._occupancy is None:
@@ -742,6 +745,7 @@ cdef class ObjectCode:
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
+    @cython.critical_section
     cdef int _lazy_load_module(self) except -1:
         if self._h_library:
             return 0

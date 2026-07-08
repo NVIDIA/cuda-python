@@ -25,3 +25,4 @@ OpaqueArrayHandle = shared_ptr
 MipmappedArrayHandle = shared_ptr
 TexObjectHandle = shared_ptr
 SurfObjectHandle = shared_ptr
+OpaqueHandle = shared_ptr
