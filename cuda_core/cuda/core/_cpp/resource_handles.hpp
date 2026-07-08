@@ -109,6 +109,9 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 // Graph
 extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
 extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
+extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
+extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
+extern decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject;
 
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
@@ -465,6 +468,39 @@ GraphHandle create_graph_handle(CUgraph graph);
 // The child graph will NOT be destroyed when this handle is released,
 // but h_parent will be prevented from destruction while this handle exists.
 GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
+
+// ============================================================================
+// Graph slot attachments
+//
+// A graph carries a side table that keeps resources used by its nodes (kernel
+// arguments, host callbacks, events, ...) alive for as long as the graph can
+// execute. The table is created on first use and retained on the CUgraph as a
+// user object, so the driver releases it -- and everything attached through it
+// -- when the graph is destroyed. The table layout is an internal detail;
+// callers use the abstract API below.
+// ============================================================================
+
+// Type-erased shared owner of an attached resource. Typed handles such as
+// EventHandle and KernelHandle convert to OpaqueHandle by assignment, reusing
+// their existing control block; the helpers below build OpaqueHandles for the
+// two cases that need a custom deleter.
+using OpaqueHandle = std::shared_ptr<const void>;
+
+// Build an OpaqueHandle from a Python object: increments its refcount now and
+// decrements it (under the GIL) on release. The caller must hold the GIL.
+OpaqueHandle make_opaque_py(PyObject* obj);
+
+// Build an OpaqueHandle from a malloc'd buffer: std::free on release.
+OpaqueHandle make_opaque_malloc(void* buf);
+
+// Attach owner to one of node's fixed slots on h_graph, replacing whatever was
+// there. The graph's slot table is created on first use. A null owner is a
+// no-op (returns CUDA_SUCCESS without creating the table), so callers need not
+// guard optional owners. Returns CUDA_SUCCESS, or an error if slot is out of
+// range or the graph cannot hold a table (e.g. the driver lacks user-object
+// support).
+CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
+                        unsigned int slot, OpaqueHandle owner);
 
 // ============================================================================
 // Graph exec handle functions

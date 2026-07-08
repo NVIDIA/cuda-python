@@ -123,7 +123,7 @@ repos:
         pass_filenames: false
         args: [--config-file=cuda_core/pyproject.toml, cuda_core/cuda/core]
         additional_dependencies:
-          - numpy
+          - numpy==2.4.2
 
   - repo: https://github.com/rhysd/actionlint
     rev: "914e7df21a07ef503a81201c76d2b11c789d3fca"  # frozen: v1.7.12
