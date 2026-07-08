@@ -19,7 +19,19 @@ _MARKER_REGEX = re.compile(
     + re.escape(_TOKEN_BYTES)
     + rb" format=(?P<format>[0-9]+); content-sha256=(?P<digest>[0-9a-f]{64})\n$"
 )
-_SOURCE_SUFFIXES = frozenset({".py", ".pxd", ".pxi", ".pyx"})
+_COMMENT_CHARS = {
+    ".py": b"#",
+    ".pxd": b"#",
+    ".pxi": b"#",
+    ".pyx": b"#",
+    ".pyx.in": b"#",
+    ".pxd.in": b"#",
+    ".pxi.in": b"#",
+    ".rst": b"..",
+    ".c": b"//",
+    ".cpp": b"//",
+    ".h": b"//",
+}
 
 
 def normalize_repo_path(filepath):
@@ -27,20 +39,27 @@ def normalize_repo_path(filepath):
 
 
 def expected_comment_prefix(filepath):
-    suffixes = Path(normalize_repo_path(filepath)).suffixes
-    if suffixes and suffixes[-1] == ".in":
-        suffixes = suffixes[:-1]
-    suffix = suffixes[-1] if suffixes else ""
-    if suffix in _SOURCE_SUFFIXES:
-        return b"#"
-    if suffix == ".rst":
-        return b".."
+    normalized_path = normalize_repo_path(filepath)
+    for suffix, comment_char in _COMMENT_CHARS.items():
+        if normalized_path.endswith(suffix):
+            return comment_char
     return None
 
 
 def load_previously_sealed_paths():
     process = subprocess.run(  # noqa: S603
-        ["git", "grep", "-l", "-I", "-F", "-e", GENERATED_FILE_MARKER_FRAGMENT, "HEAD", "--"],  # noqa: S607
+        [  # noqa: S607
+            "git",
+            "grep",
+            "-l",
+            "-I",
+            "-F",
+            "-e",
+            GENERATED_FILE_MARKER_FRAGMENT,
+            "HEAD",
+            "--",
+            "cuda_bindings",
+        ],
         capture_output=True,
         text=True,
     )
@@ -100,9 +119,10 @@ def validate_generated_file_seal(filepath, previously_sealed_paths):
     computed_digest = hashlib.sha256(unsealed_blob).hexdigest().encode("ascii")
     recorded_digest = match.group("digest")
     if recorded_digest != computed_digest:
+        print(f"Manual changes detected in {filepath!r}. It is a generated file and should not be edited directly.")
         print(
-            f"MISMATCHED generated-file seal in {filepath!r}: "
-            f"recorded {recorded_digest.decode()}, computed {computed_digest.decode()}"
+            f"Recorded content SHA-256: {recorded_digest.decode()}\n"
+            f"Computed content SHA-256: {computed_digest.decode()}"
         )
         return False
 
