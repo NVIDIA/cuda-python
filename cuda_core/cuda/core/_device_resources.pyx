@@ -141,6 +141,17 @@ cdef class WorkqueueResourceOptions:
     sharing_scope: str | None = None
     concurrency_limit: int | None = None
 
+    def __post_init__(self):
+        if self.sharing_scope not in (None, "device_ctx", "green_ctx_balanced"):
+            raise ValueError(
+                f"Unknown sharing_scope: {self.sharing_scope!r}. "
+                "Expected 'device_ctx' or 'green_ctx_balanced'."
+            )
+        if self.concurrency_limit is not None and self.concurrency_limit < 1:
+            raise ValueError(
+                f"concurrency_limit must be >= 1, got {self.concurrency_limit}"
+            )
+
 
 cdef inline int _validate_split_field_length(
     object value, str field_name, int n_groups, bint count_is_scalar
@@ -579,10 +590,6 @@ cdef class WorkqueueResource:
 
         IF CUDA_CORE_BUILD_MAJOR >= 13:
             if opts.concurrency_limit is not None:
-                if opts.concurrency_limit < 1:
-                    raise ValueError(
-                        f"concurrency_limit must be >= 1, got {opts.concurrency_limit}"
-                    )
                 self._wq_config_resource.wqConfig.wqConcurrencyLimit = (
                     <unsigned int>opts.concurrency_limit
                 )
@@ -593,11 +600,6 @@ cdef class WorkqueueResource:
             elif opts.sharing_scope == "green_ctx_balanced":
                 self._wq_config_resource.wqConfig.sharingScope = (
                     cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
-                )
-            elif opts.sharing_scope is not None:
-                raise ValueError(
-                    f"Unknown sharing_scope: {opts.sharing_scope!r}. "
-                    "Expected 'device_ctx' or 'green_ctx_balanced'."
                 )
         ELSE:
             raise RuntimeError(

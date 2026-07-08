@@ -216,9 +216,9 @@ class TestWorkqueueResource:
     def test_configure_valid_scope(self, wq_resource):
         wq_resource.configure(WorkqueueResourceOptions(sharing_scope="green_ctx_balanced"))
 
-    def test_configure_invalid_scope_raises(self, wq_resource):
+    def test_invalid_scope_raises_at_construction(self):
         with pytest.raises(ValueError, match="Unknown sharing_scope"):
-            wq_resource.configure(WorkqueueResourceOptions(sharing_scope="bogus"))
+            WorkqueueResourceOptions(sharing_scope="bogus")
 
     def test_query_concurrency_limit_nonzero(self, wq_resource):
         # driver populates from CUDA_DEVICE_MAX_CONNECTIONS
@@ -235,13 +235,13 @@ class TestWorkqueueResource:
         ))
         assert wq_resource.concurrency_limit == 2
 
-    def test_configure_concurrency_limit_zero_raises(self, wq_resource):
+    def test_concurrency_limit_zero_raises_at_construction(self):
         with pytest.raises(ValueError, match="concurrency_limit must be >= 1"):
-            wq_resource.configure(WorkqueueResourceOptions(concurrency_limit=0))
+            WorkqueueResourceOptions(concurrency_limit=0)
 
-    def test_configure_concurrency_limit_negative_raises(self, wq_resource):
+    def test_concurrency_limit_negative_raises_at_construction(self):
         with pytest.raises(ValueError, match="concurrency_limit must be >= 1"):
-            wq_resource.configure(WorkqueueResourceOptions(concurrency_limit=-3))
+            WorkqueueResourceOptions(concurrency_limit=-3)
 
 
 # ---------------------------------------------------------------------------
