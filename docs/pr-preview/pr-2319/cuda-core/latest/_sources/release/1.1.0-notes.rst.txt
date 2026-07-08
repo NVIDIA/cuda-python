@@ -1,0 +1,79 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.1.0 Release Notes
+=================================
+
+
+New features
+------------
+
+- Added :class:`Host` as the symmetric counterpart of :class:`Device` for
+  expressing managed-memory locations: ``Host()`` (any host),
+  ``Host(numa_id=N)`` (specific NUMA node), and ``Host.numa_current()``
+  (calling thread's NUMA node).
+
+- Added :class:`ManagedBuffer`, a :class:`Buffer` subclass returned by
+  :meth:`ManagedMemoryResource.allocate` that exposes a property-style
+  advice API:
+
+  - ``buf.read_mostly`` (bool) — driver-backed get/set.
+  - ``buf.preferred_location`` (:class:`Device` | :class:`Host` | None) —
+    driver-backed get/set; assigning ``None`` unsets.
+  - ``buf.accessed_by`` — a live, set-like view; ``add()`` / ``discard()``
+    issue advice, iteration queries the driver.
+  - ``buf.prefetch(location, *, stream)``, ``buf.discard(*, stream)``,
+    ``buf.discard_prefetch(location, *, stream)`` — instance methods that
+    delegate to the matching free functions.
+
+  Use :meth:`ManagedBuffer.from_handle` to wrap an existing managed-memory
+  pointer.
+
+- Added batched managed-memory range operations to :mod:`cuda.core.utils`
+  (CUDA 13+): :func:`~utils.prefetch_batch`, :func:`~utils.discard_batch`,
+  and :func:`~utils.discard_prefetch_batch`. Each takes a sequence of
+  managed :class:`Buffer` instances and dispatches to the corresponding
+  ``cuMem*BatchAsync`` driver entry point, addressing the managed-memory
+  portion of #1333. Single-buffer operations are exposed as instance
+  methods on :class:`ManagedBuffer` (:meth:`~ManagedBuffer.prefetch`,
+  :meth:`~ManagedBuffer.discard`, :meth:`~ManagedBuffer.discard_prefetch`)
+  and as property setters (:attr:`~ManagedBuffer.read_mostly`,
+  :attr:`~ManagedBuffer.preferred_location`,
+  :attr:`~ManagedBuffer.accessed_by`). Locations are expressed via
+  :class:`Device` or :class:`Host`.
+
+- Added :meth:`system.Device.get_nvlink_count` and
+  :meth:`system.Device.get_nvlinks` for device-specific NVLink enumeration.
+  These APIs avoid relying on the static NVML ``NVML_NVLINK_MAX_LINKS`` macro
+  when querying the links available on a particular device.
+
+- Added the :attr:`graph.GraphBuilder.graph_definition` property, which
+  exposes a captured graph as an explicit :class:`graph.GraphDefinition`
+  view sharing ownership of the same underlying graph. This enables hybrid
+  flows that mix the capture and explicit graph-building APIs, such as
+  inspecting or augmenting a captured graph, or populating a conditional
+  body entirely through the explicit API.
+
+- ``cuda.core`` now ships with ``.pyi`` stubs for all public APIs, enabling
+  users' IDEs and type checkers to provide better autocompletion and static
+  analysis.
+
+Bug fixes
+---------
+
+- On WSL, ``cuda.core.system.get_process_name`` would raise a
+  ``UnicodeDecodeError``.  It should now return the correct result.
+- Calling ``cuda.core.system.get_process_name`` before querying any device's
+  ``compute_running_processes`` would raise a ``NvmlNotFoundError``.  Now it will
+  correctly return the process name, if it is a GPU-using process.
+- :meth:`system.Device.get_nvlink` now validates link numbers against the
+  device-specific NVLink count and raises ``ValueError`` for unsupported links.
+
+Deprecated APIs
+---------------
+
+- Deprecated :attr:`system.NvlinkInfo.max_links`. Use
+  :meth:`system.Device.get_nvlink_count` or :meth:`system.Device.get_nvlinks`
+  to query NVLink availability for a specific device.
