@@ -39,6 +39,7 @@ from cuda.core._utils.cuda_utils import (
     driver,
     is_sequence,
 )
+from cuda.core._utils.version import driver_version
 from cuda.core.typing import CompilerBackendType, ObjectCodeFormatType
 
 if TYPE_CHECKING:
@@ -207,7 +208,8 @@ class LinkerOptions:
 
     Since the linker may choose to use nvJitLink or the driver APIs as the linking backend,
     not all options are applicable. When the system's installed nvJitLink is too old (<12.3),
-    or not installed, the driver APIs (cuLink) will be used instead.
+    not installed, or does not match the CUDA driver major version, the driver APIs
+    (cuLink) will be used instead.
 
     Attributes
     ----------
@@ -680,12 +682,26 @@ def _decide_nvjitlink_or_driver() -> bool:
         from cuda.bindings._internal import nvjitlink
 
         if _nvjitlink_has_version_symbol(nvjitlink):
-            _use_nvjitlink_backend = True
-            return False  # Use nvjitlink
-        warn_txt = (
-            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
-            f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
-        )
+            nvjitlink_version = nvjitlink_module.version()
+            try:
+                driver_major = driver_version()[0]
+            except CUDAError:
+                driver_major = None
+
+            if driver_major is None or driver_major == nvjitlink_version[0]:
+                _use_nvjitlink_backend = True
+                return False  # Use nvjitlink
+
+            warn_txt = (
+                f"CUDA driver major version {driver_major} does not match "
+                f"nvJitLink major version {nvjitlink_version[0]}; therefore "
+                f"{warn_txt_common} nvJitLink."
+            )
+        else:
+            warn_txt = (
+                f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
+                f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
+            )
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
     _use_nvjitlink_backend = False
