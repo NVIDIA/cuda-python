@@ -2,21 +2,26 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1844+ge04b6a4af. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
 
-from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
-
 
 ###############################################################################
 # Enum
 ###############################################################################
 
-class Result(_IntEnum):
+class Result(_cyb_FastEnum):
     """
     NVVM API call result code.
 
@@ -321,3 +326,4 @@ cpdef int llvm_version(arch) except? 0:
         __status__ = nvvmLLVMVersion(<const char*>_arch_, &major)
     check_status(__status__)
     return major
+del _cyb_FastEnum
