@@ -8,6 +8,7 @@ import pytest
 
 from cuda.core import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core._module import ObjectCode
+from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError
 
 ARCH = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
@@ -232,6 +233,47 @@ def test_linker_handle(compile_ptx_functions):
     handle = linker.handle
     assert handle is not None
     assert int(handle) != 0
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+@pytest.mark.skipif(not is_culink_backend, reason="driver backend regression test")
+def test_driver_linker_lifetime_no_heap_corruption(compile_ptx_functions):
+    if not _can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+
+    linker = Linker(*compile_ptx_functions, options=LinkerOptions(arch=ARCH))
+    linker.link("cubin")
+    linker.close()
+    del linker
+
+    obj_a = Program(kernel_a, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    obj_b = Program(device_function_b, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    obj_c = Program(device_function_c, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    linker = Linker(obj_a, obj_b, obj_c, options=LinkerOptions(arch=ARCH))
+    linker.link("cubin")
+    linker.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+@pytest.mark.skipif(not is_culink_backend, reason="driver backend regression test")
+def test_driver_linker_preserves_error_log_after_close(init_cuda):
+    if not _can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+
+    bad_kernel = """
+extern __device__ int Z();
+__global__ void A() { int r = Z(); }
+"""
+    bad_obj = Program(bad_kernel, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    linker = Linker(bad_obj, options=LinkerOptions(arch=ARCH))
+    with pytest.raises(CUDAError):
+        linker.link("cubin")
+
+    error_log = linker.get_error_log()
+    assert error_log
+    linker.close()
+    assert linker.get_error_log() == error_log
+    assert isinstance(linker.get_info_log(), str)
 
 
 @pytest.mark.skipif(is_culink_backend, reason="nvjitlink options only tested with nvjitlink backend")
