@@ -4,6 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=74f1f9c9443af66fdadbfeeb01e5c15c2d8f1b9b0b20eafa2a279583bcf7df00
 from ._internal cimport cufile as _cufile
 
 import cython

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=29630fb8d40658dc3ed853407f00b4618688984d4227aae877e2f32807fef519
 cdef extern from "cuda_runtime_api.h":
 
     {{if 'cudaDeviceReset' in found_functions}}

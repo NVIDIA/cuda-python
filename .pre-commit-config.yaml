@@ -43,6 +43,13 @@ repos:
         exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
         args: ["--fix"]
 
+      - id: check-generated-file-seals
+        name: Check generated-file seals
+        entry: python ./toolshed/check_generated_file_seals.py
+        language: python
+        files: ^cuda_bindings/
+        types: [text]
+
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
