@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=cda348a6"></script>
+    <script src="../_static/documentation_options.js?v=d9c8f1c3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev123';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev128';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -567,6 +567,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Program.html">cuda.core.Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
@@ -600,10 +610,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
@@ -725,6 +731,8 @@ property-style advice API (<a class="reference internal" href="../generated/cuda
 <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.accessed_by" title="cuda.core.ManagedBuffer.accessed_by"><code class="xref py py-attr docutils literal notranslate"><span class="pre">accessed_by</span></code></a>) with NUMA-aware host locations via the
 new <a class="reference internal" href="../generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a> type, plus batched range operations in
 <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.utils</span></code> for prefetching and discarding many buffers at once.</p></li>
+<li><p>CUDA 13.3 toolkit support.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2139">#2139</a>)</p></li>
 </ul>
 </section>
 <section id="new-features">
@@ -791,19 +799,28 @@ typed load/store. Objects are constructed from a
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2307">#2307</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now ships with <code class="docutils literal notranslate"><span class="pre">.pyi</span></code> stubs for all public APIs, enabling
 users’ IDEs and type checkers to provide better autocompletion and static
-analysis.</p></li>
+analysis.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2061">#2061</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> and <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> now accept path-like inputs in
+addition to strings and bytes.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2123">#2123</a>)</p></li>
+<li><p>Exposed a <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.size" title="cuda.core.Buffer.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.size</span></code></a> accessor to Python.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2068">#2068</a>,
+closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2049">#2049</a>)</p></li>
 </ul>
 </section>
-<section id="bug-fixes">
-<h2>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h2>
+<section id="fixes-and-enhancements">
+<h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>On WSL, <code class="docutils literal notranslate"><span class="pre">cuda.core.system.get_process_name</span></code> would raise a
-<code class="docutils literal notranslate"><span class="pre">UnicodeDecodeError</span></code>.  It should now return the correct result.</p></li>
+<code class="docutils literal notranslate"><span class="pre">UnicodeDecodeError</span></code>.  It should now return the correct result.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2118">#2118</a>)</p></li>
 <li><p>Calling <code class="docutils literal notranslate"><span class="pre">cuda.core.system.get_process_name</span></code> before querying any device’s
 <code class="docutils literal notranslate"><span class="pre">compute_running_processes</span></code> would raise a <code class="docutils literal notranslate"><span class="pre">NvmlNotFoundError</span></code>.  Now it will
 correctly return the process name, if it is a GPU-using process.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.get_nvlink" title="cuda.core.system.Device.get_nvlink"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.get_nvlink()</span></code></a> now validates link numbers against the
-device-specific NVLink count and raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for unsupported links.</p></li>
+device-specific NVLink count and raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for unsupported links.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2192">#2192</a>)</p></li>
 <li><p>Hardened the IPC buffer import path against malformed or untrusted peer
 descriptors: descriptor payloads shorter than the driver struct are now
 rejected before import
@@ -821,6 +838,40 @@ buffers, host-callback functions and user data, and memcpy/memset operands)
 alive for the lifetime of the graph. Previously, keeping these objects alive
 was the caller’s responsibility.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2280">#2280</a>)</p></li>
+<li><p>Hardened the graph user-object destructor against races during Python
+interpreter shutdown.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2074">#2074</a>)</p></li>
+<li><p>Free-threading correctness fixes: buffer and memory-resource threading
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2162">#2162</a>), critical-section
+guards on shared accessors
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2215">#2215</a>), and an atomic
+flag guarding buffer memory-attribute initialization
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2216">#2216</a>).</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code></a> cache keys are now FIPS-safe.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2087">#2087</a>)</p></li>
+<li><p>Memory-pool driver errors are now preserved instead of being masked by
+out-of-memory handling.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2084">#2084</a>)</p></li>
+<li><p>DLPack export now raises <code class="docutils literal notranslate"><span class="pre">BufferError</span></code> (the intended exception) instead of
+<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> when a buffer cannot be exported.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2160">#2160</a>)</p></li>
+<li><p>Corrected the <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> and <a class="reference internal" href="../generated/cuda.core.MemoryResource.html#cuda.core.MemoryResource" title="cuda.core.MemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryResource</span></code></a> <code class="docutils literal notranslate"><span class="pre">__eq__</span></code>
+implementations.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2067">#2067</a>,
+closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2050">#2050</a>)</p></li>
+<li><p>Checkpoint restore now validates GPU UUID inputs early.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2086">#2086</a>)</p></li>
+<li><p>Bumped the PyTorch tensor-bridge upper bound to 2.12.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2099">#2099</a>)</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Documented the IPC buffer pickle trust boundary: <code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.__reduce__()</span></code>
+and multi-process IPC users should review the security note before
+unpickling buffer handles from untrusted sources.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2225">#2225</a>)</p></li>
 </ul>
 </section>
 <section id="deprecated-apis">
@@ -875,7 +926,8 @@ to query NVLink availability for a specific device.</p></li>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug fixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated-apis">Deprecated APIs</a></li>
 </ul>
   </nav></div>

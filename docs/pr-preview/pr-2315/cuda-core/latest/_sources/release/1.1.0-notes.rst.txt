@@ -22,6 +22,8 @@ Highlights
   :attr:`~ManagedBuffer.accessed_by`) with NUMA-aware host locations via the
   new :class:`Host` type, plus batched range operations in
   :mod:`cuda.core.utils` for prefetching and discarding many buffers at once.
+- CUDA 13.3 toolkit support.
+  (`#2139 <https://github.com/NVIDIA/cuda-python/pull/2139>`__)
 
 
 New features
@@ -94,17 +96,28 @@ New features
 - ``cuda.core`` now ships with ``.pyi`` stubs for all public APIs, enabling
   users' IDEs and type checkers to provide better autocompletion and static
   analysis.
+  (`#2061 <https://github.com/NVIDIA/cuda-python/pull/2061>`__)
 
-Bug fixes
----------
+- :class:`ObjectCode` and :class:`Program` now accept path-like inputs in
+  addition to strings and bytes.
+  (`#2123 <https://github.com/NVIDIA/cuda-python/pull/2123>`__)
+
+- Exposed a :attr:`Buffer.size` accessor to Python.
+  (`#2068 <https://github.com/NVIDIA/cuda-python/pull/2068>`__,
+  closes `#2049 <https://github.com/NVIDIA/cuda-python/issues/2049>`__)
+
+Fixes and enhancements
+----------------------
 
 - On WSL, ``cuda.core.system.get_process_name`` would raise a
   ``UnicodeDecodeError``.  It should now return the correct result.
+  (`#2118 <https://github.com/NVIDIA/cuda-python/pull/2118>`__)
 - Calling ``cuda.core.system.get_process_name`` before querying any device's
   ``compute_running_processes`` would raise a ``NvmlNotFoundError``.  Now it will
   correctly return the process name, if it is a GPU-using process.
 - :meth:`system.Device.get_nvlink` now validates link numbers against the
   device-specific NVLink count and raises ``ValueError`` for unsupported links.
+  (`#2192 <https://github.com/NVIDIA/cuda-python/pull/2192>`__)
 - Hardened the IPC buffer import path against malformed or untrusted peer
   descriptors: descriptor payloads shorter than the driver struct are now
   rejected before import
@@ -122,6 +135,39 @@ Bug fixes
   alive for the lifetime of the graph. Previously, keeping these objects alive
   was the caller's responsibility.
   (`#2280 <https://github.com/NVIDIA/cuda-python/pull/2280>`__)
+- Hardened the graph user-object destructor against races during Python
+  interpreter shutdown.
+  (`#2074 <https://github.com/NVIDIA/cuda-python/pull/2074>`__)
+- Free-threading correctness fixes: buffer and memory-resource threading
+  (`#2162 <https://github.com/NVIDIA/cuda-python/pull/2162>`__), critical-section
+  guards on shared accessors
+  (`#2215 <https://github.com/NVIDIA/cuda-python/pull/2215>`__), and an atomic
+  flag guarding buffer memory-attribute initialization
+  (`#2216 <https://github.com/NVIDIA/cuda-python/pull/2216>`__).
+- :meth:`Program.compile` cache keys are now FIPS-safe.
+  (`#2087 <https://github.com/NVIDIA/cuda-python/pull/2087>`__)
+- Memory-pool driver errors are now preserved instead of being masked by
+  out-of-memory handling.
+  (`#2084 <https://github.com/NVIDIA/cuda-python/pull/2084>`__)
+- DLPack export now raises ``BufferError`` (the intended exception) instead of
+  ``RuntimeError`` when a buffer cannot be exported.
+  (`#2160 <https://github.com/NVIDIA/cuda-python/pull/2160>`__)
+- Corrected the :class:`Buffer` and :class:`MemoryResource` ``__eq__``
+  implementations.
+  (`#2067 <https://github.com/NVIDIA/cuda-python/pull/2067>`__,
+  closes `#2050 <https://github.com/NVIDIA/cuda-python/issues/2050>`__)
+- Checkpoint restore now validates GPU UUID inputs early.
+  (`#2086 <https://github.com/NVIDIA/cuda-python/pull/2086>`__)
+- Bumped the PyTorch tensor-bridge upper bound to 2.12.
+  (`#2099 <https://github.com/NVIDIA/cuda-python/pull/2099>`__)
+
+Documentation
+-------------
+
+- Documented the IPC buffer pickle trust boundary: :meth:`Buffer.__reduce__`
+  and multi-process IPC users should review the security note before
+  unpickling buffer handles from untrusted sources.
+  (`#2225 <https://github.com/NVIDIA/cuda-python/pull/2225>`__)
 
 Deprecated APIs
 ---------------

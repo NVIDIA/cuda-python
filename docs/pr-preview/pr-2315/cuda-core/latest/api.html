@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=cda348a6"></script>
+    <script src="_static/documentation_options.js?v=d9c8f1c3"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev123';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev128';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -568,6 +568,16 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Program.html">cuda.core.Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
@@ -601,10 +611,6 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
@@ -723,7 +729,7 @@ with appropriate deprecation periods for breaking changes. See the
 <td><p>Host (CPU) location for managed-memory operations.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch</span></code></a>(stream, LaunchConfig config, ...)</p></td>
-<td><p>Launches a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code> object with launch-time configuration.</p></td>
+<td><p>Launches a <a class="reference internal" href="generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> object with launch-time configuration.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a queue of GPU operations that are executed in a specific order.</p></td>
@@ -825,15 +831,65 @@ on other non-blocking streams.</p>
 </table>
 </div>
 </section>
+<section id="cuda-compilation-toolchain">
+<h2>CUDA compilation toolchain<a class="headerlink" href="#cuda-compilation-toolchain" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Program</span></code></a>(code, code_type[, options])</p></td>
+<td><p>Represent a compilation machinery to process programs into <a class="reference internal" href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Linker</span></code></a>([options])</p></td>
+<td><p>Represent a linking machinery to link one or more object codes into <a class="reference internal" href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Represent a compiled program to be loaded onto the device.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Kernel.html#cuda.core.Kernel" title="cuda.core.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Represent a compiled kernel that had been loaded onto the device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a>([name, arch, ...])</p></td>
+<td><p>Customizable options for configuring <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions" title="cuda.core.LinkerOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinkerOptions</span></code></a>([name, arch, ...])</p></td>
+<td><p>Customizable options for configuring <a class="reference internal" href="generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="program-caches">
+<h3>Program caches<a class="headerlink" href="#program-caches" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Program.compile</span></code> accepts a <code class="docutils literal notranslate"><span class="pre">cache=</span></code> keyword argument that integrates
+with any <a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>, so callers can
+avoid recompiling identical source + options + target without writing the
+<a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a> lookup by hand.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>()</p></td>
+<td><p>Abstract base class for compiled-program caches.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache" title="cuda.core.utils.InMemoryProgramCache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InMemoryProgramCache</span></code></a>(*[, max_size_bytes])</p></td>
+<td><p>In-memory program cache with LRU eviction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache" title="cuda.core.utils.FileStreamProgramCache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FileStreamProgramCache</span></code></a>([path, max_size_bytes])</p></td>
+<td><p>Persistent program cache backed by a directory of atomic files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_program_cache_key</span></code></a>(*, code, code_type, ...)</p></td>
+<td><p>Build a stable cache key from compile inputs.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
 <section id="cuda-graphs">
 <h2>CUDA graphs<a class="headerlink" href="#cuda-graphs" title="Link to this heading">#</a></h2>
 <p>A CUDA graph captures a set of GPU operations and their dependencies,
 allowing them to be defined once and launched repeatedly with minimal
 CPU overhead. Graphs can be constructed in two ways:
-<a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> captures operations from a stream, while
-<a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition" title="cuda.core.graph.GraphDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code></a> builds a graph explicitly by adding nodes and
-edges. Both produce an executable <a class="reference internal" href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a> that can be
-launched on a <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>.</p>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code> captures operations from a stream, while
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code> builds a graph explicitly by adding nodes and
+edges. Both produce an executable <code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code> that can be
+launched on a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.Graph</span></code></a>()</p></td>
@@ -995,38 +1051,6 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
 <a class="reference internal" href="generated/cuda.core.typing.ReadModeType.html#cuda.core.typing.ReadModeType" title="cuda.core.typing.ReadModeType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReadModeType</span></code></a> — live in <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.typing</span></code>
 alongside the other <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> enumerations.</p>
 </section>
-<section id="cuda-compilation-toolchain">
-<h2>CUDA compilation toolchain<a class="headerlink" href="#cuda-compilation-toolchain" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-</tbody>
-</table>
-</div>
-<section id="program-caches">
-<h3>Program caches<a class="headerlink" href="#program-caches" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">Program.compile</span></code> accepts a <code class="docutils literal notranslate"><span class="pre">cache=</span></code> keyword argument that integrates
-with any <a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>, so callers can
-avoid recompiling identical source + options + target without writing the
-<a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_program_cache_key()</span></code></a> lookup by hand.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.ProgramCacheResource.html#cuda.core.utils.ProgramCacheResource" title="cuda.core.utils.ProgramCacheResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgramCacheResource</span></code></a>()</p></td>
-<td><p>Abstract base class for compiled-program caches.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.InMemoryProgramCache.html#cuda.core.utils.InMemoryProgramCache" title="cuda.core.utils.InMemoryProgramCache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InMemoryProgramCache</span></code></a>(*[, max_size_bytes])</p></td>
-<td><p>In-memory program cache with LRU eviction.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.utils.FileStreamProgramCache.html#cuda.core.utils.FileStreamProgramCache" title="cuda.core.utils.FileStreamProgramCache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FileStreamProgramCache</span></code></a>([path, max_size_bytes])</p></td>
-<td><p>Persistent program cache backed by a directory of atomic files.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.utils.make_program_cache_key.html#cuda.core.utils.make_program_cache_key" title="cuda.core.utils.make_program_cache_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_program_cache_key</span></code></a>(*, code, code_type, ...)</p></td>
-<td><p>Build a stable cache key from compile inputs.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-</section>
 <section id="cuda-process-checkpointing">
 <h2>CUDA process checkpointing<a class="headerlink" href="#cuda-process-checkpointing" title="Link to this heading">#</a></h2>
 <p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.checkpoint</span></code> module wraps the CUDA driver process
@@ -1066,7 +1090,7 @@ every GPU visible to the NVIDIA kernel-mode driver at checkpoint time.
 User-space masking such as <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> does not reduce this
 mapping requirement, so applications that rely on user-space GPU masking may
 not be valid migration targets. The mapping may use <code class="docutils literal notranslate"><span class="pre">CUuuid</span></code> objects or the
-UUID strings returned by <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.uuid" title="cuda.core.Device.uuid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.uuid</span></code></a>. A successful restore returns the
+UUID strings returned by <code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.uuid</span></code>. A successful restore returns the
 process to the locked state; call <code class="docutils literal notranslate"><span class="pre">Process.unlock</span></code> after restore to allow
 CUDA API calls to resume.</p>
 <p>The CUDA driver requires restore to run from the process restore thread.
@@ -1163,6 +1187,10 @@ execution.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-management">Memory management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#program-caches">Program caches</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-graphs">CUDA graphs</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#node-types">Node types</a></li>
 </ul>
@@ -1170,10 +1198,6 @@ execution.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphics-interoperability">Graphics interoperability</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tensor-memory-accelerator-tma">Tensor Memory Accelerator (TMA)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#textures-and-surfaces">Textures and surfaces</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#program-caches">Program caches</a></li>
-</ul>
-</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-process-checkpointing">CUDA process checkpointing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-functions">Utility functions</a></li>
 </ul>

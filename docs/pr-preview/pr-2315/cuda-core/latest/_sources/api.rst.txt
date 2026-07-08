@@ -78,6 +78,45 @@ Memory management
    VirtualMemoryResourceOptions
 
 
+CUDA compilation toolchain
+--------------------------
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   Program
+   Linker
+   ObjectCode
+   Kernel
+
+   :template: dataclass.rst
+
+   ProgramOptions
+   LinkerOptions
+
+Program caches
+``````````````
+
+``Program.compile`` accepts a ``cache=`` keyword argument that integrates
+with any :class:`~cuda.core.utils.ProgramCacheResource`, so callers can
+avoid recompiling identical source + options + target without writing the
+:func:`~cuda.core.utils.make_program_cache_key` lookup by hand.
+
+.. currentmodule:: cuda.core.utils
+
+.. autosummary::
+   :toctree: generated/
+
+   ProgramCacheResource
+   InMemoryProgramCache
+   FileStreamProgramCache
+   make_program_cache_key
+
+
 CUDA graphs
 -----------
 
@@ -88,6 +127,8 @@ CPU overhead. Graphs can be constructed in two ways:
 :class:`~graph.GraphDefinition` builds a graph explicitly by adding nodes and
 edges. Both produce an executable :class:`~graph.Graph` that can be
 launched on a :class:`Stream`.
+
+.. currentmodule:: cuda.core
 
 .. autosummary::
    :toctree: generated/
@@ -138,6 +179,8 @@ Each subclass exposes attributes unique to its operation type.
 Graphics interoperability
 -------------------------
 
+.. currentmodule:: cuda.core
+
 .. autosummary::
    :toctree: generated/
 
@@ -148,6 +191,8 @@ Graphics interoperability
 
 Tensor Memory Accelerator (TMA)
 -------------------------------
+
+.. currentmodule:: cuda.core
 
 .. autosummary::
    :toctree: generated/
@@ -208,45 +253,6 @@ The associated enumerations —
 alongside the other ``cuda.core`` enumerations.
 
 
-CUDA compilation toolchain
---------------------------
-
-.. autosummary::
-   :toctree: generated/
-
-   :template: autosummary/cyclass.rst
-
-   Program
-   Linker
-   ObjectCode
-   Kernel
-
-   :template: dataclass.rst
-
-   ProgramOptions
-   LinkerOptions
-
-Program caches
-``````````````
-
-``Program.compile`` accepts a ``cache=`` keyword argument that integrates
-with any :class:`~cuda.core.utils.ProgramCacheResource`, so callers can
-avoid recompiling identical source + options + target without writing the
-:func:`~cuda.core.utils.make_program_cache_key` lookup by hand.
-
-.. currentmodule:: cuda.core.utils
-
-.. autosummary::
-   :toctree: generated/
-
-   ProgramCacheResource
-   InMemoryProgramCache
-   FileStreamProgramCache
-   make_program_cache_key
-
-.. currentmodule:: cuda.core
-
-
 CUDA process checkpointing
 --------------------------
 
@@ -301,6 +307,8 @@ Use ``Process.restore_thread_id`` to discover that thread before calling
 persistence mode to be enabled or ``cuInit`` to have been called before
 execution.
 
+.. currentmodule:: cuda.core
+
 .. autosummary::
    :toctree: generated/
 
@@ -311,6 +319,8 @@ execution.
 
 Utility functions
 -----------------
+
+.. currentmodule:: cuda.core
 
 .. autosummary::
    :toctree: generated/
