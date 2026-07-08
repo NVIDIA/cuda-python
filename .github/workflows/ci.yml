@@ -416,6 +416,35 @@ jobs:
     with:
       is-release: ${{ github.ref_type == 'tag' }}
 
+  precommit-windows:
+    name: Pre-commit on Windows
+    runs-on: windows-latest
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    needs:
+      - should-skip
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: '3.13'
+
+      - name: Install pre-commit
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python -m pip install --upgrade pip pre-commit
+
+      - name: Run pre-commit
+        shell: bash
+        run: |
+          set -euxo pipefail
+          pre-commit run --all-files
+
   checks:
     name: Check job status
     if: always()
@@ -429,6 +458,7 @@ jobs:
       - test-linux-aarch64
       - test-windows
       - doc
+      - precommit-windows
     steps:
       - name: Exit
         run: |
@@ -461,6 +491,7 @@ jobs:
           check_result "should-skip"    "success" "${{ needs.should-skip.result }}"
           check_result "detect-changes" "success" "${{ needs.detect-changes.result }}"
           check_result "doc"            "success" "${{ needs.doc.result }}"
+          check_result "precommit-windows" "success" "${{ needs.precommit-windows.result }}"
 
           # [doc-only] flips these from 'success' to 'skipped'
           if [[ "$doc_only" == "true" ]]; then expected="skipped"; else expected="success"; fi

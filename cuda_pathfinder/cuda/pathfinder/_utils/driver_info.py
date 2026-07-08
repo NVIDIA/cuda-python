@@ -64,9 +64,10 @@ def _query_driver_cuda_version_int() -> int:
     """Return the encoded CUDA driver version from ``cuDriverGetVersion()``."""
     loaded_cuda = _load_nvidia_dynamic_lib("cuda")
     if IS_WINDOWS:
-        # `ctypes.WinDLL` exists on Windows at runtime. The ignore is only for
-        # Linux mypy runs, where the platform stubs do not define that attribute.
-        loader_cls: Callable[[str], ctypes.CDLL] = ctypes.WinDLL  # type: ignore[attr-defined]
+        win_dll_loader = getattr(ctypes, "WinDLL", None)
+        if win_dll_loader is None:
+            raise RuntimeError("ctypes.WinDLL is not available on this Python runtime.")
+        loader_cls: Callable[[str], ctypes.CDLL] = win_dll_loader
     else:
         loader_cls = ctypes.CDLL
     driver_lib = loader_cls(loaded_cuda.abs_path)

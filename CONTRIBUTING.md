@@ -21,6 +21,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Table of Contents](#table-of-contents)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
+    - [Pre-commit on Windows](#pre-commit-on-windows)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -74,6 +75,14 @@ between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` (and CI) will print a visible
 warning reminding you to run `pre-commit install`.
 
+### Pre-commit on Windows
+
+For development on Windows (not WSL), the `lychee` pre-commit task will not work.
+You will need to set the following environment variable to make it pass:
+
+```
+SKIP=lychee
+```
 
 ## Signing Your Work
 

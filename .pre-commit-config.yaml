@@ -54,7 +54,7 @@ repos:
 
       - id: stubgen-pyx-cuda-core
         name: Generate .pyi stubs for cuda_core
-        entry: stubgen-pyx cuda_core/cuda --continue-on-error --include-private
+        entry: python ./toolshed/run_stubgen_pyx.py
         language: python
         files: ^cuda_core/cuda/.*\.(pyx|pxd)$
         pass_filenames: false
@@ -68,6 +68,7 @@ repos:
     hooks:
       - id: lychee
         args:
+
           - --cache
           - --max-concurrency=4
           - --max-retries=3
@@ -88,6 +89,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
+      exclude_types: [symlink]
       exclude: &gen_exclude '^(?:cuda_python/README\.md|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
@@ -123,7 +125,7 @@ repos:
         pass_filenames: false
         args: [--config-file=cuda_core/pyproject.toml, cuda_core/cuda/core]
         additional_dependencies:
-          - numpy
+          - numpy==2.4.2
 
   - repo: https://github.com/rhysd/actionlint
     rev: "914e7df21a07ef503a81201c76d2b11c789d3fca"  # frozen: v1.7.12

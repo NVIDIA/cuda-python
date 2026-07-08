@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """Platform loader seam for OS-specific dynamic linking.
@@ -28,7 +28,9 @@ class PlatformLoader(Protocol):
 
     def load_with_system_search(self, desc: LibDescriptor) -> LoadedDL | None: ...
 
-    def load_with_abs_path(self, desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL: ...
+    def load_with_abs_path(
+        self, desc: LibDescriptor, found_path: str, found_via: str = "absolute-path"
+    ) -> LoadedDL: ...
 
 
 if IS_WINDOWS:
