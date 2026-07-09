@@ -3,62 +3,34 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e3ad1a88da66073b6fe62bfa07e378184f38990fb7ecc9918c9e56ee7ffcf7f8
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=821fd26991431cd8e528f964b5035e1deafcddf44d2971a267d9ed11d80d5199
-from libc.stdint cimport intptr_t, uintptr_t
+# <<<< PREAMBLE CONTENT >>>>
 
-import threading
+cdef extern from "<dlfcn.h>":
+    void* _cyb_dlsym "dlsym"(void*, const char*) nogil
+    const void * _cyb_RTLD_DEFAULT "RTLD_DEFAULT"
+
+from libc.stdint cimport intptr_t as _cyb_intptr_t
+
+import threading as _cyb_threading
+
+cdef bint _cyb___py_nvfatbin_init = False
+cdef dict _cyb_func_ptrs = None
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+
+from libc.stdint cimport uintptr_t
+
 from .utils import FunctionNotFoundError, NotSupportedError
-
 from cuda.pathfinder import load_nvidia_dynamic_lib
-
-
-###############################################################################
-# Extern
-###############################################################################
-
-# You must 'from .utils import NotSupportedError' before using this template
-
-cdef extern from "<dlfcn.h>" nogil:
-    void* dlopen(const char*, int)
-    char* dlerror()
-    void* dlsym(void*, const char*)
-    int dlclose(void*)
-
-    enum:
-        RTLD_LAZY
-        RTLD_NOW
-        RTLD_GLOBAL
-        RTLD_LOCAL
-
-    const void* RTLD_DEFAULT 'RTLD_DEFAULT'
-
-cdef int get_cuda_version():
-    cdef void* handle = NULL
-    cdef int err, driver_ver = 0
-
-    # Load driver to check version
-    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
-    if handle == NULL:
-        err_msg = dlerror()
-        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
-    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
-    if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
-    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
-
-    return driver_ver
-
 
 
 ###############################################################################
 # Wrapper init
 ###############################################################################
-
-cdef object __symbol_lock = threading.Lock()
-cdef bint __py_nvfatbin_init = False
 
 cdef void* __nvFatbinGetErrorString = NULL
 cdef void* __nvFatbinCreate = NULL
@@ -73,173 +45,164 @@ cdef void* __nvFatbinAddIndex = NULL
 cdef void* __nvFatbinAddReloc = NULL
 cdef void* __nvFatbinAddTileIR = NULL
 
-
-cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvfatbin")._handle_uint
-    return <void*>handle
-
-
 cdef int _init_nvfatbin() except -1 nogil:
-    global __py_nvfatbin_init
-
+    global _cyb___py_nvfatbin_init
     cdef void* handle = NULL
+    with gil, _cyb_symbol_lock:
+        if _cyb___py_nvfatbin_init: return 0
 
-    with gil, __symbol_lock:
-        # Recheck the flag after obtaining the locks
-        if __py_nvfatbin_init:
-            return 0
-
-        # Load function
         global __nvFatbinGetErrorString
-        __nvFatbinGetErrorString = dlsym(RTLD_DEFAULT, 'nvFatbinGetErrorString')
+        __nvFatbinGetErrorString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinGetErrorString')
         if __nvFatbinGetErrorString == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinGetErrorString = dlsym(handle, 'nvFatbinGetErrorString')
+            __nvFatbinGetErrorString = _cyb_dlsym(handle, 'nvFatbinGetErrorString')
 
         global __nvFatbinCreate
-        __nvFatbinCreate = dlsym(RTLD_DEFAULT, 'nvFatbinCreate')
+        __nvFatbinCreate = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinCreate')
         if __nvFatbinCreate == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinCreate = dlsym(handle, 'nvFatbinCreate')
+            __nvFatbinCreate = _cyb_dlsym(handle, 'nvFatbinCreate')
 
         global __nvFatbinDestroy
-        __nvFatbinDestroy = dlsym(RTLD_DEFAULT, 'nvFatbinDestroy')
+        __nvFatbinDestroy = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinDestroy')
         if __nvFatbinDestroy == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinDestroy = dlsym(handle, 'nvFatbinDestroy')
+            __nvFatbinDestroy = _cyb_dlsym(handle, 'nvFatbinDestroy')
 
         global __nvFatbinAddPTX
-        __nvFatbinAddPTX = dlsym(RTLD_DEFAULT, 'nvFatbinAddPTX')
+        __nvFatbinAddPTX = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinAddPTX')
         if __nvFatbinAddPTX == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinAddPTX = dlsym(handle, 'nvFatbinAddPTX')
+            __nvFatbinAddPTX = _cyb_dlsym(handle, 'nvFatbinAddPTX')
 
         global __nvFatbinAddCubin
-        __nvFatbinAddCubin = dlsym(RTLD_DEFAULT, 'nvFatbinAddCubin')
+        __nvFatbinAddCubin = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinAddCubin')
         if __nvFatbinAddCubin == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinAddCubin = dlsym(handle, 'nvFatbinAddCubin')
+            __nvFatbinAddCubin = _cyb_dlsym(handle, 'nvFatbinAddCubin')
 
         global __nvFatbinAddLTOIR
-        __nvFatbinAddLTOIR = dlsym(RTLD_DEFAULT, 'nvFatbinAddLTOIR')
+        __nvFatbinAddLTOIR = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinAddLTOIR')
         if __nvFatbinAddLTOIR == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinAddLTOIR = dlsym(handle, 'nvFatbinAddLTOIR')
+            __nvFatbinAddLTOIR = _cyb_dlsym(handle, 'nvFatbinAddLTOIR')
 
         global __nvFatbinSize
-        __nvFatbinSize = dlsym(RTLD_DEFAULT, 'nvFatbinSize')
+        __nvFatbinSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinSize')
         if __nvFatbinSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinSize = dlsym(handle, 'nvFatbinSize')
+            __nvFatbinSize = _cyb_dlsym(handle, 'nvFatbinSize')
 
         global __nvFatbinGet
-        __nvFatbinGet = dlsym(RTLD_DEFAULT, 'nvFatbinGet')
+        __nvFatbinGet = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinGet')
         if __nvFatbinGet == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinGet = dlsym(handle, 'nvFatbinGet')
+            __nvFatbinGet = _cyb_dlsym(handle, 'nvFatbinGet')
 
         global __nvFatbinVersion
-        __nvFatbinVersion = dlsym(RTLD_DEFAULT, 'nvFatbinVersion')
+        __nvFatbinVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinVersion')
         if __nvFatbinVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinVersion = dlsym(handle, 'nvFatbinVersion')
+            __nvFatbinVersion = _cyb_dlsym(handle, 'nvFatbinVersion')
 
         global __nvFatbinAddIndex
-        __nvFatbinAddIndex = dlsym(RTLD_DEFAULT, 'nvFatbinAddIndex')
+        __nvFatbinAddIndex = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinAddIndex')
         if __nvFatbinAddIndex == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinAddIndex = dlsym(handle, 'nvFatbinAddIndex')
+            __nvFatbinAddIndex = _cyb_dlsym(handle, 'nvFatbinAddIndex')
 
         global __nvFatbinAddReloc
-        __nvFatbinAddReloc = dlsym(RTLD_DEFAULT, 'nvFatbinAddReloc')
+        __nvFatbinAddReloc = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinAddReloc')
         if __nvFatbinAddReloc == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinAddReloc = dlsym(handle, 'nvFatbinAddReloc')
+            __nvFatbinAddReloc = _cyb_dlsym(handle, 'nvFatbinAddReloc')
 
         global __nvFatbinAddTileIR
-        __nvFatbinAddTileIR = dlsym(RTLD_DEFAULT, 'nvFatbinAddTileIR')
+        __nvFatbinAddTileIR = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvFatbinAddTileIR')
         if __nvFatbinAddTileIR == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvFatbinAddTileIR = dlsym(handle, 'nvFatbinAddTileIR')
+            __nvFatbinAddTileIR = _cyb_dlsym(handle, 'nvFatbinAddTileIR')
 
-        __py_nvfatbin_init = True
+        _cyb___py_nvfatbin_init = True
         return 0
 
-
 cdef inline int _check_or_init_nvfatbin() except -1 nogil:
-    if __py_nvfatbin_init:
+    if _cyb___py_nvfatbin_init:
         return 0
 
     return _init_nvfatbin()
 
-cdef dict func_ptrs = None
-
 
 cpdef dict _inspect_function_pointers():
-    global func_ptrs
-    if func_ptrs is not None:
-        return func_ptrs
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is not None:
+        return _cyb_func_ptrs
 
     _check_or_init_nvfatbin()
     cdef dict data = {}
-
     global __nvFatbinGetErrorString
-    data["__nvFatbinGetErrorString"] = <intptr_t>__nvFatbinGetErrorString
+    data["__nvFatbinGetErrorString"] = <_cyb_intptr_t>__nvFatbinGetErrorString
 
     global __nvFatbinCreate
-    data["__nvFatbinCreate"] = <intptr_t>__nvFatbinCreate
+    data["__nvFatbinCreate"] = <_cyb_intptr_t>__nvFatbinCreate
 
     global __nvFatbinDestroy
-    data["__nvFatbinDestroy"] = <intptr_t>__nvFatbinDestroy
+    data["__nvFatbinDestroy"] = <_cyb_intptr_t>__nvFatbinDestroy
 
     global __nvFatbinAddPTX
-    data["__nvFatbinAddPTX"] = <intptr_t>__nvFatbinAddPTX
+    data["__nvFatbinAddPTX"] = <_cyb_intptr_t>__nvFatbinAddPTX
 
     global __nvFatbinAddCubin
-    data["__nvFatbinAddCubin"] = <intptr_t>__nvFatbinAddCubin
+    data["__nvFatbinAddCubin"] = <_cyb_intptr_t>__nvFatbinAddCubin
 
     global __nvFatbinAddLTOIR
-    data["__nvFatbinAddLTOIR"] = <intptr_t>__nvFatbinAddLTOIR
+    data["__nvFatbinAddLTOIR"] = <_cyb_intptr_t>__nvFatbinAddLTOIR
 
     global __nvFatbinSize
-    data["__nvFatbinSize"] = <intptr_t>__nvFatbinSize
+    data["__nvFatbinSize"] = <_cyb_intptr_t>__nvFatbinSize
 
     global __nvFatbinGet
-    data["__nvFatbinGet"] = <intptr_t>__nvFatbinGet
+    data["__nvFatbinGet"] = <_cyb_intptr_t>__nvFatbinGet
 
     global __nvFatbinVersion
-    data["__nvFatbinVersion"] = <intptr_t>__nvFatbinVersion
+    data["__nvFatbinVersion"] = <_cyb_intptr_t>__nvFatbinVersion
 
     global __nvFatbinAddIndex
-    data["__nvFatbinAddIndex"] = <intptr_t>__nvFatbinAddIndex
+    data["__nvFatbinAddIndex"] = <_cyb_intptr_t>__nvFatbinAddIndex
 
     global __nvFatbinAddReloc
-    data["__nvFatbinAddReloc"] = <intptr_t>__nvFatbinAddReloc
+    data["__nvFatbinAddReloc"] = <_cyb_intptr_t>__nvFatbinAddReloc
 
     global __nvFatbinAddTileIR
-    data["__nvFatbinAddTileIR"] = <intptr_t>__nvFatbinAddTileIR
-
-    func_ptrs = data
+    data["__nvFatbinAddTileIR"] = <_cyb_intptr_t>__nvFatbinAddTileIR
+    _cyb_func_ptrs = data
     return data
 
 
 cpdef _inspect_function_pointer(str name):
-    global func_ptrs
-    if func_ptrs is None:
-        func_ptrs = _inspect_function_pointers()
-    return func_ptrs[name]
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is None:
+        _cyb_func_ptrs = _inspect_function_pointers()
+    return _cyb_func_ptrs[name]
+
+
+
+
+cdef void* load_library() except* with gil:
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvfatbin")._handle_uint
+    return <void*>handle
 
 
 ###############################################################################

@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6e7ac86c22e602c08df8250f3b50c135945378aa8ae4ddb4e10174fd979c4aa5
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=79c7db565831f6632fecafad4bcb29537223fdedb67f639a8d9984dbabd3e71a
 
 # <<<< PREAMBLE CONTENT >>>>
 
@@ -16,7 +16,9 @@ from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
 )
+
 from enum import IntEnum as _cyb_IntEnum
+
 import numpy as _numpy
 
 cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
@@ -56,6 +58,7 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
     if data.dtype != expected_dtype:
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
+
 
 # <<<< END OF PREAMBLE CONTENT >>>>
 

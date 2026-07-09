@@ -3,8 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=38a8b5978741aad1cde8120a45705d294b411c66730c8ca9d506a44c2bd48899
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=74f1f9c9443af66fdadbfeeb01e5c15c2d8f1b9b0b20eafa2a279583bcf7df00
+# <<<< PREAMBLE CONTENT >>>>
+
+cimport cython as _cyb_cython
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+
 from ._internal cimport cufile as _cufile
 
 import cython
@@ -17,7 +25,7 @@ cdef CUfileError_t cuFileHandleRegister(CUfileHandle_t* fh, CUfileDescr_t* descr
     return _cufile._cuFileHandleRegister(fh, descr)
 
 
-@cython.show_performance_hints(False)
+@_cyb_cython.show_performance_hints(False)
 cdef void cuFileHandleDeregister(CUfileHandle_t fh) except* nogil:
     _cufile._cuFileHandleDeregister(fh)
 
@@ -90,7 +98,7 @@ cdef CUfileError_t cuFileBatchIOCancel(CUfileBatchHandle_t batch_idp) except?<CU
     return _cufile._cuFileBatchIOCancel(batch_idp)
 
 
-@cython.show_performance_hints(False)
+@_cyb_cython.show_performance_hints(False)
 cdef void cuFileBatchIODestroy(CUfileBatchHandle_t batch_idp) except* nogil:
     _cufile._cuFileBatchIODestroy(batch_idp)
 

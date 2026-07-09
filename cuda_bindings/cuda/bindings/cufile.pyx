@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=359f9b42f4f97b9a74570e1f7d20eb6f5faae2df194a6161f4d5a9512c3ffbe3
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=89f4204773056d28c8a8acfdbcaa68ffe2e93964c63001ef64fcb111311717b5
 
 # <<<< PREAMBLE CONTENT >>>>
 
@@ -20,7 +20,9 @@ from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
 )
+
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
 import numpy as _numpy
 
 cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
@@ -60,6 +62,7 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
     if data.dtype != expected_dtype:
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
+
 
 # <<<< END OF PREAMBLE CONTENT >>>>
 
