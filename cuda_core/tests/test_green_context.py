@@ -252,7 +252,7 @@ class TestWorkqueueResource:
         assert wq1.device.device_id == 1
 
     def test_invalid_scope_raises_at_construction(self):
-        with pytest.raises(ValueError, match="Unknown sharing_scope"):
+        with pytest.raises(ValueError, match="'bogus' is not a valid WorkqueueSharingScopeType. Must be "):
             WorkqueueResourceOptions(sharing_scope="bogus")
 
     def test_configure_concurrency_limit(self, wq_resource):
