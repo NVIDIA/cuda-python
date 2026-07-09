@@ -5,6 +5,9 @@ from __future__ import annotations
 from collections.abc import Sequence as SequenceABC
 from dataclasses import dataclass
 
+from cuda.core._device import Device
+from cuda.core.typing import WorkqueueSharingScopeType
+
 
 @dataclass
 class SMResourceOptions:
@@ -44,9 +47,13 @@ class WorkqueueResourceOptions:
 
     Attributes
     ----------
-    sharing_scope : str, optional
-        Workqueue sharing scope. Accepted values: ``"device_ctx"``
-        or ``"green_ctx_balanced"``. (Default to ``None``)
+    sharing_scope : :class:`~cuda.core.typing.WorkqueueSharingScopeType`, optional
+        Workqueue sharing scope. Accepted values:
+        :attr:`~cuda.core.typing.WorkqueueSharingScopeType.DEVICE_CTX` or
+        :attr:`~cuda.core.typing.WorkqueueSharingScopeType.GREEN_CTX_BALANCED`.
+        Raw strings equal to the enum member values (``"device_ctx"``,
+        ``"green_ctx_balanced"``) are accepted at runtime for backward
+        compatibility. (Default to ``None``)
     concurrency_limit : int, optional
         Expected maximum number of concurrent stream-ordered
         workloads. Must be ``>= 1`` when set. The effective
@@ -55,7 +62,7 @@ class WorkqueueResourceOptions:
         this cap, but the driver will not guarantee that work
         submission remains non-overlapping. (Default to ``None``)
     """
-    sharing_scope: str | None = None
+    sharing_scope: WorkqueueSharingScopeType | None = None
     concurrency_limit: int | None = None
 
     def __post_init__(self):
@@ -124,6 +131,32 @@ class WorkqueueResource:
     @property
     def handle(self) -> int:
         """Return the address of the underlying config ``CUdevResource`` struct."""
+
+    @property
+    def sharing_scope(self) -> WorkqueueSharingScopeType:
+        """Current sharing scope of this workqueue resource.
+
+        Returns the :class:`~cuda.core.typing.WorkqueueSharingScopeType`
+        member corresponding to the driver-populated
+        ``wqConfig.sharingScope`` field. It can be updated via
+        :meth:`configure` with
+        :attr:`WorkqueueResourceOptions.sharing_scope`.
+        """
+
+    @property
+    def concurrency_limit(self) -> int:
+        """Current expected maximum concurrent stream-ordered workloads.
+
+        Reflects the driver-populated ``wqConfig.wqConcurrencyLimit`` field.
+        When first queried from a device, this matches the driver-reported
+        cap (typically ``CUDA_DEVICE_MAX_CONNECTIONS``). It can be updated
+        via :meth:`configure` with
+        :attr:`WorkqueueResourceOptions.concurrency_limit`.
+        """
+
+    @property
+    def device(self) -> 'Device':
+        """The :class:`~cuda.core.Device` this workqueue resource is available on."""
 
     def configure(self, options: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.

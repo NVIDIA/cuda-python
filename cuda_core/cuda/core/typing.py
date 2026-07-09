@@ -52,6 +52,7 @@ __all__ = [
     "VirtualMemoryGranularityType",
     "VirtualMemoryHandleType",
     "VirtualMemoryLocationType",
+    "WorkqueueSharingScopeType",
 ]
 
 
@@ -294,6 +295,21 @@ class ReadModeType(StrEnum):
 
     ELEMENT_TYPE = "element_type"
     NORMALIZED_FLOAT = "normalized_float"
+
+
+class WorkqueueSharingScopeType(StrEnum):
+    """Sharing scope for :class:`~cuda.core.WorkqueueResource`.
+
+    * ``DEVICE_CTX`` — use all shared workqueue resources across all
+      contexts (default driver behavior).
+    * ``GREEN_CTX_BALANCED`` — when possible, use non-overlapping
+      workqueue resources with other balanced green contexts.
+
+    .. versionadded:: 1.1.0
+    """
+
+    DEVICE_CTX = "device_ctx"
+    GREEN_CTX_BALANCED = "green_ctx_balanced"
 
 
 del StrEnum

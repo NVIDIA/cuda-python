@@ -110,6 +110,15 @@ New features
   configure the expected maximum concurrent stream-ordered workloads.
   (`#2329 <https://github.com/NVIDIA/cuda-python/pull/2329>`__)
 
+- Added read-only :attr:`WorkqueueResource.sharing_scope`,
+  :attr:`~WorkqueueResource.concurrency_limit`, and
+  :attr:`~WorkqueueResource.device` properties for round-tripping the
+  driver-populated workqueue config. Added
+  :class:`~cuda.core.typing.WorkqueueSharingScopeType` StrEnum accepted
+  by :attr:`WorkqueueResourceOptions.sharing_scope` in addition to
+  raw strings.
+  (`#NNNN <https://github.com/NVIDIA/cuda-python/pull/NNNN>`__)
+
 Fixes and enhancements
 ----------------------
 
