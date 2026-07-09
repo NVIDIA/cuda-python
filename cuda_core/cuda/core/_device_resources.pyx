@@ -129,9 +129,28 @@ cdef class WorkqueueResourceOptions:
     sharing_scope : str, optional
         Workqueue sharing scope. Accepted values: ``"device_ctx"``
         or ``"green_ctx_balanced"``. (Default to ``None``)
+    concurrency_limit : int, optional
+        Expected maximum number of concurrent stream-ordered
+        workloads. Must be ``>= 1`` when set. The effective
+        driver-side cap is ``CUDA_DEVICE_MAX_CONNECTIONS``
+        (typically ``[1, 32]``); configurations may exceed
+        this cap, but the driver will not guarantee that work
+        submission remains non-overlapping. (Default to ``None``)
     """
 
     sharing_scope: str | None = None
+    concurrency_limit: int | None = None
+
+    def __post_init__(self):
+        if self.sharing_scope not in (None, "device_ctx", "green_ctx_balanced"):
+            raise ValueError(
+                f"Unknown sharing_scope: {self.sharing_scope!r}. "
+                "Expected 'device_ctx' or 'green_ctx_balanced'."
+            )
+        if self.concurrency_limit is not None and self.concurrency_limit < 1:
+            raise ValueError(
+                f"concurrency_limit must be >= 1, got {self.concurrency_limit}"
+            )
 
 
 cdef inline int _validate_split_field_length(
@@ -541,17 +560,21 @@ cdef class WorkqueueResource:
         Parameters
         ----------
         options : :obj:`WorkqueueResourceOptions`
-            Configuration options (sharing scope, etc.).
+            Configuration options (sharing scope, concurrency limit).
         """
         cdef WorkqueueResourceOptions opts = check_or_create_options(
             WorkqueueResourceOptions, options, "Workqueue resource options"
         )
         _check_green_ctx_support()
         _check_workqueue_support()
-        if opts.sharing_scope is None:
+        if opts.sharing_scope is None and opts.concurrency_limit is None:
             return None
 
         IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if opts.concurrency_limit is not None:
+                self._wq_config_resource.wqConfig.wqConcurrencyLimit = (
+                    <unsigned int>opts.concurrency_limit
+                )
             if opts.sharing_scope == "device_ctx":
                 self._wq_config_resource.wqConfig.sharingScope = (
                     cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX
@@ -559,11 +582,6 @@ cdef class WorkqueueResource:
             elif opts.sharing_scope == "green_ctx_balanced":
                 self._wq_config_resource.wqConfig.sharingScope = (
                     cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
-                )
-            else:
-                raise ValueError(
-                    f"Unknown sharing_scope: {opts.sharing_scope!r}. "
-                    "Expected 'device_ctx' or 'green_ctx_balanced'."
                 )
         ELSE:
             raise RuntimeError(
