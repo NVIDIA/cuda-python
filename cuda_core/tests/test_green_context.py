@@ -225,23 +225,22 @@ class TestWorkqueueResource:
         wq_resource.configure(WorkqueueResourceOptions(sharing_scope=scope))
         assert wq_resource.sharing_scope is scope
 
-    def test_device_id_matches_source_multi_gpu(self, init_cuda):
+    def test_device_id_matches_source_multi_gpu(self):
         from cuda.core import Device, system
 
         if system.get_num_devices() < 2:
             pytest.skip("requires 2+ GPUs")
-        dev0 = init_cuda
+        dev0 = Device(0)
         dev1 = Device(1)
         dev1.set_current()
-        dev0.set_current()  # restore, matches sample_device_alt pattern
+        dev0.set_current()
         try:
             wq0 = dev0.resources.workqueue
             wq1 = dev1.resources.workqueue
         except (RuntimeError, ValueError, CUDAError) as exc:
             pytest.skip(str(exc))
-        assert wq0.device.device_id == dev0.device_id
-        assert wq1.device.device_id == dev1.device_id
-        assert wq0.device.device_id != wq1.device.device_id
+        assert wq0.device.device_id == 0
+        assert wq1.device.device_id == 1
 
     def test_invalid_scope_raises_at_construction(self):
         with pytest.raises(ValueError, match="Unknown sharing_scope"):
