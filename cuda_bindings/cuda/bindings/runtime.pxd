@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1781+g72872c498. Do not modify it directly.
+# This code was automatically generated with version 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0f2431380680008795336b7acb5ccd83dba7a6e05d0c81c2b5f825bc95576ccd
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"

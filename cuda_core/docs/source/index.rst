@@ -12,6 +12,7 @@ Welcome to the documentation for ``cuda.core``.
 
    getting-started
    install
+   10_minutes_to_cuda_core
    examples
    interoperability
    api

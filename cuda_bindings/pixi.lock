@@ -3032,7 +3032,7 @@ packages:
   - libgcc >=15
   - libstdcxx >=15
   - python_abi 3.14.* *_cp314
-  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license: Apache-2.0
   sources:
     cuda-pathfinder:
       path: ../cuda_pathfinder
@@ -3060,7 +3060,7 @@ packages:
   - vc14_runtime >=14.44.35208
   - ucrt >=10.0.20348.0
   - python_abi 3.14.* *_cp314
-  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license: Apache-2.0
   sources:
     cuda-pathfinder:
       path: ../cuda_pathfinder
@@ -3088,7 +3088,7 @@ packages:
   - libgcc >=15
   - libstdcxx >=15
   - python_abi 3.14.* *_cp314
-  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license: Apache-2.0
   sources:
     cuda-pathfinder:
       path: ../cuda_pathfinder
@@ -3116,7 +3116,7 @@ packages:
   - libgcc >=15
   - libstdcxx >=15
   - python_abi 3.14.* *_cp314
-  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license: Apache-2.0
   sources:
     cuda-pathfinder:
       path: ../cuda_pathfinder
@@ -3144,7 +3144,7 @@ packages:
   - vc14_runtime >=14.44.35208
   - ucrt >=10.0.20348.0
   - python_abi 3.14.* *_cp314
-  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license: Apache-2.0
   sources:
     cuda-pathfinder:
       path: ../cuda_pathfinder
@@ -3172,7 +3172,7 @@ packages:
   - libgcc >=15
   - libstdcxx >=15
   - python_abi 3.14.* *_cp314
-  license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+  license: Apache-2.0
   sources:
     cuda-pathfinder:
       path: ../cuda_pathfinder

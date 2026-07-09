@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -19,7 +19,7 @@ sys.path.insert(0, str((Path(__file__).parents[1] / "exts").absolute()))
 # -- Project information -----------------------------------------------------
 
 project = "CUDA Python"
-copyright = "2021-2024, NVIDIA"
+copyright = "2021-2026, NVIDIA"
 author = "NVIDIA"
 
 # The full version, including alpha/beta/rc tags

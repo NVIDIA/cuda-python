@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1781+g72872c498. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1380a3d3e211bde30b6e5e64c97c424d7049c071fba69d2c4304d7c5883f8467
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -1623,43 +1624,38 @@ cdef extern from 'cuda.h':
     ctypedef unsigned long long CUsurfObject_v1 'CUsurfObject_v1'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUmemFabricHandle_st:
-        unsigned char data[64]
-    ctypedef CUmemFabricHandle_st CUmemFabricHandle_v1
+cdef struct CUmemFabricHandle_st:
+    unsigned char data[64]
+ctypedef CUmemFabricHandle_st CUmemFabricHandle_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUipcEventHandle_st:
-        char reserved[64]
-    ctypedef CUipcEventHandle_st CUipcEventHandle_v1
+cdef struct CUipcEventHandle_st:
+    char reserved[64]
+ctypedef CUipcEventHandle_st CUipcEventHandle_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUipcMemHandle_st:
-        char reserved[64]
-    ctypedef CUipcMemHandle_st CUipcMemHandle_v1
+cdef struct CUipcMemHandle_st:
+    char reserved[64]
+ctypedef CUipcMemHandle_st CUipcMemHandle_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUdevprop_st:
-        int maxThreadsPerBlock
-        int maxThreadsDim[3]
-        int maxGridSize[3]
-        int sharedMemPerBlock
-        int totalConstantMemory
-        int SIMDWidth
-        int memPitch
-        int regsPerBlock
-        int clockRate
-        int textureAlign
-    ctypedef CUdevprop_st CUdevprop_v1
+cdef struct CUdevprop_st:
+    int maxThreadsPerBlock
+    int maxThreadsDim[3]
+    int maxGridSize[3]
+    int sharedMemPerBlock
+    int totalConstantMemory
+    int SIMDWidth
+    int memPitch
+    int regsPerBlock
+    int clockRate
+    int textureAlign
+ctypedef CUdevprop_st CUdevprop_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUaccessPolicyWindow_st:
-        void* base_ptr
-        size_t num_bytes
-        float hitRatio
-        CUaccessProperty hitProp
-        CUaccessProperty missProp
-    ctypedef CUaccessPolicyWindow_st CUaccessPolicyWindow_v1
+cdef struct CUaccessPolicyWindow_st:
+    void* base_ptr
+    size_t num_bytes
+    float hitRatio
+    CUaccessProperty hitProp
+    CUaccessProperty missProp
+ctypedef CUaccessPolicyWindow_st CUaccessPolicyWindow_v1
 
 cdef extern from 'cuda.h':
     ctypedef CUlaunchAttributeID CUkernelNodeAttrID 'CUkernelNodeAttrID'
@@ -1669,107 +1665,95 @@ cdef extern from 'cuda.h':
     ctypedef CUlaunchAttributeID CUstreamAttrID 'CUstreamAttrID'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUexecAffinitySmCount_st:
-        unsigned int val
-    ctypedef CUexecAffinitySmCount_st CUexecAffinitySmCount_v1
+cdef struct CUexecAffinitySmCount_st:
+    unsigned int val
+ctypedef CUexecAffinitySmCount_st CUexecAffinitySmCount_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_ARRAY_DESCRIPTOR_st:
-        size_t Width
-        size_t Height
-        CUarray_format Format
-        unsigned int NumChannels
-    ctypedef CUDA_ARRAY_DESCRIPTOR_st CUDA_ARRAY_DESCRIPTOR_v2
+cdef struct CUDA_ARRAY_DESCRIPTOR_st:
+    size_t Width
+    size_t Height
+    CUarray_format Format
+    unsigned int NumChannels
+ctypedef CUDA_ARRAY_DESCRIPTOR_st CUDA_ARRAY_DESCRIPTOR_v2
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_ARRAY3D_DESCRIPTOR_st:
-        size_t Width
-        size_t Height
-        size_t Depth
-        CUarray_format Format
-        unsigned int NumChannels
-        unsigned int Flags
-    ctypedef CUDA_ARRAY3D_DESCRIPTOR_st CUDA_ARRAY3D_DESCRIPTOR_v2
+cdef struct CUDA_ARRAY3D_DESCRIPTOR_st:
+    size_t Width
+    size_t Height
+    size_t Depth
+    CUarray_format Format
+    unsigned int NumChannels
+    unsigned int Flags
+ctypedef CUDA_ARRAY3D_DESCRIPTOR_st CUDA_ARRAY3D_DESCRIPTOR_v2
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
-        size_t size
-        size_t alignment
-        unsigned int reserved[4]
-    ctypedef CUDA_ARRAY_MEMORY_REQUIREMENTS_st CUDA_ARRAY_MEMORY_REQUIREMENTS_v1
+cdef struct CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
+    size_t size
+    size_t alignment
+    unsigned int reserved[4]
+ctypedef CUDA_ARRAY_MEMORY_REQUIREMENTS_st CUDA_ARRAY_MEMORY_REQUIREMENTS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_TEXTURE_DESC_st:
-        CUaddress_mode addressMode[3]
-        CUfilter_mode filterMode
-        unsigned int flags
-        unsigned int maxAnisotropy
-        CUfilter_mode mipmapFilterMode
-        float mipmapLevelBias
-        float minMipmapLevelClamp
-        float maxMipmapLevelClamp
-        float borderColor[4]
-        int reserved[12]
-    ctypedef CUDA_TEXTURE_DESC_st CUDA_TEXTURE_DESC_v1
+cdef struct CUDA_TEXTURE_DESC_st:
+    CUaddress_mode addressMode[3]
+    CUfilter_mode filterMode
+    unsigned int flags
+    unsigned int maxAnisotropy
+    CUfilter_mode mipmapFilterMode
+    float mipmapLevelBias
+    float minMipmapLevelClamp
+    float maxMipmapLevelClamp
+    float borderColor[4]
+    int reserved[12]
+ctypedef CUDA_TEXTURE_DESC_st CUDA_TEXTURE_DESC_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_RESOURCE_VIEW_DESC_st:
-        CUresourceViewFormat format
-        size_t width
-        size_t height
-        size_t depth
-        unsigned int firstMipmapLevel
-        unsigned int lastMipmapLevel
-        unsigned int firstLayer
-        unsigned int lastLayer
-        unsigned int reserved[16]
-    ctypedef CUDA_RESOURCE_VIEW_DESC_st CUDA_RESOURCE_VIEW_DESC_v1
+cdef struct CUDA_RESOURCE_VIEW_DESC_st:
+    CUresourceViewFormat format
+    size_t width
+    size_t height
+    size_t depth
+    unsigned int firstMipmapLevel
+    unsigned int lastMipmapLevel
+    unsigned int firstLayer
+    unsigned int lastLayer
+    unsigned int reserved[16]
+ctypedef CUDA_RESOURCE_VIEW_DESC_st CUDA_RESOURCE_VIEW_DESC_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
-        unsigned long long p2pToken
-        unsigned int vaSpaceToken
-    ctypedef CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1
+cdef struct CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
+    unsigned long long p2pToken
+    unsigned int vaSpaceToken
+ctypedef CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
-        unsigned long long offset
-        unsigned long long size
-        unsigned int flags
-        unsigned int reserved[16]
-    ctypedef CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1
+cdef struct CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
+    unsigned long long offset
+    unsigned long long size
+    unsigned int flags
+    unsigned int reserved[16]
+ctypedef CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1
 
 cdef extern from 'cuda.h':
     ctypedef unsigned long long CUmemGenericAllocationHandle_v1 'CUmemGenericAllocationHandle_v1'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUmulticastObjectProp_st:
-        unsigned int numDevices
-        size_t size
-        unsigned long long handleTypes
-        unsigned long long flags
-    ctypedef CUmulticastObjectProp_st CUmulticastObjectProp_v1
+cdef struct CUmulticastObjectProp_st:
+    unsigned int numDevices
+    size_t size
+    unsigned long long handleTypes
+    unsigned long long flags
+ctypedef CUmulticastObjectProp_st CUmulticastObjectProp_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUmemPoolPtrExportData_st:
-        unsigned char reserved[64]
-    ctypedef CUmemPoolPtrExportData_st CUmemPoolPtrExportData_v1
+cdef struct CUmemPoolPtrExportData_st:
+    unsigned char reserved[64]
+ctypedef CUmemPoolPtrExportData_st CUmemPoolPtrExportData_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUoffset3D_st:
-        size_t x
-        size_t y
-        size_t z
-    ctypedef CUoffset3D_st CUoffset3D_v1
+cdef struct CUoffset3D_st:
+    size_t x
+    size_t y
+    size_t z
+ctypedef CUoffset3D_st CUoffset3D_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUextent3D_st:
-        size_t width
-        size_t height
-        size_t depth
-    ctypedef CUextent3D_st CUextent3D_v1
+cdef struct CUextent3D_st:
+    size_t width
+    size_t height
+    size_t depth
+ctypedef CUextent3D_st CUextent3D_v1
 
 cdef extern from 'cuda.h':
     ctypedef unsigned int CUlogIterator 'CUlogIterator'
@@ -1931,20 +1915,17 @@ cdef extern from 'cuda.h':
     ctypedef CUcoredumpCallbackEntry_st* CUcoredumpCallbackHandle 'CUcoredumpCallbackHandle'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUuuid_st:
-        char bytes[16]
-    ctypedef CUuuid_st CUuuid
+cdef struct CUuuid_st:
+    char bytes[16]
+ctypedef CUuuid_st CUuuid
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpFlushRemoteWritesParams_st 'CUstreamMemOpFlushRemoteWritesParams_st':
-        CUstreamBatchMemOpType operation
-        unsigned int flags
+ctypedef struct CUstreamMemOpFlushRemoteWritesParams_st 'CUstreamMemOpFlushRemoteWritesParams_st':
+    CUstreamBatchMemOpType operation
+    unsigned int flags
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpMemoryBarrierParams_st 'CUstreamMemOpMemoryBarrierParams_st':
-        CUstreamBatchMemOpType operation
-        unsigned int flags
+ctypedef struct CUstreamMemOpMemoryBarrierParams_st 'CUstreamMemOpMemoryBarrierParams_st':
+    CUstreamBatchMemOpType operation
+    unsigned int flags
 
 cdef struct cuda_bindings_driver__anon_pod3:
     unsigned long long bytesOverBudget
@@ -1955,19 +1936,17 @@ cdef extern from 'cuda.h':
     )
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUgraphEdgeData_st:
-        unsigned char from_port
-        unsigned char to_port
-        unsigned char type
-        unsigned char reserved[5]
-    ctypedef CUgraphEdgeData_st CUgraphEdgeData
+cdef struct CUgraphEdgeData_st:
+    unsigned char from_port
+    unsigned char to_port
+    unsigned char type
+    unsigned char reserved[5]
+ctypedef CUgraphEdgeData_st CUgraphEdgeData
 
-cdef extern from 'cuda.h':
-    cdef struct CUlaunchMemSyncDomainMap_st:
-        unsigned char default_
-        unsigned char remote
-    ctypedef CUlaunchMemSyncDomainMap_st CUlaunchMemSyncDomainMap
+cdef struct CUlaunchMemSyncDomainMap_st:
+    unsigned char default_
+    unsigned char remote
+ctypedef CUlaunchMemSyncDomainMap_st CUlaunchMemSyncDomainMap
 
 cdef struct cuda_bindings_driver__anon_pod4:
     unsigned int x
@@ -1979,19 +1958,17 @@ cdef struct cuda_bindings_driver__anon_pod7:
     unsigned int y
     unsigned int z
 
-cdef extern from 'cuda.h':
-    cdef struct CUctxCigParam_st:
-        CUcigDataType sharedDataType
-        void* sharedData
-    ctypedef CUctxCigParam_st CUctxCigParam
+cdef struct CUctxCigParam_st:
+    CUcigDataType sharedDataType
+    void* sharedData
+ctypedef CUctxCigParam_st CUctxCigParam
 
-cdef extern from 'cuda.h':
-    cdef struct CUlibraryHostUniversalFunctionAndDataTable_st:
-        void* functionTable
-        size_t functionWindowSize
-        void* dataTable
-        size_t dataWindowSize
-    ctypedef CUlibraryHostUniversalFunctionAndDataTable_st CUlibraryHostUniversalFunctionAndDataTable
+cdef struct CUlibraryHostUniversalFunctionAndDataTable_st:
+    void* functionTable
+    size_t functionWindowSize
+    void* dataTable
+    size_t dataWindowSize
+ctypedef CUlibraryHostUniversalFunctionAndDataTable_st CUlibraryHostUniversalFunctionAndDataTable
 
 cdef struct cuda_bindings_driver__anon_pod10:
     unsigned int width
@@ -2051,38 +2028,33 @@ cdef struct cuda_bindings_driver__anon_pod35:
     unsigned short usage
     unsigned char reserved[4]
 
-cdef extern from 'cuda.h':
-    cdef struct CUdevSmResource_st:
-        unsigned int smCount
-        unsigned int minSmPartitionSize
-        unsigned int smCoscheduledAlignment
-        unsigned int flags
-    ctypedef CUdevSmResource_st CUdevSmResource
+cdef struct CUdevSmResource_st:
+    unsigned int smCount
+    unsigned int minSmPartitionSize
+    unsigned int smCoscheduledAlignment
+    unsigned int flags
+ctypedef CUdevSmResource_st CUdevSmResource
 
-cdef extern from 'cuda.h':
-    cdef struct CUdevWorkqueueResource_st:
-        unsigned char reserved[40]
-    ctypedef CUdevWorkqueueResource_st CUdevWorkqueueResource
+cdef struct CUdevWorkqueueResource_st:
+    unsigned char reserved[40]
+ctypedef CUdevWorkqueueResource_st CUdevWorkqueueResource
 
-cdef extern from 'cuda.h':
-    cdef struct CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
-        unsigned int smCount
-        unsigned int coscheduledSmCount
-        unsigned int preferredCoscheduledSmCount
-        unsigned int flags
-        unsigned int reserved[12]
-    ctypedef CU_DEV_SM_RESOURCE_GROUP_PARAMS_st CU_DEV_SM_RESOURCE_GROUP_PARAMS
+cdef struct CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
+    unsigned int smCount
+    unsigned int coscheduledSmCount
+    unsigned int preferredCoscheduledSmCount
+    unsigned int flags
+    unsigned int reserved[12]
+ctypedef CU_DEV_SM_RESOURCE_GROUP_PARAMS_st CU_DEV_SM_RESOURCE_GROUP_PARAMS
 
-cdef extern from 'cuda.h':
-    cdef struct CUstreamCigParam_st:
-        CUstreamCigDataType streamSharedDataType
-        void* streamSharedData
-    ctypedef CUstreamCigParam_st CUstreamCigParam
+cdef struct CUstreamCigParam_st:
+    CUstreamCigDataType streamSharedDataType
+    void* streamSharedData
+ctypedef CUstreamCigParam_st CUstreamCigParam
 
-cdef extern from 'cuda.h':
-    cdef struct CUlogicalEndpointFabricHandle_st:
-        unsigned char data[64]
-    ctypedef CUlogicalEndpointFabricHandle_st CUlogicalEndpointFabricHandle
+cdef struct CUlogicalEndpointFabricHandle_st:
+    unsigned char data[64]
+ctypedef CUlogicalEndpointFabricHandle_st CUlogicalEndpointFabricHandle
 
 cdef struct cuda_bindings_driver__anon_pod43:
     unsigned int numDevices
@@ -2106,42 +2078,37 @@ cdef extern from 'cuda.h':
     ctypedef cuuint32_t CUlogicalEndpointId 'CUlogicalEndpointId'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUmemDecompressParams_st:
-        size_t srcNumBytes
-        size_t dstNumBytes
-        cuuint32_t* dstActBytes
-        void* src
-        void* dst
-        CUmemDecompressAlgorithm algo
-        unsigned char padding[20]
-    ctypedef CUmemDecompressParams_st CUmemDecompressParams
+cdef struct CUmemDecompressParams_st:
+    size_t srcNumBytes
+    size_t dstNumBytes
+    cuuint32_t* dstActBytes
+    void* src
+    void* dst
+    CUmemDecompressAlgorithm algo
+    unsigned char padding[20]
+ctypedef CUmemDecompressParams_st CUmemDecompressParams
 
 cdef extern from 'cuda.h':
     ctypedef cuuint64_t CUgraphConditionalHandle 'CUgraphConditionalHandle'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUtensorMap_st:
-        cuuint64_t opaque[16]
-    ctypedef CUtensorMap_st CUtensorMap
+cdef struct CUtensorMap_st:
+    cuuint64_t opaque[16]
+ctypedef CUtensorMap_st CUtensorMap
 
-cdef extern from 'cuda.h':
-    cdef struct CUcheckpointLockArgs_st:
-        unsigned int timeoutMs
-        unsigned int reserved0
-        cuuint64_t reserved1[7]
-    ctypedef CUcheckpointLockArgs_st CUcheckpointLockArgs
+cdef struct CUcheckpointLockArgs_st:
+    unsigned int timeoutMs
+    unsigned int reserved0
+    cuuint64_t reserved1[7]
+ctypedef CUcheckpointLockArgs_st CUcheckpointLockArgs
 
-cdef extern from 'cuda.h':
-    cdef struct CUcheckpointCheckpointArgs_st:
-        cuuint64_t reserved[8]
-    ctypedef CUcheckpointCheckpointArgs_st CUcheckpointCheckpointArgs
+cdef struct CUcheckpointCheckpointArgs_st:
+    cuuint64_t reserved[8]
+ctypedef CUcheckpointCheckpointArgs_st CUcheckpointCheckpointArgs
 
-cdef extern from 'cuda.h':
-    cdef struct CUcheckpointUnlockArgs_st:
-        cuuint64_t reserved[8]
-    ctypedef CUcheckpointUnlockArgs_st CUcheckpointUnlockArgs
+cdef struct CUcheckpointUnlockArgs_st:
+    cuuint64_t reserved[8]
+ctypedef CUcheckpointUnlockArgs_st CUcheckpointUnlockArgs
 
 cdef extern from 'cuda.h':
     ctypedef CUdeviceptr_v2 CUdeviceptr 'CUdeviceptr'
@@ -2231,51 +2198,48 @@ cdef extern from 'cuda.h':
     ctypedef CUextent3D_v1 CUextent3D 'CUextent3D'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_KERNEL_NODE_PARAMS_st:
-        CUfunction func
-        unsigned int gridDimX
-        unsigned int gridDimY
-        unsigned int gridDimZ
-        unsigned int blockDimX
-        unsigned int blockDimY
-        unsigned int blockDimZ
-        unsigned int sharedMemBytes
-        void** kernelParams
-        void** extra
-    ctypedef CUDA_KERNEL_NODE_PARAMS_st CUDA_KERNEL_NODE_PARAMS_v1
+cdef struct CUDA_KERNEL_NODE_PARAMS_st:
+    CUfunction func
+    unsigned int gridDimX
+    unsigned int gridDimY
+    unsigned int gridDimZ
+    unsigned int blockDimX
+    unsigned int blockDimY
+    unsigned int blockDimZ
+    unsigned int sharedMemBytes
+    void** kernelParams
+    void** extra
+ctypedef CUDA_KERNEL_NODE_PARAMS_st CUDA_KERNEL_NODE_PARAMS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_KERNEL_NODE_PARAMS_v2_st:
-        CUfunction func
-        unsigned int gridDimX
-        unsigned int gridDimY
-        unsigned int gridDimZ
-        unsigned int blockDimX
-        unsigned int blockDimY
-        unsigned int blockDimZ
-        unsigned int sharedMemBytes
-        void** kernelParams
-        void** extra
-        CUkernel kern
-        CUcontext ctx
-    ctypedef CUDA_KERNEL_NODE_PARAMS_v2_st CUDA_KERNEL_NODE_PARAMS_v2
+cdef struct CUDA_KERNEL_NODE_PARAMS_v2_st:
+    CUfunction func
+    unsigned int gridDimX
+    unsigned int gridDimY
+    unsigned int gridDimZ
+    unsigned int blockDimX
+    unsigned int blockDimY
+    unsigned int blockDimZ
+    unsigned int sharedMemBytes
+    void** kernelParams
+    void** extra
+    CUkernel kern
+    CUcontext ctx
+ctypedef CUDA_KERNEL_NODE_PARAMS_v2_st CUDA_KERNEL_NODE_PARAMS_v2
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_KERNEL_NODE_PARAMS_v3_st:
-        CUfunction func
-        unsigned int gridDimX
-        unsigned int gridDimY
-        unsigned int gridDimZ
-        unsigned int blockDimX
-        unsigned int blockDimY
-        unsigned int blockDimZ
-        unsigned int sharedMemBytes
-        void** kernelParams
-        void** extra
-        CUkernel kern
-        CUcontext ctx
-    ctypedef CUDA_KERNEL_NODE_PARAMS_v3_st CUDA_KERNEL_NODE_PARAMS_v3
+cdef struct CUDA_KERNEL_NODE_PARAMS_v3_st:
+    CUfunction func
+    unsigned int gridDimX
+    unsigned int gridDimY
+    unsigned int gridDimZ
+    unsigned int blockDimX
+    unsigned int blockDimY
+    unsigned int blockDimZ
+    unsigned int sharedMemBytes
+    void** kernelParams
+    void** extra
+    CUkernel kern
+    CUcontext ctx
+ctypedef CUDA_KERNEL_NODE_PARAMS_v3_st CUDA_KERNEL_NODE_PARAMS_v3
 
 cdef struct cuda_bindings_driver__anon_pod12:
     CUarray hArray
@@ -2296,29 +2260,26 @@ cdef struct cuda_bindings_driver__anon_pod6:
     CUevent event
     int flags
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EVENT_RECORD_NODE_PARAMS_st:
-        CUevent event
-    ctypedef CUDA_EVENT_RECORD_NODE_PARAMS_st CUDA_EVENT_RECORD_NODE_PARAMS
+cdef struct CUDA_EVENT_RECORD_NODE_PARAMS_st:
+    CUevent event
+ctypedef CUDA_EVENT_RECORD_NODE_PARAMS_st CUDA_EVENT_RECORD_NODE_PARAMS
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EVENT_WAIT_NODE_PARAMS_st:
-        CUevent event
-    ctypedef CUDA_EVENT_WAIT_NODE_PARAMS_st CUDA_EVENT_WAIT_NODE_PARAMS
+cdef struct CUDA_EVENT_WAIT_NODE_PARAMS_st:
+    CUevent event
+ctypedef CUDA_EVENT_WAIT_NODE_PARAMS_st CUDA_EVENT_WAIT_NODE_PARAMS
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_LAUNCH_PARAMS_st:
-        CUfunction function
-        unsigned int gridDimX
-        unsigned int gridDimY
-        unsigned int gridDimZ
-        unsigned int blockDimX
-        unsigned int blockDimY
-        unsigned int blockDimZ
-        unsigned int sharedMemBytes
-        CUstream hStream
-        void** kernelParams
-    ctypedef CUDA_LAUNCH_PARAMS_st CUDA_LAUNCH_PARAMS_v1
+cdef struct CUDA_LAUNCH_PARAMS_st:
+    CUfunction function
+    unsigned int gridDimX
+    unsigned int gridDimY
+    unsigned int gridDimZ
+    unsigned int blockDimX
+    unsigned int blockDimY
+    unsigned int blockDimZ
+    unsigned int sharedMemBytes
+    CUstream hStream
+    void** kernelParams
+ctypedef CUDA_LAUNCH_PARAMS_st CUDA_LAUNCH_PARAMS_v1
 
 cdef extern from 'cuda.h':
     ctypedef void (*CUstreamCallback 'CUstreamCallback')(
@@ -2328,61 +2289,54 @@ cdef extern from 'cuda.h':
     )
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_CHILD_GRAPH_NODE_PARAMS_st:
-        CUgraph graph
-        CUgraphChildGraphNodeOwnership ownership
-    ctypedef CUDA_CHILD_GRAPH_NODE_PARAMS_st CUDA_CHILD_GRAPH_NODE_PARAMS
+cdef struct CUDA_CHILD_GRAPH_NODE_PARAMS_st:
+    CUgraph graph
+    CUgraphChildGraphNodeOwnership ownership
+ctypedef CUDA_CHILD_GRAPH_NODE_PARAMS_st CUDA_CHILD_GRAPH_NODE_PARAMS
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_GRAPH_INSTANTIATE_PARAMS_st:
-        cuuint64_t flags
-        CUstream hUploadStream
-        CUgraphNode hErrNode_out
-        CUgraphInstantiateResult result_out
-    ctypedef CUDA_GRAPH_INSTANTIATE_PARAMS_st CUDA_GRAPH_INSTANTIATE_PARAMS
+cdef struct CUDA_GRAPH_INSTANTIATE_PARAMS_st:
+    cuuint64_t flags
+    CUstream hUploadStream
+    CUgraphNode hErrNode_out
+    CUgraphInstantiateResult result_out
+ctypedef CUDA_GRAPH_INSTANTIATE_PARAMS_st CUDA_GRAPH_INSTANTIATE_PARAMS
 
-cdef extern from 'cuda.h':
-    cdef struct CUgraphExecUpdateResultInfo_st:
-        CUgraphExecUpdateResult result
-        CUgraphNode errorNode
-        CUgraphNode errorFromNode
-    ctypedef CUgraphExecUpdateResultInfo_st CUgraphExecUpdateResultInfo_v1
+cdef struct CUgraphExecUpdateResultInfo_st:
+    CUgraphExecUpdateResult result
+    CUgraphNode errorNode
+    CUgraphNode errorFromNode
+ctypedef CUgraphExecUpdateResultInfo_st CUgraphExecUpdateResultInfo_v1
 
 cdef struct cuda_bindings_driver__anon_pod8:
     int deviceUpdatable
     CUgraphDeviceNode devNode
 
-cdef extern from 'cuda.h':
-    cdef struct CUcheckpointGpuPair_st:
-        CUuuid oldUuid
-        CUuuid newUuid
-    ctypedef CUcheckpointGpuPair_st CUcheckpointGpuPair
+cdef struct CUcheckpointGpuPair_st:
+    CUuuid oldUuid
+    CUuuid newUuid
+ctypedef CUcheckpointGpuPair_st CUcheckpointGpuPair
 
 cdef union cuda_bindings_driver__anon_pod2:
     cuda_bindings_driver__anon_pod3 overBudget
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_HOST_NODE_PARAMS_st:
-        CUhostFn fn
-        void* userData
-    ctypedef CUDA_HOST_NODE_PARAMS_st CUDA_HOST_NODE_PARAMS_v1
+cdef struct CUDA_HOST_NODE_PARAMS_st:
+    CUhostFn fn
+    void* userData
+ctypedef CUDA_HOST_NODE_PARAMS_st CUDA_HOST_NODE_PARAMS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_HOST_NODE_PARAMS_v2_st:
-        CUhostFn fn
-        void* userData
-        unsigned int syncMode
-    ctypedef CUDA_HOST_NODE_PARAMS_v2_st CUDA_HOST_NODE_PARAMS_v2
+cdef struct CUDA_HOST_NODE_PARAMS_v2_st:
+    CUhostFn fn
+    void* userData
+    unsigned int syncMode
+ctypedef CUDA_HOST_NODE_PARAMS_v2_st CUDA_HOST_NODE_PARAMS_v2
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_ARRAY_SPARSE_PROPERTIES_st:
-        cuda_bindings_driver__anon_pod10 tileExtent
-        unsigned int miptailFirstLevel
-        unsigned long long miptailSize
-        unsigned int flags
-        unsigned int reserved[4]
-    ctypedef CUDA_ARRAY_SPARSE_PROPERTIES_st CUDA_ARRAY_SPARSE_PROPERTIES_v1
+cdef struct CUDA_ARRAY_SPARSE_PROPERTIES_st:
+    cuda_bindings_driver__anon_pod10 tileExtent
+    unsigned int miptailFirstLevel
+    unsigned long long miptailSize
+    unsigned int flags
+    unsigned int reserved[4]
+ctypedef CUDA_ARRAY_SPARSE_PROPERTIES_st CUDA_ARRAY_SPARSE_PROPERTIES_v1
 
 cdef union cuda_bindings_driver__anon_pod17:
     int fd
@@ -2410,151 +2364,140 @@ cdef union cuda_bindings_driver__anon_pod30:
     cuda_bindings_driver__anon_pod31 sparseLevel
     cuda_bindings_driver__anon_pod32 miptail
 
-cdef extern from 'cuda.h':
-    cdef struct CUmemLocation_st:
-        CUmemLocationType type
-        int id
-    ctypedef CUmemLocation_st CUmemLocation_v1
+cdef struct CUmemLocation_st:
+    CUmemLocationType type
+    int id
+ctypedef CUmemLocation_st CUmemLocation_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUstreamCigCaptureParams_st:
-        CUstreamCigParam* streamCigParams
-    ctypedef CUstreamCigCaptureParams_st CUstreamCigCaptureParams
+cdef struct CUstreamCigCaptureParams_st:
+    CUstreamCigParam* streamCigParams
+ctypedef CUstreamCigCaptureParams_st CUstreamCigCaptureParams
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUDA_CONDITIONAL_NODE_PARAMS 'CUDA_CONDITIONAL_NODE_PARAMS':
-        CUgraphConditionalHandle handle
-        CUgraphConditionalNodeType type
-        unsigned int size
-        CUgraph* phGraph_out
-        CUcontext ctx
+ctypedef struct CUDA_CONDITIONAL_NODE_PARAMS 'CUDA_CONDITIONAL_NODE_PARAMS':
+    CUgraphConditionalHandle handle
+    CUgraphConditionalNodeType type
+    unsigned int size
+    CUgraph* phGraph_out
+    CUcontext ctx
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpWaitValueParams_st 'CUstreamMemOpWaitValueParams_st':
-        CUstreamBatchMemOpType operation
-        CUdeviceptr address
-        cuuint32_t value
-        cuuint64_t value64
-        unsigned int flags
-        CUdeviceptr alias
+ctypedef struct CUstreamMemOpWaitValueParams_st 'CUstreamMemOpWaitValueParams_st':
+    CUstreamBatchMemOpType operation
+    CUdeviceptr address
+    cuuint32_t value
+    cuuint64_t value64
+    unsigned int flags
+    CUdeviceptr alias
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpWriteValueParams_st 'CUstreamMemOpWriteValueParams_st':
-        CUstreamBatchMemOpType operation
-        CUdeviceptr address
-        cuuint32_t value
-        cuuint64_t value64
-        unsigned int flags
-        CUdeviceptr alias
+ctypedef struct CUstreamMemOpWriteValueParams_st 'CUstreamMemOpWriteValueParams_st':
+    CUstreamBatchMemOpType operation
+    CUdeviceptr address
+    cuuint32_t value
+    cuuint64_t value64
+    unsigned int flags
+    CUdeviceptr alias
 
-cdef extern from 'cuda.h':
-    ctypedef struct CUstreamMemOpAtomicReductionParams_st 'CUstreamMemOpAtomicReductionParams_st':
-        CUstreamBatchMemOpType operation
-        unsigned int flags
-        CUstreamAtomicReductionOpType reductionOp
-        CUstreamAtomicReductionDataType dataType
-        CUdeviceptr address
-        cuuint64_t value
-        CUdeviceptr alias
+ctypedef struct CUstreamMemOpAtomicReductionParams_st 'CUstreamMemOpAtomicReductionParams_st':
+    CUstreamBatchMemOpType operation
+    unsigned int flags
+    CUstreamAtomicReductionOpType reductionOp
+    CUstreamAtomicReductionDataType dataType
+    CUdeviceptr address
+    cuuint64_t value
+    CUdeviceptr alias
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEMSET_NODE_PARAMS_st:
-        CUdeviceptr dst
-        size_t pitch
-        unsigned int value
-        unsigned int elementSize
-        size_t width
-        size_t height
-    ctypedef CUDA_MEMSET_NODE_PARAMS_st CUDA_MEMSET_NODE_PARAMS_v1
+cdef struct CUDA_MEMSET_NODE_PARAMS_st:
+    CUdeviceptr dst
+    size_t pitch
+    unsigned int value
+    unsigned int elementSize
+    size_t width
+    size_t height
+ctypedef CUDA_MEMSET_NODE_PARAMS_st CUDA_MEMSET_NODE_PARAMS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEMSET_NODE_PARAMS_v2_st:
-        CUdeviceptr dst
-        size_t pitch
-        unsigned int value
-        unsigned int elementSize
-        size_t width
-        size_t height
-        CUcontext ctx
-    ctypedef CUDA_MEMSET_NODE_PARAMS_v2_st CUDA_MEMSET_NODE_PARAMS_v2
+cdef struct CUDA_MEMSET_NODE_PARAMS_v2_st:
+    CUdeviceptr dst
+    size_t pitch
+    unsigned int value
+    unsigned int elementSize
+    size_t width
+    size_t height
+    CUcontext ctx
+ctypedef CUDA_MEMSET_NODE_PARAMS_v2_st CUDA_MEMSET_NODE_PARAMS_v2
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEMCPY2D_st:
-        size_t srcXInBytes
-        size_t srcY
-        CUmemorytype srcMemoryType
-        void* srcHost
-        CUdeviceptr srcDevice
-        CUarray srcArray
-        size_t srcPitch
-        size_t dstXInBytes
-        size_t dstY
-        CUmemorytype dstMemoryType
-        void* dstHost
-        CUdeviceptr dstDevice
-        CUarray dstArray
-        size_t dstPitch
-        size_t WidthInBytes
-        size_t Height
-    ctypedef CUDA_MEMCPY2D_st CUDA_MEMCPY2D_v2
+cdef struct CUDA_MEMCPY2D_st:
+    size_t srcXInBytes
+    size_t srcY
+    CUmemorytype srcMemoryType
+    void* srcHost
+    CUdeviceptr srcDevice
+    CUarray srcArray
+    size_t srcPitch
+    size_t dstXInBytes
+    size_t dstY
+    CUmemorytype dstMemoryType
+    void* dstHost
+    CUdeviceptr dstDevice
+    CUarray dstArray
+    size_t dstPitch
+    size_t WidthInBytes
+    size_t Height
+ctypedef CUDA_MEMCPY2D_st CUDA_MEMCPY2D_v2
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEMCPY3D_st:
-        size_t srcXInBytes
-        size_t srcY
-        size_t srcZ
-        size_t srcLOD
-        CUmemorytype srcMemoryType
-        void* srcHost
-        CUdeviceptr srcDevice
-        CUarray srcArray
-        void* reserved0
-        size_t srcPitch
-        size_t srcHeight
-        size_t dstXInBytes
-        size_t dstY
-        size_t dstZ
-        size_t dstLOD
-        CUmemorytype dstMemoryType
-        void* dstHost
-        CUdeviceptr dstDevice
-        CUarray dstArray
-        void* reserved1
-        size_t dstPitch
-        size_t dstHeight
-        size_t WidthInBytes
-        size_t Height
-        size_t Depth
-    ctypedef CUDA_MEMCPY3D_st CUDA_MEMCPY3D_v2
+cdef struct CUDA_MEMCPY3D_st:
+    size_t srcXInBytes
+    size_t srcY
+    size_t srcZ
+    size_t srcLOD
+    CUmemorytype srcMemoryType
+    void* srcHost
+    CUdeviceptr srcDevice
+    CUarray srcArray
+    void* reserved0
+    size_t srcPitch
+    size_t srcHeight
+    size_t dstXInBytes
+    size_t dstY
+    size_t dstZ
+    size_t dstLOD
+    CUmemorytype dstMemoryType
+    void* dstHost
+    CUdeviceptr dstDevice
+    CUarray dstArray
+    void* reserved1
+    size_t dstPitch
+    size_t dstHeight
+    size_t WidthInBytes
+    size_t Height
+    size_t Depth
+ctypedef CUDA_MEMCPY3D_st CUDA_MEMCPY3D_v2
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEMCPY3D_PEER_st:
-        size_t srcXInBytes
-        size_t srcY
-        size_t srcZ
-        size_t srcLOD
-        CUmemorytype srcMemoryType
-        void* srcHost
-        CUdeviceptr srcDevice
-        CUarray srcArray
-        CUcontext srcContext
-        size_t srcPitch
-        size_t srcHeight
-        size_t dstXInBytes
-        size_t dstY
-        size_t dstZ
-        size_t dstLOD
-        CUmemorytype dstMemoryType
-        void* dstHost
-        CUdeviceptr dstDevice
-        CUarray dstArray
-        CUcontext dstContext
-        size_t dstPitch
-        size_t dstHeight
-        size_t WidthInBytes
-        size_t Height
-        size_t Depth
-    ctypedef CUDA_MEMCPY3D_PEER_st CUDA_MEMCPY3D_PEER_v1
+cdef struct CUDA_MEMCPY3D_PEER_st:
+    size_t srcXInBytes
+    size_t srcY
+    size_t srcZ
+    size_t srcLOD
+    CUmemorytype srcMemoryType
+    void* srcHost
+    CUdeviceptr srcDevice
+    CUarray srcArray
+    CUcontext srcContext
+    size_t srcPitch
+    size_t srcHeight
+    size_t dstXInBytes
+    size_t dstY
+    size_t dstZ
+    size_t dstLOD
+    CUmemorytype dstMemoryType
+    void* dstHost
+    CUdeviceptr dstDevice
+    CUarray dstArray
+    CUcontext dstContext
+    size_t dstPitch
+    size_t dstHeight
+    size_t WidthInBytes
+    size_t Height
+    size_t Depth
+ctypedef CUDA_MEMCPY3D_PEER_st CUDA_MEMCPY3D_PEER_v1
 
 cdef struct cuda_bindings_driver__anon_pod14:
     CUdeviceptr devPtr
@@ -2570,17 +2513,15 @@ cdef struct cuda_bindings_driver__anon_pod15:
     size_t height
     size_t pitchInBytes
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEM_FREE_NODE_PARAMS_st:
-        CUdeviceptr dptr
-    ctypedef CUDA_MEM_FREE_NODE_PARAMS_st CUDA_MEM_FREE_NODE_PARAMS
+cdef struct CUDA_MEM_FREE_NODE_PARAMS_st:
+    CUdeviceptr dptr
+ctypedef CUDA_MEM_FREE_NODE_PARAMS_st CUDA_MEM_FREE_NODE_PARAMS
 
-cdef extern from 'cuda.h':
-    cdef struct CUdevWorkqueueConfigResource_st:
-        CUdevice device
-        unsigned int wqConcurrencyLimit
-        CUdevWorkqueueConfigScope sharingScope
-    ctypedef CUdevWorkqueueConfigResource_st CUdevWorkqueueConfigResource
+cdef struct CUdevWorkqueueConfigResource_st:
+    CUdevice device
+    unsigned int wqConcurrencyLimit
+    CUdevWorkqueueConfigScope sharingScope
+ctypedef CUdevWorkqueueConfigResource_st CUdevWorkqueueConfigResource
 
 cdef struct cuda_bindings_driver__anon_pod42:
     CUdevice device
@@ -2596,13 +2537,12 @@ cdef extern from 'cuda.h':
 cdef union cuda_bindings_driver__anon_pod9:
     CUexecAffinitySmCount smCount
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
-        unsigned long long offset
-        CUDA_ARRAY3D_DESCRIPTOR arrayDesc
-        unsigned int numLevels
-        unsigned int reserved[16]
-    ctypedef CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1
+cdef struct CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
+    unsigned long long offset
+    CUDA_ARRAY3D_DESCRIPTOR arrayDesc
+    unsigned int numLevels
+    unsigned int reserved[16]
+ctypedef CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1
 
 cdef union cuda_bindings_driver__anon_pod33:
     CUmemGenericAllocationHandle memHandle
@@ -2623,40 +2563,37 @@ cdef extern from 'cuda.h':
     ctypedef CUgraphExecUpdateResultInfo_v1 CUgraphExecUpdateResultInfo 'CUgraphExecUpdateResultInfo'
 
 
-cdef extern from 'cuda.h':
-    cdef union CUlaunchAttributeValue_union:
-        char pad[64]
-        CUaccessPolicyWindow accessPolicyWindow
-        int cooperative
-        CUsynchronizationPolicy syncPolicy
-        cuda_bindings_driver__anon_pod4 clusterDim
-        CUclusterSchedulingPolicy clusterSchedulingPolicyPreference
-        int programmaticStreamSerializationAllowed
-        cuda_bindings_driver__anon_pod5 programmaticEvent
-        cuda_bindings_driver__anon_pod6 launchCompletionEvent
-        int priority
-        CUlaunchMemSyncDomainMap memSyncDomainMap
-        CUlaunchMemSyncDomain memSyncDomain
-        cuda_bindings_driver__anon_pod7 preferredClusterDim
-        cuda_bindings_driver__anon_pod8 deviceUpdatableKernelNode
-        unsigned int sharedMemCarveout
-        unsigned int nvlinkUtilCentricScheduling
-        CUlaunchAttributePortableClusterMode portableClusterSizeMode
-        CUsharedMemoryMode sharedMemoryMode
-    ctypedef CUlaunchAttributeValue_union CUlaunchAttributeValue
+cdef union CUlaunchAttributeValue_union:
+    char pad[64]
+    CUaccessPolicyWindow accessPolicyWindow
+    int cooperative
+    CUsynchronizationPolicy syncPolicy
+    cuda_bindings_driver__anon_pod4 clusterDim
+    CUclusterSchedulingPolicy clusterSchedulingPolicyPreference
+    int programmaticStreamSerializationAllowed
+    cuda_bindings_driver__anon_pod5 programmaticEvent
+    cuda_bindings_driver__anon_pod6 launchCompletionEvent
+    int priority
+    CUlaunchMemSyncDomainMap memSyncDomainMap
+    CUlaunchMemSyncDomain memSyncDomain
+    cuda_bindings_driver__anon_pod7 preferredClusterDim
+    cuda_bindings_driver__anon_pod8 deviceUpdatableKernelNode
+    unsigned int sharedMemCarveout
+    unsigned int nvlinkUtilCentricScheduling
+    CUlaunchAttributePortableClusterMode portableClusterSizeMode
+    CUsharedMemoryMode sharedMemoryMode
+ctypedef CUlaunchAttributeValue_union CUlaunchAttributeValue
 
-cdef extern from 'cuda.h':
-    cdef struct CUcheckpointRestoreArgs_st:
-        CUcheckpointGpuPair* gpuPairs
-        unsigned int gpuPairsCount
-        char reserved[((64 - 8) - 4)]
-    ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
+cdef struct CUcheckpointRestoreArgs_st:
+    CUcheckpointGpuPair* gpuPairs
+    unsigned int gpuPairsCount
+    char reserved[((64 - 8) - 4)]
+ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
 
-cdef extern from 'cuda.h':
-    cdef struct CUasyncNotificationInfo_st:
-        CUasyncNotificationType type
-        cuda_bindings_driver__anon_pod2 info
-    ctypedef CUasyncNotificationInfo_st CUasyncNotificationInfo
+cdef struct CUasyncNotificationInfo_st:
+    CUasyncNotificationType type
+    cuda_bindings_driver__anon_pod2 info
+ctypedef CUasyncNotificationInfo_st CUasyncNotificationInfo
 
 cdef extern from 'cuda.h':
     ctypedef CUDA_HOST_NODE_PARAMS_v1 CUDA_HOST_NODE_PARAMS 'CUDA_HOST_NODE_PARAMS'
@@ -2666,51 +2603,46 @@ cdef extern from 'cuda.h':
     ctypedef CUDA_ARRAY_SPARSE_PROPERTIES_v1 CUDA_ARRAY_SPARSE_PROPERTIES 'CUDA_ARRAY_SPARSE_PROPERTIES'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
-        CUexternalMemoryHandleType type
-        cuda_bindings_driver__anon_pod17 handle
-        unsigned long long size
-        unsigned int flags
-        unsigned int reserved[16]
-    ctypedef CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1
+cdef struct CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
+    CUexternalMemoryHandleType type
+    cuda_bindings_driver__anon_pod17 handle
+    unsigned long long size
+    unsigned int flags
+    unsigned int reserved[16]
+ctypedef CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
-        CUexternalSemaphoreHandleType type
-        cuda_bindings_driver__anon_pod19 handle
-        unsigned int flags
-        unsigned int reserved[16]
-    ctypedef CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1
+cdef struct CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
+    CUexternalSemaphoreHandleType type
+    cuda_bindings_driver__anon_pod19 handle
+    unsigned int flags
+    unsigned int reserved[16]
+ctypedef CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
-        cuda_bindings_driver__anon_pod21 params
-        unsigned int flags
-        unsigned int reserved[16]
-    ctypedef CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1
+cdef struct CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
+    cuda_bindings_driver__anon_pod21 params
+    unsigned int flags
+    unsigned int reserved[16]
+ctypedef CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
-        cuda_bindings_driver__anon_pod25 params
-        unsigned int flags
-        unsigned int reserved[16]
-    ctypedef CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1
+cdef struct CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
+    cuda_bindings_driver__anon_pod25 params
+    unsigned int flags
+    unsigned int reserved[16]
+ctypedef CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1
 
 cdef extern from 'cuda.h':
     ctypedef CUmemLocation_v1 CUmemLocation 'CUmemLocation'
 
 
-cdef extern from 'cuda.h':
-    cdef union CUstreamBatchMemOpParams_union:
-        CUstreamBatchMemOpType operation
-        CUstreamMemOpWaitValueParams_st waitValue
-        CUstreamMemOpWriteValueParams_st writeValue
-        CUstreamMemOpFlushRemoteWritesParams_st flushRemoteWrites
-        CUstreamMemOpMemoryBarrierParams_st memoryBarrier
-        CUstreamMemOpAtomicReductionParams_st atomicReduction
-        cuuint64_t pad[6]
-    ctypedef CUstreamBatchMemOpParams_union CUstreamBatchMemOpParams_v1
+cdef union CUstreamBatchMemOpParams_union:
+    CUstreamBatchMemOpType operation
+    CUstreamMemOpWaitValueParams_st waitValue
+    CUstreamMemOpWriteValueParams_st writeValue
+    CUstreamMemOpFlushRemoteWritesParams_st flushRemoteWrites
+    CUstreamMemOpMemoryBarrierParams_st memoryBarrier
+    CUstreamMemOpAtomicReductionParams_st atomicReduction
+    cuuint64_t pad[6]
+ctypedef CUstreamBatchMemOpParams_union CUstreamBatchMemOpParams_v1
 
 cdef extern from 'cuda.h':
     ctypedef CUDA_MEMSET_NODE_PARAMS_v1 CUDA_MEMSET_NODE_PARAMS 'CUDA_MEMSET_NODE_PARAMS'
@@ -2735,30 +2667,28 @@ cdef union cuda_bindings_driver__anon_pod11:
     cuda_bindings_driver__anon_pod15 pitch2D
     cuda_bindings_driver__anon_pod16 reserved
 
-cdef extern from 'cuda.h':
-    cdef struct CUexecAffinityParam_st:
-        CUexecAffinityType type
-        cuda_bindings_driver__anon_pod9 param
-    ctypedef CUexecAffinityParam_st CUexecAffinityParam_v1
+cdef struct CUexecAffinityParam_st:
+    CUexecAffinityType type
+    cuda_bindings_driver__anon_pod9 param
+ctypedef CUexecAffinityParam_st CUexecAffinityParam_v1
 
 cdef extern from 'cuda.h':
     ctypedef CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1 CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC 'CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUarrayMapInfo_st:
-        CUresourcetype resourceType
-        cuda_bindings_driver__anon_pod29 resource
-        CUarraySparseSubresourceType subresourceType
-        cuda_bindings_driver__anon_pod30 subresource
-        CUmemOperationType memOperationType
-        CUmemHandleType memHandleType
-        cuda_bindings_driver__anon_pod33 memHandle
-        unsigned long long offset
-        unsigned int deviceBitMask
-        unsigned int flags
-        unsigned int reserved[2]
-    ctypedef CUarrayMapInfo_st CUarrayMapInfo_v1
+cdef struct CUarrayMapInfo_st:
+    CUresourcetype resourceType
+    cuda_bindings_driver__anon_pod29 resource
+    CUarraySparseSubresourceType subresourceType
+    cuda_bindings_driver__anon_pod30 subresource
+    CUmemOperationType memOperationType
+    CUmemHandleType memHandleType
+    cuda_bindings_driver__anon_pod33 memHandle
+    unsigned long long offset
+    unsigned int deviceBitMask
+    unsigned int flags
+    unsigned int reserved[2]
+ctypedef CUarrayMapInfo_st CUarrayMapInfo_v1
 
 cdef extern from 'cuda.h':
     ctypedef CUlaunchAttributeValue CUkernelNodeAttrValue_v1 'CUkernelNodeAttrValue_v1'
@@ -2768,11 +2698,10 @@ cdef extern from 'cuda.h':
     ctypedef CUlaunchAttributeValue CUstreamAttrValue_v1 'CUstreamAttrValue_v1'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUlaunchAttribute_st:
-        CUlaunchAttributeID id
-        CUlaunchAttributeValue value
-    ctypedef CUlaunchAttribute_st CUlaunchAttribute
+cdef struct CUlaunchAttribute_st:
+    CUlaunchAttributeID id
+    CUlaunchAttributeValue value
+ctypedef CUlaunchAttribute_st CUlaunchAttribute
 
 cdef extern from 'cuda.h':
     ctypedef void (*CUasyncCallback 'CUasyncCallback')(
@@ -2798,39 +2727,35 @@ cdef extern from 'cuda.h':
     ctypedef CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1 CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUmemAllocationProp_st:
-        CUmemAllocationType type
-        CUmemAllocationHandleType requestedHandleTypes
-        CUmemLocation location
-        void* win32HandleMetaData
-        cuda_bindings_driver__anon_pod35 allocFlags
-    ctypedef CUmemAllocationProp_st CUmemAllocationProp_v1
+cdef struct CUmemAllocationProp_st:
+    CUmemAllocationType type
+    CUmemAllocationHandleType requestedHandleTypes
+    CUmemLocation location
+    void* win32HandleMetaData
+    cuda_bindings_driver__anon_pod35 allocFlags
+ctypedef CUmemAllocationProp_st CUmemAllocationProp_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUmemAccessDesc_st:
-        CUmemLocation location
-        CUmemAccess_flags flags
-    ctypedef CUmemAccessDesc_st CUmemAccessDesc_v1
+cdef struct CUmemAccessDesc_st:
+    CUmemLocation location
+    CUmemAccess_flags flags
+ctypedef CUmemAccessDesc_st CUmemAccessDesc_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUmemPoolProps_st:
-        CUmemAllocationType allocType
-        CUmemAllocationHandleType handleTypes
-        CUmemLocation location
-        void* win32SecurityAttributes
-        size_t maxSize
-        unsigned short usage
-        unsigned char reserved[54]
-    ctypedef CUmemPoolProps_st CUmemPoolProps_v1
+cdef struct CUmemPoolProps_st:
+    CUmemAllocationType allocType
+    CUmemAllocationHandleType handleTypes
+    CUmemLocation location
+    void* win32SecurityAttributes
+    size_t maxSize
+    unsigned short usage
+    unsigned char reserved[54]
+ctypedef CUmemPoolProps_st CUmemPoolProps_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUmemcpyAttributes_st:
-        CUmemcpySrcAccessOrder srcAccessOrder
-        CUmemLocation srcLocHint
-        CUmemLocation dstLocHint
-        unsigned int flags
-    ctypedef CUmemcpyAttributes_st CUmemcpyAttributes_v1
+cdef struct CUmemcpyAttributes_st:
+    CUmemcpySrcAccessOrder srcAccessOrder
+    CUmemLocation srcLocHint
+    CUmemLocation dstLocHint
+    unsigned int flags
+ctypedef CUmemcpyAttributes_st CUmemcpyAttributes_v1
 
 cdef struct cuda_bindings_driver__anon_pod37:
     CUdeviceptr ptr
@@ -2842,41 +2767,37 @@ cdef extern from 'cuda.h':
     ctypedef CUstreamBatchMemOpParams_v1 CUstreamBatchMemOpParams 'CUstreamBatchMemOpParams'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEMCPY_NODE_PARAMS_st:
-        int flags
-        int reserved
-        CUcontext copyCtx
-        CUDA_MEMCPY3D copyParams
-    ctypedef CUDA_MEMCPY_NODE_PARAMS_st CUDA_MEMCPY_NODE_PARAMS
+cdef struct CUDA_MEMCPY_NODE_PARAMS_st:
+    int flags
+    int reserved
+    CUcontext copyCtx
+    CUDA_MEMCPY3D copyParams
+ctypedef CUDA_MEMCPY_NODE_PARAMS_st CUDA_MEMCPY_NODE_PARAMS
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_RESOURCE_DESC_st:
-        CUresourcetype resType
-        cuda_bindings_driver__anon_pod11 res
-        unsigned int flags
-    ctypedef CUDA_RESOURCE_DESC_st CUDA_RESOURCE_DESC_v1
+cdef struct CUDA_RESOURCE_DESC_st:
+    CUresourcetype resType
+    cuda_bindings_driver__anon_pod11 res
+    unsigned int flags
+ctypedef CUDA_RESOURCE_DESC_st CUDA_RESOURCE_DESC_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUdevResource_st:
-        CUdevResourceType type
-        unsigned char _internal_padding[92]
-        CUdevSmResource sm
-        CUdevWorkqueueConfigResource wqConfig
-        CUdevWorkqueueResource wq
-        unsigned char _oversize[40]
-        CUdevResource_st* nextResource
-    ctypedef CUdevResource_st CUdevResource_v1
+cdef struct CUdevResource_st:
+    CUdevResourceType type
+    unsigned char _internal_padding[92]
+    CUdevSmResource sm
+    CUdevWorkqueueConfigResource wqConfig
+    CUdevWorkqueueResource wq
+    unsigned char _oversize[40]
+    CUdevResource_st* nextResource
+ctypedef CUdevResource_st CUdevResource_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUlogicalEndpointProp_struct:
-        CUlogicalEndpointType type
-        cuda_bindings_driver__anon_pod42 unicast
-        cuda_bindings_driver__anon_pod43 multicast
-        unsigned long long size
-        unsigned int ipcHandleTypes
-        unsigned int flags
-    ctypedef CUlogicalEndpointProp_struct CUlogicalEndpointProp
+cdef struct CUlogicalEndpointProp_struct:
+    CUlogicalEndpointType type
+    cuda_bindings_driver__anon_pod42 unicast
+    cuda_bindings_driver__anon_pod43 multicast
+    unsigned long long size
+    unsigned int ipcHandleTypes
+    unsigned int flags
+ctypedef CUlogicalEndpointProp_struct CUlogicalEndpointProp
 
 cdef extern from 'cuda.h':
     ctypedef CUexecAffinityParam_v1 CUexecAffinityParam 'CUexecAffinityParam'
@@ -2894,47 +2815,42 @@ cdef extern from 'cuda.h':
     ctypedef CUstreamAttrValue_v1 CUstreamAttrValue 'CUstreamAttrValue'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUlaunchConfig_st:
-        unsigned int gridDimX
-        unsigned int gridDimY
-        unsigned int gridDimZ
-        unsigned int blockDimX
-        unsigned int blockDimY
-        unsigned int blockDimZ
-        unsigned int sharedMemBytes
-        CUstream hStream
-        CUlaunchAttribute* attrs
-        unsigned int numAttrs
-    ctypedef CUlaunchConfig_st CUlaunchConfig
+cdef struct CUlaunchConfig_st:
+    unsigned int gridDimX
+    unsigned int gridDimY
+    unsigned int gridDimZ
+    unsigned int blockDimX
+    unsigned int blockDimY
+    unsigned int blockDimZ
+    unsigned int sharedMemBytes
+    CUstream hStream
+    CUlaunchAttribute* attrs
+    unsigned int numAttrs
+ctypedef CUlaunchConfig_st CUlaunchConfig
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
-        CUexternalSemaphore* extSemArray
-        CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray
-        unsigned int numExtSems
-    ctypedef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1
+cdef struct CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
+    CUexternalSemaphore* extSemArray
+    CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray
+    unsigned int numExtSems
+ctypedef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
-        CUexternalSemaphore* extSemArray
-        CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray
-        unsigned int numExtSems
-    ctypedef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2
+cdef struct CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
+    CUexternalSemaphore* extSemArray
+    CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* paramsArray
+    unsigned int numExtSems
+ctypedef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
-        CUexternalSemaphore* extSemArray
-        CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray
-        unsigned int numExtSems
-    ctypedef CUDA_EXT_SEM_WAIT_NODE_PARAMS_st CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1
+cdef struct CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
+    CUexternalSemaphore* extSemArray
+    CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray
+    unsigned int numExtSems
+ctypedef CUDA_EXT_SEM_WAIT_NODE_PARAMS_st CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
-        CUexternalSemaphore* extSemArray
-        CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray
-        unsigned int numExtSems
-    ctypedef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2
+cdef struct CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
+    CUexternalSemaphore* extSemArray
+    CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* paramsArray
+    unsigned int numExtSems
+ctypedef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2
 
 cdef extern from 'cuda.h':
     ctypedef CUmemAllocationProp_v1 CUmemAllocationProp 'CUmemAllocationProp'
@@ -2956,21 +2872,19 @@ cdef union cuda_bindings_driver__anon_pod36:
     cuda_bindings_driver__anon_pod37 ptr
     cuda_bindings_driver__anon_pod38 array
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
-        CUcontext ctx
-        unsigned int count
-        CUstreamBatchMemOpParams* paramArray
-        unsigned int flags
-    ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st CUDA_BATCH_MEM_OP_NODE_PARAMS_v1
+cdef struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
+    CUcontext ctx
+    unsigned int count
+    CUstreamBatchMemOpParams* paramArray
+    unsigned int flags
+ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st CUDA_BATCH_MEM_OP_NODE_PARAMS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
-        CUcontext ctx
-        unsigned int count
-        CUstreamBatchMemOpParams* paramArray
-        unsigned int flags
-    ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st CUDA_BATCH_MEM_OP_NODE_PARAMS_v2
+cdef struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
+    CUcontext ctx
+    unsigned int count
+    CUstreamBatchMemOpParams* paramArray
+    unsigned int flags
+ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st CUDA_BATCH_MEM_OP_NODE_PARAMS_v2
 
 cdef extern from 'cuda.h':
     ctypedef CUDA_RESOURCE_DESC_v1 CUDA_RESOURCE_DESC 'CUDA_RESOURCE_DESC'
@@ -2980,12 +2894,11 @@ cdef extern from 'cuda.h':
     ctypedef CUdevResource_v1 CUdevResource 'CUdevResource'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUctxCreateParams_st:
-        CUexecAffinityParam* execAffinityParams
-        int numExecAffinityParams
-        CUctxCigParam* cigParams
-    ctypedef CUctxCreateParams_st CUctxCreateParams
+cdef struct CUctxCreateParams_st:
+    CUexecAffinityParam* execAffinityParams
+    int numExecAffinityParams
+    CUctxCigParam* cigParams
+ctypedef CUctxCreateParams_st CUctxCreateParams
 
 cdef extern from 'cuda.h':
     ctypedef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1 CUDA_EXT_SEM_SIGNAL_NODE_PARAMS 'CUDA_EXT_SEM_SIGNAL_NODE_PARAMS'
@@ -2995,29 +2908,26 @@ cdef extern from 'cuda.h':
     ctypedef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1 CUDA_EXT_SEM_WAIT_NODE_PARAMS 'CUDA_EXT_SEM_WAIT_NODE_PARAMS'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
-        CUmemPoolProps poolProps
-        CUmemAccessDesc* accessDescs
-        size_t accessDescCount
-        size_t bytesize
-        CUdeviceptr dptr
-    ctypedef CUDA_MEM_ALLOC_NODE_PARAMS_v1_st CUDA_MEM_ALLOC_NODE_PARAMS_v1
+cdef struct CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
+    CUmemPoolProps poolProps
+    CUmemAccessDesc* accessDescs
+    size_t accessDescCount
+    size_t bytesize
+    CUdeviceptr dptr
+ctypedef CUDA_MEM_ALLOC_NODE_PARAMS_v1_st CUDA_MEM_ALLOC_NODE_PARAMS_v1
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
-        CUmemPoolProps poolProps
-        CUmemAccessDesc* accessDescs
-        size_t accessDescCount
-        size_t bytesize
-        CUdeviceptr dptr
-    ctypedef CUDA_MEM_ALLOC_NODE_PARAMS_v2_st CUDA_MEM_ALLOC_NODE_PARAMS_v2
+cdef struct CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
+    CUmemPoolProps poolProps
+    CUmemAccessDesc* accessDescs
+    size_t accessDescCount
+    size_t bytesize
+    CUdeviceptr dptr
+ctypedef CUDA_MEM_ALLOC_NODE_PARAMS_v2_st CUDA_MEM_ALLOC_NODE_PARAMS_v2
 
-cdef extern from 'cuda.h':
-    cdef struct CUmemcpy3DOperand_st:
-        CUmemcpy3DOperandType type
-        cuda_bindings_driver__anon_pod36 op
-    ctypedef CUmemcpy3DOperand_st CUmemcpy3DOperand_v1
+cdef struct CUmemcpy3DOperand_st:
+    CUmemcpy3DOperandType type
+    cuda_bindings_driver__anon_pod36 op
+ctypedef CUmemcpy3DOperand_st CUmemcpy3DOperand_v1
 
 cdef extern from 'cuda.h':
     ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v1 CUDA_BATCH_MEM_OP_NODE_PARAMS 'CUDA_BATCH_MEM_OP_NODE_PARAMS'
@@ -3031,36 +2941,34 @@ cdef extern from 'cuda.h':
     ctypedef CUmemcpy3DOperand_v1 CUmemcpy3DOperand 'CUmemcpy3DOperand'
 
 
-cdef extern from 'cuda.h':
-    cdef struct CUgraphNodeParams_st:
-        CUgraphNodeType type
-        int reserved0[3]
-        long long reserved1[29]
-        CUDA_KERNEL_NODE_PARAMS_v3 kernel
-        CUDA_MEMCPY_NODE_PARAMS memcpy
-        CUDA_MEMSET_NODE_PARAMS_v2 memset
-        CUDA_HOST_NODE_PARAMS_v2 host
-        CUDA_CHILD_GRAPH_NODE_PARAMS graph
-        CUDA_EVENT_WAIT_NODE_PARAMS eventWait
-        CUDA_EVENT_RECORD_NODE_PARAMS eventRecord
-        CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2 extSemSignal
-        CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2 extSemWait
-        CUDA_MEM_ALLOC_NODE_PARAMS_v2 alloc
-        CUDA_MEM_FREE_NODE_PARAMS free
-        CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 memOp
-        CUDA_CONDITIONAL_NODE_PARAMS conditional
-        char asBytes[232]
-        long long reserved2
-    ctypedef CUgraphNodeParams_st CUgraphNodeParams
+cdef struct CUgraphNodeParams_st:
+    CUgraphNodeType type
+    int reserved0[3]
+    long long reserved1[29]
+    CUDA_KERNEL_NODE_PARAMS_v3 kernel
+    CUDA_MEMCPY_NODE_PARAMS memcpy
+    CUDA_MEMSET_NODE_PARAMS_v2 memset
+    CUDA_HOST_NODE_PARAMS_v2 host
+    CUDA_CHILD_GRAPH_NODE_PARAMS graph
+    CUDA_EVENT_WAIT_NODE_PARAMS eventWait
+    CUDA_EVENT_RECORD_NODE_PARAMS eventRecord
+    CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2 extSemSignal
+    CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2 extSemWait
+    CUDA_MEM_ALLOC_NODE_PARAMS_v2 alloc
+    CUDA_MEM_FREE_NODE_PARAMS free
+    CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 memOp
+    CUDA_CONDITIONAL_NODE_PARAMS conditional
+    char asBytes[232]
+    long long reserved2
+ctypedef CUgraphNodeParams_st CUgraphNodeParams
 
-cdef extern from 'cuda.h':
-    cdef struct CUDA_MEMCPY3D_BATCH_OP_st:
-        CUmemcpy3DOperand src
-        CUmemcpy3DOperand dst
-        CUextent3D extent
-        CUmemcpySrcAccessOrder srcAccessOrder
-        unsigned int flags
-    ctypedef CUDA_MEMCPY3D_BATCH_OP_st CUDA_MEMCPY3D_BATCH_OP_v1
+cdef struct CUDA_MEMCPY3D_BATCH_OP_st:
+    CUmemcpy3DOperand src
+    CUmemcpy3DOperand dst
+    CUextent3D extent
+    CUmemcpySrcAccessOrder srcAccessOrder
+    unsigned int flags
+ctypedef CUDA_MEMCPY3D_BATCH_OP_st CUDA_MEMCPY3D_BATCH_OP_v1
 
 cdef extern from 'cuda.h':
     ctypedef CUresult (*CUgraphRecaptureCallback 'CUgraphRecaptureCallback')(

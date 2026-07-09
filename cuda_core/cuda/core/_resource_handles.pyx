@@ -151,6 +151,17 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     GraphHandle create_graph_handle_ref "cuda_core::create_graph_handle_ref" (
         cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
 
+    # Graph slot attachments
+    OpaqueHandle make_opaque_py "cuda_core::make_opaque_py" (object obj) except+
+    OpaqueHandle make_opaque_malloc "cuda_core::make_opaque_malloc" (void* buf) except+
+    cydriver.CUresult graph_set_slot "cuda_core::graph_set_slot" (
+        const GraphHandle& h_graph, cydriver.CUgraphNode node,
+        unsigned int slot, OpaqueHandle owner) except+
+
+    # Graph exec handles
+    GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (
+        cydriver.CUgraphExec graph_exec) except+ nogil
+
     # Graph node handles
     GraphNodeHandle create_graph_node_handle "cuda_core::create_graph_node_handle" (
         cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
@@ -201,6 +212,29 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const cydriver.CUdevResource* input, cydriver.CUdevResource* remainder,
         unsigned int flags, void* groupParams) nogil
     bint has_sm_resource_split "cuda_core::has_sm_resource_split" () noexcept nogil
+
+    # Array / mipmapped-array / texture / surface handles (PR #467)
+    OpaqueArrayHandle create_array_handle "cuda_core::create_array_handle" (
+        const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
+    OpaqueArrayHandle create_array_handle_ref "cuda_core::create_array_handle_ref" (
+        cydriver.CUarray arr) except+ nogil
+    OpaqueArrayHandle create_array_handle_owning "cuda_core::create_array_handle_owning" (
+        cydriver.CUarray arr) except+ nogil
+    OpaqueArrayHandle create_array_level_handle "cuda_core::create_array_level_handle" (
+        const MipmappedArrayHandle& h_mip, unsigned int level) except+ nogil
+    MipmappedArrayHandle create_mipmapped_array_handle "cuda_core::create_mipmapped_array_handle" (
+        const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc, unsigned int num_levels) except+ nogil
+    TexObjectHandle create_tex_object_handle_array "cuda_core::create_tex_object_handle_array" (
+        const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
+        const OpaqueArrayHandle& h_backing) except+ nogil
+    TexObjectHandle create_tex_object_handle_mipmap "cuda_core::create_tex_object_handle_mipmap" (
+        const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
+        const MipmappedArrayHandle& h_backing) except+ nogil
+    TexObjectHandle create_tex_object_handle_linear "cuda_core::create_tex_object_handle_linear" (
+        const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
+        const DevicePtrHandle& h_backing) except+ nogil
+    SurfObjectHandle create_surf_object_handle "cuda_core::create_surf_object_handle" (
+        const cydriver.CUDA_RESOURCE_DESC& res, const OpaqueArrayHandle& h_backing) except+ nogil
 
 
 # =============================================================================
@@ -276,6 +310,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Graph
     void* p_cuGraphDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphDestroy)"
+    void* p_cuGraphExecDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecDestroy)"
+    void* p_cuUserObjectCreate "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectCreate)"
+    void* p_cuUserObjectRelease "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectRelease)"
+    void* p_cuGraphRetainUserObject "reinterpret_cast<void*&>(cuda_core::p_cuGraphRetainUserObject)"
 
     # Linker
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
@@ -283,6 +321,17 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Graphics interop
     void* p_cuGraphicsUnmapResources "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnmapResources)"
     void* p_cuGraphicsUnregisterResource "reinterpret_cast<void*&>(cuda_core::p_cuGraphicsUnregisterResource)"
+
+    # Texture / surface / array (PR #467)
+    void* p_cuArray3DCreate "reinterpret_cast<void*&>(cuda_core::p_cuArray3DCreate)"
+    void* p_cuArrayDestroy "reinterpret_cast<void*&>(cuda_core::p_cuArrayDestroy)"
+    void* p_cuMipmappedArrayCreate "reinterpret_cast<void*&>(cuda_core::p_cuMipmappedArrayCreate)"
+    void* p_cuMipmappedArrayDestroy "reinterpret_cast<void*&>(cuda_core::p_cuMipmappedArrayDestroy)"
+    void* p_cuMipmappedArrayGetLevel "reinterpret_cast<void*&>(cuda_core::p_cuMipmappedArrayGetLevel)"
+    void* p_cuTexObjectCreate "reinterpret_cast<void*&>(cuda_core::p_cuTexObjectCreate)"
+    void* p_cuTexObjectDestroy "reinterpret_cast<void*&>(cuda_core::p_cuTexObjectDestroy)"
+    void* p_cuSurfObjectCreate "reinterpret_cast<void*&>(cuda_core::p_cuSurfObjectCreate)"
+    void* p_cuSurfObjectDestroy "reinterpret_cast<void*&>(cuda_core::p_cuSurfObjectDestroy)"
 
     # SM resource split (13.1+)
     void* p_cuDevSmResourceSplit "reinterpret_cast<void*&>(cuda_core::p_cuDevSmResourceSplit)"
@@ -324,10 +373,15 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuMemFreeAsync, p_cuMemFree, p_cuMemFreeHost
     global p_cuMemPoolImportPointer
     global p_cuLibraryLoadFromFile, p_cuLibraryLoadData, p_cuLibraryUnload, p_cuLibraryGetKernel
-    global p_cuGraphDestroy
+    global p_cuGraphDestroy, p_cuGraphExecDestroy
+    global p_cuUserObjectCreate, p_cuUserObjectRelease, p_cuGraphRetainUserObject
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
     global p_cuDevSmResourceSplit
+    global p_cuArray3DCreate, p_cuArrayDestroy
+    global p_cuMipmappedArrayCreate, p_cuMipmappedArrayDestroy, p_cuMipmappedArrayGetLevel
+    global p_cuTexObjectCreate, p_cuTexObjectDestroy
+    global p_cuSurfObjectCreate, p_cuSurfObjectDestroy
 
     # Context
     p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
@@ -380,6 +434,10 @@ cdef void _init_driver_fn_pointers() noexcept:
 
     # Graph
     p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
+    p_cuGraphExecDestroy = _get_driver_fn("cuGraphExecDestroy")
+    p_cuUserObjectCreate = _get_driver_fn("cuUserObjectCreate")
+    p_cuUserObjectRelease = _get_driver_fn("cuUserObjectRelease")
+    p_cuGraphRetainUserObject = _get_driver_fn("cuGraphRetainUserObject")
 
     # Linker
     p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
@@ -387,6 +445,17 @@ cdef void _init_driver_fn_pointers() noexcept:
     # Graphics interop
     p_cuGraphicsUnmapResources = _get_driver_fn("cuGraphicsUnmapResources")
     p_cuGraphicsUnregisterResource = _get_driver_fn("cuGraphicsUnregisterResource")
+
+    # Texture / surface / array (PR #467)
+    p_cuArray3DCreate = _get_driver_fn("cuArray3DCreate")
+    p_cuArrayDestroy = _get_driver_fn("cuArrayDestroy")
+    p_cuMipmappedArrayCreate = _get_driver_fn("cuMipmappedArrayCreate")
+    p_cuMipmappedArrayDestroy = _get_driver_fn("cuMipmappedArrayDestroy")
+    p_cuMipmappedArrayGetLevel = _get_driver_fn("cuMipmappedArrayGetLevel")
+    p_cuTexObjectCreate = _get_driver_fn("cuTexObjectCreate")
+    p_cuTexObjectDestroy = _get_driver_fn("cuTexObjectDestroy")
+    p_cuSurfObjectCreate = _get_driver_fn("cuSurfObjectCreate")
+    p_cuSurfObjectDestroy = _get_driver_fn("cuSurfObjectDestroy")
 
     # SM resource split (13.1+ — may not exist in older cuda-bindings)
     p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")

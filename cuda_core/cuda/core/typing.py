@@ -32,9 +32,12 @@ from cuda.core._stream import IsStreamType
 from cuda.core._utils.cuda_utils import driver
 
 __all__ = [
+    "AddressModeType",
+    "ArrayFormatType",
     "CompilerBackendType",
     "DevicePointerType",
     "DeviceResourcesType",
+    "FilterModeType",
     "GraphConditionalType",
     "GraphMemoryType",
     "IsStreamType",
@@ -42,6 +45,7 @@ __all__ = [
     "ObjectCodeFormatType",
     "PCHStatusType",
     "ProcessStateType",
+    "ReadModeType",
     "SourceCodeType",
     "VirtualMemoryAccessType",
     "VirtualMemoryAllocationType",
@@ -217,6 +221,79 @@ class VirtualMemoryAllocationType(StrEnum):
 
     PINNED = "pinned"
     MANAGED = "managed"
+
+
+class ArrayFormatType(StrEnum):
+    """Element format for an :class:`~cuda.core.texture.OpaqueArray` allocation.
+
+    Corresponds to ``CUarray_format`` from the CUDA driver API. Each value maps
+    1:1 to a NumPy dtype; the enum is retained as an explicit escape hatch.
+
+    * ``UINT8`` / ``UINT16`` / ``UINT32`` — unsigned integer elements.
+    * ``INT8`` / ``INT16`` / ``INT32`` — signed integer elements.
+    * ``FLOAT16`` / ``FLOAT32`` — half- and single-precision float elements.
+
+    .. versionadded:: 1.1.0
+    """
+
+    UINT8 = "uint8"
+    UINT16 = "uint16"
+    UINT32 = "uint32"
+    INT8 = "int8"
+    INT16 = "int16"
+    INT32 = "int32"
+    FLOAT16 = "float16"
+    FLOAT32 = "float32"
+
+
+class AddressModeType(StrEnum):
+    """Boundary behavior for out-of-range texture coordinates.
+
+    Corresponds to ``CUaddress_mode`` from the CUDA driver API.
+
+    * ``WRAP`` — wrap coordinates around (tiling).
+    * ``CLAMP`` — clamp to the edge texel.
+    * ``MIRROR`` — reflect coordinates at the boundary.
+    * ``BORDER`` — return the configured border color.
+
+    .. versionadded:: 1.1.0
+    """
+
+    WRAP = "wrap"
+    CLAMP = "clamp"
+    MIRROR = "mirror"
+    BORDER = "border"
+
+
+class FilterModeType(StrEnum):
+    """Texel sampling mode for a :class:`~cuda.core.texture.TextureObject`.
+
+    Corresponds to ``CUfilter_mode`` from the CUDA driver API.
+
+    * ``POINT`` — nearest-texel sampling.
+    * ``LINEAR`` — (bi/tri)linear interpolation.
+
+    .. versionadded:: 1.1.0
+    """
+
+    POINT = "point"
+    LINEAR = "linear"
+
+
+class ReadModeType(StrEnum):
+    """How sampled values are returned to the kernel.
+
+    * ``ELEMENT_TYPE`` — return the raw element value (integer formats stay
+      integer, float stays float).
+    * ``NORMALIZED_FLOAT`` — integer formats are promoted to a normalized
+      ``float`` in ``[0, 1]`` (unsigned) or ``[-1, 1]`` (signed). Float
+      formats are unaffected.
+
+    .. versionadded:: 1.1.0
+    """
+
+    ELEMENT_TYPE = "element_type"
+    NORMALIZED_FLOAT = "normalized_float"
 
 
 del StrEnum
