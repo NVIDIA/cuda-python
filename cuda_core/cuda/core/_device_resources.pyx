@@ -6,6 +6,11 @@ from __future__ import annotations
 
 from collections.abc import Sequence as SequenceABC
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core._device import Device
+    from cuda.core.typing import WorkqueueSharingScopeType
 
 from libc.stdint cimport intptr_t
 from libc.stdlib cimport free, malloc
@@ -126,9 +131,9 @@ cdef class WorkqueueResourceOptions:
 
     Attributes
     ----------
-    sharing_scope : str, optional
-        Workqueue sharing scope. Accepted values: ``"device_ctx"``
-        or ``"green_ctx_balanced"``. (Default to ``None``)
+    sharing_scope : :class:`~cuda.core.typing.WorkqueueSharingScopeType` | str, optional
+        Workqueue sharing scope. Accepted values: ``"device_ctx"`` or
+        ``"green_ctx_balanced"``.
     concurrency_limit : int, optional
         Expected maximum number of concurrent stream-ordered
         workloads. Must be ``>= 1`` when set. The effective
@@ -138,7 +143,7 @@ cdef class WorkqueueResourceOptions:
         submission remains non-overlapping. (Default to ``None``)
     """
 
-    sharing_scope: str | None = None
+    sharing_scope: WorkqueueSharingScopeType | str | None = None
     concurrency_limit: int | None = None
 
     def __post_init__(self):
@@ -553,6 +558,57 @@ cdef class WorkqueueResource:
     def handle(self) -> int:
         """Return the address of the underlying config ``CUdevResource`` struct."""
         return <intptr_t>(&self._wq_config_resource)
+
+    @property
+    def sharing_scope(self) -> WorkqueueSharingScopeType:
+        """Current sharing scope of this workqueue resource.
+
+        Returns the :class:`~cuda.core.typing.WorkqueueSharingScopeType`
+        member corresponding to the driver-populated
+        ``wqConfig.sharingScope`` field. It can be updated via
+        :meth:`configure` with
+        :attr:`WorkqueueResourceOptions.sharing_scope`.
+        """
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            from cuda.core.typing import WorkqueueSharingScopeType
+            cdef object scope = self._wq_config_resource.wqConfig.sharingScope
+            if scope == cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX:
+                return WorkqueueSharingScopeType.DEVICE_CTX
+            elif scope == cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED:
+                return WorkqueueSharingScopeType.GREEN_CTX_BALANCED
+            raise RuntimeError(f"Unknown sharing scope enum value: {scope}")
+        ELSE:
+            raise RuntimeError(
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+            )
+
+    @property
+    def concurrency_limit(self) -> int:
+        """Current expected maximum concurrent stream-ordered workloads.
+
+        Reflects the driver-populated ``wqConfig.wqConcurrencyLimit`` field.
+        When first queried from a device, this matches the driver-reported
+        cap (typically ``CUDA_DEVICE_MAX_CONNECTIONS``). It can be updated
+        via :meth:`configure` with
+        :attr:`WorkqueueResourceOptions.concurrency_limit`.
+        """
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            return self._wq_config_resource.wqConfig.wqConcurrencyLimit
+        ELSE:
+            raise RuntimeError(
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+            )
+
+    @property
+    def device(self) -> Device:
+        """The :class:`~cuda.core.Device` this workqueue resource is available on."""
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            from cuda.core._device import Device  # avoid circular import
+            return Device(int(self._wq_config_resource.wqConfig.device))
+        ELSE:
+            raise RuntimeError(
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+            )
 
     def configure(self, options: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.

@@ -22,6 +22,7 @@ from cuda.core import (
     launch,
 )
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.typing import WorkqueueSharingScopeType
 
 # ---------------------------------------------------------------------------
 # Kernel source
@@ -42,12 +43,23 @@ extern "C" __global__ void fill(int* out, int value, int n) {
 # ---------------------------------------------------------------------------
 
 
+# Resource queries (dev.resources.sm, dev.resources.workqueue) can fail in
+# three orthogonal ways when the resource type isn't supported here:
+#   * RuntimeError — cuda.core was built against CUDA bindings that don't
+#                    expose the resource (e.g. WorkqueueResource on 12.x).
+#   * ValueError   — the runtime driver version is too old to support the
+#                    resource (green-context / workqueue support gates).
+#   * CUDAError    — the driver rejected the specific device-level query.
+# Skip on any of them.
+_RESOURCE_UNAVAILABLE_ERRORS = (RuntimeError, ValueError, CUDAError)
+
+
 @pytest.fixture
 def sm_resource(init_cuda):
     """Query SM resources from the device, skip if unsupported."""
     try:
         return init_cuda.resources.sm
-    except (RuntimeError, ValueError, CUDAError) as exc:
+    except _RESOURCE_UNAVAILABLE_ERRORS as exc:
         pytest.skip(str(exc))
 
 
@@ -56,7 +68,7 @@ def wq_resource(init_cuda):
     """Query workqueue resources from the device, skip if unsupported."""
     try:
         return init_cuda.resources.workqueue
-    except (RuntimeError, ValueError, CUDAError) as exc:
+    except _RESOURCE_UNAVAILABLE_ERRORS as exc:
         pytest.skip(str(exc))
 
 
@@ -207,8 +219,11 @@ class TestSMResourceQuery:
 
 
 class TestWorkqueueResource:
-    def test_query(self, wq_resource):
+    def test_query(self, init_cuda, wq_resource):
         assert wq_resource.handle != 0
+        assert isinstance(wq_resource.sharing_scope, WorkqueueSharingScopeType)
+        assert wq_resource.concurrency_limit >= 1
+        assert wq_resource.device.device_id == init_cuda.device_id
 
     def test_configure_none_is_noop(self, wq_resource):
         assert wq_resource.configure(WorkqueueResourceOptions(sharing_scope=None)) is None
@@ -216,12 +231,33 @@ class TestWorkqueueResource:
     def test_configure_valid_scope(self, wq_resource):
         wq_resource.configure(WorkqueueResourceOptions(sharing_scope="green_ctx_balanced"))
 
+    @pytest.mark.parametrize("scope", list(WorkqueueSharingScopeType))
+    def test_configure_scope_with_enum(self, wq_resource, scope):
+        wq_resource.configure(WorkqueueResourceOptions(sharing_scope=scope))
+        assert wq_resource.sharing_scope is scope
+
+    def test_device_id_matches_source_multi_gpu(self):
+        from cuda.core import Device, system
+
+        if system.get_num_devices() < 2:
+            pytest.skip("requires 2+ GPUs")
+        dev0 = Device(0)
+        dev1 = Device(1)
+        try:
+            wq0 = dev0.resources.workqueue
+            wq1 = dev1.resources.workqueue
+        except _RESOURCE_UNAVAILABLE_ERRORS as exc:
+            pytest.skip(str(exc))
+        assert wq0.device.device_id == 0
+        assert wq1.device.device_id == 1
+
     def test_invalid_scope_raises_at_construction(self):
         with pytest.raises(ValueError, match="Unknown sharing_scope"):
             WorkqueueResourceOptions(sharing_scope="bogus")
 
     def test_configure_concurrency_limit(self, wq_resource):
         wq_resource.configure(WorkqueueResourceOptions(concurrency_limit=4))
+        assert wq_resource.concurrency_limit == 4
 
     def test_configure_concurrency_and_scope(self, wq_resource):
         wq_resource.configure(
