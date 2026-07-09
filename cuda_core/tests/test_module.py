@@ -2,16 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import os
 import pickle
+import subprocess
 import warnings
+from pathlib import Path
 
+import numpy as np
 import pytest
 
 import cuda.core
-from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
+from cuda.core import Device, Kernel, Linker, LinkerOptions, ObjectCode, Program, ProgramOptions
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import binding_version, driver_version
+from cuda.pathfinder import find_nvidia_binary_utility
 
 try:
     import numba
@@ -172,6 +177,38 @@ def get_saxpy_fatbin(init_cuda):
     return bytes(fatbin), sym_map
 
 
+def _read_saxpy_rdc(kind: str) -> bytes:
+    """Read a pre-built saxpy RDC object or library.
+
+    In CI: produced by the build stage.
+    In local dev: auto-built on demand if nvcc is available; if you edit
+    saxpy.cu, remove stale RDC files (i.e. saxpy.o, saxpy.a, or saxpy.lib) to force a rebuild.
+    """
+    binaries_dir = Path(__file__).parent / "test_binaries"
+    if kind == "object":
+        rdc_path = binaries_dir / "saxpy.o"
+    elif kind == "library":
+        rdc_path = binaries_dir / ("saxpy.lib" if os.name == "nt" else "saxpy.a")
+    else:
+        raise ValueError(f"unknown saxpy RDC kind: {kind!r}")
+
+    if not rdc_path.is_file():
+        nvcc_path = find_nvidia_binary_utility("nvcc")
+        if nvcc_path is None:
+            pytest.skip(
+                f"{rdc_path.name} not found at {rdc_path} and nvcc is unavailable. "
+                "In CI this is downloaded from the build stage."
+            )
+        env = os.environ.copy()
+        env["NVCC"] = nvcc_path
+        subprocess.run(  # noqa: S603
+            ["bash", str(binaries_dir / "build_test_binaries.sh")],  # noqa: S607
+            check=True,
+            env=env,
+        )
+    return rdc_path.read_bytes()
+
+
 def test_get_kernel(init_cuda):
     kernel = """extern "C" __global__ void ABC() { }"""
 
@@ -328,6 +365,86 @@ def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path, convert_p
     assert mod_obj.code == str(arg)
     assert mod_obj.code_type == "fatbin"
     mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
+@pytest.mark.parametrize(
+    ("kind", "from_fn"),
+    [
+        ("object", ObjectCode.from_object),
+        ("library", ObjectCode.from_library),
+    ],
+)
+def test_object_code_load_rdc(kind, from_fn):
+    data = _read_saxpy_rdc(kind)
+    assert isinstance(data, bytes)
+    mod_obj = from_fn(data)
+    assert mod_obj.code == data
+    assert mod_obj.code_type == kind
+    with pytest.raises(RuntimeError, match=rf'Unsupported code type "{kind}"'):
+        mod_obj.get_kernel("saxpy<float>")
+
+
+@pytest.mark.parametrize(
+    ("kind", "from_fn", "suffix"),
+    [
+        ("object", ObjectCode.from_object, ".o"),
+        ("library", ObjectCode.from_library, ".lib" if os.name == "nt" else ".a"),
+    ],
+)
+def test_object_code_load_rdc_from_file(kind, from_fn, suffix, tmp_path):
+    rdc_file = tmp_path / f"test{suffix}"
+    rdc_file.write_bytes(_read_saxpy_rdc(kind))
+    arg = str(rdc_file)
+    mod_obj = from_fn(arg)
+    assert mod_obj.code == arg
+    assert mod_obj.code_type == kind
+
+
+@pytest.mark.parametrize(
+    ("kind", "from_fn"),
+    [
+        ("object", ObjectCode.from_object),
+        ("library", ObjectCode.from_library),
+    ],
+)
+def test_object_code_load_rdc_with_linker(kind, from_fn, init_cuda):
+    arch = f"sm_{init_cuda.arch}"
+    kernel_code = Program(
+        r"""
+        extern __device__ float saxpy_step(float a, float x, float y);
+        extern "C" __global__ void linked_kernel(float a, float x, float y, float* out) {
+            if (threadIdx.x == 0 && blockIdx.x == 0) *out = saxpy_step(a, x, y);
+        }
+        """,
+        "c++",
+        ProgramOptions(relocatable_device_code=True, arch=arch),
+    ).compile("cubin")
+    linked = Linker(
+        kernel_code,
+        from_fn(_read_saxpy_rdc(kind)),
+        options=LinkerOptions(arch=arch),
+    ).link("cubin")
+    kernel = linked.get_kernel("linked_kernel")
+
+    stream = init_cuda.create_stream()
+    host_buf = cuda.core.LegacyPinnedMemoryResource().allocate(4)
+    result = np.from_dlpack(host_buf).view(np.float32)
+    result[:] = 0.0
+    dev_buf = init_cuda.memory_resource.allocate(4, stream=init_cuda.default_stream)
+
+    cuda.core.launch(
+        stream,
+        cuda.core.LaunchConfig(grid=1, block=1),
+        kernel,
+        np.float32(2.0),
+        np.float32(3.0),
+        np.float32(4.0),
+        dev_buf,
+    )
+    dev_buf.copy_to(host_buf, stream=stream)
+    stream.sync()
+
+    assert result[0] == 10.0
 
 
 def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):

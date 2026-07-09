@@ -98,6 +98,25 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         },
         set(),
     ),
+    # AddressModeType / FilterModeType are 1:1 wrappers of small driver enums.
+    # The texture mapping dicts (_ADDRESSMODE_TO_CU / _FILTERMODE_TO_CU) store
+    # plain ints keyed on cydriver values, not driver.<Enum> members, so they
+    # are incompatible with the isinstance-based mapping check. Use the
+    # mapping=None form, which count-checks the StrEnum against the binding enum.
+    (
+        driver.CUaddress_mode,
+        cuda.core.typing.AddressModeType,
+        None,
+        set(),
+        set(),
+    ),
+    (
+        driver.CUfilter_mode,
+        cuda.core.typing.FilterModeType,
+        None,
+        set(),
+        set(),
+    ),
 ]
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
@@ -278,6 +297,16 @@ _UNBOUND_STR_ENUMS: set[StrEnum] = {
     cuda.core.typing.SourceCodeType,
     # This enum is dynamic depending on the version of CTK installed.
     cuda.core.typing.VirtualMemoryAllocationType,
+    # ArrayFormatType wraps CUarray_format, but intentionally exposes only the
+    # 8 NumPy-representable formats out of the driver's ~67 members (BC1..BC7,
+    # UNORM_INTx, packed/planar YUV, etc. are deliberately unsupported for now).
+    # It is a curated subset, not a 1:1 wrapper, so a count/coverage check
+    # against the binding enum does not apply.
+    cuda.core.typing.ArrayFormatType,
+    # ReadModeType (ELEMENT_TYPE / NORMALIZED_FLOAT) has no backing cuda_binding
+    # enum: it maps to the presence/absence of the CU_TRSF_READ_AS_INTEGER
+    # texture-descriptor flag bit, not to a CUenum.
+    cuda.core.typing.ReadModeType,
 }
 
 

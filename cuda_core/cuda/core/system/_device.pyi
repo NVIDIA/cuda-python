@@ -787,11 +787,26 @@ class MigInfo:
             A list of all MIG devices corresponding to this GPU.
         """
 
-class NvlinkInfo:
+class _NvlinkInfoMeta(type):
+
+    @property
+    def max_links(cls):
+        """
+        The statically-defined maximum number of Nvlinks available.  Defined in
+        upstream NVML as ``NVML_NVLINK_MAX_LINKS``.
+
+        To find the actual number of Nvlinks available on a device, use
+        :py:attr:`Device.get_nvlink_count`.
+
+        .. version-deprecated:: 1.1.0
+            This property is deprecated and will be removed in a future release.
+            Use :py:attr:`Device.get_nvlink_count` instead.
+        """
+
+class _NvlinkInfo:
     """
     Nvlink information for a device.
     """
-    max_links = nvml.NVLINK_MAX_LINKS
 
     def __init__(self, device: Device, link: int):
         ...
@@ -823,6 +838,9 @@ class NvlinkInfo:
         bool
             `True` if the Nvlink is active.
         """
+
+class NvlinkInfo(_NvlinkInfo, metaclass=_NvlinkInfoMeta):
+    ...
 
 class PciInfo:
     """
@@ -1365,7 +1383,7 @@ class Device:
         """
         Get the corresponding :class:`cuda.core.Device` (which is used for CUDA
         access) for this :class:`cuda.core.system.Device` (which is used for
-        NVIDIA machine library (NVML) access).
+        NVIDIA Management Library (NVML) access).
 
         The devices are mapped to one another by their UUID.
 
@@ -1724,6 +1742,27 @@ class Device:
         Get :obj:`~NvlinkInfo` about this device.
 
         For devices with NVLink support.
+
+        .. version-changed:: 1.1.0
+            Any link number not supported by this specific device will raise a `ValueError`.
+        """
+
+    def get_nvlink_count(self) -> int:
+        """
+        Get the number of NVLink links on this device.
+
+        For devices with NVLink support.
+
+        .. version-added:: 1.1.0
+        """
+
+    def get_nvlinks(self) -> Iterable[NvlinkInfo]:
+        """
+        Get :obj:`~NvlinkInfo` about all NVLink links on this device.
+
+        For devices with NVLink support.
+
+        .. version-added:: 1.1.0
         """
 
     @property

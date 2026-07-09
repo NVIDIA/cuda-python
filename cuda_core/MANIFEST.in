@@ -6,3 +6,4 @@ recursive-include cuda/core *.pyx *.pxd *.pxi *.pyi
 recursive-include cuda/core/_cpp *.cpp *.h *.hpp
 recursive-include cuda/core/_include *.h *.hpp
 include cuda/core/py.typed
+include NOTICE

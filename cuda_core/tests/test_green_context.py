@@ -216,9 +216,28 @@ class TestWorkqueueResource:
     def test_configure_valid_scope(self, wq_resource):
         wq_resource.configure(WorkqueueResourceOptions(sharing_scope="green_ctx_balanced"))
 
-    def test_configure_invalid_scope_raises(self, wq_resource):
+    def test_invalid_scope_raises_at_construction(self):
         with pytest.raises(ValueError, match="Unknown sharing_scope"):
-            wq_resource.configure(WorkqueueResourceOptions(sharing_scope="bogus"))
+            WorkqueueResourceOptions(sharing_scope="bogus")
+
+    def test_configure_concurrency_limit(self, wq_resource):
+        wq_resource.configure(WorkqueueResourceOptions(concurrency_limit=4))
+
+    def test_configure_concurrency_and_scope(self, wq_resource):
+        wq_resource.configure(
+            WorkqueueResourceOptions(
+                sharing_scope="green_ctx_balanced",
+                concurrency_limit=2,
+            )
+        )
+
+    def test_concurrency_limit_zero_raises_at_construction(self):
+        with pytest.raises(ValueError, match="concurrency_limit must be >= 1"):
+            WorkqueueResourceOptions(concurrency_limit=0)
+
+    def test_concurrency_limit_negative_raises_at_construction(self):
+        with pytest.raises(ValueError, match="concurrency_limit must be >= 1"):
+            WorkqueueResourceOptions(concurrency_limit=-3)
 
 
 # ---------------------------------------------------------------------------
@@ -495,9 +514,15 @@ class TestGreenContextKernelLaunch:
                 ctx_a.close()
 
     def test_with_workqueue_resource(self, init_cuda, sm_resource, wq_resource, fill_kernel):
-        """Green context with SM + workqueue resources can launch a kernel."""
+        """Green context with SM + configured workqueue can launch a kernel."""
         dev = init_cuda
         groups, _ = sm_resource.split(SMResourceOptions(count=None))
+        wq_resource.configure(
+            WorkqueueResourceOptions(
+                sharing_scope="green_ctx_balanced",
+                concurrency_limit=4,
+            )
+        )
 
         try:
             ctx = dev.create_context(ContextOptions(resources=[groups[0], wq_resource]))
