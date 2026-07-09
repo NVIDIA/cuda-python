@@ -5,13 +5,13 @@ from __future__ import annotations
 
 import ctypes
 import functools
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     load_nvidia_dynamic_lib as _load_nvidia_dynamic_lib,
 )
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
 class QueryDriverCudaVersionError(RuntimeError):
@@ -63,11 +63,8 @@ def query_driver_cuda_version() -> DriverCudaVersion:
 def _query_driver_cuda_version_int() -> int:
     """Return the encoded CUDA driver version from ``cuDriverGetVersion()``."""
     loaded_cuda = _load_nvidia_dynamic_lib("cuda")
-    if IS_WINDOWS:
-        win_dll_loader = getattr(ctypes, "WinDLL", None)
-        if win_dll_loader is None:
-            raise RuntimeError("ctypes.WinDLL is not available on this Python runtime.")
-        loader_cls: Callable[[str], ctypes.CDLL] = win_dll_loader
+    if sys.platform == "win32":
+        loader_cls: Callable[[str], ctypes.CDLL] = ctypes.WinDLL
     else:
         loader_cls = ctypes.CDLL
     driver_lib = loader_cls(loaded_cuda.abs_path)

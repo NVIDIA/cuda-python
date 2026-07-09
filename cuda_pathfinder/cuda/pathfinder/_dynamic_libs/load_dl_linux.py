@@ -211,7 +211,7 @@ def _work_around_known_bugs(libname: str, found_path: str) -> None:
                     ctypes.CDLL(dep_path, CDLL_MODE)
 
 
-def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str = "absolute-path") -> LoadedDL:
+def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
