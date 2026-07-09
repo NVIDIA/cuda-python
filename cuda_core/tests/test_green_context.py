@@ -43,12 +43,23 @@ extern "C" __global__ void fill(int* out, int value, int n) {
 # ---------------------------------------------------------------------------
 
 
+# Resource queries (dev.resources.sm, dev.resources.workqueue) can fail in
+# three orthogonal ways when the resource type isn't supported here:
+#   * RuntimeError — cuda.core was built against CUDA bindings that don't
+#                    expose the resource (e.g. WorkqueueResource on 12.x).
+#   * ValueError   — the runtime driver version is too old to support the
+#                    resource (green-context / workqueue support gates).
+#   * CUDAError    — the driver rejected the specific device-level query.
+# Skip on any of them.
+_RESOURCE_UNAVAILABLE_ERRORS = (RuntimeError, ValueError, CUDAError)
+
+
 @pytest.fixture
 def sm_resource(init_cuda):
     """Query SM resources from the device, skip if unsupported."""
     try:
         return init_cuda.resources.sm
-    except (RuntimeError, ValueError, CUDAError) as exc:
+    except _RESOURCE_UNAVAILABLE_ERRORS as exc:
         pytest.skip(str(exc))
 
 
@@ -57,7 +68,7 @@ def wq_resource(init_cuda):
     """Query workqueue resources from the device, skip if unsupported."""
     try:
         return init_cuda.resources.workqueue
-    except (RuntimeError, ValueError, CUDAError) as exc:
+    except _RESOURCE_UNAVAILABLE_ERRORS as exc:
         pytest.skip(str(exc))
 
 
@@ -235,7 +246,7 @@ class TestWorkqueueResource:
         try:
             wq0 = dev0.resources.workqueue
             wq1 = dev1.resources.workqueue
-        except (RuntimeError, ValueError, CUDAError) as exc:
+        except _RESOURCE_UNAVAILABLE_ERRORS as exc:
             pytest.skip(str(exc))
         assert wq0.device.device_id == 0
         assert wq1.device.device_id == 1
