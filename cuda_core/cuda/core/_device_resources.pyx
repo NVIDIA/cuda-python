@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from cuda.core._device import Device
     from cuda.core.typing import WorkqueueSharingScopeType
 
 from libc.stdint cimport intptr_t
