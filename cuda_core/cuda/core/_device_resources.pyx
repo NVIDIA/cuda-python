@@ -132,12 +132,8 @@ cdef class WorkqueueResourceOptions:
     Attributes
     ----------
     sharing_scope : :class:`~cuda.core.typing.WorkqueueSharingScopeType`, optional
-        Workqueue sharing scope. Accepted values:
-        :attr:`~cuda.core.typing.WorkqueueSharingScopeType.DEVICE_CTX` or
-        :attr:`~cuda.core.typing.WorkqueueSharingScopeType.GREEN_CTX_BALANCED`.
-        Raw strings equal to the enum member values (``"device_ctx"``,
-        ``"green_ctx_balanced"``) are accepted at runtime for backward
-        compatibility. (Default to ``None``)
+        Workqueue sharing scope. Accepted values: ``"device_ctx"`` or
+        ``"green_ctx_balanced"``.
     concurrency_limit : int, optional
         Expected maximum number of concurrent stream-ordered
         workloads. Must be ``>= 1`` when set. The effective
