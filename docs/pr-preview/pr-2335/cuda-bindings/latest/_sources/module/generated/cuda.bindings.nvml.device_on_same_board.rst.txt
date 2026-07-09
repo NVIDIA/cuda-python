@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_on\_same\_board
+==========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_on_same_board
