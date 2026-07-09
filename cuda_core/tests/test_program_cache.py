@@ -125,9 +125,10 @@ def _make_key(**overrides):
 
 @pytest.fixture
 def require_nvjitlink_backend():
-    from cuda.core import _linker
+    from cuda.core import Linker
+    from cuda.core.typing import CompilerBackendType
 
-    if _linker._decide_nvjitlink_or_driver():
+    if Linker.which_backend() == CompilerBackendType.DRIVER:
         pytest.skip("test requires the nvJitLink backend")
 
 
