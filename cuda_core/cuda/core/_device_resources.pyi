@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence as SequenceABC
 from dataclasses import dataclass
 
+from cuda.core._device import Device
 from cuda.core.typing import WorkqueueSharingScopeType
 
 

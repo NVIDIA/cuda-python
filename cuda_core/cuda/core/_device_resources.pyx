@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from cuda.core._device import Device  # noqa: F401 (used in string annotation on WorkqueueResource.device)
     from cuda.core.typing import WorkqueueSharingScopeType
 
 from libc.stdint cimport intptr_t
