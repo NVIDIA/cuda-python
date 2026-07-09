@@ -372,10 +372,12 @@ jobs:
       - name: Ensure cuda-python installable
         if: ${{ inputs.test-mode == 'standard' && env.BINDINGS_SOURCE == 'main' }}
         run: |
+          # Subpackages are already installed from CI artifacts; --no-deps keeps
+          # tag-release cuda-core wheels from being replaced by PyPI pins.
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install --only-binary=:all: cuda_python*.whl
+            pip install --only-binary=:all: --no-deps cuda_python*.whl
           else
-            pip install --only-binary=:all: $(ls cuda_python*.whl)[all]
+            pip install --only-binary=:all: --no-deps $(ls cuda_python*.whl)[all]
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
