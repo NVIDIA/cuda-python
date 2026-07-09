@@ -232,8 +232,6 @@ class TestWorkqueueResource:
             pytest.skip("requires 2+ GPUs")
         dev0 = Device(0)
         dev1 = Device(1)
-        dev1.set_current()
-        dev0.set_current()
         try:
             wq0 = dev0.resources.workqueue
             wq1 = dev1.resources.workqueue
