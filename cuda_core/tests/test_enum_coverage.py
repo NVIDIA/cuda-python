@@ -310,8 +310,10 @@ _UNBOUND_STR_ENUMS: set[StrEnum] = {
 }
 
 
-# CUdevWorkqueueConfigScope only exists in CUDA 13+ bindings; on older builds
-# WorkqueueSharingScopeType has no driver-side counterpart to check against.
+# CUdevWorkqueueConfigScope was added to the CUDA driver in 13.1 (missing
+# from the 13.0.0 cuda.h and earlier); on cuda-bindings for CUDA 12.x or
+# 13.0.x, WorkqueueSharingScopeType has no driver-side counterpart to
+# check against.
 if hasattr(driver, "CUdevWorkqueueConfigScope"):
     _CASES.append(
         (
