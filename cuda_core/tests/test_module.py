@@ -208,6 +208,8 @@ def _subprocess_output(result: subprocess.CompletedProcess[str]) -> str:
 
 def _host_compiler_is_unavailable(output: str) -> bool:
     normalized = output.lower()
+    # Keep these patterns narrow. Unknown nvcc failures should fail the test and
+    # expose their diagnostics, not be silently reclassified as environment skips.
     windows_compiler_missing = (
         "cannot find compiler" in normalized and "cl.exe" in normalized and "in path" in normalized
     )
