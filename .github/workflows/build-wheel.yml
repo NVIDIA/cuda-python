@@ -463,7 +463,9 @@ jobs:
           cuda-path: "./cuda_toolkit_prev"
 
       - name: Build cuda.core test binaries
-        run: bash ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/build_test_binaries.sh
+        run: |
+          nvcc --version
+          python "${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/build_test_binaries.py"
 
       - name: Upload cuda.core test binaries
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
