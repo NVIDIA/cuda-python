@@ -117,13 +117,6 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         set(),
         set(),
     ),
-    (
-        driver.CUdevWorkqueueConfigScope,
-        cuda.core.typing.WorkqueueSharingScopeType,
-        None,
-        set(),
-        set(),
-    ),
 ]
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
@@ -315,6 +308,22 @@ _UNBOUND_STR_ENUMS: set[StrEnum] = {
     # texture-descriptor flag bit, not to a CUenum.
     cuda.core.typing.ReadModeType,
 }
+
+
+# CUdevWorkqueueConfigScope only exists in CUDA 13+ bindings; on older builds
+# WorkqueueSharingScopeType has no driver-side counterpart to check against.
+if hasattr(driver, "CUdevWorkqueueConfigScope"):
+    _CASES.append(
+        (
+            driver.CUdevWorkqueueConfigScope,
+            cuda.core.typing.WorkqueueSharingScopeType,
+            None,
+            set(),
+            set(),
+        )
+    )
+else:
+    _UNBOUND_STR_ENUMS.add(cuda.core.typing.WorkqueueSharingScopeType)
 
 
 @pytest.mark.parametrize(
