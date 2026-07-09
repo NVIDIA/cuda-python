@@ -117,7 +117,7 @@ New features
   :class:`~cuda.core.typing.WorkqueueSharingScopeType` StrEnum accepted
   by :attr:`WorkqueueResourceOptions.sharing_scope` in addition to
   raw strings.
-  (`#NNNN <https://github.com/NVIDIA/cuda-python/pull/NNNN>`__)
+  (`#2330 <https://github.com/NVIDIA/cuda-python/pull/2330>`__)
 
 Fixes and enhancements
 ----------------------
