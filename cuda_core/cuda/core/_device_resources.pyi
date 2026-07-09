@@ -47,7 +47,7 @@ class WorkqueueResourceOptions:
 
     Attributes
     ----------
-    sharing_scope : :class:`~cuda.core.typing.WorkqueueSharingScopeType`, optional
+    sharing_scope : :class:`~cuda.core.typing.WorkqueueSharingScopeType` | str, optional
         Workqueue sharing scope. Accepted values: ``"device_ctx"`` or
         ``"green_ctx_balanced"``.
     concurrency_limit : int, optional
