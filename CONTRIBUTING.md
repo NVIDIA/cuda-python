@@ -77,12 +77,15 @@ warning reminding you to run `pre-commit install`.
 
 ### Pre-commit on Windows
 
-For development on Windows (not WSL), the `lychee` pre-commit task will not work.
-You will need to set the following environment variable to make it pass:
+For development on Windows (not WSL), the `lychee` pre-commit task will not work
+when running `pre-commit run --all-files`.  This problem does not occur if you
+install the pre-commit hook and run it automatically as part of your `git
+commit` workflow.  To resolve this, you can either:
 
-```
-SKIP=lychee
-```
+1. Run `pre-commit` it in Git Bash, rather directly in PowerShell or cmd
+
+2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
+   be `$env:SKIP = "lychee"` in PowerShell or `SKIP=lychee` in cmd.
 
 ## Signing Your Work
 

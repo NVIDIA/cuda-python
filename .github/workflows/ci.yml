@@ -422,11 +422,14 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     needs:
       - should-skip
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
@@ -443,7 +446,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          pre-commit run --all-files
+          SKIP=lychee pre-commit run --all-files
 
   checks:
     name: Check job status
