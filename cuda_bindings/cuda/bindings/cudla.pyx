@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=79c7db565831f6632fecafad4bcb29537223fdedb67f639a8d9984dbabd3e71a
+
+# This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ecd21e4a9bc998a1c3336dd1f328aca2c89845c6fd78fc9b324e0aa4ecf5c6cb
+
 
 # <<<< PREAMBLE CONTENT >>>>
 
@@ -61,9 +64,6 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
 
 
 # <<<< END OF PREAMBLE CONTENT >>>>
-
-
-# This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc.stdint cimport intptr_t, uintptr_t

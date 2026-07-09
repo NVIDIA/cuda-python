@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a4c49d983fd9b9b142001fa94e9772fe723c5c3da59352c0703bcd6c26a2212b
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=501497a3d88840c62eda1dfb0b72fe7494ff20a208230b1f45ad2f0c11bf47a5
+
 
 # <<<< PREAMBLE CONTENT >>>>
 
@@ -23,7 +24,6 @@ cdef dict _cyb_func_ptrs = None
 cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
 # <<<< END OF PREAMBLE CONTENT >>>>
-
 
 from libc.stdint cimport uintptr_t
 
@@ -566,7 +566,9 @@ cdef int _init_driver() except -1 nogil:
         if handle == 0:
             raise RuntimeError('Failed to open cuda')
         # Get latest __cuGetProcAddress_v2
-        cuGetProcAddress_v2 = <_cyb_cuGetProcAddress_v2_T>_cyb_GetProcAddress(<HMODULE>handle, 'cuGetProcAddress_v2')
+        cuGetProcAddress_v2 = <_cyb_cuGetProcAddress_v2_T>_cyb_GetProcAddress(
+            <HMODULE>handle, 'cuGetProcAddress_v2'
+        )
         if cuGetProcAddress_v2 == NULL:
             raise RuntimeError("Failed to get cuGetProcAddress_v2")
         if bool(int(_cyb_getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0))):

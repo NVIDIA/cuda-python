@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=89f4204773056d28c8a8acfdbcaa68ffe2e93964c63001ef64fcb111311717b5
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=87b50bac6add0da29005084df50cc1c75447ded7f90b96254910f4f55f40fc77
+
 
 # <<<< PREAMBLE CONTENT >>>>
 
@@ -65,7 +66,6 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
 
 
 # <<<< END OF PREAMBLE CONTENT >>>>
-
 
 cimport cython  # NOQA
 from libc cimport errno
