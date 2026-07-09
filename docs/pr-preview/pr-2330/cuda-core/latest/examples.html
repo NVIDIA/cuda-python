@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=e80a2b66"></script>
+    <script src="_static/documentation_options.js?v=87fb3fb2"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev142';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev144';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -730,52 +730,52 @@
   <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
 <p>This page links to the <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> examples shipped in the
-<a class="extlink-cuda-core-examples reference external" href="https://github.com/NVIDIA/cuda-python/tree/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/">cuda-python repository</a>.
+<a class="extlink-cuda-core-examples reference external" href="https://github.com/NVIDIA/cuda-python/tree/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/">cuda-python repository</a>.
 Use it as a quick index when you want a runnable starting point for a specific
 workflow.</p>
 <section id="compilation-and-kernel-launch">
 <h2>Compilation and kernel launch<a class="headerlink" href="#compilation-and-kernel-launch" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/vector_add.py">vector_add.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/vector_add.py">vector_add.py</a>
 compiles and launches a simple vector-add kernel with CuPy arrays.</p></li>
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/saxpy.py">saxpy.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/saxpy.py">saxpy.py</a>
 JIT-compiles a templated SAXPY kernel and launches both float and double
 instantiations.</p></li>
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/pytorch_example.py">pytorch_example.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/pytorch_example.py">pytorch_example.py</a>
 launches a CUDA kernel with PyTorch tensors and a wrapped PyTorch stream.</p></li>
 </ul>
 </section>
 <section id="multi-device-and-advanced-launch-configuration">
 <h2>Multi-device and advanced launch configuration<a class="headerlink" href="#multi-device-and-advanced-launch-configuration" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/simple_multi_gpu_example.py">simple_multi_gpu_example.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/simple_multi_gpu_example.py">simple_multi_gpu_example.py</a>
 compiles and launches kernels across multiple GPUs.</p></li>
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/thread_block_cluster.py">thread_block_cluster.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/thread_block_cluster.py">thread_block_cluster.py</a>
 demonstrates thread block cluster launch configuration on Hopper-class GPUs.</p></li>
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/tma_tensor_map.py">tma_tensor_map.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/tma_tensor_map.py">tma_tensor_map.py</a>
 demonstrates Tensor Memory Accelerator descriptors and TMA-based bulk copies.</p></li>
 </ul>
 </section>
 <section id="linking-and-graphs">
 <h2>Linking and graphs<a class="headerlink" href="#linking-and-graphs" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/jit_lto_fractal.py">jit_lto_fractal.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/jit_lto_fractal.py">jit_lto_fractal.py</a>
 uses JIT link-time optimization to link user-provided device code into a
 fractal workflow at runtime.</p></li>
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/cuda_graphs.py">cuda_graphs.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/cuda_graphs.py">cuda_graphs.py</a>
 captures and replays a multi-kernel CUDA graph to reduce launch overhead.</p></li>
 </ul>
 </section>
 <section id="interoperability-and-memory-access">
 <h2>Interoperability and memory access<a class="headerlink" href="#interoperability-and-memory-access" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/memory_ops.py">memory_ops.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/memory_ops.py">memory_ops.py</a>
 covers memory resources, pinned memory, device transfers, and DLPack interop.</p></li>
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/strided_memory_view_cpu.py">strided_memory_view_cpu.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/strided_memory_view_cpu.py">strided_memory_view_cpu.py</a>
 uses <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> with JIT-compiled CPU code via <code class="docutils literal notranslate"><span class="pre">cffi</span></code>.</p></li>
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/strided_memory_view_gpu.py">strided_memory_view_gpu.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/strided_memory_view_gpu.py">strided_memory_view_gpu.py</a>
 uses <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> with JIT-compiled GPU code and foreign GPU buffers.</p></li>
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/gl_interop_plasma.py">gl_interop_plasma.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/gl_interop_plasma.py">gl_interop_plasma.py</a>
 renders a CUDA-generated plasma effect through OpenGL interop without CPU
 copies.</p></li>
 </ul>
@@ -783,7 +783,7 @@ copies.</p></li>
 <section id="system-inspection">
 <h2>System inspection<a class="headerlink" href="#system-inspection" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/0a1c7df2c4e66dc736ab5299bbd8f7ee5d621b13/cuda_core/examples/show_device_properties.py">show_device_properties.py</a>
+<li><p><a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/106d5c12a62f68210ac2609f7fe5d9b260560f32/cuda_core/examples/show_device_properties.py">show_device_properties.py</a>
 prints a detailed report of the CUDA devices available on the system.</p></li>
 </ul>
 </section>
