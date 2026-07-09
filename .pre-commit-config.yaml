@@ -68,7 +68,6 @@ repos:
     hooks:
       - id: lychee
         args:
-
           - --cache
           - --max-concurrency=4
           - --max-retries=3
