@@ -117,6 +117,13 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         set(),
         set(),
     ),
+    (
+        driver.CUdevWorkqueueConfigScope,
+        cuda.core.typing.WorkqueueSharingScopeType,
+        None,
+        set(),
+        set(),
+    ),
 ]
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
