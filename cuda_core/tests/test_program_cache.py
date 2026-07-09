@@ -7,6 +7,10 @@ import time
 
 import pytest
 
+from cuda.core import _linker
+
+is_culink_backend = _linker._decide_nvjitlink_or_driver()
+
 
 def test_program_cache_resource_is_abstract():
     from cuda.core.utils import ProgramCacheResource
@@ -121,15 +125,6 @@ def _make_key(**overrides):
 
     base = dict(code="a", code_type="c++", options=_opts(), target_type="cubin")
     return make_program_cache_key(**{**base, **overrides})
-
-
-@pytest.fixture
-def require_nvjitlink_backend():
-    from cuda.core import Linker
-    from cuda.core.typing import CompilerBackendType
-
-    if Linker.which_backend() == CompilerBackendType.DRIVER:
-        pytest.skip("test requires the nvJitLink backend")
 
 
 def test_make_program_cache_key_returns_bytes():
@@ -396,8 +391,9 @@ def test_make_program_cache_key_ptx_linker_equivalent_options_hash_same(a, b, mo
     assert k_a == k_b
 
 
+@pytest.mark.skipif(is_culink_backend, reason="test requires nvJitLink backend")
 @pytest.mark.agent_authored(model="gpt-5")
-def test_make_program_cache_key_ptx_nvjitlink_time_values_hash_same(require_nvjitlink_backend, monkeypatch):
+def test_make_program_cache_key_ptx_nvjitlink_time_values_hash_same(monkeypatch):
     """nvJitLink emits ``-time`` for any non-None value."""
     from cuda.core.utils import _program_cache
 
@@ -1016,7 +1012,8 @@ def test_make_program_cache_key_rejects_side_effect_options_nvrtc(option_kw, ext
         pytest.param({"time": "whatever.csv"}, id="time_path"),
     ],
 )
-def test_make_program_cache_key_accepts_side_effect_options_for_ptx(option_kw, require_nvjitlink_backend):
+@pytest.mark.skipif(is_culink_backend, reason="test requires nvJitLink backend")
+def test_make_program_cache_key_accepts_side_effect_options_for_ptx(option_kw):
     """nvJitLink ``-time`` writes only to its info log, not the filesystem."""
     _make_key(code=".version 7.0", code_type="ptx", options=_opts(**option_kw))  # no raise
 
