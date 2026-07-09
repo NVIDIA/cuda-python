@@ -155,7 +155,7 @@ class WorkqueueResource:
         """
 
     @property
-    def device(self) -> 'Device':
+    def device(self) -> Device:
         """The :class:`~cuda.core.Device` this workqueue resource is available on."""
 
     def configure(self, options: WorkqueueResourceOptions) -> None:

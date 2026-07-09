@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from cuda.core._device import Device  # noqa
+    from cuda.core._device import Device
     from cuda.core.typing import WorkqueueSharingScopeType
 
 from libc.stdint cimport intptr_t
@@ -604,7 +604,7 @@ cdef class WorkqueueResource:
             )
 
     @property
-    def device(self) -> "Device":
+    def device(self) -> Device:
         """The :class:`~cuda.core.Device` this workqueue resource is available on."""
         IF CUDA_CORE_BUILD_MAJOR >= 13:
             from cuda.core._device import Device  # avoid circular import
