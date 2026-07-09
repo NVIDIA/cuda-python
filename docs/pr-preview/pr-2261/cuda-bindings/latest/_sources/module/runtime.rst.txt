@@ -1,6 +1,7 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0eccd5db44f7406acb693f5dd95ad2fa17c787c11659578cf54e116eb0b06e01
 -------
 runtime
 -------
@@ -163,8 +164,6 @@ Data types used by CUDA Runtime
 
         This indicates that at least one host pointer passed to the API call is not a valid host pointer.
 
-
-
         [Deprecated]
 
 
@@ -172,8 +171,6 @@ Data types used by CUDA Runtime
 
 
         This indicates that at least one device pointer passed to the API call is not a valid device pointer.
-
-
 
         [Deprecated]
 
@@ -207,8 +204,6 @@ Data types used by CUDA Runtime
 
         This indicated that the user has taken the address of a constant variable, which was forbidden up until the CUDA 3.1 release.
 
-
-
         [Deprecated]
 
 
@@ -216,8 +211,6 @@ Data types used by CUDA Runtime
 
 
         This indicated that a texture fetch was not able to be performed. This was previously used for device emulation of texture operations.
-
-
 
         [Deprecated]
 
@@ -227,8 +220,6 @@ Data types used by CUDA Runtime
 
         This indicated that a texture was not bound for access. This was previously used for device emulation of texture operations.
 
-
-
         [Deprecated]
 
 
@@ -236,8 +227,6 @@ Data types used by CUDA Runtime
 
 
         This indicated that a synchronization operation had failed. This was previously used for some device emulation functions.
-
-
 
         [Deprecated]
 
@@ -259,8 +248,6 @@ Data types used by CUDA Runtime
 
         Mixing of device and device emulation code was not allowed.
 
-
-
         [Deprecated]
 
 
@@ -269,8 +256,6 @@ Data types used by CUDA Runtime
 
         This indicates that the API call is not yet implemented. Production releases of CUDA will never return this error.
 
-
-
         [Deprecated]
 
 
@@ -278,8 +263,6 @@ Data types used by CUDA Runtime
 
 
         This indicated that an emulated device pointer exceeded the 32-bit address range.
-
-
 
         [Deprecated]
 
@@ -348,8 +331,6 @@ Data types used by CUDA Runtime
 
 
         This indicated that a previous kernel launch failed. This was previously used for device emulation of kernel launches.
-
-
 
         [Deprecated]
 
@@ -5245,8 +5226,6 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaDeviceBlockingSync
 
     Device flag - Use blocking synchronization
-
-
 
     [Deprecated]
 

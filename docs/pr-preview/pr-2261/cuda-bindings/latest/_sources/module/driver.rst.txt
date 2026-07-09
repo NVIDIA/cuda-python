@@ -1,6 +1,7 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=15f77ea651a2deffa7f7ae710189546cff9c23ba311b693207743eaf339a0a9c
 ------
 driver
 ------
@@ -147,8 +148,6 @@ Data types used by CUDA driver
 
 
         Set blocking synchronization as default scheduling
-
-
 
         [Deprecated]
 
@@ -3863,8 +3862,6 @@ Data types used by CUDA driver
 
 
         This indicated that the context being supplied as a parameter to the API call was already the active context.
-
-
 
         [Deprecated]
 
