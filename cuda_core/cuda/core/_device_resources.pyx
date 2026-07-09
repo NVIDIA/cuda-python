@@ -143,7 +143,7 @@ cdef class WorkqueueResourceOptions:
         submission remains non-overlapping. (Default to ``None``)
     """
 
-    sharing_scope: WorkqueueSharingScopeType | None = None
+    sharing_scope: WorkqueueSharingScopeType | str | None = None
     concurrency_limit: int | None = None
 
     def __post_init__(self):
