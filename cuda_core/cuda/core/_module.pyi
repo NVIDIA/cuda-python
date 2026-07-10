@@ -458,6 +458,16 @@ class ObjectCode:
 
         """
 
+    def get_module(self) -> object:
+        """Return the :obj:`~driver.CUmodule` associated with this object code.
+
+        Returns
+        -------
+        :obj:`~driver.CUmodule`
+            Module handle for the current CUDA context, suitable for legacy
+            driver APIs that accept ``CUmodule``.
+        """
+
     @property
     def code(self) -> CodeTypeT:
         """Return the underlying code object."""

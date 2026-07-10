@@ -6,6 +6,7 @@ from __future__ import annotations
 
 cimport cython
 from libc.stddef cimport size_t
+from libc.stdint cimport intptr_t
 
 from collections import namedtuple
 from os import fsencode, fspath, PathLike
@@ -795,6 +796,21 @@ cdef class ObjectCode:
         if not h_kernel:
             HANDLE_RETURN(get_last_error())
         return Kernel._from_handle(h_kernel)
+
+    def get_module(self) -> object:
+        """Return the :obj:`~driver.CUmodule` associated with this object code.
+
+        Returns
+        -------
+        :obj:`~driver.CUmodule`
+            Module handle for the current CUDA context, suitable for legacy
+            driver APIs that accept ``CUmodule``.
+        """
+        self._lazy_load_module()
+        cdef cydriver.CUmodule mod
+        with nogil:
+            HANDLE_RETURN(cydriver.cuLibraryGetModule(&mod, as_cu(self._h_library)))
+        return driver.CUmodule(<intptr_t>mod)
 
     @property
     def code(self) -> CodeTypeT:

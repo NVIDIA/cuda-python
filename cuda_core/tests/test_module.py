@@ -226,6 +226,21 @@ def test_get_kernel(init_cuda):
     assert object_code.get_kernel(b"ABC").handle is not None
 
 
+def test_object_code_get_module_for_legacy_integration(init_cuda):
+    src = """
+    extern "C" __global__ void ABC() { }
+    extern "C" __global__ void DEF() { }
+    """
+    object_code = Program(src, "c++").compile("cubin")
+
+    # Bridge: CUlibrary (new) → CUmodule (legacy)
+    module = object_code.get_module()
+
+    # Legacy module-only API consumes it directly
+    count = handle_return(driver.cuModuleGetFunctionCount(module))
+    assert count == 2
+
+
 @pytest.mark.parametrize(
     "attr, expected_type",
     [
