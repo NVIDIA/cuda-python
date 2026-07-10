@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_dynamic\_pstates\_info
-======================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_dynamic_pstates_info
