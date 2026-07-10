@@ -26,35 +26,35 @@
   "q": "tests/test_cufile.py::test_set_get_parameter_bool|run",
   "r": "tests/test_cufile.py::test_set_get_parameter_size_t|run",
   "s": "tests/test_cufile.py::test_handle_register|run",
-  "t": "tests/test_cufile.py::test_get_stats_l2|setup",
-  "u": "tests/test_cufile.py::test_get_stats_l1|teardown",
-  "v": "tests/test_cufile.py::test_get_stats_l2|teardown",
-  "w": "tests/test_cufile.py::test_get_stats_l3|teardown",
-  "x": "tests/test_cufile.py::test_set_parameter_posix_pool_slab_array|run",
-  "y": "tests/test_cufile.py::test_set_stats_level|teardown",
-  "z": "tests/test_cufile.py::test_stats_start_stop|run",
-  "A": "tests/test_cufile.py::test_stats_start_stop|teardown",
-  "B": "tests/test_cufile.py::test_get_stats_l1|setup",
+  "t": "tests/test_cufile.py::test_get_stats_l1|teardown",
+  "u": "tests/test_cufile.py::test_get_stats_l2|teardown",
+  "v": "tests/test_cufile.py::test_get_stats_l3|teardown",
+  "w": "tests/test_cufile.py::test_set_parameter_posix_pool_slab_array|run",
+  "x": "tests/test_cufile.py::test_set_stats_level|teardown",
+  "y": "tests/test_cufile.py::test_stats_start_stop|run",
+  "z": "tests/test_cufile.py::test_stats_start_stop|teardown",
+  "A": "tests/test_cufile.py::test_get_stats_l1|setup",
+  "B": "tests/test_cufile.py::test_get_stats_l2|setup",
   "C": "tests/test_cufile.py::test_get_stats_l3|setup",
   "D": "tests/test_cufile.py::test_set_stats_level|setup",
   "E": "tests/test_cufile.py::test_stats_start_stop|setup",
   "F": "tests/test_cufile.py::test_buf_register_host_memory|run",
-  "G": "tests/test_cufile.py::test_buf_register_invalid_flags|run",
-  "H": "tests/test_cufile.py::test_buf_register_large_buffer|run",
-  "I": "tests/test_cufile.py::test_buf_register_multiple_buffers|run",
-  "J": "tests/test_cufile.py::test_buf_register_simple|run",
-  "K": "tests/test_cufile.py::test_set_parameter_posix_pool_slab_array|setup",
-  "L": "tests/test_cufile.py::test_get_bar_size_in_kb|run",
-  "M": "tests/test_cufile.py::test_get_parameter_min_max_value|run",
-  "N": "tests/test_cufile.py::test_batch_io_basic|setup",
-  "O": "tests/test_cufile.py::test_batch_io_basic|teardown",
-  "P": "tests/test_cufile.py::test_batch_io_cancel|setup",
-  "Q": "tests/test_cufile.py::test_batch_io_cancel|teardown",
-  "R": "tests/test_cufile.py::test_batch_io_large_operations|setup",
-  "S": "tests/test_cufile.py::test_batch_io_large_operations|teardown",
-  "T": "tests/test_cufile.py::test_buf_register_already_registered|setup",
-  "U": "tests/test_cufile.py::test_buf_register_already_registered|teardown",
-  "V": "tests/test_cufile.py::test_buf_register_host_memory|setup",
+  "G": "tests/test_cufile.py::test_buf_register_host_memory|setup",
+  "H": "tests/test_cufile.py::test_buf_register_invalid_flags|run",
+  "I": "tests/test_cufile.py::test_buf_register_large_buffer|run",
+  "J": "tests/test_cufile.py::test_buf_register_multiple_buffers|run",
+  "K": "tests/test_cufile.py::test_buf_register_simple|run",
+  "L": "tests/test_cufile.py::test_set_parameter_posix_pool_slab_array|setup",
+  "M": "tests/test_cufile.py::test_get_bar_size_in_kb|run",
+  "N": "tests/test_cufile.py::test_get_parameter_min_max_value|run",
+  "O": "tests/test_cufile.py::test_batch_io_basic|setup",
+  "P": "tests/test_cufile.py::test_batch_io_basic|teardown",
+  "Q": "tests/test_cufile.py::test_batch_io_cancel|setup",
+  "R": "tests/test_cufile.py::test_batch_io_cancel|teardown",
+  "S": "tests/test_cufile.py::test_batch_io_large_operations|setup",
+  "T": "tests/test_cufile.py::test_batch_io_large_operations|teardown",
+  "U": "tests/test_cufile.py::test_buf_register_already_registered|setup",
+  "V": "tests/test_cufile.py::test_buf_register_already_registered|teardown",
   "W": "tests/test_cufile.py::test_buf_register_host_memory|teardown",
   "X": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
   "Y": "tests/test_cufile.py::test_buf_register_invalid_flags|teardown",
@@ -145,7 +145,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cycudla_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-09 02:15 +0000
+            created at 2026-07-10 01:22 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -3016,7 +3016,7 @@
     <p class="run"><span class="n"><a id="t2854" href="#t2854">2854</a></span><span class="t"><span class="txt">@cython.profile(False)</span>&nbsp;</span><span class="r"><label for="ctxs2854" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2855" href="#t2855">2855</a></span><span class="t"><span class="txt">cdef int check_status(ReturnT status) except 1 nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2856" href="#t2856">2856</a></span><span class="t"><span class="txt">    if ReturnT is CUfileError_t:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t2857" href="#t2857">2857</a></span><span class="t"><span class="txt">        if status.err != 0 or status.cu_err != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs2857"><span class="r"><label for="ctxs2857" class="ctx">76 ctx</label></span><span class="ctxs">1adNOgPQeRSpTUFVWGXYHZ0I12J34h56i78j9!k#$l%'m()L*+M,-fBuctvbCws./qrnxK:oDyzEA</span></p>
+    <p class="run"><span class="n"><a id="t2857" href="#t2857">2857</a></span><span class="t"><span class="txt">        if status.err != 0 or status.cu_err != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs2857"><span class="r"><label for="ctxs2857" class="ctx">76 ctx</label></span><span class="ctxs">1adOPgQReSTpUVFGWHXYIZ0J12K34h56i78j9!k#$l%'m()M*+N,-fAtcBubCvs./qrnwL:oDxyEz</span></p>
     <p class="run"><span class="n"><a id="t2858" href="#t2858">2858</a></span><span class="t"><span class="txt">            with gil:</span>&nbsp;</span><input type="checkbox" id="ctxs2858"><span class="r"><label for="ctxs2858" class="ctx">3 ctx</label></span><span class="ctxs">1pno</span></p>
     <p class="run"><span class="n"><a id="t2859" href="#t2859">2859</a></span><span class="t"><span class="txt">                raise cuFileError(status.err, status.cu_err)</span>&nbsp;</span><input type="checkbox" id="ctxs2859"><span class="r"><label for="ctxs2859" class="ctx">3 ctx</label></span><span class="ctxs">1pno</span></p>
     <p class="pln"><span class="n"><a id="t2860" href="#t2860">2860</a></span><span class="t"><span class="txt">    elif ReturnT is ssize_t:</span>&nbsp;</span><span class="r"></span></p>
@@ -3024,7 +3024,7 @@
     <p class="pln"><span class="n"><a id="t2862" href="#t2862">2862</a></span><span class="t"><span class="txt">            # note: this assumes cuFile already properly resets errno in each API</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t2863" href="#t2863">2863</a></span><span class="t"><span class="txt">            with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t2864" href="#t2864">2864</a></span><span class="t"><span class="txt">                raise cuFileError(errno.errno)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t2865" href="#t2865">2865</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs2865"><span class="r"><label for="ctxs2865" class="ctx">76 ctx</label></span><span class="ctxs">1adNOgPQeRSpTUFVWGXYHZ0I12J34h56i78j9!k#$l%'m()L*+M,-fBuctvbCws./qrnxK:oDyzEA</span></p>
+    <p class="run"><span class="n"><a id="t2865" href="#t2865">2865</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs2865"><span class="r"><label for="ctxs2865" class="ctx">76 ctx</label></span><span class="ctxs">1adOPgQReSTpUVFGWHXYIZ0J12K34h56i78j9!k#$l%'m()M*+N,-fAtcBubCvs./qrnwL:oDxyEz</span></p>
     <p class="pln"><span class="n"><a id="t2866" href="#t2866">2866</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2867" href="#t2867">2867</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2868" href="#t2868">2868</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
@@ -3070,9 +3070,9 @@
     <p class="pln"><span class="n"><a id="t2908" href="#t2908">2908</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2909" href="#t2909">2909</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileBufRegister`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2910" href="#t2910">2910</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t2911" href="#t2911">2911</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs2911"><span class="r"><label for="ctxs2911" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFGHIJhijklmfcb</span></p>
-    <p class="run"><span class="n"><a id="t2912" href="#t2912">2912</a></span><span class="t"><span class="txt">        __status__ = cuFileBufRegister(&lt;const void*>buf_ptr_base, length, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs2912"><span class="r"><label for="ctxs2912" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFGHIJhijklmfcb</span></p>
-    <p class="run"><span class="n"><a id="t2913" href="#t2913">2913</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs2913"><span class="r"><label for="ctxs2913" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFGHIJhijklmfcb</span></p>
+    <p class="run"><span class="n"><a id="t2911" href="#t2911">2911</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs2911"><span class="r"><label for="ctxs2911" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFHIJKhijklmfcb</span></p>
+    <p class="run"><span class="n"><a id="t2912" href="#t2912">2912</a></span><span class="t"><span class="txt">        __status__ = cuFileBufRegister(&lt;const void*>buf_ptr_base, length, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs2912"><span class="r"><label for="ctxs2912" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFHIJKhijklmfcb</span></p>
+    <p class="run"><span class="n"><a id="t2913" href="#t2913">2913</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs2913"><span class="r"><label for="ctxs2913" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFHIJKhijklmfcb</span></p>
     <p class="pln"><span class="n"><a id="t2914" href="#t2914">2914</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2915" href="#t2915">2915</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t2916" href="#t2916">2916</a></span><span class="t"><span class="txt">cpdef buf_deregister(intptr_t buf_ptr_base):</span>&nbsp;</span><span class="r"><label for="ctxs2916" class="ctx">(empty)</label></span></p>
@@ -3083,9 +3083,9 @@
     <p class="pln"><span class="n"><a id="t2921" href="#t2921">2921</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2922" href="#t2922">2922</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileBufDeregister`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2923" href="#t2923">2923</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t2924" href="#t2924">2924</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs2924"><span class="r"><label for="ctxs2924" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFGHIJhijklmfcb</span></p>
-    <p class="run"><span class="n"><a id="t2925" href="#t2925">2925</a></span><span class="t"><span class="txt">        __status__ = cuFileBufDeregister(&lt;const void*>buf_ptr_base)</span>&nbsp;</span><input type="checkbox" id="ctxs2925"><span class="r"><label for="ctxs2925" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFGHIJhijklmfcb</span></p>
-    <p class="run"><span class="n"><a id="t2926" href="#t2926">2926</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs2926"><span class="r"><label for="ctxs2926" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFGHIJhijklmfcb</span></p>
+    <p class="run"><span class="n"><a id="t2924" href="#t2924">2924</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs2924"><span class="r"><label for="ctxs2924" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFHIJKhijklmfcb</span></p>
+    <p class="run"><span class="n"><a id="t2925" href="#t2925">2925</a></span><span class="t"><span class="txt">        __status__ = cuFileBufDeregister(&lt;const void*>buf_ptr_base)</span>&nbsp;</span><input type="checkbox" id="ctxs2925"><span class="r"><label for="ctxs2925" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFHIJKhijklmfcb</span></p>
+    <p class="run"><span class="n"><a id="t2926" href="#t2926">2926</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs2926"><span class="r"><label for="ctxs2926" class="ctx">18 ctx</label></span><span class="ctxs">1dgepFHIJKhijklmfcb</span></p>
     <p class="pln"><span class="n"><a id="t2927" href="#t2927">2927</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2928" href="#t2928">2928</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t2929" href="#t2929">2929</a></span><span class="t"><span class="txt">cpdef driver_open():</span>&nbsp;</span><span class="r"><label for="ctxs2929" class="ctx">(empty)</label></span></p>
@@ -3093,9 +3093,9 @@
     <p class="pln"><span class="n"><a id="t2931" href="#t2931">2931</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2932" href="#t2932">2932</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileDriverOpen`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2933" href="#t2933">2933</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t2934" href="#t2934">2934</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs2934"><span class="r"><label for="ctxs2934" class="ctx">28 ctx</label></span><span class="ctxs">1NPRTVXZ13579#%(*,BtC.qrnxKDE</span></p>
-    <p class="run"><span class="n"><a id="t2935" href="#t2935">2935</a></span><span class="t"><span class="txt">        __status__ = cuFileDriverOpen()</span>&nbsp;</span><input type="checkbox" id="ctxs2935"><span class="r"><label for="ctxs2935" class="ctx">28 ctx</label></span><span class="ctxs">1NPRTVXZ13579#%(*,BtC.qrnxKDE</span></p>
-    <p class="run"><span class="n"><a id="t2936" href="#t2936">2936</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs2936"><span class="r"><label for="ctxs2936" class="ctx">28 ctx</label></span><span class="ctxs">1NPRTVXZ13579#%(*,BtC.qrnxKDE</span></p>
+    <p class="run"><span class="n"><a id="t2934" href="#t2934">2934</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs2934"><span class="r"><label for="ctxs2934" class="ctx">28 ctx</label></span><span class="ctxs">1OQSUGXZ13579#%(*,ABC.qrnwLDE</span></p>
+    <p class="run"><span class="n"><a id="t2935" href="#t2935">2935</a></span><span class="t"><span class="txt">        __status__ = cuFileDriverOpen()</span>&nbsp;</span><input type="checkbox" id="ctxs2935"><span class="r"><label for="ctxs2935" class="ctx">28 ctx</label></span><span class="ctxs">1OQSUGXZ13579#%(*,ABC.qrnwLDE</span></p>
+    <p class="run"><span class="n"><a id="t2936" href="#t2936">2936</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs2936"><span class="r"><label for="ctxs2936" class="ctx">28 ctx</label></span><span class="ctxs">1OQSUGXZ13579#%(*,ABC.qrnwLDE</span></p>
     <p class="pln"><span class="n"><a id="t2937" href="#t2937">2937</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2938" href="#t2938">2938</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t2939" href="#t2939">2939</a></span><span class="t"><span class="txt">cpdef use_count():</span>&nbsp;</span><span class="r"><label for="ctxs2939" class="ctx">(empty)</label></span></p>
@@ -3302,10 +3302,10 @@
     <p class="pln"><span class="n"><a id="t3140" href="#t3140">3140</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3141" href="#t3141">3141</a></span><span class="t"><span class="txt">    cdef size_t min_value</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3142" href="#t3142">3142</a></span><span class="t"><span class="txt">    cdef size_t max_value</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3143" href="#t3143">3143</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3143"><span class="r"><label for="ctxs3143" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
-    <p class="run"><span class="n"><a id="t3144" href="#t3144">3144</a></span><span class="t"><span class="txt">        __status__ = cuFileGetParameterMinMaxValue(&lt;_SizeTConfigParameter>param, &amp;min_value, &amp;max_value)</span>&nbsp;</span><input type="checkbox" id="ctxs3144"><span class="r"><label for="ctxs3144" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
-    <p class="run"><span class="n"><a id="t3145" href="#t3145">3145</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3145"><span class="r"><label for="ctxs3145" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
-    <p class="run"><span class="n"><a id="t3146" href="#t3146">3146</a></span><span class="t"><span class="txt">    return (min_value, max_value)</span>&nbsp;</span><input type="checkbox" id="ctxs3146"><span class="r"><label for="ctxs3146" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
+    <p class="run"><span class="n"><a id="t3143" href="#t3143">3143</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3143"><span class="r"><label for="ctxs3143" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
+    <p class="run"><span class="n"><a id="t3144" href="#t3144">3144</a></span><span class="t"><span class="txt">        __status__ = cuFileGetParameterMinMaxValue(&lt;_SizeTConfigParameter>param, &amp;min_value, &amp;max_value)</span>&nbsp;</span><input type="checkbox" id="ctxs3144"><span class="r"><label for="ctxs3144" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
+    <p class="run"><span class="n"><a id="t3145" href="#t3145">3145</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3145"><span class="r"><label for="ctxs3145" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
+    <p class="run"><span class="n"><a id="t3146" href="#t3146">3146</a></span><span class="t"><span class="txt">    return (min_value, max_value)</span>&nbsp;</span><input type="checkbox" id="ctxs3146"><span class="r"><label for="ctxs3146" class="ctx">1 ctx</label></span><span class="ctxs">1N</span></p>
     <p class="pln"><span class="n"><a id="t3147" href="#t3147">3147</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3148" href="#t3148">3148</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3149" href="#t3149">3149</a></span><span class="t"><span class="txt">cpdef set_stats_level(int level):</span>&nbsp;</span><span class="r"><label for="ctxs3149" class="ctx">(empty)</label></span></p>
@@ -3316,9 +3316,9 @@
     <p class="pln"><span class="n"><a id="t3154" href="#t3154">3154</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3155" href="#t3155">3155</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileSetStatsLevel`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3156" href="#t3156">3156</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3157" href="#t3157">3157</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3157"><span class="r"><label for="ctxs3157" class="ctx">10 ctx</label></span><span class="ctxs">1fucvbwoyzA</span></p>
-    <p class="run"><span class="n"><a id="t3158" href="#t3158">3158</a></span><span class="t"><span class="txt">        __status__ = cuFileSetStatsLevel(level)</span>&nbsp;</span><input type="checkbox" id="ctxs3158"><span class="r"><label for="ctxs3158" class="ctx">10 ctx</label></span><span class="ctxs">1fucvbwoyzA</span></p>
-    <p class="run"><span class="n"><a id="t3159" href="#t3159">3159</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3159"><span class="r"><label for="ctxs3159" class="ctx">10 ctx</label></span><span class="ctxs">1fucvbwoyzA</span></p>
+    <p class="run"><span class="n"><a id="t3157" href="#t3157">3157</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3157"><span class="r"><label for="ctxs3157" class="ctx">10 ctx</label></span><span class="ctxs">1ftcubvoxyz</span></p>
+    <p class="run"><span class="n"><a id="t3158" href="#t3158">3158</a></span><span class="t"><span class="txt">        __status__ = cuFileSetStatsLevel(level)</span>&nbsp;</span><input type="checkbox" id="ctxs3158"><span class="r"><label for="ctxs3158" class="ctx">10 ctx</label></span><span class="ctxs">1ftcubvoxyz</span></p>
+    <p class="run"><span class="n"><a id="t3159" href="#t3159">3159</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3159"><span class="r"><label for="ctxs3159" class="ctx">10 ctx</label></span><span class="ctxs">1ftcubvoxyz</span></p>
     <p class="pln"><span class="n"><a id="t3160" href="#t3160">3160</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3161" href="#t3161">3161</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3162" href="#t3162">3162</a></span><span class="t"><span class="txt">cpdef int get_stats_level() except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs3162" class="ctx">(empty)</label></span></p>
@@ -3330,10 +3330,10 @@
     <p class="pln"><span class="n"><a id="t3168" href="#t3168">3168</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileGetStatsLevel`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3169" href="#t3169">3169</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3170" href="#t3170">3170</a></span><span class="t"><span class="txt">    cdef int level</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3171" href="#t3171">3171</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3171"><span class="r"><label for="ctxs3171" class="ctx">6 ctx</label></span><span class="ctxs">1BtCoDE</span></p>
-    <p class="run"><span class="n"><a id="t3172" href="#t3172">3172</a></span><span class="t"><span class="txt">        __status__ = cuFileGetStatsLevel(&amp;level)</span>&nbsp;</span><input type="checkbox" id="ctxs3172"><span class="r"><label for="ctxs3172" class="ctx">6 ctx</label></span><span class="ctxs">1BtCoDE</span></p>
-    <p class="run"><span class="n"><a id="t3173" href="#t3173">3173</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3173"><span class="r"><label for="ctxs3173" class="ctx">6 ctx</label></span><span class="ctxs">1BtCoDE</span></p>
-    <p class="run"><span class="n"><a id="t3174" href="#t3174">3174</a></span><span class="t"><span class="txt">    return level</span>&nbsp;</span><input type="checkbox" id="ctxs3174"><span class="r"><label for="ctxs3174" class="ctx">6 ctx</label></span><span class="ctxs">1BtCoDE</span></p>
+    <p class="run"><span class="n"><a id="t3171" href="#t3171">3171</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3171"><span class="r"><label for="ctxs3171" class="ctx">6 ctx</label></span><span class="ctxs">1ABCoDE</span></p>
+    <p class="run"><span class="n"><a id="t3172" href="#t3172">3172</a></span><span class="t"><span class="txt">        __status__ = cuFileGetStatsLevel(&amp;level)</span>&nbsp;</span><input type="checkbox" id="ctxs3172"><span class="r"><label for="ctxs3172" class="ctx">6 ctx</label></span><span class="ctxs">1ABCoDE</span></p>
+    <p class="run"><span class="n"><a id="t3173" href="#t3173">3173</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3173"><span class="r"><label for="ctxs3173" class="ctx">6 ctx</label></span><span class="ctxs">1ABCoDE</span></p>
+    <p class="run"><span class="n"><a id="t3174" href="#t3174">3174</a></span><span class="t"><span class="txt">    return level</span>&nbsp;</span><input type="checkbox" id="ctxs3174"><span class="r"><label for="ctxs3174" class="ctx">6 ctx</label></span><span class="ctxs">1ABCoDE</span></p>
     <p class="pln"><span class="n"><a id="t3175" href="#t3175">3175</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3176" href="#t3176">3176</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3177" href="#t3177">3177</a></span><span class="t"><span class="txt">cpdef stats_start():</span>&nbsp;</span><span class="r"><label for="ctxs3177" class="ctx">(empty)</label></span></p>
@@ -3341,9 +3341,9 @@
     <p class="pln"><span class="n"><a id="t3179" href="#t3179">3179</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3180" href="#t3180">3180</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileStatsStart`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3181" href="#t3181">3181</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3182" href="#t3182">3182</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3182"><span class="r"><label for="ctxs3182" class="ctx">4 ctx</label></span><span class="ctxs">1fcbz</span></p>
-    <p class="run"><span class="n"><a id="t3183" href="#t3183">3183</a></span><span class="t"><span class="txt">        __status__ = cuFileStatsStart()</span>&nbsp;</span><input type="checkbox" id="ctxs3183"><span class="r"><label for="ctxs3183" class="ctx">4 ctx</label></span><span class="ctxs">1fcbz</span></p>
-    <p class="run"><span class="n"><a id="t3184" href="#t3184">3184</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3184"><span class="r"><label for="ctxs3184" class="ctx">4 ctx</label></span><span class="ctxs">1fcbz</span></p>
+    <p class="run"><span class="n"><a id="t3182" href="#t3182">3182</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3182"><span class="r"><label for="ctxs3182" class="ctx">4 ctx</label></span><span class="ctxs">1fcby</span></p>
+    <p class="run"><span class="n"><a id="t3183" href="#t3183">3183</a></span><span class="t"><span class="txt">        __status__ = cuFileStatsStart()</span>&nbsp;</span><input type="checkbox" id="ctxs3183"><span class="r"><label for="ctxs3183" class="ctx">4 ctx</label></span><span class="ctxs">1fcby</span></p>
+    <p class="run"><span class="n"><a id="t3184" href="#t3184">3184</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3184"><span class="r"><label for="ctxs3184" class="ctx">4 ctx</label></span><span class="ctxs">1fcby</span></p>
     <p class="pln"><span class="n"><a id="t3185" href="#t3185">3185</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3186" href="#t3186">3186</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3187" href="#t3187">3187</a></span><span class="t"><span class="txt">cpdef stats_stop():</span>&nbsp;</span><span class="r"><label for="ctxs3187" class="ctx">(empty)</label></span></p>
@@ -3351,9 +3351,9 @@
     <p class="pln"><span class="n"><a id="t3189" href="#t3189">3189</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3190" href="#t3190">3190</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileStatsStop`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3191" href="#t3191">3191</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3192" href="#t3192">3192</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3192"><span class="r"><label for="ctxs3192" class="ctx">4 ctx</label></span><span class="ctxs">1fcbz</span></p>
-    <p class="run"><span class="n"><a id="t3193" href="#t3193">3193</a></span><span class="t"><span class="txt">        __status__ = cuFileStatsStop()</span>&nbsp;</span><input type="checkbox" id="ctxs3193"><span class="r"><label for="ctxs3193" class="ctx">4 ctx</label></span><span class="ctxs">1fcbz</span></p>
-    <p class="run"><span class="n"><a id="t3194" href="#t3194">3194</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3194"><span class="r"><label for="ctxs3194" class="ctx">4 ctx</label></span><span class="ctxs">1fcbz</span></p>
+    <p class="run"><span class="n"><a id="t3192" href="#t3192">3192</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3192"><span class="r"><label for="ctxs3192" class="ctx">4 ctx</label></span><span class="ctxs">1fcby</span></p>
+    <p class="run"><span class="n"><a id="t3193" href="#t3193">3193</a></span><span class="t"><span class="txt">        __status__ = cuFileStatsStop()</span>&nbsp;</span><input type="checkbox" id="ctxs3193"><span class="r"><label for="ctxs3193" class="ctx">4 ctx</label></span><span class="ctxs">1fcby</span></p>
+    <p class="run"><span class="n"><a id="t3194" href="#t3194">3194</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3194"><span class="r"><label for="ctxs3194" class="ctx">4 ctx</label></span><span class="ctxs">1fcby</span></p>
     <p class="pln"><span class="n"><a id="t3195" href="#t3195">3195</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3196" href="#t3196">3196</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3197" href="#t3197">3197</a></span><span class="t"><span class="txt">cpdef stats_reset():</span>&nbsp;</span><span class="r"><label for="ctxs3197" class="ctx">(empty)</label></span></p>
@@ -3361,9 +3361,9 @@
     <p class="pln"><span class="n"><a id="t3199" href="#t3199">3199</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3200" href="#t3200">3200</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileStatsReset`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3201" href="#t3201">3201</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3202" href="#t3202">3202</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3202"><span class="r"><label for="ctxs3202" class="ctx">5 ctx</label></span><span class="ctxs">1uvwyA</span></p>
-    <p class="run"><span class="n"><a id="t3203" href="#t3203">3203</a></span><span class="t"><span class="txt">        __status__ = cuFileStatsReset()</span>&nbsp;</span><input type="checkbox" id="ctxs3203"><span class="r"><label for="ctxs3203" class="ctx">5 ctx</label></span><span class="ctxs">1uvwyA</span></p>
-    <p class="run"><span class="n"><a id="t3204" href="#t3204">3204</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3204"><span class="r"><label for="ctxs3204" class="ctx">5 ctx</label></span><span class="ctxs">1uvwyA</span></p>
+    <p class="run"><span class="n"><a id="t3202" href="#t3202">3202</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3202"><span class="r"><label for="ctxs3202" class="ctx">5 ctx</label></span><span class="ctxs">1tuvxz</span></p>
+    <p class="run"><span class="n"><a id="t3203" href="#t3203">3203</a></span><span class="t"><span class="txt">        __status__ = cuFileStatsReset()</span>&nbsp;</span><input type="checkbox" id="ctxs3203"><span class="r"><label for="ctxs3203" class="ctx">5 ctx</label></span><span class="ctxs">1tuvxz</span></p>
+    <p class="run"><span class="n"><a id="t3204" href="#t3204">3204</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3204"><span class="r"><label for="ctxs3204" class="ctx">5 ctx</label></span><span class="ctxs">1tuvxz</span></p>
     <p class="pln"><span class="n"><a id="t3205" href="#t3205">3205</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3206" href="#t3206">3206</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3207" href="#t3207">3207</a></span><span class="t"><span class="txt">cpdef get_stats_l1(intptr_t stats):</span>&nbsp;</span><span class="r"><label for="ctxs3207" class="ctx">(empty)</label></span></p>
@@ -3407,10 +3407,10 @@
     <p class="pln"><span class="n"><a id="t3245" href="#t3245">3245</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3246" href="#t3246">3246</a></span><span class="t"><span class="txt">cpdef size_t get_bar_size_in_kb(int gpu_index) except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs3246" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t3247" href="#t3247">3247</a></span><span class="t"><span class="txt">    cdef size_t bar_size</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3248" href="#t3248">3248</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3248"><span class="r"><label for="ctxs3248" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
-    <p class="run"><span class="n"><a id="t3249" href="#t3249">3249</a></span><span class="t"><span class="txt">        __status__ = cuFileGetBARSizeInKB(gpu_index, &amp;bar_size)</span>&nbsp;</span><input type="checkbox" id="ctxs3249"><span class="r"><label for="ctxs3249" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
-    <p class="run"><span class="n"><a id="t3250" href="#t3250">3250</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3250"><span class="r"><label for="ctxs3250" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
-    <p class="run"><span class="n"><a id="t3251" href="#t3251">3251</a></span><span class="t"><span class="txt">    return bar_size</span>&nbsp;</span><input type="checkbox" id="ctxs3251"><span class="r"><label for="ctxs3251" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
+    <p class="run"><span class="n"><a id="t3248" href="#t3248">3248</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3248"><span class="r"><label for="ctxs3248" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
+    <p class="run"><span class="n"><a id="t3249" href="#t3249">3249</a></span><span class="t"><span class="txt">        __status__ = cuFileGetBARSizeInKB(gpu_index, &amp;bar_size)</span>&nbsp;</span><input type="checkbox" id="ctxs3249"><span class="r"><label for="ctxs3249" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
+    <p class="run"><span class="n"><a id="t3250" href="#t3250">3250</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3250"><span class="r"><label for="ctxs3250" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
+    <p class="run"><span class="n"><a id="t3251" href="#t3251">3251</a></span><span class="t"><span class="txt">    return bar_size</span>&nbsp;</span><input type="checkbox" id="ctxs3251"><span class="r"><label for="ctxs3251" class="ctx">1 ctx</label></span><span class="ctxs">1M</span></p>
     <p class="pln"><span class="n"><a id="t3252" href="#t3252">3252</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3253" href="#t3253">3253</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3254" href="#t3254">3254</a></span><span class="t"><span class="txt">cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len):</span>&nbsp;</span><span class="r"><label for="ctxs3254" class="ctx">(empty)</label></span></p>
@@ -3423,9 +3423,9 @@
     <p class="pln"><span class="n"><a id="t3261" href="#t3261">3261</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3262" href="#t3262">3262</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileSetParameterPosixPoolSlabArray`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3263" href="#t3263">3263</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3264" href="#t3264">3264</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3264"><span class="r"><label for="ctxs3264" class="ctx">1 ctx</label></span><span class="ctxs">1K</span></p>
-    <p class="run"><span class="n"><a id="t3265" href="#t3265">3265</a></span><span class="t"><span class="txt">        __status__ = cuFileSetParameterPosixPoolSlabArray(&lt;const size_t*>size_values, &lt;const size_t*>count_values, len)</span>&nbsp;</span><input type="checkbox" id="ctxs3265"><span class="r"><label for="ctxs3265" class="ctx">1 ctx</label></span><span class="ctxs">1K</span></p>
-    <p class="run"><span class="n"><a id="t3266" href="#t3266">3266</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3266"><span class="r"><label for="ctxs3266" class="ctx">1 ctx</label></span><span class="ctxs">1K</span></p>
+    <p class="run"><span class="n"><a id="t3264" href="#t3264">3264</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3264"><span class="r"><label for="ctxs3264" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
+    <p class="run"><span class="n"><a id="t3265" href="#t3265">3265</a></span><span class="t"><span class="txt">        __status__ = cuFileSetParameterPosixPoolSlabArray(&lt;const size_t*>size_values, &lt;const size_t*>count_values, len)</span>&nbsp;</span><input type="checkbox" id="ctxs3265"><span class="r"><label for="ctxs3265" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
+    <p class="run"><span class="n"><a id="t3266" href="#t3266">3266</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3266"><span class="r"><label for="ctxs3266" class="ctx">1 ctx</label></span><span class="ctxs">1L</span></p>
     <p class="pln"><span class="n"><a id="t3267" href="#t3267">3267</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3268" href="#t3268">3268</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3269" href="#t3269">3269</a></span><span class="t"><span class="txt">cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len):</span>&nbsp;</span><span class="r"><label for="ctxs3269" class="ctx">(empty)</label></span></p>
@@ -3438,9 +3438,9 @@
     <p class="pln"><span class="n"><a id="t3276" href="#t3276">3276</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3277" href="#t3277">3277</a></span><span class="t"><span class="txt">    .. seealso:: `cuFileGetParameterPosixPoolSlabArray`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3278" href="#t3278">3278</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3279" href="#t3279">3279</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3279"><span class="r"><label for="ctxs3279" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t3280" href="#t3280">3280</a></span><span class="t"><span class="txt">        __status__ = cuFileGetParameterPosixPoolSlabArray(&lt;size_t*>size_values, &lt;size_t*>count_values, len)</span>&nbsp;</span><input type="checkbox" id="ctxs3280"><span class="r"><label for="ctxs3280" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
-    <p class="run"><span class="n"><a id="t3281" href="#t3281">3281</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3281"><span class="r"><label for="ctxs3281" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
+    <p class="run"><span class="n"><a id="t3279" href="#t3279">3279</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3279"><span class="r"><label for="ctxs3279" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
+    <p class="run"><span class="n"><a id="t3280" href="#t3280">3280</a></span><span class="t"><span class="txt">        __status__ = cuFileGetParameterPosixPoolSlabArray(&lt;size_t*>size_values, &lt;size_t*>count_values, len)</span>&nbsp;</span><input type="checkbox" id="ctxs3280"><span class="r"><label for="ctxs3280" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
+    <p class="run"><span class="n"><a id="t3281" href="#t3281">3281</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs3281"><span class="r"><label for="ctxs3281" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
     <p class="pln"><span class="n"><a id="t3282" href="#t3282">3282</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3283" href="#t3283">3283</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3284" href="#t3284">3284</a></span><span class="t"><span class="txt">cpdef str op_status_error(int status):</span>&nbsp;</span><span class="r"><label for="ctxs3284" class="ctx">(empty)</label></span></p>
@@ -3459,9 +3459,9 @@
     <p class="run"><span class="n"><a id="t3297" href="#t3297">3297</a></span><span class="t"><span class="txt">cpdef driver_close():</span>&nbsp;</span><span class="r"><label for="ctxs3297" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t3298" href="#t3298">3298</a></span><span class="t"><span class="txt">    """reset the cuFile library and release the nvidia-fs driver</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3299" href="#t3299">3299</a></span><span class="t"><span class="txt">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3300" href="#t3300">3300</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3300"><span class="r"><label for="ctxs3300" class="ctx">29 ctx</label></span><span class="ctxs">1OQSUWY02468!$')+-utvw/qrnx:yA</span></p>
-    <p class="run"><span class="n"><a id="t3301" href="#t3301">3301</a></span><span class="t"><span class="txt">        status = cuFileDriverClose_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs3301"><span class="r"><label for="ctxs3301" class="ctx">29 ctx</label></span><span class="ctxs">1OQSUWY02468!$')+-utvw/qrnx:yA</span></p>
-    <p class="run"><span class="n"><a id="t3302" href="#t3302">3302</a></span><span class="t"><span class="txt">    check_status(status)</span>&nbsp;</span><input type="checkbox" id="ctxs3302"><span class="r"><label for="ctxs3302" class="ctx">29 ctx</label></span><span class="ctxs">1OQSUWY02468!$')+-utvw/qrnx:yA</span></p>
+    <p class="run"><span class="n"><a id="t3300" href="#t3300">3300</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs3300"><span class="r"><label for="ctxs3300" class="ctx">29 ctx</label></span><span class="ctxs">1PRTVGWY02468!$')+-tuv/qrnw:xz</span></p>
+    <p class="run"><span class="n"><a id="t3301" href="#t3301">3301</a></span><span class="t"><span class="txt">        status = cuFileDriverClose_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs3301"><span class="r"><label for="ctxs3301" class="ctx">29 ctx</label></span><span class="ctxs">1PRTVGWY02468!$')+-tuv/qrnw:xz</span></p>
+    <p class="run"><span class="n"><a id="t3302" href="#t3302">3302</a></span><span class="t"><span class="txt">    check_status(status)</span>&nbsp;</span><input type="checkbox" id="ctxs3302"><span class="r"><label for="ctxs3302" class="ctx">29 ctx</label></span><span class="ctxs">1PRTVGWY02468!$')+-tuv/qrnw:xz</span></p>
     <p class="pln"><span class="n"><a id="t3303" href="#t3303">3303</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3304" href="#t3304">3304</a></span><span class="t"><span class="txt">cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):</span>&nbsp;</span><span class="r"><label for="ctxs3304" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t3305" href="#t3305">3305</a></span><span class="t"><span class="txt">    """read data from a registered file handle to a specified device or host memory.</span>&nbsp;</span><span class="r"></span></p>
@@ -3513,7 +3513,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cycudla_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-09 02:15 +0000
+            created at 2026-07-10 01:22 +0000
         </p>
     </div>
 </footer>
