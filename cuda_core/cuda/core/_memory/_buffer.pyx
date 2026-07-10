@@ -87,15 +87,16 @@ cdef inline int _query_memory_attrs(
     cdef unsigned int memory_type = 0
     cdef int is_managed = 0
     cdef int device_id = 0
-    cdef cydriver.CUpointer_attribute attrs[3]
-    cdef uintptr_t vals[3]
-
-    attrs[0] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE
-    attrs[1] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED
-    attrs[2] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL
-    vals[0] = <uintptr_t><void*>&memory_type
-    vals[1] = <uintptr_t><void*>&is_managed
-    vals[2] = <uintptr_t><void*>&device_id
+    cdef cydriver.CUpointer_attribute[3] attrs = [
+        cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+        cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED,
+        cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+    ]
+    cdef uintptr_t[3] vals = [
+        <uintptr_t><void*>&memory_type,
+        <uintptr_t><void*>&is_managed,
+        <uintptr_t><void*>&device_id,
+    ]
 
     cdef cydriver.CUresult ret
     ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
