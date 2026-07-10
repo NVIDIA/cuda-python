@@ -1,0 +1,6 @@
+﻿cuda.core.typing.FilterModeType
+===============================
+
+.. currentmodule:: cuda.core.typing
+
+.. autoenum:: FilterModeType
