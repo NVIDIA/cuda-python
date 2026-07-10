@@ -220,6 +220,7 @@ def _host_compiler_is_unavailable(output: str) -> bool:
 
 
 def _build_saxpy_rdc(binaries_dir: Path) -> None:
+    """Use nvcc from PATH with the host compiler environment configured by the caller."""
     try:
         version_result = subprocess.run(
             ["nvcc", "--version"],  # noqa: S607 - PATH lookup is the behavior under test.
