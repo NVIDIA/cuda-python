@@ -28,7 +28,7 @@ def check_str_enum(value, enum_class, *, allow_none=False):
     """
     if allow_none and value is None:
         return
-    if value not in enum_class:
+    if value not in {m.value for m in enum_class}:
         valid = sorted(m.value for m in enum_class)
         if allow_none:
             valid = [None, *valid]
