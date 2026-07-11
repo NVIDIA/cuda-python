@@ -109,7 +109,7 @@ include-package-data = false
 [tool.setuptools.package-data]
 "*" = ["*.pxd", "*.pyi", "py.typed"]
 "cuda.core._include" = ["*.h", "*.hpp"]
-"cuda.core._cpp" = ["*.hpp"]
+"cuda.core._cpp" = ["*.h", "*.hpp"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
