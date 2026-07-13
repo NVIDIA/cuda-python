@@ -88,7 +88,7 @@
   "?": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[memcpy]|setup",
   "@": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[memcpy]|setup",
   "[": "tests/graph/test_graph_definition.py::test_node_type_property[memcpy]|setup",
-  "]": "tests/test_object_protocols.py::test_repr_format[sample_memcpy_node-<MemcpyNode handle=0x[0-9a-f]+ dst=0x[0-9a-f]+\\\\([DH]\\\\) src=0x[0-9a-f]+\\\\([DH]\\\\) size=\\\\d+>]|run",
+  "]": "tests/test_object_protocols.py::test_repr_format[sample_memcpy_node-\u003cMemcpyNode handle=0x[0-9a-f]+ dst=0x[0-9a-f]+\\\\([DH]\\\\) src=0x[0-9a-f]+\\\\([DH]\\\\) size=\\\\d+\u003e]|run",
   "^": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_memcpy_node]|run",
   "_": "tests/test_object_protocols.py::test_weakref_supported[sample_memcpy_node]|run",
   "`": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_free_node-sample_child_graph_node]|run",
@@ -244,7 +244,7 @@
   "4c": "tests/graph/test_graph_definition_lifetime.py::test_nested_child_graph_lifetime|run",
   "5c": "tests/graph/test_graph_definition_mutation.py::TestMutateYRig::test_baseline|run",
   "6c": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_empty_node-sample_free_node]|run",
-  "7c": "tests/test_object_protocols.py::test_repr_format[sample_memset_node-<MemsetNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ value=\\\\d+>]|run",
+  "7c": "tests/test_object_protocols.py::test_repr_format[sample_memset_node-\u003cMemsetNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ value=\\\\d+\u003e]|run",
   "8c": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_memset_node]|run",
   "9c": "tests/test_object_protocols.py::test_weakref_supported[sample_memset_node]|run",
   "!c": "tests/graph/test_graph_definition_lifetime.py::test_child_graph_survives_parent_deletion|run",
@@ -386,7 +386,7 @@
   "ue": "tests/graph/test_graph_definition_lifetime.py::test_reconstructed_body_survives_parent_deletion|run",
   "ve": "tests/graph/test_graph_definition_lifetime.py::test_slot_owners_released_after_graph_destroyed|run",
   "we": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_host_callback_node]|run",
-  "xe": "tests/test_object_protocols.py::test_repr_format[sample_child_graph_node-<ChildGraphNode handle=0x[0-9a-f]+ child=0x[0-9a-f]+>]|run",
+  "xe": "tests/test_object_protocols.py::test_repr_format[sample_child_graph_node-\u003cChildGraphNode handle=0x[0-9a-f]+ child=0x[0-9a-f]+\u003e]|run",
   "ye": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_child_graph_node]|run",
   "ze": "tests/test_object_protocols.py::test_weakref_supported[sample_child_graph_node]|run",
   "Ae": "tests/graph/test_graph_definition.py::test_edges[fan_in]|setup",
@@ -417,7 +417,7 @@
   "Ze": "tests/graph/test_graph_definition_lifetime.py::test_event_wait_node_keeps_event_alive|run",
   "0e": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_event_record_node]|run",
   "1e": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_alloc_node-sample_event_wait_node]|run",
-  "2e": "tests/test_object_protocols.py::test_repr_format[sample_empty_node-<EmptyNode handle=0x[0-9a-f]+>]|run",
+  "2e": "tests/test_object_protocols.py::test_repr_format[sample_empty_node-\u003cEmptyNode handle=0x[0-9a-f]+\u003e]|run",
   "3e": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_empty_node]|run",
   "4e": "tests/test_object_protocols.py::test_weakref_supported[sample_empty_node]|run",
   "5e": "tests/graph/test_graph_definition.py::test_alloc_free_chain|run",
@@ -476,7 +476,7 @@
   "vf": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_nodes[free]|setup",
   "wf": "tests/graph/test_graph_definition.py::test_node_type_preserved_by_pred_succ[free]|setup",
   "xf": "tests/graph/test_graph_definition.py::test_node_type_property[free]|setup",
-  "yf": "tests/test_object_protocols.py::test_repr_format[sample_free_node-<FreeNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+>]|run",
+  "yf": "tests/test_object_protocols.py::test_repr_format[sample_free_node-\u003cFreeNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+\u003e]|run",
   "zf": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_free_node]|run",
   "Af": "tests/test_object_protocols.py::test_weakref_supported[sample_free_node]|run",
   "Bf": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_if_else_node]|run",
@@ -646,10 +646,10 @@
   "nh": "tests/graph/test_graph_definition_lifetime.py::test_branches_survive_parent_deletion[if_else]|run",
   "oh": "tests/graph/test_graph_definition_lifetime.py::test_branches_survive_parent_deletion[switch]|run",
   "ph": "tests/graph/test_graph_definition_lifetime.py::test_branches_survive_parent_deletion[while]|run",
-  "qh": "tests/test_object_protocols.py::test_repr_format[sample_if_else_node-<IfElseNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+>]|run",
-  "rh": "tests/test_object_protocols.py::test_repr_format[sample_if_node-<IfNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+>]|run",
-  "sh": "tests/test_object_protocols.py::test_repr_format[sample_switch_node-<SwitchNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+>]|run",
-  "th": "tests/test_object_protocols.py::test_repr_format[sample_while_node-<WhileNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+>]|run",
+  "qh": "tests/test_object_protocols.py::test_repr_format[sample_if_else_node-\u003cIfElseNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+\u003e]|run",
+  "rh": "tests/test_object_protocols.py::test_repr_format[sample_if_node-\u003cIfNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+\u003e]|run",
+  "sh": "tests/test_object_protocols.py::test_repr_format[sample_switch_node-\u003cSwitchNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+\u003e]|run",
+  "th": "tests/test_object_protocols.py::test_repr_format[sample_while_node-\u003cWhileNode handle=0x[0-9a-f]+ condition=0x[0-9a-f]+\u003e]|run",
   "uh": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_if_else_node]|run",
   "vh": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_if_node]|run",
   "wh": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_switch_node]|run",
@@ -744,7 +744,7 @@
   "wi": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_alloc_node]|run",
   "xi": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_alloc_node]|run",
   "yi": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_alloc_node]|run",
-  "zi": "tests/test_object_protocols.py::test_repr_format[sample_kernel_node-<KernelNode handle=0x[0-9a-f]+ kernel=0x[0-9a-f]+>]|run",
+  "zi": "tests/test_object_protocols.py::test_repr_format[sample_kernel_node-\u003cKernelNode handle=0x[0-9a-f]+ kernel=0x[0-9a-f]+\u003e]|run",
   "Ai": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_alloc_node]|run",
   "Bi": "tests/test_object_protocols.py::test_usable_in_set[sample_alloc_node]|run",
   "Ci": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel_node]|run",
@@ -768,7 +768,7 @@
   "Ui": "tests/graph/test_graph_definition.py::test_succ[disconnected]|setup",
   "Vi": "tests/graph/test_graph_definition.py::test_succ[single]|setup",
   "Wi": "tests/graph/test_graph_definition_errors.py::test_unmatched_alloc_succeeds|run",
-  "Xi": "tests/test_object_protocols.py::test_repr_format[sample_alloc_node-<AllocNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ size=\\\\d+>]|run",
+  "Xi": "tests/test_object_protocols.py::test_repr_format[sample_alloc_node-\u003cAllocNode handle=0x[0-9a-f]+ dptr=0x[0-9a-f]+ size=\\\\d+\u003e]|run",
   "Yi": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_alloc_node]|run",
   "Zi": "tests/test_object_protocols.py::test_weakref_supported[sample_alloc_node]|run",
   "0i": "tests/graph/test_graph_definition.py::test_identity_preservation|run",
@@ -925,7 +925,7 @@
   "zk": "tests/graph/test_graph_definition_lifetime.py::test_cfunc_bytes_user_data_survives_del|run",
   "Ak": "tests/graph/test_graph_definition_lifetime.py::test_cfunc_callback_survives_del|run",
   "Bk": "tests/graph/test_graph_definition_lifetime.py::test_python_callable_callback_survives_del|run",
-  "Ck": "tests/test_object_protocols.py::test_repr_format[sample_host_callback_node-<HostCallbackNode handle=0x[0-9a-f]+ callback=\\\\w+>]|run",
+  "Ck": "tests/test_object_protocols.py::test_repr_format[sample_host_callback_node-\u003cHostCallbackNode handle=0x[0-9a-f]+ callback=\\\\w+\u003e]|run",
   "Dk": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_host_callback_node]|run",
   "Ek": "tests/test_object_protocols.py::test_weakref_supported[sample_host_callback_node]|run",
   "Fk": "tests/graph/test_graph_definition_lifetime.py::test_event_metadata_survives_gc|run",
@@ -934,8 +934,8 @@
   "Ik": "tests/graph/test_graph_definition_mutation.py::test_add_wrong_type|run",
   "Jk": "tests/graph/test_graph_definition_mutation.py::test_cross_graph_edge|run",
   "Kk": "tests/graph/test_graph_definition_mutation.py::test_self_edge|run",
-  "Lk": "tests/test_object_protocols.py::test_repr_format[sample_event_record_node-<EventRecordNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+>]|run",
-  "Mk": "tests/test_object_protocols.py::test_repr_format[sample_event_wait_node-<EventWaitNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+>]|run",
+  "Lk": "tests/test_object_protocols.py::test_repr_format[sample_event_record_node-\u003cEventRecordNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+\u003e]|run",
+  "Mk": "tests/test_object_protocols.py::test_repr_format[sample_event_wait_node-\u003cEventWaitNode handle=0x[0-9a-f]+ event=0x[0-9a-f]+\u003e]|run",
   "Nk": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_event_record_node]|run",
   "Ok": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_event_wait_node]|run",
   "Pk": "tests/test_object_protocols.py::test_weakref_supported[sample_event_record_node]|run",
@@ -1011,7 +1011,7 @@
   "wl": "tests/graph/test_graph_definition.py::test_node_type_property[switch]|run",
   "xl": "tests/graph/test_graph_definition.py::test_node_type_property[while_loop]|run",
   "yl": "tests/graph/test_graph_definition_lifetime.py::test_memcpy_buffer_and_dst_owner_rejected|run",
-  "zl": "tests/test_object_protocols.py::test_repr_format[sample_root_node-<GraphNode entry>]|run",
+  "zl": "tests/test_object_protocols.py::test_repr_format[sample_root_node-\u003cGraphNode entry\u003e]|run",
   "Al": "tests/graph/test_graph_definition.py::test_pred[disconnected]|run",
   "Bl": "tests/graph/test_graph_definition.py::test_pred[single]|run",
   "Cl": "tests/graph/test_graph_definition.py::test_succ[disconnected]|run",
@@ -1116,8 +1116,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_2f8b98bdecb6e8b7__host_callback_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-11 02:22 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
+            created at 2026-07-13 01:11 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -2255,8 +2255,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_2f8b98bdecb6e8b7__host_callback_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-11 02:22 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
+            created at 2026-07-13 01:11 +0000
         </p>
     </div>
 </footer>

@@ -153,9 +153,9 @@
   "2b": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
   "3b": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
   "4b": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
-  "5b": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
-  "6b": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
-  "7b": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  "5b": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex\u003cfloat\u003e-(1+2j)]|run",
+  "6b": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex\u003cdouble\u003e-(-3-4j)]|run",
+  "7b": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex\u003cdouble\u003e-(5-7j)]|run",
   "8b": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
   "9b": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
   "!b": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
@@ -362,8 +362,8 @@
   "{d": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_root_node-sample_kernel_node]|run",
   "|d": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_child_graph_node]|run",
   "}d": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel_node]|run",
-  "~d": "tests/test_object_protocols.py::test_repr_format[sample_child_graph_node-<ChildGraphNode handle=0x[0-9a-f]+ child=0x[0-9a-f]+>]|run",
-  "ae": "tests/test_object_protocols.py::test_repr_format[sample_kernel_node-<KernelNode handle=0x[0-9a-f]+ kernel=0x[0-9a-f]+>]|run",
+  "~d": "tests/test_object_protocols.py::test_repr_format[sample_child_graph_node-\u003cChildGraphNode handle=0x[0-9a-f]+ child=0x[0-9a-f]+\u003e]|run",
+  "ae": "tests/test_object_protocols.py::test_repr_format[sample_kernel_node-\u003cKernelNode handle=0x[0-9a-f]+ kernel=0x[0-9a-f]+\u003e]|run",
   "be": "tests/test_object_protocols.py::test_same_type_inequality[sample_child_graph_node-sample_child_graph_node_alt]|run",
   "ce": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel_node-sample_kernel_node_alt]|run",
   "de": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_child_graph_node]|run",
@@ -455,7 +455,7 @@
   "af": "tests/test_program.py::test_cpp_program_with_various_options[options35]|run",
   "bf": "tests/test_program.py::test_cpp_program_with_various_options[options36]|run",
   "cf": "tests/test_program.py::test_cpp_program_with_various_options[options37]|run",
-  "df": "tests/test_program.py::test_ptx_program_with_various_options[options2]|setup",
+  "df": "tests/test_program.py::test_ptx_program_with_various_options[options8]|setup",
   "ef": "tests/test_program_cache.py::test_cache_roundtrip_with_real_compilation|run",
   "ff": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|run",
   "gf": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|run",
@@ -476,7 +476,7 @@
   "vf": "tests/test_module.py::test_object_code_load_rdc_with_linker[object-from_object]|run",
   "wf": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
   "xf": "tests/test_object_protocols.py::test_equality_basic[sample_object_code_cubin]|run",
-  "yf": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-<lambda>]|run",
+  "yf": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-\u003clambda\u003e]|run",
   "zf": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
   "Af": "tests/test_object_protocols.py::test_hash_consistency[sample_object_code_cubin]|run",
   "Bf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
@@ -569,9 +569,9 @@
   "zg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code_cubin]|run",
   "Ag": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_object_code_cubin-cloudpickle]|run",
   "Bg": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_object_code_cubin-pickle]|run",
-  "Cg": "tests/test_object_protocols.py::test_repr_format[sample_kernel-<Kernel handle=0x[0-9a-f]+>]|run",
-  "Dg": "tests/test_object_protocols.py::test_repr_format[sample_object_code_cubin-<ObjectCode handle=0x[0-9a-f]+ code_type='cubin'>]|run",
-  "Eg": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ltoir-<ObjectCode handle=0x[0-9a-f]+ code_type='ltoir'>]|run",
+  "Cg": "tests/test_object_protocols.py::test_repr_format[sample_kernel-\u003cKernel handle=0x[0-9a-f]+\u003e]|run",
+  "Dg": "tests/test_object_protocols.py::test_repr_format[sample_object_code_cubin-\u003cObjectCode handle=0x[0-9a-f]+ code_type='cubin'\u003e]|run",
+  "Eg": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ltoir-\u003cObjectCode handle=0x[0-9a-f]+ code_type='ltoir'\u003e]|run",
   "Fg": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
   "Gg": "tests/test_object_protocols.py::test_same_type_inequality[sample_object_code_cubin-sample_object_code_alt]|run",
   "Hg": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel]|run",
@@ -612,10 +612,10 @@
   ")g": "tests/test_module.py::test_object_code_load_ptx_from_file[path]|run",
   "*g": "tests/test_module.py::test_object_code_load_ptx_from_file[str]|run",
   "+g": "tests/test_module.py::test_object_code_load_ptx|run",
-  ",g": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ptx-<ObjectCode handle=0x[0-9a-f]+ code_type='ptx'>]|run",
-  "-g": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-<Program backend='NVRTC'>]|run",
-  ".g": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-<Program backend='NVRTC'>]|teardown",
-  "/g": "tests/test_object_protocols.py::test_repr_format[sample_program_ptx-<Program backend='(nvJitLink|driver)'>]|run",
+  ",g": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ptx-\u003cObjectCode handle=0x[0-9a-f]+ code_type='ptx'\u003e]|run",
+  "-g": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|run",
+  ".g": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|teardown",
+  "/g": "tests/test_object_protocols.py::test_repr_format[sample_program_ptx-\u003cProgram backend='(nvJitLink|driver)'\u003e]|run",
   ":g": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_program_nvrtc]|run",
   ";g": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_program_nvrtc]|teardown",
   "=g": "tests/test_object_protocols.py::test_weakref_supported[sample_program_nvrtc]|run",
@@ -714,8 +714,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_nvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-11 02:22 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
+            created at 2026-07-13 01:11 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1461,8 +1461,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_1c6fa6fde3f60f5e_nvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-11 02:22 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
+            created at 2026-07-13 01:11 +0000
         </p>
     </div>
 </footer>

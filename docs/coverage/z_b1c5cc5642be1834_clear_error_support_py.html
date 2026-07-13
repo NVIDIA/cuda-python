@@ -139,9 +139,9 @@
   "Ob": "tests/test_launcher.py::test_launch_scalar_argument[c_uint-unsigned int-123456]|run",
   "Pb": "tests/test_launcher.py::test_launch_scalar_argument[c_ulong-unsigned long long-123456789]|run",
   "Qb": "tests/test_launcher.py::test_launch_scalar_argument[c_ushort-unsigned short-1234]|run",
-  "Rb": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex<float>-(1+2j)]|run",
-  "Sb": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex<double>-(-3-4j)]|run",
-  "Tb": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex<double>-(5-7j)]|run",
+  "Rb": "tests/test_launcher.py::test_launch_scalar_argument[complex64-cuda::std::complex\u003cfloat\u003e-(1+2j)]|run",
+  "Sb": "tests/test_launcher.py::test_launch_scalar_argument[complex128-cuda::std::complex\u003cdouble\u003e-(-3-4j)]|run",
+  "Tb": "tests/test_launcher.py::test_launch_scalar_argument[complex-cuda::std::complex\u003cdouble\u003e-(5-7j)]|run",
   "Ub": "tests/test_launcher.py::test_launch_scalar_argument[float16-half-0.78]|run",
   "Vb": "tests/test_launcher.py::test_launch_scalar_argument[float32-float-3.14]|run",
   "Wb": "tests/test_launcher.py::test_launch_scalar_argument[float64-double-2.718]|run",
@@ -327,7 +327,7 @@
   "Yd": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
   "Zd": "tests/test_object_protocols.py::test_equality_basic[sample_kernel_node]|run",
   "0d": "tests/test_object_protocols.py::test_equality_basic[sample_object_code_cubin]|run",
-  "1d": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-<lambda>]|run",
+  "1d": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-\u003clambda\u003e]|run",
   "2d": "tests/test_object_protocols.py::test_hash_consistency[sample_child_graph_node]|run",
   "3d": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
   "4d": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel_node]|run",
@@ -518,12 +518,12 @@
   "#f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code_cubin]|run",
   "$f": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_object_code_cubin-cloudpickle]|run",
   "%f": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_object_code_cubin-pickle]|run",
-  "'f": "tests/test_object_protocols.py::test_repr_format[sample_child_graph_node-<ChildGraphNode handle=0x[0-9a-f]+ child=0x[0-9a-f]+>]|run",
-  "(f": "tests/test_object_protocols.py::test_repr_format[sample_kernel-<Kernel handle=0x[0-9a-f]+>]|run",
-  ")f": "tests/test_object_protocols.py::test_repr_format[sample_kernel_node-<KernelNode handle=0x[0-9a-f]+ kernel=0x[0-9a-f]+>]|run",
-  "*f": "tests/test_object_protocols.py::test_repr_format[sample_object_code_cubin-<ObjectCode handle=0x[0-9a-f]+ code_type='cubin'>]|run",
-  "+f": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ltoir-<ObjectCode handle=0x[0-9a-f]+ code_type='ltoir'>]|run",
-  ",f": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-<Program backend='NVRTC'>]|run",
+  "'f": "tests/test_object_protocols.py::test_repr_format[sample_child_graph_node-\u003cChildGraphNode handle=0x[0-9a-f]+ child=0x[0-9a-f]+\u003e]|run",
+  "(f": "tests/test_object_protocols.py::test_repr_format[sample_kernel-\u003cKernel handle=0x[0-9a-f]+\u003e]|run",
+  ")f": "tests/test_object_protocols.py::test_repr_format[sample_kernel_node-\u003cKernelNode handle=0x[0-9a-f]+ kernel=0x[0-9a-f]+\u003e]|run",
+  "*f": "tests/test_object_protocols.py::test_repr_format[sample_object_code_cubin-\u003cObjectCode handle=0x[0-9a-f]+ code_type='cubin'\u003e]|run",
+  "+f": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ltoir-\u003cObjectCode handle=0x[0-9a-f]+ code_type='ltoir'\u003e]|run",
+  ",f": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|run",
   "-f": "tests/test_object_protocols.py::test_same_type_inequality[sample_child_graph_node-sample_child_graph_node_alt]|run",
   ".f": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
   "/f": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel_node-sample_kernel_node_alt]|run",
@@ -609,13 +609,13 @@
   "%g": "tests/test_program.py::test_ptx_program_with_various_options[options0]|run",
   "'g": "tests/test_program.py::test_ptx_program_with_various_options[options1]|run",
   "(g": "tests/test_program.py::test_ptx_program_with_various_options[options2]|run",
-  ")g": "tests/test_program.py::test_ptx_program_with_various_options[options2]|setup",
-  "*g": "tests/test_program.py::test_ptx_program_with_various_options[options3]|run",
-  "+g": "tests/test_program.py::test_ptx_program_with_various_options[options4]|run",
-  ",g": "tests/test_program.py::test_ptx_program_with_various_options[options5]|run",
-  "-g": "tests/test_program.py::test_ptx_program_with_various_options[options6]|run",
-  ".g": "tests/test_program.py::test_ptx_program_with_various_options[options7]|run",
-  "/g": "tests/test_program.py::test_ptx_program_with_various_options[options8]|run",
+  ")g": "tests/test_program.py::test_ptx_program_with_various_options[options3]|run",
+  "*g": "tests/test_program.py::test_ptx_program_with_various_options[options4]|run",
+  "+g": "tests/test_program.py::test_ptx_program_with_various_options[options5]|run",
+  ",g": "tests/test_program.py::test_ptx_program_with_various_options[options6]|run",
+  "-g": "tests/test_program.py::test_ptx_program_with_various_options[options7]|run",
+  ".g": "tests/test_program.py::test_ptx_program_with_various_options[options8]|run",
+  "/g": "tests/test_program.py::test_ptx_program_with_various_options[options8]|setup",
   ":g": "tests/test_program.py::test_ptx_program_with_various_options[options9]|run",
   ";g": "tests/test_program_cache.py::test_cache_roundtrip_with_real_compilation|run",
   "=g": "tests/test_program_compile_cache.py::test_cache_accepts_empty_name_expressions|run",
@@ -696,8 +696,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-11 02:22 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
+            created at 2026-07-13 01:11 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -743,8 +743,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_b1c5cc5642be1834_driver_cu_result_explanations_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.0">coverage.py v7.15.0</a>,
-            created at 2026-07-11 02:22 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
+            created at 2026-07-13 01:11 +0000
         </p>
     </div>
 </footer>
