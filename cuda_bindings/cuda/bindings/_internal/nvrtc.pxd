@@ -4,6 +4,7 @@
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1c512204cd635031a07589fb651b8a44584a9ec1b670efd33db175fd033d1dc9
 from ..cynvrtc cimport *
 
 

@@ -3,6 +3,7 @@
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=812e2cbe43c7944dd759085cbe7beb7c37dd6389c433ecf879e584248e867cbd
 from libc.stdint cimport uint32_t, uint64_t
 
 include "cyruntime_types.pxi"

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=61af0372d09a2cd574c4c1e6ba8f3412828209f65c8fdb2acdd18ad9a300146d
 cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cython
 
