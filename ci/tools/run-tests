@@ -162,10 +162,18 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
         psutil cffi pytest-xdist pytest-benchmark filecheck ml_dtypes statistics
       )
     elif [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then
-      echo "Installing pathfinder + bindings + core + numba-cuda-mlir"
+      echo "Installing pathfinder + bindings + core + numba-cuda-mlir + cupy"
       # numpy<2.5: numba-cuda-mlir 0.4.0 registers np.row_stack, which was
       # removed in NumPy 2.5. See NVIDIA/numba-cuda-mlir#154.
-      PIP_ARGS+=("numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]" "numpy<2.5")
+      # curand/cublas + cupy: some numba-cuda-mlir tests (e.g.
+      # test_fortran_contiguous) call cp.random, which dlopens libcurand at
+      # runtime. Mirror the numba-cuda branch, which installs the same libs.
+      PIP_ARGS+=(
+        "numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]"
+        "numpy<2.5"
+        "cuda-toolkit[curand,cublas]==${CUDA_VER_MINOR}.*"
+        "cupy-cuda${TEST_CUDA_MAJOR}x"
+      )
     fi
 
     pip install "${PIP_ARGS[@]}"

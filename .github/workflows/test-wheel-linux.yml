@@ -465,7 +465,7 @@ jobs:
           # tests get run automatically. If they still fail on the newer
           # version we hear about it loudly (rather than silently masking).
           DESELECTS=()
-          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${NUMBA_CUDA_MLIR_VER}') <= Version('0.4.0') else 1)"; then
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${NUMBA_CUDA_MLIR_VER}') <= Version('0.4.1') else 1)"; then
             # NVIDIA/numba-cuda-mlir#135: serial-pytest contamination of
             # numba_cuda_mlir.cuda.cudadrv from an xfailed test in
             # test_nrt_comprehensive.py contaminates any later test that
