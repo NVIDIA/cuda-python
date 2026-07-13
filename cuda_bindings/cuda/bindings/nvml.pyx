@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fc7f9f6085964bcb1695f1a7ab9f9a8f1497bac9656947cb19c257533342fbfb
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e47a16bd9956de14a991ded5d1aef667cdd26a141e27db5b2015b91be6918d3c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -840,7 +840,7 @@ class GpmMetricId(_cyb_FastEnum):
     GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0 */`.')
+    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. 0.0 - 100.0 *\u200d/.')
     GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
     GPM_METRIC_FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
     GPM_METRIC_FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
@@ -25091,7 +25091,7 @@ cpdef int device_get_virtualization_mode(intptr_t device) except? -1:
         device (intptr_t): Identifier of the target device.
 
     Returns:
-        int: Reference to virtualization mode. One of ``NVML_GPU_VIRTUALIZATION_?``.
+        int: Reference to virtualization mode. One of NVML_GPU_VIRTUALIZATION_?.
 
     .. seealso:: `nvmlDeviceGetVirtualizationMode`
     """
@@ -25125,7 +25125,7 @@ cpdef device_set_virtualization_mode(intptr_t device, int virtual_mode):
 
     Args:
         device (intptr_t): Identifier of the target device.
-        virtual_mode (GpuVirtualizationMode): virtualization mode. One of ``NVML_GPU_VIRTUALIZATION_?``.
+        virtual_mode (GpuVirtualizationMode): virtualization mode. One of NVML_GPU_VIRTUALIZATION_?.
 
     .. seealso:: `nvmlDeviceSetVirtualizationMode`
     """
