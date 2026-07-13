@@ -102,7 +102,8 @@ linux:
     # nightly-cuda-core (released cuda-core from PyPI against main pathfinder/bindings)
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-cuda-core' } }
     # nightly-standard (arm64 nightly-only runners — per runner team request)
-    - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gh200',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
+    - { ARCH: 'arm64', PY_VER: '3.13',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gh200',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
+    - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gb300',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
     - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
     - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
 
