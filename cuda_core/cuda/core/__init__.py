@@ -109,6 +109,51 @@ from cuda.core._stream import (
 )
 from cuda.core._tensor_map import TensorMapDescriptor, TensorMapDescriptorOptions
 
+# Flat public API of the ``cuda.core`` namespace. Submodule namespaces
+# (``checkpoint``, ``graph``, ``system``, ``texture``, ``utils``) carry their
+# own ``__all__`` and are intentionally not re-listed here.
+__all__ = [
+    "LEGACY_DEFAULT_STREAM",
+    "PER_THREAD_DEFAULT_STREAM",
+    "Buffer",
+    "Context",
+    "ContextOptions",
+    "Device",
+    "DeviceMemoryResource",
+    "DeviceMemoryResourceOptions",
+    "DeviceResources",
+    "Event",
+    "EventOptions",
+    "GraphMemoryResource",
+    "GraphicsResource",
+    "Host",
+    "Kernel",
+    "LaunchConfig",
+    "LegacyPinnedMemoryResource",
+    "Linker",
+    "LinkerOptions",
+    "ManagedBuffer",
+    "ManagedMemoryResource",
+    "ManagedMemoryResourceOptions",
+    "MemoryResource",
+    "ObjectCode",
+    "PinnedMemoryResource",
+    "PinnedMemoryResourceOptions",
+    "Program",
+    "ProgramOptions",
+    "SMResource",
+    "SMResourceOptions",
+    "Stream",
+    "StreamOptions",
+    "TensorMapDescriptor",
+    "TensorMapDescriptorOptions",
+    "VirtualMemoryResource",
+    "VirtualMemoryResourceOptions",
+    "WorkqueueResource",
+    "WorkqueueResourceOptions",
+    "launch",
+]
+
 # isort: split
 # Texture/surface types live under the cuda.core.texture namespace (not the
 # flat cuda.core namespace); import the subpackage so it is available as
