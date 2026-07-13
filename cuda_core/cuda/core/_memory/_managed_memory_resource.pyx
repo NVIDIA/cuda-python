@@ -21,6 +21,9 @@ import warnings
 from cuda.core._memory._managed_buffer import ManagedBuffer
 from cuda.core.typing import ManagedMemoryLocationType
 
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._utils.validators import check_str_enum
+
 if TYPE_CHECKING:
     from cuda.core.graph import GraphBuilder
 
@@ -163,9 +166,6 @@ cdef class ManagedMemoryResource(_MemPool):
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    cdef tuple _VALID_LOCATION_TYPES = ("device", "host", "host_numa")
-
-
     cdef _resolve_preferred_location(ManagedMemoryResourceOptions opts):
         """Resolve preferred location options into driver and stored values.
 
@@ -175,11 +175,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef object pref_loc = opts.preferred_location if opts is not None else None
         cdef object pref_type = opts.preferred_location_type if opts is not None else None
 
-        if pref_type is not None and pref_type not in _VALID_LOCATION_TYPES:
-            raise ValueError(
-                f"preferred_location_type must be one of {_VALID_LOCATION_TYPES!r} "
-                f"or None, got {pref_type!r}"
-            )
+        check_str_enum(pref_type, ManagedMemoryLocationType, allow_none=True)
 
         if pref_type is None:
             # Legacy behavior

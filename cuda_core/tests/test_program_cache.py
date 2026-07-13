@@ -321,7 +321,9 @@ def test_make_program_cache_key_rejects_extra_sources_outside_nvvm(code_type, co
 @pytest.mark.parametrize(
     "kwargs, exc_type, match",
     [
-        pytest.param({"code_type": "fortran"}, ValueError, "code_type", id="unknown_code_type"),
+        pytest.param(
+            {"code_type": "fortran"}, ValueError, "'fortran' is not a valid SourceCodeType", id="unknown_code_type"
+        ),
         pytest.param({"target_type": "exe"}, ValueError, "target_type", id="unknown_target_type"),
         pytest.param({"code": 12345}, TypeError, "code", id="non_str_bytes_code"),
         # Backend-specific target matrix -- Program.compile rejects these

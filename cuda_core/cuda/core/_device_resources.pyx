@@ -21,6 +21,7 @@ from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle, as_cu, g
 from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
 from cuda.core._utils.cuda_utils import is_sequence
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
+from cuda.core._utils.validators import check_str_enum
 
 
 __all__ = [
@@ -147,11 +148,8 @@ cdef class WorkqueueResourceOptions:
     concurrency_limit: int | None = None
 
     def __post_init__(self):
-        if self.sharing_scope not in (None, "device_ctx", "green_ctx_balanced"):
-            raise ValueError(
-                f"Unknown sharing_scope: {self.sharing_scope!r}. "
-                "Expected 'device_ctx' or 'green_ctx_balanced'."
-            )
+        from cuda.core.typing import WorkqueueSharingScopeType
+        check_str_enum(self.sharing_scope, WorkqueueSharingScopeType, allow_none=True)
         if self.concurrency_limit is not None and self.concurrency_limit < 1:
             raise ValueError(
                 f"concurrency_limit must be >= 1, got {self.concurrency_limit}"
