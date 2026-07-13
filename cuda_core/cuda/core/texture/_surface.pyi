@@ -14,8 +14,10 @@ class SurfaceObject:
     ``is_surface_load_store=True`` and is kept alive for the lifetime of this
     object to prevent dangling handles.
 
-    Construct via :meth:`from_array` or :meth:`from_descriptor`. Passes to
+    Construct via :meth:`cuda.core.Device.create_surface_object`. Passes to
     kernels as a 64-bit handle (via the ``handle`` property).
+
+    .. versionadded:: 1.1.0
     """
 
     def close(self):
@@ -28,25 +30,6 @@ class SurfaceObject:
 
     def __init__(self, *args, **kwargs):
         ...
-
-    @classmethod
-    def from_array(cls, array):
-        """Create a surface object directly from an :class:`OpaqueArray`.
-
-        The array must have been created with ``is_surface_load_store=True``.
-        """
-
-    @classmethod
-    def from_descriptor(cls, *, resource):
-        """Create a surface object from a :class:`ResourceDescriptor`.
-
-        Parameters
-        ----------
-        resource : ResourceDescriptor
-            Must wrap an :class:`OpaqueArray` allocated with
-            ``is_surface_load_store=True``. Linear/pitch2d resources are not
-            valid surface backings.
-        """
 
     @property
     def handle(self):
@@ -68,3 +51,12 @@ class SurfaceObject:
 
     def __repr__(self):
         ...
+
+def _create_surface_object(resource):
+    """Create a :class:`SurfaceObject` on the current device.
+
+    Backs :meth:`cuda.core.Device.create_surface_object`. ``resource`` must be a
+    :class:`ResourceDescriptor` wrapping an :class:`OpaqueArray` allocated with
+    ``is_surface_load_store=True``; linear/pitch2d resources are not valid
+    surface backings.
+    """

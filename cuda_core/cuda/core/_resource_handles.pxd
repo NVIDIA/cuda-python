@@ -57,6 +57,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const TexObjectValue] TexObjectHandle
     ctypedef shared_ptr[const SurfObjectValue] SurfObjectHandle
 
+    # Type-erased shared owner for resources attached to graph node slots.
+    # Typed handles above assign directly to an OpaqueHandle (shared control
+    # block); make_opaque_py / make_opaque_malloc cover the two cases needing a
+    # custom deleter.
+    ctypedef shared_ptr[const void] OpaqueHandle
+
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
     cydriver.CUgreenCtx as_cu(GreenCtxHandle h) noexcept nogil
@@ -222,6 +228,13 @@ cdef LibraryHandle get_kernel_library(const KernelHandle& h) noexcept nogil
 # Graph handles
 cdef GraphHandle create_graph_handle(cydriver.CUgraph graph) except+ nogil
 cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
+
+# Graph slot attachments
+cdef OpaqueHandle make_opaque_py(object obj) except+
+cdef OpaqueHandle make_opaque_malloc(void* buf) except+
+cdef cydriver.CUresult graph_set_slot(
+    const GraphHandle& h_graph, cydriver.CUgraphNode node,
+    unsigned int slot, OpaqueHandle owner) except+
 
 # Graph exec handles
 cdef GraphExecHandle create_graph_exec_handle(cydriver.CUgraphExec graph_exec) except+ nogil

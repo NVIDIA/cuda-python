@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 # This module implements basic PEP 517 backend support to defer CUDA-dependent
 # logic (header parsing, code generation, cythonization) to build time. See:
@@ -400,7 +400,10 @@ def _build_cuda_bindings(debug=False):
         os.path.dirname(sysconfig.get_path("include")),
     ] + include_path_list
     library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
-    cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
+    if sys.platform == "win32":
+        cudalib_subdirs = [r"lib\arm64"] if sysconfig.get_platform() == "win-arm64" else [r"lib\x64"]
+    else:
+        cudalib_subdirs = ["lib64", "lib"]
     library_dirs.extend(os.path.join(cuda_path, subdir) for subdir in cudalib_subdirs)
 
     extra_compile_args = []

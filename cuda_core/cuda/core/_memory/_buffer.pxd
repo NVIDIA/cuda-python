@@ -2,13 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport uintptr_t
 from libcpp cimport bool as cpp_bool
-from libcpp.atomic cimport atomic as std_atomic, memory_order_acquire, memory_order_release
+from libcpp.atomic cimport atomic as std_atomic
 
-from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport DevicePtrHandle
-from cuda.core._stream cimport Stream
 
 
 cdef struct _MemAttrs:
@@ -47,10 +44,3 @@ cdef Buffer Buffer_from_deviceptr_handle(
     object ipc_descriptor = *,
     type cls = *,
 )
-
-# Memory attribute query helpers (used by _managed_memory_ops)
-cdef void _init_mem_attrs(Buffer self)
-cdef int _query_memory_attrs(
-    _MemAttrs& out,
-    cydriver.CUdeviceptr ptr,
-) except -1 nogil

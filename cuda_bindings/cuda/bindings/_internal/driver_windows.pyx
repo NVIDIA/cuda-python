@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1622+g48467ab08.d20260421. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=51232c67845ad8bb70e4d63f8f48ed1246b27d371b929f229fa09c27b23235c8
 from libc.stdint cimport intptr_t
 
 import os
@@ -103,6 +104,8 @@ cdef void* __cuDevicePrimaryCtxRelease_v2 = NULL
 cdef void* __cuDevicePrimaryCtxSetFlags_v2 = NULL
 cdef void* __cuDevicePrimaryCtxGetState = NULL
 cdef void* __cuDevicePrimaryCtxReset_v2 = NULL
+cdef void* __cuCtxCreate_v2 = NULL
+cdef void* __cuCtxCreate_v3 = NULL
 cdef void* __cuCtxCreate_v4 = NULL
 cdef void* __cuCtxDestroy_v2 = NULL
 cdef void* __cuCtxPushCurrent_v2 = NULL
@@ -291,6 +294,7 @@ cdef void* __cuStreamBeginCaptureToGraph = NULL
 cdef void* __cuThreadExchangeStreamCaptureMode = NULL
 cdef void* __cuStreamEndCapture = NULL
 cdef void* __cuStreamIsCapturing = NULL
+cdef void* __cuStreamGetCaptureInfo_v2 = NULL
 cdef void* __cuStreamGetCaptureInfo_v3 = NULL
 cdef void* __cuStreamUpdateCaptureDependencies_v2 = NULL
 cdef void* __cuStreamAttachMemAsync = NULL
@@ -706,6 +710,12 @@ cdef int _init_driver() except -1 nogil:
 
         global __cuDevicePrimaryCtxReset_v2
         _F_cuGetProcAddress_v2('cuDevicePrimaryCtxReset', <void **>&__cuDevicePrimaryCtxReset_v2, 11000, ptds_mode, NULL)
+
+        global __cuCtxCreate_v2
+        _F_cuGetProcAddress_v2('cuCtxCreate', <void **>&__cuCtxCreate_v2, 3020, ptds_mode, NULL)
+
+        global __cuCtxCreate_v3
+        _F_cuGetProcAddress_v2('cuCtxCreate', <void **>&__cuCtxCreate_v3, 11040, ptds_mode, NULL)
 
         global __cuCtxCreate_v4
         _F_cuGetProcAddress_v2('cuCtxCreate', <void **>&__cuCtxCreate_v4, 12050, ptds_mode, NULL)
@@ -1270,6 +1280,9 @@ cdef int _init_driver() except -1 nogil:
 
         global __cuStreamIsCapturing
         _F_cuGetProcAddress_v2('cuStreamIsCapturing', <void **>&__cuStreamIsCapturing, 10000, ptds_mode, NULL)
+
+        global __cuStreamGetCaptureInfo_v2
+        _F_cuGetProcAddress_v2('cuStreamGetCaptureInfo', <void **>&__cuStreamGetCaptureInfo_v2, 11030, ptds_mode, NULL)
 
         global __cuStreamGetCaptureInfo_v3
         _F_cuGetProcAddress_v2('cuStreamGetCaptureInfo', <void **>&__cuStreamGetCaptureInfo_v3, 12030, ptds_mode, NULL)
@@ -2270,6 +2283,12 @@ cpdef dict _inspect_function_pointers():
     global __cuDevicePrimaryCtxReset_v2
     data["__cuDevicePrimaryCtxReset_v2"] = <intptr_t>__cuDevicePrimaryCtxReset_v2
 
+    global __cuCtxCreate_v2
+    data["__cuCtxCreate_v2"] = <intptr_t>__cuCtxCreate_v2
+
+    global __cuCtxCreate_v3
+    data["__cuCtxCreate_v3"] = <intptr_t>__cuCtxCreate_v3
+
     global __cuCtxCreate_v4
     data["__cuCtxCreate_v4"] = <intptr_t>__cuCtxCreate_v4
 
@@ -2833,6 +2852,9 @@ cpdef dict _inspect_function_pointers():
 
     global __cuStreamIsCapturing
     data["__cuStreamIsCapturing"] = <intptr_t>__cuStreamIsCapturing
+
+    global __cuStreamGetCaptureInfo_v2
+    data["__cuStreamGetCaptureInfo_v2"] = <intptr_t>__cuStreamGetCaptureInfo_v2
 
     global __cuStreamGetCaptureInfo_v3
     data["__cuStreamGetCaptureInfo_v3"] = <intptr_t>__cuStreamGetCaptureInfo_v3
@@ -4000,6 +4022,26 @@ cdef CUresult _cuDevicePrimaryCtxReset_v2(CUdevice dev) except ?CUDA_ERROR_NOT_F
             raise FunctionNotFoundError("function cuDevicePrimaryCtxReset_v2 is not found")
     return (<CUresult (*)(CUdevice) noexcept nogil>__cuDevicePrimaryCtxReset_v2)(
         dev)
+
+
+cdef CUresult _cuCtxCreate_v2(CUcontext* pctx, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCtxCreate_v2
+    _check_or_init_driver()
+    if __cuCtxCreate_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuCtxCreate_v2 is not found")
+    return (<CUresult (*)(CUcontext*, unsigned int, CUdevice) noexcept nogil>__cuCtxCreate_v2)(
+        pctx, flags, dev)
+
+
+cdef CUresult _cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int numParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCtxCreate_v3
+    _check_or_init_driver()
+    if __cuCtxCreate_v3 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuCtxCreate_v3 is not found")
+    return (<CUresult (*)(CUcontext*, CUexecAffinityParam*, int, unsigned int, CUdevice) noexcept nogil>__cuCtxCreate_v3)(
+        pctx, paramsArray, numParams, flags, dev)
 
 
 cdef CUresult _cuCtxCreate_v4(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -5880,6 +5922,16 @@ cdef CUresult _cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* capt
             raise FunctionNotFoundError("function cuStreamIsCapturing is not found")
     return (<CUresult (*)(CUstream, CUstreamCaptureStatus*) noexcept nogil>__cuStreamIsCapturing)(
         hStream, captureStatus)
+
+
+cdef CUresult _cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamGetCaptureInfo_v2
+    _check_or_init_driver()
+    if __cuStreamGetCaptureInfo_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuStreamGetCaptureInfo_v2 is not found")
+    return (<CUresult (*)(CUstream, CUstreamCaptureStatus*, cuuint64_t*, CUgraph*, const CUgraphNode**, size_t*) noexcept nogil>__cuStreamGetCaptureInfo_v2)(
+        hStream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out)
 
 
 cdef CUresult _cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:

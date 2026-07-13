@@ -61,21 +61,18 @@ This project uses [pre-commit.ci](https://pre-commit.ci/) with GitHub Actions. A
 To set yourself up for running pre-commit checks locally and to catch issues before pushing your changes, follow these steps:
 
 * Install pre-commit with: `pip install pre-commit`
+* Run this once per checkout: `pre-commit install`
 * You can manually check all files at any time by running: `pre-commit run --all-files`
 
 This command runs all configured hooks (such as linters and formatters) across your repository, letting you review and address issues before committing.
 
-**Optional: Enable automatic checks on every commit**
-If you want pre-commit hooks to run automatically each time you make a commit, install the git hook with:
-
-`pre-commit install`
-
-This sets up a git pre-commit hook so that all configured checks will run before each commit is accepted. If any hook fails, the commit will be blocked until the issues are resolved.
-
-**Note on workflow flexibility**
-Some contributors prefer to commit intermediate or work-in-progress changes that may not pass all pre-commit checks, and only clean up their commits before pushing (for example, by squashing and running `pre-commit run --all-files` manually at the end). If this fits your workflow, you may choose not to run `pre-commit install` and instead rely on manual checks. This approach avoids disruption during iterative development, while still ensuring code quality before code is shared or merged.
-
-Choose the setup that best fits your workflow and development style.
+Installing the hook is required, not optional. Some of the automated checks
+(the SPDX header updater and the `.pyi` stub generator for `cuda_core`) only
+keep the tree consistent if they run on *every* commit. Relying on manual
+`pre-commit run --all-files` invocations means these checks can be skipped
+between commits, leaving stale headers or out-of-date stubs in the history.
+If the hook isn't installed, `pre-commit run` (and CI) will print a visible
+warning reminding you to run `pre-commit install`.
 
 
 ## Signing Your Work

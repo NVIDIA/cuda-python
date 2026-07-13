@@ -21,15 +21,19 @@ CUDA runtime
    _module.KernelOccupancy
    _module.MaxPotentialBlockSizeOccupancyResult
    _module.ParamInfo
+   typing.AddressModeType
+   typing.ArrayFormatType
    typing.CompilerBackendType
    typing.DevicePointerType
    typing.DeviceResourcesType
+   typing.FilterModeType
    typing.GraphConditionalType
    typing.GraphMemoryType
    typing.ManagedMemoryLocationType
    typing.ObjectCodeFormatType
    typing.PCHStatusType
    typing.ProcessStateType
+   typing.ReadModeType
    typing.SourceCodeType
    typing.VirtualMemoryAccessType
    typing.VirtualMemoryAllocationType

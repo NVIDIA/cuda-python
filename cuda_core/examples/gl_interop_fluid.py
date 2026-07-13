@@ -108,15 +108,15 @@ from cuda.core import (
     launch,
 )
 from cuda.core.texture import (
-    AddressMode,
-    ArrayFormat,
-    FilterMode,
-    OpaqueArray,
-    ReadMode,
+    OpaqueArrayOptions,
     ResourceDescriptor,
-    SurfaceObject,
-    TextureDescriptor,
-    TextureObject,
+    TextureObjectOptions,
+)
+from cuda.core.typing import (
+    AddressModeType,
+    ArrayFormatType,
+    FilterModeType,
+    ReadModeType,
 )
 
 # ---------------------------------------------------------------------------
@@ -398,13 +398,13 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 # ============================ API MAP (cuda.core) ===========================
 #
 # The three helpers below are where every OpaqueArray / ResourceDescriptor /
-# TextureDescriptor / TextureObject / SurfaceObject knob in this example is set.
+# TextureObjectOptions / TextureObject / SurfaceObject knob in this example is set.
 # Each visible setting maps to a concrete piece of cuda.core / CUDA behavior:
 #
-#   OpaqueArray.from_descriptor(...)   -> allocates a CUDA *array* (opaque, tiled
+#   Device.create_opaque_array(...)  -> allocates a CUDA *array* (opaque, tiled
 #                                       layout optimized for 2D texture fetches),
 #                                       not linear device memory.
-#   ArrayFormat.FLOAT32              -> each channel is a 32-bit float texel.
+#   ArrayFormatType.FLOAT32          -> each channel is a 32-bit float texel.
 #   num_channels=2 / num_channels=1  -> float2 (vx, vy) vs scalar (pressure /
 #                                       divergence / dye); also fixes the
 #                                       surf2Dwrite byte offset per element.
@@ -414,22 +414,22 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 #                                       is what lets each field be sampled and
 #                                       then written back in the ping-pong.
 #
-#   ResourceDescriptor.from_array(arr) -> wraps the OpaqueArray as the resource a
-#                                         TextureObject reads from.
-#   FilterMode.LINEAR                -> free HARDWARE bilinear interpolation;
+#   ResourceDescriptor.from_opaque_array -> wraps the OpaqueArray as the resource a
+#                                           TextureObject reads from.
+#   FilterModeType.LINEAR            -> free HARDWARE bilinear interpolation;
 #                                       this is what makes semi-Lagrangian
 #                                       advection a single tex2D fetch at a
 #                                       fractional back-traced position (no
 #                                       manual lerp, no neighbor gather).
-#   AddressMode.CLAMP                -> bounded box boundary: out-of-range traces
+#   AddressModeType.CLAMP            -> bounded box boundary: out-of-range traces
 #                                       read the edge texel (ink piles up at the
 #                                       walls instead of wrapping like a torus).
-#   ReadMode.ELEMENT_TYPE            -> return the stored float value as-is (no
+#   ReadModeType.ELEMENT_TYPE        -> return the stored float value as-is (no
 #                                       integer->[0,1] normalization of texels).
 #   normalized_coords=True           -> sample in [0, 1) so CLAMP is well-defined
 #                                       and texel centers are (i + 0.5) / N.
 #
-#   SurfaceObject.from_array(arr)    -> binds the array for surf2Dread/surf2Dwrite.
+#   make_surface(arr)                -> binds the array for surf2Dread/surf2Dwrite.
 #                                       The x coordinate is in BYTES, so it is
 #                                       x * sizeof(elem): sizeof(float2)=8 for
 #                                       velocity, sizeof(float)=4 for the scalars.
@@ -438,21 +438,25 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 
 def make_velocity_array():
     """Allocate a `float2` velocity CUDA array (channel 0 = vx, channel 1 = vy)."""
-    return OpaqueArray.from_descriptor(
-        shape=(WIDTH, HEIGHT),
-        format=ArrayFormat.FLOAT32,
-        num_channels=2,
-        is_surface_load_store=True,
+    return Device().create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(WIDTH, HEIGHT),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=2,
+            is_surface_load_store=True,
+        )
     )
 
 
 def make_scalar_array():
     """Allocate a single-channel `float` CUDA array (pressure / divergence / dye)."""
-    return OpaqueArray.from_descriptor(
-        shape=(WIDTH, HEIGHT),
-        format=ArrayFormat.FLOAT32,
-        num_channels=1,
-        is_surface_load_store=True,
+    return Device().create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(WIDTH, HEIGHT),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=1,
+            is_surface_load_store=True,
+        )
     )
 
 
@@ -464,11 +468,13 @@ def make_color_array():
     surface-write machinery as the scalar fields -- only the channel count
     (and the surf2Dwrite byte stride, sizeof(float4) = 16) differ.
     """
-    return OpaqueArray.from_descriptor(
-        shape=(WIDTH, HEIGHT),
-        format=ArrayFormat.FLOAT32,
-        num_channels=4,
-        is_surface_load_store=True,
+    return Device().create_opaque_array(
+        OpaqueArrayOptions(
+            shape=(WIDTH, HEIGHT),
+            format=ArrayFormatType.FLOAT32,
+            num_channels=4,
+            is_surface_load_store=True,
+        )
     )
 
 
@@ -479,16 +485,22 @@ def make_texture(arr):
     needs the bilinear interpolation, and the stencil reads (divergence, Jacobi,
     gradient) sample exactly at texel centers so LINEAR returns the exact value.
     """
-    res_desc = ResourceDescriptor.from_array(arr)
-    tex_desc = TextureDescriptor(
-        address_mode=AddressMode.CLAMP,
-        filter_mode=FilterMode.LINEAR,
-        read_mode=ReadMode.ELEMENT_TYPE,
+    res_desc = ResourceDescriptor.from_opaque_array(arr)
+    tex_desc = TextureObjectOptions(
+        address_mode=AddressModeType.CLAMP,
+        filter_mode=FilterModeType.LINEAR,
+        read_mode=ReadModeType.ELEMENT_TYPE,
         # Normalized coordinates keep CLAMP addressing well-defined and let us
         # sample at texel centers as (i + 0.5) / N.
         normalized_coords=True,
     )
-    return TextureObject.from_descriptor(resource=res_desc, texture_descriptor=tex_desc)
+    return Device().create_texture_object(resource=res_desc, options=tex_desc)
+
+
+def make_surface(arr):
+    """Bind `arr` as a SurfaceObject for raw surf2Dwrite writes."""
+    res_desc = ResourceDescriptor.from_opaque_array(arr)
+    return Device().create_surface_object(resource=res_desc)
 
 
 def seed_field(stream, kernels, config, vel_surf, dye_surf, prs_surf, seed_value):
@@ -552,25 +564,25 @@ def main():
     #     up front and keep them alive for the whole run.
     #     API MAP: make_texture binds an array as a read-only TextureObject
     #     (LINEAR + CLAMP + normalized; see the API MAP block above), while
-    #     SurfaceObject.from_array binds the SAME array for raw surf2Dwrite
+    #     make_surface binds the SAME array for raw surf2Dwrite
     #     writes -- the read/write halves of one ping-pong buffer.
     vel_tex_a = make_texture(vel_a)
     vel_tex_b = make_texture(vel_b)
-    vel_surf_a = SurfaceObject.from_array(vel_a)
-    vel_surf_b = SurfaceObject.from_array(vel_b)
+    vel_surf_a = make_surface(vel_a)
+    vel_surf_b = make_surface(vel_b)
 
     prs_tex_a = make_texture(prs_a)
     prs_tex_b = make_texture(prs_b)
-    prs_surf_a = SurfaceObject.from_array(prs_a)
-    prs_surf_b = SurfaceObject.from_array(prs_b)
+    prs_surf_a = make_surface(prs_a)
+    prs_surf_b = make_surface(prs_b)
 
     div_tex = make_texture(div)
-    div_surf = SurfaceObject.from_array(div)
+    div_surf = make_surface(div)
 
     dye_tex_a = make_texture(dye_a)
     dye_tex_b = make_texture(dye_b)
-    dye_surf_a = SurfaceObject.from_array(dye_a)
-    dye_surf_b = SurfaceObject.from_array(dye_b)
+    dye_surf_a = make_surface(dye_a)
+    dye_surf_b = make_surface(dye_b)
 
     # --- Step 8: Seed the initial field (curl into vel_a, zero pressure/dye) ---
     seed_field(stream, kernels, config, vel_surf_a, dye_surf_a, prs_surf_a, seed_value=0)

@@ -33,7 +33,6 @@ from cuda.core.system.typing import (
     ThermalController,
     ThermalTarget,
 )
-from cuda.core._vendored.deprecated.sphinx import deprecated, versionadded, versionchanged
 
 if TYPE_CHECKING:
     import cuda.core  # no-cython-lint
@@ -372,7 +371,7 @@ cdef class Device:
         """
         Get the corresponding :class:`cuda.core.Device` (which is used for CUDA
         access) for this :class:`cuda.core.system.Device` (which is used for
-        NVIDIA machine library (NVML) access).
+        NVIDIA Management Library (NVML) access).
 
         The devices are mapped to one another by their UUID.
 
@@ -885,36 +884,37 @@ cdef class Device:
     # NVLINK
     # See external class definitions in _nvlink.pxi
 
-    @versionchanged(
-        version="1.1.0",
-        reason="Any link number not supported by this specific device will raise a `ValueError`."
-    )
     def get_nvlink(self, link: int) -> NvlinkInfo:
         """
         Get :obj:`~NvlinkInfo` about this device.
 
         For devices with NVLink support.
+
+        .. version-changed:: 1.1.0
+            Any link number not supported by this specific device will raise a `ValueError`.
         """
         link_count = self.get_nvlink_count()
         if link < 0 or link >= link_count:
             raise ValueError(f"Link index {link} is out of range [0, {link_count})")
         return NvlinkInfo(self, link)
 
-    @versionadded(version="1.1.0")
     def get_nvlink_count(self) -> int:
         """
         Get the number of NVLink links on this device.
 
         For devices with NVLink support.
+
+        .. version-added:: 1.1.0
         """
         return self.get_field_values([FieldId.DEV_NVLINK_LINK_COUNT])[0].value
 
-    @versionadded(version="1.1.0")
     def get_nvlinks(self) -> Iterable[NvlinkInfo]:
         """
         Get :obj:`~NvlinkInfo` about all NVLink links on this device.
 
         For devices with NVLink support.
+
+        .. version-added:: 1.1.0
         """
         for link in range(self.get_nvlink_count()):
             yield self.get_nvlink(link)

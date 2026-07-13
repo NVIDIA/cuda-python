@@ -6,8 +6,6 @@ from typing import Iterable
 
 import cuda.core
 from cuda.bindings import nvml
-from cuda.core._vendored.deprecated.sphinx import (deprecated, versionadded,
-                                                   versionchanged)
 from cuda.core.system.typing import (AddressingMode, AffinityScope, ClockId,
                                      ClocksEventReasons, ClockType,
                                      CoolerControl, CoolerTarget, DeviceArch,
@@ -792,7 +790,6 @@ class MigInfo:
 class _NvlinkInfoMeta(type):
 
     @property
-    @deprecated(version='1.1.0', reason='Use Device.get_nvlink_count instead to get the actual number of Nvlinks available on a specific device.')
     def max_links(cls):
         """
         The statically-defined maximum number of Nvlinks available.  Defined in
@@ -800,6 +797,10 @@ class _NvlinkInfoMeta(type):
 
         To find the actual number of Nvlinks available on a device, use
         :py:attr:`Device.get_nvlink_count`.
+
+        .. version-deprecated:: 1.1.0
+            This property is deprecated and will be removed in a future release.
+            Use :py:attr:`Device.get_nvlink_count` instead.
         """
 
 class _NvlinkInfo:
@@ -1382,7 +1383,7 @@ class Device:
         """
         Get the corresponding :class:`cuda.core.Device` (which is used for CUDA
         access) for this :class:`cuda.core.system.Device` (which is used for
-        NVIDIA machine library (NVML) access).
+        NVIDIA Management Library (NVML) access).
 
         The devices are mapped to one another by their UUID.
 
@@ -1736,28 +1737,32 @@ class Device:
         :obj:`~_device.MemoryInfo` object with memory information.
         """
 
-    @versionchanged(version='1.1.0', reason='Any link number not supported by this specific device will raise a `ValueError`.')
     def get_nvlink(self, link: int) -> NvlinkInfo:
         """
         Get :obj:`~NvlinkInfo` about this device.
 
         For devices with NVLink support.
+
+        .. version-changed:: 1.1.0
+            Any link number not supported by this specific device will raise a `ValueError`.
         """
 
-    @versionadded(version='1.1.0')
     def get_nvlink_count(self) -> int:
         """
         Get the number of NVLink links on this device.
 
         For devices with NVLink support.
+
+        .. version-added:: 1.1.0
         """
 
-    @versionadded(version='1.1.0')
     def get_nvlinks(self) -> Iterable[NvlinkInfo]:
         """
         Get :obj:`~NvlinkInfo` about all NVLink links on this device.
 
         For devices with NVLink support.
+
+        .. version-added:: 1.1.0
         """
 
     @property

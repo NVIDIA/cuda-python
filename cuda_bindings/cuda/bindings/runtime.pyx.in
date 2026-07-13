@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.3.0, generator version 0.3.1.dev1752+g89e531539. Do not modify it directly.
+# This code was automatically generated with version 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6fe2ed828d10a452e3b9a6c2b27e9f606eb6aec3dae2613d0a6eae475c7744a2
 from typing import Any, Optional
 import cython
 import ctypes
@@ -137,7 +138,6 @@ cudaDeviceScheduleYield = cyruntime.cudaDeviceScheduleYield
 cudaDeviceScheduleBlockingSync = cyruntime.cudaDeviceScheduleBlockingSync
 
 #: Device flag - Use blocking synchronization
-#:
 #: [Deprecated]
 cudaDeviceBlockingSync = cyruntime.cudaDeviceBlockingSync
 
@@ -3883,7 +3883,7 @@ class cudaFuncCache(_FastEnum):
 
 class cudaSharedMemConfig(_FastEnum):
     """
-    CUDA shared memory configuration  [Deprecated]
+    CUDA shared memory configuration [Deprecated]
     """
     {{if 'cudaSharedMemBankSizeDefault' in found_values}}
     cudaSharedMemBankSizeDefault = cyruntime.cudaSharedMemConfig.cudaSharedMemBankSizeDefault{{endif}}
