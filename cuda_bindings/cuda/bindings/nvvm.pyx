@@ -3,14 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=663773bbe4ae03ad1e170d44b06d5a924b5e4a3a0bd901c2f276976b82943bcb
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=82dc56ccc695031faa515d1971c9841131d5aadc60c6d6e6cc223580fc544d16
+
 
 # <<<< PREAMBLE CONTENT >>>>
 
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 
-# <<<< END OF PREAMBLE CONTENT >>>>
 
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 cimport cython  # NOQA
 
@@ -91,8 +92,11 @@ cpdef str get_error_string(int result):
 
     .. seealso:: `nvvmGetErrorString`
     """
+    cdef const char *_output_cstr_
     cdef bytes _output_
-    _output_ = nvvmGetErrorString(<_Result>result)
+    with nogil:
+        _output_cstr_ = nvvmGetErrorString(<_Result>result)
+    _output_ = _output_cstr_
     return _output_.decode()
 
 

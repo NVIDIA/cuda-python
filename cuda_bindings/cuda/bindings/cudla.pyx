@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6e7ac86c22e602c08df8250f3b50c135945378aa8ae4ddb4e10174fd979c4aa5
+
+# This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3ee237ed16e651bae93e2bc6d4d63dcf99b309ad7a74cb3e2bd5b9e540e714f4
+
 
 # <<<< PREAMBLE CONTENT >>>>
 
@@ -16,7 +19,9 @@ from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
 )
+
 from enum import IntEnum as _cyb_IntEnum
+
 import numpy as _numpy
 
 cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
@@ -57,10 +62,8 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
+
 # <<<< END OF PREAMBLE CONTENT >>>>
-
-
-# This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc.stdint cimport intptr_t, uintptr_t
@@ -1767,7 +1770,10 @@ cpdef mem_unregister(intptr_t dev_handle, intptr_t dev_ptr):
 
 
 cpdef int get_last_error(intptr_t dev_handle) except? 0:
-    return <int>cudlaGetLastError(<const DevHandle>dev_handle)
+    cdef int ret
+    with nogil:
+        ret = <int>cudlaGetLastError(<const DevHandle>dev_handle)
+    return ret
 
 
 cpdef destroy_device(intptr_t dev_handle):
