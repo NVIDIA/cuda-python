@@ -1197,6 +1197,8 @@ def test_managed_memory_resource_with_options(init_cuda):
     device.sync()
     dst_buffer.close()
     src_buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
 
 
 def test_managed_memory_resource_preferred_location_default(init_cuda):
