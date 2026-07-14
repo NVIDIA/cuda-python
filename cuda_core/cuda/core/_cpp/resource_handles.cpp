@@ -202,6 +202,7 @@ class DeferredReclaimer;
 
 using DeferredDestroyFn = void (*)(void*) noexcept;
 
+// Preallocated envelope that transfers one payload from CUDA to the reclaimer.
 struct DeferredDelete {
     std::atomic<DeferredDelete*> next{nullptr};
     void* payload;
@@ -213,8 +214,10 @@ struct DeferredDelete {
         : payload(payload_), destroy(destroy_), reclaimer(reclaimer_) {}
 };
 
+// Process-lifetime MPSC queue that drains payloads from Python's main thread.
 class DeferredReclaimer {
 public:
+    // Transfer one preallocated payload envelope from a producer to the queue.
     void retire(DeferredDelete* item) noexcept {
         DeferredDelete* head = head_.load(std::memory_order_relaxed);
         do {
@@ -224,20 +227,24 @@ public:
         try_schedule();
     }
 
+    // Permanently disable pending-call scheduling during interpreter shutdown.
     void stop() noexcept {
         accepting_.store(false, std::memory_order_release);
     }
 
+    // Reattempt scheduling for payloads left queued after an earlier failure.
     void retry() noexcept {
         try_schedule();
     }
 
 private:
+    // Adapt the reclaimer drain to CPython's int (*)(void*) callback ABI.
     static int pending_call(void* arg) noexcept {
         static_cast<DeferredReclaimer*>(arg)->drain();
         return 0;
     }
 
+    // Coalesce all queued work behind at most one CPython pending call.
     void try_schedule() noexcept {
         if (!accepting_.load(std::memory_order_acquire) ||
             !head_.load(std::memory_order_acquire)) {
@@ -256,6 +263,7 @@ private:
         }
     }
 
+    // Detach and destroy all queued payloads from Python's main thread.
     void drain() noexcept {
         if (!Py_IsInitialized() || py_is_finalizing()) {
             stop();
@@ -280,8 +288,11 @@ private:
         }
     }
 
+    // Head of the intrusive multi-producer, single-consumer payload stack.
     std::atomic<DeferredDelete*> head_{nullptr};
+    // True while one cuda-core drain callback is pending or executing.
     std::atomic<bool> scheduled_{false};
+    // False once shutdown begins, causing later payloads to be leaked safely.
     std::atomic<bool> accepting_{true};
 };
 
@@ -303,11 +314,13 @@ DeferredDelete* make_deferred_delete(
     return new DeferredDelete(payload, destroy, reclaimer);
 }
 
+// Destroy an envelope synchronously before CUDA has acquired ownership.
 void destroy_deferred_delete_now(DeferredDelete* item) noexcept {
     item->destroy(item->payload);
     delete item;
 }
 
+// CUDA's CUhostFn ABI is void (*)(void*); recover the typed envelope and queue it.
 void enqueue_deferred_delete(void* item) noexcept {
     auto* deferred = static_cast<DeferredDelete*>(item);
     deferred->reclaimer->retire(deferred);
