@@ -1,0 +1,15 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.2.0 Release Notes
+==================================
+
+Deprecation Notices
+-------------------
+
+* This is the last release that officially supports Python 3.10. Python 3.10
+  reaches end of life in October 2026 per the `CPython support cycle
+  <https://devguide.python.org/versions/>`_. Support will be dropped in
+  ``cuda.core`` 1.3.0.
