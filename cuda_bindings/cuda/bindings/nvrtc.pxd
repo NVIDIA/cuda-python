@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ac973884786458b1e5df96532862991c5f4bdf2e9c448f656ab63c297ff61372
 cimport cuda.bindings.cynvrtc as cynvrtc
 
 include "_lib/utils.pxd"

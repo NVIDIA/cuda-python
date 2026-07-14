@@ -4,6 +4,7 @@
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=42107942e8184fd28235bc4af200f43328764cd628eaa0f0a7f9ccab583535f5
 from ._internal cimport nvrtc as _nvrtc
 
 cdef const char* nvrtcGetErrorString(nvrtcResult result) except?NULL nogil:

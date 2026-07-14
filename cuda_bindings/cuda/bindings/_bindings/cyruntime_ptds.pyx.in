@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9ef99cae70f08efa9f2a007ad5234e8632e797d6fd4109ca8e61034c69bd9658
 cdef extern from "":
     """
     #define CUDA_API_PER_THREAD_DEFAULT_STREAM

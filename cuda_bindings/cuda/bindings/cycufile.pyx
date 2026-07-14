@@ -2,7 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated with version 12.9.1, generator version 0.3.1.dev1364+ged01d643e. Do not modify it directly.
+# This code was automatically generated with version 12.9.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ecbe1ebc9e022d9762bea8c4cc5baf1a7c6751048451973151d11204c621ef08
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+cimport cython as _cyb_cython
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 from ._internal cimport cufile as _cufile
 
@@ -16,7 +25,7 @@ cdef CUfileError_t cuFileHandleRegister(CUfileHandle_t* fh, CUfileDescr_t* descr
     return _cufile._cuFileHandleRegister(fh, descr)
 
 
-@cython.show_performance_hints(False)
+@_cyb_cython.show_performance_hints(False)
 cdef void cuFileHandleDeregister(CUfileHandle_t fh) except* nogil:
     _cufile._cuFileHandleDeregister(fh)
 
@@ -89,7 +98,7 @@ cdef CUfileError_t cuFileBatchIOCancel(CUfileBatchHandle_t batch_idp) except?<CU
     return _cufile._cuFileBatchIOCancel(batch_idp)
 
 
-@cython.show_performance_hints(False)
+@_cyb_cython.show_performance_hints(False)
 cdef void cuFileBatchIODestroy(CUfileBatchHandle_t batch_idp) except* nogil:
     _cufile._cuFileBatchIODestroy(batch_idp)
 

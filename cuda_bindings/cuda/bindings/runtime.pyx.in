@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d6df3522c27bd5c4ff1ecf1bf0167f902aab2b381d9db0c473658a2922f5b6cd
 from typing import Any, Optional
 import cython
 import ctypes

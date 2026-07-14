@@ -4,6 +4,7 @@
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=395f93ae98b3b074267a9275aa19aff34b001e2b982b686301aace8270e40ea1
 from ..cydriver cimport *
 
 

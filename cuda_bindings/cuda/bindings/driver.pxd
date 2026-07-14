@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=85882c8e7e7a391ad2144ed52e90ac461be531395ab82b3539211a90734531b1
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
