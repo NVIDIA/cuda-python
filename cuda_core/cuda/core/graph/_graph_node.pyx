@@ -65,6 +65,7 @@ import ctypes as ct
 import weakref
 
 from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
+from cuda.core._utils.validators import check_str_enum
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.typing import GraphMemoryType
 
@@ -787,6 +788,7 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
     alloc_params.poolProps.handleTypes = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
     alloc_params.bytesize = size
 
+    check_str_enum(memory_type_str, GraphMemoryType)
     if memory_type_str == "device":
         alloc_params.poolProps.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
         alloc_params.poolProps.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
@@ -802,9 +804,6 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
             alloc_params.poolProps.location.id = device_id
         ELSE:
             raise ValueError("memory_type='managed' requires CUDA 13.0 or later")
-    else:
-        raise ValueError(f"Invalid memory_type: {memory_type_str!r}. "
-                       "Must be 'device', 'host', or 'managed'.")
 
     if access_descs.size() > 0:
         alloc_params.accessDescs = access_descs.data()

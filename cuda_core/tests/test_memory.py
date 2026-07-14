@@ -1278,7 +1278,7 @@ def test_managed_memory_resource_preferred_location_validation(init_cuda):
     device.set_current()
 
     # Invalid preferred_location_type
-    with pytest.raises(ValueError, match="preferred_location_type must be one of"):
+    with pytest.raises(ValueError, match="'invalid' is not a valid ManagedMemoryLocationType. Must be "):
         ManagedMemoryResource(
             ManagedMemoryResourceOptions(
                 preferred_location_type="invalid",
