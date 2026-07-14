@@ -17,6 +17,13 @@ ENABLE_LOGGING = False  # Set True for test debugging and development
 NBYTES = 64
 
 
+if IS_WINDOWS or IS_WSL:
+    # see comment below, with threaded test all threads would need
+    # synchronization (which would require a barrier that we don't have).
+    # Applies at least to test_latchkernel and test_patterngen_(seeds|values).
+    pytestmark = pytest.mark.thread_unsafe(reason="windows host-access unsafe while GPU is working")
+
+
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 def test_latchkernel():
     """Test LatchKernel."""
