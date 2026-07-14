@@ -59,7 +59,7 @@ elif [[ "${test_module}" == "bindings" ]]; then
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   # Shared setup for core and nightly modes.
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
-  CUDA_VER_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
+  TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
 
   FREE_THREADING=""
   if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
@@ -101,7 +101,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     echo "Installing core wheel"
     # Constrain cuda-toolkit to the requested CTK version to avoid
     # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
-    pip install "${CORE_WHL[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${CUDA_VER_MINOR}.*"
+    pip install "${CORE_WHL[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"
@@ -145,7 +145,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       # Use cuda-toolkit[cudart] only — torch brings its own nvcc/nvrtc/etc.
       # This avoids version conflicts between our nvidia-* pins and torch's.
       echo "Installing pathfinder + bindings + core + test deps + PyTorch ${TORCH_VER} (${TORCH_CUDA})"
-      PIP_ARGS+=("cuda-toolkit[cudart]==${CUDA_VER_MINOR}.*")
+      PIP_ARGS+=("cuda-toolkit[cudart]==${TEST_CUDA_MAJOR_MINOR}.*")
       if [[ "${TORCH_VER}" == "latest" ]]; then
         PIP_ARGS+=(torch)
       else
@@ -156,7 +156,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       echo "Installing pathfinder + bindings + core + test deps + numba-cuda"
       # numba-cuda's test-cuXX group deps (can't use --group for a wheel install):
       PIP_ARGS+=(
-        "cuda-toolkit[curand,cublas]==${CUDA_VER_MINOR}.*"
+        "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
         "numba-cuda[cu${TEST_CUDA_MAJOR}]"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
         psutil cffi pytest-xdist pytest-benchmark filecheck ml_dtypes statistics
@@ -171,7 +171,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
       PIP_ARGS+=(
         "numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]"
         "numpy<2.5"
-        "cuda-toolkit[curand,cublas]==${CUDA_VER_MINOR}.*"
+        "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
         "cupy-cuda${TEST_CUDA_MAJOR}x"
       )
     fi
