@@ -209,8 +209,11 @@ cdef class Buffer:
     @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
+        cdef object ipc_data
         if self._ipc_data is None:
-            self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+            ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+            if self._ipc_data is None:
+                self._ipc_data = ipc_data
         return self._ipc_data.ipc_descriptor
 
     def close(self, stream: Stream | GraphBuilder | None = None) -> None:

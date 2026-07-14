@@ -458,8 +458,11 @@ cdef class Kernel:
     @cython.critical_section
     def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
+        cdef KernelAttributes attributes
         if self._attributes is None:
-            self._attributes = KernelAttributes._init(self._h_kernel)
+            attributes = KernelAttributes._init(self._h_kernel)
+            if self._attributes is None:
+                self._attributes = attributes
         return self._attributes
 
     cdef tuple _get_arguments_info(self, bint param_info=False):
@@ -506,8 +509,11 @@ cdef class Kernel:
     @cython.critical_section
     def occupancy(self) -> KernelOccupancy:
         """Get the occupancy information for launching this kernel."""
+        cdef KernelOccupancy occupancy
         if self._occupancy is None:
-            self._occupancy = KernelOccupancy._init(self._h_kernel)
+            occupancy = KernelOccupancy._init(self._h_kernel)
+            if self._occupancy is None:
+                self._occupancy = occupancy
         return self._occupancy
 
     @property
@@ -747,24 +753,28 @@ cdef class ObjectCode:
 
     @cython.critical_section
     cdef int _lazy_load_module(self) except -1:
+        cdef LibraryHandle _h_library
         if self._h_library:
             return 0
         module = self._module
         cdef bytes path_bytes
         if isinstance(module, str):
             path_bytes = module.encode()
-            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
+            _h_library = create_library_handle_from_file(<const char*>path_bytes)
         elif isinstance(module, (bytes, bytearray)):
-            self._h_library = create_library_handle_from_data(<const void*><char*>module)
+            _h_library = create_library_handle_from_data(<const void*><char*>module)
         elif isinstance(module, PathLike):
             path_bytes = fsencode(module)
-            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
+            _h_library = create_library_handle_from_file(<const char*>path_bytes)
         else:
             assert_type_str_or_bytes_like(module)
             raise_code_path_meant_to_be_unreachable()
             return -1
-        if not self._h_library:
+        if not _h_library:
             HANDLE_RETURN(get_last_error())
+
+        if not self._h_library:
+            self._h_library = _h_library
         return 0
 
     def get_kernel(self, name: str | bytes) -> Kernel:
