@@ -4,6 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=33b0c77f7174d41189a91abfe73613b5ba48bd31b5da37d509da61c00b11a004
 cdef extern from "":
     """
     #define CUDA_API_PER_THREAD_DEFAULT_STREAM

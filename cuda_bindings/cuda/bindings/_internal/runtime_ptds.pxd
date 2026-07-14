@@ -4,6 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fa210f57cc23e0c4cdcad28a1ab8292bc74cc6b557bb3ca1700d1be8c25aa6af
 from ..cyruntime cimport *
 
 
