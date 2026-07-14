@@ -6,25 +6,21 @@
 
 Covers the flat ``cuda.core`` namespace and every public subpackage
 (``graph``, ``system``, ``texture``, ``utils``, and any added later) discovered
-automatically from ``cuda.core.__path__``. For each, the exported ``__all__``
-is compared against the public entries in ``docs/source/api.rst``. Symbols
-documented in ``docs/source/api_private.rst`` (returned helpers users cannot
-instantiate) are accepted as documented.
-
-Docs reference submodule symbols two ways: dotted entries such as
-``graph.Graph`` under the ``cuda.core`` module, and flat entries under a
-``.. currentmodule:: cuda.core.<sub>`` block. Both forms are collected. A
-subpackage documented outside ``api.rst`` (for example ``system``, whose
-reference lives in ``api_nvml.rst``) is still checked for a well-formed
-``__all__``, but its doc cross-check is skipped here.
+automatically from ``cuda.core.__path__``. For each public namespace, exported
+``__all__`` names must appear somewhere in ``cuda_core/docs/source``.
 """
 
+import collections
 import importlib
+import io
 import pathlib
 import pkgutil
 import re
 
 import pytest
+from docutils import nodes
+from docutils.core import publish_doctree
+from docutils.parsers.rst import Directive, directives
 
 import cuda.core
 
@@ -41,77 +37,147 @@ PUBLIC_SUBPACKAGES = sorted(
 )
 
 
-def _iter_directive_blocks(text):
-    """Yield (module, directive, argument, body_lines) for each RST directive.
+class _ModuleNode(nodes.Element):
+    pass
 
-    ``module`` is the module active at the directive, tracked from
-    ``.. module::`` and ``.. currentmodule::`` directives. ``body_lines`` is
-    the indented block that follows the directive.
-    """
+
+class _AutosummaryNode(nodes.Element):
+    pass
+
+
+class _DataNode(nodes.Element):
+    pass
+
+
+class _ModuleDirective(Directive):
+    required_arguments = 1
+    final_argument_whitespace = False
+    has_content = True
+    option_spec = {
+        "deprecated": directives.unchanged,
+        "no-index": directives.flag,
+        "platform": directives.unchanged,
+        "synopsis": directives.unchanged,
+    }
+
+    def run(self):
+        node = _ModuleNode()
+        node["module"] = self.arguments[0].strip()
+        self.state.nested_parse(self.content, self.content_offset, node)
+        return [node]
+
+
+class _AutosummaryDirective(Directive):
+    has_content = True
+    option_spec = {
+        "caption": directives.unchanged,
+        "nosignatures": directives.flag,
+        "recursive": directives.flag,
+        "template": directives.unchanged,
+        "toctree": directives.unchanged,
+    }
+
+    def run(self):
+        node = _AutosummaryNode()
+        node["entries"] = [entry for line in self.content if (entry := line.strip()) and not entry.startswith(":")]
+        return [node]
+
+
+class _DataDirective(Directive):
+    required_arguments = 1
+    final_argument_whitespace = True
+    has_content = True
+    option_spec = {
+        "annotation": directives.unchanged,
+        "no-index": directives.flag,
+        "type": directives.unchanged,
+        "value": directives.unchanged,
+    }
+
+    def run(self):
+        node = _DataNode()
+        node["name"] = self.arguments[0].strip()
+        return [node]
+
+
+directives.register_directive("autosummary", _AutosummaryDirective)
+directives.register_directive("currentmodule", _ModuleDirective)
+directives.register_directive("data", _DataDirective)
+directives.register_directive("module", _ModuleDirective)
+
+
+def _iter_documented_entries(rst_path):
+    """Yield (module, entry) pairs from Sphinx directives in an RST file."""
+    doctree = publish_doctree(
+        rst_path.read_text(),
+        source_path=str(rst_path),
+        settings_overrides={
+            "halt_level": 6,
+            "report_level": 5,
+            "warning_stream": io.StringIO(),
+        },
+    )
     module = None
-    lines = text.splitlines()
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        i += 1
-        if not line.startswith(".. "):
-            continue
-        head, _, argument = line[3:].partition("::")
-        directive = head.strip()
-        argument = argument.strip()
-        if directive in ("module", "currentmodule"):
-            module = argument
-            continue
-        body = []
-        while i < len(lines):
-            body_line = lines[i]
-            if body_line.strip() and not body_line.startswith(" "):
-                break
-            body.append(body_line)
-            i += 1
-        yield module, directive, argument, body
+    for node in doctree.findall():
+        if isinstance(node, _ModuleNode):
+            module = node["module"]
+        elif isinstance(node, _AutosummaryNode):
+            for entry in node["entries"]:
+                yield module, entry
+        elif isinstance(node, _DataNode):
+            yield module, node["name"]
 
 
-def _documented_names(rst_path, module="cuda.core"):
-    """Collect names documented for ``module`` in an RST file.
+def _public_doc_paths(docs_dir):
+    return sorted(path for path in docs_dir.glob("*.rst") if path.name != "api_private.rst")
 
-    Returns the entries of ``autosummary`` blocks plus ``.. data::``
-    arguments that appear while ``module`` is the active module.
-    """
-    names = set()
-    for active_module, directive, argument, body in _iter_directive_blocks(rst_path.read_text()):
-        if active_module != module:
-            continue
-        if directive == "data":
-            names.add(argument)
-        elif directive == "autosummary":
-            for line in body:
-                entry = line.strip()
-                if not entry or entry.startswith(":"):
-                    continue
-                names.add(entry)
+
+def _add_documented_name(documented, module, entry):
+    if not module or not module.startswith("cuda.core"):
+        return
+    if module == "cuda.core":
+        if "." not in entry:
+            documented[module].add(entry)
+            return
+        sub, name = entry.split(".", 1)
+        if sub in PUBLIC_SUBPACKAGES and "." not in name:
+            documented[f"cuda.core.{sub}"].add(name)
+        return
+    if module.startswith("cuda.core."):
+        namespace = module
+        if namespace in PUBLIC_NAMESPACES and "." not in entry:
+            documented[namespace].add(entry)
+
+
+def _documented_names(paths):
+    documented = collections.defaultdict(set)
+    for rst_path in paths:
+        for module, entry in _iter_documented_entries(rst_path):
+            _add_documented_name(documented, module, entry)
+    return documented
+
+
+def _private_documented_names(docs_dir):
+    names = collections.defaultdict(set)
+    private_path = docs_dir / "api_private.rst"
+    if not private_path.is_file():
+        return names
+    for module, entry in _iter_documented_entries(private_path):
+        if module == "cuda.core":
+            if "." in entry:
+                sub, name = entry.split(".", 1)
+                if sub in PUBLIC_SUBPACKAGES:
+                    names[f"cuda.core.{sub}"].add(name.rsplit(".", 1)[-1])
+                else:
+                    names[module].add(entry.rsplit(".", 1)[-1])
+            else:
+                names[module].add(entry)
+        elif module in PUBLIC_NAMESPACES:
+            names[module].add(entry.rsplit(".", 1)[-1])
     return names
 
 
-def _flat_names(names):
-    """Filter out dotted (submodule-namespace) entries."""
-    return {name for name in names if "." not in name}
-
-
-def _documented_subpackage_names(rst_path, sub):
-    """Collect the public names documented for subpackage ``sub`` in ``rst_path``.
-
-    Combines the two doc conventions: flat entries under
-    ``.. currentmodule:: cuda.core.<sub>`` and dotted ``<sub>.Name`` entries
-    written under the ``cuda.core`` module.
-    """
-    flat = _documented_names(rst_path, module=f"cuda.core.{sub}")
-    dotted = {
-        name.split(".", 1)[1]
-        for name in _documented_names(rst_path, module="cuda.core")
-        if name.startswith(f"{sub}.") and name.count(".") == 1
-    }
-    return flat | dotted
+PUBLIC_NAMESPACES = ("cuda.core", *(f"cuda.core.{sub}" for sub in PUBLIC_SUBPACKAGES))
 
 
 @pytest.fixture(scope="module")
@@ -123,9 +189,19 @@ def exported():
 
 @pytest.fixture(scope="module")
 def docs_dir():
-    if not (DOCS_SOURCE_DIR / "api.rst").is_file():
+    if not DOCS_SOURCE_DIR.is_dir():
         pytest.skip("docs sources not available (not running from a source checkout)")
     return DOCS_SOURCE_DIR
+
+
+@pytest.fixture(scope="module")
+def public_documented(docs_dir):
+    return _documented_names(_public_doc_paths(docs_dir))
+
+
+@pytest.fixture(scope="module")
+def private_documented(docs_dir):
+    return _private_documented_names(docs_dir)
 
 
 def test_public_subpackages_discovered():
@@ -141,22 +217,20 @@ def test_all_exports_resolve():
     assert missing == [], f"cuda.core.__all__ lists names that do not resolve: {missing}"
 
 
-def test_public_symbols_are_documented(exported, docs_dir):
-    documented = _flat_names(_documented_names(docs_dir / "api.rst"))
+def test_public_symbols_are_documented(exported, public_documented, private_documented):
+    documented = public_documented["cuda.core"]
     # Returned helpers are deliberately documented in api_private.rst; accept
-    # them by their trailing name (e.g. _device_resources.DeviceResources).
-    private_documented = {name.rsplit(".", 1)[-1] for name in _documented_names(docs_dir / "api_private.rst")}
-    undocumented = exported - documented - private_documented
-    assert not undocumented, (
-        f"public by cuda.core.__all__ but missing from public docs (api.rst): {sorted(undocumented)}"
-    )
+    # them by their trailing name.
+    private = private_documented["cuda.core"]
+    undocumented = exported - documented - private
+    assert not undocumented, f"public by cuda.core.__all__ but missing from docs/source/*.rst: {sorted(undocumented)}"
 
 
-def test_documented_symbols_are_exported(exported, docs_dir):
-    documented = _flat_names(_documented_names(docs_dir / "api.rst"))
+def test_documented_symbols_are_exported(exported, public_documented):
+    documented = public_documented["cuda.core"]
     unexported = documented - exported
     assert not unexported, (
-        f"documented as public in api.rst but not exported by cuda.core.__all__: {sorted(unexported)}"
+        f"documented as public in docs/source/*.rst but not exported by cuda.core.__all__: {sorted(unexported)}"
     )
 
 
@@ -169,18 +243,17 @@ def test_subpackage_defines_all(sub):
 
 
 @pytest.mark.parametrize("sub", PUBLIC_SUBPACKAGES)
-def test_subpackage_exports_match_docs(sub, docs_dir):
-    documented = _documented_subpackage_names(docs_dir / "api.rst", sub)
-    if not documented:
-        pytest.skip(f"cuda.core.{sub} is not documented in api.rst (its reference lives elsewhere)")
+def test_subpackage_exports_match_docs(sub, public_documented, private_documented):
+    documented = public_documented[f"cuda.core.{sub}"]
     module = importlib.import_module(f"cuda.core.{sub}")
     exported = set(module.__all__)
-    private_documented = {name.rsplit(".", 1)[-1] for name in _documented_names(docs_dir / "api_private.rst")}
-    undocumented = exported - documented - private_documented
+    private = private_documented[f"cuda.core.{sub}"]
+    undocumented = exported - documented - private
     assert not undocumented, (
-        f"public by cuda.core.{sub}.__all__ but missing from public docs (api.rst): {sorted(undocumented)}"
+        f"public by cuda.core.{sub}.__all__ but missing from docs/source/*.rst: {sorted(undocumented)}"
     )
     unexported = documented - exported
     assert not unexported, (
-        f"documented as public in api.rst under {sub} but not exported by cuda.core.{sub}.__all__: {sorted(unexported)}"
+        f"documented as public in docs/source/*.rst under {sub} but not exported by cuda.core.{sub}.__all__: "
+        f"{sorted(unexported)}"
     )
