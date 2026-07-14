@@ -10,6 +10,7 @@
 ###############################################################################
 
 # enums
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=79be0fd21f7c6b6112743eb60ce9e69287a66999ecaaa063d87a52ab64982bce
 ctypedef enum nvvmResult "nvvmResult":
     NVVM_SUCCESS "NVVM_SUCCESS" = 0
     NVVM_ERROR_OUT_OF_MEMORY "NVVM_ERROR_OUT_OF_MEMORY" = 1

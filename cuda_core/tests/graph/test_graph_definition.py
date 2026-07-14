@@ -825,7 +825,7 @@ def test_alloc_free_chain(init_cuda):
 def test_alloc_memory_type_invalid(init_cuda):
     """Invalid memory type raises ValueError."""
     sample_graphdef = GraphDefinition()
-    with pytest.raises(ValueError, match="Invalid memory_type"):
+    with pytest.raises(ValueError, match="'invalid' is not a valid GraphMemoryType. Must be "):
         sample_graphdef.allocate(ALLOC_SIZE, memory_type="invalid")
 
 

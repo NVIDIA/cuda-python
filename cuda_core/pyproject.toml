@@ -109,7 +109,7 @@ include-package-data = false
 [tool.setuptools.package-data]
 "*" = ["*.pxd", "*.pyi", "py.typed"]
 "cuda.core._include" = ["*.h", "*.hpp"]
-"cuda.core._cpp" = ["*.hpp"]
+"cuda.core._cpp" = ["*.h", "*.hpp"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
@@ -146,10 +146,6 @@ implicit_reexport = true
 
 # Ignore missing imports for now (you can tighten this later)
 ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "cuda.core._vendored.*"
-ignore_errors = true
 
 [[tool.mypy.overrides]]
 # cpdef functions with Cython-native tuple return types can't carry type args

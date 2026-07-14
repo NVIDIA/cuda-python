@@ -212,7 +212,9 @@ jobs:
           pip install *.whl
           popd
 
-          pip install cuda_python*.whl
+          # Subpackages are already installed from CI artifacts above.
+          # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
+          pip install --no-deps cuda_python*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number

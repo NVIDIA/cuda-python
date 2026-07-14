@@ -212,7 +212,7 @@ jobs:
           python-version: ${{ env.PY_VER }}
 
       - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk

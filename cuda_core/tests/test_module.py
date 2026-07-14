@@ -5,7 +5,7 @@ import ctypes
 import os
 import pickle
 import subprocess
-import types
+import sys
 import warnings
 from pathlib import Path
 
@@ -17,7 +17,6 @@ from cuda.core import Device, Kernel, Linker, LinkerOptions, ObjectCode, Program
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import binding_version, driver_version
-from cuda.pathfinder import find_nvidia_binary_utility
 
 try:
     import numba
@@ -178,41 +177,91 @@ def get_saxpy_fatbin(init_cuda):
     return bytes(fatbin), sym_map
 
 
-@pytest.fixture(params=["object", "library"], ids=["object", "library"])
-def saxpy_rdc(request):
+def _read_saxpy_rdc(kind: str) -> bytes:
     """Read a pre-built saxpy RDC object or library.
 
     In CI: produced by the build stage.
     In local dev: auto-built on demand if nvcc is available; if you edit
     saxpy.cu, remove stale RDC files (i.e. saxpy.o, saxpy.a, or saxpy.lib) to force a rebuild.
     """
-    kind = request.param
-
     binaries_dir = Path(__file__).parent / "test_binaries"
-    suffix = ".o" if kind == "object" else ".lib" if os.name == "nt" else ".a"
-
-    rdc_path = binaries_dir / f"saxpy{suffix}"
+    if kind == "object":
+        rdc_path = binaries_dir / "saxpy.o"
+    elif kind == "library":
+        rdc_path = binaries_dir / ("saxpy.lib" if os.name == "nt" else "saxpy.a")
+    else:
+        raise ValueError(f"unknown saxpy RDC kind: {kind!r}")
 
     if not rdc_path.is_file():
-        nvcc_path = find_nvidia_binary_utility("nvcc")
-        if nvcc_path is None:
-            pytest.skip(
-                f"{rdc_path.name} not found at {rdc_path} and nvcc is unavailable. "
-                "In CI this is downloaded from the build stage."
-            )
-        env = os.environ.copy()
-        env["NVCC"] = nvcc_path
-        subprocess.run(  # noqa: S603
-            ["bash", str(binaries_dir / "build_test_binaries.sh")],  # noqa: S607
-            check=True,
-            env=env,
+        _build_saxpy_rdc(binaries_dir)
+    return rdc_path.read_bytes()
+
+
+def _subprocess_output(result: subprocess.CompletedProcess[str]) -> str:
+    sections = []
+    if result.stdout:
+        sections.append(f"stdout:\n{result.stdout.rstrip()}")
+    if result.stderr:
+        sections.append(f"stderr:\n{result.stderr.rstrip()}")
+    return "\n".join(sections) or "<no output>"
+
+
+def _host_compiler_is_unavailable(output: str) -> bool:
+    normalized = output.lower()
+    # Keep these patterns narrow. Unknown nvcc failures should fail the test and
+    # expose their diagnostics, not be silently reclassified as environment skips.
+    windows_compiler_missing = (
+        "cannot find compiler" in normalized and "cl.exe" in normalized and "in path" in normalized
+    )
+    linux_compiler_missing = (
+        "no such file or directory" in normalized and "failed to preprocess host compiler properties" in normalized
+    )
+    return windows_compiler_missing or linux_compiler_missing
+
+
+def _build_saxpy_rdc(binaries_dir: Path) -> None:
+    """Use nvcc from PATH with the host compiler environment configured by the caller."""
+    try:
+        version_result = subprocess.run(
+            ["nvcc", "--version"],  # noqa: S607 - PATH lookup is the behavior under test.
+            capture_output=True,
+            text=True,
+            errors="replace",
+        )
+    except FileNotFoundError:
+        pytest.skip("RDC test fixtures are absent and nvcc is not available on PATH")
+
+    if version_result.returncode != 0:
+        pytest.fail(
+            f"nvcc --version failed with exit code {version_result.returncode}\n{_subprocess_output(version_result)}",
+            pytrace=False,
         )
 
-    return types.SimpleNamespace(
-        kind=kind,
-        data=rdc_path.read_bytes(),
-        from_fn=ObjectCode.from_object if kind == "object" else ObjectCode.from_library,
-        suffix=suffix,
+    print(version_result.stdout, end="")
+    if version_result.stderr:
+        print(version_result.stderr, end="", file=sys.stderr)
+
+    builder_path = binaries_dir / "build_test_binaries.py"
+    build_result = subprocess.run(  # noqa: S603
+        [sys.executable, str(builder_path)],
+        capture_output=True,
+        text=True,
+        errors="replace",
+    )
+    if build_result.returncode == 0:
+        print(build_result.stdout, end="")
+        if build_result.stderr:
+            print(build_result.stderr, end="", file=sys.stderr)
+        return
+
+    output = _subprocess_output(build_result)
+    if _host_compiler_is_unavailable(output):
+        print(output, file=sys.stderr)
+        pytest.skip("nvcc is available, but its host compiler is not configured")
+
+    pytest.fail(
+        f"RDC test fixture build failed with exit code {build_result.returncode}\n{output}",
+        pytrace=False,
     )
 
 
@@ -374,26 +423,47 @@ def test_object_code_load_fatbin_from_file(get_saxpy_fatbin, tmp_path, convert_p
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
 
-def test_object_code_load_rdc(saxpy_rdc):
-    data = saxpy_rdc.data
+@pytest.mark.parametrize(
+    ("kind", "from_fn"),
+    [
+        ("object", ObjectCode.from_object),
+        ("library", ObjectCode.from_library),
+    ],
+)
+def test_object_code_load_rdc(kind, from_fn):
+    data = _read_saxpy_rdc(kind)
     assert isinstance(data, bytes)
-    mod_obj = saxpy_rdc.from_fn(data)
+    mod_obj = from_fn(data)
     assert mod_obj.code == data
-    assert mod_obj.code_type == saxpy_rdc.kind
-    with pytest.raises(RuntimeError, match=rf'Unsupported code type "{saxpy_rdc.kind}"'):
+    assert mod_obj.code_type == kind
+    with pytest.raises(RuntimeError, match=rf'Unsupported code type "{kind}"'):
         mod_obj.get_kernel("saxpy<float>")
 
 
-def test_object_code_load_rdc_from_file(saxpy_rdc, tmp_path):
-    rdc_file = tmp_path / f"test{saxpy_rdc.suffix}"
-    rdc_file.write_bytes(saxpy_rdc.data)
+@pytest.mark.parametrize(
+    ("kind", "from_fn", "suffix"),
+    [
+        ("object", ObjectCode.from_object, ".o"),
+        ("library", ObjectCode.from_library, ".lib" if os.name == "nt" else ".a"),
+    ],
+)
+def test_object_code_load_rdc_from_file(kind, from_fn, suffix, tmp_path):
+    rdc_file = tmp_path / f"test{suffix}"
+    rdc_file.write_bytes(_read_saxpy_rdc(kind))
     arg = str(rdc_file)
-    mod_obj = saxpy_rdc.from_fn(arg)
+    mod_obj = from_fn(arg)
     assert mod_obj.code == arg
-    assert mod_obj.code_type == saxpy_rdc.kind
+    assert mod_obj.code_type == kind
 
 
-def test_object_code_load_rdc_with_linker(init_cuda, saxpy_rdc):
+@pytest.mark.parametrize(
+    ("kind", "from_fn"),
+    [
+        ("object", ObjectCode.from_object),
+        ("library", ObjectCode.from_library),
+    ],
+)
+def test_object_code_load_rdc_with_linker(kind, from_fn, init_cuda):
     arch = f"sm_{init_cuda.arch}"
     kernel_code = Program(
         r"""
@@ -407,7 +477,7 @@ def test_object_code_load_rdc_with_linker(init_cuda, saxpy_rdc):
     ).compile("cubin")
     linked = Linker(
         kernel_code,
-        saxpy_rdc.from_fn(saxpy_rdc.data),
+        from_fn(_read_saxpy_rdc(kind)),
         options=LinkerOptions(arch=arch),
     ).link("cubin")
     kernel = linked.get_kernel("linked_kernel")

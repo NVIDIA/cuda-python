@@ -38,6 +38,8 @@ if TYPE_CHECKING:
 
 cdef class _MemPoolAttributes:
     """Provides access to memory pool attributes."""
+    cdef:
+        MemoryPoolHandle _h_pool
 
     def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("_MemPoolAttributes cannot be instantiated directly. Please use MemoryResource APIs.")

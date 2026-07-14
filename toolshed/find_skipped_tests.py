@@ -36,7 +36,7 @@ WORKFLOWS: tuple[tuple[str, str], ...] = (
 
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-9;]*[A-Za-z]")
 PYTEST_NODE_ID = re.compile(r"tests/\S+\.py::\S+")
-PYTEST_TEST_OUTCOME = re.compile(r"(tests/\S+\.py::\S+(\[.*?\])?)\s+(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)\b")
+PYTEST_TEST_OUTCOME = re.compile(r"(tests/\S+\.py::\S+)\s+(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)\b")
 
 # GHA log format markers used to identify which test suite is active.
 # `gh api` logs: ##[group]<step-name> opens a section, ##[endgroup] closes it.
