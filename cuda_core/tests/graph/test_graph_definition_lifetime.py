@@ -21,7 +21,7 @@ from cuda_python_test_helpers import under_compute_sanitizer
 
 # Resource finalization triggered by graph destruction is not synchronous. A
 # CUDA user-object callback transfers the slot table to a pending-call
-# reclaimer, which releases each owner from Python's main thread. Release is
+# cleanup queue, which releases each owner from Python's main thread. Release is
 # deterministic at the reference-count level, so the predicate normally flips
 # within milliseconds; this budget only bounds a slow/loaded runner. It stays a
 # hard failure rather than a warning so a real leak still fails the suite.
@@ -53,7 +53,7 @@ def _wait_until(predicate, timeout=None, interval=0.02):
     """Poll ``predicate()`` until true, or raise AssertionError on timeout.
 
     Each iteration drives ``gc.collect()`` and reaches bytecode boundaries so
-    pending reclamation can run. Used for resource cleanup that lags graph
+    pending cleanup can run. Used for resource cleanup that lags graph
     destruction; see ``_FINALIZE_TIMEOUT``.
     """
     if timeout is None:
@@ -366,7 +366,7 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_user_object_reclamation_is_coalesced_on_python_thread(init_cuda):
+def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
     """More than 32 CUDA callbacks drain through one main-thread pending call."""
     finalized_threads = []
     main_thread = threading.get_ident()
@@ -432,7 +432,7 @@ def test_pending_call_scheduling_failure_retries_later(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_pending_reclamation_is_safe_during_python_shutdown(init_cuda):
+def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda):
     """Outstanding graph attachments neither call Python nor hang at shutdown."""
     code = textwrap.dedent(
         """
