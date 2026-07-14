@@ -204,14 +204,12 @@ using DeferredDestroyFn = void (*)(void*) noexcept;
 
 // Preallocated envelope that transfers one payload from CUDA to the reclaimer.
 struct DeferredDelete {
-    std::atomic<DeferredDelete*> next{nullptr};
+    DeferredDelete* next = nullptr;
     void* payload;
     DeferredDestroyFn destroy;
-    DeferredReclaimer* reclaimer;
 
-    DeferredDelete(void* payload_, DeferredDestroyFn destroy_,
-                   DeferredReclaimer* reclaimer_) noexcept
-        : payload(payload_), destroy(destroy_), reclaimer(reclaimer_) {}
+    DeferredDelete(void* payload_, DeferredDestroyFn destroy_) noexcept
+        : payload(payload_), destroy(destroy_) {}
 };
 
 // Process-lifetime MPSC queue that drains payloads from Python's main thread.
@@ -221,7 +219,7 @@ public:
     void retire(DeferredDelete* item) noexcept {
         DeferredDelete* head = head_.load(std::memory_order_relaxed);
         do {
-            item->next.store(head, std::memory_order_relaxed);
+            item->next = head;
         } while (!head_.compare_exchange_weak(
             head, item, std::memory_order_release, std::memory_order_relaxed));
         try_schedule();
@@ -274,8 +272,7 @@ private:
         while (DeferredDelete* list =
                    head_.exchange(nullptr, std::memory_order_acquire)) {
             while (list) {
-                DeferredDelete* next =
-                    list->next.load(std::memory_order_relaxed);
+                DeferredDelete* next = list->next;
                 list->destroy(list->payload);
                 delete list;
                 list = next;
@@ -296,22 +293,25 @@ private:
     std::atomic<bool> accepting_{true};
 };
 
-DeferredReclaimer* deferred_reclaimer = nullptr;  // Intentionally never freed.
+// Published once at module initialization and intentionally never freed.
+std::atomic<DeferredReclaimer*> deferred_reclaimer{nullptr};
 
 void stop_deferred_reclaimer() {
-    if (deferred_reclaimer) {
-        deferred_reclaimer->stop();
+    if (DeferredReclaimer* reclaimer =
+            deferred_reclaimer.load(std::memory_order_acquire)) {
+        reclaimer->stop();
     }
 }
 
 DeferredDelete* make_deferred_delete(
         void* payload, DeferredDestroyFn destroy) {
-    DeferredReclaimer* reclaimer = deferred_reclaimer;
+    DeferredReclaimer* reclaimer =
+        deferred_reclaimer.load(std::memory_order_acquire);
     if (!reclaimer) {
         throw std::runtime_error("deferred reclaimer is not initialized");
     }
     reclaimer->retry();
-    return new DeferredDelete(payload, destroy, reclaimer);
+    return new DeferredDelete(payload, destroy);
 }
 
 // Destroy an envelope synchronously before CUDA has acquired ownership.
@@ -323,18 +323,22 @@ void destroy_deferred_delete_now(DeferredDelete* item) noexcept {
 // CUDA's CUhostFn ABI is void (*)(void*); recover the typed envelope and queue it.
 void enqueue_deferred_delete(void* item) noexcept {
     auto* deferred = static_cast<DeferredDelete*>(item);
-    deferred->reclaimer->retire(deferred);
+    if (DeferredReclaimer* reclaimer =
+            deferred_reclaimer.load(std::memory_order_acquire)) {
+        reclaimer->retire(deferred);
+    }
 }
 
 }  // namespace
 
 void initialize_deferred_reclaimer() {
-    if (deferred_reclaimer) {
+    if (deferred_reclaimer.load(std::memory_order_acquire)) {
         return;
     }
-    deferred_reclaimer = new DeferredReclaimer();
+    auto* reclaimer = new DeferredReclaimer();
+    deferred_reclaimer.store(reclaimer, std::memory_order_release);
     if (Py_AtExit(stop_deferred_reclaimer) != 0) {
-        deferred_reclaimer->stop();
+        reclaimer->stop();
     }
 }
 
