@@ -183,8 +183,11 @@ cdef class _MemPool(MemoryResource):
     @cython.critical_section
     def attributes(self) -> _MemPoolAttributes:
         """Memory pool attributes."""
+        cdef _MemPoolAttributes attributes
         if self._attributes is None:
-            self._attributes = _MemPoolAttributes._init(self._h_pool)
+            attributes = _MemPoolAttributes._init(self._h_pool)
+            if self._attributes is None:
+                self._attributes = attributes
         return self._attributes
 
     @property
