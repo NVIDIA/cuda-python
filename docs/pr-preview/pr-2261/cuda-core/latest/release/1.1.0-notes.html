@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2383bbab"></script>
+    <script src="../_static/documentation_options.js?v=f0f1a79c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev145';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -822,9 +822,19 @@ addition to strings and bytes.
 <li><p>Exposed a <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.size" title="cuda.core.Buffer.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.size</span></code></a> accessor to Python.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2068">#2068</a>,
 closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2049">#2049</a>)</p></li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">concurrency_limit</span></code> to <a class="reference internal" href="../generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions" title="cuda.core.WorkqueueResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkqueueResourceOptions</span></code></a> to
-configure the expected maximum concurrent stream-ordered workloads.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2329">#2329</a>)</p></li>
+<li><p>Extended <a class="reference internal" href="../generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource" title="cuda.core.WorkqueueResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a> and <a class="reference internal" href="../generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions" title="cuda.core.WorkqueueResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkqueueResourceOptions</span></code></a>
+to cover the full driver-side workqueue-config surface. Added
+<code class="docutils literal notranslate"><span class="pre">concurrency_limit</span></code> to <a class="reference internal" href="../generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions" title="cuda.core.WorkqueueResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkqueueResourceOptions</span></code></a> for
+configuring the expected maximum concurrent stream-ordered workloads,
+and read-only <a class="reference internal" href="../generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.sharing_scope" title="cuda.core.WorkqueueResource.sharing_scope"><code class="xref py py-attr docutils literal notranslate"><span class="pre">WorkqueueResource.sharing_scope</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.concurrency_limit" title="cuda.core.WorkqueueResource.concurrency_limit"><code class="xref py py-attr docutils literal notranslate"><span class="pre">concurrency_limit</span></code></a>, and
+<a class="reference internal" href="../generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.device" title="cuda.core.WorkqueueResource.device"><code class="xref py py-attr docutils literal notranslate"><span class="pre">device</span></code></a> properties for round-tripping the
+driver-populated values. Added
+<code class="xref py py-class docutils literal notranslate"><span class="pre">WorkqueueSharingScopeType</span></code> StrEnum accepted
+by <a class="reference internal" href="../generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions.sharing_scope" title="cuda.core.WorkqueueResourceOptions.sharing_scope"><code class="xref py py-attr docutils literal notranslate"><span class="pre">WorkqueueResourceOptions.sharing_scope</span></code></a> in addition to raw
+strings.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2329">#2329</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2330">#2330</a>)</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">

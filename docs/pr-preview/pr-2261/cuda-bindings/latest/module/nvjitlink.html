@@ -1490,6 +1490,45 @@ to a valid sequence of ‘char’, or</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_linked_ltoir_size">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_linked_ltoir_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">size_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_linked_ltoir_size" title="Link to this definition">#</a></dt>
+<dd><p>nvJitLinkGetLinkedLTOIRSize gets the size of the linked LTOIR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Size of the linked LTOIR.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>size_t</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv427nvJitLinkGetLinkedLTOIRSize15nvJitLinkHandleP6size_t" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetLinkedLTOIRSize</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_linked_ltoir">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_linked_ltoir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltoir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_linked_ltoir" title="Link to this definition">#</a></dt>
+<dd><p>nvJitLinkGetLinkedLTOIR gets the linked LTOIR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
+<li><p><strong>ltoir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The linked LTOIR in Container format.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/nvjitlink/index.html#_CPPv423nvJitLinkGetLinkedLTOIR15nvJitLinkHandlePv" title="(in nvJitLink)"><code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvJitLinkGetLinkedLTOIR</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.get_error_log_size">
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">get_error_log_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">handle</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">size_t</span></span></span><a class="headerlink" href="#cuda.bindings.nvjitlink.get_error_log_size" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkGetErrorLogSize gets the size of the error log.</p>
@@ -1648,6 +1687,51 @@ nvJitLink APIs return <a class="reference external" href="https://docs.nvidia.co
 <span class="sig-name descname"><span class="pre">ERROR_FINALIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_FINALIZE:</span> <span class="pre">9&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_FINALIZE" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.ERROR_NULL_INPUT">
+<span class="sig-name descname"><span class="pre">ERROR_NULL_INPUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_NULL_INPUT:</span> <span class="pre">10&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_NULL_INPUT" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.ERROR_INCOMPATIBLE_OPTIONS">
+<span class="sig-name descname"><span class="pre">ERROR_INCOMPATIBLE_OPTIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INCOMPATIBLE_OPTIONS:</span> <span class="pre">11&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_INCOMPATIBLE_OPTIONS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.ERROR_INCORRECT_INPUT_TYPE">
+<span class="sig-name descname"><span class="pre">ERROR_INCORRECT_INPUT_TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_INCORRECT_INPUT_TYPE:</span> <span class="pre">12&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_INCORRECT_INPUT_TYPE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.ERROR_ARCH_MISMATCH">
+<span class="sig-name descname"><span class="pre">ERROR_ARCH_MISMATCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_ARCH_MISMATCH:</span> <span class="pre">13&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_ARCH_MISMATCH" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.ERROR_OUTDATED_LIBRARY">
+<span class="sig-name descname"><span class="pre">ERROR_OUTDATED_LIBRARY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_OUTDATED_LIBRARY:</span> <span class="pre">14&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_OUTDATED_LIBRARY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.ERROR_MISSING_FATBIN">
+<span class="sig-name descname"><span class="pre">ERROR_MISSING_FATBIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_MISSING_FATBIN:</span> <span class="pre">15&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_MISSING_FATBIN" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.ERROR_UNRECOGNIZED_ARCH">
+<span class="sig-name descname"><span class="pre">ERROR_UNRECOGNIZED_ARCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_UNRECOGNIZED_ARCH:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_UNRECOGNIZED_ARCH" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.ERROR_UNSUPPORTED_ARCH">
+<span class="sig-name descname"><span class="pre">ERROR_UNSUPPORTED_ARCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_UNSUPPORTED_ARCH:</span> <span class="pre">17&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_UNSUPPORTED_ARCH" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvjitlink.Result.ERROR_LTO_NOT_ENABLED">
+<span class="sig-name descname"><span class="pre">ERROR_LTO_NOT_ENABLED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Result.ERROR_LTO_NOT_ENABLED:</span> <span class="pre">18&gt;</span></em><a class="headerlink" href="#cuda.bindings.nvjitlink.Result.ERROR_LTO_NOT_ENABLED" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1766,6 +1850,8 @@ that can be passed to nvJitLinkAdd* APIs.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.get_linked_cubin"><code class="docutils literal notranslate"><span class="pre">get_linked_cubin()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.get_linked_ptx_size"><code class="docutils literal notranslate"><span class="pre">get_linked_ptx_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.get_linked_ptx"><code class="docutils literal notranslate"><span class="pre">get_linked_ptx()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.get_linked_ltoir_size"><code class="docutils literal notranslate"><span class="pre">get_linked_ltoir_size()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.get_linked_ltoir"><code class="docutils literal notranslate"><span class="pre">get_linked_ltoir()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.get_error_log_size"><code class="docutils literal notranslate"><span class="pre">get_error_log_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.get_error_log"><code class="docutils literal notranslate"><span class="pre">get_error_log()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.get_info_log_size"><code class="docutils literal notranslate"><span class="pre">get_info_log_size()</span></code></a></li>
@@ -1785,6 +1871,15 @@ that can be passed to nvJitLinkAdd* APIs.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_THREADPOOL"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_THREADPOOL</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_UNRECOGNIZED_INPUT"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_UNRECOGNIZED_INPUT</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_FINALIZE"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_FINALIZE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_NULL_INPUT"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_NULL_INPUT</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_INCOMPATIBLE_OPTIONS"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_INCOMPATIBLE_OPTIONS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_INCORRECT_INPUT_TYPE"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_INCORRECT_INPUT_TYPE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_ARCH_MISMATCH"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_ARCH_MISMATCH</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_OUTDATED_LIBRARY"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_OUTDATED_LIBRARY</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_MISSING_FATBIN"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_MISSING_FATBIN</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_UNRECOGNIZED_ARCH"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_UNRECOGNIZED_ARCH</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_UNSUPPORTED_ARCH"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_UNSUPPORTED_ARCH</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.Result.ERROR_LTO_NOT_ENABLED"><code class="docutils literal notranslate"><span class="pre">Result.ERROR_LTO_NOT_ENABLED</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvjitlink.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
