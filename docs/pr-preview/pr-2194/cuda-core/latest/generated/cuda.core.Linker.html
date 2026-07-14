@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.texture.ArrayFormat &#8212; cuda.core</title>
+    <title>cuda.core.Linker &#8212; cuda.core</title>
   
   
   
@@ -44,28 +44,28 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f165065c"></script>
+    <script src="../_static/documentation_options.js?v=8b6b0a2d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.texture.ArrayFormat';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.Linker';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev136';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev28';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2194/cuda-core/latest/generated/cuda.core.texture.ArrayFormat.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2194/cuda-core/latest/generated/cuda.core.Linker.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.texture.AddressMode" href="cuda.core.texture.AddressMode.html" />
-    <link rel="prev" title="cuda.core.texture.TextureDescriptor" href="cuda.core.texture.TextureDescriptor.html" />
+    <link rel="next" title="cuda.core.ObjectCode" href="cuda.core.ObjectCode.html" />
+    <link rel="prev" title="cuda.core.Program" href="cuda.core.Program.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -205,6 +205,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../10_minutes_to_cuda_core.html">
+    10 minutes to cuda.core
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../examples.html">
     Examples
   </a>
@@ -217,13 +224,6 @@
   </a>
 </li>
 
-
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../api.html">
-    cuda.core API Reference
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -232,6 +232,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../api.html">
+    cuda.core API Reference
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../api_nvml.html">
     cuda.core.system API Reference
@@ -429,6 +436,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../10_minutes_to_cuda_core.html">
+    10 minutes to cuda.core
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../examples.html">
     Examples
   </a>
@@ -538,6 +552,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10_minutes_to_cuda_core.html">10 minutes to <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -568,6 +583,16 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.Graph.html">cuda.core.graph.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphBuilder.html">cuda.core.graph.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.GraphDefinition.html">cuda.core.graph.GraphDefinition</a></li>
@@ -598,15 +623,9 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ResourceDescriptor.html">cuda.core.texture.ResourceDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObject.html">cuda.core.texture.TextureObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.SurfaceObject.html">cuda.core.texture.SurfaceObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureDescriptor.html">cuda.core.texture.TextureDescriptor</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.texture.ArrayFormat</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.AddressMode.html">cuda.core.texture.AddressMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.FilterMode.html">cuda.core.texture.FilterMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.ReadMode.html">cuda.core.texture.ReadMode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.ProgramCacheResource.html">cuda.core.utils.ProgramCacheResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.InMemoryProgramCache.html">cuda.core.utils.InMemoryProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.FileStreamProgramCache.html">cuda.core.utils.FileStreamProgramCache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.make_program_cache_key.html">cuda.core.utils.make_program_cache_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.OpaqueArrayOptions.html">cuda.core.texture.OpaqueArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
@@ -694,7 +713,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.texture.ArrayFormat</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.Linker</span></li>
   </ul>
 </nav>
 </div>
@@ -711,60 +730,129 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-texture-arrayformat">
-<h1>cuda.core.texture.ArrayFormat<a class="headerlink" href="#cuda-core-texture-arrayformat" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-linker">
+<h1>cuda.core.Linker<a class="headerlink" href="#cuda-core-linker" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.texture.ArrayFormat">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.texture.</span></span><span class="sig-name descname"><span class="pre">ArrayFormat</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="cuda.core.Linker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">Linker</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.LinkerOptions.html#cuda.core.LinkerOptions" title="cuda.core.LinkerOptions"><span class="pre">LinkerOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">object_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.texture.ArrayFormat" title="Link to this definition">#</a></dt>
-<dd><p>Element format for a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.</p>
-<p>Mirrors <code class="docutils literal notranslate"><span class="pre">CUarray_format</span></code> from the CUDA driver API.</p>
-<dl class="simple">
-<dt><strong>UINT8</strong>: 1</dt><dd><p>Element format for a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.
-
-    Mirrors <code class="docutils literal notranslate"><span class="pre">CUarray_format</span></code> from the CUDA driver API.</p>
-</dd>
-<dt><strong>UINT16</strong>: 2</dt><dd><p>Element format for a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.
-
-    Mirrors <code class="docutils literal notranslate"><span class="pre">CUarray_format</span></code> from the CUDA driver API.</p>
-</dd>
-<dt><strong>UINT32</strong>: 3</dt><dd><p>Element format for a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.
-
-    Mirrors <code class="docutils literal notranslate"><span class="pre">CUarray_format</span></code> from the CUDA driver API.</p>
-</dd>
-<dt><strong>INT8</strong>: 8</dt><dd><p>Element format for a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.
-
-    Mirrors <code class="docutils literal notranslate"><span class="pre">CUarray_format</span></code> from the CUDA driver API.</p>
-</dd>
-<dt><strong>INT16</strong>: 9</dt><dd><p>Element format for a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.
-
-    Mirrors <code class="docutils literal notranslate"><span class="pre">CUarray_format</span></code> from the CUDA driver API.</p>
-</dd>
-<dt><strong>INT32</strong>: 10</dt><dd><p>Element format for a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.
-
-    Mirrors <code class="docutils literal notranslate"><span class="pre">CUarray_format</span></code> from the CUDA driver API.</p>
-</dd>
-<dt><strong>FLOAT16</strong>: 16</dt><dd><p>Element format for a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.
-
-    Mirrors <code class="docutils literal notranslate"><span class="pre">CUarray_format</span></code> from the CUDA driver API.</p>
-</dd>
-<dt><strong>FLOAT32</strong>: 32</dt><dd><p>Element format for a <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> allocation.
-
-    Mirrors <code class="docutils literal notranslate"><span class="pre">CUarray_format</span></code> from the CUDA driver API.</p>
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Linker" title="Link to this definition">#</a></dt>
+<dd><p>Represent a linking machinery to link one or more object codes into
+<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>.</p>
+<p>This object provides a unified interface to multiple underlying
+linker libraries (such as nvJitLink or cuLink* from the CUDA driver).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>object_codes</strong> (<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>) – One or more ObjectCode objects to be linked.</p></li>
+<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.LinkerOptions.html#cuda.core.LinkerOptions" title="cuda.core.LinkerOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinkerOptions</span></code></a>, optional) – Options for the linker. If not provided, default options will be used.</p></li>
+</ul>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Linker.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Linker.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Linker.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.Linker.close" title="Link to this definition">#</a></dt>
+<dd><p>Destroy this linker.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Linker.get_error_log">
+<span class="sig-name descname"><span class="pre">get_error_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.core.Linker.get_error_log" title="Link to this definition">#</a></dt>
+<dd><p>Get the error log generated by the linker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The error log.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Linker.get_info_log">
+<span class="sig-name descname"><span class="pre">get_info_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.core.Linker.get_info_log" title="Link to this definition">#</a></dt>
+<dd><p>Get the info log generated by the linker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The info log.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Linker.link">
+<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">target_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.typing.ObjectCodeFormatType.html#cuda.core.typing.ObjectCodeFormatType" title="cuda.core.typing.ObjectCodeFormatType"><span class="pre">ObjectCodeFormatType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.Linker.link" title="Link to this definition">#</a></dt>
+<dd><p>Link the provided object codes into a single output of the specified target type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>target_type</strong> (<a class="reference internal" href="cuda.core.typing.ObjectCodeFormatType.html#cuda.core.typing.ObjectCodeFormatType" title="cuda.core.typing.ObjectCodeFormatType"><em>ObjectCodeFormatType</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The type of the target output. Must be either “cubin” or “ptx”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> – The linked object code of the specified target type.</p></li>
+<li><p><em>.. note::</em> – Ensure that input object codes were compiled with appropriate
+flags for linking (e.g., relocatable device code enabled).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Linker.which_backend">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">which_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.typing.CompilerBackendType.html#cuda.core.typing.CompilerBackendType" title="cuda.core.typing.CompilerBackendType"><span class="pre">CompilerBackendType</span></a></span></span><a class="headerlink" href="#cuda.core.Linker.which_backend" title="Link to this definition">#</a></dt>
+<dd><p>Return which linking backend will be used.</p>
+<p>Returns <code class="xref py py-attr docutils literal notranslate"><span class="pre">NVJITLINK</span></code> when the nvJitLink
+library is available and meets the minimum version requirement,
+otherwise <code class="xref py py-attr docutils literal notranslate"><span class="pre">DRIVER</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Prefer letting <a class="reference internal" href="#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> decide. Query <code class="docutils literal notranslate"><span class="pre">which_backend()</span></code>
+only when you need to dispatch based on input format (for
+example: choose PTX vs. LTOIR before constructing a
+<code class="docutils literal notranslate"><span class="pre">Linker</span></code>). The returned value names an implementation
+detail whose support matrix may shift across CTK releases.</p>
+</div>
+</dd></dl>
+
+<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Linker.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.Linker.handle" title="Link to this definition">#</a></dt>
+<dd><p>Return the underlying handle object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The type of the returned object depends on the backend.</p>
+</div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Linker.handle)</span></code>.</p>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -780,20 +868,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.texture.TextureDescriptor.html"
+       href="cuda.core.Program.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.texture.TextureDescriptor</p>
+        <p class="prev-next-title">cuda.core.Program</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.texture.AddressMode.html"
+       href="cuda.core.ObjectCode.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.texture.AddressMode</p>
+        <p class="prev-next-title">cuda.core.ObjectCode</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -818,7 +906,16 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.ArrayFormat"><code class="docutils literal notranslate"><span class="pre">ArrayFormat</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker"><code class="docutils literal notranslate"><span class="pre">Linker</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.__init__"><code class="docutils literal notranslate"><span class="pre">Linker.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.close"><code class="docutils literal notranslate"><span class="pre">Linker.close()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.get_error_log"><code class="docutils literal notranslate"><span class="pre">Linker.get_error_log()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.get_info_log"><code class="docutils literal notranslate"><span class="pre">Linker.get_info_log()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.link"><code class="docutils literal notranslate"><span class="pre">Linker.link()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.which_backend"><code class="docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.handle"><code class="docutils literal notranslate"><span class="pre">Linker.handle</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
