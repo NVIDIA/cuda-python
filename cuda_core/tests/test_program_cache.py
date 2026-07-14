@@ -7,10 +7,6 @@ import time
 
 import pytest
 
-from cuda.core import _linker
-
-is_culink_backend = _linker._decide_nvjitlink_or_driver()
-
 
 def test_program_cache_resource_is_abstract():
     from cuda.core.utils import ProgramCacheResource
@@ -375,6 +371,9 @@ def test_make_program_cache_key_ignores_name_expressions_for_non_nvrtc(code_type
             {"link_time_optimization": None},
             id="lto_false_eq_none",
         ),
+        # ``time`` is a presence gate: the linker emits ``-time`` for any
+        # non-None value, so True / "path" produce the same flag.
+        pytest.param({"time": True}, {"time": "timing.csv"}, id="time_true_eq_path"),
         # ``no_cache`` has an ``is True`` gate; False and None equivalent.
         pytest.param({"no_cache": False}, {"no_cache": None}, id="no_cache_false_eq_none"),
     ],
@@ -391,18 +390,6 @@ def test_make_program_cache_key_ptx_linker_equivalent_options_hash_same(a, b, mo
     k_a = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**a))
     k_b = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**b))
     assert k_a == k_b
-
-
-@pytest.mark.skipif(is_culink_backend, reason="test requires nvJitLink backend")
-@pytest.mark.agent_authored(model="gpt-5")
-def test_make_program_cache_key_ptx_nvjitlink_time_values_hash_same(monkeypatch):
-    """nvJitLink emits ``-time`` for any non-None value."""
-    from cuda.core.utils import _program_cache
-
-    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda _use_driver: ("nvJitLink", "12030"))
-    k_true = _make_key(code=".version 7.0", code_type="ptx", options=_opts(time=True))
-    k_path = _make_key(code=".version 7.0", code_type="ptx", options=_opts(time="timing.csv"))
-    assert k_true == k_path
 
 
 @pytest.mark.parametrize(
@@ -1014,9 +1001,9 @@ def test_make_program_cache_key_rejects_side_effect_options_nvrtc(option_kw, ext
         pytest.param({"time": "whatever.csv"}, id="time_path"),
     ],
 )
-@pytest.mark.skipif(is_culink_backend, reason="test requires nvJitLink backend")
 def test_make_program_cache_key_accepts_side_effect_options_for_ptx(option_kw):
-    """nvJitLink ``-time`` writes only to its info log, not the filesystem."""
+    """The side-effect guard is NVRTC-specific: PTX (linker) and NVVM must
+    not be blocked by options whose side effects only apply under NVRTC."""
     _make_key(code=".version 7.0", code_type="ptx", options=_opts(**option_kw))  # no raise
 
 
