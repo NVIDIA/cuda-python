@@ -6,6 +6,7 @@
 
 #include "resource_handles.hpp"
 #include <cuda.h>
+#include <atomic>
 #include <array>
 #include <cstdint>
 #include <cstdlib>
@@ -184,6 +185,145 @@ private:
 };
 
 }  // namespace
+
+// ============================================================================
+// CUDA user-object deferred reclamation
+//
+// CUDA may invoke a user-object destructor on an internal thread where CUDA
+// calls are forbidden. Payload destruction can release resource handles whose
+// deleters call CUDA, so the callback only transfers a preallocated intrusive
+// node to this process-lifetime queue. One coalesced pending call drains all
+// queued payloads from Python's main thread.
+// ============================================================================
+
+namespace {
+
+class DeferredReclaimer;
+
+using DeferredDestroyFn = void (*)(void*) noexcept;
+
+struct DeferredDelete {
+    std::atomic<DeferredDelete*> next{nullptr};
+    void* payload;
+    DeferredDestroyFn destroy;
+    DeferredReclaimer* reclaimer;
+
+    DeferredDelete(void* payload_, DeferredDestroyFn destroy_,
+                   DeferredReclaimer* reclaimer_) noexcept
+        : payload(payload_), destroy(destroy_), reclaimer(reclaimer_) {}
+};
+
+class DeferredReclaimer {
+public:
+    void retire(DeferredDelete* item) noexcept {
+        DeferredDelete* head = head_.load(std::memory_order_relaxed);
+        do {
+            item->next.store(head, std::memory_order_relaxed);
+        } while (!head_.compare_exchange_weak(
+            head, item, std::memory_order_release, std::memory_order_relaxed));
+        try_schedule();
+    }
+
+    void stop() noexcept {
+        accepting_.store(false, std::memory_order_release);
+    }
+
+    void retry() noexcept {
+        try_schedule();
+    }
+
+private:
+    static int pending_call(void* arg) noexcept {
+        static_cast<DeferredReclaimer*>(arg)->drain();
+        return 0;
+    }
+
+    void try_schedule() noexcept {
+        if (!accepting_.load(std::memory_order_acquire) ||
+            !head_.load(std::memory_order_acquire)) {
+            return;
+        }
+        bool expected = false;
+        if (!scheduled_.compare_exchange_strong(
+                expected, true, std::memory_order_acq_rel,
+                std::memory_order_relaxed)) {
+            return;
+        }
+        if (Py_AddPendingCall(&DeferredReclaimer::pending_call, this) != 0) {
+            // Keep every payload queued. A later retirement or safe cuda-core
+            // entry can retry without blocking CUDA's callback thread.
+            scheduled_.store(false, std::memory_order_release);
+        }
+    }
+
+    void drain() noexcept {
+        if (!Py_IsInitialized() || py_is_finalizing()) {
+            stop();
+            scheduled_.store(false, std::memory_order_release);
+            return;  // Intentionally leak intact payloads during shutdown.
+        }
+
+        while (DeferredDelete* list =
+                   head_.exchange(nullptr, std::memory_order_acquire)) {
+            while (list) {
+                DeferredDelete* next =
+                    list->next.load(std::memory_order_relaxed);
+                list->destroy(list->payload);
+                delete list;
+                list = next;
+            }
+        }
+
+        scheduled_.store(false, std::memory_order_release);
+        if (head_.load(std::memory_order_acquire)) {
+            try_schedule();
+        }
+    }
+
+    std::atomic<DeferredDelete*> head_{nullptr};
+    std::atomic<bool> scheduled_{false};
+    std::atomic<bool> accepting_{true};
+};
+
+DeferredReclaimer* deferred_reclaimer = nullptr;  // Intentionally never freed.
+
+void stop_deferred_reclaimer() {
+    if (deferred_reclaimer) {
+        deferred_reclaimer->stop();
+    }
+}
+
+DeferredDelete* make_deferred_delete(
+        void* payload, DeferredDestroyFn destroy) {
+    DeferredReclaimer* reclaimer = deferred_reclaimer;
+    if (!reclaimer) {
+        throw std::runtime_error("deferred reclaimer is not initialized");
+    }
+    reclaimer->retry();
+    return new DeferredDelete(payload, destroy, reclaimer);
+}
+
+void destroy_deferred_delete_now(DeferredDelete* item) noexcept {
+    item->destroy(item->payload);
+    delete item;
+}
+
+void enqueue_deferred_delete(void* item) noexcept {
+    auto* deferred = static_cast<DeferredDelete*>(item);
+    deferred->reclaimer->retire(deferred);
+}
+
+}  // namespace
+
+void initialize_deferred_reclaimer() {
+    if (deferred_reclaimer) {
+        return;
+    }
+    deferred_reclaimer = new DeferredReclaimer();
+    if (Py_AtExit(stop_deferred_reclaimer) != 0) {
+        deferred_reclaimer->stop();
+    }
+}
 
 // ============================================================================
 // Handle reverse-lookup registry
@@ -1176,13 +1316,20 @@ GraphSlotTable* ensure_slot_table(const GraphBox* box) {
         return nullptr;
     }
     auto* table = new GraphSlotTable();
+    DeferredDelete* deferred = nullptr;
+    try {
+        deferred = make_deferred_delete(table, destroy_graph_slot_table);
+    } catch (...) {
+        delete table;
+        throw;
+    }
     CUuserObject user_obj = nullptr;
     {
         GILReleaseGuard gil;
-        if (p_cuUserObjectCreate(&user_obj, table,
-                                 reinterpret_cast<CUhostFn>(destroy_graph_slot_table),
+        if (p_cuUserObjectCreate(&user_obj, deferred,
+                                 reinterpret_cast<CUhostFn>(enqueue_deferred_delete),
                                  1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC) != CUDA_SUCCESS) {
-            delete table;  // no user object created; nothing else owns the table
+            destroy_deferred_delete_now(deferred);
             return nullptr;
         }
         if (p_cuGraphRetainUserObject(box->resource, user_obj, 1,

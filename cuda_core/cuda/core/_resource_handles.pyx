@@ -61,6 +61,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUstream stream, object owner) except+ nogil
     void py_object_user_object_destroy "cuda_core::py_object_user_object_destroy" (
         void* py_object) noexcept nogil
+    void initialize_deferred_reclaimer "cuda_core::initialize_deferred_reclaimer" () except+
     ContextHandle get_stream_context "cuda_core::get_stream_context" (
         const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil
@@ -461,6 +462,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
 
 _init_driver_fn_pointers()
+initialize_deferred_reclaimer()
 
 # =============================================================================
 # NVRTC function pointer initialization

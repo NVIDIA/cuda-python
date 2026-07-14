@@ -217,6 +217,20 @@ Handle destructors may run from any thread. The implementation includes RAII gua
 The handle API functions are safe to call with or without the GIL held. They
 will release the GIL (if necessary) before calling CUDA driver API functions.
 
+### CUDA User-Object Reclamation
+
+CUDA user-object destructors may run on an internal driver thread where CUDA
+API calls are forbidden. Graph attachment payloads can release handles whose
+deleters call CUDA or run Python finalizers, so their CUDA callback must not
+delete the payload directly.
+
+The callback pushes a preallocated intrusive node onto a process-lifetime
+lock-free queue and schedules one coalesced `Py_AddPendingCall`. The pending
+callback drains all queued payloads from Python's main thread. If scheduling
+fails, payloads remain intact for a later retry; they are intentionally leaked
+once interpreter finalization begins. A single pending call is shared by all
+queued payloads because CPython's main-thread pending-call queue is bounded.
+
 ### Static Initialization and Deadlock Hazards
 
 When writing C++ code that interacts with Python, a subtle deadlock can occur
