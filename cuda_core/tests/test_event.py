@@ -223,6 +223,7 @@ def test_event_ipc_descriptor_non_ipc(init_cuda):
         _ = event.ipc_descriptor
 
 
+@pytest.mark.parallel_threads_limit(2)  # Many threads seem to cause latch to time out
 def test_event_is_done_false(init_cuda):
     """Event.is_done returns False when captured work has not yet completed."""
     device = Device()
