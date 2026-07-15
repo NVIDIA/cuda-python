@@ -1,0 +1,6 @@
+﻿cuda.core.system.GpuIsLostError
+===============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: GpuIsLostError

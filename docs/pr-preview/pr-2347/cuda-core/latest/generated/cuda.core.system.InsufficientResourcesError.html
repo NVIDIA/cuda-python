@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core._device_resources.DeviceResources &#8212; cuda.core</title>
+    <title>cuda.core.system.InsufficientResourcesError &#8212; cuda.core</title>
   
   
   
@@ -44,22 +44,22 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=488c1ad9"></script>
+    <script src="../_static/documentation_options.js?v=05a849ee"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core._device_resources.DeviceResources';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.InsufficientResourcesError';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev7';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev10';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2347/cuda-core/latest/generated/cuda.core._device_resources.DeviceResources.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2347/cuda-core/latest/generated/cuda.core.system.InsufficientResourcesError.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -644,6 +644,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE.html">cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
@@ -708,7 +709,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core._device_resources.DeviceResources</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.InsufficientResourcesError</span></li>
   </ul>
 </nav>
 </div>
@@ -725,37 +726,12 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-device-resources-deviceresources">
-<h1>cuda.core._device_resources.DeviceResources<a class="headerlink" href="#cuda-core-device-resources-deviceresources" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="cuda.core._device_resources.DeviceResources">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core._device_resources.</span></span><span class="sig-name descname"><span class="pre">DeviceResources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._device_resources.DeviceResources" title="Link to this definition">#</a></dt>
-<dd><p>Namespace for hardware resource queries.</p>
-<p>When obtained via <code class="xref py py-obj docutils literal notranslate"><span class="pre">Device.resources</span></code>, queries return full device
-resources. When obtained via <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context.resources</span></code> or
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream.resources</span></code>, queries return the resources provisioned for
-that context.</p>
-<p>This class cannot be instantiated directly.</p>
-<p class="rubric">Methods</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core._device_resources.DeviceResources.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._device_resources.DeviceResources.__init__" title="Link to this definition">#</a></dt>
+  <section id="cuda-core-system-insufficientresourceserror">
+<h1>cuda.core.system.InsufficientResourcesError<a class="headerlink" href="#cuda-core-system-insufficientresourceserror" title="Link to this heading">#</a></h1>
+<dl class="py exception">
+<dt class="sig sig-object py" id="cuda.core.system.InsufficientResourcesError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">InsufficientResourcesError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.InsufficientResourcesError" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
-
-<p class="rubric">Attributes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device_resources.DeviceResources.sm">
-<span class="sig-name descname"><span class="pre">sm</span></span><a class="headerlink" href="#cuda.core._device_resources.DeviceResources.sm" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference internal" href="cuda.core.SMResource.html#cuda.core.SMResource" title="cuda.core._device_resources.SMResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResource</span></code></a> for this device or context.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device_resources.DeviceResources.workqueue">
-<span class="sig-name descname"><span class="pre">workqueue</span></span><a class="headerlink" href="#cuda.core._device_resources.DeviceResources.workqueue" title="Link to this definition">#</a></dt>
-<dd><p>Return the <a class="reference internal" href="cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource" title="cuda.core._device_resources.WorkqueueResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a> for this device or context.</p>
-</dd></dl>
-
-</dd></dl>
 
 </section>
 
@@ -790,12 +766,7 @@ that context.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device_resources.DeviceResources"><code class="docutils literal notranslate"><span class="pre">DeviceResources</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device_resources.DeviceResources.__init__"><code class="docutils literal notranslate"><span class="pre">DeviceResources.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device_resources.DeviceResources.sm"><code class="docutils literal notranslate"><span class="pre">DeviceResources.sm</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device_resources.DeviceResources.workqueue"><code class="docutils literal notranslate"><span class="pre">DeviceResources.workqueue</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.InsufficientResourcesError"><code class="docutils literal notranslate"><span class="pre">InsufficientResourcesError</span></code></a></li>
 </ul>
   </nav></div>
 

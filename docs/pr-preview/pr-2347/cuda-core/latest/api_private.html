@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=488c1ad9"></script>
+    <script src="_static/documentation_options.js?v=05a849ee"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev7';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev10';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -644,6 +644,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE.html">cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
@@ -801,11 +802,11 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.typing.VirtualMemoryLocationType.html#cuda.core.typing.VirtualMemoryLocationType" title="cuda.core.typing.VirtualMemoryLocationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.VirtualMemoryLocationType</span></code></a>(value[, ...])</p></td>
 <td><p>Physical backing location for a virtual memory allocation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties" title="cuda.core._device.DeviceProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device.DeviceProperties</span></code></a>(*args, **kwargs)</p></td>
-<td><p>A class to query various attributes of a CUDA device.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._device_resources.DeviceResources.html#cuda.core._device_resources.DeviceResources" title="cuda.core._device_resources.DeviceResources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device_resources.DeviceResources</span></code></a>(*args, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.DeviceResources.html#cuda.core.DeviceResources" title="cuda.core.DeviceResources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceResources</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Namespace for hardware resource queries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties" title="cuda.core._device.DeviceProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device.DeviceProperties</span></code></a>(*args, **kwargs)</p></td>
+<td><p>A class to query various attributes of a CUDA device.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory._ipc.IPCAllocationHandle</span></code></a>(*arg, **kwargs)</p></td>
 <td><p>Shareable handle to an IPC-enabled device memory pool.</p></td>
@@ -982,6 +983,102 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.typing.ThermalTarget.html#cuda.core.system.typing.ThermalTarget" title="cuda.core.system.typing.ThermalTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.typing.ThermalTarget</span></code></a>(value[, names, ...])</p></td>
 <td><p>Thermal sensor targets.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.NvmlError.html#cuda.core.system.NvmlError" title="cuda.core.system.NvmlError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.NvmlError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.UninitializedError.html#cuda.core.system.UninitializedError" title="cuda.core.system.UninitializedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.UninitializedError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.InvalidArgumentError.html#cuda.core.system.InvalidArgumentError" title="cuda.core.system.InvalidArgumentError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InvalidArgumentError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.NotSupportedError.html#cuda.core.system.NotSupportedError" title="cuda.core.system.NotSupportedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.NotSupportedError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.NoPermissionError.html#cuda.core.system.NoPermissionError" title="cuda.core.system.NoPermissionError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.NoPermissionError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.AlreadyInitializedError.html#cuda.core.system.AlreadyInitializedError" title="cuda.core.system.AlreadyInitializedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.AlreadyInitializedError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.NotFoundError.html#cuda.core.system.NotFoundError" title="cuda.core.system.NotFoundError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.NotFoundError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.InsufficientSizeError.html#cuda.core.system.InsufficientSizeError" title="cuda.core.system.InsufficientSizeError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InsufficientSizeError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.InsufficientPowerError.html#cuda.core.system.InsufficientPowerError" title="cuda.core.system.InsufficientPowerError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InsufficientPowerError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.DriverNotLoadedError.html#cuda.core.system.DriverNotLoadedError" title="cuda.core.system.DriverNotLoadedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DriverNotLoadedError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.TimeoutError.html#cuda.core.system.TimeoutError" title="cuda.core.system.TimeoutError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.TimeoutError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.IrqIssueError.html#cuda.core.system.IrqIssueError" title="cuda.core.system.IrqIssueError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.IrqIssueError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.LibraryNotFoundError.html#cuda.core.system.LibraryNotFoundError" title="cuda.core.system.LibraryNotFoundError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.LibraryNotFoundError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.FunctionNotFoundError.html#cuda.core.system.FunctionNotFoundError" title="cuda.core.system.FunctionNotFoundError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FunctionNotFoundError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.CorruptedInforomError.html#cuda.core.system.CorruptedInforomError" title="cuda.core.system.CorruptedInforomError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.CorruptedInforomError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuIsLostError.html#cuda.core.system.GpuIsLostError" title="cuda.core.system.GpuIsLostError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuIsLostError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.ResetRequiredError.html#cuda.core.system.ResetRequiredError" title="cuda.core.system.ResetRequiredError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ResetRequiredError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.OperatingSystemError.html#cuda.core.system.OperatingSystemError" title="cuda.core.system.OperatingSystemError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.OperatingSystemError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.LibRmVersionMismatchError.html#cuda.core.system.LibRmVersionMismatchError" title="cuda.core.system.LibRmVersionMismatchError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.LibRmVersionMismatchError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.InUseError.html#cuda.core.system.InUseError" title="cuda.core.system.InUseError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InUseError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.MemoryError.html#cuda.core.system.MemoryError" title="cuda.core.system.MemoryError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.MemoryError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.NoDataError.html#cuda.core.system.NoDataError" title="cuda.core.system.NoDataError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.NoDataError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.VgpuEccNotSupportedError.html#cuda.core.system.VgpuEccNotSupportedError" title="cuda.core.system.VgpuEccNotSupportedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.VgpuEccNotSupportedError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.InsufficientResourcesError.html#cuda.core.system.InsufficientResourcesError" title="cuda.core.system.InsufficientResourcesError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InsufficientResourcesError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FreqNotSupportedError.html#cuda.core.system.FreqNotSupportedError" title="cuda.core.system.FreqNotSupportedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FreqNotSupportedError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.ArgumentVersionMismatchError.html#cuda.core.system.ArgumentVersionMismatchError" title="cuda.core.system.ArgumentVersionMismatchError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ArgumentVersionMismatchError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.DeprecatedError.html#cuda.core.system.DeprecatedError" title="cuda.core.system.DeprecatedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeprecatedError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.NotReadyError.html#cuda.core.system.NotReadyError" title="cuda.core.system.NotReadyError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.NotReadyError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuNotFoundError.html#cuda.core.system.GpuNotFoundError" title="cuda.core.system.GpuNotFoundError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuNotFoundError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.InvalidStateError.html#cuda.core.system.InvalidStateError" title="cuda.core.system.InvalidStateError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InvalidStateError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.ResetTypeNotSupportedError.html#cuda.core.system.ResetTypeNotSupportedError" title="cuda.core.system.ResetTypeNotSupportedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ResetTypeNotSupportedError</span></code></a>(status)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.UnknownError.html#cuda.core.system.UnknownError" title="cuda.core.system.UnknownError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.UnknownError</span></code></a>(status)</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>

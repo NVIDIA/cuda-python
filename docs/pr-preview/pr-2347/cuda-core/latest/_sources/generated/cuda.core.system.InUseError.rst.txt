@@ -1,0 +1,6 @@
+﻿cuda.core.system.InUseError
+===========================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: InUseError
