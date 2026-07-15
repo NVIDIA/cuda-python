@@ -1045,7 +1045,7 @@ def test_vmm_allocate_close_does_not_leak(init_cuda):
         device,
         config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
     )
-    buf = mr.allocate(8 * 1024 * 1024)
+    buf = mr.allocate(8 * 1024 * 1024)  # Warm up and learn the aligned allocation size.
     aligned_size = buf.size
     buf.close()
 
@@ -1054,6 +1054,7 @@ def test_vmm_allocate_close_does_not_leak(init_cuda):
         mr.allocate(8 * 1024 * 1024).close()
     free = handle_return(driver.cuMemGetInfo())[0]
 
+    # Current main leaks aligned_size per iteration; the fixed path stays near baseline.
     assert baseline - free < aligned_size
 
 

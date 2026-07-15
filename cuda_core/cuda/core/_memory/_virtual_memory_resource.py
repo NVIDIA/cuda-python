@@ -585,13 +585,10 @@ class VirtualMemoryResource(MemoryResource):
             from cuda.core._stream import Stream_accept
 
             Stream_accept(stream)
-        result, handle = driver.cuMemRetainAllocationHandle(ptr)
-        raise_if_driver_error(result)
+        # The mapping owns the allocation; unmapping frees its backing memory when no external references remain.
         (result,) = driver.cuMemUnmap(ptr, size)
         raise_if_driver_error(result)
         (result,) = driver.cuMemAddressFree(ptr, size)
-        raise_if_driver_error(result)
-        (result,) = driver.cuMemRelease(handle)
         raise_if_driver_error(result)
 
     @property
