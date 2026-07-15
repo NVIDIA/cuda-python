@@ -322,8 +322,7 @@ class VirtualMemoryResource(MemoryResource):
             )
             res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
             raise_if_driver_error(res)
-            trans.on_failure(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
-            trans.on_success(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
+            trans.on_exit(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # Map the new physical memory to the extended VA range
             (res,) = driver.cuMemMap(new_ptr, aligned_additional_size, 0, new_handle, 0)
@@ -389,8 +388,7 @@ class VirtualMemoryResource(MemoryResource):
             # Get the old allocation handle for remapping
             result, old_handle = driver.cuMemRetainAllocationHandle(buf.handle)
             raise_if_driver_error(result)
-            trans.on_failure(lambda h=old_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
-            trans.on_success(lambda h=old_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
+            trans.on_exit(lambda h=old_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # Unmap the old VA range (aligned previous size)
             aligned_prev_size = total_aligned_size - aligned_additional_size
@@ -418,8 +416,7 @@ class VirtualMemoryResource(MemoryResource):
             # Create new physical memory for the additional size
             res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
             raise_if_driver_error(res)
-            trans.on_failure(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
-            trans.on_success(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
+            trans.on_exit(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # Map the new physical memory to the extended portion (aligned offset)
             (res,) = driver.cuMemMap(int(new_ptr) + aligned_prev_size, aligned_additional_size, 0, new_handle, 0)
@@ -541,9 +538,8 @@ class VirtualMemoryResource(MemoryResource):
             # ---- Create physical memory ----
             res, handle = driver.cuMemCreate(aligned_size, prop, 0)
             raise_if_driver_error(res)
-            trans.on_failure(lambda h=handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
             # Once mapped, the physical allocation is kept alive without the creation reference.
-            trans.on_success(lambda h=handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
+            trans.on_exit(lambda h=handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # ---- Reserve VA space ----
             # Potentially, use a separate size for the VA reservation from the physical allocation size
