@@ -5,6 +5,10 @@
 
 import ctypes
 import gc
+import subprocess
+import sys
+import textwrap
+import threading
 import time
 import weakref
 
@@ -15,10 +19,9 @@ from helpers.misc import try_create_condition
 from conftest import xfail_on_graph_mempool_oom
 from cuda_python_test_helpers import under_compute_sanitizer
 
-# Resource finalization triggered by graph destruction is not strictly
-# synchronous: the graph's slot table is freed through a CUDA user-object
-# destructor that the driver may run on its own thread, after which each owner
-# is released (a shared_ptr decrement, or Py_DECREF under the GIL). Release is
+# Resource finalization triggered by graph destruction is not synchronous. A
+# CUDA user-object callback transfers the slot table to a pending-call
+# cleanup queue, which releases each owner from Python's main thread. Release is
 # deterministic at the reference-count level, so the predicate normally flips
 # within milliseconds; this budget only bounds a slow/loaded runner. It stays a
 # hard failure rather than a warning so a real leak still fails the suite.
@@ -35,13 +38,23 @@ class _Sentinel:
     """
 
 
+class _ThreadRecordingCallback:
+    def __init__(self, finalized_threads):
+        self.finalized_threads = finalized_threads
+
+    def __call__(self):
+        pass
+
+    def __del__(self):
+        self.finalized_threads.append(threading.get_ident())
+
+
 def _wait_until(predicate, timeout=None, interval=0.02):
     """Poll ``predicate()`` until true, or raise AssertionError on timeout.
 
-    Each iteration drives ``gc.collect()`` and yields the main thread (which
-    releases the GIL) so the driver's asynchronous user-object destructor --
-    and the ``Py_DECREF`` it triggers -- can make progress. Used for resource
-    cleanup that lags graph destruction; see ``_FINALIZE_TIMEOUT``.
+    Each iteration drives ``gc.collect()`` and reaches bytecode boundaries so
+    pending cleanup can run. Used for resource cleanup that lags graph
+    destruction; see ``_FINALIZE_TIMEOUT``.
     """
     if timeout is None:
         timeout = _FINALIZE_TIMEOUT
@@ -350,6 +363,100 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
 # =============================================================================
 # Host callback lifetime — callbacks and user_data tied to graph
 # =============================================================================
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
+    """More than 32 CUDA callbacks drain through one main-thread pending call."""
+    finalized_threads = []
+    main_thread = threading.get_ident()
+    graphs = []
+
+    for _ in range(64):
+        callback = _ThreadRecordingCallback(finalized_threads)
+        graph = GraphDefinition()
+        graph.callback(callback)
+        graphs.append(graph)
+
+    del callback, graph, graphs
+    _wait_until(lambda: len(finalized_threads) == 64)
+    assert set(finalized_threads) == {main_thread}
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_pending_call_queue_saturation_preserves_cleanup(init_cuda):
+    """A full CPython queue neither strands nor mis-threads cleanup."""
+    pending_callback_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+    add_pending_call = ctypes.pythonapi.Py_AddPendingCall
+    add_pending_call.argtypes = [pending_callback_type, ctypes.c_void_p]
+    add_pending_call.restype = ctypes.c_int
+
+    @pending_callback_type
+    def noop_pending_call(_):
+        return 0
+
+    finalized_threads = []
+    main_thread = threading.get_ident()
+    first_callback = _ThreadRecordingCallback(finalized_threads)
+    first_graph = GraphDefinition()
+    first_graph.callback(first_callback)
+    graph_holder = [first_graph]
+    worker_done = threading.Event()
+    queue_was_full = []
+
+    del first_callback, first_graph
+
+    def fill_queue_and_destroy():
+        while add_pending_call(noop_pending_call, None) == 0:
+            pass
+        queue_was_full.append(True)
+        graph_holder.clear()
+        worker_done.set()
+
+    worker = threading.Thread(target=fill_queue_and_destroy)
+    worker.start()
+    assert worker_done.wait(timeout=5)
+    worker.join()
+    assert queue_was_full == [True]
+
+    # Preparing another attachment retries the first payload if its scheduling
+    # attempt observed the full queue. CUDA may also invoke its destructor
+    # later, after pending-call queue space is available.
+    second_callback = _ThreadRecordingCallback(finalized_threads)
+    second_graph = GraphDefinition()
+    second_graph.callback(second_callback)
+    del second_callback, second_graph
+
+    _wait_until(lambda: len(finalized_threads) == 2)
+    assert set(finalized_threads) == {main_thread}
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda, tmp_path):
+    """Outstanding graph attachments neither call Python nor hang at shutdown."""
+    code = textwrap.dedent(
+        """
+        from cuda.core import Device
+        from cuda.core.graph import GraphDefinition
+
+        class Callback:
+            def __call__(self):
+                pass
+
+        Device()
+        graph = GraphDefinition()
+        graph.callback(Callback())
+        """
+    )
+    result = subprocess.run(  # noqa: S603 - controlled interpreter probe
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=20,
+        # Avoid shadowing the installed package with cuda_core/cuda/core.
+        cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def test_python_callable_callback_survives_del(init_cuda):
