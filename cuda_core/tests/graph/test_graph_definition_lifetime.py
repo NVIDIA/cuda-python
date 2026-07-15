@@ -384,8 +384,8 @@ def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_pending_call_scheduling_failure_retries_later(init_cuda):
-    """A full CPython queue delays reclamation until a later safe retry."""
+def test_pending_call_queue_saturation_preserves_cleanup(init_cuda):
+    """A full CPython queue neither strands nor mis-threads cleanup."""
     pending_callback_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
     add_pending_call = ctypes.pythonapi.Py_AddPendingCall
     add_pending_call.argtypes = [pending_callback_type, ctypes.c_void_p]
@@ -418,10 +418,10 @@ def test_pending_call_scheduling_failure_retries_later(init_cuda):
     assert worker_done.wait(timeout=5)
     worker.join()
     assert queue_was_full == [True]
-    assert finalized_threads == []
 
-    # Preparing another graph attachment is a safe cuda-core entry point that
-    # retries scheduling the first graph's still-intact queued payload.
+    # Preparing another attachment retries the first payload if its scheduling
+    # attempt observed the full queue. CUDA may also invoke its destructor
+    # later, after pending-call queue space is available.
     second_callback = _ThreadRecordingCallback(finalized_threads)
     second_graph = GraphDefinition()
     second_graph.callback(second_callback)
