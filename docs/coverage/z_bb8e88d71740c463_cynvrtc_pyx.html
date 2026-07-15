@@ -441,7 +441,7 @@
   ":e": "tests/test_program.py::test_cpp_program_with_various_options[options35]|run",
   ";e": "tests/test_program.py::test_cpp_program_with_various_options[options36]|run",
   "=e": "tests/test_program.py::test_cpp_program_with_various_options[options37]|run",
-  "?e": "tests/test_program.py::test_ptx_program_with_various_options[options4]|setup",
+  "?e": "tests/test_program.py::test_ptx_program_with_various_options[options1]|setup",
   "@e": "tests/test_program_cache.py::test_cache_roundtrip_with_real_compilation|run",
   "[e": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|run",
   "]e": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|run",
@@ -471,189 +471,192 @@
   "qf": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_100]|setup",
   "rf": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH|run",
   "sf": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH|run",
-  "tf": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_75]|setup",
-  "uf": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_80]|setup",
-  "vf": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_90]|setup",
-  "wf": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_100]|setup",
-  "xf": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
-  "yf": "tests/test_object_protocols.py::test_equality_basic[sample_object_code_cubin]|run",
-  "zf": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-\u003clambda\u003e]|run",
-  "Af": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
-  "Bf": "tests/test_object_protocols.py::test_hash_consistency[sample_object_code_cubin]|run",
-  "Cf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
-  "Df": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code_cubin]|run",
-  "Ef": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel]|run",
-  "Ff": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_object_code_cubin]|run",
-  "Gf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel]|run",
-  "Hf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_object_code_cubin]|run",
-  "If": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel]|run",
-  "Jf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_object_code_cubin]|run",
-  "Kf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_alloc_node]|run",
-  "Lf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_condition]|run",
-  "Mf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_empty_node]|run",
-  "Nf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_event_record_node]|run",
-  "Of": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_event_wait_node]|run",
-  "Pf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_free_node]|run",
-  "Qf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_graphdef]|run",
-  "Rf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_host_callback_node]|run",
-  "Sf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_if_else_node]|run",
-  "Tf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_if_node]|run",
-  "Uf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_memcpy_node]|run",
-  "Vf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_memset_node]|run",
-  "Wf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_root_node]|run",
-  "Xf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_switch_node]|run",
-  "Yf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_while_node]|run",
-  "Zf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
-  "0f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code_cubin]|run",
-  "1f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_alloc_node]|run",
-  "2f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_condition]|run",
-  "3f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_empty_node]|run",
-  "4f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_event_record_node]|run",
-  "5f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_event_wait_node]|run",
-  "6f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_free_node]|run",
-  "7f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_graphdef]|run",
-  "8f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_host_callback_node]|run",
-  "9f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_if_else_node]|run",
-  "!f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_if_node]|run",
-  "#f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_kernel]|run",
-  "$f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_memcpy_node]|run",
-  "%f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_memset_node]|run",
-  "'f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_root_node]|run",
-  "(f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_switch_node]|run",
-  ")f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_while_node]|run",
-  "*f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel]|run",
-  "+f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_object_code_cubin]|run",
-  ",f": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel-sample_kernel_alt]|run",
-  "-f": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_object_code_cubin-sample_object_code_alt]|run",
-  ".f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
-  "/f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code_cubin]|run",
-  ":f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel]|run",
-  ";f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_object_code_cubin]|run",
-  "=f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel]|run",
-  "?f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_object_code_cubin]|run",
-  "@f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel]|run",
-  "[f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_object_code_cubin]|run",
-  "]f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_alloc_node]|run",
-  "^f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_condition]|run",
-  "_f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_empty_node]|run",
-  "`f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_event_record_node]|run",
-  "{f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_event_wait_node]|run",
-  "|f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_free_node]|run",
-  "}f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_graphdef]|run",
-  "~f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_host_callback_node]|run",
-  "ag": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_if_else_node]|run",
-  "bg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_if_node]|run",
-  "cg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_memcpy_node]|run",
-  "dg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_memset_node]|run",
-  "eg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_root_node]|run",
-  "fg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_switch_node]|run",
-  "gg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_while_node]|run",
-  "hg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
-  "ig": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code_cubin]|run",
-  "jg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_alloc_node]|run",
-  "kg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_condition]|run",
-  "lg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_empty_node]|run",
-  "mg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_event_record_node]|run",
-  "ng": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_event_wait_node]|run",
-  "og": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_free_node]|run",
-  "pg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_graphdef]|run",
-  "qg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_host_callback_node]|run",
-  "rg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_if_else_node]|run",
-  "sg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_if_node]|run",
-  "tg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_kernel]|run",
-  "ug": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_memcpy_node]|run",
-  "vg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_memset_node]|run",
-  "wg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_root_node]|run",
-  "xg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_switch_node]|run",
-  "yg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_while_node]|run",
-  "zg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel]|run",
-  "Ag": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code_cubin]|run",
-  "Bg": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_object_code_cubin-cloudpickle]|run",
-  "Cg": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_object_code_cubin-pickle]|run",
-  "Dg": "tests/test_object_protocols.py::test_repr_format[sample_kernel-\u003cKernel handle=0x[0-9a-f]+\u003e]|run",
-  "Eg": "tests/test_object_protocols.py::test_repr_format[sample_object_code_cubin-\u003cObjectCode handle=0x[0-9a-f]+ code_type='cubin'\u003e]|run",
-  "Fg": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ltoir-\u003cObjectCode handle=0x[0-9a-f]+ code_type='ltoir'\u003e]|run",
-  "Gg": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
-  "Hg": "tests/test_object_protocols.py::test_same_type_inequality[sample_object_code_cubin-sample_object_code_alt]|run",
-  "Ig": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel]|run",
-  "Jg": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_object_code_cubin]|run",
-  "Kg": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel]|run",
-  "Lg": "tests/test_object_protocols.py::test_usable_in_set[sample_object_code_cubin]|run",
-  "Mg": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel]|run",
-  "Ng": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_object_code_cubin]|run",
-  "Og": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel]|run",
-  "Pg": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_object_code_cubin]|run",
-  "Qg": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel]|run",
-  "Rg": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_object_code_cubin]|run",
-  "Sg": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel]|run",
-  "Tg": "tests/test_object_protocols.py::test_weakref_supported[sample_object_code_cubin]|run",
-  "Ug": "tests/test_program_compile_cache.py::test_cache_accepts_empty_name_expressions|run",
-  "Vg": "tests/test_program_compile_cache.py::test_cache_hit_emits_ptx_loadability_warning_when_driver_too_old|run",
-  "Wg": "tests/test_program_compile_cache.py::test_cache_hit_no_ptx_warning_when_driver_supports_it|run",
-  "Xg": "tests/test_program_compile_cache.py::test_cache_hit_returns_object_code_reconstructed_from_bytes|run",
-  "Yg": "tests/test_program_compile_cache.py::test_cache_miss_compile_failure_does_not_store|run",
-  "Zg": "tests/test_program_compile_cache.py::test_cache_miss_runs_compile_then_stores|run",
-  "0g": "tests/test_program_compile_cache.py::test_cache_read_exception_propagates|run",
-  "1g": "tests/test_program_compile_cache.py::test_cache_write_exception_propagates|run",
-  "2g": "tests/test_nvrtc.py::test_nvrtcGetSupportedArchs|run",
-  "3g": "tests/test_program.py::test_program_backend_property|run",
-  "4g": "tests/test_program.py::test_program_close|run",
-  "5g": "tests/test_program.py::test_program_compile_invalid_target_type|run",
-  "6g": "tests/test_program.py::test_program_handle_property|run",
-  "7g": "tests/test_program.py::test_program_init_valid_code_type|run",
-  "8g": "tests/test_program_compile_cache.py::test_cache_must_subclass_program_cache_resource|run",
-  "9g": "tests/test_program_compile_cache.py::test_cache_raises_for_extra_digest_required_option|run",
-  "!g": "tests/test_program_compile_cache.py::test_cache_raises_for_nvrtc_name_with_dir_component|run",
-  "#g": "tests/test_program_compile_cache.py::test_cache_raises_for_side_effect_option|run",
-  "$g": "tests/test_program_compile_cache.py::test_cache_rejects_name_expressions|run",
-  "%g": "tests/test_program_compile_cache.py::test_no_cache_kwarg_does_not_derive_key|run",
-  "'g": "tests/test_cuda_utils.py::test_check_nvrtc_error_without_handle|run",
-  "(g": "tests/test_module.py::test_object_code_load_ptx_from_file[path]|run",
-  ")g": "tests/test_module.py::test_object_code_load_ptx_from_file[str]|run",
-  "*g": "tests/test_module.py::test_object_code_load_ptx|run",
-  "+g": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ptx-\u003cObjectCode handle=0x[0-9a-f]+ code_type='ptx'\u003e]|run",
-  ",g": "tests/test_object_protocols.py::test_repr_format[sample_program_ptx-\u003cProgram backend='(nvJitLink|driver)'\u003e]|run",
-  "-g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_list]|run",
-  ".g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_range]|run",
-  "/g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_tuple]|run",
-  ":g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_false]|run",
-  ";g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[pre_include_empty_list]|run",
-  "=g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[pre_include_false]|run",
-  "?g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_external_content_with_extra_digest|run",
-  "@g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_with_dir_when_extra_digest_supplied|run",
-  "[g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[bare_filename]|run",
-  "]g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[default]|run",
-  "^g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[empty]|run",
-  "_g": "tests/test_program_cache.py::test_make_program_cache_key_changes_with_key_schema_version|run",
-  "`g": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[arch]|run",
-  "{g": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[code]|run",
-  "|g": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[extra_digest_added]|run",
-  "}g": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[extra_digest_value]|run",
-  "~g": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[option]|run",
-  "ah": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[options.name]|run",
-  "bh": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[target_type]|run",
-  "ch": "tests/test_program_cache.py::test_make_program_cache_key_driver_probe_failure_does_not_perturb_non_linker[nvrtc]|run",
-  "dh": "tests/test_program_cache.py::test_make_program_cache_key_fails_closed_on_probe_failure[nvrtc]|run",
-  "eh": "tests/test_program_cache.py::test_make_program_cache_key_is_deterministic[c++-void k(){}]|run",
-  "fh": "tests/test_program_cache.py::test_make_program_cache_key_name_expressions_order_insensitive|run",
-  "gh": "tests/test_program_cache.py::test_make_program_cache_key_name_expressions_str_bytes_distinct|run",
-  "hh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[C++]|run",
-  "ih": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[c++]|run",
-  "jh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[Cubin]|run",
-  "kh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[LTOIR]|run",
-  "lh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[PTX]|run",
-  "mh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[PTx]|run",
-  "nh": "tests/test_program_cache.py::test_make_program_cache_key_returns_bytes|run",
-  "oh": "tests/test_program_cache.py::test_make_program_cache_key_survives_cuda_core_version_change[nvrtc]|run",
-  "ph": "tests/test_program_cache.py::test_make_program_cache_key_use_libdevice_ignored_for_non_nvvm[nvrtc]|run",
-  "qh": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|run",
-  "rh": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_program_nvrtc]|run",
-  "sh": "tests/test_object_protocols.py::test_weakref_supported[sample_program_nvrtc]|run",
-  "th": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[1]|run",
-  "uh": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|teardown",
-  "vh": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_program_nvrtc]|teardown",
-  "wh": "tests/test_object_protocols.py::test_weakref_supported[sample_program_nvrtc]|teardown",
-  "xh": "tests/test_nvrtc.py::test_nvrtcGetLoweredName_failure|run"
+  "tf": "tests/test_nvjitlink.py::test_get_linked_ltoir[sm_75]|setup",
+  "uf": "tests/test_nvjitlink.py::test_get_linked_ltoir[sm_80]|setup",
+  "vf": "tests/test_nvjitlink.py::test_get_linked_ltoir[sm_90]|setup",
+  "wf": "tests/test_nvjitlink.py::test_get_linked_ltoir[sm_100]|setup",
+  "xf": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_75]|setup",
+  "yf": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_80]|setup",
+  "zf": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_90]|setup",
+  "Af": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_100]|setup",
+  "Bf": "tests/test_object_protocols.py::test_equality_basic[sample_kernel]|run",
+  "Cf": "tests/test_object_protocols.py::test_equality_basic[sample_object_code_cubin]|run",
+  "Df": "tests/test_object_protocols.py::test_equality_same_handle[sample_kernel-\u003clambda\u003e]|run",
+  "Ef": "tests/test_object_protocols.py::test_hash_consistency[sample_kernel]|run",
+  "Ff": "tests/test_object_protocols.py::test_hash_consistency[sample_object_code_cubin]|run",
+  "Gf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_kernel]|run",
+  "Hf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_buffer-sample_object_code_cubin]|run",
+  "If": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_kernel]|run",
+  "Jf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_context-sample_object_code_cubin]|run",
+  "Kf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_kernel]|run",
+  "Lf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_device-sample_object_code_cubin]|run",
+  "Mf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_kernel]|run",
+  "Nf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_event-sample_object_code_cubin]|run",
+  "Of": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_alloc_node]|run",
+  "Pf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_condition]|run",
+  "Qf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_empty_node]|run",
+  "Rf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_event_record_node]|run",
+  "Sf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_event_wait_node]|run",
+  "Tf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_free_node]|run",
+  "Uf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_graphdef]|run",
+  "Vf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_host_callback_node]|run",
+  "Wf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_if_else_node]|run",
+  "Xf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_if_node]|run",
+  "Yf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_memcpy_node]|run",
+  "Zf": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_memset_node]|run",
+  "0f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_root_node]|run",
+  "1f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_switch_node]|run",
+  "2f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_kernel-sample_while_node]|run",
+  "3f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_kernel]|run",
+  "4f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_launch_config-sample_object_code_cubin]|run",
+  "5f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_alloc_node]|run",
+  "6f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_condition]|run",
+  "7f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_empty_node]|run",
+  "8f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_event_record_node]|run",
+  "9f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_event_wait_node]|run",
+  "!f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_free_node]|run",
+  "#f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_graphdef]|run",
+  "$f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_host_callback_node]|run",
+  "%f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_if_else_node]|run",
+  "'f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_if_node]|run",
+  "(f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_kernel]|run",
+  ")f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_memcpy_node]|run",
+  "*f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_memset_node]|run",
+  "+f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_root_node]|run",
+  ",f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_switch_node]|run",
+  "-f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_object_code_cubin-sample_while_node]|run",
+  ".f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_kernel]|run",
+  "/f": "tests/test_object_protocols.py::test_hash_distinct_cross_type[sample_stream-sample_object_code_cubin]|run",
+  ":f": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_kernel-sample_kernel_alt]|run",
+  ";f": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_object_code_cubin-sample_object_code_alt]|run",
+  "=f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_kernel]|run",
+  "?f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_buffer-sample_object_code_cubin]|run",
+  "@f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_kernel]|run",
+  "[f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_context-sample_object_code_cubin]|run",
+  "]f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_kernel]|run",
+  "^f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_device-sample_object_code_cubin]|run",
+  "_f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_kernel]|run",
+  "`f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_event-sample_object_code_cubin]|run",
+  "{f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_alloc_node]|run",
+  "|f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_condition]|run",
+  "}f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_empty_node]|run",
+  "~f": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_event_record_node]|run",
+  "ag": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_event_wait_node]|run",
+  "bg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_free_node]|run",
+  "cg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_graphdef]|run",
+  "dg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_host_callback_node]|run",
+  "eg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_if_else_node]|run",
+  "fg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_if_node]|run",
+  "gg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_memcpy_node]|run",
+  "hg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_memset_node]|run",
+  "ig": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_root_node]|run",
+  "jg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_switch_node]|run",
+  "kg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_kernel-sample_while_node]|run",
+  "lg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_kernel]|run",
+  "mg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_launch_config-sample_object_code_cubin]|run",
+  "ng": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_alloc_node]|run",
+  "og": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_condition]|run",
+  "pg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_empty_node]|run",
+  "qg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_event_record_node]|run",
+  "rg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_event_wait_node]|run",
+  "sg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_free_node]|run",
+  "tg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_graphdef]|run",
+  "ug": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_host_callback_node]|run",
+  "vg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_if_else_node]|run",
+  "wg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_if_node]|run",
+  "xg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_kernel]|run",
+  "yg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_memcpy_node]|run",
+  "zg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_memset_node]|run",
+  "Ag": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_root_node]|run",
+  "Bg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_switch_node]|run",
+  "Cg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_object_code_cubin-sample_while_node]|run",
+  "Dg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_kernel]|run",
+  "Eg": "tests/test_object_protocols.py::test_no_cross_type_equality[sample_stream-sample_object_code_cubin]|run",
+  "Fg": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_object_code_cubin-cloudpickle]|run",
+  "Gg": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_object_code_cubin-pickle]|run",
+  "Hg": "tests/test_object_protocols.py::test_repr_format[sample_kernel-\u003cKernel handle=0x[0-9a-f]+\u003e]|run",
+  "Ig": "tests/test_object_protocols.py::test_repr_format[sample_object_code_cubin-\u003cObjectCode handle=0x[0-9a-f]+ code_type='cubin'\u003e]|run",
+  "Jg": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ltoir-\u003cObjectCode handle=0x[0-9a-f]+ code_type='ltoir'\u003e]|run",
+  "Kg": "tests/test_object_protocols.py::test_same_type_inequality[sample_kernel-sample_kernel_alt]|run",
+  "Lg": "tests/test_object_protocols.py::test_same_type_inequality[sample_object_code_cubin-sample_object_code_alt]|run",
+  "Mg": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_kernel]|run",
+  "Ng": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_object_code_cubin]|run",
+  "Og": "tests/test_object_protocols.py::test_usable_in_set[sample_kernel]|run",
+  "Pg": "tests/test_object_protocols.py::test_usable_in_set[sample_object_code_cubin]|run",
+  "Qg": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_kernel]|run",
+  "Rg": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_object_code_cubin]|run",
+  "Sg": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_kernel]|run",
+  "Tg": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_object_code_cubin]|run",
+  "Ug": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_kernel]|run",
+  "Vg": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_object_code_cubin]|run",
+  "Wg": "tests/test_object_protocols.py::test_weakref_supported[sample_kernel]|run",
+  "Xg": "tests/test_object_protocols.py::test_weakref_supported[sample_object_code_cubin]|run",
+  "Yg": "tests/test_program_compile_cache.py::test_cache_accepts_empty_name_expressions|run",
+  "Zg": "tests/test_program_compile_cache.py::test_cache_hit_emits_ptx_loadability_warning_when_driver_too_old|run",
+  "0g": "tests/test_program_compile_cache.py::test_cache_hit_no_ptx_warning_when_driver_supports_it|run",
+  "1g": "tests/test_program_compile_cache.py::test_cache_hit_returns_object_code_reconstructed_from_bytes|run",
+  "2g": "tests/test_program_compile_cache.py::test_cache_miss_compile_failure_does_not_store|run",
+  "3g": "tests/test_program_compile_cache.py::test_cache_miss_runs_compile_then_stores|run",
+  "4g": "tests/test_program_compile_cache.py::test_cache_read_exception_propagates|run",
+  "5g": "tests/test_program_compile_cache.py::test_cache_write_exception_propagates|run",
+  "6g": "tests/test_nvrtc.py::test_nvrtcGetSupportedArchs|run",
+  "7g": "tests/test_program.py::test_program_backend_property|run",
+  "8g": "tests/test_program.py::test_program_close|run",
+  "9g": "tests/test_program.py::test_program_compile_invalid_target_type|run",
+  "!g": "tests/test_program.py::test_program_handle_property|run",
+  "#g": "tests/test_program.py::test_program_init_valid_code_type|run",
+  "$g": "tests/test_program_compile_cache.py::test_cache_must_subclass_program_cache_resource|run",
+  "%g": "tests/test_program_compile_cache.py::test_cache_raises_for_extra_digest_required_option|run",
+  "'g": "tests/test_program_compile_cache.py::test_cache_raises_for_nvrtc_name_with_dir_component|run",
+  "(g": "tests/test_program_compile_cache.py::test_cache_raises_for_side_effect_option|run",
+  ")g": "tests/test_program_compile_cache.py::test_cache_rejects_name_expressions|run",
+  "*g": "tests/test_program_compile_cache.py::test_no_cache_kwarg_does_not_derive_key|run",
+  "+g": "tests/test_cuda_utils.py::test_check_nvrtc_error_without_handle|run",
+  ",g": "tests/test_module.py::test_object_code_load_ptx_from_file[path]|run",
+  "-g": "tests/test_module.py::test_object_code_load_ptx_from_file[str]|run",
+  ".g": "tests/test_module.py::test_object_code_load_ptx|run",
+  "/g": "tests/test_object_protocols.py::test_repr_format[sample_object_code_ptx-\u003cObjectCode handle=0x[0-9a-f]+ code_type='ptx'\u003e]|run",
+  ":g": "tests/test_object_protocols.py::test_repr_format[sample_program_ptx-\u003cProgram backend='(nvJitLink|driver)'\u003e]|run",
+  ";g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_list]|run",
+  "=g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_range]|run",
+  "?g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_tuple]|run",
+  "@g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_false]|run",
+  "[g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[pre_include_empty_list]|run",
+  "]g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[pre_include_false]|run",
+  "^g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_external_content_with_extra_digest|run",
+  "_g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_with_dir_when_extra_digest_supplied|run",
+  "`g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[bare_filename]|run",
+  "{g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[default]|run",
+  "|g": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[empty]|run",
+  "}g": "tests/test_program_cache.py::test_make_program_cache_key_changes_with_key_schema_version|run",
+  "~g": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[arch]|run",
+  "ah": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[code]|run",
+  "bh": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[extra_digest_added]|run",
+  "ch": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[extra_digest_value]|run",
+  "dh": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[option]|run",
+  "eh": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[options.name]|run",
+  "fh": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[target_type]|run",
+  "gh": "tests/test_program_cache.py::test_make_program_cache_key_driver_probe_failure_does_not_perturb_non_linker[nvrtc]|run",
+  "hh": "tests/test_program_cache.py::test_make_program_cache_key_fails_closed_on_probe_failure[nvrtc]|run",
+  "ih": "tests/test_program_cache.py::test_make_program_cache_key_is_deterministic[c++-void k(){}]|run",
+  "jh": "tests/test_program_cache.py::test_make_program_cache_key_name_expressions_order_insensitive|run",
+  "kh": "tests/test_program_cache.py::test_make_program_cache_key_name_expressions_str_bytes_distinct|run",
+  "lh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[C++]|run",
+  "mh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[c++]|run",
+  "nh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[Cubin]|run",
+  "oh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[LTOIR]|run",
+  "ph": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[PTX]|run",
+  "qh": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[PTx]|run",
+  "rh": "tests/test_program_cache.py::test_make_program_cache_key_returns_bytes|run",
+  "sh": "tests/test_program_cache.py::test_make_program_cache_key_survives_cuda_core_version_change[nvrtc]|run",
+  "th": "tests/test_program_cache.py::test_make_program_cache_key_use_libdevice_ignored_for_non_nvvm[nvrtc]|run",
+  "uh": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|run",
+  "vh": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_program_nvrtc]|run",
+  "wh": "tests/test_object_protocols.py::test_weakref_supported[sample_program_nvrtc]|run",
+  "xh": "tests/test_object_protocols.py::test_repr_format[sample_program_nvrtc-\u003cProgram backend='NVRTC'\u003e]|teardown",
+  "yh": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_program_nvrtc]|teardown",
+  "zh": "tests/test_object_protocols.py::test_weakref_supported[sample_program_nvrtc]|teardown",
+  "Ah": "tests/test_nvrtc.py::test_nvrtcGetLoweredName_failure|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -716,7 +719,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cynvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
-            created at 2026-07-14 01:11 +0000
+            created at 2026-07-15 01:29 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -741,31 +744,31 @@
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">from ._internal cimport nvrtc as _nvrtc</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">cdef const char* nvrtcGetErrorString(nvrtcResult result) except?NULL nogil:</span>&nbsp;</span><span class="r"><label for="ctxs10" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetErrorString(result)</span>&nbsp;</span><input type="checkbox" id="ctxs11"><span class="r"><label for="ctxs11" class="ctx">3 ctx</label></span><span class="ctxs">2fe'gi </span></p>
+    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetErrorString(result)</span>&nbsp;</span><input type="checkbox" id="ctxs11"><span class="r"><label for="ctxs11" class="ctx">3 ctx</label></span><span class="ctxs">2fe+gi </span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcVersion(int* major, int* minor) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs14" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcVersion(major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">143 ctx</label></span><span class="ctxs">2a j k l m n o p q geheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeb c d (ge )gf *gg +g,gr Oes PeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/et :e;e=ei h ^e?e@e-g.g/g:g;g=g?g@g[g]g^g_g`g{g|g}g~gahbhchdhehfhghhhihjhkhlhmhnhohphUgVgWgXg[eYgZg0g1g]e</span></p>
+    <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcVersion(major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs15"><span class="r"><label for="ctxs15" class="ctx">143 ctx</label></span><span class="ctxs">2a j k l m n o p q geheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeMeNeb c d ,ge -gf .gg /g:gr Oes PeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/et :e;e=ei h ^e?e@e;g=g?g@g[g]g^g_g`g{g|g}g~gahbhchdhehfhghhhihjhkhlhmhnhohphqhrhshthYgZg0g1g[e2g3g4g5g]e</span></p>
     <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetNumSupportedArchs(int* numArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetNumSupportedArchs(numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">1 ctx</label></span><span class="ctxs">22g</span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetNumSupportedArchs(numArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">1 ctx</label></span><span class="ctxs">26g</span></p>
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetSupportedArchs(int* supportedArchs) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetSupportedArchs(supportedArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">1 ctx</label></span><span class="ctxs">22g</span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetSupportedArchs(supportedArchs)</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">1 ctx</label></span><span class="ctxs">26g</span></p>
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcCreateProgram(nvrtcProgram* prog, const char* src, const char* name, int numHeaders, const char** headers, const char** includeNames) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs26" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcCreateProgram(prog, src, name, numHeaders, headers, includeNames)</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">601 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`efe{e|e}e~eafbfcfj k l m n o p q dfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#bgeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeffMeNe$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d ~bacbce f g hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cjfkflfmfnfofpfqfrfsftfufvfwf(cxf)cyfzf*cAf+cBf,c-c.cCf/cDf:c;c=c?c@c[c]c^c_c`cEf{cFf|cGf}cHf~cadbdIfcdJfddedfdKfgdLfMfNfOfPfQfRfSfTfhdUfVfWfXfYfidjdkdldmdndodpdqdrdsdtdZfud0fvdwd1fxd2f3f4f5f6f7f8f9f!f#fyd$f%f'f(f)fzdAdBd*fCd+fDd,fEd-fFdGdHd.fId/fJdKdLdMdNdOdPdQdRdSd:fTd;fUd=fVd?fWdXdYd@fZd[f0d1d2d]f3d^f_f`f{f|f}f~fagbg4dcgdgegfggg5d6d7d8d9d!d#d$d%d'd(d)dhg*dig+d,djg-dkglgmgngogpgqgrgsgtg.dugvgwgxgyg/d:d;dzg=dAgBgCg?dDg@dEgFgqh[dGg]dHg^dIg_dJg`dKg{dLg|dMg}dNg~dOgaePgbeQgceRgrhdeSgeeTgshr Oes PeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/et :e;e=ei h 3g4g5g^e6g7g?e@eUgVgWgXg[eYgZg8g9g!g#g0g$g1g]e%g</span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcCreateProgram(prog, src, name, numHeaders, headers, includeNames)</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">605 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`efe{e|e}e~eafbfcfj k l m n o p q dfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#bgeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeffMeNe$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d ~bacbce f g hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAf(cBf)cCfDf*cEf+cFf,c-c.cGf/cHf:c;c=c?c@c[c]c^c_c`cIf{cJf|cKf}cLf~cadbdMfcdNfddedfdOfgdPfQfRfSfTfUfVfWfXfhdYfZf0f1f2fidjdkdldmdndodpdqdrdsdtd3fud4fvdwd5fxd6f7f8f9f!f#f$f%f'f(fyd)f*f+f,f-fzdAdBd.fCd/fDd:fEd;fFdGdHd=fId?fJdKdLdMdNdOdPdQdRdSd@fTd[fUd]fVd^fWdXdYd_fZd`f0d1d2d{f3d|f}f~fagbgcgdgegfg4dgghgigjgkg5d6d7d8d9d!d#d$d%d'd(d)dlg*dmg+d,dng-dogpgqgrgsgtgugvgwgxg.dygzgAgBgCg/d:d;dDg=dEgFgGg?dHg@dIgJguh[dKg]dLg^dMg_dNg`dOg{dPg|dQg}dRg~dSgaeTgbeUgceVgvhdeWgeeXgwhr Oes PeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/et :e;e=ei h 7g8g9g^e!g#g?e@eYgZg0g1g[e2g3g$g%g'g(g4g)g5g]e*g</span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcDestroyProgram(nvrtcProgram* prog) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcDestroyProgram(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">591 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`ethfe{e|e}e~eafbfcfdfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#bgeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeffMeNe$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d ~bacbce f g hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cjfkflfmfnfofpfqfrfsftfufvfwf(cxf)cyfzf*cAf+cBf,c-c.cCf/cDf:c;c=c?c@c[c]c^c_c`cEf{cFf|cGf}cHf~cadbdIfcdJfddedfdKfgdLfMfNfOfPfQfRfSfTfhdUfVfWfXfYfidjdkdldmdndodpdqdrdsdtdZfud0fvdwd1fxd2f3f4f5f6f7f8f9f!f#fyd$f%f'f(f)fzdAdBd*fCd+fDd,fEd-fFdGdHd.fId/fJdKdLdMdNdOdPdQdRdSd:fTd;fUd=fVd?fWdXdYd@fZd[f0d1d2d]f3d^f_f`f{f|f}f~fagbg4dcgdgegfggg5d6d7d8d9d!d#d$d%d'd(d)dhg*dig+d,djg-dkglgmgngogpgqgrgsgtg.dugvgwgxgyg/d:d;dzg=dAgBgCg?dDg@dEgFguh[dGg]dHg^dIg_dJg`dKg{dLg|dMg}dNg~dOgaePgbeQgceRgvhdeSgeeTgwhr Oes PeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/et :e;e=ei h 3g4g5g6g7g?e@eUgVgWgXg[eYgZg8g9g!g#g$g]e%g</span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcDestroyProgram(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">594 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`efe{e|e}e~eafbfcfdfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#bgeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeffMeNe$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d ~bacbce f g hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAf(cBf)cCfDf*cEf+cFf,c-c.cGf/cHf:c;c=c?c@c[c]c^c_c`cIf{cJf|cKf}cLf~cadbdMfcdNfddedfdOfgdPfQfRfSfTfUfVfWfXfhdYfZf0f1f2fidjdkdldmdndodpdqdrdsdtd3fud4fvdwd5fxd6f7f8f9f!f#f$f%f'f(fyd)f*f+f,f-fzdAdBd.fCd/fDd:fEd;fFdGdHd=fId?fJdKdLdMdNdOdPdQdRdSd@fTd[fUd]fVd^fWdXdYd_fZd`f0d1d2d{f3d|f}f~fagbgcgdgegfg4dgghgigjgkg5d6d7d8d9d!d#d$d%d'd(d)dlg*dmg+d,dng-dogpgqgrgsgtgugvgwgxg.dygzgAgBgCg/d:d;dDg=dEgFgGg?dHg@dIgJgxh[dKg]dLg^dMg_dNg`dOg{dPg|dQg}dRg~dSgaeTgbeUgceVgyhdeWgeeXgzhr Oes PeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/et :e;e=ei h 7g8g9g!g#g?e@eYgZg0g1g[e2g3g$g%g'g(g)g]e*g</span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char** options) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs34" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcCompileProgram(prog, numOptions, options)</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">579 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`efe{e|e}e~eafbfcfj k l m n o p q dfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#bgeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeffMeNe$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d ~bacbce f g hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cjfkflfmfnfofpfqfrfsftfufvfwf(cxf)cyfzf*cAf+cBf,c-c.cCf/cDf:c;c=c?c@c[c]c^c_c`cEf{cFf|cGf}cHf~cadbdIfcdJfddedfdKfgdLfMfNfOfPfQfRfSfTfhdUfVfWfXfYfidjdkdldmdndodpdqdrdsdtdZfud0fvdwd1fxd2f3f4f5f6f7f8f9f!f#fyd$f%f'f(f)fzdAdBd*fCd+fDd,fEd-fFdGdHd.fId/fJdKdLdMdNdOdPdQdRdSd:fTd;fUd=fVd?fWdXdYd@fZd[f0d1d2d]f3d^f_f`f{f|f}f~fagbg4dcgdgegfggg5d6d7d8d9d!d#d$d%d'd(d)dhg*dig+d,djg-dkglgmgngogpgqgrgsgtg.dugvgwgxgyg/d:d;dzg=dAgBgCg?dDg@dEgFg[dGg]dHg^dIg_dJg`dKg{dLg|dMg}dNg~dOgaePgbeQgceRgdeSgeeTgr Oes PeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/et :e;e=ei h ^e?e@e[e]e</span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcCompileProgram(prog, numOptions, options)</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">583 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`efe{e|e}e~eafbfcfj k l m n o p q dfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#bgeheiejekelemeneoepeqereseteuevewexeyezeAeBeCeDeEeFeGeHeIeJeKeLeffMeNe$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d ~bacbce f g hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cjfkflfmfnfofpfqfrfsftfufvfwfxfyfzfAf(cBf)cCfDf*cEf+cFf,c-c.cGf/cHf:c;c=c?c@c[c]c^c_c`cIf{cJf|cKf}cLf~cadbdMfcdNfddedfdOfgdPfQfRfSfTfUfVfWfXfhdYfZf0f1f2fidjdkdldmdndodpdqdrdsdtd3fud4fvdwd5fxd6f7f8f9f!f#f$f%f'f(fyd)f*f+f,f-fzdAdBd.fCd/fDd:fEd;fFdGdHd=fId?fJdKdLdMdNdOdPdQdRdSd@fTd[fUd]fVd^fWdXdYd_fZd`f0d1d2d{f3d|f}f~fagbgcgdgegfg4dgghgigjgkg5d6d7d8d9d!d#d$d%d'd(d)dlg*dmg+d,dng-dogpgqgrgsgtgugvgwgxg.dygzgAgBgCg/d:d;dDg=dEgFgGg?dHg@dIgJg[dKg]dLg^dMg_dNg`dOg{dPg|dQg}dRg~dSgaeTgbeUgceVgdeWgeeXgr Oes PeQeReSeTeUeVeWeXeYeZe0e1e2e3e4e5e6e7e8e9e!e#e$e%e'e(e)e*e+e,e-e.e/et :e;e=ei h ^e?e@e[e]e</span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t* ptxSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs38" class="ctx">(empty)</label></span></p>
@@ -777,19 +780,19 @@
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs46" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetCUBINSize(prog, cubinSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">483 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`e{e|e}e~eafbfcfj k l m n o p q dfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cnfofpfqfrfsf(cxf)cyfzf*cAf+cBf,c-c.cCf/cDf:c;c=c?c@c[c]c^c_c`cEf{cFf|cGf}cHf~cadbdIfcdJfddedfdKfgdLfMfNfOfPfQfRfSfTfhdUfVfWfXfYfidjdkdldmdndodpdqdrdsdtdZfud0fvdwd1fxd2f3f4f5f6f7f8f9f!f#fyd$f%f'f(f)fzdAdBd*fCd+fDd,fEd-fFdGdHd.fId/fJdKdLdMdNdOdPdQdRdSd:fTd;fUd=fVd?fWdXdYd@fZd[f0d1d2d]f3d^f_f`f{f|f}f~fagbg4dcgdgegfggg5d6d7d8d9d!d#d$d%d'd(d)dhg*dig+d,djg-dkglgmgngogpgqgrgsgtg.dugvgwgxgyg/d:d;dzg=dAgBgCg?dDg@dEg[dGg]dHg^dIg_dJg`dKg{dLg|dMg}dNg~dOgaePgbeQgceRgdeSgeeTg@e[e]e</span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetCUBINSize(prog, cubinSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">483 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`e{e|e}e~eafbfcfj k l m n o p q dfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cnfofpfqfrfsf(cBf)cCfDf*cEf+cFf,c-c.cGf/cHf:c;c=c?c@c[c]c^c_c`cIf{cJf|cKf}cLf~cadbdMfcdNfddedfdOfgdPfQfRfSfTfUfVfWfXfhdYfZf0f1f2fidjdkdldmdndodpdqdrdsdtd3fud4fvdwd5fxd6f7f8f9f!f#f$f%f'f(fyd)f*f+f,f-fzdAdBd.fCd/fDd:fEd;fFdGdHd=fId?fJdKdLdMdNdOdPdQdRdSd@fTd[fUd]fVd^fWdXdYd_fZd`f0d1d2d{f3d|f}f~fagbgcgdgegfg4dgghgigjgkg5d6d7d8d9d!d#d$d%d'd(d)dlg*dmg+d,dng-dogpgqgrgsgtgugvgwgxg.dygzgAgBgCg/d:d;dDg=dEgFgGg?dHg@dIg[dKg]dLg^dMg_dNg`dOg{dPg|dQg}dRg~dSgaeTgbeUgceVgdeWgeeXg@e[e]e</span></p>
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs50" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetCUBIN(prog, cubin)</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">483 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`e{e|e}e~eafbfcfj k l m n o p q dfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cnfofpfqfrfsf(cxf)cyfzf*cAf+cBf,c-c.cCf/cDf:c;c=c?c@c[c]c^c_c`cEf{cFf|cGf}cHf~cadbdIfcdJfddedfdKfgdLfMfNfOfPfQfRfSfTfhdUfVfWfXfYfidjdkdldmdndodpdqdrdsdtdZfud0fvdwd1fxd2f3f4f5f6f7f8f9f!f#fyd$f%f'f(f)fzdAdBd*fCd+fDd,fEd-fFdGdHd.fId/fJdKdLdMdNdOdPdQdRdSd:fTd;fUd=fVd?fWdXdYd@fZd[f0d1d2d]f3d^f_f`f{f|f}f~fagbg4dcgdgegfggg5d6d7d8d9d!d#d$d%d'd(d)dhg*dig+d,djg-dkglgmgngogpgqgrgsgtg.dugvgwgxgyg/d:d;dzg=dAgBgCg?dDg@dEg[dGg]dHg^dIg_dJg`dKg{dLg|dMg}dNg~dOgaePgbeQgceRgdeSgeeTg@e[e]e</span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetCUBIN(prog, cubin)</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">483 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb_e`e{e|e}e~eafbfcfj k l m n o p q dfefIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,bgf-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d hfifccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cnfofpfqfrfsf(cBf)cCfDf*cEf+cFf,c-c.cGf/cHf:c;c=c?c@c[c]c^c_c`cIf{cJf|cKf}cLf~cadbdMfcdNfddedfdOfgdPfQfRfSfTfUfVfWfXfhdYfZf0f1f2fidjdkdldmdndodpdqdrdsdtd3fud4fvdwd5fxd6f7f8f9f!f#f$f%f'f(fyd)f*f+f,f-fzdAdBd.fCd/fDd:fEd;fFdGdHd=fId?fJdKdLdMdNdOdPdQdRdSd@fTd[fUd]fVd^fWdXdYd_fZd`f0d1d2d{f3d|f}f~fagbgcgdgegfg4dgghgigjgkg5d6d7d8d9d!d#d$d%d'd(d)dlg*dmg+d,dng-dogpgqgrgsgtgugvgwgxg.dygzgAgBgCg/d:d;dDg=dEgFgGg?dHg@dIg[dKg]dLg^dMg_dNg`dOg{dPg|dQg}dRg~dSgaeTgbeUgceVgdeWgeeXg@e[e]e</span></p>
     <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t* LTOIRSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs54" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetLTOIRSize(prog, LTOIRSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs55"><span class="r"><label for="ctxs55" class="ctx">13 ctx</label></span><span class="ctxs">2ff~bacbcjfkflfmftfufvfwfFg</span></p>
+    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetLTOIRSize(prog, LTOIRSizeRet)</span>&nbsp;</span><input type="checkbox" id="ctxs55"><span class="r"><label for="ctxs55" class="ctx">17 ctx</label></span><span class="ctxs">2ff~bacbcjfkflfmftfufvfwfxfyfzfAfJg</span></p>
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char* LTOIR) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetLTOIR(prog, LTOIR)</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">13 ctx</label></span><span class="ctxs">2ff~bacbcjfkflfmftfufvfwfFg</span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetLTOIR(prog, LTOIR)</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">17 ctx</label></span><span class="ctxs">2ff~bacbcjfkflfmftfufvfwfxfyfzfAfJg</span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t* optixirSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs62" class="ctx">(empty)</label></span></p>
@@ -813,7 +816,7 @@
     <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char* name_expression, const char** lowered_name) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs82" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetLoweredName(prog, name_expression, lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">348 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d ~bacbce f g ccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cxh(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)d*d+d,d-d.d/d:d;d=d?d@d[d]d^d_d`d{d|d}d~daebecedeee</span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    return _nvrtc._nvrtcGetLoweredName(prog, name_expression, lowered_name)</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">348 ctx</label></span><span class="ctxs">2u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}bb c d ~bacbce f g ccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWcXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'cAh(c)c*c+c,c-c.c/c:c;c=c?c@c[c]c^c_c`c{c|c}c~cadbdcdddedfdgdhdidjdkdldmdndodpdqdrdsdtdudvdwdxdydzdAdBdCdDdEdFdGdHdIdJdKdLdMdNdOdPdQdRdSdTdUdVdWdXdYdZd0d1d2d3d4d5d6d7d8d9d!d#d$d%d'd(d)d*d+d,d-d.d/d:d;d=d?d@d[d]d^d_d`d{d|d}d~daebecedeee</span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">cdef nvrtcResult nvrtcGetPCHHeapSize(size_t* ret) except ?NVRTC_ERROR_INVALID_INPUT nogil:</span>&nbsp;</span><span class="r"><label for="ctxs86" class="ctx">(empty)</label></span></p>
@@ -863,7 +866,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cynvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
-            created at 2026-07-14 01:11 +0000
+            created at 2026-07-15 01:29 +0000
         </p>
     </div>
 </footer>
