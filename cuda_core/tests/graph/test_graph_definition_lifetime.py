@@ -432,7 +432,7 @@ def test_pending_call_scheduling_failure_retries_later(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda):
+def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda, tmp_path):
     """Outstanding graph attachments neither call Python nor hang at shutdown."""
     code = textwrap.dedent(
         """
@@ -453,6 +453,8 @@ def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda):
         capture_output=True,
         text=True,
         timeout=20,
+        # Avoid shadowing the installed package with cuda_core/cuda/core.
+        cwd=tmp_path,
     )
     assert result.returncode == 0, result.stderr
 
