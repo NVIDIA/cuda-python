@@ -119,13 +119,15 @@ def test_error_timing_recorded():
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
-@pytest.mark.parallel_threads_limit(2)  # Many threads seem to cause latch to time out
-def test_error_timing_incomplete():
+@pytest.mark.parallel_threads_limit(2)
+def test_error_timing_incomplete(barrier_wait):
     device = Device()
     device.set_current()
     latch = LatchKernel(device)
     enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
+    # Avoid overlapping pinned alloc/free with another worker's live latch.
+    barrier_wait()
 
     event1 = stream.record(options=enabled)
     latch.launch(stream)
@@ -138,6 +140,7 @@ def test_error_timing_incomplete():
     latch.release()
     event3.sync()
     event3 - event1  # this should work
+    barrier_wait()
 
 
 def test_event_device(init_cuda):
@@ -223,18 +226,22 @@ def test_event_ipc_descriptor_non_ipc(init_cuda):
         _ = event.ipc_descriptor
 
 
-@pytest.mark.parallel_threads_limit(2)  # Many threads seem to cause latch to time out
-def test_event_is_done_false(init_cuda):
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@pytest.mark.parallel_threads_limit(2)
+def test_event_is_done_false(init_cuda, barrier_wait):
     """Event.is_done returns False when captured work has not yet completed."""
     device = Device()
     latch = LatchKernel(device)
     stream = device.create_stream()
+    # Avoid overlapping pinned alloc/free with another worker's live latch.
+    barrier_wait()
     latch.launch(stream)
     event = stream.record()
     # The latch holds the kernel; the event cannot be done yet.
     assert event.is_done is False
     latch.release()
     event.sync()
+    barrier_wait()
 
 
 def test_import_truncated_event_descriptor():

@@ -25,7 +25,8 @@ __all__ = [
 def thread_unsafe_on_windows(func):
     # Tests that use these buffers and access the memory on the host are
     # thread-unsafe on windows. On windows the GPU must be fully quiescent for host
-    # access to be safe and with threaded tests that would require a barrier.
+    # access to be safe and with threaded tests could be achieved with barrier_wait
+    # fixture, but it is a bit of a pain.
     if IS_WINDOWS or IS_WSL:
         return pytest.mark.thread_unsafe(reason="windows host-access unsafe while GPU is working")
     return func

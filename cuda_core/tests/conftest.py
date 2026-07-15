@@ -6,6 +6,7 @@ import multiprocessing
 import os
 import pathlib
 import sys
+import threading
 from contextlib import contextmanager
 from importlib.metadata import PackageNotFoundError, distribution
 
@@ -278,6 +279,29 @@ def session_setup():
 def init_cuda():
     with _init_cuda_context() as device:
         yield device
+
+
+@pytest.fixture
+def barrier_wait(request):
+    """Synchronize parallel pytest-run-parallel workers; no-op otherwise."""
+    try:
+        n_workers = request.getfixturevalue("num_parallel_threads")
+    except pytest.FixtureLookupError:
+        n_workers = 1
+
+    if n_workers <= 1:
+        yield lambda: None
+        return
+
+    barrier = threading.Barrier(n_workers)
+
+    def _wait():
+        barrier.wait(timeout=60)
+
+    try:
+        yield _wait
+    finally:
+        barrier.abort()
 
 
 def _device_unset_current() -> bool:
