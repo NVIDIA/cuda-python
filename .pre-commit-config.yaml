@@ -50,6 +50,14 @@ repos:
         files: ^cuda_bindings/
         types: [text]
 
+      - id: check-generated-file-ctk-version
+        name: Check generated-file CTK version ceiling
+        entry: python ./toolshed/check_generated_file_ctk_version.py
+        language: python
+        files: ^cuda_bindings/
+        types: [text]
+        additional_dependencies: [pyyaml]
+
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
