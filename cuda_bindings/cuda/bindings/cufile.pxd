@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=232df43b5a8960f10286c172abc71222a3822087a1f6134e12d9341f3b53886c
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c73bf77961a16976203c41b73f9dce27b5505a95b4b7ad925650d1b9a2642814
 from libc.stdint cimport intptr_t
 
 from .cycufile cimport *
@@ -19,6 +20,7 @@ ctypedef CUfileBatchHandle_t BatchHandle
 ctypedef CUfileError_t Error
 ctypedef cufileRDMAInfo_t RDMAInfo
 ctypedef CUfileFSOps_t FSOps
+ctypedef CUfileIOVec_t IOVec
 ctypedef CUfileDrvProps_t DrvProps
 
 

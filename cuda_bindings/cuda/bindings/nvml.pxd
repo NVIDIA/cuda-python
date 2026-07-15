@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=eb901f46ca6b6930935726541c32b3ea04f7f46b6090c4c2ad9cb62386c2028b
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=72cfc364adf8bceb20b6540243e0466cd4990e38864ef3accee813c263cefc53
 from libc.stdint cimport intptr_t
 
 from .cynvml cimport *
@@ -56,6 +57,22 @@ ctypedef nvmlRusdSettings_v1_t RusdSettings_v1
 ctypedef nvmlBBXTimeData_v1_t BBXTimeData_v1
 ctypedef nvmlRemappedRowsInfo_v2_t RemappedRowsInfo_v2
 ctypedef nvmlAccountingStats_v2_t AccountingStats_v2
+ctypedef nvmlSetMemoryLimits_v1_t SetMemoryLimits_v1
+ctypedef nvmlGetMemoryLimits_v1_t GetMemoryLimits_v1
+ctypedef nvmlPmgrPwrTuple_t PmgrPwrTuple
+ctypedef nvmlRailMetrics_t RailMetrics
+ctypedef nvmlPwrModelMetricsDlppm1xPerf_t PwrModelMetricsDlppm1xPerf
+ctypedef nvmlPwrModelMetricsSamplePfpp1x_t PwrModelMetricsSamplePfpp1x
+ctypedef nvmlPwrModelOperatingPointPfpp1x_t PwrModelOperatingPointPfpp1x
+ctypedef nvmlAdaptiveTgpModeInfo_v1_t AdaptiveTgpModeInfo_v1
+ctypedef nvmlOperationalEventContextInfo_v1_t OperationalEventContextInfo_v1
+ctypedef nvmlGpuOperationalEventContextLegacyXid_v1_t GpuOperationalEventContextLegacyXid_v1
+ctypedef nvmlGpuFabricClique_v1_t GpuFabricClique_v1
+ctypedef nvmlGpuOperationalEventConfig_v1_t GpuOperationalEventConfig_v1
+ctypedef nvmlEventData_v2_t EventData_v2
+ctypedef nvmlNvlinkSetBwModeAsync_v1_t NvlinkSetBwModeAsync_v1
+ctypedef nvmlNvlinkTelemetrySample_v1_t NvlinkTelemetrySample_v1
+ctypedef nvmlEccBankRemapperHistogram_v1_t EccBankRemapperHistogram_v1
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuTypeMaxInstance_v1_t VgpuTypeMaxInstance_v1
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
@@ -72,11 +89,24 @@ ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t WorkloadPowerProfileCurren
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t WorkloadPowerProfileRequestedProfiles_v1
 ctypedef nvmlWorkloadPowerProfileUpdateProfiles_v1_t WorkloadPowerProfileUpdateProfiles_v1
 ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
+ctypedef nvmlCoreRailMetrics_t CoreRailMetrics
+ctypedef nvmlPwrModelMetricsPfpp1x_t PwrModelMetricsPfpp1x
+ctypedef nvmlGpuFabricInfo_v4_t GpuFabricInfo_v4
+ctypedef nvmlNvlinkTelemetrySamples_v1_t NvlinkTelemetrySamples_v1
+ctypedef nvmlEccBankRemapperStatus_v1_t EccBankRemapperStatus_v1
 ctypedef nvmlGetCPER_v1_t GetCPER_v1
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
+ctypedef nvmlPwrModelMetricsDlppm1x_t PwrModelMetricsDlppm1x
+ctypedef nvmlPerfMetricsPfpp1xSample_t PerfMetricsPfpp1xSample
 ctypedef nvmlPRMCounterList_v1_t PRMCounterList_v1
 ctypedef nvmlWorkloadPowerProfileProfilesInfo_v1_t WorkloadPowerProfileProfilesInfo_v1
+ctypedef nvmlPwrModelMetricsDlppm1xDramclkEstimates_t PwrModelMetricsDlppm1xDramclkEstimates
+ctypedef nvmlObservedMetrics_t ObservedMetrics
+ctypedef nvmlPerfMetricsDlppc2xSample_t PerfMetricsDlppc2xSample
+ctypedef nvmlPerfMetricControllerSample_t PerfMetricControllerSample
+ctypedef nvmlPerfMetricsSample_t PerfMetricsSample
+ctypedef nvmlPerfMetricsSamples_v1_t PerfMetricsSamples_v1
 
 
 ###############################################################################
@@ -145,6 +175,11 @@ ctypedef nvmlPRMCounterId_t _PRMCounterId
 ctypedef nvmlPowerProfileOperation_t _PowerProfileOperation
 ctypedef nvmlProcessMode_t _ProcessMode
 ctypedef nvmlCPERType_t _CPERType
+ctypedef nvmlGpuOperationalEventLogLevel_t _GpuOperationalEventLogLevel
+ctypedef nvmlOperationalEventSeverity_t _OperationalEventSeverity
+ctypedef nvmlEventDataType_t _EventDataType
+ctypedef nvmlGpuOperationalEventContextType_t _GpuOperationalEventContextType
+ctypedef nvmlNvlinkTelemetrySampleType_t _NvlinkTelemetrySampleType
 
 
 ###############################################################################

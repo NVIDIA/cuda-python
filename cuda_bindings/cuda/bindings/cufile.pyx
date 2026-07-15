@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4567ca64d02631fc8d6ed11af8164d72c86b4686c105fd733d186e6c92512749
+# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ccbdfda688406e521a0a90a988f5e5f29c4bd2bc70fe3adbc76f83563082f497
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1471,8 +1472,8 @@ cdef class _py_anon_pod2:
 cdef _get_stats_level1_dtype_offsets():
     cdef CUfileStatsLevel1_t pod
     return _numpy.dtype({
-        'names': ['read_ops', 'write_ops', 'hdl_register_ops', 'hdl_deregister_ops', 'buf_register_ops', 'buf_deregister_ops', 'read_bytes', 'write_bytes', 'read_bw_bytes_per_sec', 'write_bw_bytes_per_sec', 'read_lat_avg_us', 'write_lat_avg_us', 'read_ops_per_sec', 'write_ops_per_sec', 'read_lat_sum_us', 'write_lat_sum_us', 'batch_submit_ops', 'batch_complete_ops', 'batch_setup_ops', 'batch_cancel_ops', 'batch_destroy_ops', 'batch_enqueued_ops', 'batch_posix_enqueued_ops', 'batch_processed_ops', 'batch_posix_processed_ops', 'batch_nvfs_submit_ops', 'batch_p2p_submit_ops', 'batch_aio_submit_ops', 'batch_iouring_submit_ops', 'batch_mixed_io_submit_ops', 'batch_total_submit_ops', 'batch_read_bytes', 'batch_write_bytes', 'batch_read_bw_bytes', 'batch_write_bw_bytes', 'batch_submit_lat_avg_us', 'batch_completion_lat_avg_us', 'batch_submit_ops_per_sec', 'batch_complete_ops_per_sec', 'batch_submit_lat_sum_us', 'batch_completion_lat_sum_us', 'last_batch_read_bytes', 'last_batch_write_bytes'],
-        'formats': [op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+        'names': ['read_ops', 'write_ops', 'hdl_register_ops', 'hdl_deregister_ops', 'buf_register_ops', 'buf_deregister_ops', 'read_bytes', 'write_bytes', 'read_bw_bytes_per_sec', 'write_bw_bytes_per_sec', 'read_lat_avg_us', 'write_lat_avg_us', 'read_ops_per_sec', 'write_ops_per_sec', 'read_lat_sum_us', 'write_lat_sum_us', 'batch_submit_ops', 'batch_complete_ops', 'batch_setup_ops', 'batch_cancel_ops', 'batch_destroy_ops', 'batch_enqueued_ops', 'batch_posix_enqueued_ops', 'batch_processed_ops', 'batch_posix_processed_ops', 'batch_nvfs_submit_ops', 'batch_p2p_submit_ops', 'batch_aio_submit_ops', 'batch_iouring_submit_ops', 'batch_mixed_io_submit_ops', 'batch_total_submit_ops', 'batch_read_bytes', 'batch_write_bytes', 'batch_read_bw_bytes', 'batch_write_bw_bytes', 'batch_submit_lat_avg_us', 'batch_completion_lat_avg_us', 'batch_submit_ops_per_sec', 'batch_complete_ops_per_sec', 'batch_submit_lat_sum_us', 'batch_completion_lat_sum_us', 'last_batch_read_bytes', 'last_batch_write_bytes', 'readv_ops', 'writev_ops', 'readv_bytes', 'writev_bytes', 'readv_bw_bytes_per_sec', 'writev_bw_bytes_per_sec', 'readv_lat_avg_us', 'writev_lat_avg_us', 'readv_ops_per_sec', 'writev_ops_per_sec', 'readv_lat_sum_us', 'writev_lat_sum_us'],
+        'formats': [op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
         'offsets': [
             (<intptr_t>&(pod.read_ops)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.write_ops)) - (<intptr_t>&pod),
@@ -1517,6 +1518,18 @@ cdef _get_stats_level1_dtype_offsets():
             (<intptr_t>&(pod.batch_completion_lat_sum_us)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.last_batch_read_bytes)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.last_batch_write_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_bw_bytes_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_bw_bytes_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_lat_avg_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_lat_avg_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_ops_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_ops_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_lat_sum_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_lat_sum_us)) - (<intptr_t>&pod),
         ],
         'itemsize': sizeof(CUfileStatsLevel1_t),
     })
@@ -1842,6 +1855,30 @@ cdef class StatsLevel1:
         _cyb_memcpy(<void *>&(self._ptr[0].batch_total_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
+    def readv_ops(self):
+        """OpCounter: """
+        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].readv_ops), self._readonly, self)
+
+    @readv_ops.setter
+    def readv_ops(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        cdef OpCounter val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].readv_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+
+    @property
+    def writev_ops(self):
+        """OpCounter: """
+        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].writev_ops), self._readonly, self)
+
+    @writev_ops.setter
+    def writev_ops(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        cdef OpCounter val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].writev_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+
+    @property
     def read_bytes(self):
         """int: """
         return self._ptr[0].read_bytes
@@ -2082,6 +2119,116 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         self._ptr[0].last_batch_write_bytes = val
+
+    @property
+    def readv_bytes(self):
+        """int: """
+        return self._ptr[0].readv_bytes
+
+    @readv_bytes.setter
+    def readv_bytes(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_bytes = val
+
+    @property
+    def writev_bytes(self):
+        """int: """
+        return self._ptr[0].writev_bytes
+
+    @writev_bytes.setter
+    def writev_bytes(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_bytes = val
+
+    @property
+    def readv_bw_bytes_per_sec(self):
+        """int: """
+        return self._ptr[0].readv_bw_bytes_per_sec
+
+    @readv_bw_bytes_per_sec.setter
+    def readv_bw_bytes_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_bw_bytes_per_sec = val
+
+    @property
+    def writev_bw_bytes_per_sec(self):
+        """int: """
+        return self._ptr[0].writev_bw_bytes_per_sec
+
+    @writev_bw_bytes_per_sec.setter
+    def writev_bw_bytes_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_bw_bytes_per_sec = val
+
+    @property
+    def readv_lat_avg_us(self):
+        """int: """
+        return self._ptr[0].readv_lat_avg_us
+
+    @readv_lat_avg_us.setter
+    def readv_lat_avg_us(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_lat_avg_us = val
+
+    @property
+    def writev_lat_avg_us(self):
+        """int: """
+        return self._ptr[0].writev_lat_avg_us
+
+    @writev_lat_avg_us.setter
+    def writev_lat_avg_us(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_lat_avg_us = val
+
+    @property
+    def readv_ops_per_sec(self):
+        """int: """
+        return self._ptr[0].readv_ops_per_sec
+
+    @readv_ops_per_sec.setter
+    def readv_ops_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_ops_per_sec = val
+
+    @property
+    def writev_ops_per_sec(self):
+        """int: """
+        return self._ptr[0].writev_ops_per_sec
+
+    @writev_ops_per_sec.setter
+    def writev_ops_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_ops_per_sec = val
+
+    @property
+    def readv_lat_sum_us(self):
+        """int: """
+        return self._ptr[0].readv_lat_sum_us
+
+    @readv_lat_sum_us.setter
+    def readv_lat_sum_us(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_lat_sum_us = val
+
+    @property
+    def writev_lat_sum_us(self):
+        """int: """
+        return self._ptr[0].writev_lat_sum_us
+
+    @writev_lat_sum_us.setter
+    def writev_lat_sum_us(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_lat_sum_us = val
 
     @staticmethod
     def from_buffer(buffer):
@@ -2721,7 +2868,8 @@ class DriverControlFlags(_cyb_FastEnum):
     """
     USE_POLL_MODE = (CU_FILE_USE_POLL_MODE, 'use POLL mode. properties.use_poll_mode')
     ALLOW_COMPAT_MODE = (CU_FILE_ALLOW_COMPAT_MODE, 'allow COMPATIBILITY mode. properties.allow_compat_mode')
-    POSIX_IO_MODE = (CU_FILE_POSIX_IO_MODE, 'Vanilla posix io mode. properties.posix_io_mode')
+    VANILLA_POSIX_IO_MODE = (CU_FILE_VANILLA_POSIX_IO_MODE, 'Vanilla posix io mode. properties.vanilla_posix_io_mode')
+    POSIX_IO_MODE = (CU_FILE_POSIX_IO_MODE, 'alias for backward compatibility')
     FALLBACK_IO_MODE = (CU_FILE_FALLBACK_IO_MODE, 'Fallback io mode. properties.gds_fallback_io')
 
 class FeatureFlags(_cyb_FastEnum):
@@ -2800,6 +2948,8 @@ class BoolConfigParameter(_cyb_FastEnum):
     FORCE_ODIRECT_MODE = CUFILE_PARAM_FORCE_ODIRECT_MODE
     SKIP_TOPOLOGY_DETECTION = CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
     STREAM_MEMOPS_BYPASS = CUFILE_PARAM_STREAM_MEMOPS_BYPASS
+    PROPERTIES_POSIX_IO_MODE = CUFILE_PARAM_PROPERTIES_POSIX_IO_MODE
+    GDS_FALLBACK_IO = CUFILE_PARAM_GDS_FALLBACK_IO
 
 class StringConfigParameter(_cyb_FastEnum):
     """
@@ -2808,6 +2958,7 @@ class StringConfigParameter(_cyb_FastEnum):
     LOGGING_LEVEL = CUFILE_PARAM_LOGGING_LEVEL
     ENV_LOGFILE_PATH = CUFILE_PARAM_ENV_LOGFILE_PATH
     LOG_DIR = CUFILE_PARAM_LOG_DIR
+    RDMA_TRANSPORT = CUFILE_PARAM_RDMA_TRANSPORT
 
 class ArrayConfigParameter(_cyb_FastEnum):
     """
