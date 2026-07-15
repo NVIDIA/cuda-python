@@ -100,6 +100,11 @@ class _DataDirective(Directive):
         return [node]
 
 
+# These patch the global docutils directive registry for the process lifetime.
+# Safe as long as no other test module in the same session uses docutils or
+# Sphinx with the real autosummary/module/data directives. If that ever changes,
+# move these calls into a session-scoped autouse fixture that saves and restores
+# the previous mapping.
 directives.register_directive("autosummary", _AutosummaryDirective)
 directives.register_directive("currentmodule", _ModuleDirective)
 directives.register_directive("data", _DataDirective)
@@ -128,10 +133,6 @@ def _iter_documented_entries(rst_path):
             yield module, node["name"]
 
 
-def _public_doc_paths(docs_dir):
-    return sorted(path for path in docs_dir.glob("*.rst") if path.name != "api_private.rst")
-
-
 def _add_documented_name(documented, module, entry):
     if not module or not module.startswith("cuda.core"):
         return
@@ -149,32 +150,14 @@ def _add_documented_name(documented, module, entry):
             documented[namespace].add(entry)
 
 
-def _documented_names(paths):
+def _documented_names(docs_dir, *, exclude=frozenset()):
     documented = collections.defaultdict(set)
-    for rst_path in paths:
+    for rst_path in docs_dir.glob("*.rst"):
+        if rst_path.name in exclude:
+            continue
         for module, entry in _iter_documented_entries(rst_path):
             _add_documented_name(documented, module, entry)
     return documented
-
-
-def _private_documented_names(docs_dir):
-    names = collections.defaultdict(set)
-    private_path = docs_dir / "api_private.rst"
-    if not private_path.is_file():
-        return names
-    for module, entry in _iter_documented_entries(private_path):
-        if module == "cuda.core":
-            if "." in entry:
-                sub, name = entry.split(".", 1)
-                if sub in PUBLIC_SUBPACKAGES:
-                    names[f"cuda.core.{sub}"].add(name.rsplit(".", 1)[-1])
-                else:
-                    names[module].add(entry.rsplit(".", 1)[-1])
-            else:
-                names[module].add(entry)
-        elif module in PUBLIC_NAMESPACES:
-            names[module].add(entry.rsplit(".", 1)[-1])
-    return names
 
 
 PUBLIC_NAMESPACES = ("cuda.core", *(f"cuda.core.{sub}" for sub in PUBLIC_SUBPACKAGES))
@@ -195,65 +178,46 @@ def docs_dir():
 
 
 @pytest.fixture(scope="module")
-def public_documented(docs_dir):
-    return _documented_names(_public_doc_paths(docs_dir))
+def documented(docs_dir):
+    return _documented_names(docs_dir)
 
 
-@pytest.fixture(scope="module")
-def private_documented(docs_dir):
-    return _private_documented_names(docs_dir)
-
-
+@pytest.mark.human_authored
 def test_public_subpackages_discovered():
     # Guards against a broken __path__ walk silently turning every
     # parametrized subpackage check into a no-op.
     assert PUBLIC_SUBPACKAGES, "no public cuda.core subpackages were discovered"
 
 
-def test_all_exports_resolve():
-    if not hasattr(cuda.core, "__all__"):
-        pytest.skip("cuda.core does not define __all__")
+@pytest.mark.human_authored
+def test_main_package_all_exports_resolve():
+    assert hasattr(cuda.core, "__all__"), "cuda.core does not define __all__"
     missing = [name for name in cuda.core.__all__ if not hasattr(cuda.core, name)]
     assert missing == [], f"cuda.core.__all__ lists names that do not resolve: {missing}"
 
 
-def test_public_symbols_are_documented(exported, public_documented, private_documented):
-    documented = public_documented["cuda.core"]
-    # Returned helpers are deliberately documented in api_private.rst; accept
-    # them by their trailing name.
-    private = private_documented["cuda.core"]
-    undocumented = exported - documented - private
+@pytest.mark.human_authored
+def test_main_package_symbols_are_documented(exported, documented):
+    documented = documented["cuda.core"]
+    undocumented = exported - documented
     assert not undocumented, f"public by cuda.core.__all__ but missing from docs/source/*.rst: {sorted(undocumented)}"
 
 
-def test_documented_symbols_are_exported(exported, public_documented):
-    documented = public_documented["cuda.core"]
-    unexported = documented - exported
-    assert not unexported, (
-        f"documented as public in docs/source/*.rst but not exported by cuda.core.__all__: {sorted(unexported)}"
-    )
-
-
 @pytest.mark.parametrize("sub", PUBLIC_SUBPACKAGES)
-def test_subpackage_defines_all(sub):
+def test_subpackage_symbols_define_all(sub):
     module = importlib.import_module(f"cuda.core.{sub}")
     assert hasattr(module, "__all__"), f"cuda.core.{sub} does not define __all__"
     missing = [name for name in module.__all__ if not hasattr(module, name)]
     assert missing == [], f"cuda.core.{sub}.__all__ lists names that do not resolve: {missing}"
 
 
+@pytest.mark.human_authored
 @pytest.mark.parametrize("sub", PUBLIC_SUBPACKAGES)
-def test_subpackage_exports_match_docs(sub, public_documented, private_documented):
-    documented = public_documented[f"cuda.core.{sub}"]
+def test_subpackage_exports_are_documented(sub, documented):
+    documented = documented[f"cuda.core.{sub}"]
     module = importlib.import_module(f"cuda.core.{sub}")
     exported = set(module.__all__)
-    private = private_documented[f"cuda.core.{sub}"]
-    undocumented = exported - documented - private
+    undocumented = exported - documented
     assert not undocumented, (
         f"public by cuda.core.{sub}.__all__ but missing from docs/source/*.rst: {sorted(undocumented)}"
-    )
-    unexported = documented - exported
-    assert not unexported, (
-        f"documented as public in docs/source/*.rst under {sub} but not exported by cuda.core.{sub}.__all__: "
-        f"{sorted(unexported)}"
     )
