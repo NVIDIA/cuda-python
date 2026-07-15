@@ -306,24 +306,26 @@ def is_nested_sequence(obj: object) -> bool:
 
 class Transaction:
     """
-    A context manager for transactional operations with undo capability.
+    A context manager for transactional operations with failure and success callbacks.
 
-    The Transaction class allows you to register undo actions (callbacks) that will be executed
-    if the transaction is not committed before exiting the context. This is useful for managing
-    resources or operations that need to be rolled back in case of errors or early exits.
+    Failure callbacks are executed in LIFO order if the transaction exits without being committed.
+    Success callbacks are executed in FIFO order when the transaction is committed.
 
     Usage:
         with Transaction() as txn:
-            txn.append(some_cleanup_function, arg1, arg2)
+            txn.on_failure(some_cleanup_function, arg1, arg2)
+            txn.on_success(some_finalize_function, arg1, arg2)
             # ... perform operations ...
-            txn.commit()  # Disarm undo actions; nothing will be rolled back on exit
+            txn.commit()
 
     Methods:
-        append(fn, *args, **kwargs): Register an undo action to be called on rollback.
-        commit(): Disarm all undo actions; nothing will be rolled back on exit.
+        on_failure(fn, *args, **kwargs): Register a callback to be called on rollback.
+        on_success(fn, *args, **kwargs): Register a callback to be called on commit.
+        commit(): Disarm failure callbacks and run success callbacks.
     """
     def __init__(self) -> None:
         self._stack = ExitStack()
+        self._on_success: list[Callable[[], Any]] = []
         self._entered = False
 
     def __enter__(self):
@@ -334,23 +336,36 @@ class Transaction:
     def __exit__(self, exc_type, exc, tb):
         # If exit callbacks remain, they'll run in LIFO order.
         self._entered = False
+        self._on_success.clear()
         return self._stack.__exit__(exc_type, exc, tb)
 
-    def append(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
+    def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
         """
-        Register an undo action (runs if the with-block exits without commit()).
+        Register a failure callback (runs if the with-block exits without commit()).
         Values are bound now via partial so late mutations don't bite you.
         """
         if not self._entered:
-            raise RuntimeError("Transaction must be entered before append()")
+            raise RuntimeError("Transaction must be entered before on_failure()")
         self._stack.callback(partial(fn, *args, **kwargs))
+
+    def on_success(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
+        """
+        Register a success callback (runs in FIFO order during commit()).
+        Values are bound now via partial so late mutations don't bite you.
+        """
+        if not self._entered:
+            raise RuntimeError("Transaction must be entered before on_success()")
+        self._on_success.append(partial(fn, *args, **kwargs))
 
     def commit(self) -> None:
         """
-        Disarm all undo actions. After this, exiting the with-block does nothing.
+        Disarm all failure callbacks, then run success callbacks in FIFO order.
         """
         # pop_all() empties this stack so no callbacks are triggered on exit.
         self._stack.pop_all()
+        for fn in self._on_success:
+            fn()
+        self._on_success.clear()
 
 
 # Track whether we've already warned about fork method
