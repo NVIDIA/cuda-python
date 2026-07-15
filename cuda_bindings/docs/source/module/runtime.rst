@@ -1,7 +1,8 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0eccd5db44f7406acb693f5dd95ad2fa17c787c11659578cf54e116eb0b06e01
+.. !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c94ee8e0b5b4d126f473643cfcdfb2450bb297a683006a6a962ffb22cdd77bde
 -------
 runtime
 -------
@@ -545,6 +546,12 @@ Data types used by CUDA Runtime
         This indicates that an exception occurred on the device that is now contained by the GPU's error containment capability. Common causes are - a. Certain types of invalid accesses of peer GPU memory over nvlink b. Certain classes of hardware errors This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInsufficientLoaderVersion
+
+
+        This indicates that loader version is insufficient for Fatbin
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorInvalidSource
 
 
@@ -909,6 +916,12 @@ Data types used by CUDA Runtime
 
 
         This error indicates that a graph recapture failed and had to be terminated.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorFabricNotReady
+
+
+        This error indicates GPU fabric is not ready within the bounded wait while the fabric manager probe is still in progress. Applications may retry after a delay; for the initialization wait budget, see environment variables such as CUDA_FABRIC_INIT_TIMEOUT_MS.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorUnknown
@@ -1351,6 +1364,9 @@ Data types used by CUDA Runtime
 
         allow the hardware to load-balance the blocks in a cluster to the SMs
 
+
+    .. autoattribute:: cuda.bindings.runtime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyRubinDsmemLocality
+
 .. autoclass:: cuda.bindings.runtime.cudaStreamUpdateCaptureDependenciesFlags
 
     .. autoattribute:: cuda.bindings.runtime.cudaStreamUpdateCaptureDependenciesFlags.cudaStreamAddCaptureDependencies
@@ -1727,6 +1743,18 @@ Data types used by CUDA Runtime
 
         Specifies that the shared memory size requested may be a non-portable size up to :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlockOptin`
 
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowOversizedSharedMemory
+
+
+        Specifies that oversized shared memory configurations may be used (with the limitation of only 8kB L1 cache)
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaSharedMemoryMode.cudaSharedMemoryModePreferOversizedSharedMemory
+
+
+        Specifies that oversized shared memory configurations may be used (with the limitation of only 8kB L1 cache), and prefer an oversized shared memory configuration
+
 .. autoclass:: cuda.bindings.runtime.cudaFuncAttribute
 
     .. autoattribute:: cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMaxDynamicSharedMemorySize
@@ -1775,6 +1803,12 @@ Data types used by CUDA Runtime
 
 
         Required cluster scheduling policy preference
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeSharedMemoryMode
+
+
+        Setting that controls a kernel's use of non-portable or oversized shared memory configurations
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaFuncAttribute.cudaFuncAttributeMax
@@ -1900,6 +1934,12 @@ Data types used by CUDA Runtime
 
 
         A size in bytes for L2 persisting lines cache size
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLimit.cudaLimitPerBlockMemorySize
+
+
+        Per-block memory size
 
 .. autoclass:: cuda.bindings.runtime.cudaMemoryAdvise
 
@@ -2830,10 +2870,28 @@ Data types used by CUDA Runtime
         Device supports atomic reduction operations in stream batch memory operations
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainCount
+
+
+        Number of locality domains
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOversizedSharedMemoryPerBlock
+
+
+        The maximum oversized shared memory per block. This value may vary by chip. See :py:obj:`~.cudaFuncSetAttribute`
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported
 
 
         Device supports CIG streams
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount
+
+
+        Number of multiprocessors on each locality domain
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax
@@ -2923,6 +2981,12 @@ Data types used by CUDA Runtime
 
         (value type = int) Indicates whether the pool has hardware compresssion enabled
 
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId
+
+
+        (value type = int) The locality domain id for the mempool, if the mempool is localized to a locality domain. A value of -1 indicates that the mempool is not localized to a locality domain.
+
 .. autoclass:: cuda.bindings.runtime.cudaMemLocationType
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvalid
@@ -2962,6 +3026,12 @@ Data types used by CUDA Runtime
 
 
         Location is not visible but device is accessible, id is always cudaInvalidDeviceId
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain
+
+
+        Location is a portion of device memory, specified by the locality domain ID
 
 .. autoclass:: cuda.bindings.runtime.cudaMemAccessFlags
 
@@ -3322,7 +3392,13 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill
 
 
-        Lets smCount be a non-multiple of minCoscheduledCount, filling the difference with other SMs.
+        Treats constraints as a hint, ignoring them if necessary to reach the requested smCount. Lets smCount be a non-multiple of coscheduledSmCount, filling the difference between SM count and already assigned co-scheduled groupings with other SMs. When used with cudaDevSmResourceGroupLocalityDomainId, backfill fills up to the requested smCount using the target locality domain first, then SMs not attributed to any locality domain, then SMs from other locality domains. If no SMs can be found in the requested locality domain, cudaErrorInvalidResourceConfiguration is returned.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId
+
+
+        The SMs must be located on a specific locality domain, specified by localityDomainId
 
 .. autoclass:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags
 
@@ -6326,6 +6402,18 @@ Additionally, there are two known scenarios, where its possible for the workload
 
 
 - On Compute Architecture 9.x: When a module with dynamic parallelism (CDP) is loaded, all future kernels running under green contexts may use and share an additional set of 2 SMs.
+
+
+
+
+
+
+
+
+
+Memory Copy Operations
+
+Green context restrictions apply to memory copy operations only when the copy is performed using a green context. For cross-device copies, green context restrictions may not be applied.
 
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetDevResource
 .. autofunction:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount
