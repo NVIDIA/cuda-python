@@ -19,22 +19,22 @@ class NVRTCError(CUDAError):
 
 class Transaction:
     """
-    A context manager for transactional operations with failure and success callbacks.
+    A context manager for transactional operations with failure and exit callbacks.
 
     Failure callbacks are executed in LIFO order if the transaction exits without being committed.
-    Success callbacks are executed in FIFO order when the transaction is committed.
+    Exit callbacks always run: in LIFO order on rollback or FIFO order during commit.
 
     Usage:
         with Transaction() as txn:
             txn.on_failure(some_cleanup_function, arg1, arg2)
-            txn.on_success(some_finalize_function, arg1, arg2)
+            txn.on_exit(some_finalize_function, arg1, arg2)
             # ... perform operations ...
             txn.commit()
 
     Methods:
         on_failure(fn, *args, **kwargs): Register a callback to be called on rollback.
-        on_success(fn, *args, **kwargs): Register a callback to be called on commit.
-        commit(): Disarm failure callbacks and run success callbacks.
+        on_exit(fn, *args, **kwargs): Register a callback to be called on rollback or commit.
+        commit(): Disarm failure callbacks and run exit callbacks.
     """
 
     def __init__(self) -> None:
@@ -52,15 +52,15 @@ class Transaction:
         Values are bound now via partial so late mutations don't bite you.
         """
 
-    def on_success(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
+    def on_exit(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
         """
-        Register a success callback (runs in FIFO order during commit()).
+        Register an exit callback (runs exactly once, on rollback or during commit()).
         Values are bound now via partial so late mutations don't bite you.
         """
 
     def commit(self) -> None:
         """
-        Disarm all failure callbacks, then run success callbacks in FIFO order.
+        Disarm all failure callbacks, then run exit callbacks in FIFO order.
         """
 _keep_driver_in_stub: 'driver.CUresult'
 _keep_nvrtc_in_stub: 'nvrtc.nvrtcResult'

@@ -306,26 +306,26 @@ def is_nested_sequence(obj: object) -> bool:
 
 class Transaction:
     """
-    A context manager for transactional operations with failure and success callbacks.
+    A context manager for transactional operations with failure and exit callbacks.
 
     Failure callbacks are executed in LIFO order if the transaction exits without being committed.
-    Success callbacks are executed in FIFO order when the transaction is committed.
+    Exit callbacks always run: in LIFO order on rollback or FIFO order during commit.
 
     Usage:
         with Transaction() as txn:
             txn.on_failure(some_cleanup_function, arg1, arg2)
-            txn.on_success(some_finalize_function, arg1, arg2)
+            txn.on_exit(some_finalize_function, arg1, arg2)
             # ... perform operations ...
             txn.commit()
 
     Methods:
         on_failure(fn, *args, **kwargs): Register a callback to be called on rollback.
-        on_success(fn, *args, **kwargs): Register a callback to be called on commit.
-        commit(): Disarm failure callbacks and run success callbacks.
+        on_exit(fn, *args, **kwargs): Register a callback to be called on rollback or commit.
+        commit(): Disarm failure callbacks and run exit callbacks.
     """
     def __init__(self) -> None:
         self._stack = ExitStack()
-        self._on_success: list[Callable[[], Any]] = []
+        self._on_exit: list[Callable[[], Any]] = []
         self._entered = False
 
     def __enter__(self):
@@ -336,7 +336,7 @@ class Transaction:
     def __exit__(self, exc_type, exc, tb):
         # If exit callbacks remain, they'll run in LIFO order.
         self._entered = False
-        self._on_success.clear()
+        self._on_exit.clear()
         return self._stack.__exit__(exc_type, exc, tb)
 
     def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
@@ -348,24 +348,26 @@ class Transaction:
             raise RuntimeError("Transaction must be entered before on_failure()")
         self._stack.callback(partial(fn, *args, **kwargs))
 
-    def on_success(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
+    def on_exit(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
         """
-        Register a success callback (runs in FIFO order during commit()).
+        Register an exit callback (runs exactly once, on rollback or during commit()).
         Values are bound now via partial so late mutations don't bite you.
         """
         if not self._entered:
-            raise RuntimeError("Transaction must be entered before on_success()")
-        self._on_success.append(partial(fn, *args, **kwargs))
+            raise RuntimeError("Transaction must be entered before on_exit()")
+        callback = partial(fn, *args, **kwargs)
+        self._stack.callback(callback)
+        self._on_exit.append(callback)
 
     def commit(self) -> None:
         """
-        Disarm all failure callbacks, then run success callbacks in FIFO order.
+        Disarm all failure callbacks, then run exit callbacks in FIFO order.
         """
         # pop_all() empties this stack so no callbacks are triggered on exit.
         self._stack.pop_all()
-        for fn in self._on_success:
+        for fn in self._on_exit:
             fn()
-        self._on_success.clear()
+        self._on_exit.clear()
 
 
 # Track whether we've already warned about fork method
