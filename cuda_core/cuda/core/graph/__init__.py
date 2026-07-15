@@ -16,3 +16,5 @@ __all__ = [
     *_graph_node.__all__,
     *_subclasses.__all__,
 ]
+
+del _graph_builder, _graph_definition, _graph_node, _subclasses
