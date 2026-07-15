@@ -6,7 +6,7 @@
 
 import pytest
 from helpers import IS_WINDOWS, IS_WSL
-from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
+from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer, thread_unsafe_on_windows
 
 from conftest import xfail_on_graph_mempool_oom
 from cuda.core import (
@@ -89,6 +89,7 @@ class GraphMemoryTestManager:
 
 @pytest.mark.parametrize("mode", ["no_graph"] + _GRAPH_MODES)
 @pytest.mark.parametrize("action", ["incr", "fill"])
+@thread_unsafe_on_windows
 def test_graph_alloc(mempool_device, mode, action):
     """Test basic graph capture with memory allocated and deallocated by
     GraphMemoryResource.
@@ -158,6 +159,7 @@ def test_graph_alloc(mempool_device, mode, action):
 
 @pytest.mark.skipif(IS_WINDOWS or IS_WSL, reason="auto_free_on_launch not supported on Windows")
 @pytest.mark.parametrize("mode", _GRAPH_MODES)
+@thread_unsafe_on_windows
 def test_graph_alloc_with_output(mempool_device, mode):
     """Test for memory allocated in a graph being used outside the graph."""
     NBYTES = 64
