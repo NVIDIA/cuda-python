@@ -197,19 +197,12 @@ def test_linker_options_as_bytes_nvjitlink():
     assert "-maxrregcount=32" in options_str
 
 
-def test_linker_options_as_bytes_invalid_backend():
+@pytest.mark.parametrize("backend", ("invalid", "driver"))
+def test_linker_options_as_bytes_invalid_backend(backend):
     """Test LinkerOptions.as_bytes() with invalid backend"""
     options = LinkerOptions(arch="sm_80")
     with pytest.raises(ValueError, match="only supports 'nvjitlink' backend"):
-        options.as_bytes("invalid")
-
-
-@pytest.mark.skipif(not is_culink_backend, reason="driver backend test")
-def test_linker_options_as_bytes_driver_not_supported():
-    """Test that as_bytes() is not supported for driver backend"""
-    options = LinkerOptions(arch="sm_80")
-    with pytest.raises(RuntimeError, match="as_bytes\\(\\) only supports 'nvjitlink' backend"):
-        options.as_bytes("driver")
+        options.as_bytes(backend)
 
 
 def test_linker_logs_cached_after_link(compile_ptx_functions):
