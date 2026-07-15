@@ -6,7 +6,7 @@ import time
 
 import pytest
 from helpers import IS_WINDOWS, IS_WSL
-from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
+from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer, thread_unsafe_on_windows
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
@@ -17,14 +17,8 @@ ENABLE_LOGGING = False  # Set True for test debugging and development
 NBYTES = 64
 
 
-if IS_WINDOWS or IS_WSL:
-    # see comment below, with threaded test all threads would need
-    # synchronization (which would require a barrier that we don't have).
-    # Applies at least to test_latchkernel and test_patterngen_(seeds|values).
-    pytestmark = pytest.mark.thread_unsafe(reason="windows host-access unsafe while GPU is working")
-
-
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@thread_unsafe_on_windows
 def test_latchkernel():
     """Test LatchKernel."""
     log = TimestampedLogger(enabled=ENABLE_LOGGING)
@@ -59,6 +53,7 @@ def test_latchkernel():
     under_compute_sanitizer(),
     reason="Too slow under compute-sanitizer (UVM-heavy test).",
 )
+@thread_unsafe_on_windows
 def test_patterngen_seeds():
     """Test PatternGen with seed argument."""
     device = Device()
@@ -77,6 +72,7 @@ def test_patterngen_seeds():
                 pgen.verify_buffer(buffer, seed=j)
 
 
+@thread_unsafe_on_windows
 def test_patterngen_values():
     """Test PatternGen with value argument, also compare_equal_buffers."""
     device = Device()

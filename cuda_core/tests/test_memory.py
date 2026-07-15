@@ -15,7 +15,7 @@ import re
 
 import pytest
 from helpers import IS_WINDOWS, supports_ipc_mempool
-from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
+from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR, thread_unsafe_on_windows
 
 from conftest import (
     create_managed_memory_resource_or_skip,
@@ -315,6 +315,7 @@ if np is not None:
     )
 
 
+@thread_unsafe_on_windows
 @pytest.mark.parametrize("value,size,exc", _FILL_CASES)
 def test_buffer_fill(fill_env, value, size, exc):
     device, mr = fill_env
