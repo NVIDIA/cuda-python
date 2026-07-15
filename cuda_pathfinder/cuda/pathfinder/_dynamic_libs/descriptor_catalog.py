@@ -380,7 +380,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="other",
         linux_sonames=("libcutensorMp.so.2",),
         site_packages_linux=("cutensor/lib",),
-        dependencies=("cutensor", "cublasLt", "nccl"),
+        dependencies=("cutensor", "cublasLt", "cudart", "nccl"),
     ),
     DescriptorSpec(
         name="nccl",
