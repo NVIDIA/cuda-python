@@ -113,8 +113,8 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
     DescriptorSpec(
         name="curand",
         packaged_with="ctk",
-        linux_sonames=("libcurand.so.10",),
-        windows_dlls=("curand64_10.dll",),
+        linux_sonames=("libcurand.so.10", "libcurand.so.11"),
+        windows_dlls=("curand64_10.dll", "curand64_11.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/curand/lib"),
         site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/curand/bin"),
     ),

@@ -57,6 +57,7 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         # We have some explicitly unsupported memory location types
         {
             "CU_MEM_LOCATION_TYPE_NONE",
+            "CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN",
             "CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT",
             "CU_MEM_LOCATION_TYPE_INVISIBLE",
             "CU_MEM_LOCATION_TYPE_MAX",
@@ -92,6 +93,9 @@ _CASES: list[tuple[Any, StrEnum, dict | None, set[str], set[str]]] = [
         # We have some explicitly unsupported memory location types
         {
             "CU_MEM_LOCATION_TYPE_NONE",
+            # Requires a separate locality-domain id; cuda-core memory-resource
+            # options currently expose only device and host/NUMA placement.
+            "CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN",
             "CU_MEM_LOCATION_TYPE_INVISIBLE",
             "CU_MEM_LOCATION_TYPE_MAX",
             "CU_MEM_LOCATION_TYPE_INVALID",
@@ -128,6 +132,15 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 
     _MODULES.append(system_typing)
 
+    _CLOCKS_EVENT_REASONS_STR_UNMAPPED = {
+        core_member
+        for binding_member, core_member in (
+            ("EVENT_REASON_BOARD_LIMIT", "BOARD_LIMIT"),
+            ("EVENT_REASON_RELIABILITY", "RELIABILITY"),
+        )
+        if binding_member not in nvml.ClocksEventReasons.__members__
+    }
+
     _CASES.extend(
         [
             (
@@ -160,7 +173,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
                 system_typing.ClocksEventReasons,
                 _device._CLOCKS_EVENT_REASONS_MAPPING,
                 set(),
-                set(),
+                _CLOCKS_EVENT_REASONS_STR_UNMAPPED,
             ),
             (
                 nvml.EventType,

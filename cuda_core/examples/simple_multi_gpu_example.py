@@ -17,7 +17,7 @@ import sys
 
 import cupy as cp
 
-from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch, system
+from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 
 dtype = cp.float32
 size = 50000
@@ -35,7 +35,7 @@ class StreamAdaptor:
 
 
 def main():
-    if system.get_num_devices() < 2:
+    if len(Device.get_all_devices()) < 2:
         print("this example requires at least 2 GPUs", file=sys.stderr)
         sys.exit(1)
 

@@ -31,6 +31,8 @@ def device_info():
     dev_count = None
     bus_id_to_board_details = {}
 
+    BoardCfg = namedtuple("BoardCfg", "name, ids_arr")
+
     with NVMLInitializer():
         dev_count = nvml.device_get_count_v2()
 
@@ -40,22 +42,27 @@ def device_info():
                 dev = nvml.device_get_handle_by_index_v2(i)
             except nvml.NoPermissionError:
                 continue
-            pci_info = nvml.device_get_pci_info_v3(dev)
 
             name = nvml.device_get_name(dev)
             # Get architecture name ex: Ampere, Kepler
             arch_id = nvml.device_get_architecture(dev)
 
-            BoardCfg = namedtuple("BoardCfg", "name, ids_arr")
-            board = BoardCfg(name, ids_arr=[(pci_info.pci_device_id, pci_info.pci_sub_system_id)])
+            try:
+                pci_info = nvml.device_get_pci_info_v3(dev)
+            except nvml.NotSupportedError:
+                board = BoardCfg(name, ids_arr=[(-1, -1)])
+                bus_id = "unknown"
+                device_id = i
+            else:
+                board = BoardCfg(name, ids_arr=[(pci_info.pci_device_id, pci_info.pci_sub_system_id)])
+                bus_id = pci_info.bus_id
+                device_id = pci_info.device_
 
             try:
                 serial = nvml.device_get_serial(dev)
             except nvml.NvmlError:
                 serial = None
 
-            bus_id = pci_info.bus_id
-            device_id = pci_info.device_
             uuid = nvml.device_get_uuid(dev)
 
             BoardDetails = namedtuple("BoardDetails", "name, board, arch_id, bus_id, device_id, serial")
@@ -138,10 +145,3 @@ def uuids(ngpus, handles):
     uuids = [nvml.device_get_uuid(handles[i]) for i in range(ngpus)]
     assert len(uuids) == ngpus
     return uuids
-
-
-@pytest.fixture
-def pci_info(ngpus, handles):
-    pci_info = [nvml.device_get_pci_info_v3(handles[i]) for i in range(ngpus)]
-    assert len(pci_info) == ngpus
-    return pci_info
