@@ -1036,7 +1036,8 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert ("release", NEW_HANDLE) in calls
 
 
-def test_vmm_allocate_close_does_not_leak(init_cuda):
+@pytest.mark.parametrize("grow", [False, True], ids=["allocate", "grow"])
+def test_vmm_allocate_close_does_not_leak(init_cuda, grow):
     device = Device()
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
@@ -1045,13 +1046,21 @@ def test_vmm_allocate_close_does_not_leak(init_cuda):
         device,
         config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
     )
-    buf = mr.allocate(8 * 1024 * 1024)  # Warm up and learn the aligned allocation size.
-    aligned_size = buf.size
-    buf.close()
+    requested_size = 8 * 1024 * 1024
+
+    def allocate_and_close():
+        buf = mr.allocate(requested_size)
+        if grow:
+            buf = mr.modify_allocation(buf, 2 * buf.size)
+        aligned_size = buf.size
+        buf.close()
+        return aligned_size
+
+    aligned_size = allocate_and_close()  # Warm up and learn the aligned allocation size.
 
     baseline = handle_return(driver.cuMemGetInfo())[0]
     for _ in range(8):
-        mr.allocate(8 * 1024 * 1024).close()
+        allocate_and_close()
     free = handle_return(driver.cuMemGetInfo())[0]
 
     # Current main leaks aligned_size per iteration; the fixed path stays near baseline.

@@ -538,7 +538,7 @@ class VirtualMemoryResource(MemoryResource):
             # ---- Create physical memory ----
             res, handle = driver.cuMemCreate(aligned_size, prop, 0)
             raise_if_driver_error(res)
-            # Once mapped, the physical allocation is kept alive without the creation reference.
+            # Drop the creation reference on either outcome; a successful mapping keeps the allocation alive.
             trans.on_exit(lambda h=handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # ---- Reserve VA space ----
@@ -550,8 +550,8 @@ class VirtualMemoryResource(MemoryResource):
 
             # ---- Map physical memory into VA ----
             (res,) = driver.cuMemMap(ptr, aligned_size, 0, handle, 0)
-            trans.on_failure(lambda p=ptr, s=aligned_size: raise_if_driver_error(driver.cuMemUnmap(p, s)[0]))
             raise_if_driver_error(res)
+            trans.on_failure(lambda p=ptr, s=aligned_size: raise_if_driver_error(driver.cuMemUnmap(p, s)[0]))
 
             # ---- Set access for owner + peers ----
             descs = self._build_access_descriptors(prop)
