@@ -9,10 +9,9 @@
 Deprecation Notices
 -------------------
 
-* This is the last release that officially supports Python 3.10. Python 3.10
-  reaches end of life in October 2026 per the `CPython support cycle
-  <https://devguide.python.org/versions/>`_. Support will be dropped in
-  ``cuda-bindings`` 13.5.
+* Support for using ``cuda-bindings`` with Python 3.10 is deprecated and will be
+  removed in a future version.  Python 3.10 reaches end of life in October 2026
+  per the `CPython support cycle <https://devguide.python.org/versions/>`_.
 
 Known issues
 ------------
