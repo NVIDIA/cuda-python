@@ -64,7 +64,7 @@
   "2": "tests/test_cudart.py::test_cudart_class_inline|run",
   "3": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[\u003ccudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsNone: 0\u003e]|run",
   "4": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[\u003ccudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsWriteDiscard: 2\u003e]|run",
-  "5": "tests/test_cuda_utils.py::test_check_runtime_error|run",
+  "5": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|teardown",
   "6": "tests/test_cuda_utils.py::test_check_runtime_error_attaches_explanation|run",
   "7": "tests/test_interoperability.py::test_interop_memPool|run",
   "8": "tests/test_cudart.py::test_getLocalRuntimeVersion|run",
@@ -128,18 +128,18 @@
   "Db": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[1]|run",
   "Eb": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[3]|run",
   "Fb": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|teardown",
-  "Gb": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|teardown",
-  "Hb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|teardown",
-  "Ib": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|teardown",
-  "Jb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|teardown",
-  "Kb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|teardown",
-  "Lb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[1]|run",
-  "Mb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[3]|run",
-  "Nb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[1]|run",
-  "Ob": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[3]|run",
-  "Pb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[1]|run",
-  "Qb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[3]|run",
-  "Rb": "tests/system/test_system_device.py::test_to_cuda_device|run",
+  "Gb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|teardown",
+  "Hb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|teardown",
+  "Ib": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|teardown",
+  "Jb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|teardown",
+  "Kb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[1]|run",
+  "Lb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[3]|run",
+  "Mb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[1]|run",
+  "Nb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[3]|run",
+  "Ob": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[1]|run",
+  "Pb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingRegistry::test_main[3]|run",
+  "Qb": "tests/system/test_system_device.py::test_to_cuda_device|run",
+  "Rb": "tests/test_cuda_utils.py::test_check_runtime_error|run",
   "Sb": "tests/test_device.py::test_compute_capability|run",
   "Tb": "tests/test_device.py::test_device_alloc_zero_bytes|run",
   "Ub": "tests/test_device.py::test_device_alloc|run",
@@ -282,8 +282,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_runtime_ptds_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
-            created at 2026-07-15 01:29 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
+            created at 2026-07-16 01:28 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -331,8 +331,8 @@
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">    return __usePTDS</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">2 ctx</label></span><span class="ctxs">1a5</span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">cdef inline int cudaPythonInit() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if __cudaPythonInit:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">213 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRb6 5 M N 1 9 O P Q D s d E l t u q F L ! 2 G v w # r e c x m k f n i b g j h o y z A C B R $ % H S SbTbUbVbWbXb3 4 I YbZbT U J K V 7 W X Y Z 0 p 0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        return __usePTDS</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">212 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRb6 M N 1 9 O P Q D s d E l t u q F L ! 2 G v w # r e c x m k f n i b g j h o y z A C B R $ % H S SbTbUbVbWbXb3 4 I YbZbT U J K V 7 W X Y Z 0 p 0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if __cudaPythonInit:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">213 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb5 GbHbIbJbKbLbMbNbObPbQb6 RbM N 1 9 O P Q D s d E l t u q F L ! 2 G v w # r e c x m k f n i b g j h o y z A C B R $ % H S SbTbUbVbWbXb3 4 I YbZbT U J K V 7 W X Y Z 0 p 0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        return __usePTDS</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">213 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb5 GbHbIbJbKbLbMbNbObPbQb6 RbM N 1 9 O P Q D s d E l t u q F L ! 2 G v w # r e c x m k f n i b g j h o y z A C B R $ % H S SbTbUbVbWbXb3 4 I YbZbT U J K V 7 W X Y Z 0 p 0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
     <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    return _cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">2 ctx</label></span><span class="ctxs">1a5</span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -1356,10 +1356,10 @@
     <p class="pln"><span class="n"><a id="t1056" href="#t1056">1056</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1057" href="#t1057">1057</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1058" href="#t1058">1058</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaDeviceSynchronize() except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1058" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1059" href="#t1059">1059</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs1059"><span class="r"><label for="ctxs1059" class="ctx">144 ctx</label></span><span class="ctxs">2' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbC TbUbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
-    <p class="run"><span class="n"><a id="t1060" href="#t1060">1060</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs1060"><span class="r"><label for="ctxs1060" class="ctx">145 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbC TbUbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t1059" href="#t1059">1059</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs1059"><span class="r"><label for="ctxs1059" class="ctx">144 ctx</label></span><span class="ctxs">2' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb5 GbHbIbJbKbLbMbNbObPbC TbUbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t1060" href="#t1060">1060</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs1060"><span class="r"><label for="ctxs1060" class="ctx">145 ctx</label></span><span class="ctxs">2a ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb5 GbHbIbJbKbLbMbNbObPbC TbUbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t1061" href="#t1061">1061</a></span><span class="t"><span class="txt">        return ptds._cudaDeviceSynchronize()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1062" href="#t1062">1062</a></span><span class="t"><span class="txt">    return _static_cudaDeviceSynchronize()</span>&nbsp;</span><input type="checkbox" id="ctxs1062"><span class="r"><label for="ctxs1062" class="ctx">144 ctx</label></span><span class="ctxs">2' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbC TbUbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
+    <p class="run"><span class="n"><a id="t1062" href="#t1062">1062</a></span><span class="t"><span class="txt">    return _static_cudaDeviceSynchronize()</span>&nbsp;</span><input type="checkbox" id="ctxs1062"><span class="r"><label for="ctxs1062" class="ctx">144 ctx</label></span><span class="ctxs">2' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFb5 GbHbIbJbKbLbMbNbObPbC TbUbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucvcwcxcyczcAcBcCcDcEcFcGcHcIcJc</span></p>
     <p class="pln"><span class="n"><a id="t1063" href="#t1063">1063</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1064" href="#t1064">1064</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1065" href="#t1065">1065</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaDeviceSetLimit(cudaLimit limit, size_t value) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1065" class="ctx">(empty)</label></span></p>
@@ -1412,10 +1412,10 @@
     <p class="pln"><span class="n"><a id="t1112" href="#t1112">1112</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1113" href="#t1113">1113</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1114" href="#t1114">1114</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaDeviceGetPCIBusId(char* pciBusId, int len, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1114" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1115" href="#t1115">1115</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs1115"><span class="r"><label for="ctxs1115" class="ctx">3 ctx</label></span><span class="ctxs">2RbWbXb</span></p>
-    <p class="run"><span class="n"><a id="t1116" href="#t1116">1116</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs1116"><span class="r"><label for="ctxs1116" class="ctx">4 ctx</label></span><span class="ctxs">2a RbWbXb</span></p>
+    <p class="run"><span class="n"><a id="t1115" href="#t1115">1115</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs1115"><span class="r"><label for="ctxs1115" class="ctx">3 ctx</label></span><span class="ctxs">2QbWbXb</span></p>
+    <p class="run"><span class="n"><a id="t1116" href="#t1116">1116</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs1116"><span class="r"><label for="ctxs1116" class="ctx">4 ctx</label></span><span class="ctxs">2a QbWbXb</span></p>
     <p class="mis show_mis"><span class="n"><a id="t1117" href="#t1117">1117</a></span><span class="t"><span class="txt">        return ptds._cudaDeviceGetPCIBusId(pciBusId, len, device)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1118" href="#t1118">1118</a></span><span class="t"><span class="txt">    return _static_cudaDeviceGetPCIBusId(pciBusId, len, device)</span>&nbsp;</span><input type="checkbox" id="ctxs1118"><span class="r"><label for="ctxs1118" class="ctx">3 ctx</label></span><span class="ctxs">2RbWbXb</span></p>
+    <p class="run"><span class="n"><a id="t1118" href="#t1118">1118</a></span><span class="t"><span class="txt">    return _static_cudaDeviceGetPCIBusId(pciBusId, len, device)</span>&nbsp;</span><input type="checkbox" id="ctxs1118"><span class="r"><label for="ctxs1118" class="ctx">3 ctx</label></span><span class="ctxs">2QbWbXb</span></p>
     <p class="pln"><span class="n"><a id="t1119" href="#t1119">1119</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1120" href="#t1120">1120</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1121" href="#t1121">1121</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaIpcGetEventHandle(cudaIpcEventHandle_t* handle, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1121" class="ctx">(empty)</label></span></p>
@@ -1510,10 +1510,10 @@
     <p class="pln"><span class="n"><a id="t1210" href="#t1210">1210</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1211" href="#t1211">1211</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1212" href="#t1212">1212</a></span><span class="t"><span class="txt">cdef const char* _cudaGetErrorString(cudaError_t error) except?NULL nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1212" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1213" href="#t1213">1213</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs1213"><span class="r"><label for="ctxs1213" class="ctx">3 ctx</label></span><span class="ctxs">165I</span></p>
-    <p class="run"><span class="n"><a id="t1214" href="#t1214">1214</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs1214"><span class="r"><label for="ctxs1214" class="ctx">4 ctx</label></span><span class="ctxs">1a65I</span></p>
+    <p class="run"><span class="n"><a id="t1213" href="#t1213">1213</a></span><span class="t"><span class="txt">    cdef bint usePTDS = cudaPythonInit()</span>&nbsp;</span><input type="checkbox" id="ctxs1213"><span class="r"><label for="ctxs1213" class="ctx">3 ctx</label></span><span class="ctxs">26 RbI </span></p>
+    <p class="run"><span class="n"><a id="t1214" href="#t1214">1214</a></span><span class="t"><span class="txt">    if usePTDS:</span>&nbsp;</span><input type="checkbox" id="ctxs1214"><span class="r"><label for="ctxs1214" class="ctx">4 ctx</label></span><span class="ctxs">2a 6 RbI </span></p>
     <p class="run"><span class="n"><a id="t1215" href="#t1215">1215</a></span><span class="t"><span class="txt">        return ptds._cudaGetErrorString(error)</span>&nbsp;</span><span class="r"><label for="ctxs1215" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1216" href="#t1216">1216</a></span><span class="t"><span class="txt">    return _static_cudaGetErrorString(error)</span>&nbsp;</span><input type="checkbox" id="ctxs1216"><span class="r"><label for="ctxs1216" class="ctx">4 ctx</label></span><span class="ctxs">1a65I</span></p>
+    <p class="run"><span class="n"><a id="t1216" href="#t1216">1216</a></span><span class="t"><span class="txt">    return _static_cudaGetErrorString(error)</span>&nbsp;</span><input type="checkbox" id="ctxs1216"><span class="r"><label for="ctxs1216" class="ctx">4 ctx</label></span><span class="ctxs">2a 6 RbI </span></p>
     <p class="pln"><span class="n"><a id="t1217" href="#t1217">1217</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1218" href="#t1218">1218</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1219" href="#t1219">1219</a></span><span class="t"><span class="txt">cdef cudaError_t _cudaGetDeviceCount(int* count) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1219" class="ctx">(empty)</label></span></p>
@@ -3594,8 +3594,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_1c6fa6fde3f60f5e_runtime_ptds_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.1">coverage.py v7.15.1</a>,
-            created at 2026-07-15 01:29 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
+            created at 2026-07-16 01:28 +0000
         </p>
     </div>
 </footer>
