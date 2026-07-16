@@ -294,7 +294,7 @@ def test_graph_capture_callback_ctypes(init_cuda):
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_capture_callback_python_survives_del(init_cuda):
-    """Captured host callback is retained in the graph slot table after del."""
+    """Captured callback is retained by its graph-node user object after del."""
     called = [False]
 
     def my_callback():

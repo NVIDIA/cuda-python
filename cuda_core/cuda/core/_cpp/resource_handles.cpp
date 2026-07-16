@@ -230,7 +230,8 @@ public:
         accepting_.store(false, std::memory_order_release);
     }
 
-    // Reattempt scheduling for payloads left queued after an earlier failure.
+    // Reattempt scheduling after Py_AddPendingCall() found CPython's bounded
+    // pending-call queue full and left payloads queued for a later safe entry.
     void retry_schedule() noexcept {
         schedule();
     }
@@ -331,6 +332,8 @@ void enqueue_cleanup(void* item) noexcept {
 
 }  // namespace
 
+// Module initialization calls this once with the GIL held, which serializes
+// the check, allocation, and publication below.
 void initialize_deferred_cleanup() {
     if (deferred_cleanup_queue.load(std::memory_order_acquire)) {
         return;
