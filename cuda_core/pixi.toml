@@ -235,5 +235,5 @@ cmd = [
 depends-on = [{ task = "build-cython-tests" }]
 
 [tasks.test-samples]
-cmd = ["pytest", "-rxXs", "-v", "$PIXI_PROJECT_ROOT/../tests/samples"]
+cmd = ["pytest", "-rxXs", "-v", "$PIXI_PROJECT_ROOT/tests/example_tests/test_samples.py"]
 default-environment = "samples"

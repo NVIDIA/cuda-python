@@ -2,20 +2,23 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 """
-Sample test orchestrator for samples under ./samples/.
+Sample test orchestrator for the standalone samples under the repo-root
+``samples/`` directory.
 
-``samples/<name>/<name>.py``, applies per-sample overrides from
-``tests/samples/test_args.json`` (same schema used in cuda-samples, plus a
-``python`` sub-object for Python-specific CLI args / launcher), and executes
-each sample in its own subprocess.
+Discovers ``samples/<name>/<name>.py``, applies per-sample overrides from
+``test_args.json`` (same schema used in cuda-samples, plus a ``python``
+sub-object for Python-specific CLI args / launcher), and executes each sample
+in its own subprocess.
+
+This module lives in the cuda.core test suite so the samples are exercised as
+part of ``pytest cuda_core/tests`` (see ``test_samples.py``), but it can also
+be invoked directly as a standalone runner:
+    python cuda_core/tests/example_tests/run_samples.py [--samples-dir samples] [--config .../test_args.json]
 
 Exit-code contract (matches cuda-samples):
     0  -> sample passed
     2  -> sample waived (missing dependency / unmet hardware requirement)
     *  -> sample failed
-
-The script can be invoked directly:
-    python tests/samples/run_samples.py [--samples-dir samples] [--config tests/samples/test_args.json]
 """
 
 from __future__ import annotations
@@ -35,7 +38,9 @@ from typing import Any
 # Default timeout per sample run (seconds). Match cuda-samples.
 DEFAULT_TIMEOUT = 300
 EXIT_WAIVED = 2
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+# This file lives at ``cuda_core/tests/example_tests/run_samples.py``; the
+# repo root (which holds the top-level ``samples/`` directory) is four levels up.
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_SAMPLES_DIR = REPO_ROOT / "samples"
 DEFAULT_CONFIG = Path(__file__).resolve().parent / "test_args.json"
 
@@ -361,7 +366,7 @@ def main(argv: list[str] | None = None) -> int:
         "--config",
         type=Path,
         default=DEFAULT_CONFIG,
-        help="Path to test_args.json (default: tests/samples/test_args.json)",
+        help="Path to test_args.json (default: alongside this script)",
     )
     parser.add_argument(
         "--parallel",

@@ -381,13 +381,6 @@ jobs:
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         run: run-tests pathfinder
 
-      - name: Run samples tests
-        if: ${{ inputs.test-mode == 'standard' }}
-        env:
-          CUDA_VER: ${{ matrix.CUDA_VER }}
-          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-        run: run-tests samples
-
       # ── Nightly: install wheels + optional dep together ──
       - name: Install cuda-python wheels + PyTorch
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}

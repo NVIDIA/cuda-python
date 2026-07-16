@@ -34,7 +34,6 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     "qa": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
     "samples": "Apache-2.0",
     "scripts": "Apache-2.0",
-    "tests": "Apache-2.0",
     "toolshed": "Apache-2.0",
 }
 

@@ -1,12 +1,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 """
-Pytest wrapper for samples under ./samples/.
+Pytest wrapper that runs the standalone samples under the repo-root
+``samples/`` directory as part of the cuda.core test suite.
 
-The samples themselves should be plain runnable scripts.
-
-This module uses ``run_samples.py`` to run the samples, which is a
-convenience wrapper around the ``cuda_bindings.samples.run_samples`` module.
+The samples themselves are plain runnable scripts (they are periodically synced
+to NVIDIA/cuda-samples). Each discovered sample is parametrized into its own
+test id and executed in a subprocess via the ``run_samples`` orchestrator, so
+this runs alongside the other cuda.core example tests under
+``pytest cuda_core/tests``.
 """
 
 from __future__ import annotations
@@ -39,6 +41,9 @@ _CONFIG = load_config(DEFAULT_CONFIG)
 _GPU_COUNT = get_gpu_count() if _SAMPLES else 0
 
 
+# Samples launch full GPU workloads in their own subprocess, so keep them
+# serialized when the suite is run under pytest-run-parallel.
+@pytest.mark.parallel_threads_limit(1)
 @pytest.mark.parametrize("sample_name", _SAMPLES)
 def test_sample(sample_name: str) -> None:
     if _GPU_COUNT == 0:

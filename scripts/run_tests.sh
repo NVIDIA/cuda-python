@@ -24,10 +24,9 @@ Usage: scripts/run_tests.sh [options] [target]
 
 Targets:
   all (default)   Run pathfinder → bindings → core
-  core            Run cuda_core tests
+  core            Run cuda_core tests (includes the ./samples tests)
   bindings        Run cuda_bindings tests
   pathfinder      Run cuda_pathfinder tests
-  samples         Run samples tests (tests/samples)
   smoke           Run meta-level smoke tests (tests/integration)
 
 Options:
@@ -262,14 +261,6 @@ PY
   add_result "smoke" "${rc}"
 }
 
-run_samples() {
-  echo "[tests] samples"
-  cd "${repo_root}"
-  run_pytest tests/samples
-  local rc=$?
-  add_result "samples" "${rc}"
-}
-
 case "${target}" in
   all)
     run_pathfinder
@@ -282,8 +273,6 @@ case "${target}" in
     run_bindings ;;
   pathfinder)
     run_pathfinder ;;
-  samples)
-    run_samples ;;
   smoke)
     run_smoke ;;
   *)
