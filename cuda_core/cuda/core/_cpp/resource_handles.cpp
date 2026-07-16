@@ -78,6 +78,7 @@ decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy = nullptr;
 decltype(&cuUserObjectCreate) p_cuUserObjectCreate = nullptr;
 decltype(&cuUserObjectRelease) p_cuUserObjectRelease = nullptr;
 decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject = nullptr;
+decltype(&cuGraphReleaseUserObject) p_cuGraphReleaseUserObject = nullptr;
 
 // Linker
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
@@ -190,28 +191,20 @@ private:
 // ============================================================================
 // CUDA user-object deferred cleanup
 //
-// CUDA may invoke a user-object destructor on an internal thread where CUDA
+// CUDA invokes a user-object destructor on an internal thread where CUDA
 // calls are forbidden. Payload cleanup can release resource handles whose
 // deleters call CUDA, so the callback only transfers a preallocated intrusive
 // node to this process-lifetime queue. One coalesced pending call drains all
 // queued payloads from Python's main thread.
 // ============================================================================
 
-namespace {
-
-class DeferredCleanupQueue;
-
-using CleanupFn = void (*)(void*) noexcept;
-
-// Preallocated queue item that transfers one payload out of CUDA's callback.
+// Intrusive base for payloads transferred out of CUDA's callback.
 struct DeferredCleanupItem {
     DeferredCleanupItem* next = nullptr;
-    void* payload;
-    CleanupFn cleanup;
-
-    DeferredCleanupItem(void* payload_, CleanupFn cleanup_) noexcept
-        : payload(payload_), cleanup(cleanup_) {}
+    virtual ~DeferredCleanupItem() noexcept = default;
 };
+
+namespace {
 
 // Process-lifetime MPSC queue that drains payloads from Python's main thread.
 class DeferredCleanupQueue {
@@ -275,7 +268,6 @@ private:
                    head_.exchange(nullptr, std::memory_order_acquire)) {
             while (list) {
                 DeferredCleanupItem* next = list->next;
-                list->cleanup(list->payload);
                 delete list;
                 list = next;
             }
@@ -305,21 +297,13 @@ void stop_deferred_cleanup() {
     }
 }
 
-DeferredCleanupItem* make_cleanup_item(
-        void* payload, CleanupFn cleanup) {
+void ensure_deferred_cleanup_ready() {
     DeferredCleanupQueue* queue =
         deferred_cleanup_queue.load(std::memory_order_acquire);
     if (!queue) {
         throw std::runtime_error("deferred cleanup is not initialized");
     }
     queue->retry_schedule();
-    return new DeferredCleanupItem(payload, cleanup);
-}
-
-// Execute an item's cleanup synchronously before CUDA has acquired ownership.
-void execute_cleanup_now(DeferredCleanupItem* item) noexcept {
-    item->cleanup(item->payload);
-    delete item;
 }
 
 // CUDA's CUhostFn ABI is void (*)(void*); recover and enqueue the cleanup item.
@@ -1307,6 +1291,14 @@ struct GraphHierarchy {
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUgraph, GraphHandle> graph_registry;
 
+struct NodeAttachment : DeferredCleanupItem {
+    CUuserObject object = nullptr;
+    std::array<OpaqueHandle, 2> owners;
+
+    NodeAttachment(OpaqueHandle owner0, OpaqueHandle owner1)
+        : owners{std::move(owner0), std::move(owner1)} {}
+};
+
 // shared_ptr deleters for the payloads that need one. Typed handles convert to
 // OpaqueHandle by assignment and reuse their own control block, so they need no
 // deleter here. The Python deleter follows the owner-release pattern used by
@@ -1322,10 +1314,6 @@ void free_deleter(const void* p) noexcept {
     std::free(const_cast<void*>(p));
 }
 
-void cleanup_graph_slot_table(void* table) noexcept {
-    delete static_cast<GraphSlotTable*>(table);
-}
-
 GraphBox* get_box(const GraphHandle& h) noexcept {
     const CUgraph* p = h.get();
     return const_cast<GraphBox*>(
@@ -1333,45 +1321,6 @@ GraphBox* get_box(const GraphHandle& h) noexcept {
             reinterpret_cast<const char*>(p) - offsetof(GraphBox, resource)
         )
     );
-}
-
-// Return box's slot table, creating it on first use. The table is retained on
-// the graph as a user object (MOVE transfers our only reference into the
-// graph), so it -- and every owner in it -- is freed when the graph is
-// destroyed. Returns nullptr if the driver lacks user-object support or a
-// driver call fails; the cached pointer is non-owning.
-GraphSlotTable* ensure_slot_table(const GraphBox* box) {
-    if (box->slot_table) {
-        return box->slot_table;
-    }
-    if (!p_cuUserObjectCreate || !p_cuGraphRetainUserObject || !p_cuUserObjectRelease) {
-        return nullptr;
-    }
-    auto* table = new GraphSlotTable();
-    DeferredCleanupItem* cleanup_item = nullptr;
-    try {
-        cleanup_item = make_cleanup_item(table, cleanup_graph_slot_table);
-    } catch (...) {
-        delete table;
-        throw;
-    }
-    CUuserObject user_obj = nullptr;
-    {
-        GILReleaseGuard gil;
-        if (p_cuUserObjectCreate(&user_obj, cleanup_item,
-                                 reinterpret_cast<CUhostFn>(enqueue_cleanup),
-                                 1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC) != CUDA_SUCCESS) {
-            execute_cleanup_now(cleanup_item);
-            return nullptr;
-        }
-        if (p_cuGraphRetainUserObject(box->resource, user_obj, 1,
-                                      CU_GRAPH_USER_OBJECT_MOVE) != CUDA_SUCCESS) {
-            p_cuUserObjectRelease(user_obj, 1);  // drops refcount to 0 -> frees table
-            return nullptr;
-        }
-    }
-    box->slot_table = table;  // non-owning cache; the user object owns it
-    return table;
 }
 
 }  // namespace
@@ -1439,20 +1388,100 @@ GraphHandle create_child_graph_handle(
     return h_child;
 }
 
-CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
-                        unsigned int slot, OpaqueHandle owner) {
-    if (!h_graph || slot >= SLOTS_PER_NODE) {
+CUresult graph_get_node_attachment(
+        const GraphHandle& h_graph, CUgraphNode node,
+        OpaqueHandle* owner0, OpaqueHandle* owner1) {
+    if (!h_graph || !node || (!owner0 && !owner1)) {
         return CUDA_ERROR_INVALID_VALUE;
     }
-    if (!owner) {
-        return CUDA_SUCCESS;  // nothing to retain; don't force table creation
+    if (owner0) {
+        owner0->reset();
     }
-    GraphSlotTable* table = ensure_slot_table(get_box(h_graph));
-    if (!table) {
+    if (owner1) {
+        owner1->reset();
+    }
+
+    GraphBox* box = get_box(h_graph);
+    if (!box->resource) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    auto it = box->attachments.find(node);
+    if (it != box->attachments.end()) {
+        if (owner0) {
+            *owner0 = it->second->owners[0];
+        }
+        if (owner1) {
+            *owner1 = it->second->owners[1];
+        }
+    }
+    return CUDA_SUCCESS;
+}
+
+CUresult graph_set_node_attachment(
+        const GraphHandle& h_graph, CUgraphNode node,
+        OpaqueHandle owner0, OpaqueHandle owner1) {
+    if (!h_graph || !node) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    GraphBox* box = get_box(h_graph);
+    if (!box->resource) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
+        !p_cuGraphRetainUserObject || !p_cuGraphReleaseUserObject) {
         return CUDA_ERROR_NOT_SUPPORTED;
     }
-    (*table)[node][slot] = std::move(owner);
-    return CUDA_SUCCESS;
+    NodeAttachment* replacement = nullptr;
+    if (owner0 || owner1) {
+        ensure_deferred_cleanup_ready();
+        replacement = new NodeAttachment(
+            std::move(owner0), std::move(owner1));
+        auto* cleanup_item =
+            static_cast<DeferredCleanupItem*>(replacement);
+
+        CUuserObject object = nullptr;
+        CUresult status;
+        {
+            GILReleaseGuard gil;
+            status = p_cuUserObjectCreate(
+                &object, cleanup_item,
+                reinterpret_cast<CUhostFn>(enqueue_cleanup),
+                1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC);
+            if (status != CUDA_SUCCESS) {
+                delete replacement;
+                return status;
+            }
+            replacement->object = object;
+            status = p_cuGraphRetainUserObject(
+                box->resource, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
+            if (status != CUDA_SUCCESS) {
+                p_cuUserObjectRelease(object, 1);
+                return status;
+            }
+        }
+    }
+
+    NodeAttachment* previous = nullptr;
+    auto it = box->attachments.find(node);
+    if (it == box->attachments.end()) {
+        if (replacement) {
+            box->attachments.emplace(node, replacement);
+        }
+    } else {
+        previous = it->second;
+        if (replacement) {
+            it->second = replacement;
+        } else {
+            box->attachments.erase(it);
+        }
+    }
+
+    if (!previous) {
+        return CUDA_SUCCESS;
+    }
+    GILReleaseGuard gil;
+    return p_cuGraphReleaseUserObject(
+        box->resource, previous->object, 1);
 }
 
 // ============================================================================

@@ -849,8 +849,7 @@ cdef class GraphBuilder:
             HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
 
         # Capturing the host function added a node to the graph; it is now the
-        # stream's sole capture dependency. Key the callback's owners to it so
-        # they live in the graph's slot table like any explicitly-added node.
+        # stream's sole capture dependency. Attach the callback's owners to it.
         cdef cydriver.CUgraphNode host_node = _capture_tail_node(c_stream)
         _attach_host_callback_owners(self._h_graph, host_node, fn_owner, data_owner)
 

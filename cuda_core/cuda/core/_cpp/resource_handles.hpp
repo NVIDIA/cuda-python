@@ -112,6 +112,7 @@ extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
 extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
 extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
 extern decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject;
+extern decltype(&cuGraphReleaseUserObject) p_cuGraphReleaseUserObject;
 
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
@@ -490,8 +491,8 @@ OpaqueHandle make_opaque_py(PyObject* obj);
 // Build an OpaqueHandle from a malloc'd buffer: std::free on release.
 OpaqueHandle make_opaque_malloc(void* buf);
 
-// Copy both owners from node's current attachment. A missing attachment
-// produces two empty handles.
+// Copy requested owners from node's current attachment. Pass nullptr to ignore
+// either owner; a missing attachment produces empty handles.
 CUresult graph_get_node_attachment(
     const GraphHandle& h_graph,
     CUgraphNode node,
