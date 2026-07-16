@@ -392,6 +392,12 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         ),
     ),
     DescriptorSpec(
+        name="cupauliprop",
+        packaged_with="other",
+        linux_sonames=("libcupauliprop.so.0",),
+        site_packages_linux=("cuquantum/lib",),
+    ),
+    DescriptorSpec(
         name="cutensornet",
         packaged_with="other",
         linux_sonames=("libcutensornet.so.2",),

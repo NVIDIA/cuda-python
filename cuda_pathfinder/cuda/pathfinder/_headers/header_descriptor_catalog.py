@@ -193,6 +193,15 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
+        name="cupauliprop",
+        packaged_with="other",
+        header_basename="cupauliprop.h",
+        site_packages_dirs=("cuquantum/include",),
+        available_on_windows=False,
+        conda_targets_layout=False,
+        use_ctk_root_canary=False,
+    ),
+    HeaderDescriptorSpec(
         name="cutensornet",
         packaged_with="other",
         header_basename="cutensornet.h",

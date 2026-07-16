@@ -43,6 +43,7 @@ assert STRICTNESS in ("see_what_works", "all_must_work")
 
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "cudensitymat": r"^cudensitymat-.*$",
+    "cupauliprop": r"^cupauliprop-.*$",
     "cusolverMp": r"^nvidia-cusolvermp-.*$",
     "cusparseLt": r"^nvidia-cusparselt-.*$",
     "cute": r"^nvidia-cutlass$",

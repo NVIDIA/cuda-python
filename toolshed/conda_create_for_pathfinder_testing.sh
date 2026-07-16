@@ -26,6 +26,7 @@ set -u
 # cuda_pathfinder/pyproject.toml.
 cpkgs=(
     "cudensitymat"
+    "cupauliprop"
     "cusparselt-dev"
     "cutensor"
     "cutensornet"
