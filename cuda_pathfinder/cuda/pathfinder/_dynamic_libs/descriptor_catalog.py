@@ -399,6 +399,12 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         dependencies=("cutensor", "cublas", "cusolver"),
     ),
     DescriptorSpec(
+        name="custabilizer",
+        packaged_with="other",
+        linux_sonames=("libcustabilizer.so.0",),
+        site_packages_linux=("cuquantum/lib",),
+    ),
+    DescriptorSpec(
         name="custatevec",
         packaged_with="other",
         linux_sonames=("libcustatevec.so.1",),

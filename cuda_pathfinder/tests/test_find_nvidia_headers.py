@@ -48,6 +48,7 @@ NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "cute": r"^nvidia-cutlass$",
     "cutensor": r"^cutensor-.*$",
     "cutensornet": r"^cutensornet-.*$",
+    "custabilizer": r"^custabilizer-.*$",
     "custatevec": r"^custatevec-.*$",
     "cutlass": r"^nvidia-cutlass$",
     "mathdx": r"^nvidia-libmathdx-.*$",
