@@ -28,6 +28,7 @@ cpkgs=(
     "cusparselt-dev"
     "cutensor"
     "cutensornet"
+    "custatevec"
     "cutlass"
     "libcublasmp-dev"
     "libcudss-dev"

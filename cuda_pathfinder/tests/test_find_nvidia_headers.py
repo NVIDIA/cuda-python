@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Currently these installations are only manually tested:
@@ -47,6 +47,7 @@ NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "cute": r"^nvidia-cutlass$",
     "cutensor": r"^cutensor-.*$",
     "cutensornet": r"^cutensornet-.*$",
+    "custatevec": r"^custatevec-.*$",
     "cutlass": r"^nvidia-cutlass$",
     "mathdx": r"^nvidia-libmathdx-.*$",
     "nvshmem": r"^nvidia-nvshmem-.*$",
