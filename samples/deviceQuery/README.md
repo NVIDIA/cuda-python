@@ -4,6 +4,16 @@
 
 Query and display detailed properties of all CUDA-capable devices in your system using the modern `cuda.core` API.
 
+The sample has two output modes:
+
+- **Default** — the classic `nvidia-smi`/`deviceQuery`-style summary: compute
+  capability, memory, kernel launch limits, texture sizes, and the common
+  feature flags.
+- **`--verbose` / `-v`** — additionally dumps the long-tail
+  `Device.properties` fields: L1/L2 caching flags, GPUDirect RDMA options,
+  memory-pool IPC handle bitmasks, NUMA info, surface limits, sparse/VMM
+  support, and more. Use this when you need a full capability report.
+
 ## What You'll Learn
 
 - How to enumerate CUDA devices in the system
@@ -11,6 +21,8 @@ Query and display detailed properties of all CUDA-capable devices in your system
 - Querying comprehensive device properties (compute capability, memory, limits)
 - Accessing low-level device attributes via `cuda.bindings`
 - Checking peer-to-peer (P2P) access capabilities between GPUs
+- Reading the extended `Device.properties` surface (GPUDirect, NUMA, memory
+  pools, VMM, sparse arrays) via the `--verbose` flag
 
 ## Key Libraries
 
@@ -118,6 +130,12 @@ python deviceQuery.py
 
 ```bash
 python deviceQuery.py --no-p2p
+```
+
+### Verbose (long-tail properties):
+
+```bash
+python deviceQuery.py --verbose
 ```
 
 ## Expected Output

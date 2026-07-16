@@ -6,19 +6,24 @@ This sample demonstrates how to capture a multi-stage kernel pipeline as a
 CUDA graph with `cuda.core` and replay it with a single driver call.
 
 The sample runs a three-stage elementwise pipeline
-`r3 = (a + b) * c - a` in two modes:
+`r3 = (a + b) * c - a` in three phases:
 
 1. **Individual launches** - one `launch(stream, ...)` per stage, repeated
    for every iteration of the pipeline.
 2. **CUDA graph replay** - the same three launches are recorded into a
    `Graph` once and replayed with `graph.launch(stream)` on each
    iteration.
+3. **`Graph.update()`** - a fresh capture with the same topology but a
+   different destination pointer is applied to the existing executable
+   graph in place, avoiding a full rebuild.
 
-Both paths are timed over N iterations and their results are verified
-against a reference computation. The sample also re-launches the graph
+Phases 1 and 2 are timed over N iterations and their results are verified
+against a reference computation. Phase 2 also re-launches the graph
 after mutating the input buffers to show that the graph captures
 pointers (not data), so the same graph can process new inputs without
-rebuilding.
+rebuilding. Phase 3 covers the argument-swap case where the *pointers*
+themselves change: `Graph.update()` swaps the new node arguments in
+place without paying the cost of rebuilding the executable graph.
 
 ## What You'll Learn
 
@@ -28,6 +33,7 @@ rebuilding.
 - Replaying the graph with `graph.launch(stream)`
 - Measuring the launch-overhead savings for small kernels
 - Re-running the same graph against updated input data
+- Reusing an executable graph with new kernel arguments via `Graph.update()`
 
 ## Key Libraries
 
@@ -44,6 +50,7 @@ rebuilding.
 - `GraphBuilder.complete()` - produce an executable `Graph`
 - `Graph.upload(stream)` - upload the graph structure to the device
 - `Graph.launch(stream)` - replay the entire graph
+- `Graph.update(new_capture)` - apply a new capture (same topology, new args) to an existing executable graph
 - `launch(graph_builder, config, kernel, ...)` - record a kernel launch into the graph being built
 
 ### From `cuda_samples_utils`
@@ -119,6 +126,9 @@ Graph speedup: 2.49x
 
 Graph replay on updated data verified (same graph, new buffer contents)
 
+Building update capture with a new output pointer...
+Graph.update() reused the executable graph with new kernel arguments
+
 Done
 ```
 
@@ -136,5 +146,4 @@ your GPU and host CPU.
 
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
 - [`cuda.core` graphs API](https://nvidia.github.io/cuda-python/cuda-core/latest/api.html#cuda-graphs)
-- Upstream `cuda.core` example: [`cuda_graphs.py`](https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/cuda_graphs.py)
 - [CUDA Graphs programming guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#cuda-graphs)

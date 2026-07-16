@@ -36,16 +36,19 @@ graph with a single driver call. For workflows that issue many small kernels
 this can significantly reduce CPU-side launch overhead.
 
 This sample runs a three-stage elementwise pipeline (add -> multiply ->
-subtract) in two modes:
+subtract) in three phases:
 
   1. Individually launched kernels on a stream.
   2. A single CUDA graph that captures the same three launches and is
      replayed with ``graph.launch(stream)``.
+  3. A ``Graph.update()`` call that swaps in a new capture with the same
+     topology but different kernel arguments (fresh output pointers),
+     reusing the executable graph without rebuilding it.
 
-We then measure the wall-clock time of each mode across many iterations to
-illustrate the graph replay advantage for short kernels, and demonstrate that
-a graph can be relaunched against new data (the pointers are baked in, but
-the contents of those buffers are not).
+Phase 1 vs 2 illustrates the launch-overhead savings for short kernels.
+Phase 2 also demonstrates that a graph can be relaunched against new data
+(the pointers are baked in, but the contents of those buffers are not).
+Phase 3 covers the argument-swap case where the pointers themselves change.
 """
 
 import sys
@@ -105,41 +108,26 @@ def run_pipeline_individual(stream, kernels, config, buffers, size, n_iters):
     return time.perf_counter() - t0
 
 
-def build_graph(stream, kernels, config, buffers, size):
-    """Capture the 3-stage pipeline into a CUDA graph and return it."""
+def capture_pipeline(builder, kernels, config, buffers, size):
+    """Record the 3-stage `(a+b)*c - a` pipeline into `builder`.
+
+    Takes an already-created builder so the same helper can produce both the
+    initial capture and any update captures used by ``Graph.update()``.
+    """
     add_k, mul_k, sub_k = kernels
     a, b, c, r1, r2, r3 = buffers
+    builder.begin_building()
+    launch(builder, config, add_k, a.data.ptr, b.data.ptr, r1.data.ptr, np.uint64(size))
+    launch(builder, config, mul_k, r1.data.ptr, c.data.ptr, r2.data.ptr, np.uint64(size))
+    launch(builder, config, sub_k, r2.data.ptr, a.data.ptr, r3.data.ptr, np.uint64(size))
+    builder.end_building()
+    return builder
 
+
+def build_graph(stream, kernels, config, buffers, size):
+    """Capture the 3-stage pipeline into a CUDA graph and return it."""
     graph_builder = stream.create_graph_builder()
-    graph_builder.begin_building()
-    launch(
-        graph_builder,
-        config,
-        add_k,
-        a.data.ptr,
-        b.data.ptr,
-        r1.data.ptr,
-        np.uint64(size),
-    )
-    launch(
-        graph_builder,
-        config,
-        mul_k,
-        r1.data.ptr,
-        c.data.ptr,
-        r2.data.ptr,
-        np.uint64(size),
-    )
-    launch(
-        graph_builder,
-        config,
-        sub_k,
-        r2.data.ptr,
-        a.data.ptr,
-        r3.data.ptr,
-        np.uint64(size),
-    )
-    graph_builder.end_building()
+    capture_pipeline(graph_builder, kernels, config, buffers, size)
     graph = graph_builder.complete()
     graph.upload(stream)
     return graph_builder, graph
@@ -183,7 +171,7 @@ def main() -> int:
     # below is serialized with the kernels we launch.
     cp.cuda.Stream.from_external(stream).use()
 
-    graph_builder = graph = None
+    graph_builder = graph = update_builder = None
     try:
         program_options = ProgramOptions(std="c++17", arch=f"sm_{device.arch}")
         program = Program(PIPELINE_KERNELS, code_type="c++", options=program_options)
@@ -239,11 +227,32 @@ def main() -> int:
         assert cp.allclose(r3, 8.0), "Graph replay with new data produced wrong result"
         print("\nGraph replay on updated data verified (same graph, new buffer contents)")
 
+        # Phase 3: Graph.update() with a fresh capture that has the same
+        # topology (three kernel nodes in the same order) but different kernel
+        # arguments -- specifically, the output pointer is now r2 instead of
+        # r3. update() rewires the executable graph in place, so we do not pay
+        # the cost of rebuilding it from scratch.
+        print("\nBuilding update capture with a new output pointer...")
+        new_buffers = (a, b, c, r1, r3, r2)  # swap r2 <-> r3 as the destination
+        update_builder = stream.create_graph_builder()
+        capture_pipeline(update_builder, kernels, config, new_buffers, N)
+        r2[:] = cp.zeros(N, dtype=cp.float32)
+        device.sync()
+
+        graph.update(update_builder)
+        graph.upload(stream)
+        graph.launch(stream)
+        stream.sync()
+        assert cp.allclose(r2, 8.0), "Graph.update() produced wrong result in the new output buffer"
+        print("Graph.update() reused the executable graph with new kernel arguments")
+
         print("\nDone")
         return 0
     finally:
         if graph is not None:
             graph.close()
+        if update_builder is not None:
+            update_builder.close()
         if graph_builder is not None:
             graph_builder.close()
         stream.close()

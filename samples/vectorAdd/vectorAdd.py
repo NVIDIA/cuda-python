@@ -33,6 +33,17 @@ Vector Addition using CUDA Core API
 
 This sample demonstrates element-wise vector addition: C = A + B
 using cuda.core for runtime compilation and kernel launch.
+
+The kernel is templated on the element type ``T``. The sample compiles
+two instantiations of the template in a single ``Program.compile()`` call
+via the ``name_expressions`` argument, then launches:
+
+  * ``vectorAdd<float>``  against CuPy-allocated buffers
+  * ``vectorAdd<double>`` against a buffer we allocate ourselves through
+    ``Device.allocate()`` (wrapped as a CuPy view for verification)
+
+The second phase illustrates how to hand a raw ``Buffer`` to a kernel and
+zero-copy view it as a CuPy array to check the result.
 """
 
 import sys
@@ -72,6 +83,70 @@ __global__ void vectorAdd(const T *A, const T *B, T *C, int numElements)
 """
 
 
+def _launch_add(stream, kernel, size, a_ptr, b_ptr, c_ptr, threads_per_block=256):
+    blocks_per_grid = (size + threads_per_block - 1) // threads_per_block
+    print(f"  CUDA kernel launch with {blocks_per_grid} blocks of {threads_per_block} threads")
+    config = LaunchConfig(grid=blocks_per_grid, block=threads_per_block)
+    launch(stream, config, kernel, a_ptr, b_ptr, c_ptr, cp.int32(size))
+    stream.sync()
+
+
+def _demo_float_cupy(stream, kernel, num_elements, verify):
+    """Phase 1: `vectorAdd<float>` with CuPy-managed buffers."""
+    print(f"\n[1] vectorAdd<float> on {num_elements} CuPy-allocated elements")
+    dtype = cp.float32
+
+    a = cp.random.rand(num_elements).astype(dtype)
+    b = cp.random.rand(num_elements).astype(dtype)
+    c = cp.empty(num_elements, dtype=dtype)
+    _launch_add(stream, kernel, num_elements, a.data.ptr, b.data.ptr, c.data.ptr)
+
+    if verify:
+        print("  Verifying result...")
+        if not verify_array_result(c, a + b):
+            return False
+    return True
+
+
+def _demo_double_owned_buffer(device, stream, kernel, num_elements, verify):
+    """Phase 2: `vectorAdd<double>` with an output Buffer we own.
+
+    Instead of letting CuPy allocate the output, we call ``device.allocate()``
+    to get a raw ``Buffer``, pass it straight to the kernel, and then wrap it
+    as a CuPy array (through ``UnownedMemory``) purely for verification.
+    """
+    print(f"\n[2] vectorAdd<double> on {num_elements} elements with device.allocate() output")
+    dtype = cp.float64
+
+    a = cp.random.rand(num_elements).astype(dtype)
+    b = cp.random.rand(num_elements).astype(dtype)
+
+    out_bytes = num_elements * dtype().itemsize
+    out_buf = device.allocate(out_bytes, stream=stream)
+    device.sync()
+
+    try:
+        _launch_add(stream, kernel, num_elements, a.data.ptr, b.data.ptr, out_buf)
+
+        if verify:
+            print("  Verifying result...")
+            # Wrap the raw Buffer as a CuPy array without copying so we can
+            # compare against the reference computed with CuPy.
+            c_view = cp.ndarray(
+                num_elements,
+                dtype=dtype,
+                memptr=cp.cuda.MemoryPointer(
+                    cp.cuda.UnownedMemory(int(out_buf.handle), out_buf.size, out_buf),
+                    0,
+                ),
+            )
+            if not verify_array_result(c_view, a + b):
+                return False
+        return True
+    finally:
+        out_buf.close(stream)
+
+
 def vector_add_cuda_core(num_elements=50000, device_id=0, verify=True):
     """
     Perform vector addition using cuda.core API.
@@ -90,6 +165,7 @@ def vector_add_cuda_core(num_elements=50000, device_id=0, verify=True):
     bool
         True if successful, False otherwise
     """
+    stream = None
     try:
         # Initialize device
         print("[Vector addition using CUDA Core API]")
@@ -101,52 +177,27 @@ def vector_add_cuda_core(num_elements=50000, device_id=0, verify=True):
 
         stream = device.create_stream()
 
-        # Compile kernel
-        print("Compiling kernel 'vectorAdd<float>'...")
+        # Compile both template instantiations in a single call: name_expressions
+        # tells NVRTC which specializations to emit into the resulting cubin.
+        print("Compiling kernel 'vectorAdd<float>' and 'vectorAdd<double>'...")
         program_options = ProgramOptions(std="c++17", arch=f"sm_{device.arch}")
         program = Program(VECTOR_ADD_KERNEL, code_type="c++", options=program_options)
-        module = program.compile("cubin", name_expressions=("vectorAdd<float>",))
-        kernel = module.get_kernel("vectorAdd<float>")
-        print("Kernel compiled successfully")
-
-        # Allocate and initialize vectors
-        print(f"[Vector addition of {num_elements} elements]")
-        dtype = cp.float32
-
-        a = cp.random.rand(num_elements).astype(dtype)
-        b = cp.random.rand(num_elements).astype(dtype)
-        c = cp.empty(num_elements, dtype=dtype)
-
-        # Synchronize before kernel launch
-        device.sync()
-
-        # Configure and launch kernel
-        threads_per_block = 256
-        blocks_per_grid = (num_elements + threads_per_block - 1) // threads_per_block
-
-        print(f"CUDA kernel launch with {blocks_per_grid} blocks of {threads_per_block} threads")
-
-        config = LaunchConfig(grid=blocks_per_grid, block=threads_per_block)
-
-        # Launch kernel
-        launch(
-            stream,
-            config,
-            kernel,
-            a.data.ptr,
-            b.data.ptr,
-            c.data.ptr,
-            cp.int32(num_elements),
+        module = program.compile(
+            "cubin",
+            name_expressions=("vectorAdd<float>", "vectorAdd<double>"),
         )
-        stream.sync()
+        float_kernel = module.get_kernel("vectorAdd<float>")
+        double_kernel = module.get_kernel("vectorAdd<double>")
+        print("Kernels compiled successfully")
 
-        # Verify result
-        if verify:
-            print("Verifying result...")
-            expected = a + b
-            if not verify_array_result(c, expected):
-                return False
+        if not _demo_float_cupy(stream, float_kernel, num_elements, verify):
+            return False
 
+        # Half as many elements for the double demo to keep the sample fast.
+        if not _demo_double_owned_buffer(device, stream, double_kernel, max(num_elements // 2, 1), verify):
+            return False
+
+        print("\nTest PASSED")
         return True
 
     except Exception as e:
@@ -155,6 +206,9 @@ def vector_add_cuda_core(num_elements=50000, device_id=0, verify=True):
 
         traceback.print_exc()
         return False
+    finally:
+        if stream is not None:
+            stream.close()
 
 
 def main():

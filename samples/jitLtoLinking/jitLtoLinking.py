@@ -37,8 +37,8 @@ functions at runtime to customize behavior without recompiling the whole
 program.
 
 cuda.core exposes this pattern through ``Program`` (NVRTC compilation)
-and ``Linker`` (JIT linking of multiple object codes). Two modes are
-shown here:
+and ``Linker`` (JIT linking of multiple object codes). This sample walks
+through three demonstrations:
 
   * **PTX linking**: compile each translation unit with
     ``relocatable_device_code=True`` to PTX and link to a CUBIN.
@@ -51,7 +51,14 @@ shown here:
     the optimizer across both modules and can inline the device function
     into the main kernel, typically matching a single-source build.
 
-The same kernel math runs in both modes and is verified against a
+  * **Plug-in swap**: keep the same library main kernel and link it
+    against a different user-supplied ``user_transform`` implementation.
+    The main kernel is compiled once; only the plug-in module is
+    recompiled and re-linked to produce a new cubin. This is the pattern
+    a library would follow to accept user device code as a runtime
+    plug-in.
+
+The library kernel math runs in every mode and is verified against a
 NumPy reference.
 """
 
@@ -104,11 +111,12 @@ void apply_transform(const float* __restrict__ in,
 """
 
 # --------------------------------------------------------------------------
-# Module B: the user-supplied "plug-in" device function. A different
-# implementation of ``user_transform`` here produces different results without
-# rebuilding MAIN_SRC.
+# Module B: the user-supplied "plug-in" device function. Multiple
+# implementations of ``user_transform`` produce different results without
+# rebuilding MAIN_SRC. This mirrors how a real library would accept a
+# user-provided kernel as a plug-in.
 # --------------------------------------------------------------------------
-USER_SRC = r"""
+USER_SRC_QUADRATIC = r"""
 extern "C" __device__
 float user_transform(float x)
 {
@@ -119,27 +127,41 @@ float user_transform(float x)
 }
 """
 
+USER_SRC_TANH = r"""
+extern "C" __device__
+float user_transform(float x)
+{
+    // A different plug-in: soft-nonlinearity that the library main kernel
+    // consumes exactly the same way as USER_SRC_QUADRATIC.
+    return tanhf(x) + 0.5f * x;
+}
+"""
 
-def host_reference(x: np.ndarray) -> np.ndarray:
+
+def host_reference_quadratic(x: np.ndarray) -> np.ndarray:
     y = x * x + 3.0 * x - 1.0
     return np.where(y > 0.0, y, 0.0).astype(np.float32)
 
 
-def link_ptx(device):
+def host_reference_tanh(x: np.ndarray) -> np.ndarray:
+    return (np.tanh(x) + 0.5 * x).astype(np.float32)
+
+
+def link_ptx(device, user_src=USER_SRC_QUADRATIC):
     """Compile both modules to PTX and link them into a cubin (no LTO)."""
     prog_opts = ProgramOptions(std="c++17", arch=f"sm_{device.arch}", relocatable_device_code=True)
     main_obj = Program(MAIN_SRC, "c++", options=prog_opts).compile("ptx")
-    user_obj = Program(USER_SRC, "c++", options=prog_opts).compile("ptx")
+    user_obj = Program(user_src, "c++", options=prog_opts).compile("ptx")
 
     linker = Linker(main_obj, user_obj, options=LinkerOptions(arch=f"sm_{device.arch}"))
     return linker.link("cubin")
 
 
-def link_lto(device):
+def link_lto(device, user_src=USER_SRC_QUADRATIC):
     """Compile both modules to LTO IR and link with LTO enabled."""
     prog_opts = ProgramOptions(std="c++17", arch=f"sm_{device.arch}", link_time_optimization=True)
     main_obj = Program(MAIN_SRC, "c++", options=prog_opts).compile("ltoir")
-    user_obj = Program(USER_SRC, "c++", options=prog_opts).compile("ltoir")
+    user_obj = Program(user_src, "c++", options=prog_opts).compile("ltoir")
 
     linker_opts = LinkerOptions(arch=f"sm_{device.arch}", link_time_optimization=True)
     linker = Linker(main_obj, user_obj, options=linker_opts)
@@ -191,26 +213,37 @@ def main() -> int:
         N = args.elements
         rng = np.random.default_rng(seed=0)
         host_in = rng.standard_normal(N).astype(np.float32)
-        expected = host_reference(host_in)
+        expected_quadratic = host_reference_quadratic(host_in)
+        expected_tanh = host_reference_tanh(host_in)
 
         d_in = cp.asarray(host_in)
         d_out = cp.empty(N, dtype=cp.float32)
         device.sync()
 
         print("\n[1] PTX linking (no LTO)")
-        ptx_module = link_ptx(device)
-        ok_ptx = run_one_mode("ptx", ptx_module, stream, d_in, d_out, N, expected)
+        ptx_module = link_ptx(device, USER_SRC_QUADRATIC)
+        ok_ptx = run_one_mode("ptx", ptx_module, stream, d_in, d_out, N, expected_quadratic)
 
         d_out.fill(0)
         device.sync()
 
         print("\n[2] LTO linking (link-time optimization)")
-        lto_module = link_lto(device)
-        ok_lto = run_one_mode("lto", lto_module, stream, d_in, d_out, N, expected)
+        lto_module = link_lto(device, USER_SRC_QUADRATIC)
+        ok_lto = run_one_mode("lto", lto_module, stream, d_in, d_out, N, expected_quadratic)
+
+        d_out.fill(0)
+        device.sync()
+
+        # Phase 3: swap in a different user_transform without rebuilding
+        # MAIN_SRC's cubin path. This mirrors how a library would accept a
+        # user-supplied device function as a runtime plug-in.
+        print("\n[3] Plug-in swap: re-link the same main kernel with a different user_transform")
+        lto_swap_module = link_lto(device, USER_SRC_TANH)
+        ok_swap = run_one_mode("swap", lto_swap_module, stream, d_in, d_out, N, expected_tanh)
 
         print()
-        if ok_ptx and ok_lto:
-            print("Both PTX and LTO linked kernels produced matching results. Done")
+        if ok_ptx and ok_lto and ok_swap:
+            print("PTX, LTO, and plug-in-swap linked kernels all produced matching results. Done")
             return 0
         return 1
     finally:

@@ -8,7 +8,7 @@ compiled translation units and link them at runtime with
 user-supplied device code as a plug-in without recompiling its own
 kernels from scratch.
 
-The sample runs the same program in two linking modes:
+The sample runs the same program in three phases:
 
 1. **PTX linking** - each module is compiled with
    `ProgramOptions(relocatable_device_code=True)` down to PTX, and the
@@ -19,10 +19,15 @@ The sample runs the same program in two linking modes:
    `Linker` is configured with `LinkerOptions(link_time_optimization=True)`
    so the optimizer runs again across both modules, typically matching
    the code generation of a single-source build.
+3. **Plug-in swap** - the *same* library main kernel is re-linked
+   against a *different* `user_transform` implementation, producing a
+   new cubin without re-compiling the library main kernel. This
+   demonstrates the runtime-plug-in pattern that motivates the whole
+   library / user split.
 
 The "main" kernel `apply_transform` calls a `user_transform` device
-function that lives in a separate source string, and the results of both
-linking modes are verified against a NumPy reference.
+function that lives in a separate source string, and the results of every
+mode are verified against a NumPy reference.
 
 ## What You'll Learn
 
@@ -31,6 +36,8 @@ linking modes are verified against a NumPy reference.
 - Choosing between `relocatable_device_code` and `link_time_optimization`
 - How a library's main kernel can call into user-supplied device code
 - When to prefer LTO over plain PTX linking
+- Swapping the plug-in module without rebuilding the library main kernel's
+  intermediate representation
 
 ## Key Libraries
 
@@ -113,7 +120,10 @@ Compute Capability: <X.Y>
 [2] LTO linking (link-time optimization)
   [lto] result verified against NumPy reference
 
-Both PTX and LTO linked kernels produced matching results. Done
+[3] Plug-in swap: re-link the same main kernel with a different user_transform
+  [swap] result verified against NumPy reference
+
+PTX, LTO, and plug-in-swap linked kernels all produced matching results. Done
 ```
 
 **Note:** Device name and compute capability will vary based on your GPU.
@@ -129,5 +139,4 @@ Both PTX and LTO linked kernels produced matching results. Done
 
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
 - [`cuda.core` compilation API](https://nvidia.github.io/cuda-python/cuda-core/latest/api.html#cuda-compilation-toolchain)
-- Upstream `cuda.core` example: [`jit_lto_fractal.py`](https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/jit_lto_fractal.py)
 - [NVIDIA nvJitLink documentation](https://docs.nvidia.com/cuda/nvjitlink/index.html)

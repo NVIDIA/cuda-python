@@ -31,7 +31,18 @@
 """
 Device Query using CUDA Core API
 
-This sample enumerates the properties of the CUDA devices present in the system.
+This sample enumerates the properties of the CUDA devices present in the
+system. It has two output modes:
+
+  * Default:  the classic ``nvidia-smi``-style summary of compute
+              capability, memory, kernel launch limits, texture sizes,
+              and feature flags (roughly what the C-side ``deviceQuery``
+              sample prints).
+  * ``--verbose``: additionally dumps the long-tail of
+              ``Device.properties`` fields -- surface/texture edge cases,
+              GPUDirect RDMA flags, NUMA info, memory-pool handle types,
+              sparse/virtual-memory support -- for callers who need a
+              full capability report.
 """
 
 import platform
@@ -130,11 +141,194 @@ def convert_sm_ver_to_cores(major, minor):
     return sm_to_cores.get((major, minor), 0)
 
 
-def print_device_info(dev_id, device):
+def print_verbose_extras(props):
+    """Print the long-tail of ``Device.properties`` fields.
+
+    These are the fields that are useful for capability probing but too
+    numerous for the default ``nvidia-smi``-style summary. Kept alphabetized
+    within each subsection for easy scanning.
+    """
+    print()
+    print("  Verbose device properties:")
+    # Memory / caching / addressing
+    print_property("Support for caching globals in L1:", fmt_yes_no(props.global_l1_cache_supported), indent=4)
+    print_property("Support for caching locals in L1:", fmt_yes_no(props.local_l1_cache_supported), indent=4)
+    print_property("Max persisting L2 cache size:", f"{props.max_persisting_l2_cache_size} bytes", indent=4)
+    print_property(
+        "Max access policy window size:",
+        f"{props.max_access_policy_window_size} bytes",
+        indent=4,
+    )
+    print_property(
+        "Reserved shared memory per block:",
+        f"{props.reserved_shared_memory_per_block} bytes",
+        indent=4,
+    )
+    print_property(
+        "Max shared memory per block (opt-in):",
+        f"{props.max_shared_memory_per_block_optin} bytes",
+        indent=4,
+    )
+
+    # Concurrency / preemption
+    print_property(
+        "Concurrent kernel execution (same context):",
+        fmt_yes_no(props.concurrent_kernels),
+        indent=4,
+    )
+    print_property(
+        "Concurrent managed access (host + device):",
+        fmt_yes_no(props.concurrent_managed_access),
+        indent=4,
+    )
+    print_property(
+        "Direct managed access from host (no migration):",
+        fmt_yes_no(props.direct_managed_mem_access_from_host),
+        indent=4,
+    )
+    print_property(
+        "Pageable memory access:",
+        fmt_yes_no(props.pageable_memory_access),
+        indent=4,
+    )
+    print_property(
+        "Pageable memory via host page tables:",
+        fmt_yes_no(props.pageable_memory_access_uses_host_page_tables),
+        indent=4,
+    )
+    print_property(
+        "Host native atomic support:",
+        fmt_yes_no(props.host_native_atomic_supported),
+        indent=4,
+    )
+    print_property(
+        "Can use host pointer for registered mem:",
+        fmt_yes_no(props.can_use_host_pointer_for_registered_mem),
+        indent=4,
+    )
+    print_property(
+        "Read-only host-registered memory:",
+        fmt_yes_no(props.read_only_host_register_supported),
+        indent=4,
+    )
+
+    # GPUDirect / RDMA
+    print_property(
+        "GPUDirect RDMA:",
+        fmt_yes_no(props.gpu_direct_rdma_supported),
+        indent=4,
+    )
+    print_property(
+        "GPUDirect RDMA flush-writes bitmask:",
+        f"0b{props.gpu_direct_rdma_flush_writes_options:032b}",
+        indent=4,
+    )
+    print_property(
+        "GPUDirect RDMA writes ordering:",
+        props.gpu_direct_rdma_writes_ordering,
+        indent=4,
+    )
+
+    # Shareable handle support (IPC)
+    print_property(
+        "POSIX FD memory handle support:",
+        fmt_yes_no(props.handle_type_posix_file_descriptor_supported),
+        indent=4,
+    )
+    print_property(
+        "Win32 NT handle support:",
+        fmt_yes_no(props.handle_type_win32_handle_supported),
+        indent=4,
+    )
+    print_property(
+        "Win32 KMT handle support:",
+        fmt_yes_no(props.handle_type_win32_kmt_handle_supported),
+        indent=4,
+    )
+    print_property(
+        "Memory pool IPC handle bitmask:",
+        f"0b{props.mempool_supported_handle_types:032b}",
+        indent=4,
+    )
+    print_property(
+        "Memory pools supported:",
+        fmt_yes_no(props.memory_pools_supported),
+        indent=4,
+    )
+
+    # Multi-GPU / multicast
+    print_property("Multi-GPU board:", fmt_yes_no(props.multi_gpu_board), indent=4)
+    print_property("Multi-GPU board group ID:", props.multi_gpu_board_group_id, indent=4)
+    print_property(
+        "Switch multicast/reduction ops:",
+        fmt_yes_no(props.multicast_supported),
+        indent=4,
+    )
+
+    # NUMA
+    print_property("NUMA configuration:", props.numa_config, indent=4)
+    print_property("NUMA node ID of GPU memory:", props.numa_id, indent=4)
+
+    # Surface limits (compact one-liners; textures are already covered above)
+    print_property(
+        "Max 1D surface width:",
+        props.maximum_surface1d_width,
+        indent=4,
+    )
+    print_property(
+        "Max 2D surface (WxH):",
+        f"{props.maximum_surface2d_width}x{props.maximum_surface2d_height}",
+        indent=4,
+    )
+    print_property(
+        "Max 3D surface (WxHxD):",
+        f"{props.maximum_surface3d_width}x{props.maximum_surface3d_height}x{props.maximum_surface3d_depth}",
+        indent=4,
+    )
+    print_property(
+        "Max cubemap surface width:",
+        props.maximum_surfacecubemap_width,
+        indent=4,
+    )
+
+    # CUDA arrays / VMM / compression
+    print_property(
+        "Sparse CUDA arrays supported:",
+        fmt_yes_no(props.sparse_cuda_array_supported),
+        indent=4,
+    )
+    print_property(
+        "Deferred mapping CUDA arrays:",
+        fmt_yes_no(props.deferred_mapping_cuda_array_supported),
+        indent=4,
+    )
+    print_property(
+        "Virtual memory management supported:",
+        fmt_yes_no(props.virtual_memory_management_supported),
+        indent=4,
+    )
+    print_property(
+        "Generic compression supported:",
+        fmt_yes_no(props.generic_compression_supported),
+        indent=4,
+    )
+
+    # Perf ratio (single vs double)
+    print_property(
+        "Single/double precision perf ratio:",
+        props.single_to_double_precision_perf_ratio,
+        indent=4,
+    )
+
+
+def print_device_info(dev_id, device, verbose=False):
     """
     Print detailed information for a single CUDA device.
     Uses device.properties (cuda.core) for most fields; cuda.bindings for
     runtime version and global memory (not yet in high-level API).
+
+    When ``verbose`` is True, appends the long-tail property list to the
+    per-device output.
     """
     device.set_current()
     props = device.properties
@@ -264,6 +458,9 @@ def print_device_info(dev_id, device):
     print_property("Compute Mode:", "")
     print(f"     < {compute_modes.get(props.compute_mode, 'Unknown')} >")
 
+    if verbose:
+        print_verbose_extras(props)
+
 
 def print_p2p_access_info(devices):
     """
@@ -287,7 +484,7 @@ def print_p2p_access_info(devices):
                 print(f"Warning: Could not check peer access between device {i} and {j}: {e}")
 
 
-def query_devices(show_p2p=True):
+def query_devices(show_p2p=True, verbose=False):
     """
     Query and display information about all CUDA devices.
 
@@ -295,6 +492,9 @@ def query_devices(show_p2p=True):
     ----------
     show_p2p : bool
         Whether to show peer-to-peer access information (default: True)
+    verbose : bool
+        When True, include the long-tail property dump for each device
+        (default: False).
 
     Returns
     -------
@@ -319,7 +519,7 @@ def query_devices(show_p2p=True):
 
     for dev_id, device in enumerate(devices):
         try:
-            print_device_info(dev_id, device)
+            print_device_info(dev_id, device, verbose=verbose)
         except Exception as e:
             print(f"Error: Failed to get information for device {dev_id}: {e}")
             import traceback
@@ -344,10 +544,16 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--no-p2p", action="store_true", help="Skip peer-to-peer access information")
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Also dump the long-tail Device.properties fields (surfaces, GPUDirect flags, NUMA, etc.)",
+    )
 
     args = parser.parse_args()
 
-    success = query_devices(show_p2p=not args.no_p2p)
+    success = query_devices(show_p2p=not args.no_p2p, verbose=args.verbose)
 
     if success:
         print("\nDone")

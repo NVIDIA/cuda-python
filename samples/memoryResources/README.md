@@ -6,7 +6,7 @@ This sample demonstrates the `cuda.core` memory management model: a
 `MemoryResource` owns a pool of memory and hands out `Buffer` objects that
 can be passed to kernels, copied between resources with
 `Buffer.copy_to()`, and viewed as NumPy or CuPy arrays through DLPack. The
-script exercises three common resources side-by-side:
+script exercises four resource flavors side-by-side:
 
 1. **`DeviceMemoryResource`** - device-local GPU memory. Every `Device`
    exposes a default pool via `Device.memory_resource`, and applications
@@ -17,9 +17,14 @@ script exercises three common resources side-by-side:
 3. **`ManagedMemoryResource`** - unified memory that the driver migrates
    between host and device on demand; host views see the GPU's writes
    without an explicit copy.
+4. **Pool options + `GraphMemoryResource`** - passes structured
+   `ManagedMemoryResourceOptions` / `PinnedMemoryResourceOptions` to
+   control policy (preferred location, NUMA node, IPC), then allocates
+   *scratch* memory inside a CUDA graph so the alloc/free themselves
+   become graph nodes with lifetime tied to graph execution.
 
-The same `scale_and_bias` kernel runs on each resource and every result is
-verified on the host.
+The same `scale_and_bias` kernel runs across every phase and every
+result is verified on the host.
 
 ## What You'll Learn
 
@@ -29,6 +34,9 @@ verified on the host.
 - Copying between buffers across resources with `Buffer.copy_to()`
 - Taking zero-copy NumPy or CuPy views of a `Buffer` via DLPack
 - Releasing buffers with stream-ordered `close(stream)` semantics
+- Configuring resources with `ManagedMemoryResourceOptions` and
+  `PinnedMemoryResourceOptions`
+- Allocating graph-scoped scratch with `GraphMemoryResource`
 
 ## Key Libraries
 
@@ -42,8 +50,11 @@ verified on the host.
 
 - `Device.memory_resource` - default memory pool attached to a device
 - `DeviceMemoryResource`, `PinnedMemoryResource`, `ManagedMemoryResource` - allocate buffers of the corresponding memory kind
+- `GraphMemoryResource(device)` - resource whose allocations live inside a captured graph
+- `PinnedMemoryResourceOptions(numa_id=..., ipc_enabled=...)` - configure pinned host allocations
+- `ManagedMemoryResourceOptions(preferred_location=..., preferred_location_type=...)` - hint managed memory placement
 - `MemoryResource.allocate(nbytes, stream=...)` - returns a `Buffer`
-- `Buffer.copy_to(dst_buffer, stream=...)` - async, stream-ordered copy
+- `Buffer.copy_to(dst_buffer, stream=...)` / `Buffer.copy_from(src_buffer, stream=...)` - async, stream-ordered copies
 - `Buffer.close(stream)` - stream-ordered deallocation
 - `Buffer` supports `__dlpack__` for zero-copy views
 
@@ -131,7 +142,13 @@ Compute Capability: <X.Y>
 [3] Explicit DeviceMemoryResource
   Explicit DeviceMemoryResource allocation verified
 
-All memory resource demos passed.
+[4] Pool options + GraphMemoryResource (scratch inside a graph)
+  PinnedMemoryResource numa_id: <n>
+  ManagedMemoryResource preferred_location: <device-id>
+  GraphMemoryResource reserved high watermark: <bytes>
+  Graph with in-graph scratch alloc/free verified
+
+Done
 ```
 
 **Note:** Device name and compute capability will vary based on your GPU.
@@ -147,5 +164,3 @@ All memory resource demos passed.
 
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
 - [`cuda.core` memory API](https://nvidia.github.io/cuda-python/cuda-core/latest/api.html#memory-management)
-- Upstream `cuda.core` example: [`memory_ops.py`](https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/memory_ops.py)
-- Upstream `cuda.core` example: [`memory_pool_resources.py`](https://github.com/NVIDIA/cuda-python/blob/main/cuda_core/examples/memory_pool_resources.py)

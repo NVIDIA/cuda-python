@@ -17,10 +17,6 @@ Introduction
   kernel.
 - :cuda-bindings-example:`simple_cubemap_texture.py <0_Introduction/simple_cubemap_texture.py>`
   demonstrates cubemap texture sampling and transformation.
-- :cuda-bindings-example:`simple_p2p.py <0_Introduction/simple_p2p.py>`
-  shows peer-to-peer memory access and transfers between multiple GPUs.
-- :cuda-bindings-example:`simple_zero_copy.py <0_Introduction/simple_zero_copy.py>`
-  uses zero-copy mapped host memory for vector addition.
 - :cuda-bindings-example:`system_wide_atomics.py <0_Introduction/system_wide_atomics.py>`
   demonstrates system-wide atomic operations on managed memory.
 - :cuda-bindings-example:`vector_add_drv.py <0_Introduction/vector_add_drv.py>`
@@ -28,6 +24,13 @@ Introduction
 - :cuda-bindings-example:`vector_add_mmap.py <0_Introduction/vector_add_mmap.py>`
   uses virtual memory management APIs such as ``cuMemCreate`` and
   ``cuMemMap`` for vector addition.
+
+Peer-to-peer and zero-copy patterns (``simple_p2p.py`` and
+``simple_zero_copy.py``) are covered by the higher-level
+:samples:`samples/simpleP2P/ <simpleP2P/>` and
+:samples:`samples/simpleZeroCopy/ <simpleZeroCopy/>` sample directories,
+which use ``cuda.core``'s modern peer-access and pinned-memory APIs on top
+of ``cuda.bindings``.
 
 Concepts and techniques
 -----------------------

@@ -4,13 +4,29 @@
 
 Run your first GPU kernel: add two vectors element-wise on the GPU using the [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/) API with runtime compilation.
 
+The sample compiles a *templated* kernel and instantiates it for two
+element types in a single `Program.compile()` call (via
+`name_expressions`), then runs two phases:
+
+1. `vectorAdd<float>` against CuPy-allocated input and output buffers.
+2. `vectorAdd<double>` where the output buffer is allocated through
+   `Device.allocate()` and passed straight to the kernel. That raw
+   `Buffer` is then wrapped as a zero-copy CuPy view for verification.
+
+Phase 2 is the pattern to reach for when you want the kernel to write into
+memory you own directly, without depending on CuPy's allocator for the
+output.
+
 ## What You'll Learn
 
 - Writing CUDA kernels in C++ with template support
 - Runtime compilation of CUDA kernels from Python
+- Requesting multiple template instantiations via `name_expressions`
 - Using `cuda.core` for device management, programs, and launches
 - Configuring and launching kernels with grid and block dimensions
 - Using CuPy for GPU memory management
+- Allocating your own output buffer with `Device.allocate()` and wrapping
+  it as a CuPy view
 - Verifying GPU results against CPU computation
 
 ## Key Libraries
@@ -23,7 +39,9 @@ Run your first GPU kernel: add two vectors element-wise on the GPU using the [`c
 ### From `cuda.core`
 
 - `Device` — Initialize and manage CUDA device
+- `Device.allocate(nbytes, stream=...)` — Allocate a raw `Buffer` from the device pool
 - `Program` — Create program from kernel source code
+- `Program.compile("cubin", name_expressions=(...))` — Emit specific template instantiations
 - `ProgramOptions` — Set compilation options (C++ standard, architecture)
 - `LaunchConfig` — Configure kernel launch parameters
 - `launch` — Execute kernel on specified stream
@@ -104,11 +122,17 @@ python vectorAdd.py --no-verify
 [Vector addition using CUDA Core API]
 Device: <Your GPU Name>
 Compute Capability: sm_<XX>
-Compiling kernel 'vectorAdd<float>'...
-Kernel compiled successfully
-[Vector addition of 50000 elements]
-CUDA kernel launch with 196 blocks of 256 threads
-Verifying result...
+Compiling kernel 'vectorAdd<float>' and 'vectorAdd<double>'...
+Kernels compiled successfully
+
+[1] vectorAdd<float> on 50000 CuPy-allocated elements
+  CUDA kernel launch with 196 blocks of 256 threads
+  Verifying result...
+
+[2] vectorAdd<double> on 25000 elements with device.allocate() output
+  CUDA kernel launch with 98 blocks of 256 threads
+  Verifying result...
+
 Test PASSED
 
 Done

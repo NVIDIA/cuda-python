@@ -37,11 +37,18 @@ Demonstrates the Memory Resource / Buffer abstraction in cuda.core:
   * ``PinnedMemoryResource``  - page-locked host memory accessible by the GPU
   * ``ManagedMemoryResource`` - unified memory that migrates between
                                 host and device on demand
+  * ``GraphMemoryResource``   - scratch buffers allocated inside a CUDA
+                                graph and freed as part of graph execution
 
 Each resource hands out ``Buffer`` objects that can be:
   * passed to kernels as pointers
   * copied between each other with ``buffer.copy_to(...)``
   * viewed as NumPy or CuPy arrays via DLPack (``__dlpack__``)
+
+Later phases exercise the newer pool-based options
+(``ManagedMemoryResourceOptions``, ``PinnedMemoryResourceOptions``) and
+show how ``GraphMemoryResource`` lets a captured graph allocate its own
+scratch memory as part of its execution.
 
 The kernel below performs a fused scale + bias on both a device buffer
 and a pinned buffer, then we copy the result across resources to confirm
@@ -61,9 +68,12 @@ try:
     from cuda.core import (
         Device,
         DeviceMemoryResource,
+        GraphMemoryResource,
         LaunchConfig,
         ManagedMemoryResource,
+        ManagedMemoryResourceOptions,
         PinnedMemoryResource,
+        PinnedMemoryResourceOptions,
         Program,
         ProgramOptions,
         launch,
@@ -210,6 +220,115 @@ def demo_explicit_device_pool(device, stream, kernel, size):
         explicit_mr.close()
 
 
+def demo_pool_options_and_graph_mr(device, stream, kernel, size):
+    """Configure resource options and allocate scratch inside a captured graph.
+
+    This phase shows two orthogonal features of the memory-resource stack:
+
+    * ``ManagedMemoryResourceOptions`` / ``PinnedMemoryResourceOptions`` --
+      pass structured options to control preferred location, NUMA binding,
+      IPC exportability, and similar policy knobs when creating a resource.
+    * ``GraphMemoryResource`` -- allocate transient scratch memory *inside*
+      a CUDA graph. The allocation and the matching free become nodes in
+      the graph, so the scratch buffer's lifetime is tied to the graph
+      execution and the driver can reuse the storage across replays.
+    """
+    print("\n[4] Pool options + GraphMemoryResource (scratch inside a graph)")
+    dtype = np.float32
+    nbytes = size * dtype().itemsize
+    config = LaunchConfig(grid=(size + 127) // 128, block=128)
+
+    # Pinned resource with optional NUMA binding. Fall back to default when the
+    # device does not report a preferred host NUMA node.
+    pinned_options = {"ipc_enabled": False}
+    host_numa_id = getattr(device.properties, "host_numa_id", -1)
+    if host_numa_id >= 0:
+        pinned_options["numa_id"] = host_numa_id
+    pinned_mr = PinnedMemoryResource(options=PinnedMemoryResourceOptions(**pinned_options))
+
+    # Managed resource with the GPU as the preferred backing location. Reads
+    # from the host will still succeed (the driver migrates on demand), but
+    # kernels will hit device-local memory without a page fault.
+    managed_options = ManagedMemoryResourceOptions(
+        preferred_location=device.device_id,
+        preferred_location_type="device",
+    )
+    managed_mr = ManagedMemoryResource(options=managed_options)
+
+    # A GraphMemoryResource is a pool tied to `device`; every allocate() call
+    # against it inside a graph builder produces a Buffer whose lifetime is a
+    # graph node, not a wall-clock call.
+    graph_mr = GraphMemoryResource(device)
+
+    pinned_buffer = pinned_mr.allocate(nbytes, stream=stream)
+    managed_buffer = managed_mr.allocate(nbytes, stream=stream)
+    graph_capture = graph = None
+    try:
+        managed_array = np.from_dlpack(managed_buffer).view(dtype=dtype)
+        pinned_array = np.from_dlpack(pinned_buffer).view(dtype=dtype)
+
+        managed_array[:] = np.arange(size, dtype=dtype)
+        managed_original = managed_array.copy()
+        stream.sync()
+
+        # Sanity: copy_to across resources still works with the option-driven
+        # pinned / managed pool.
+        managed_buffer.copy_to(pinned_buffer, stream=stream)
+        stream.sync()
+        assert np.array_equal(pinned_array, managed_original)
+
+        # Build a graph that:
+        #   1) allocates a scratch buffer from graph_mr,
+        #   2) copies the managed buffer into it,
+        #   3) runs scale_and_bias on the scratch buffer,
+        #   4) copies the result back into the managed buffer,
+        #   5) frees the scratch buffer.
+        # The alloc + free are graph nodes; there is no host-side malloc on
+        # every graph.launch() call.
+        graph_builder = device.create_graph_builder().begin_building("relaxed")
+        scratch_buffer = graph_mr.allocate(nbytes, stream=graph_builder)
+        scratch_buffer.copy_from(managed_buffer, stream=graph_builder)
+        launch(
+            graph_builder,
+            config,
+            kernel,
+            scratch_buffer,
+            np.uint64(size),
+            np.float32(2.0),
+            np.float32(1.0),
+        )
+        managed_buffer.copy_from(scratch_buffer, stream=graph_builder)
+        scratch_buffer.close()
+
+        graph_capture = graph_builder.end_building()
+        graph = graph_capture.complete()
+        graph.upload(stream)
+        graph.launch(stream)
+        stream.sync()
+
+        expected = managed_original * 2 + 1
+        np.testing.assert_allclose(managed_array, expected)
+        # And confirm the cross-resource copy still lines up.
+        managed_buffer.copy_to(pinned_buffer, stream=stream)
+        stream.sync()
+        np.testing.assert_allclose(pinned_array, expected)
+
+        print(f"  PinnedMemoryResource numa_id: {pinned_mr.numa_id}")
+        print(f"  ManagedMemoryResource preferred_location: {managed_mr.preferred_location}")
+        print(f"  GraphMemoryResource reserved high watermark: {graph_mr.attributes.reserved_mem_high}")
+        print("  Graph with in-graph scratch alloc/free verified")
+    finally:
+        if graph is not None:
+            graph.close()
+        if graph_capture is not None:
+            graph_capture.close()
+        pinned_buffer.close(stream)
+        managed_buffer.close(stream)
+        graph_mr.close()
+        pinned_mr.close()
+        managed_mr.close()
+
+
 def main():
     import argparse
 
@@ -246,6 +365,7 @@ def main():
         demo_device_and_pinned(device, stream, kernel, args.elements)
         demo_managed(device, stream, kernel, args.elements)
         demo_explicit_device_pool(device, stream, kernel, args.elements)
+        demo_pool_options_and_graph_mr(device, stream, kernel, args.elements)
 
         print("\nDone")
         return 0

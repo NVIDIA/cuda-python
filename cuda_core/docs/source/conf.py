@@ -129,6 +129,14 @@ extlinks = {
         f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/cuda_core/examples%s",
         "%s",
     ),
+    "sample": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/%s",
+        "%s",
+    ),
+    "samples": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples%s",
+        "%s",
+    ),
 }
 
 intersphinx_mapping = {
