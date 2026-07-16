@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e47a16bd9956de14a991ded5d1aef667cdd26a141e27db5b2015b91be6918d3c
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e1e14a18489c6f4d6237962f9c42660e9b656f46a4cc8ab3fa766550419b264c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -2189,25 +2189,15 @@ cdef class PciInfoExt_v1:
     .. seealso:: `nvmlPciInfoExt_v1_t`
     """
     cdef:
+        nvmlPciInfoExt_v1_t _data
         nvmlPciInfoExt_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPciInfoExt_v1_t *>_cyb_calloc(1, sizeof(nvmlPciInfoExt_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating PciInfoExt_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlPciInfoExt_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PciInfoExt_v1 object at {hex(id(self))}>"
@@ -2238,12 +2228,9 @@ cdef class PciInfoExt_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPciInfoExt_v1_t *>_cyb_malloc(sizeof(nvmlPciInfoExt_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating PciInfoExt_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPciInfoExt_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPciInfoExt_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -2378,16 +2365,12 @@ cdef class PciInfoExt_v1:
             raise ValueError("ptr must not be null (0)")
         cdef PciInfoExt_v1 obj = PciInfoExt_v1.__new__(PciInfoExt_v1)
         if owner is None:
-            obj._ptr = <nvmlPciInfoExt_v1_t *>_cyb_malloc(sizeof(nvmlPciInfoExt_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating PciInfoExt_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPciInfoExt_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlPciInfoExt_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlPciInfoExt_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -2420,7 +2403,6 @@ cdef class PciInfo:
     cdef:
         nvmlPciInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -2428,12 +2410,11 @@ cdef class PciInfo:
         if self._ptr == NULL:
             raise MemoryError("Error allocating PciInfo")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPciInfo_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -2467,12 +2448,13 @@ cdef class PciInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlPciInfo_t *>_cyb_malloc(sizeof(nvmlPciInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PciInfo")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPciInfo_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -2594,11 +2576,9 @@ cdef class PciInfo:
                 raise MemoryError("Error allocating PciInfo")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPciInfo_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlPciInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -2624,25 +2604,15 @@ cdef class Utilization:
     .. seealso:: `nvmlUtilization_t`
     """
     cdef:
+        nvmlUtilization_t _data
         nvmlUtilization_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlUtilization_t *>_cyb_calloc(1, sizeof(nvmlUtilization_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating Utilization")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlUtilization_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Utilization object at {hex(id(self))}>"
@@ -2673,12 +2643,9 @@ cdef class Utilization:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlUtilization_t *>_cyb_malloc(sizeof(nvmlUtilization_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating Utilization")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUtilization_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUtilization_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -2732,16 +2699,12 @@ cdef class Utilization:
             raise ValueError("ptr must not be null (0)")
         cdef Utilization obj = Utilization.__new__(Utilization)
         if owner is None:
-            obj._ptr = <nvmlUtilization_t *>_cyb_malloc(sizeof(nvmlUtilization_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating Utilization")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUtilization_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlUtilization_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlUtilization_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -2768,25 +2731,15 @@ cdef class Memory:
     .. seealso:: `nvmlMemory_t`
     """
     cdef:
+        nvmlMemory_t _data
         nvmlMemory_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlMemory_t *>_cyb_calloc(1, sizeof(nvmlMemory_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating Memory")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlMemory_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Memory object at {hex(id(self))}>"
@@ -2817,12 +2770,9 @@ cdef class Memory:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlMemory_t *>_cyb_malloc(sizeof(nvmlMemory_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating Memory")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMemory_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMemory_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -2887,16 +2837,12 @@ cdef class Memory:
             raise ValueError("ptr must not be null (0)")
         cdef Memory obj = Memory.__new__(Memory)
         if owner is None:
-            obj._ptr = <nvmlMemory_t *>_cyb_malloc(sizeof(nvmlMemory_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating Memory")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlMemory_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlMemory_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlMemory_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -2925,25 +2871,15 @@ cdef class Memory_v2:
     .. seealso:: `nvmlMemory_v2_t`
     """
     cdef:
+        nvmlMemory_v2_t _data
         nvmlMemory_v2_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlMemory_v2_t *>_cyb_calloc(1, sizeof(nvmlMemory_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating Memory_v2")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlMemory_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Memory_v2 object at {hex(id(self))}>"
@@ -2974,12 +2910,9 @@ cdef class Memory_v2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlMemory_v2_t *>_cyb_malloc(sizeof(nvmlMemory_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating Memory_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMemory_v2_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMemory_v2_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -3066,16 +2999,12 @@ cdef class Memory_v2:
             raise ValueError("ptr must not be null (0)")
         cdef Memory_v2 obj = Memory_v2.__new__(Memory_v2)
         if owner is None:
-            obj._ptr = <nvmlMemory_v2_t *>_cyb_malloc(sizeof(nvmlMemory_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating Memory_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlMemory_v2_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlMemory_v2_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlMemory_v2_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -3102,25 +3031,15 @@ cdef class BAR1Memory:
     .. seealso:: `nvmlBAR1Memory_t`
     """
     cdef:
+        nvmlBAR1Memory_t _data
         nvmlBAR1Memory_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlBAR1Memory_t *>_cyb_calloc(1, sizeof(nvmlBAR1Memory_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating BAR1Memory")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlBAR1Memory_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.BAR1Memory object at {hex(id(self))}>"
@@ -3151,12 +3070,9 @@ cdef class BAR1Memory:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlBAR1Memory_t *>_cyb_malloc(sizeof(nvmlBAR1Memory_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating BAR1Memory")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlBAR1Memory_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlBAR1Memory_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -3221,16 +3137,12 @@ cdef class BAR1Memory:
             raise ValueError("ptr must not be null (0)")
         cdef BAR1Memory obj = BAR1Memory.__new__(BAR1Memory)
         if owner is None:
-            obj._ptr = <nvmlBAR1Memory_t *>_cyb_malloc(sizeof(nvmlBAR1Memory_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating BAR1Memory")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlBAR1Memory_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlBAR1Memory_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlBAR1Memory_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -3629,25 +3541,15 @@ cdef class DeviceAttributes:
     .. seealso:: `nvmlDeviceAttributes_t`
     """
     cdef:
+        nvmlDeviceAttributes_t _data
         nvmlDeviceAttributes_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlDeviceAttributes_t *>_cyb_calloc(1, sizeof(nvmlDeviceAttributes_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating DeviceAttributes")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlDeviceAttributes_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.DeviceAttributes object at {hex(id(self))}>"
@@ -3678,12 +3580,9 @@ cdef class DeviceAttributes:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDeviceAttributes_t *>_cyb_malloc(sizeof(nvmlDeviceAttributes_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating DeviceAttributes")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceAttributes_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceAttributes_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -3814,16 +3713,12 @@ cdef class DeviceAttributes:
             raise ValueError("ptr must not be null (0)")
         cdef DeviceAttributes obj = DeviceAttributes.__new__(DeviceAttributes)
         if owner is None:
-            obj._ptr = <nvmlDeviceAttributes_t *>_cyb_malloc(sizeof(nvmlDeviceAttributes_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating DeviceAttributes")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceAttributes_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlDeviceAttributes_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlDeviceAttributes_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -3848,25 +3743,15 @@ cdef class C2cModeInfo_v1:
     .. seealso:: `nvmlC2cModeInfo_v1_t`
     """
     cdef:
+        nvmlC2cModeInfo_v1_t _data
         nvmlC2cModeInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlC2cModeInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlC2cModeInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating C2cModeInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlC2cModeInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.C2cModeInfo_v1 object at {hex(id(self))}>"
@@ -3897,12 +3782,9 @@ cdef class C2cModeInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlC2cModeInfo_v1_t *>_cyb_malloc(sizeof(nvmlC2cModeInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating C2cModeInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlC2cModeInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlC2cModeInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -3945,16 +3827,12 @@ cdef class C2cModeInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef C2cModeInfo_v1 obj = C2cModeInfo_v1.__new__(C2cModeInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlC2cModeInfo_v1_t *>_cyb_malloc(sizeof(nvmlC2cModeInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating C2cModeInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlC2cModeInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlC2cModeInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlC2cModeInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -3983,25 +3861,15 @@ cdef class RowRemapperHistogramValues:
     .. seealso:: `nvmlRowRemapperHistogramValues_t`
     """
     cdef:
+        nvmlRowRemapperHistogramValues_t _data
         nvmlRowRemapperHistogramValues_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlRowRemapperHistogramValues_t *>_cyb_calloc(1, sizeof(nvmlRowRemapperHistogramValues_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating RowRemapperHistogramValues")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlRowRemapperHistogramValues_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.RowRemapperHistogramValues object at {hex(id(self))}>"
@@ -4032,12 +3900,9 @@ cdef class RowRemapperHistogramValues:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlRowRemapperHistogramValues_t *>_cyb_malloc(sizeof(nvmlRowRemapperHistogramValues_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating RowRemapperHistogramValues")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRowRemapperHistogramValues_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRowRemapperHistogramValues_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -4124,16 +3989,12 @@ cdef class RowRemapperHistogramValues:
             raise ValueError("ptr must not be null (0)")
         cdef RowRemapperHistogramValues obj = RowRemapperHistogramValues.__new__(RowRemapperHistogramValues)
         if owner is None:
-            obj._ptr = <nvmlRowRemapperHistogramValues_t *>_cyb_malloc(sizeof(nvmlRowRemapperHistogramValues_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating RowRemapperHistogramValues")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlRowRemapperHistogramValues_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlRowRemapperHistogramValues_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlRowRemapperHistogramValues_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -4313,7 +4174,6 @@ cdef class Value:
     cdef:
         nvmlValue_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -4321,12 +4181,11 @@ cdef class Value:
         if self._ptr == NULL:
             raise MemoryError("Error allocating Value")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlValue_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -4360,12 +4219,13 @@ cdef class Value:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlValue_t *>_cyb_malloc(sizeof(nvmlValue_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating Value")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlValue_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -4479,11 +4339,9 @@ cdef class Value:
                 raise MemoryError("Error allocating Value")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlValue_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlValue_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -4514,7 +4372,6 @@ cdef class _py_anon_pod0:
     cdef:
         cuda_bindings_nvml__anon_pod0 *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -4522,12 +4379,11 @@ cdef class _py_anon_pod0:
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod0")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod0 *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -4561,12 +4417,13 @@ cdef class _py_anon_pod0:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <cuda_bindings_nvml__anon_pod0 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod0))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod0")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod0))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -4658,11 +4515,9 @@ cdef class _py_anon_pod0:
                 raise MemoryError("Error allocating _py_anon_pod0")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod0))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod0 *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -4690,25 +4545,15 @@ cdef class CoolerInfo_v1:
     .. seealso:: `nvmlCoolerInfo_v1_t`
     """
     cdef:
+        nvmlCoolerInfo_v1_t _data
         nvmlCoolerInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlCoolerInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlCoolerInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating CoolerInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlCoolerInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.CoolerInfo_v1 object at {hex(id(self))}>"
@@ -4739,12 +4584,9 @@ cdef class CoolerInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlCoolerInfo_v1_t *>_cyb_malloc(sizeof(nvmlCoolerInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating CoolerInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlCoolerInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlCoolerInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -4820,16 +4662,12 @@ cdef class CoolerInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef CoolerInfo_v1 obj = CoolerInfo_v1.__new__(CoolerInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlCoolerInfo_v1_t *>_cyb_malloc(sizeof(nvmlCoolerInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating CoolerInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlCoolerInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlCoolerInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlCoolerInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -5012,25 +4850,15 @@ cdef class ClockOffset_v1:
     .. seealso:: `nvmlClockOffset_v1_t`
     """
     cdef:
+        nvmlClockOffset_v1_t _data
         nvmlClockOffset_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlClockOffset_v1_t *>_cyb_calloc(1, sizeof(nvmlClockOffset_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ClockOffset_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlClockOffset_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ClockOffset_v1 object at {hex(id(self))}>"
@@ -5061,12 +4889,9 @@ cdef class ClockOffset_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlClockOffset_v1_t *>_cyb_malloc(sizeof(nvmlClockOffset_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ClockOffset_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlClockOffset_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlClockOffset_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -5164,16 +4989,12 @@ cdef class ClockOffset_v1:
             raise ValueError("ptr must not be null (0)")
         cdef ClockOffset_v1 obj = ClockOffset_v1.__new__(ClockOffset_v1)
         if owner is None:
-            obj._ptr = <nvmlClockOffset_v1_t *>_cyb_malloc(sizeof(nvmlClockOffset_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ClockOffset_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlClockOffset_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlClockOffset_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlClockOffset_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -5636,25 +5457,15 @@ cdef class EccSramErrorStatus_v1:
     .. seealso:: `nvmlEccSramErrorStatus_v1_t`
     """
     cdef:
+        nvmlEccSramErrorStatus_v1_t _data
         nvmlEccSramErrorStatus_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlEccSramErrorStatus_v1_t *>_cyb_calloc(1, sizeof(nvmlEccSramErrorStatus_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating EccSramErrorStatus_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlEccSramErrorStatus_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.EccSramErrorStatus_v1 object at {hex(id(self))}>"
@@ -5685,12 +5496,9 @@ cdef class EccSramErrorStatus_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlEccSramErrorStatus_v1_t *>_cyb_malloc(sizeof(nvmlEccSramErrorStatus_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating EccSramErrorStatus_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEccSramErrorStatus_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEccSramErrorStatus_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -5865,16 +5673,12 @@ cdef class EccSramErrorStatus_v1:
             raise ValueError("ptr must not be null (0)")
         cdef EccSramErrorStatus_v1 obj = EccSramErrorStatus_v1.__new__(EccSramErrorStatus_v1)
         if owner is None:
-            obj._ptr = <nvmlEccSramErrorStatus_v1_t *>_cyb_malloc(sizeof(nvmlEccSramErrorStatus_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating EccSramErrorStatus_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccSramErrorStatus_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlEccSramErrorStatus_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlEccSramErrorStatus_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -5906,25 +5710,15 @@ cdef class PlatformInfo_v1:
     .. seealso:: `nvmlPlatformInfo_v1_t`
     """
     cdef:
+        nvmlPlatformInfo_v1_t _data
         nvmlPlatformInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPlatformInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlPlatformInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating PlatformInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlPlatformInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PlatformInfo_v1 object at {hex(id(self))}>"
@@ -5955,12 +5749,9 @@ cdef class PlatformInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPlatformInfo_v1_t *>_cyb_malloc(sizeof(nvmlPlatformInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating PlatformInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPlatformInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPlatformInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -6092,16 +5883,12 @@ cdef class PlatformInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef PlatformInfo_v1 obj = PlatformInfo_v1.__new__(PlatformInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlPlatformInfo_v1_t *>_cyb_malloc(sizeof(nvmlPlatformInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating PlatformInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPlatformInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlPlatformInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlPlatformInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -6133,25 +5920,15 @@ cdef class PlatformInfo_v2:
     .. seealso:: `nvmlPlatformInfo_v2_t`
     """
     cdef:
+        nvmlPlatformInfo_v2_t _data
         nvmlPlatformInfo_v2_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPlatformInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlPlatformInfo_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating PlatformInfo_v2")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlPlatformInfo_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PlatformInfo_v2 object at {hex(id(self))}>"
@@ -6182,12 +5959,9 @@ cdef class PlatformInfo_v2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPlatformInfo_v2_t *>_cyb_malloc(sizeof(nvmlPlatformInfo_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating PlatformInfo_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPlatformInfo_v2_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPlatformInfo_v2_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -6319,16 +6093,12 @@ cdef class PlatformInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef PlatformInfo_v2 obj = PlatformInfo_v2.__new__(PlatformInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlPlatformInfo_v2_t *>_cyb_malloc(sizeof(nvmlPlatformInfo_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating PlatformInfo_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPlatformInfo_v2_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlPlatformInfo_v2_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlPlatformInfo_v2_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -6358,7 +6128,6 @@ cdef class _py_anon_pod1:
     cdef:
         cuda_bindings_nvml__anon_pod1 *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -6366,12 +6135,11 @@ cdef class _py_anon_pod1:
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod1 *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -6405,12 +6173,13 @@ cdef class _py_anon_pod1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <cuda_bindings_nvml__anon_pod1 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod1))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod1))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -6491,11 +6260,9 @@ cdef class _py_anon_pod1:
                 raise MemoryError("Error allocating _py_anon_pod1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod1))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod1 *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -6524,27 +6291,17 @@ cdef class VgpuPlacementList_v2:
     .. seealso:: `nvmlVgpuPlacementList_v2_t`
     """
     cdef:
+        nvmlVgpuPlacementList_v2_t _data
         nvmlVgpuPlacementList_v2_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuPlacementList_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuPlacementList_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuPlacementList_v2")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlVgpuPlacementList_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuPlacementList_v2 object at {hex(id(self))}>"
@@ -6575,12 +6332,9 @@ cdef class VgpuPlacementList_v2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuPlacementList_v2_t *>_cyb_malloc(sizeof(nvmlVgpuPlacementList_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuPlacementList_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPlacementList_v2_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPlacementList_v2_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -6664,16 +6418,12 @@ cdef class VgpuPlacementList_v2:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuPlacementList_v2 obj = VgpuPlacementList_v2.__new__(VgpuPlacementList_v2)
         if owner is None:
-            obj._ptr = <nvmlVgpuPlacementList_v2_t *>_cyb_malloc(sizeof(nvmlVgpuPlacementList_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuPlacementList_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPlacementList_v2_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuPlacementList_v2_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuPlacementList_v2_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -6700,25 +6450,15 @@ cdef class VgpuTypeBar1Info_v1:
     .. seealso:: `nvmlVgpuTypeBar1Info_v1_t`
     """
     cdef:
+        nvmlVgpuTypeBar1Info_v1_t _data
         nvmlVgpuTypeBar1Info_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuTypeBar1Info_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuTypeBar1Info_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuTypeBar1Info_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuTypeBar1Info_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuTypeBar1Info_v1 object at {hex(id(self))}>"
@@ -6749,12 +6489,9 @@ cdef class VgpuTypeBar1Info_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuTypeBar1Info_v1_t *>_cyb_malloc(sizeof(nvmlVgpuTypeBar1Info_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuTypeBar1Info_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuTypeBar1Info_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuTypeBar1Info_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -6808,16 +6545,12 @@ cdef class VgpuTypeBar1Info_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuTypeBar1Info_v1 obj = VgpuTypeBar1Info_v1.__new__(VgpuTypeBar1Info_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuTypeBar1Info_v1_t *>_cyb_malloc(sizeof(nvmlVgpuTypeBar1Info_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuTypeBar1Info_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuTypeBar1Info_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuTypeBar1Info_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuTypeBar1Info_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -7092,7 +6825,6 @@ cdef class _py_anon_pod2:
     cdef:
         cuda_bindings_nvml__anon_pod2 *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -7100,12 +6832,11 @@ cdef class _py_anon_pod2:
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod2 *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -7139,12 +6870,13 @@ cdef class _py_anon_pod2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod2))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod2))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -7203,11 +6935,9 @@ cdef class _py_anon_pod2:
                 raise MemoryError("Error allocating _py_anon_pod2")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod2))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod2 *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -7234,7 +6964,6 @@ cdef class _py_anon_pod3:
     cdef:
         cuda_bindings_nvml__anon_pod3 *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -7242,12 +6971,11 @@ cdef class _py_anon_pod3:
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod3 *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -7281,12 +7009,13 @@ cdef class _py_anon_pod3:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod3))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod3))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -7334,11 +7063,9 @@ cdef class _py_anon_pod3:
                 raise MemoryError("Error allocating _py_anon_pod3")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod3))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod3 *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -7567,7 +7294,6 @@ cdef class _py_anon_pod4:
     cdef:
         cuda_bindings_nvml__anon_pod4 *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -7575,12 +7301,11 @@ cdef class _py_anon_pod4:
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod4")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod4 *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -7614,12 +7339,13 @@ cdef class _py_anon_pod4:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod4))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod4))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -7678,11 +7404,9 @@ cdef class _py_anon_pod4:
                 raise MemoryError("Error allocating _py_anon_pod4")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod4))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod4 *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -7709,7 +7433,6 @@ cdef class _py_anon_pod5:
     cdef:
         cuda_bindings_nvml__anon_pod5 *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -7717,12 +7440,11 @@ cdef class _py_anon_pod5:
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod5")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod5 *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -7756,12 +7478,13 @@ cdef class _py_anon_pod5:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod5))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod5))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -7809,11 +7532,9 @@ cdef class _py_anon_pod5:
                 raise MemoryError("Error allocating _py_anon_pod5")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod5))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod5 *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -7845,25 +7566,15 @@ cdef class VgpuSchedulerCapabilities:
     .. seealso:: `nvmlVgpuSchedulerCapabilities_t`
     """
     cdef:
+        nvmlVgpuSchedulerCapabilities_t _data
         nvmlVgpuSchedulerCapabilities_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerCapabilities_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerCapabilities_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuSchedulerCapabilities")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuSchedulerCapabilities_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerCapabilities object at {hex(id(self))}>"
@@ -7894,12 +7605,9 @@ cdef class VgpuSchedulerCapabilities:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerCapabilities_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerCapabilities_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerCapabilities")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerCapabilities_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerCapabilities_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -8025,16 +7733,12 @@ cdef class VgpuSchedulerCapabilities:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerCapabilities obj = VgpuSchedulerCapabilities.__new__(VgpuSchedulerCapabilities)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerCapabilities_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerCapabilities_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerCapabilities")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerCapabilities_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuSchedulerCapabilities_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerCapabilities_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -8067,7 +7771,6 @@ cdef class VgpuLicenseExpiry:
     cdef:
         nvmlVgpuLicenseExpiry_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -8075,12 +7778,11 @@ cdef class VgpuLicenseExpiry:
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuLicenseExpiry")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuLicenseExpiry_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -8114,12 +7816,13 @@ cdef class VgpuLicenseExpiry:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseExpiry_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuLicenseExpiry")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuLicenseExpiry_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -8233,11 +7936,9 @@ cdef class VgpuLicenseExpiry:
                 raise MemoryError("Error allocating VgpuLicenseExpiry")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuLicenseExpiry_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuLicenseExpiry_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -8270,7 +7971,6 @@ cdef class GridLicenseExpiry:
     cdef:
         nvmlGridLicenseExpiry_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -8278,12 +7978,11 @@ cdef class GridLicenseExpiry:
         if self._ptr == NULL:
             raise MemoryError("Error allocating GridLicenseExpiry")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlGridLicenseExpiry_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -8317,12 +8016,13 @@ cdef class GridLicenseExpiry:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlGridLicenseExpiry_t *>_cyb_malloc(sizeof(nvmlGridLicenseExpiry_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating GridLicenseExpiry")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGridLicenseExpiry_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -8436,11 +8136,9 @@ cdef class GridLicenseExpiry:
                 raise MemoryError("Error allocating GridLicenseExpiry")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGridLicenseExpiry_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlGridLicenseExpiry_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -8467,27 +8165,17 @@ cdef class VgpuTypeIdInfo_v1:
     .. seealso:: `nvmlVgpuTypeIdInfo_v1_t`
     """
     cdef:
+        nvmlVgpuTypeIdInfo_v1_t _data
         nvmlVgpuTypeIdInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuTypeIdInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuTypeIdInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuTypeIdInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlVgpuTypeIdInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuTypeIdInfo_v1 object at {hex(id(self))}>"
@@ -8518,12 +8206,9 @@ cdef class VgpuTypeIdInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuTypeIdInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuTypeIdInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuTypeIdInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuTypeIdInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuTypeIdInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -8585,16 +8270,12 @@ cdef class VgpuTypeIdInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuTypeIdInfo_v1 obj = VgpuTypeIdInfo_v1.__new__(VgpuTypeIdInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuTypeIdInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuTypeIdInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuTypeIdInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuTypeIdInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuTypeIdInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuTypeIdInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -8622,27 +8303,17 @@ cdef class ActiveVgpuInstanceInfo_v1:
     .. seealso:: `nvmlActiveVgpuInstanceInfo_v1_t`
     """
     cdef:
+        nvmlActiveVgpuInstanceInfo_v1_t _data
         nvmlActiveVgpuInstanceInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ActiveVgpuInstanceInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlActiveVgpuInstanceInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ActiveVgpuInstanceInfo_v1 object at {hex(id(self))}>"
@@ -8673,12 +8344,9 @@ cdef class ActiveVgpuInstanceInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>_cyb_malloc(sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ActiveVgpuInstanceInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -8740,16 +8408,12 @@ cdef class ActiveVgpuInstanceInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef ActiveVgpuInstanceInfo_v1 obj = ActiveVgpuInstanceInfo_v1.__new__(ActiveVgpuInstanceInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>_cyb_malloc(sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ActiveVgpuInstanceInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -8779,27 +8443,17 @@ cdef class VgpuCreatablePlacementInfo_v1:
     .. seealso:: `nvmlVgpuCreatablePlacementInfo_v1_t`
     """
     cdef:
+        nvmlVgpuCreatablePlacementInfo_v1_t _data
         nvmlVgpuCreatablePlacementInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuCreatablePlacementInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlVgpuCreatablePlacementInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuCreatablePlacementInfo_v1 object at {hex(id(self))}>"
@@ -8830,12 +8484,9 @@ cdef class VgpuCreatablePlacementInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuCreatablePlacementInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -8919,16 +8570,12 @@ cdef class VgpuCreatablePlacementInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuCreatablePlacementInfo_v1 obj = VgpuCreatablePlacementInfo_v1.__new__(VgpuCreatablePlacementInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuCreatablePlacementInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -9106,25 +8753,15 @@ cdef class LedState:
     .. seealso:: `nvmlLedState_t`
     """
     cdef:
+        nvmlLedState_t _data
         nvmlLedState_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlLedState_t *>_cyb_calloc(1, sizeof(nvmlLedState_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating LedState")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlLedState_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.LedState object at {hex(id(self))}>"
@@ -9155,12 +8792,9 @@ cdef class LedState:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlLedState_t *>_cyb_malloc(sizeof(nvmlLedState_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating LedState")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlLedState_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlLedState_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -9218,16 +8852,12 @@ cdef class LedState:
             raise ValueError("ptr must not be null (0)")
         cdef LedState obj = LedState.__new__(LedState)
         if owner is None:
-            obj._ptr = <nvmlLedState_t *>_cyb_malloc(sizeof(nvmlLedState_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating LedState")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlLedState_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlLedState_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlLedState_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -9255,25 +8885,15 @@ cdef class UnitInfo:
     .. seealso:: `nvmlUnitInfo_t`
     """
     cdef:
+        nvmlUnitInfo_t _data
         nvmlUnitInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlUnitInfo_t *>_cyb_calloc(1, sizeof(nvmlUnitInfo_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating UnitInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlUnitInfo_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.UnitInfo object at {hex(id(self))}>"
@@ -9304,12 +8924,9 @@ cdef class UnitInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlUnitInfo_t *>_cyb_malloc(sizeof(nvmlUnitInfo_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating UnitInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUnitInfo_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUnitInfo_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -9401,16 +9018,12 @@ cdef class UnitInfo:
             raise ValueError("ptr must not be null (0)")
         cdef UnitInfo obj = UnitInfo.__new__(UnitInfo)
         if owner is None:
-            obj._ptr = <nvmlUnitInfo_t *>_cyb_malloc(sizeof(nvmlUnitInfo_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating UnitInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUnitInfo_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlUnitInfo_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlUnitInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -9438,25 +9051,15 @@ cdef class PSUInfo:
     .. seealso:: `nvmlPSUInfo_t`
     """
     cdef:
+        nvmlPSUInfo_t _data
         nvmlPSUInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlPSUInfo_t *>_cyb_calloc(1, sizeof(nvmlPSUInfo_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating PSUInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlPSUInfo_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PSUInfo object at {hex(id(self))}>"
@@ -9487,12 +9090,9 @@ cdef class PSUInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlPSUInfo_t *>_cyb_malloc(sizeof(nvmlPSUInfo_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating PSUInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPSUInfo_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPSUInfo_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -9572,16 +9172,12 @@ cdef class PSUInfo:
             raise ValueError("ptr must not be null (0)")
         cdef PSUInfo obj = PSUInfo.__new__(PSUInfo)
         if owner is None:
-            obj._ptr = <nvmlPSUInfo_t *>_cyb_malloc(sizeof(nvmlPSUInfo_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating PSUInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPSUInfo_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlPSUInfo_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlPSUInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -9763,25 +9359,15 @@ cdef class EventData:
     .. seealso:: `nvmlEventData_t`
     """
     cdef:
+        nvmlEventData_t _data
         nvmlEventData_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlEventData_t *>_cyb_calloc(1, sizeof(nvmlEventData_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating EventData")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlEventData_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.EventData object at {hex(id(self))}>"
@@ -9812,12 +9398,9 @@ cdef class EventData:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlEventData_t *>_cyb_malloc(sizeof(nvmlEventData_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating EventData")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEventData_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEventData_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -9904,16 +9487,12 @@ cdef class EventData:
             raise ValueError("ptr must not be null (0)")
         cdef EventData obj = EventData.__new__(EventData)
         if owner is None:
-            obj._ptr = <nvmlEventData_t *>_cyb_malloc(sizeof(nvmlEventData_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating EventData")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEventData_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlEventData_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlEventData_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -10097,25 +9676,15 @@ cdef class AccountingStats:
     .. seealso:: `nvmlAccountingStats_t`
     """
     cdef:
+        nvmlAccountingStats_t _data
         nvmlAccountingStats_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlAccountingStats_t *>_cyb_calloc(1, sizeof(nvmlAccountingStats_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating AccountingStats")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlAccountingStats_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.AccountingStats object at {hex(id(self))}>"
@@ -10146,12 +9715,9 @@ cdef class AccountingStats:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlAccountingStats_t *>_cyb_malloc(sizeof(nvmlAccountingStats_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating AccountingStats")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlAccountingStats_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlAccountingStats_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -10249,16 +9815,12 @@ cdef class AccountingStats:
             raise ValueError("ptr must not be null (0)")
         cdef AccountingStats obj = AccountingStats.__new__(AccountingStats)
         if owner is None:
-            obj._ptr = <nvmlAccountingStats_t *>_cyb_malloc(sizeof(nvmlAccountingStats_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating AccountingStats")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlAccountingStats_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlAccountingStats_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlAccountingStats_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -10510,25 +10072,15 @@ cdef class FBCStats:
     .. seealso:: `nvmlFBCStats_t`
     """
     cdef:
+        nvmlFBCStats_t _data
         nvmlFBCStats_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlFBCStats_t *>_cyb_calloc(1, sizeof(nvmlFBCStats_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating FBCStats")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlFBCStats_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.FBCStats object at {hex(id(self))}>"
@@ -10559,12 +10111,9 @@ cdef class FBCStats:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlFBCStats_t *>_cyb_malloc(sizeof(nvmlFBCStats_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating FBCStats")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlFBCStats_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlFBCStats_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -10629,16 +10178,12 @@ cdef class FBCStats:
             raise ValueError("ptr must not be null (0)")
         cdef FBCStats obj = FBCStats.__new__(FBCStats)
         if owner is None:
-            obj._ptr = <nvmlFBCStats_t *>_cyb_malloc(sizeof(nvmlFBCStats_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating FBCStats")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlFBCStats_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlFBCStats_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlFBCStats_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -10937,25 +10482,15 @@ cdef class ConfComputeSystemCaps:
     .. seealso:: `nvmlConfComputeSystemCaps_t`
     """
     cdef:
+        nvmlConfComputeSystemCaps_t _data
         nvmlConfComputeSystemCaps_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeSystemCaps_t *>_cyb_calloc(1, sizeof(nvmlConfComputeSystemCaps_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ConfComputeSystemCaps")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlConfComputeSystemCaps_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeSystemCaps object at {hex(id(self))}>"
@@ -10986,12 +10521,9 @@ cdef class ConfComputeSystemCaps:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeSystemCaps_t *>_cyb_malloc(sizeof(nvmlConfComputeSystemCaps_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeSystemCaps")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeSystemCaps_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeSystemCaps_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -11045,16 +10577,12 @@ cdef class ConfComputeSystemCaps:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeSystemCaps obj = ConfComputeSystemCaps.__new__(ConfComputeSystemCaps)
         if owner is None:
-            obj._ptr = <nvmlConfComputeSystemCaps_t *>_cyb_malloc(sizeof(nvmlConfComputeSystemCaps_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeSystemCaps")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeSystemCaps_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlConfComputeSystemCaps_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlConfComputeSystemCaps_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -11081,25 +10609,15 @@ cdef class ConfComputeSystemState:
     .. seealso:: `nvmlConfComputeSystemState_t`
     """
     cdef:
+        nvmlConfComputeSystemState_t _data
         nvmlConfComputeSystemState_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeSystemState_t *>_cyb_calloc(1, sizeof(nvmlConfComputeSystemState_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ConfComputeSystemState")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlConfComputeSystemState_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeSystemState object at {hex(id(self))}>"
@@ -11130,12 +10648,9 @@ cdef class ConfComputeSystemState:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeSystemState_t *>_cyb_malloc(sizeof(nvmlConfComputeSystemState_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeSystemState")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeSystemState_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeSystemState_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -11200,16 +10715,12 @@ cdef class ConfComputeSystemState:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeSystemState obj = ConfComputeSystemState.__new__(ConfComputeSystemState)
         if owner is None:
-            obj._ptr = <nvmlConfComputeSystemState_t *>_cyb_malloc(sizeof(nvmlConfComputeSystemState_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeSystemState")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeSystemState_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlConfComputeSystemState_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlConfComputeSystemState_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -11238,25 +10749,15 @@ cdef class SystemConfComputeSettings_v1:
     .. seealso:: `nvmlSystemConfComputeSettings_v1_t`
     """
     cdef:
+        nvmlSystemConfComputeSettings_v1_t _data
         nvmlSystemConfComputeSettings_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlSystemConfComputeSettings_v1_t *>_cyb_calloc(1, sizeof(nvmlSystemConfComputeSettings_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating SystemConfComputeSettings_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlSystemConfComputeSettings_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.SystemConfComputeSettings_v1 object at {hex(id(self))}>"
@@ -11287,12 +10788,9 @@ cdef class SystemConfComputeSettings_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlSystemConfComputeSettings_v1_t *>_cyb_malloc(sizeof(nvmlSystemConfComputeSettings_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating SystemConfComputeSettings_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlSystemConfComputeSettings_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlSystemConfComputeSettings_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -11379,16 +10877,12 @@ cdef class SystemConfComputeSettings_v1:
             raise ValueError("ptr must not be null (0)")
         cdef SystemConfComputeSettings_v1 obj = SystemConfComputeSettings_v1.__new__(SystemConfComputeSettings_v1)
         if owner is None:
-            obj._ptr = <nvmlSystemConfComputeSettings_v1_t *>_cyb_malloc(sizeof(nvmlSystemConfComputeSettings_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating SystemConfComputeSettings_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlSystemConfComputeSettings_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlSystemConfComputeSettings_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlSystemConfComputeSettings_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -11414,25 +10908,15 @@ cdef class ConfComputeMemSizeInfo:
     .. seealso:: `nvmlConfComputeMemSizeInfo_t`
     """
     cdef:
+        nvmlConfComputeMemSizeInfo_t _data
         nvmlConfComputeMemSizeInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeMemSizeInfo_t *>_cyb_calloc(1, sizeof(nvmlConfComputeMemSizeInfo_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ConfComputeMemSizeInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlConfComputeMemSizeInfo_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeMemSizeInfo object at {hex(id(self))}>"
@@ -11463,12 +10947,9 @@ cdef class ConfComputeMemSizeInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeMemSizeInfo_t *>_cyb_malloc(sizeof(nvmlConfComputeMemSizeInfo_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeMemSizeInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeMemSizeInfo_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeMemSizeInfo_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -11522,16 +11003,12 @@ cdef class ConfComputeMemSizeInfo:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeMemSizeInfo obj = ConfComputeMemSizeInfo.__new__(ConfComputeMemSizeInfo)
         if owner is None:
-            obj._ptr = <nvmlConfComputeMemSizeInfo_t *>_cyb_malloc(sizeof(nvmlConfComputeMemSizeInfo_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeMemSizeInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeMemSizeInfo_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlConfComputeMemSizeInfo_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlConfComputeMemSizeInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -11559,25 +11036,15 @@ cdef class ConfComputeGpuCertificate:
     .. seealso:: `nvmlConfComputeGpuCertificate_t`
     """
     cdef:
+        nvmlConfComputeGpuCertificate_t _data
         nvmlConfComputeGpuCertificate_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeGpuCertificate_t *>_cyb_calloc(1, sizeof(nvmlConfComputeGpuCertificate_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ConfComputeGpuCertificate")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlConfComputeGpuCertificate_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeGpuCertificate object at {hex(id(self))}>"
@@ -11608,12 +11075,9 @@ cdef class ConfComputeGpuCertificate:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeGpuCertificate_t *>_cyb_malloc(sizeof(nvmlConfComputeGpuCertificate_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeGpuCertificate")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeGpuCertificate_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeGpuCertificate_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -11689,16 +11153,12 @@ cdef class ConfComputeGpuCertificate:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeGpuCertificate obj = ConfComputeGpuCertificate.__new__(ConfComputeGpuCertificate)
         if owner is None:
-            obj._ptr = <nvmlConfComputeGpuCertificate_t *>_cyb_malloc(sizeof(nvmlConfComputeGpuCertificate_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeGpuCertificate")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeGpuCertificate_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlConfComputeGpuCertificate_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlConfComputeGpuCertificate_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -11728,25 +11188,15 @@ cdef class ConfComputeGpuAttestationReport:
     .. seealso:: `nvmlConfComputeGpuAttestationReport_t`
     """
     cdef:
+        nvmlConfComputeGpuAttestationReport_t _data
         nvmlConfComputeGpuAttestationReport_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlConfComputeGpuAttestationReport_t *>_cyb_calloc(1, sizeof(nvmlConfComputeGpuAttestationReport_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ConfComputeGpuAttestationReport")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlConfComputeGpuAttestationReport_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ConfComputeGpuAttestationReport object at {hex(id(self))}>"
@@ -11777,12 +11227,9 @@ cdef class ConfComputeGpuAttestationReport:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlConfComputeGpuAttestationReport_t *>_cyb_malloc(sizeof(nvmlConfComputeGpuAttestationReport_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeGpuAttestationReport")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeGpuAttestationReport_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlConfComputeGpuAttestationReport_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -11886,16 +11333,12 @@ cdef class ConfComputeGpuAttestationReport:
             raise ValueError("ptr must not be null (0)")
         cdef ConfComputeGpuAttestationReport obj = ConfComputeGpuAttestationReport.__new__(ConfComputeGpuAttestationReport)
         if owner is None:
-            obj._ptr = <nvmlConfComputeGpuAttestationReport_t *>_cyb_malloc(sizeof(nvmlConfComputeGpuAttestationReport_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ConfComputeGpuAttestationReport")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlConfComputeGpuAttestationReport_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlConfComputeGpuAttestationReport_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlConfComputeGpuAttestationReport_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -11925,25 +11368,15 @@ cdef class GpuFabricInfo_v2:
     .. seealso:: `nvmlGpuFabricInfo_v2_t`
     """
     cdef:
+        nvmlGpuFabricInfo_v2_t _data
         nvmlGpuFabricInfo_v2_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuFabricInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricInfo_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating GpuFabricInfo_v2")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlGpuFabricInfo_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuFabricInfo_v2 object at {hex(id(self))}>"
@@ -11974,12 +11407,9 @@ cdef class GpuFabricInfo_v2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuFabricInfo_v2_t *>_cyb_malloc(sizeof(nvmlGpuFabricInfo_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating GpuFabricInfo_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v2_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v2_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -12083,16 +11513,12 @@ cdef class GpuFabricInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef GpuFabricInfo_v2 obj = GpuFabricInfo_v2.__new__(GpuFabricInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlGpuFabricInfo_v2_t *>_cyb_malloc(sizeof(nvmlGpuFabricInfo_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating GpuFabricInfo_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricInfo_v2_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlGpuFabricInfo_v2_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlGpuFabricInfo_v2_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -12119,25 +11545,15 @@ cdef class NvlinkSupportedBwModes_v1:
     .. seealso:: `nvmlNvlinkSupportedBwModes_v1_t`
     """
     cdef:
+        nvmlNvlinkSupportedBwModes_v1_t _data
         nvmlNvlinkSupportedBwModes_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating NvlinkSupportedBwModes_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlNvlinkSupportedBwModes_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvlinkSupportedBwModes_v1 object at {hex(id(self))}>"
@@ -12168,12 +11584,9 @@ cdef class NvlinkSupportedBwModes_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkSupportedBwModes_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating NvlinkSupportedBwModes_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -12238,16 +11651,12 @@ cdef class NvlinkSupportedBwModes_v1:
             raise ValueError("ptr must not be null (0)")
         cdef NvlinkSupportedBwModes_v1 obj = NvlinkSupportedBwModes_v1.__new__(NvlinkSupportedBwModes_v1)
         if owner is None:
-            obj._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkSupportedBwModes_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating NvlinkSupportedBwModes_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlNvlinkSupportedBwModes_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -12274,25 +11683,15 @@ cdef class NvlinkGetBwMode_v1:
     .. seealso:: `nvmlNvlinkGetBwMode_v1_t`
     """
     cdef:
+        nvmlNvlinkGetBwMode_v1_t _data
         nvmlNvlinkGetBwMode_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvlinkGetBwMode_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkGetBwMode_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating NvlinkGetBwMode_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlNvlinkGetBwMode_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvlinkGetBwMode_v1 object at {hex(id(self))}>"
@@ -12323,12 +11722,9 @@ cdef class NvlinkGetBwMode_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvlinkGetBwMode_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkGetBwMode_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating NvlinkGetBwMode_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkGetBwMode_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkGetBwMode_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -12393,16 +11789,12 @@ cdef class NvlinkGetBwMode_v1:
             raise ValueError("ptr must not be null (0)")
         cdef NvlinkGetBwMode_v1 obj = NvlinkGetBwMode_v1.__new__(NvlinkGetBwMode_v1)
         if owner is None:
-            obj._ptr = <nvmlNvlinkGetBwMode_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkGetBwMode_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating NvlinkGetBwMode_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkGetBwMode_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkGetBwMode_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlNvlinkGetBwMode_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -12429,25 +11821,15 @@ cdef class NvlinkSetBwMode_v1:
     .. seealso:: `nvmlNvlinkSetBwMode_v1_t`
     """
     cdef:
+        nvmlNvlinkSetBwMode_v1_t _data
         nvmlNvlinkSetBwMode_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvlinkSetBwMode_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkSetBwMode_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating NvlinkSetBwMode_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlNvlinkSetBwMode_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvlinkSetBwMode_v1 object at {hex(id(self))}>"
@@ -12478,12 +11860,9 @@ cdef class NvlinkSetBwMode_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvlinkSetBwMode_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkSetBwMode_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating NvlinkSetBwMode_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkSetBwMode_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkSetBwMode_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -12548,16 +11927,12 @@ cdef class NvlinkSetBwMode_v1:
             raise ValueError("ptr must not be null (0)")
         cdef NvlinkSetBwMode_v1 obj = NvlinkSetBwMode_v1.__new__(NvlinkSetBwMode_v1)
         if owner is None:
-            obj._ptr = <nvmlNvlinkSetBwMode_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkSetBwMode_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating NvlinkSetBwMode_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkSetBwMode_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkSetBwMode_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlNvlinkSetBwMode_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -12585,7 +11960,6 @@ cdef class VgpuVersion:
     cdef:
         nvmlVgpuVersion_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -12593,12 +11967,11 @@ cdef class VgpuVersion:
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuVersion")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuVersion_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -12632,12 +12005,13 @@ cdef class VgpuVersion:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlVgpuVersion_t *>_cyb_malloc(sizeof(nvmlVgpuVersion_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuVersion")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuVersion_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -12696,11 +12070,9 @@ cdef class VgpuVersion:
                 raise MemoryError("Error allocating VgpuVersion")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuVersion_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuVersion_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -12734,25 +12106,15 @@ cdef class VgpuMetadata:
     .. seealso:: `nvmlVgpuMetadata_t`
     """
     cdef:
+        nvmlVgpuMetadata_t _data
         nvmlVgpuMetadata_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuMetadata_t *>_cyb_calloc(1, sizeof(nvmlVgpuMetadata_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuMetadata")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuMetadata_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuMetadata object at {hex(id(self))}>"
@@ -12783,12 +12145,9 @@ cdef class VgpuMetadata:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuMetadata_t *>_cyb_malloc(sizeof(nvmlVgpuMetadata_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuMetadata")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuMetadata_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuMetadata_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -12931,16 +12290,12 @@ cdef class VgpuMetadata:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuMetadata obj = VgpuMetadata.__new__(VgpuMetadata)
         if owner is None:
-            obj._ptr = <nvmlVgpuMetadata_t *>_cyb_malloc(sizeof(nvmlVgpuMetadata_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuMetadata")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuMetadata_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuMetadata_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuMetadata_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -12966,25 +12321,15 @@ cdef class VgpuPgpuCompatibility:
     .. seealso:: `nvmlVgpuPgpuCompatibility_t`
     """
     cdef:
+        nvmlVgpuPgpuCompatibility_t _data
         nvmlVgpuPgpuCompatibility_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuPgpuCompatibility_t *>_cyb_calloc(1, sizeof(nvmlVgpuPgpuCompatibility_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuPgpuCompatibility")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuPgpuCompatibility_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuPgpuCompatibility object at {hex(id(self))}>"
@@ -13015,12 +12360,9 @@ cdef class VgpuPgpuCompatibility:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuPgpuCompatibility_t *>_cyb_malloc(sizeof(nvmlVgpuPgpuCompatibility_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuPgpuCompatibility")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPgpuCompatibility_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPgpuCompatibility_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -13074,16 +12416,12 @@ cdef class VgpuPgpuCompatibility:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuPgpuCompatibility obj = VgpuPgpuCompatibility.__new__(VgpuPgpuCompatibility)
         if owner is None:
-            obj._ptr = <nvmlVgpuPgpuCompatibility_t *>_cyb_malloc(sizeof(nvmlVgpuPgpuCompatibility_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuPgpuCompatibility")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPgpuCompatibility_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuPgpuCompatibility_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuPgpuCompatibility_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -13273,25 +12611,15 @@ cdef class GpuInstanceProfileInfo_v3:
     .. seealso:: `nvmlGpuInstanceProfileInfo_v3_t`
     """
     cdef:
+        nvmlGpuInstanceProfileInfo_v3_t _data
         nvmlGpuInstanceProfileInfo_v3_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating GpuInstanceProfileInfo_v3")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlGpuInstanceProfileInfo_v3_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuInstanceProfileInfo_v3 object at {hex(id(self))}>"
@@ -13322,12 +12650,9 @@ cdef class GpuInstanceProfileInfo_v3:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>_cyb_malloc(sizeof(nvmlGpuInstanceProfileInfo_v3_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating GpuInstanceProfileInfo_v3")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -13506,16 +12831,12 @@ cdef class GpuInstanceProfileInfo_v3:
             raise ValueError("ptr must not be null (0)")
         cdef GpuInstanceProfileInfo_v3 obj = GpuInstanceProfileInfo_v3.__new__(GpuInstanceProfileInfo_v3)
         if owner is None:
-            obj._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>_cyb_malloc(sizeof(nvmlGpuInstanceProfileInfo_v3_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating GpuInstanceProfileInfo_v3")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlGpuInstanceProfileInfo_v3_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -13703,25 +13024,15 @@ cdef class ComputeInstanceProfileInfo_v2:
     .. seealso:: `nvmlComputeInstanceProfileInfo_v2_t`
     """
     cdef:
+        nvmlComputeInstanceProfileInfo_v2_t _data
         nvmlComputeInstanceProfileInfo_v2_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ComputeInstanceProfileInfo_v2")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlComputeInstanceProfileInfo_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ComputeInstanceProfileInfo_v2 object at {hex(id(self))}>"
@@ -13752,12 +13063,9 @@ cdef class ComputeInstanceProfileInfo_v2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>_cyb_malloc(sizeof(nvmlComputeInstanceProfileInfo_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ComputeInstanceProfileInfo_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -13914,16 +13222,12 @@ cdef class ComputeInstanceProfileInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef ComputeInstanceProfileInfo_v2 obj = ComputeInstanceProfileInfo_v2.__new__(ComputeInstanceProfileInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>_cyb_malloc(sizeof(nvmlComputeInstanceProfileInfo_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ComputeInstanceProfileInfo_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlComputeInstanceProfileInfo_v2_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -13959,25 +13263,15 @@ cdef class ComputeInstanceProfileInfo_v3:
     .. seealso:: `nvmlComputeInstanceProfileInfo_v3_t`
     """
     cdef:
+        nvmlComputeInstanceProfileInfo_v3_t _data
         nvmlComputeInstanceProfileInfo_v3_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ComputeInstanceProfileInfo_v3")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlComputeInstanceProfileInfo_v3_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ComputeInstanceProfileInfo_v3 object at {hex(id(self))}>"
@@ -14008,12 +13302,9 @@ cdef class ComputeInstanceProfileInfo_v3:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>_cyb_malloc(sizeof(nvmlComputeInstanceProfileInfo_v3_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ComputeInstanceProfileInfo_v3")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -14181,16 +13472,12 @@ cdef class ComputeInstanceProfileInfo_v3:
             raise ValueError("ptr must not be null (0)")
         cdef ComputeInstanceProfileInfo_v3 obj = ComputeInstanceProfileInfo_v3.__new__(ComputeInstanceProfileInfo_v3)
         if owner is None:
-            obj._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>_cyb_malloc(sizeof(nvmlComputeInstanceProfileInfo_v3_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ComputeInstanceProfileInfo_v3")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlComputeInstanceProfileInfo_v3_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -14216,25 +13503,15 @@ cdef class DeviceAddressingMode_v1:
     .. seealso:: `nvmlDeviceAddressingMode_v1_t`
     """
     cdef:
+        nvmlDeviceAddressingMode_v1_t _data
         nvmlDeviceAddressingMode_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlDeviceAddressingMode_v1_t *>_cyb_calloc(1, sizeof(nvmlDeviceAddressingMode_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating DeviceAddressingMode_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlDeviceAddressingMode_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.DeviceAddressingMode_v1 object at {hex(id(self))}>"
@@ -14265,12 +13542,9 @@ cdef class DeviceAddressingMode_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDeviceAddressingMode_v1_t *>_cyb_malloc(sizeof(nvmlDeviceAddressingMode_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating DeviceAddressingMode_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceAddressingMode_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceAddressingMode_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -14324,16 +13598,12 @@ cdef class DeviceAddressingMode_v1:
             raise ValueError("ptr must not be null (0)")
         cdef DeviceAddressingMode_v1 obj = DeviceAddressingMode_v1.__new__(DeviceAddressingMode_v1)
         if owner is None:
-            obj._ptr = <nvmlDeviceAddressingMode_v1_t *>_cyb_malloc(sizeof(nvmlDeviceAddressingMode_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating DeviceAddressingMode_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceAddressingMode_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlDeviceAddressingMode_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlDeviceAddressingMode_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -14360,25 +13630,15 @@ cdef class RepairStatus_v1:
     .. seealso:: `nvmlRepairStatus_v1_t`
     """
     cdef:
+        nvmlRepairStatus_v1_t _data
         nvmlRepairStatus_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlRepairStatus_v1_t *>_cyb_calloc(1, sizeof(nvmlRepairStatus_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating RepairStatus_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlRepairStatus_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.RepairStatus_v1 object at {hex(id(self))}>"
@@ -14409,12 +13669,9 @@ cdef class RepairStatus_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlRepairStatus_v1_t *>_cyb_malloc(sizeof(nvmlRepairStatus_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating RepairStatus_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRepairStatus_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRepairStatus_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -14479,16 +13736,12 @@ cdef class RepairStatus_v1:
             raise ValueError("ptr must not be null (0)")
         cdef RepairStatus_v1 obj = RepairStatus_v1.__new__(RepairStatus_v1)
         if owner is None:
-            obj._ptr = <nvmlRepairStatus_v1_t *>_cyb_malloc(sizeof(nvmlRepairStatus_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating RepairStatus_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlRepairStatus_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlRepairStatus_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlRepairStatus_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -14515,25 +13768,15 @@ cdef class DevicePowerMizerModes_v1:
     .. seealso:: `nvmlDevicePowerMizerModes_v1_t`
     """
     cdef:
+        nvmlDevicePowerMizerModes_v1_t _data
         nvmlDevicePowerMizerModes_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlDevicePowerMizerModes_v1_t *>_cyb_calloc(1, sizeof(nvmlDevicePowerMizerModes_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating DevicePowerMizerModes_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlDevicePowerMizerModes_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.DevicePowerMizerModes_v1 object at {hex(id(self))}>"
@@ -14564,12 +13807,9 @@ cdef class DevicePowerMizerModes_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlDevicePowerMizerModes_v1_t *>_cyb_malloc(sizeof(nvmlDevicePowerMizerModes_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating DevicePowerMizerModes_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDevicePowerMizerModes_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDevicePowerMizerModes_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -14634,16 +13874,12 @@ cdef class DevicePowerMizerModes_v1:
             raise ValueError("ptr must not be null (0)")
         cdef DevicePowerMizerModes_v1 obj = DevicePowerMizerModes_v1.__new__(DevicePowerMizerModes_v1)
         if owner is None:
-            obj._ptr = <nvmlDevicePowerMizerModes_v1_t *>_cyb_malloc(sizeof(nvmlDevicePowerMizerModes_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating DevicePowerMizerModes_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDevicePowerMizerModes_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlDevicePowerMizerModes_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlDevicePowerMizerModes_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -14887,25 +14123,15 @@ cdef class GpuFabricInfo_v3:
     .. seealso:: `nvmlGpuFabricInfo_v3_t`
     """
     cdef:
+        nvmlGpuFabricInfo_v3_t _data
         nvmlGpuFabricInfo_v3_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuFabricInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricInfo_v3_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating GpuFabricInfo_v3")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlGpuFabricInfo_v3_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuFabricInfo_v3 object at {hex(id(self))}>"
@@ -14936,12 +14162,9 @@ cdef class GpuFabricInfo_v3:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuFabricInfo_v3_t *>_cyb_malloc(sizeof(nvmlGpuFabricInfo_v3_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating GpuFabricInfo_v3")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v3_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v3_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -15056,16 +14279,12 @@ cdef class GpuFabricInfo_v3:
             raise ValueError("ptr must not be null (0)")
         cdef GpuFabricInfo_v3 obj = GpuFabricInfo_v3.__new__(GpuFabricInfo_v3)
         if owner is None:
-            obj._ptr = <nvmlGpuFabricInfo_v3_t *>_cyb_malloc(sizeof(nvmlGpuFabricInfo_v3_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating GpuFabricInfo_v3")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricInfo_v3_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlGpuFabricInfo_v3_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlGpuFabricInfo_v3_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -15091,25 +14310,15 @@ cdef class NvLinkInfo_v1:
     .. seealso:: `nvmlNvLinkInfo_v1_t`
     """
     cdef:
+        nvmlNvLinkInfo_v1_t _data
         nvmlNvLinkInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvLinkInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlNvLinkInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating NvLinkInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlNvLinkInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvLinkInfo_v1 object at {hex(id(self))}>"
@@ -15140,12 +14349,9 @@ cdef class NvLinkInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvLinkInfo_v1_t *>_cyb_malloc(sizeof(nvmlNvLinkInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating NvLinkInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -15199,16 +14405,12 @@ cdef class NvLinkInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef NvLinkInfo_v1 obj = NvLinkInfo_v1.__new__(NvLinkInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlNvLinkInfo_v1_t *>_cyb_malloc(sizeof(nvmlNvLinkInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating NvLinkInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvLinkInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvLinkInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlNvLinkInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -15238,7 +14440,6 @@ cdef class NvlinkFirmwareVersion:
     cdef:
         nvmlNvlinkFirmwareVersion_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -15246,12 +14447,11 @@ cdef class NvlinkFirmwareVersion:
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkFirmwareVersion")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlNvlinkFirmwareVersion_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -15285,12 +14485,13 @@ cdef class NvlinkFirmwareVersion:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlNvlinkFirmwareVersion_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkFirmwareVersion")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkFirmwareVersion_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -15371,11 +14572,9 @@ cdef class NvlinkFirmwareVersion:
                 raise MemoryError("Error allocating NvlinkFirmwareVersion")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareVersion_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlNvlinkFirmwareVersion_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -15402,7 +14601,6 @@ cdef class PRMCounterInput_v1:
     cdef:
         nvmlPRMCounterInput_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -15410,12 +14608,11 @@ cdef class PRMCounterInput_v1:
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterInput_v1")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPRMCounterInput_v1_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -15449,12 +14646,13 @@ cdef class PRMCounterInput_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlPRMCounterInput_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterInput_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterInput_v1")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPRMCounterInput_v1_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -15502,11 +14700,9 @@ cdef class PRMCounterInput_v1:
                 raise MemoryError("Error allocating PRMCounterInput_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterInput_v1_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlPRMCounterInput_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -15534,25 +14730,15 @@ cdef class VgpuSchedulerStateInfo_v2:
     .. seealso:: `nvmlVgpuSchedulerStateInfo_v2_t`
     """
     cdef:
+        nvmlVgpuSchedulerStateInfo_v2_t _data
         nvmlVgpuSchedulerStateInfo_v2_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuSchedulerStateInfo_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerStateInfo_v2 object at {hex(id(self))}>"
@@ -15583,12 +14769,9 @@ cdef class VgpuSchedulerStateInfo_v2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -15664,16 +14847,12 @@ cdef class VgpuSchedulerStateInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerStateInfo_v2 obj = VgpuSchedulerStateInfo_v2.__new__(VgpuSchedulerStateInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerStateInfo_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerStateInfo_v2_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -15914,25 +15093,15 @@ cdef class VgpuSchedulerState_v2:
     .. seealso:: `nvmlVgpuSchedulerState_v2_t`
     """
     cdef:
+        nvmlVgpuSchedulerState_v2_t _data
         nvmlVgpuSchedulerState_v2_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerState_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerState_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuSchedulerState_v2")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuSchedulerState_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerState_v2 object at {hex(id(self))}>"
@@ -15963,12 +15132,9 @@ cdef class VgpuSchedulerState_v2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerState_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerState_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v2_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v2_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -16044,16 +15210,12 @@ cdef class VgpuSchedulerState_v2:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerState_v2 obj = VgpuSchedulerState_v2.__new__(VgpuSchedulerState_v2)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerState_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerState_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerState_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerState_v2_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuSchedulerState_v2_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerState_v2_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -16079,25 +15241,15 @@ cdef class ExcludedDeviceInfo:
     .. seealso:: `nvmlExcludedDeviceInfo_t`
     """
     cdef:
+        nvmlExcludedDeviceInfo_t _data
         nvmlExcludedDeviceInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlExcludedDeviceInfo_t *>_cyb_calloc(1, sizeof(nvmlExcludedDeviceInfo_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ExcludedDeviceInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlExcludedDeviceInfo_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ExcludedDeviceInfo object at {hex(id(self))}>"
@@ -16128,12 +15280,9 @@ cdef class ExcludedDeviceInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlExcludedDeviceInfo_t *>_cyb_malloc(sizeof(nvmlExcludedDeviceInfo_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ExcludedDeviceInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlExcludedDeviceInfo_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlExcludedDeviceInfo_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -16192,16 +15341,12 @@ cdef class ExcludedDeviceInfo:
             raise ValueError("ptr must not be null (0)")
         cdef ExcludedDeviceInfo obj = ExcludedDeviceInfo.__new__(ExcludedDeviceInfo)
         if owner is None:
-            obj._ptr = <nvmlExcludedDeviceInfo_t *>_cyb_malloc(sizeof(nvmlExcludedDeviceInfo_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ExcludedDeviceInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlExcludedDeviceInfo_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlExcludedDeviceInfo_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlExcludedDeviceInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -16229,27 +15374,17 @@ cdef class ProcessDetailList_v1:
     .. seealso:: `nvmlProcessDetailList_v1_t`
     """
     cdef:
+        nvmlProcessDetailList_v1_t _data
         nvmlProcessDetailList_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlProcessDetailList_v1_t *>_cyb_calloc(1, sizeof(nvmlProcessDetailList_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ProcessDetailList_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlProcessDetailList_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ProcessDetailList_v1 object at {hex(id(self))}>"
@@ -16280,12 +15415,9 @@ cdef class ProcessDetailList_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlProcessDetailList_v1_t *>_cyb_malloc(sizeof(nvmlProcessDetailList_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ProcessDetailList_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlProcessDetailList_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlProcessDetailList_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -16355,16 +15487,12 @@ cdef class ProcessDetailList_v1:
             raise ValueError("ptr must not be null (0)")
         cdef ProcessDetailList_v1 obj = ProcessDetailList_v1.__new__(ProcessDetailList_v1)
         if owner is None:
-            obj._ptr = <nvmlProcessDetailList_v1_t *>_cyb_malloc(sizeof(nvmlProcessDetailList_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ProcessDetailList_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlProcessDetailList_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlProcessDetailList_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlProcessDetailList_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -16391,25 +15519,15 @@ cdef class BridgeChipHierarchy:
     .. seealso:: `nvmlBridgeChipHierarchy_t`
     """
     cdef:
+        nvmlBridgeChipHierarchy_t _data
         nvmlBridgeChipHierarchy_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlBridgeChipHierarchy_t *>_cyb_calloc(1, sizeof(nvmlBridgeChipHierarchy_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating BridgeChipHierarchy")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlBridgeChipHierarchy_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.BridgeChipHierarchy object at {hex(id(self))}>"
@@ -16440,12 +15558,9 @@ cdef class BridgeChipHierarchy:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlBridgeChipHierarchy_t *>_cyb_malloc(sizeof(nvmlBridgeChipHierarchy_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating BridgeChipHierarchy")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlBridgeChipHierarchy_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlBridgeChipHierarchy_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -16494,16 +15609,12 @@ cdef class BridgeChipHierarchy:
             raise ValueError("ptr must not be null (0)")
         cdef BridgeChipHierarchy obj = BridgeChipHierarchy.__new__(BridgeChipHierarchy)
         if owner is None:
-            obj._ptr = <nvmlBridgeChipHierarchy_t *>_cyb_malloc(sizeof(nvmlBridgeChipHierarchy_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating BridgeChipHierarchy")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlBridgeChipHierarchy_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlBridgeChipHierarchy_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlBridgeChipHierarchy_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -17300,7 +16411,6 @@ cdef class PRMCounterValue_v1:
     cdef:
         nvmlPRMCounterValue_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -17308,12 +16418,11 @@ cdef class PRMCounterValue_v1:
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterValue_v1")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPRMCounterValue_v1_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -17347,12 +16456,13 @@ cdef class PRMCounterValue_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlPRMCounterValue_v1_t *>_cyb_malloc(sizeof(nvmlPRMCounterValue_v1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterValue_v1")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPRMCounterValue_v1_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -17423,11 +16533,9 @@ cdef class PRMCounterValue_v1:
                 raise MemoryError("Error allocating PRMCounterValue_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterValue_v1_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlPRMCounterValue_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -17453,25 +16561,15 @@ cdef class GpuThermalSettings:
     .. seealso:: `nvmlGpuThermalSettings_t`
     """
     cdef:
+        nvmlGpuThermalSettings_t _data
         nvmlGpuThermalSettings_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuThermalSettings_t *>_cyb_calloc(1, sizeof(nvmlGpuThermalSettings_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating GpuThermalSettings")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlGpuThermalSettings_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuThermalSettings object at {hex(id(self))}>"
@@ -17502,12 +16600,9 @@ cdef class GpuThermalSettings:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuThermalSettings_t *>_cyb_malloc(sizeof(nvmlGpuThermalSettings_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating GpuThermalSettings")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuThermalSettings_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuThermalSettings_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -17564,16 +16659,12 @@ cdef class GpuThermalSettings:
             raise ValueError("ptr must not be null (0)")
         cdef GpuThermalSettings obj = GpuThermalSettings.__new__(GpuThermalSettings)
         if owner is None:
-            obj._ptr = <nvmlGpuThermalSettings_t *>_cyb_malloc(sizeof(nvmlGpuThermalSettings_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating GpuThermalSettings")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuThermalSettings_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlGpuThermalSettings_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlGpuThermalSettings_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -17600,25 +16691,15 @@ cdef class ClkMonStatus:
     .. seealso:: `nvmlClkMonStatus_t`
     """
     cdef:
+        nvmlClkMonStatus_t _data
         nvmlClkMonStatus_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlClkMonStatus_t *>_cyb_calloc(1, sizeof(nvmlClkMonStatus_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ClkMonStatus")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlClkMonStatus_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ClkMonStatus object at {hex(id(self))}>"
@@ -17649,12 +16730,9 @@ cdef class ClkMonStatus:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlClkMonStatus_t *>_cyb_malloc(sizeof(nvmlClkMonStatus_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ClkMonStatus")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlClkMonStatus_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlClkMonStatus_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -17714,16 +16792,12 @@ cdef class ClkMonStatus:
             raise ValueError("ptr must not be null (0)")
         cdef ClkMonStatus obj = ClkMonStatus.__new__(ClkMonStatus)
         if owner is None:
-            obj._ptr = <nvmlClkMonStatus_t *>_cyb_malloc(sizeof(nvmlClkMonStatus_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ClkMonStatus")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlClkMonStatus_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlClkMonStatus_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlClkMonStatus_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -17751,27 +16825,17 @@ cdef class ProcessesUtilizationInfo_v1:
     .. seealso:: `nvmlProcessesUtilizationInfo_v1_t`
     """
     cdef:
+        nvmlProcessesUtilizationInfo_v1_t _data
         nvmlProcessesUtilizationInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlProcessesUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlProcessesUtilizationInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ProcessesUtilizationInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlProcessesUtilizationInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ProcessesUtilizationInfo_v1 object at {hex(id(self))}>"
@@ -17802,12 +16866,9 @@ cdef class ProcessesUtilizationInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlProcessesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlProcessesUtilizationInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ProcessesUtilizationInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlProcessesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlProcessesUtilizationInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -17877,16 +16938,12 @@ cdef class ProcessesUtilizationInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef ProcessesUtilizationInfo_v1 obj = ProcessesUtilizationInfo_v1.__new__(ProcessesUtilizationInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlProcessesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlProcessesUtilizationInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ProcessesUtilizationInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlProcessesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlProcessesUtilizationInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlProcessesUtilizationInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -17913,25 +16970,15 @@ cdef class GpuDynamicPstatesInfo:
     .. seealso:: `nvmlGpuDynamicPstatesInfo_t`
     """
     cdef:
+        nvmlGpuDynamicPstatesInfo_t _data
         nvmlGpuDynamicPstatesInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuDynamicPstatesInfo_t *>_cyb_calloc(1, sizeof(nvmlGpuDynamicPstatesInfo_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating GpuDynamicPstatesInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlGpuDynamicPstatesInfo_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuDynamicPstatesInfo object at {hex(id(self))}>"
@@ -17962,12 +17009,9 @@ cdef class GpuDynamicPstatesInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuDynamicPstatesInfo_t *>_cyb_malloc(sizeof(nvmlGpuDynamicPstatesInfo_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating GpuDynamicPstatesInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuDynamicPstatesInfo_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuDynamicPstatesInfo_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -18024,16 +17068,12 @@ cdef class GpuDynamicPstatesInfo:
             raise ValueError("ptr must not be null (0)")
         cdef GpuDynamicPstatesInfo obj = GpuDynamicPstatesInfo.__new__(GpuDynamicPstatesInfo)
         if owner is None:
-            obj._ptr = <nvmlGpuDynamicPstatesInfo_t *>_cyb_malloc(sizeof(nvmlGpuDynamicPstatesInfo_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating GpuDynamicPstatesInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuDynamicPstatesInfo_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlGpuDynamicPstatesInfo_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlGpuDynamicPstatesInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -18061,27 +17101,17 @@ cdef class VgpuProcessesUtilizationInfo_v1:
     .. seealso:: `nvmlVgpuProcessesUtilizationInfo_v1_t`
     """
     cdef:
+        nvmlVgpuProcessesUtilizationInfo_v1_t _data
         nvmlVgpuProcessesUtilizationInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuProcessesUtilizationInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlVgpuProcessesUtilizationInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuProcessesUtilizationInfo_v1 object at {hex(id(self))}>"
@@ -18112,12 +17142,9 @@ cdef class VgpuProcessesUtilizationInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuProcessesUtilizationInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -18187,16 +17214,12 @@ cdef class VgpuProcessesUtilizationInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuProcessesUtilizationInfo_v1 obj = VgpuProcessesUtilizationInfo_v1.__new__(VgpuProcessesUtilizationInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuProcessesUtilizationInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -18219,7 +17242,6 @@ cdef class VgpuSchedulerParams:
     cdef:
         nvmlVgpuSchedulerParams_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -18227,12 +17249,11 @@ cdef class VgpuSchedulerParams:
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerParams")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerParams_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -18266,12 +17287,13 @@ cdef class VgpuSchedulerParams:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlVgpuSchedulerParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerParams_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerParams")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerParams_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -18332,11 +17354,9 @@ cdef class VgpuSchedulerParams:
                 raise MemoryError("Error allocating VgpuSchedulerParams")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerParams_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerParams_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -18358,7 +17378,6 @@ cdef class VgpuSchedulerSetParams:
     cdef:
         nvmlVgpuSchedulerSetParams_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -18366,12 +17385,11 @@ cdef class VgpuSchedulerSetParams:
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerSetParams")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerSetParams_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -18405,12 +17423,13 @@ cdef class VgpuSchedulerSetParams:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerSetParams_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerSetParams")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerSetParams_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -18471,11 +17490,9 @@ cdef class VgpuSchedulerSetParams:
                 raise MemoryError("Error allocating VgpuSchedulerSetParams")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerSetParams_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerSetParams_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -18502,25 +17519,15 @@ cdef class VgpuLicenseInfo:
     .. seealso:: `nvmlVgpuLicenseInfo_t`
     """
     cdef:
+        nvmlVgpuLicenseInfo_t _data
         nvmlVgpuLicenseInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuLicenseInfo_t *>_cyb_calloc(1, sizeof(nvmlVgpuLicenseInfo_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuLicenseInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuLicenseInfo_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuLicenseInfo object at {hex(id(self))}>"
@@ -18551,12 +17558,9 @@ cdef class VgpuLicenseInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuLicenseInfo_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseInfo_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuLicenseInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuLicenseInfo_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuLicenseInfo_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -18622,16 +17626,12 @@ cdef class VgpuLicenseInfo:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuLicenseInfo obj = VgpuLicenseInfo.__new__(VgpuLicenseInfo)
         if owner is None:
-            obj._ptr = <nvmlVgpuLicenseInfo_t *>_cyb_malloc(sizeof(nvmlVgpuLicenseInfo_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuLicenseInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuLicenseInfo_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuLicenseInfo_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuLicenseInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -18852,25 +17852,15 @@ cdef class UnitFanSpeeds:
     .. seealso:: `nvmlUnitFanSpeeds_t`
     """
     cdef:
+        nvmlUnitFanSpeeds_t _data
         nvmlUnitFanSpeeds_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlUnitFanSpeeds_t *>_cyb_calloc(1, sizeof(nvmlUnitFanSpeeds_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating UnitFanSpeeds")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlUnitFanSpeeds_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.UnitFanSpeeds object at {hex(id(self))}>"
@@ -18901,12 +17891,9 @@ cdef class UnitFanSpeeds:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlUnitFanSpeeds_t *>_cyb_malloc(sizeof(nvmlUnitFanSpeeds_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating UnitFanSpeeds")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUnitFanSpeeds_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlUnitFanSpeeds_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -18963,16 +17950,12 @@ cdef class UnitFanSpeeds:
             raise ValueError("ptr must not be null (0)")
         cdef UnitFanSpeeds obj = UnitFanSpeeds.__new__(UnitFanSpeeds)
         if owner is None:
-            obj._ptr = <nvmlUnitFanSpeeds_t *>_cyb_malloc(sizeof(nvmlUnitFanSpeeds_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating UnitFanSpeeds")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlUnitFanSpeeds_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlUnitFanSpeeds_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlUnitFanSpeeds_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -19004,25 +17987,15 @@ cdef class VgpuPgpuMetadata:
     .. seealso:: `nvmlVgpuPgpuMetadata_t`
     """
     cdef:
+        nvmlVgpuPgpuMetadata_t _data
         nvmlVgpuPgpuMetadata_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuPgpuMetadata_t *>_cyb_calloc(1, sizeof(nvmlVgpuPgpuMetadata_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuPgpuMetadata")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuPgpuMetadata_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuPgpuMetadata object at {hex(id(self))}>"
@@ -19053,12 +18026,9 @@ cdef class VgpuPgpuMetadata:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuPgpuMetadata_t *>_cyb_malloc(sizeof(nvmlVgpuPgpuMetadata_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuPgpuMetadata")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPgpuMetadata_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuPgpuMetadata_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -19176,16 +18146,12 @@ cdef class VgpuPgpuMetadata:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuPgpuMetadata obj = VgpuPgpuMetadata.__new__(VgpuPgpuMetadata)
         if owner is None:
-            obj._ptr = <nvmlVgpuPgpuMetadata_t *>_cyb_malloc(sizeof(nvmlVgpuPgpuMetadata_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuPgpuMetadata")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuPgpuMetadata_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuPgpuMetadata_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuPgpuMetadata_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -19213,25 +18179,15 @@ cdef class GpuInstanceInfo:
     .. seealso:: `nvmlGpuInstanceInfo_t`
     """
     cdef:
+        nvmlGpuInstanceInfo_t _data
         nvmlGpuInstanceInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGpuInstanceInfo_t *>_cyb_calloc(1, sizeof(nvmlGpuInstanceInfo_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating GpuInstanceInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlGpuInstanceInfo_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GpuInstanceInfo object at {hex(id(self))}>"
@@ -19262,12 +18218,9 @@ cdef class GpuInstanceInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGpuInstanceInfo_t *>_cyb_malloc(sizeof(nvmlGpuInstanceInfo_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating GpuInstanceInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuInstanceInfo_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuInstanceInfo_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -19344,16 +18297,12 @@ cdef class GpuInstanceInfo:
             raise ValueError("ptr must not be null (0)")
         cdef GpuInstanceInfo obj = GpuInstanceInfo.__new__(GpuInstanceInfo)
         if owner is None:
-            obj._ptr = <nvmlGpuInstanceInfo_t *>_cyb_malloc(sizeof(nvmlGpuInstanceInfo_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating GpuInstanceInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuInstanceInfo_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlGpuInstanceInfo_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlGpuInstanceInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -19382,25 +18331,15 @@ cdef class ComputeInstanceInfo:
     .. seealso:: `nvmlComputeInstanceInfo_t`
     """
     cdef:
+        nvmlComputeInstanceInfo_t _data
         nvmlComputeInstanceInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlComputeInstanceInfo_t *>_cyb_calloc(1, sizeof(nvmlComputeInstanceInfo_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ComputeInstanceInfo")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlComputeInstanceInfo_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ComputeInstanceInfo object at {hex(id(self))}>"
@@ -19431,12 +18370,9 @@ cdef class ComputeInstanceInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlComputeInstanceInfo_t *>_cyb_malloc(sizeof(nvmlComputeInstanceInfo_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ComputeInstanceInfo")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceInfo_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlComputeInstanceInfo_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -19524,16 +18460,12 @@ cdef class ComputeInstanceInfo:
             raise ValueError("ptr must not be null (0)")
         cdef ComputeInstanceInfo obj = ComputeInstanceInfo.__new__(ComputeInstanceInfo)
         if owner is None:
-            obj._ptr = <nvmlComputeInstanceInfo_t *>_cyb_malloc(sizeof(nvmlComputeInstanceInfo_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ComputeInstanceInfo")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlComputeInstanceInfo_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlComputeInstanceInfo_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlComputeInstanceInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -19560,27 +18492,17 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
     .. seealso:: `nvmlEccSramUniqueUncorrectedErrorCounts_v1_t`
     """
     cdef:
+        nvmlEccSramUniqueUncorrectedErrorCounts_v1_t _data
         nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>_cyb_calloc(1, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating EccSramUniqueUncorrectedErrorCounts_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.EccSramUniqueUncorrectedErrorCounts_v1 object at {hex(id(self))}>"
@@ -19611,12 +18533,9 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>_cyb_malloc(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating EccSramUniqueUncorrectedErrorCounts_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -19675,16 +18594,12 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
             raise ValueError("ptr must not be null (0)")
         cdef EccSramUniqueUncorrectedErrorCounts_v1 obj = EccSramUniqueUncorrectedErrorCounts_v1.__new__(EccSramUniqueUncorrectedErrorCounts_v1)
         if owner is None:
-            obj._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>_cyb_malloc(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating EccSramUniqueUncorrectedErrorCounts_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -19713,7 +18628,6 @@ cdef class NvlinkFirmwareInfo:
     cdef:
         nvmlNvlinkFirmwareInfo_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -19721,12 +18635,11 @@ cdef class NvlinkFirmwareInfo:
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkFirmwareInfo")
         self._owner = None
-        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlNvlinkFirmwareInfo_t *ptr
-        if self._owned and self._ptr != NULL:
+        if self._owner is None and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
@@ -19760,12 +18673,13 @@ cdef class NvlinkFirmwareInfo:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
+            if self._owner is None and self._ptr != NULL:
+                _cyb_free(self._ptr)
             self._ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkFirmwareInfo")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkFirmwareInfo_t))
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -19827,11 +18741,9 @@ cdef class NvlinkFirmwareInfo:
                 raise MemoryError("Error allocating NvlinkFirmwareInfo")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareInfo_t))
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlNvlinkFirmwareInfo_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -19861,25 +18773,15 @@ cdef class VgpuSchedulerLogInfo_v2:
     .. seealso:: `nvmlVgpuSchedulerLogInfo_v2_t`
     """
     cdef:
+        nvmlVgpuSchedulerLogInfo_v2_t _data
         nvmlVgpuSchedulerLogInfo_v2_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuSchedulerLogInfo_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerLogInfo_v2 object at {hex(id(self))}>"
@@ -19910,12 +18812,9 @@ cdef class VgpuSchedulerLogInfo_v2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -20016,16 +18915,12 @@ cdef class VgpuSchedulerLogInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerLogInfo_v2 obj = VgpuSchedulerLogInfo_v2.__new__(VgpuSchedulerLogInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerLogInfo_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerLogInfo_v2_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -20054,27 +18949,17 @@ cdef class VgpuInstancesUtilizationInfo_v1:
     .. seealso:: `nvmlVgpuInstancesUtilizationInfo_v1_t`
     """
     cdef:
+        nvmlVgpuInstancesUtilizationInfo_v1_t _data
         nvmlVgpuInstancesUtilizationInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuInstancesUtilizationInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef nvmlVgpuInstancesUtilizationInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuInstancesUtilizationInfo_v1 object at {hex(id(self))}>"
@@ -20105,12 +18990,9 @@ cdef class VgpuInstancesUtilizationInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuInstancesUtilizationInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -20191,16 +19073,12 @@ cdef class VgpuInstancesUtilizationInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuInstancesUtilizationInfo_v1 obj = VgpuInstancesUtilizationInfo_v1.__new__(VgpuInstancesUtilizationInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuInstancesUtilizationInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuInstancesUtilizationInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -20392,25 +19270,15 @@ cdef class VgpuSchedulerLog:
     .. seealso:: `nvmlVgpuSchedulerLog_t`
     """
     cdef:
+        nvmlVgpuSchedulerLog_t _data
         nvmlVgpuSchedulerLog_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerLog_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLog_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuSchedulerLog")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuSchedulerLog_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerLog object at {hex(id(self))}>"
@@ -20441,12 +19309,9 @@ cdef class VgpuSchedulerLog:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerLog_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLog_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerLog")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLog_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLog_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -20548,16 +19413,12 @@ cdef class VgpuSchedulerLog:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerLog obj = VgpuSchedulerLog.__new__(VgpuSchedulerLog)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerLog_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLog_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerLog")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLog_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuSchedulerLog_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerLog_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -20584,25 +19445,15 @@ cdef class VgpuSchedulerGetState:
     .. seealso:: `nvmlVgpuSchedulerGetState_t`
     """
     cdef:
+        nvmlVgpuSchedulerGetState_t _data
         nvmlVgpuSchedulerGetState_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerGetState_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerGetState_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuSchedulerGetState")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuSchedulerGetState_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerGetState object at {hex(id(self))}>"
@@ -20633,12 +19484,9 @@ cdef class VgpuSchedulerGetState:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerGetState_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerGetState_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerGetState")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerGetState_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerGetState_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -20704,16 +19552,12 @@ cdef class VgpuSchedulerGetState:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerGetState obj = VgpuSchedulerGetState.__new__(VgpuSchedulerGetState)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerGetState_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerGetState_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerGetState")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerGetState_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuSchedulerGetState_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerGetState_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -20742,25 +19586,15 @@ cdef class VgpuSchedulerStateInfo_v1:
     .. seealso:: `nvmlVgpuSchedulerStateInfo_v1_t`
     """
     cdef:
+        nvmlVgpuSchedulerStateInfo_v1_t _data
         nvmlVgpuSchedulerStateInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuSchedulerStateInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuSchedulerStateInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerStateInfo_v1 object at {hex(id(self))}>"
@@ -20791,12 +19625,9 @@ cdef class VgpuSchedulerStateInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerStateInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -20884,16 +19715,12 @@ cdef class VgpuSchedulerStateInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerStateInfo_v1 obj = VgpuSchedulerStateInfo_v1.__new__(VgpuSchedulerStateInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerStateInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerStateInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -20924,25 +19751,15 @@ cdef class VgpuSchedulerLogInfo_v1:
     .. seealso:: `nvmlVgpuSchedulerLogInfo_v1_t`
     """
     cdef:
+        nvmlVgpuSchedulerLogInfo_v1_t _data
         nvmlVgpuSchedulerLogInfo_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuSchedulerLogInfo_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuSchedulerLogInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerLogInfo_v1 object at {hex(id(self))}>"
@@ -20973,12 +19790,9 @@ cdef class VgpuSchedulerLogInfo_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerLogInfo_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -21091,16 +19905,12 @@ cdef class VgpuSchedulerLogInfo_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerLogInfo_v1 obj = VgpuSchedulerLogInfo_v1.__new__(VgpuSchedulerLogInfo_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerLogInfo_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerLogInfo_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -21129,25 +19939,15 @@ cdef class VgpuSchedulerState_v1:
     .. seealso:: `nvmlVgpuSchedulerState_v1_t`
     """
     cdef:
+        nvmlVgpuSchedulerState_v1_t _data
         nvmlVgpuSchedulerState_v1_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlVgpuSchedulerState_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerState_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating VgpuSchedulerState_v1")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlVgpuSchedulerState_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerState_v1 object at {hex(id(self))}>"
@@ -21178,12 +19978,9 @@ cdef class VgpuSchedulerState_v1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlVgpuSchedulerState_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerState_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerState_v1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v1_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlVgpuSchedulerState_v1_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -21271,16 +20068,12 @@ cdef class VgpuSchedulerState_v1:
             raise ValueError("ptr must not be null (0)")
         cdef VgpuSchedulerState_v1 obj = VgpuSchedulerState_v1.__new__(VgpuSchedulerState_v1)
         if owner is None:
-            obj._ptr = <nvmlVgpuSchedulerState_v1_t *>_cyb_malloc(sizeof(nvmlVgpuSchedulerState_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating VgpuSchedulerState_v1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerState_v1_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlVgpuSchedulerState_v1_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlVgpuSchedulerState_v1_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -21307,25 +20100,15 @@ cdef class GridLicensableFeatures:
     .. seealso:: `nvmlGridLicensableFeatures_t`
     """
     cdef:
+        nvmlGridLicensableFeatures_t _data
         nvmlGridLicensableFeatures_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlGridLicensableFeatures_t *>_cyb_calloc(1, sizeof(nvmlGridLicensableFeatures_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating GridLicensableFeatures")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlGridLicensableFeatures_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.GridLicensableFeatures object at {hex(id(self))}>"
@@ -21356,12 +20139,9 @@ cdef class GridLicensableFeatures:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlGridLicensableFeatures_t *>_cyb_malloc(sizeof(nvmlGridLicensableFeatures_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating GridLicensableFeatures")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGridLicensableFeatures_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGridLicensableFeatures_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -21421,16 +20201,12 @@ cdef class GridLicensableFeatures:
             raise ValueError("ptr must not be null (0)")
         cdef GridLicensableFeatures obj = GridLicensableFeatures.__new__(GridLicensableFeatures)
         if owner is None:
-            obj._ptr = <nvmlGridLicensableFeatures_t *>_cyb_malloc(sizeof(nvmlGridLicensableFeatures_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating GridLicensableFeatures")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGridLicensableFeatures_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlGridLicensableFeatures_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlGridLicensableFeatures_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -21457,25 +20233,15 @@ cdef class NvLinkInfo_v2:
     .. seealso:: `nvmlNvLinkInfo_v2_t`
     """
     cdef:
+        nvmlNvLinkInfo_v2_t _data
         nvmlNvLinkInfo_v2_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <nvmlNvLinkInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlNvLinkInfo_v2_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating NvLinkInfo_v2")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlNvLinkInfo_v2_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.NvLinkInfo_v2 object at {hex(id(self))}>"
@@ -21506,12 +20272,9 @@ cdef class NvLinkInfo_v2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvLinkInfo_v2_t *>_cyb_malloc(sizeof(nvmlNvLinkInfo_v2_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating NvLinkInfo_v2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v2_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v2_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -21577,16 +20340,12 @@ cdef class NvLinkInfo_v2:
             raise ValueError("ptr must not be null (0)")
         cdef NvLinkInfo_v2 obj = NvLinkInfo_v2.__new__(NvLinkInfo_v2)
         if owner is None:
-            obj._ptr = <nvmlNvLinkInfo_v2_t *>_cyb_malloc(sizeof(nvmlNvLinkInfo_v2_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating NvLinkInfo_v2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvLinkInfo_v2_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvLinkInfo_v2_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <nvmlNvLinkInfo_v2_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
