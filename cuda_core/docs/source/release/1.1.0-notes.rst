@@ -106,6 +106,20 @@ New features
   (`#2068 <https://github.com/NVIDIA/cuda-python/pull/2068>`__,
   closes `#2049 <https://github.com/NVIDIA/cuda-python/issues/2049>`__)
 
+- Extended :class:`WorkqueueResource` and :class:`WorkqueueResourceOptions`
+  to cover the full driver-side workqueue-config surface. Added
+  ``concurrency_limit`` to :class:`WorkqueueResourceOptions` for
+  configuring the expected maximum concurrent stream-ordered workloads,
+  and read-only :attr:`WorkqueueResource.sharing_scope`,
+  :attr:`~WorkqueueResource.concurrency_limit`, and
+  :attr:`~WorkqueueResource.device` properties for round-tripping the
+  driver-populated values. Added
+  :class:`~cuda.core.typing.WorkqueueSharingScopeType` StrEnum accepted
+  by :attr:`WorkqueueResourceOptions.sharing_scope` in addition to raw
+  strings.
+  (`#2329 <https://github.com/NVIDIA/cuda-python/pull/2329>`__,
+  `#2330 <https://github.com/NVIDIA/cuda-python/pull/2330>`__)
+
 Fixes and enhancements
 ----------------------
 

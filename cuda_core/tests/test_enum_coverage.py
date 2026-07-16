@@ -310,6 +310,24 @@ _UNBOUND_STR_ENUMS: set[StrEnum] = {
 }
 
 
+# CUdevWorkqueueConfigScope was added to the CUDA driver in 13.1 (missing
+# from the 13.0.0 cuda.h and earlier); on cuda-bindings for CUDA 12.x or
+# 13.0.x, WorkqueueSharingScopeType has no driver-side counterpart to
+# check against.
+if hasattr(driver, "CUdevWorkqueueConfigScope"):
+    _CASES.append(
+        (
+            driver.CUdevWorkqueueConfigScope,
+            cuda.core.typing.WorkqueueSharingScopeType,
+            None,
+            set(),
+            set(),
+        )
+    )
+else:
+    _UNBOUND_STR_ENUMS.add(cuda.core.typing.WorkqueueSharingScopeType)
+
+
 @pytest.mark.parametrize(
     "binding, str_enum, mapping, binding_unmapped, str_enum_unmapped",
     _CASES,

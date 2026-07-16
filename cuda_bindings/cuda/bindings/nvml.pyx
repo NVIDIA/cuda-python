@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=52642c2c289dbd93191f019468630c0c7935bf99bc15c9c7c0de3797a109e8b0
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e47a16bd9956de14a991ded5d1aef667cdd26a141e27db5b2015b91be6918d3c
+
 
 # <<<< PREAMBLE CONTENT >>>>
 
@@ -20,7 +21,9 @@ from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
 )
+
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
 import numpy as _numpy
 
 cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
@@ -61,8 +64,8 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
-# <<<< END OF PREAMBLE CONTENT >>>>
 
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 cimport cython  # NOQA
 from cython cimport view
@@ -21629,8 +21632,11 @@ cpdef str error_string(int result):
 
     .. seealso:: `nvmlErrorString`
     """
+    cdef const char *_output_cstr_
     cdef bytes _output_
-    _output_ = nvmlErrorString(<_Return>result)
+    with nogil:
+        _output_cstr_ = nvmlErrorString(<_Return>result)
+    _output_ = _output_cstr_
     return _output_.decode()
 
 

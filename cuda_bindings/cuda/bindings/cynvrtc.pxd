@@ -4,13 +4,13 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0da658de603326899002d26fdbea39e6f469626207e7b40435f7f24a7e5accf0
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=dbbc8028df717e2c963cb78a4e59700459ad88e1ac111c61e5992d7d007ecc5e
 from libc.stdint cimport uint32_t, uint64_t
 
 
 # ENUMS
 cdef extern from 'nvrtc.h':
-    ctypedef enum nvrtcResult:
+    ctypedef enum nvrtcResult "nvrtcResult":
         NVRTC_SUCCESS
         NVRTC_ERROR_OUT_OF_MEMORY
         NVRTC_ERROR_PROGRAM_CREATION_FAILURE

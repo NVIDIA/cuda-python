@@ -341,10 +341,12 @@ jobs:
       - name: Ensure cuda-python installable
         if: ${{ inputs.test-mode == 'standard' && env.BINDINGS_SOURCE == 'main' }}
         run: |
+          # Subpackages are already installed from CI artifacts; --no-deps keeps
+          # tag-release cuda-core wheels from being replaced by PyPI pins.
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            pip install --only-binary=:all: (Get-ChildItem -Filter cuda_python*.whl).FullName
+            pip install --only-binary=:all: --no-deps (Get-ChildItem -Filter cuda_python*.whl).FullName
           } else {
-            pip install --only-binary=:all: "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
+            pip install --only-binary=:all: --no-deps "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
 
       - name: Install cuda.pathfinder extra wheels for testing
@@ -441,7 +443,7 @@ jobs:
           # the full union rather than trying to enumerate what happened
           # to fail on the most recent nightly.
           DESELECTS=()
-          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${NUMBA_CUDA_MLIR_VER}') <= Version('0.4.0') else 1)"; then
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${NUMBA_CUDA_MLIR_VER}') <= Version('0.4.1') else 1)"; then
             DESELECTS+=(
               --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_default_stream'
               --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_supplied_stream'

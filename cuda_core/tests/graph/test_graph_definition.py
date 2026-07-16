@@ -833,7 +833,7 @@ def test_alloc_free_chain(sample_graphdef):
 
 def test_alloc_memory_type_invalid(sample_graphdef):
     """Invalid memory type raises ValueError."""
-    with pytest.raises(ValueError, match="Invalid memory_type"):
+    with pytest.raises(ValueError, match="'invalid' is not a valid GraphMemoryType. Must be "):
         sample_graphdef.allocate(ALLOC_SIZE, memory_type="invalid")
 
 

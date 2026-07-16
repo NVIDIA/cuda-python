@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=359f9b42f4f97b9a74570e1f7d20eb6f5faae2df194a6161f4d5a9512c3ffbe3
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4567ca64d02631fc8d6ed11af8164d72c86b4686c105fd733d186e6c92512749
+
 
 # <<<< PREAMBLE CONTENT >>>>
 
@@ -20,7 +21,9 @@ from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
 )
+
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
 import numpy as _numpy
 
 cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
@@ -61,8 +64,8 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
-# <<<< END OF PREAMBLE CONTENT >>>>
 
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -2895,7 +2898,8 @@ cpdef void handle_deregister(intptr_t fh) except*:
 
     .. seealso:: `cuFileHandleDeregister`
     """
-    cuFileHandleDeregister(<Handle>fh)
+    with nogil:
+        cuFileHandleDeregister(<Handle>fh)
 
 
 cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags):
@@ -3039,7 +3043,8 @@ cpdef batch_io_cancel(intptr_t batch_idp):
 
 
 cpdef void batch_io_destroy(intptr_t batch_idp) except*:
-    cuFileBatchIODestroy(<BatchHandle>batch_idp)
+    with nogil:
+        cuFileBatchIODestroy(<BatchHandle>batch_idp)
 
 
 cpdef read_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_read_p, intptr_t stream):

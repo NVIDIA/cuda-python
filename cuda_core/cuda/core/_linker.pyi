@@ -112,7 +112,8 @@ class LinkerOptions:
 
     Since the linker may choose to use nvJitLink or the driver APIs as the linking backend,
     not all options are applicable. When the system's installed nvJitLink is too old (<12.3),
-    or not installed, the driver APIs (cuLink) will be used instead.
+    not installed, or older than the CUDA driver major version, the driver APIs (cuLink)
+    will be used instead.
 
     Attributes
     ----------

@@ -2,62 +2,34 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a7e70bc7234821ae1f02306321604d7605aee20e0fde536def5edd52263be5de
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2b56e5f08b7806fe10648817d36d96ce420cb5a8329615fb283f71119128d090
-from libc.stdint cimport intptr_t, uintptr_t
 
-import threading
+# <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from "<dlfcn.h>":
+    void* _cyb_dlsym "dlsym"(void*, const char*) nogil
+    const void * _cyb_RTLD_DEFAULT "RTLD_DEFAULT"
+
+from libc.stdint cimport intptr_t as _cyb_intptr_t
+
+import threading as _cyb_threading
+
+cdef bint _cyb___py_cudla_init = False
+cdef dict _cyb_func_ptrs = None
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport uintptr_t
+
 from .utils import FunctionNotFoundError, NotSupportedError
-
 from cuda.pathfinder import load_nvidia_dynamic_lib
-
-
-###############################################################################
-# Extern
-###############################################################################
-
-# You must 'from .utils import NotSupportedError' before using this template
-
-cdef extern from "<dlfcn.h>" nogil:
-    void* dlopen(const char*, int)
-    char* dlerror()
-    void* dlsym(void*, const char*)
-    int dlclose(void*)
-
-    enum:
-        RTLD_LAZY
-        RTLD_NOW
-        RTLD_GLOBAL
-        RTLD_LOCAL
-
-    const void* RTLD_DEFAULT 'RTLD_DEFAULT'
-
-cdef int get_cuda_version():
-    cdef void* handle = NULL
-    cdef int err, driver_ver = 0
-
-    # Load driver to check version
-    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
-    if handle == NULL:
-        err_msg = dlerror()
-        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
-    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
-    if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
-    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
-
-    return driver_ver
-
 
 
 ###############################################################################
 # Wrapper init
 ###############################################################################
-
-cdef object __symbol_lock = threading.Lock()
-cdef bint __py_cudla_init = False
 
 cdef void* __cudlaGetVersion = NULL
 cdef void* __cudlaDeviceGetCount = NULL
@@ -73,183 +45,174 @@ cdef void* __cudlaGetLastError = NULL
 cdef void* __cudlaDestroyDevice = NULL
 cdef void* __cudlaSetTaskTimeoutInMs = NULL
 
-
-cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("cudla")._handle_uint
-    return <void*>handle
-
-
 cdef int _init_cudla() except -1 nogil:
-    global __py_cudla_init
+    global _cyb___py_cudla_init
     cdef void* handle = NULL
+    with gil, _cyb_symbol_lock:
+        if _cyb___py_cudla_init: return 0
 
-    with gil, __symbol_lock:
-        # Recheck the flag after obtaining the locks
-        if __py_cudla_init:
-            return 0
-
-        # Load function
         global __cudlaGetVersion
-        __cudlaGetVersion = dlsym(RTLD_DEFAULT, 'cudlaGetVersion')
+        __cudlaGetVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaGetVersion')
         if __cudlaGetVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaGetVersion = dlsym(handle, 'cudlaGetVersion')
+            __cudlaGetVersion = _cyb_dlsym(handle, 'cudlaGetVersion')
 
         global __cudlaDeviceGetCount
-        __cudlaDeviceGetCount = dlsym(RTLD_DEFAULT, 'cudlaDeviceGetCount')
+        __cudlaDeviceGetCount = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaDeviceGetCount')
         if __cudlaDeviceGetCount == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaDeviceGetCount = dlsym(handle, 'cudlaDeviceGetCount')
+            __cudlaDeviceGetCount = _cyb_dlsym(handle, 'cudlaDeviceGetCount')
 
         global __cudlaCreateDevice
-        __cudlaCreateDevice = dlsym(RTLD_DEFAULT, 'cudlaCreateDevice')
+        __cudlaCreateDevice = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaCreateDevice')
         if __cudlaCreateDevice == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaCreateDevice = dlsym(handle, 'cudlaCreateDevice')
+            __cudlaCreateDevice = _cyb_dlsym(handle, 'cudlaCreateDevice')
 
         global __cudlaMemRegister
-        __cudlaMemRegister = dlsym(RTLD_DEFAULT, 'cudlaMemRegister')
+        __cudlaMemRegister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaMemRegister')
         if __cudlaMemRegister == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaMemRegister = dlsym(handle, 'cudlaMemRegister')
+            __cudlaMemRegister = _cyb_dlsym(handle, 'cudlaMemRegister')
 
         global __cudlaModuleLoadFromMemory
-        __cudlaModuleLoadFromMemory = dlsym(RTLD_DEFAULT, 'cudlaModuleLoadFromMemory')
+        __cudlaModuleLoadFromMemory = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaModuleLoadFromMemory')
         if __cudlaModuleLoadFromMemory == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaModuleLoadFromMemory = dlsym(handle, 'cudlaModuleLoadFromMemory')
+            __cudlaModuleLoadFromMemory = _cyb_dlsym(handle, 'cudlaModuleLoadFromMemory')
 
         global __cudlaModuleGetAttributes
-        __cudlaModuleGetAttributes = dlsym(RTLD_DEFAULT, 'cudlaModuleGetAttributes')
+        __cudlaModuleGetAttributes = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaModuleGetAttributes')
         if __cudlaModuleGetAttributes == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaModuleGetAttributes = dlsym(handle, 'cudlaModuleGetAttributes')
+            __cudlaModuleGetAttributes = _cyb_dlsym(handle, 'cudlaModuleGetAttributes')
 
         global __cudlaModuleUnload
-        __cudlaModuleUnload = dlsym(RTLD_DEFAULT, 'cudlaModuleUnload')
+        __cudlaModuleUnload = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaModuleUnload')
         if __cudlaModuleUnload == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaModuleUnload = dlsym(handle, 'cudlaModuleUnload')
+            __cudlaModuleUnload = _cyb_dlsym(handle, 'cudlaModuleUnload')
 
         global __cudlaSubmitTask
-        __cudlaSubmitTask = dlsym(RTLD_DEFAULT, 'cudlaSubmitTask')
+        __cudlaSubmitTask = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaSubmitTask')
         if __cudlaSubmitTask == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaSubmitTask = dlsym(handle, 'cudlaSubmitTask')
+            __cudlaSubmitTask = _cyb_dlsym(handle, 'cudlaSubmitTask')
 
         global __cudlaDeviceGetAttribute
-        __cudlaDeviceGetAttribute = dlsym(RTLD_DEFAULT, 'cudlaDeviceGetAttribute')
+        __cudlaDeviceGetAttribute = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaDeviceGetAttribute')
         if __cudlaDeviceGetAttribute == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaDeviceGetAttribute = dlsym(handle, 'cudlaDeviceGetAttribute')
+            __cudlaDeviceGetAttribute = _cyb_dlsym(handle, 'cudlaDeviceGetAttribute')
 
         global __cudlaMemUnregister
-        __cudlaMemUnregister = dlsym(RTLD_DEFAULT, 'cudlaMemUnregister')
+        __cudlaMemUnregister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaMemUnregister')
         if __cudlaMemUnregister == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaMemUnregister = dlsym(handle, 'cudlaMemUnregister')
+            __cudlaMemUnregister = _cyb_dlsym(handle, 'cudlaMemUnregister')
 
         global __cudlaGetLastError
-        __cudlaGetLastError = dlsym(RTLD_DEFAULT, 'cudlaGetLastError')
+        __cudlaGetLastError = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaGetLastError')
         if __cudlaGetLastError == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaGetLastError = dlsym(handle, 'cudlaGetLastError')
+            __cudlaGetLastError = _cyb_dlsym(handle, 'cudlaGetLastError')
 
         global __cudlaDestroyDevice
-        __cudlaDestroyDevice = dlsym(RTLD_DEFAULT, 'cudlaDestroyDevice')
+        __cudlaDestroyDevice = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaDestroyDevice')
         if __cudlaDestroyDevice == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaDestroyDevice = dlsym(handle, 'cudlaDestroyDevice')
+            __cudlaDestroyDevice = _cyb_dlsym(handle, 'cudlaDestroyDevice')
 
         global __cudlaSetTaskTimeoutInMs
-        __cudlaSetTaskTimeoutInMs = dlsym(RTLD_DEFAULT, 'cudlaSetTaskTimeoutInMs')
+        __cudlaSetTaskTimeoutInMs = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaSetTaskTimeoutInMs')
         if __cudlaSetTaskTimeoutInMs == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cudlaSetTaskTimeoutInMs = dlsym(handle, 'cudlaSetTaskTimeoutInMs')
+            __cudlaSetTaskTimeoutInMs = _cyb_dlsym(handle, 'cudlaSetTaskTimeoutInMs')
 
-        __py_cudla_init = True
+        _cyb___py_cudla_init = True
         return 0
 
-
 cdef inline int _check_or_init_cudla() except -1 nogil:
-    if __py_cudla_init:
+    if _cyb___py_cudla_init:
         return 0
 
     return _init_cudla()
 
 
-cdef dict func_ptrs = None
-
-
 cpdef dict _inspect_function_pointers():
-    global func_ptrs
-    if func_ptrs is not None:
-        return func_ptrs
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is not None:
+        return _cyb_func_ptrs
 
     _check_or_init_cudla()
     cdef dict data = {}
-
     global __cudlaGetVersion
-    data["__cudlaGetVersion"] = <intptr_t>__cudlaGetVersion
+    data["__cudlaGetVersion"] = <_cyb_intptr_t>__cudlaGetVersion
 
     global __cudlaDeviceGetCount
-    data["__cudlaDeviceGetCount"] = <intptr_t>__cudlaDeviceGetCount
+    data["__cudlaDeviceGetCount"] = <_cyb_intptr_t>__cudlaDeviceGetCount
 
     global __cudlaCreateDevice
-    data["__cudlaCreateDevice"] = <intptr_t>__cudlaCreateDevice
+    data["__cudlaCreateDevice"] = <_cyb_intptr_t>__cudlaCreateDevice
 
     global __cudlaMemRegister
-    data["__cudlaMemRegister"] = <intptr_t>__cudlaMemRegister
+    data["__cudlaMemRegister"] = <_cyb_intptr_t>__cudlaMemRegister
 
     global __cudlaModuleLoadFromMemory
-    data["__cudlaModuleLoadFromMemory"] = <intptr_t>__cudlaModuleLoadFromMemory
+    data["__cudlaModuleLoadFromMemory"] = <_cyb_intptr_t>__cudlaModuleLoadFromMemory
 
     global __cudlaModuleGetAttributes
-    data["__cudlaModuleGetAttributes"] = <intptr_t>__cudlaModuleGetAttributes
+    data["__cudlaModuleGetAttributes"] = <_cyb_intptr_t>__cudlaModuleGetAttributes
 
     global __cudlaModuleUnload
-    data["__cudlaModuleUnload"] = <intptr_t>__cudlaModuleUnload
+    data["__cudlaModuleUnload"] = <_cyb_intptr_t>__cudlaModuleUnload
 
     global __cudlaSubmitTask
-    data["__cudlaSubmitTask"] = <intptr_t>__cudlaSubmitTask
+    data["__cudlaSubmitTask"] = <_cyb_intptr_t>__cudlaSubmitTask
 
     global __cudlaDeviceGetAttribute
-    data["__cudlaDeviceGetAttribute"] = <intptr_t>__cudlaDeviceGetAttribute
+    data["__cudlaDeviceGetAttribute"] = <_cyb_intptr_t>__cudlaDeviceGetAttribute
 
     global __cudlaMemUnregister
-    data["__cudlaMemUnregister"] = <intptr_t>__cudlaMemUnregister
+    data["__cudlaMemUnregister"] = <_cyb_intptr_t>__cudlaMemUnregister
 
     global __cudlaGetLastError
-    data["__cudlaGetLastError"] = <intptr_t>__cudlaGetLastError
+    data["__cudlaGetLastError"] = <_cyb_intptr_t>__cudlaGetLastError
 
     global __cudlaDestroyDevice
-    data["__cudlaDestroyDevice"] = <intptr_t>__cudlaDestroyDevice
+    data["__cudlaDestroyDevice"] = <_cyb_intptr_t>__cudlaDestroyDevice
 
     global __cudlaSetTaskTimeoutInMs
-    data["__cudlaSetTaskTimeoutInMs"] = <intptr_t>__cudlaSetTaskTimeoutInMs
-
-    func_ptrs = data
+    data["__cudlaSetTaskTimeoutInMs"] = <_cyb_intptr_t>__cudlaSetTaskTimeoutInMs
+    _cyb_func_ptrs = data
     return data
 
 
 cpdef _inspect_function_pointer(str name):
-    global func_ptrs
-    if func_ptrs is None:
-        func_ptrs = _inspect_function_pointers()
-    return func_ptrs[name]
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is None:
+        _cyb_func_ptrs = _inspect_function_pointers()
+    return _cyb_func_ptrs[name]
+
+
+
+
+cdef void* load_library() except* with gil:
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("cudla")._handle_uint
+    return <void*>handle
 
 
 ###############################################################################
