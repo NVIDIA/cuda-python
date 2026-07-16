@@ -21,12 +21,11 @@ cache_nvrtc
 
 # cuda.core test object fixtures built locally / downloaded as CI artifacts
 cuda_core/tests/test_binaries/*.o
+cuda_core/tests/test_binaries/*.a
+cuda_core/tests/test_binaries/*.lib
 
 # CUDA Python specific (auto-generated)
-cuda_bindings/cuda/bindings/_bindings/cyruntime.pxd
-cuda_bindings/cuda/bindings/_bindings/cyruntime.pyx
-cuda_bindings/cuda/bindings/_bindings/cyruntime_ptds.pxd
-cuda_bindings/cuda/bindings/_bindings/cyruntime_ptds.pyx
+cuda_bindings/cuda/bindings/_internal/cudla.pyx
 cuda_bindings/cuda/bindings/_internal/driver.pyx
 cuda_bindings/cuda/bindings/_internal/nvrtc.pyx
 cuda_bindings/cuda/bindings/_internal/cufile.pyx
@@ -34,12 +33,8 @@ cuda_bindings/cuda/bindings/_internal/nvfatbin.pyx
 cuda_bindings/cuda/bindings/_internal/nvjitlink.pyx
 cuda_bindings/cuda/bindings/_internal/nvml.pyx
 cuda_bindings/cuda/bindings/_internal/nvvm.pyx
-cuda_bindings/cuda/bindings/cyruntime.pxd
-cuda_bindings/cuda/bindings/cyruntime.pyx
-cuda_bindings/cuda/bindings/cyruntime_functions.pxi
-cuda_bindings/cuda/bindings/cyruntime_types.pxi
-cuda_bindings/cuda/bindings/runtime.pxd
-cuda_bindings/cuda/bindings/runtime.pyx
+cuda_bindings/cuda/bindings/_internal/runtime.pyx
+cuda_bindings/cuda/bindings/_internal/runtime_ptds.pyx
 cuda_bindings/cuda/bindings/utils/_get_handle.pyx
 
 # Version files from setuptools_scm

@@ -61,6 +61,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUstream stream, object owner) except+ nogil
     void py_object_user_object_destroy "cuda_core::py_object_user_object_destroy" (
         void* py_object) noexcept nogil
+    void initialize_deferred_cleanup "cuda_core::initialize_deferred_cleanup" () except+
     ContextHandle get_stream_context "cuda_core::get_stream_context" (
         const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil
@@ -150,6 +151,17 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUgraph graph) except+ nogil
     GraphHandle create_graph_handle_ref "cuda_core::create_graph_handle_ref" (
         cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
+
+    # Graph slot attachments
+    OpaqueHandle make_opaque_py "cuda_core::make_opaque_py" (object obj) except+
+    OpaqueHandle make_opaque_malloc "cuda_core::make_opaque_malloc" (void* buf) except+
+    cydriver.CUresult graph_set_slot "cuda_core::graph_set_slot" (
+        const GraphHandle& h_graph, cydriver.CUgraphNode node,
+        unsigned int slot, OpaqueHandle owner) except+
+
+    # Graph exec handles
+    GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (
+        cydriver.CUgraphExec graph_exec) except+ nogil
 
     # Graph node handles
     GraphNodeHandle create_graph_node_handle "cuda_core::create_graph_node_handle" (
@@ -299,6 +311,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Graph
     void* p_cuGraphDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphDestroy)"
+    void* p_cuGraphExecDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecDestroy)"
+    void* p_cuUserObjectCreate "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectCreate)"
+    void* p_cuUserObjectRelease "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectRelease)"
+    void* p_cuGraphRetainUserObject "reinterpret_cast<void*&>(cuda_core::p_cuGraphRetainUserObject)"
 
     # Linker
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
@@ -358,7 +374,8 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuMemFreeAsync, p_cuMemFree, p_cuMemFreeHost
     global p_cuMemPoolImportPointer
     global p_cuLibraryLoadFromFile, p_cuLibraryLoadData, p_cuLibraryUnload, p_cuLibraryGetKernel
-    global p_cuGraphDestroy
+    global p_cuGraphDestroy, p_cuGraphExecDestroy
+    global p_cuUserObjectCreate, p_cuUserObjectRelease, p_cuGraphRetainUserObject
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
     global p_cuDevSmResourceSplit
@@ -418,6 +435,10 @@ cdef void _init_driver_fn_pointers() noexcept:
 
     # Graph
     p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
+    p_cuGraphExecDestroy = _get_driver_fn("cuGraphExecDestroy")
+    p_cuUserObjectCreate = _get_driver_fn("cuUserObjectCreate")
+    p_cuUserObjectRelease = _get_driver_fn("cuUserObjectRelease")
+    p_cuGraphRetainUserObject = _get_driver_fn("cuGraphRetainUserObject")
 
     # Linker
     p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
@@ -441,6 +462,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
 
 _init_driver_fn_pointers()
+initialize_deferred_cleanup()
 
 # =============================================================================
 # NVRTC function pointer initialization

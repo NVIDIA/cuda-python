@@ -23,7 +23,7 @@
 #   --------------------------------------    -----------------------------------
 #   OpaqueArray(num_channels=2) as texture  ->  cuda.device_array((H, W, 2), f32)
 #   tex2D<float2>(tex, u, v)  [HW LINEAR] ->  sample_vec(arr, px, py)  [manual lerp]
-#   AddressMode.CLAMP                     ->  index clamp inside sample_*()
+#   AddressModeType.CLAMP                 ->  index clamp inside sample_*()
 #   surf2Dwrite(v, surf, x*8, y)          ->  arr[y, x, 0] = v.x; arr[y, x, 1] = v.y
 #   TextureObject + SurfaceObject pair    ->  one device array; ping-pong by swap
 #   GraphicsResource PBO (zero-copy)      ->  copy_to_host + glTexSubImage2D
@@ -91,7 +91,7 @@ REF_FPS = 60.0
 
 @cuda.jit(device=True, inline=True)
 def _clampi(i, n):
-    # AddressMode.CLAMP: out-of-range coordinates read the border texel.
+    # AddressModeType.CLAMP: out-of-range coordinates read the border texel.
     if i < 0:
         return 0
     if i > n - 1:

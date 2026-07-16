@@ -55,7 +55,7 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
@@ -212,7 +212,9 @@ jobs:
           pip install *.whl
           popd
 
-          pip install cuda_python*.whl
+          # Subpackages are already installed from CI artifacts above.
+          # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
+          pip install --no-deps cuda_python*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number
@@ -276,7 +278,7 @@ jobs:
       - name: Restore lychee cache
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
         id: restore-lychee-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: .lycheecache
           key: docs-rendered-lychee-${{ env.PR_NUMBER }}-${{ github.sha }}
@@ -316,7 +318,7 @@ jobs:
 
       - name: Save lychee cache
         if: ${{ always() && !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: .lycheecache
           key: ${{ steps.restore-lychee-cache.outputs.cache-primary-key }}

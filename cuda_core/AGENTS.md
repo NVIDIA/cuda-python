@@ -63,6 +63,44 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
 - Prefer explicit error propagation over silent fallback paths.
 - If you change public behavior, update tests and docs under `docs/source/`.
 
+## Concurrency and free-threading
+
+`cuda.core` ships free-threaded (no-GIL) wheels and builds with
+`freethreading_compatible=True`. The user-facing policy lives in
+`docs/source/concurrency.rst`; the invariants below are for contributors. Reviewers
+and agents should flag violations.
+
+- **Reads are safe; mutation is the boundary**: concurrent reads of an object are
+  supported, but concurrent mutation of the same public object (e.g., building one
+  graph from two threads, or `close()` racing another call) is the caller's
+  responsibility -- do not add locks to make it safe. Prefer immutable designs to
+  keep the mutable, thread-unsafe surface small. Protecting library-internal state
+  *is* in scope.
+- **Distinct objects can still collide via shared driver state**: operating on
+  separate objects is not automatically safe when they share driver or context
+  state (e.g., changing peer device access while another thread touches affected
+  memory). Synchronizing these cases is the caller's responsibility; do not try to
+  lock around them internally.
+- **Protect internal cached/module-level state**: guard lazily-populated
+  `cdef object` caches and module-level state so concurrent access cannot corrupt
+  interpreter state (CPython reference counts -- a strictly free-threading hazard).
+  Established patterns are `@cython.critical_section` on accessors (#2215), an
+  atomic initialization flag (#2216), and `dict.setdefault` for identity caches
+  (#2217). Guard state only on objects that are legitimately shared between threads;
+  objects that are not meant to be shared (e.g., the thread-local `Device`) do not
+  need such guards (see #2321). Reference-count integrity is guaranteed; cache
+  value-identity/idempotency is not.
+- **Entry points assume the GIL is held**: the helpers in `_cpp/resource_handles.*`
+  are called from Cython with the GIL held and do not re-acquire it. Driver and
+  destructor callbacks run at arbitrary times, so they take the GIL (`with gil`)
+  and probe for interpreter shutdown before touching Python objects.
+- **Lock ordering -- release the GIL before entering the driver**: any CUDA work
+  reachable from a host callback or a retained object's `__del__` must release the
+  GIL before calling the driver, to avoid GIL/driver-lock deadlocks (see the
+  `_py_host_trampoline` path and numba-cuda#321). Objects retained into a graph
+  (kernel arguments, memcpy/memset operands, `dst_owner`/`src_owner`, and
+  host-callback closures) inherit this contract.
+
 ## API design guidelines
 
 These are some API design guidelines we try to follow when adding new APIs to
@@ -144,104 +182,3 @@ so that they are documented but don't appear in the main index.
 ### API stability
 
 Reviews should point out where existing public APIs are broken.
-
-### API lifecycle and deprecations
-
-`cuda.core` follows SemVer (see `docs/source/support.rst`):
-
-- **New APIs** may be added at any time (`x.Y.0`).  They MUST have a
-  `@versionadded` decorator, unless the docstring formatting requires it to be
-  manually-specified.
-- **Breaking removals** only happen in **major releases** (`X.0.0`).
-- Per the support policy, a deprecation notice must be present for **at least
-  one minor release** before the API is actually removed.  The deprecation notice
-  should use the `@deprecated` decorator, unless
-- Changes should be notated in the code and also in the release notes in the
-  "Deprecated APIs" section.
-
-**Annotating a new API** — Use the `versionadded` decorator from the vendored
-`cuda.core._vendored.deprecated.sphinx` module:
-
-```python
-
-from cuda.core._vendored.deprecated.sphinx import versionadded
-
-@versionadded(version="1.2.0")
-def new_feature(...):
-    """Short description.
-    """
-```
-
-Alternatively, if the vagaries of how we implement functions in Cython does not
-allow this, you can add the reST `versionadded` directive directly:
-
-```python
-def new_feature(...):
-    """Short description.
-
-    .. versionadded:: 1.2.0
-    """
-```
-
-**Annotating a changed API** — Use the `versionchanged` decorator from the
-vendored `cuda.core._vendored.deprecated.sphinx` module:
-
-```python
-
-from cuda.core._vendored.deprecated.sphinx import versionchanged
-
-@versionchanged(version="1.2.0", reason="The old version was broken because...")
-def new_feature(...):
-    """Short description.
-    """
-```
-
-Alternatively, if the vagaries of how we implement functions in Cython does not
-allow this, you can add the reST `versionchanged` directive directly:
-
-```python
-def new_feature(...):
-    """Short description.
-
-    .. versionchanged:: 1.2.0
-        The old version was broken because...
-    """
-```
-
-**Deprecating an existing API** — use the `@deprecated` decorator from the
-vendored `cuda.core._vendored.deprecated.sphinx` module and add a
-`.. deprecated::` directive in the docstring.  The decorator emits a
-`DeprecationWarning` at call time; the docstring directive surfaces it in the
-generated docs.
-
-```python
-from cuda.core._vendored.deprecated.sphinx import deprecated
-
-@deprecated(version="1.2.0", reason="Use `new_feature` instead.")`
-def old_feature(...):
-    """Short description.
-    """
-```
-
-Rules to follow when deprecating:
-
-- The `version=` argument must be the **first** in which the
-  deprecation appears, not the release in which removal is planned.
-- The `reason=` string must name the replacement (if one exists) so users
-  know what to migrate to.
-- Keep the old implementation fully functional — do not change its behavior,
-  only add the decorator.
-- The deprecated API must remain in the codebase for **at least one full minor
-  release cycle** before it can be removed in a subsequent major release.
-
-**Removing a deprecated API** — removals land in a **major release**.  Before
-removing, verify that the deprecation has been present since at least the
-previous minor release.  Remove the decorator, the implementation, and any
-`__all__` entry; update `api.rst` and the release notes accordingly.
-
-## Vendored code
-
-The `cuda/core/_vendored` directory contains vendored code from third-party
-sources.  It should not be modified, except to update the dependency or under
-exceptional circumstances, in which case any modifications should be clearly
-marked.

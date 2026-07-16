@@ -78,6 +78,45 @@ Memory management
    VirtualMemoryResourceOptions
 
 
+CUDA compilation toolchain
+--------------------------
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   Program
+   Linker
+   ObjectCode
+   Kernel
+
+   :template: dataclass.rst
+
+   ProgramOptions
+   LinkerOptions
+
+Program caches
+``````````````
+
+``Program.compile`` accepts a ``cache=`` keyword argument that integrates
+with any :class:`~cuda.core.utils.ProgramCacheResource`, so callers can
+avoid recompiling identical source + options + target without writing the
+:func:`~cuda.core.utils.make_program_cache_key` lookup by hand.
+
+.. currentmodule:: cuda.core.utils
+
+.. autosummary::
+   :toctree: generated/
+
+   ProgramCacheResource
+   InMemoryProgramCache
+   FileStreamProgramCache
+   make_program_cache_key
+
+
 CUDA graphs
 -----------
 
@@ -88,6 +127,8 @@ CPU overhead. Graphs can be constructed in two ways:
 :class:`~graph.GraphDefinition` builds a graph explicitly by adding nodes and
 edges. Both produce an executable :class:`~graph.Graph` that can be
 launched on a :class:`Stream`.
+
+.. currentmodule:: cuda.core
 
 .. autosummary::
    :toctree: generated/
@@ -138,6 +179,8 @@ Each subclass exposes attributes unique to its operation type.
 Graphics interoperability
 -------------------------
 
+.. currentmodule:: cuda.core
+
 .. autosummary::
    :toctree: generated/
 
@@ -148,6 +191,8 @@ Graphics interoperability
 
 Tensor Memory Accelerator (TMA)
 -------------------------------
+
+.. currentmodule:: cuda.core
 
 .. autosummary::
    :toctree: generated/
@@ -167,10 +212,13 @@ Textures and surfaces
 CUDA arrays back bindless texture and surface objects for kernel-side sampled
 reads and typed load/store. These types live in the :mod:`cuda.core.texture`
 namespace. :class:`OpaqueArray` is allocated through
-:meth:`OpaqueArray.from_descriptor` and bound through a :class:`ResourceDescriptor`
-factory; linear (1D) and row-pitched 2D :class:`Buffer` views as well as
-mipmapped allocations (:class:`MipmappedArray`) are also supported as texture
-backings.
+:meth:`cuda.core.Device.create_opaque_array` and bound through a
+:class:`ResourceDescriptor` factory; linear (1D) and row-pitched 2D
+:class:`Buffer` views as well as mipmapped allocations (:class:`MipmappedArray`,
+via :meth:`cuda.core.Device.create_mipmapped_array`) are also supported as
+texture backings. Bindless handles are created with
+:meth:`cuda.core.Device.create_texture_object` and
+:meth:`cuda.core.Device.create_surface_object`.
 
 A :class:`OpaqueArray` has an opaque, hardware-defined layout with no linear
 device pointer, so it cannot participate in ``__cuda_array_interface__`` /
@@ -193,54 +241,16 @@ DLPack zero-copy interop. Data is moved in and out only by copying — use
 
    :template: dataclass.rst
 
-   TextureDescriptor
+   OpaqueArrayOptions
+   MipmappedArrayOptions
+   TextureObjectOptions
 
-.. autosummary::
-   :toctree: generated/
-
-   ArrayFormat
-   AddressMode
-   FilterMode
-   ReadMode
-
-
-CUDA compilation toolchain
---------------------------
-
-.. autosummary::
-   :toctree: generated/
-
-   :template: autosummary/cyclass.rst
-
-   Program
-   Linker
-   ObjectCode
-   Kernel
-
-   :template: dataclass.rst
-
-   ProgramOptions
-   LinkerOptions
-
-Program caches
-``````````````
-
-``Program.compile`` accepts a ``cache=`` keyword argument that integrates
-with any :class:`~cuda.core.utils.ProgramCacheResource`, so callers can
-avoid recompiling identical source + options + target without writing the
-:func:`~cuda.core.utils.make_program_cache_key` lookup by hand.
-
-.. currentmodule:: cuda.core.utils
-
-.. autosummary::
-   :toctree: generated/
-
-   ProgramCacheResource
-   InMemoryProgramCache
-   FileStreamProgramCache
-   make_program_cache_key
-
-.. currentmodule:: cuda.core
+The associated enumerations —
+:class:`~cuda.core.typing.ArrayFormatType`,
+:class:`~cuda.core.typing.AddressModeType`,
+:class:`~cuda.core.typing.FilterModeType`, and
+:class:`~cuda.core.typing.ReadModeType` — live in :mod:`cuda.core.typing`
+alongside the other ``cuda.core`` enumerations.
 
 
 CUDA process checkpointing
@@ -297,6 +307,8 @@ Use ``Process.restore_thread_id`` to discover that thread before calling
 persistence mode to be enabled or ``cuInit`` to have been called before
 execution.
 
+.. currentmodule:: cuda.core
+
 .. autosummary::
    :toctree: generated/
 
@@ -307,6 +319,8 @@ execution.
 
 Utility functions
 -----------------
+
+.. currentmodule:: cuda.core
 
 .. autosummary::
    :toctree: generated/

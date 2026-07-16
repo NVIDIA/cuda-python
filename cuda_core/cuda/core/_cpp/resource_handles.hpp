@@ -108,6 +108,10 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
 // Graph
 extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
+extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
+extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
+extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
+extern decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject;
 
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
@@ -183,6 +187,7 @@ using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
 using GraphHandle = std::shared_ptr<const CUgraph>;
+using GraphExecHandle = std::shared_ptr<const CUgraphExec>;
 using GraphNodeHandle = std::shared_ptr<const CUgraphNode>;
 using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
@@ -250,6 +255,10 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
 // Destroy a Python-backed CUDA user object by decref'ing it when safe.
 // If Python is finalized or finalizing, the object is intentionally leaked.
 void py_object_user_object_destroy(void* py_object) noexcept;
+
+// Initialize the process-lifetime CUDA user-object cleanup queue. Called once
+// from module initialization while Python is fully initialized.
+void initialize_deferred_cleanup();
 
 // Return the context dependency associated with a stream handle, if any.
 ContextHandle get_stream_context(const StreamHandle& h) noexcept;
@@ -465,6 +474,47 @@ GraphHandle create_graph_handle(CUgraph graph);
 GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
 
 // ============================================================================
+// Graph slot attachments
+//
+// A graph carries a side table that keeps resources used by its nodes (kernel
+// arguments, host callbacks, events, ...) alive for as long as the graph can
+// execute. The table is created on first use and retained on the CUgraph as a
+// user object, so the driver releases it -- and everything attached through it
+// -- when the graph is destroyed. The table layout is an internal detail;
+// callers use the abstract API below.
+// ============================================================================
+
+// Type-erased shared owner of an attached resource. Typed handles such as
+// EventHandle and KernelHandle convert to OpaqueHandle by assignment, reusing
+// their existing control block; the helpers below build OpaqueHandles for the
+// two cases that need a custom deleter.
+using OpaqueHandle = std::shared_ptr<const void>;
+
+// Build an OpaqueHandle from a Python object: increments its refcount now and
+// decrements it (under the GIL) on release. The caller must hold the GIL.
+OpaqueHandle make_opaque_py(PyObject* obj);
+
+// Build an OpaqueHandle from a malloc'd buffer: std::free on release.
+OpaqueHandle make_opaque_malloc(void* buf);
+
+// Attach owner to one of node's fixed slots on h_graph, replacing whatever was
+// there. The graph's slot table is created on first use. A null owner is a
+// no-op (returns CUDA_SUCCESS without creating the table), so callers need not
+// guard optional owners. Returns CUDA_SUCCESS, or an error if slot is out of
+// range or the graph cannot hold a table (e.g. the driver lacks user-object
+// support).
+CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
+                        unsigned int slot, OpaqueHandle owner);
+
+// ============================================================================
+// Graph exec handle functions
+// ============================================================================
+
+// Wrap an externally-created CUgraphExec with RAII cleanup.
+// When the last reference is released, cuGraphExecDestroy is called automatically.
+GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec);
+
+// ============================================================================
 // Graph node handle functions
 // ============================================================================
 
@@ -649,6 +699,10 @@ inline CUgraph as_cu(const GraphHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUgraphExec as_cu(const GraphExecHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 inline CUgraphNode as_cu(const GraphNodeHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -726,6 +780,10 @@ inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GraphExecHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -853,6 +911,10 @@ inline PyObject* as_py(const KernelHandle& h) noexcept {
 
 inline PyObject* as_py(const GraphHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUgraph", as_intptr(h));
+}
+
+inline PyObject* as_py(const GraphExecHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgraphExec", as_intptr(h));
 }
 
 inline PyObject* as_py(const GraphNodeHandle& h) noexcept {

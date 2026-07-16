@@ -1,15 +1,16 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=dbbc8028df717e2c963cb78a4e59700459ad88e1ac111c61e5992d7d007ecc5e
 from libc.stdint cimport uint32_t, uint64_t
 
 
 # ENUMS
 cdef extern from 'nvrtc.h':
-    ctypedef enum nvrtcResult:
+    ctypedef enum nvrtcResult "nvrtcResult":
         NVRTC_SUCCESS
         NVRTC_ERROR_OUT_OF_MEMORY
         NVRTC_ERROR_PROGRAM_CREATION_FAILURE

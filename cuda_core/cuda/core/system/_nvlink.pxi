@@ -20,10 +20,6 @@ if _NVLINK_VERSION_6_0 is not None:
 
 class _NvlinkInfoMeta(type):
     @property
-    @deprecated(
-        version="1.1.0",
-        reason="Use Device.get_nvlink_count instead to get the actual number of Nvlinks available on a specific device."
-    )
     def max_links(cls):
         """
         The statically-defined maximum number of Nvlinks available.  Defined in
@@ -31,7 +27,17 @@ class _NvlinkInfoMeta(type):
 
         To find the actual number of Nvlinks available on a device, use
         :py:attr:`Device.get_nvlink_count`.
+
+        .. version-deprecated:: 1.1.0
+            This property is deprecated and will be removed in a future release.
+            Use :py:attr:`Device.get_nvlink_count` instead.
         """
+        warnings.warn(
+            "The `max_links` property is deprecated and will be removed in a future release. "
+            "Use `Device.get_nvlink_count` instead.",
+            DeprecationWarning,
+        )
+
         # This will always return 18, even on CTK 13.3 where it should be 36.
         return nvml.NVLINK_MAX_LINKS
 

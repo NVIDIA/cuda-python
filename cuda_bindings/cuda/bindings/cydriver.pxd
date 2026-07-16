@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1738+g1060a290f. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cccb0572002cd20232f2b9f5c7acf559c92813d33dfc364136d57c8f453e50c6
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -1328,12 +1329,12 @@ cdef extern from 'cuda.h':
         CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUgreenCtxCreate_flags:
+    ctypedef enum CUgreenCtxCreate_flags "CUgreenCtxCreate_flags":
         CU_GREEN_CTX_NONE
         CU_GREEN_CTX_DEFAULT_STREAM
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevResourceType:
+    ctypedef enum CUdevResourceType "CUdevResourceType":
         CU_DEV_RESOURCE_TYPE_INVALID
         CU_DEV_RESOURCE_TYPE_SM
         CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
@@ -1530,17 +1531,17 @@ cdef extern from 'cuda.h':
     ctypedef CUstreamAtomicReductionDataType_enum CUstreamAtomicReductionDataType
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevSmResourceGroup_flags:
+    ctypedef enum CUdevSmResourceGroup_flags "CUdevSmResourceGroup_flags":
         CU_DEV_SM_RESOURCE_GROUP_DEFAULT
         CU_DEV_SM_RESOURCE_GROUP_BACKFILL
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevSmResourceSplitByCount_flags:
+    ctypedef enum CUdevSmResourceSplitByCount_flags "CUdevSmResourceSplitByCount_flags":
         CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING
         CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevWorkqueueConfigScope:
+    ctypedef enum CUdevWorkqueueConfigScope "CUdevWorkqueueConfigScope":
         CU_WORKQUEUE_SCOPE_DEVICE_CTX
         CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
 
@@ -1595,6 +1596,7 @@ cdef extern from 'cuda.h':
         CU_GRAPH_RECAPTURE_ERROR
     ctypedef CUgraphRecaptureStatus_enum CUgraphRecaptureStatus
 cdef enum: _CURESULT_INTERNAL_LOADING_ERROR = CUresult.CUDA_ERROR_NOT_FOUND
+cdef enum: CUDA_VERSION = 13030
 
 
 # TYPES
@@ -3138,6 +3140,8 @@ cdef CUresult cuDevicePrimaryCtxRelease(CUdevice dev) except ?CUDA_ERROR_NOT_FOU
 cdef CUresult cuDevicePrimaryCtxSetFlags(CUdevice dev, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int* active) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuDevicePrimaryCtxReset(CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuCtxCreate_v2(CUcontext* pctx, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int numParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuCtxCreate(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuCtxDestroy(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuCtxPushCurrent(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -3326,6 +3330,7 @@ cdef CUresult cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, cons
 cdef CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuStreamEndCapture(CUstream hStream, CUgraph* phGraph) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captureStatus) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, size_t length, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -3629,12 +3634,7 @@ cdef CUresult cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count,
 cdef CUresult cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil
 
 
-# cdef extern from "cuda.h":
-#     ctypedef CUdevSmResourceSplit_flags CUdevSmResourceSplitByCount_flags
-
 # TODO: Extract these defines somehow?
-
-cdef enum: CUDA_VERSION = 13020
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 
@@ -3777,3 +3777,7 @@ cdef enum: CU_DEVICE_INVALID = -2
 cdef enum: MAX_PLANES = 3
 
 cdef enum: CUDA_EGL_INFINITE_TIMEOUT = 4294967295
+
+cdef enum: RESOURCE_ABI_VERSION = 1
+
+cdef enum: RESOURCE_ABI_EXTERNAL_BYTES = 42

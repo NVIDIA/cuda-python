@@ -9,7 +9,7 @@ ci:
     autoupdate_branch: ''
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: quarterly
-    skip: [lychee]
+    skip: [lychee, check-precommit-installed]
     submodules: false
 
 # Please update the rev: SHAs below with this command:
@@ -26,6 +26,14 @@ repos:
 
   - repo: local
     hooks:
+      - id: check-precommit-installed
+        name: Warn if the pre-commit git hook is not installed
+        entry: python ./toolshed/check_precommit_installed.py
+        language: python
+        always_run: true
+        pass_filenames: false
+        verbose: true
+
       - id: check-spdx
         name: Check SPDX Headers
         entry: python ./toolshed/check_spdx.py
@@ -34,6 +42,13 @@ repos:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
         exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
         args: ["--fix"]
+
+      - id: check-generated-file-seals
+        name: Check generated-file seals
+        entry: python ./toolshed/check_generated_file_seals.py
+        language: python
+        files: ^cuda_bindings/
+        types: [text]
 
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
@@ -115,7 +130,7 @@ repos:
         pass_filenames: false
         args: [--config-file=cuda_core/pyproject.toml, cuda_core/cuda/core]
         additional_dependencies:
-          - numpy
+          - numpy==2.4.2
 
   - repo: https://github.com/rhysd/actionlint
     rev: "914e7df21a07ef503a81201c76d2b11c789d3fca"  # frozen: v1.7.12

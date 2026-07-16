@@ -6,8 +6,12 @@
 
 #include "resource_handles.hpp"
 #include <cuda.h>
+#include <atomic>
+#include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
+#include <map>
 #include <mutex>
 #include <stdexcept>
 #include <unordered_map>
@@ -69,6 +73,10 @@ decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
 // Graph
 decltype(&cuGraphDestroy) p_cuGraphDestroy = nullptr;
+decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy = nullptr;
+decltype(&cuUserObjectCreate) p_cuUserObjectCreate = nullptr;
+decltype(&cuUserObjectRelease) p_cuUserObjectRelease = nullptr;
+decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject = nullptr;
 
 // Linker
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
@@ -177,6 +185,162 @@ private:
 };
 
 }  // namespace
+
+// ============================================================================
+// CUDA user-object deferred cleanup
+//
+// CUDA may invoke a user-object destructor on an internal thread where CUDA
+// calls are forbidden. Payload cleanup can release resource handles whose
+// deleters call CUDA, so the callback only transfers a preallocated intrusive
+// node to this process-lifetime queue. One coalesced pending call drains all
+// queued payloads from Python's main thread.
+// ============================================================================
+
+namespace {
+
+class DeferredCleanupQueue;
+
+using CleanupFn = void (*)(void*) noexcept;
+
+// Preallocated queue item that transfers one payload out of CUDA's callback.
+struct DeferredCleanupItem {
+    DeferredCleanupItem* next = nullptr;
+    void* payload;
+    CleanupFn cleanup;
+
+    DeferredCleanupItem(void* payload_, CleanupFn cleanup_) noexcept
+        : payload(payload_), cleanup(cleanup_) {}
+};
+
+// Process-lifetime MPSC queue that drains payloads from Python's main thread.
+class DeferredCleanupQueue {
+public:
+    // Transfer one preallocated cleanup item from a producer to the queue.
+    void enqueue(DeferredCleanupItem* item) noexcept {
+        DeferredCleanupItem* head = head_.load(std::memory_order_relaxed);
+        do {
+            item->next = head;
+        } while (!head_.compare_exchange_weak(
+            head, item, std::memory_order_release, std::memory_order_relaxed));
+        schedule();
+    }
+
+    // Permanently disable pending-call scheduling during interpreter shutdown.
+    void stop() noexcept {
+        accepting_.store(false, std::memory_order_release);
+    }
+
+    // Reattempt scheduling for payloads left queued after an earlier failure.
+    void retry_schedule() noexcept {
+        schedule();
+    }
+
+private:
+    // Adapt queue draining to CPython's int (*)(void*) callback ABI.
+    static int pending_call(void* arg) noexcept {
+        static_cast<DeferredCleanupQueue*>(arg)->drain();
+        return 0;
+    }
+
+    // Coalesce all queued work behind at most one CPython pending call.
+    void schedule() noexcept {
+        if (!accepting_.load(std::memory_order_acquire) ||
+            !head_.load(std::memory_order_acquire)) {
+            return;
+        }
+        bool expected = false;
+        if (!scheduled_.compare_exchange_strong(
+                expected, true, std::memory_order_acq_rel,
+                std::memory_order_relaxed)) {
+            return;
+        }
+        if (Py_AddPendingCall(&DeferredCleanupQueue::pending_call, this) != 0) {
+            // Keep every payload queued. A later enqueue or safe cuda-core
+            // entry can retry without blocking CUDA's callback thread.
+            scheduled_.store(false, std::memory_order_release);
+        }
+    }
+
+    // Detach and destroy all queued payloads from Python's main thread.
+    void drain() noexcept {
+        if (!Py_IsInitialized() || py_is_finalizing()) {
+            stop();
+            scheduled_.store(false, std::memory_order_release);
+            return;  // Intentionally leak intact payloads during shutdown.
+        }
+
+        while (DeferredCleanupItem* list =
+                   head_.exchange(nullptr, std::memory_order_acquire)) {
+            while (list) {
+                DeferredCleanupItem* next = list->next;
+                list->cleanup(list->payload);
+                delete list;
+                list = next;
+            }
+        }
+
+        scheduled_.store(false, std::memory_order_release);
+        if (head_.load(std::memory_order_acquire)) {
+            schedule();
+        }
+    }
+
+    // Head of the intrusive multi-producer, single-consumer payload stack.
+    std::atomic<DeferredCleanupItem*> head_{nullptr};
+    // True while one cuda-core drain callback is pending or executing.
+    std::atomic<bool> scheduled_{false};
+    // False once shutdown begins, causing later payloads to be leaked safely.
+    std::atomic<bool> accepting_{true};
+};
+
+// Published once at module initialization and intentionally never freed.
+std::atomic<DeferredCleanupQueue*> deferred_cleanup_queue{nullptr};
+
+void stop_deferred_cleanup() {
+    if (DeferredCleanupQueue* queue =
+            deferred_cleanup_queue.load(std::memory_order_acquire)) {
+        queue->stop();
+    }
+}
+
+DeferredCleanupItem* make_cleanup_item(
+        void* payload, CleanupFn cleanup) {
+    DeferredCleanupQueue* queue =
+        deferred_cleanup_queue.load(std::memory_order_acquire);
+    if (!queue) {
+        throw std::runtime_error("deferred cleanup is not initialized");
+    }
+    queue->retry_schedule();
+    return new DeferredCleanupItem(payload, cleanup);
+}
+
+// Execute an item's cleanup synchronously before CUDA has acquired ownership.
+void execute_cleanup_now(DeferredCleanupItem* item) noexcept {
+    item->cleanup(item->payload);
+    delete item;
+}
+
+// CUDA's CUhostFn ABI is void (*)(void*); recover and enqueue the cleanup item.
+void enqueue_cleanup(void* item) noexcept {
+    auto* cleanup = static_cast<DeferredCleanupItem*>(item);
+    if (DeferredCleanupQueue* queue =
+            deferred_cleanup_queue.load(std::memory_order_acquire)) {
+        queue->enqueue(cleanup);
+    }
+}
+
+}  // namespace
+
+void initialize_deferred_cleanup() {
+    if (deferred_cleanup_queue.load(std::memory_order_acquire)) {
+        return;
+    }
+    auto* queue = new DeferredCleanupQueue();
+    deferred_cleanup_queue.store(queue, std::memory_order_release);
+    if (Py_AtExit(stop_deferred_cleanup) != 0) {
+        queue->stop();
+    }
+}
 
 // ============================================================================
 // Handle reverse-lookup registry
@@ -1113,11 +1277,98 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept {
 // ============================================================================
 
 namespace {
+
+// Slot table layout (internal). Each graph maps CUgraphNode -> a fixed-size
+// array of type-erased owners. The width is the most any single node needs: a
+// kernel node holds its kernel and its packed arguments; a host node holds its
+// callback and the userData. The table is heap-allocated and retained on the
+// graph as a user object, so the driver frees it -- and every owner in it --
+// when the graph is destroyed.
+constexpr std::size_t SLOTS_PER_NODE = 2;
+using NodeSlots = std::array<OpaqueHandle, SLOTS_PER_NODE>;
+using GraphSlotTable = std::map<CUgraphNode, NodeSlots>;
+
+// shared_ptr deleters for the payloads that need one. Typed handles convert to
+// OpaqueHandle by assignment and reuse their own control block, so they need no
+// deleter here. The Python deleter follows the owner-release pattern used by
+// the stream/deviceptr handles above.
+void py_deleter(const void* p) noexcept {
+    GILAcquireGuard gil;
+    if (gil.acquired()) {
+        Py_DECREF(const_cast<PyObject*>(static_cast<const PyObject*>(p)));
+    }
+}
+
+void free_deleter(const void* p) noexcept {
+    std::free(const_cast<void*>(p));
+}
+
+void cleanup_graph_slot_table(void* table) noexcept {
+    delete static_cast<GraphSlotTable*>(table);
+}
+
 struct GraphBox {
     CUgraph resource;
-    GraphHandle h_parent;  // Keeps parent alive for child/branch graphs
+    GraphHandle h_parent;                  // Keeps parent alive for child/branch graphs
+    mutable GraphSlotTable* slot_table = nullptr;  // Lazily created; owned by the graph's user object
 };
+
+const GraphBox* get_box(const GraphHandle& h) {
+    const CUgraph* p = h.get();
+    return reinterpret_cast<const GraphBox*>(
+        reinterpret_cast<const char*>(p) - offsetof(GraphBox, resource)
+    );
+}
+
+// Return box's slot table, creating it on first use. The table is retained on
+// the graph as a user object (MOVE transfers our only reference into the
+// graph), so it -- and every owner in it -- is freed when the graph is
+// destroyed. Returns nullptr if the driver lacks user-object support or a
+// driver call fails; the cached pointer is non-owning.
+GraphSlotTable* ensure_slot_table(const GraphBox* box) {
+    if (box->slot_table) {
+        return box->slot_table;
+    }
+    if (!p_cuUserObjectCreate || !p_cuGraphRetainUserObject || !p_cuUserObjectRelease) {
+        return nullptr;
+    }
+    auto* table = new GraphSlotTable();
+    DeferredCleanupItem* cleanup_item = nullptr;
+    try {
+        cleanup_item = make_cleanup_item(table, cleanup_graph_slot_table);
+    } catch (...) {
+        delete table;
+        throw;
+    }
+    CUuserObject user_obj = nullptr;
+    {
+        GILReleaseGuard gil;
+        if (p_cuUserObjectCreate(&user_obj, cleanup_item,
+                                 reinterpret_cast<CUhostFn>(enqueue_cleanup),
+                                 1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC) != CUDA_SUCCESS) {
+            execute_cleanup_now(cleanup_item);
+            return nullptr;
+        }
+        if (p_cuGraphRetainUserObject(box->resource, user_obj, 1,
+                                      CU_GRAPH_USER_OBJECT_MOVE) != CUDA_SUCCESS) {
+            p_cuUserObjectRelease(user_obj, 1);  // drops refcount to 0 -> frees table
+            return nullptr;
+        }
+    }
+    box->slot_table = table;  // non-owning cache; the user object owns it
+    return table;
+}
+
 }  // namespace
+
+OpaqueHandle make_opaque_py(PyObject* obj) {
+    Py_INCREF(obj);
+    return OpaqueHandle(static_cast<const void*>(obj), py_deleter);
+}
+
+OpaqueHandle make_opaque_malloc(void* buf) {
+    return OpaqueHandle(static_cast<const void*>(buf), free_deleter);
+}
 
 GraphHandle create_graph_handle(CUgraph graph) {
     auto box = std::shared_ptr<const GraphBox>(
@@ -1134,6 +1385,44 @@ GraphHandle create_graph_handle(CUgraph graph) {
 GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) {
     auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent});
     return GraphHandle(box, &box->resource);
+}
+
+CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
+                        unsigned int slot, OpaqueHandle owner) {
+    if (!h_graph || slot >= SLOTS_PER_NODE) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (!owner) {
+        return CUDA_SUCCESS;  // nothing to retain; don't force table creation
+    }
+    GraphSlotTable* table = ensure_slot_table(get_box(h_graph));
+    if (!table) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+    (*table)[node][slot] = std::move(owner);
+    return CUDA_SUCCESS;
+}
+
+// ============================================================================
+// Graph Exec Handles
+// ============================================================================
+
+namespace {
+struct GraphExecBox {
+    CUgraphExec resource;
+};
+}  // namespace
+
+GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec) {
+    auto box = std::shared_ptr<const GraphExecBox>(
+        new GraphExecBox{graph_exec},
+        [](const GraphExecBox* b) {
+            GILReleaseGuard gil;
+            p_cuGraphExecDestroy(b->resource);
+            delete b;
+        }
+    );
+    return GraphExecHandle(box, &box->resource);
 }
 
 namespace {
