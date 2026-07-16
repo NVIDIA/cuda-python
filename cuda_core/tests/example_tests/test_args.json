@@ -2,6 +2,9 @@
   "simpleP2P": {
     "min_gpus": 2
   },
+  "simpleMultiGpu": {
+    "min_gpus": 2
+  },
   "reductionMultiBlockCG": {
     "python": {
       "args": ["--cuda-include-dir=$CUDA_HOME/include:$CUDA_HOME/include/cccl"]
