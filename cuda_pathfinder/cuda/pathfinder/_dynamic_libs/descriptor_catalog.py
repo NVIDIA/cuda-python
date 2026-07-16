@@ -376,6 +376,22 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         dependencies=("cutensor", "cublasLt"),
     ),
     DescriptorSpec(
+        name="cudensitymat",
+        packaged_with="other",
+        linux_sonames=("libcudensitymat.so.0",),
+        site_packages_linux=("cuquantum/lib",),
+        dependencies=(
+            "cutensornet",
+            "cutensor",
+            "cusolver",
+            "cublasLt",
+            "cublas",
+            "curand",
+            "cusparse",
+            "nvJitLink",
+        ),
+    ),
+    DescriptorSpec(
         name="cutensornet",
         packaged_with="other",
         linux_sonames=("libcutensornet.so.2",),

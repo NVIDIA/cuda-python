@@ -21,6 +21,7 @@ test = [
 cu12 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,cupti,profiler]==12.*",
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
+    "cudensitymat-cu12; sys_platform != 'win32'",
     "cutensor-cu12",
     "cutensornet-cu12; sys_platform != 'win32'",
     "custatevec-cu12; sys_platform != 'win32'",
@@ -36,6 +37,7 @@ cu12 = [
 cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,cupti,profiler,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
+    "cudensitymat-cu13; sys_platform != 'win32'",
     "cutensor-cu13",
     "cutensornet-cu13; sys_platform != 'win32'",
     "custatevec-cu13; sys_platform != 'win32'",

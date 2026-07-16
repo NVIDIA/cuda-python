@@ -25,6 +25,7 @@ set -u
 # Keep this list aligned with the Linux-installable subset of
 # cuda_pathfinder/pyproject.toml.
 cpkgs=(
+    "cudensitymat"
     "cusparselt-dev"
     "cutensor"
     "cutensornet"
