@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+cimport cython
 from libc.limits cimport ULLONG_MAX
 from libc.stdint cimport uintptr_t
 from libc.string cimport memset
@@ -37,6 +38,8 @@ if TYPE_CHECKING:
 
 cdef class _MemPoolAttributes:
     """Provides access to memory pool attributes."""
+    cdef:
+        MemoryPoolHandle _h_pool
 
     def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("_MemPoolAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
@@ -177,6 +180,7 @@ cdef class _MemPool(MemoryResource):
         _MP_deallocate(self, <uintptr_t>ptr, size, s)
 
     @property
+    @cython.critical_section
     def attributes(self) -> _MemPoolAttributes:
         """Memory pool attributes."""
         if self._attributes is None:

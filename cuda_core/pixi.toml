@@ -157,6 +157,53 @@ nvidia-sphinx-theme = "*"
 [feature.docs.target.linux.dependencies]
 make = "*"
 
+# Dedicated environment for the MLIR numba-cuda example
+# (examples/gl_interop_fluid_numba_cuda_mlir.py). numba-cuda-mlir pulls
+# *published* cuda-core / cuda-bindings through its pypi closure, which would
+# shadow (overwrite in site-packages) the editable dev path builds used
+# everywhere else -- so it MUST live in its own environment, isolated from the
+# local-deps path packages. The [cu13] extra makes it self-contained: nvvm,
+# cudart, and nvrtc come from the nvidia pypi wheels, so no conda CUDA toolkit
+# or CUDA_HOME wiring is needed. Linux-only: upstream ships manylinux wheels
+# (cp311-cp314, x86_64 + aarch64) and no win-64 wheel.
+[feature.numba-mlir.dependencies]
+numpy = "*"
+pyglet = "*"
+
+[feature.numba-mlir.system-requirements]
+cuda = "13"
+
+[feature.numba-mlir.target.linux.dependencies]
+libgl-devel = "*"
+
+[feature.numba-mlir.target.linux-64.pypi-dependencies]
+numba-cuda-mlir = { version = "*", extras = ["cu13"] }
+
+[feature.numba-mlir.target.linux-aarch64.pypi-dependencies]
+numba-cuda-mlir = { version = "*", extras = ["cu13"] }
+
+# Companion environment running the SAME fluid example through the CLASSIC
+# numba-cuda compiler (stock numba + llvmlite -> NVVM) instead of the MLIR
+# backend, for a same-source compiler comparison. numba-cuda[cu13] keeps it on
+# CUDA 13 (matching numba-mlir's ptxas) so the comparison isolates the codegen
+# frontend. Pinned to Python 3.12 because llvmlite has no 3.14 wheels yet.
+[feature.numba-classic.dependencies]
+python = "3.12.*"
+numpy = "*"
+pyglet = "*"
+
+[feature.numba-classic.system-requirements]
+cuda = "13"
+
+[feature.numba-classic.target.linux.dependencies]
+libgl-devel = "*"
+
+[feature.numba-classic.target.linux-64.pypi-dependencies]
+numba-cuda = { version = "*", extras = ["cu13"] }
+
+[feature.numba-classic.target.linux-aarch64.pypi-dependencies]
+numba-cuda = { version = "*", extras = ["cu13"] }
+
 # We keep both cu12 and cu13 because cuda.core works with either major version.
 # The local sibling checkouts are wired into the default/cu13/samples workflows;
 # cu12 intentionally solves against published packages instead.
@@ -170,6 +217,10 @@ cu13 = { features = ["cu13", "test", "cython-tests", "local-deps"], solve-group 
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 samples = { features = ["cu13", "samples", "local-deps"], solve-group = "samples" }
 docs = { features = ["cu13", "docs", "local-deps"], solve-group = "docs" }
+# Isolated: uses published cuda-core via numba-cuda-mlir's pypi closure, NOT the
+# local-deps path builds (which it would otherwise shadow).
+numba-mlir = { features = ["numba-mlir"] }
+numba-classic = { features = ["numba-classic"] }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]

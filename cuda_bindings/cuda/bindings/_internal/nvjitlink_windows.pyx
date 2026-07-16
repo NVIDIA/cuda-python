@@ -1,81 +1,33 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8f99393554faa677ab0ab8326185997a183259db6b26b55561ed2ab6250201a6
 
-from libc.stdint cimport intptr_t
 
-import threading
-from .utils import FunctionNotFoundError, NotSupportedError
+# <<<< PREAMBLE CONTENT >>>>
 
-from cuda.pathfinder import load_nvidia_dynamic_lib
-
-from libc.stddef cimport wchar_t
-from libc.stdint cimport uintptr_t
-from cpython cimport PyUnicode_AsWideCharString, PyMem_Free
-
-# You must 'from .utils import NotSupportedError' before using this template
-
-cdef extern from "windows.h" nogil:
+cdef extern from "<windows.h>":
     ctypedef void* HMODULE
-    ctypedef void* HANDLE
-    ctypedef void* FARPROC
-    ctypedef unsigned long DWORD
-    ctypedef const wchar_t *LPCWSTR
-    ctypedef const char *LPCSTR
+    void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
-    cdef DWORD LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-    cdef DWORD LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+from libc.stdint cimport intptr_t as _cyb_intptr_t
 
-    HMODULE _LoadLibraryExW "LoadLibraryExW"(
-        LPCWSTR lpLibFileName,
-        HANDLE hFile,
-        DWORD dwFlags
-    )
+import threading as _cyb_threading
 
-    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, LPCSTR lpProcName)
+cdef bint _cyb___py_nvjitlink_init = False
+cdef dict _cyb_func_ptrs = None
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
-cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
-    cdef uintptr_t result
-    cdef wchar_t* wpath = PyUnicode_AsWideCharString(path, NULL)
-    with nogil:
-        result = <uintptr_t>_LoadLibraryExW(
-            wpath,
-            hFile,
-            dwFlags
-        )
-    PyMem_Free(wpath)
-    return result
+# <<<< END OF PREAMBLE CONTENT >>>>
 
-cdef inline void *GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
-    return _GetProcAddress(<HMODULE>hModule, lpProcName)
-
-cdef int get_cuda_version():
-    cdef int err, driver_ver = 0
-
-    # Load driver to check version
-    handle = LoadLibraryExW("nvcuda.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)
-    if handle == 0:
-        raise NotSupportedError('CUDA driver is not found')
-    cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
-    if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in nvcuda.dll')
-    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
-
-    return driver_ver
-
-
-
+from libc.stdint cimport uintptr_t
+from cuda.pathfinder import load_nvidia_dynamic_lib
+from .utils import FunctionNotFoundError, NotSupportedError
 ###############################################################################
 # Wrapper init
 ###############################################################################
-
-cdef object __symbol_lock = threading.Lock()
-cdef bint __py_nvjitlink_init = False
 
 cdef void* __nvJitLinkCreate = NULL
 cdef void* __nvJitLinkDestroy = NULL
@@ -94,146 +46,142 @@ cdef void* __nvJitLinkVersion = NULL
 cdef void* __nvJitLinkGetLinkedLTOIRSize = NULL
 cdef void* __nvJitLinkGetLinkedLTOIR = NULL
 
-
 cdef int _init_nvjitlink() except -1 nogil:
-    global __py_nvjitlink_init
+    global _cyb___py_nvjitlink_init
 
-    with gil, __symbol_lock:
-        # Recheck the flag after obtaining the locks
-        if __py_nvjitlink_init:
-            return 0
+    cdef int err
+    cdef uintptr_t handle
+    with gil, _cyb_symbol_lock:
+        if _cyb___py_nvjitlink_init: return 0
 
-        # Load library
-        handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint
-
-        # Load function
+        handle = load_library()
         global __nvJitLinkCreate
-        __nvJitLinkCreate = GetProcAddress(handle, 'nvJitLinkCreate')
+        __nvJitLinkCreate = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkCreate')
 
         global __nvJitLinkDestroy
-        __nvJitLinkDestroy = GetProcAddress(handle, 'nvJitLinkDestroy')
+        __nvJitLinkDestroy = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkDestroy')
 
         global __nvJitLinkAddData
-        __nvJitLinkAddData = GetProcAddress(handle, 'nvJitLinkAddData')
+        __nvJitLinkAddData = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkAddData')
 
         global __nvJitLinkAddFile
-        __nvJitLinkAddFile = GetProcAddress(handle, 'nvJitLinkAddFile')
+        __nvJitLinkAddFile = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkAddFile')
 
         global __nvJitLinkComplete
-        __nvJitLinkComplete = GetProcAddress(handle, 'nvJitLinkComplete')
+        __nvJitLinkComplete = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkComplete')
 
         global __nvJitLinkGetLinkedCubinSize
-        __nvJitLinkGetLinkedCubinSize = GetProcAddress(handle, 'nvJitLinkGetLinkedCubinSize')
+        __nvJitLinkGetLinkedCubinSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetLinkedCubinSize')
 
         global __nvJitLinkGetLinkedCubin
-        __nvJitLinkGetLinkedCubin = GetProcAddress(handle, 'nvJitLinkGetLinkedCubin')
+        __nvJitLinkGetLinkedCubin = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetLinkedCubin')
 
         global __nvJitLinkGetLinkedPtxSize
-        __nvJitLinkGetLinkedPtxSize = GetProcAddress(handle, 'nvJitLinkGetLinkedPtxSize')
+        __nvJitLinkGetLinkedPtxSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetLinkedPtxSize')
 
         global __nvJitLinkGetLinkedPtx
-        __nvJitLinkGetLinkedPtx = GetProcAddress(handle, 'nvJitLinkGetLinkedPtx')
+        __nvJitLinkGetLinkedPtx = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetLinkedPtx')
 
         global __nvJitLinkGetErrorLogSize
-        __nvJitLinkGetErrorLogSize = GetProcAddress(handle, 'nvJitLinkGetErrorLogSize')
+        __nvJitLinkGetErrorLogSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetErrorLogSize')
 
         global __nvJitLinkGetErrorLog
-        __nvJitLinkGetErrorLog = GetProcAddress(handle, 'nvJitLinkGetErrorLog')
+        __nvJitLinkGetErrorLog = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetErrorLog')
 
         global __nvJitLinkGetInfoLogSize
-        __nvJitLinkGetInfoLogSize = GetProcAddress(handle, 'nvJitLinkGetInfoLogSize')
+        __nvJitLinkGetInfoLogSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetInfoLogSize')
 
         global __nvJitLinkGetInfoLog
-        __nvJitLinkGetInfoLog = GetProcAddress(handle, 'nvJitLinkGetInfoLog')
+        __nvJitLinkGetInfoLog = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetInfoLog')
 
         global __nvJitLinkVersion
-        __nvJitLinkVersion = GetProcAddress(handle, 'nvJitLinkVersion')
+        __nvJitLinkVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkVersion')
 
         global __nvJitLinkGetLinkedLTOIRSize
-        __nvJitLinkGetLinkedLTOIRSize = GetProcAddress(handle, 'nvJitLinkGetLinkedLTOIRSize')
+        __nvJitLinkGetLinkedLTOIRSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetLinkedLTOIRSize')
 
         global __nvJitLinkGetLinkedLTOIR
-        __nvJitLinkGetLinkedLTOIR = GetProcAddress(handle, 'nvJitLinkGetLinkedLTOIR')
+        __nvJitLinkGetLinkedLTOIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetLinkedLTOIR')
 
-        __py_nvjitlink_init = True
+        _cyb___py_nvjitlink_init = True
         return 0
 
-
 cdef inline int _check_or_init_nvjitlink() except -1 nogil:
-    if __py_nvjitlink_init:
+    if _cyb___py_nvjitlink_init:
         return 0
 
     return _init_nvjitlink()
 
 
-cdef dict func_ptrs = None
-
-
 cpdef dict _inspect_function_pointers():
-    global func_ptrs
-    if func_ptrs is not None:
-        return func_ptrs
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is not None:
+        return _cyb_func_ptrs
 
     _check_or_init_nvjitlink()
     cdef dict data = {}
-
     global __nvJitLinkCreate
-    data["__nvJitLinkCreate"] = <intptr_t>__nvJitLinkCreate
+    data["__nvJitLinkCreate"] = <_cyb_intptr_t>__nvJitLinkCreate
 
     global __nvJitLinkDestroy
-    data["__nvJitLinkDestroy"] = <intptr_t>__nvJitLinkDestroy
+    data["__nvJitLinkDestroy"] = <_cyb_intptr_t>__nvJitLinkDestroy
 
     global __nvJitLinkAddData
-    data["__nvJitLinkAddData"] = <intptr_t>__nvJitLinkAddData
+    data["__nvJitLinkAddData"] = <_cyb_intptr_t>__nvJitLinkAddData
 
     global __nvJitLinkAddFile
-    data["__nvJitLinkAddFile"] = <intptr_t>__nvJitLinkAddFile
+    data["__nvJitLinkAddFile"] = <_cyb_intptr_t>__nvJitLinkAddFile
 
     global __nvJitLinkComplete
-    data["__nvJitLinkComplete"] = <intptr_t>__nvJitLinkComplete
+    data["__nvJitLinkComplete"] = <_cyb_intptr_t>__nvJitLinkComplete
 
     global __nvJitLinkGetLinkedCubinSize
-    data["__nvJitLinkGetLinkedCubinSize"] = <intptr_t>__nvJitLinkGetLinkedCubinSize
+    data["__nvJitLinkGetLinkedCubinSize"] = <_cyb_intptr_t>__nvJitLinkGetLinkedCubinSize
 
     global __nvJitLinkGetLinkedCubin
-    data["__nvJitLinkGetLinkedCubin"] = <intptr_t>__nvJitLinkGetLinkedCubin
+    data["__nvJitLinkGetLinkedCubin"] = <_cyb_intptr_t>__nvJitLinkGetLinkedCubin
 
     global __nvJitLinkGetLinkedPtxSize
-    data["__nvJitLinkGetLinkedPtxSize"] = <intptr_t>__nvJitLinkGetLinkedPtxSize
+    data["__nvJitLinkGetLinkedPtxSize"] = <_cyb_intptr_t>__nvJitLinkGetLinkedPtxSize
 
     global __nvJitLinkGetLinkedPtx
-    data["__nvJitLinkGetLinkedPtx"] = <intptr_t>__nvJitLinkGetLinkedPtx
+    data["__nvJitLinkGetLinkedPtx"] = <_cyb_intptr_t>__nvJitLinkGetLinkedPtx
 
     global __nvJitLinkGetErrorLogSize
-    data["__nvJitLinkGetErrorLogSize"] = <intptr_t>__nvJitLinkGetErrorLogSize
+    data["__nvJitLinkGetErrorLogSize"] = <_cyb_intptr_t>__nvJitLinkGetErrorLogSize
 
     global __nvJitLinkGetErrorLog
-    data["__nvJitLinkGetErrorLog"] = <intptr_t>__nvJitLinkGetErrorLog
+    data["__nvJitLinkGetErrorLog"] = <_cyb_intptr_t>__nvJitLinkGetErrorLog
 
     global __nvJitLinkGetInfoLogSize
-    data["__nvJitLinkGetInfoLogSize"] = <intptr_t>__nvJitLinkGetInfoLogSize
+    data["__nvJitLinkGetInfoLogSize"] = <_cyb_intptr_t>__nvJitLinkGetInfoLogSize
 
     global __nvJitLinkGetInfoLog
-    data["__nvJitLinkGetInfoLog"] = <intptr_t>__nvJitLinkGetInfoLog
+    data["__nvJitLinkGetInfoLog"] = <_cyb_intptr_t>__nvJitLinkGetInfoLog
 
     global __nvJitLinkVersion
-    data["__nvJitLinkVersion"] = <intptr_t>__nvJitLinkVersion
+    data["__nvJitLinkVersion"] = <_cyb_intptr_t>__nvJitLinkVersion
 
     global __nvJitLinkGetLinkedLTOIRSize
-    data["__nvJitLinkGetLinkedLTOIRSize"] = <intptr_t>__nvJitLinkGetLinkedLTOIRSize
+    data["__nvJitLinkGetLinkedLTOIRSize"] = <_cyb_intptr_t>__nvJitLinkGetLinkedLTOIRSize
 
     global __nvJitLinkGetLinkedLTOIR
-    data["__nvJitLinkGetLinkedLTOIR"] = <intptr_t>__nvJitLinkGetLinkedLTOIR
-
-    func_ptrs = data
+    data["__nvJitLinkGetLinkedLTOIR"] = <_cyb_intptr_t>__nvJitLinkGetLinkedLTOIR
+    _cyb_func_ptrs = data
     return data
 
 
 cpdef _inspect_function_pointer(str name):
-    global func_ptrs
-    if func_ptrs is None:
-        func_ptrs = _inspect_function_pointers()
-    return func_ptrs[name]
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is None:
+        _cyb_func_ptrs = _inspect_function_pointers()
+    return _cyb_func_ptrs[name]
+
+
+
+
+cdef uintptr_t load_library() except* with gil:
+    return load_nvidia_dynamic_lib("nvJitLink")._handle_uint
 
 
 ###############################################################################

@@ -44,6 +44,16 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import cuda.core.system  # no-cython-lint
     from cuda.core.graph import GraphBuilder
+    from cuda.core.texture import (
+        MipmappedArray,
+        MipmappedArrayOptions,
+        OpaqueArray,
+        OpaqueArrayOptions,
+        ResourceDescriptor,
+        SurfaceObject,
+        TextureObject,
+        TextureObjectOptions,
+    )
 
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...
@@ -1016,7 +1026,7 @@ class Device:
     def to_system_device(self) -> 'cuda.core.system.Device':
         """
         Get the corresponding :class:`cuda.core.system.Device` (which is used
-        for NVIDIA Machine Library (NVML) access) for this
+        for NVIDIA Management Library (NVML) access) for this
         :class:`cuda.core.Device` (which is used for CUDA access).
 
         The devices are mapped to one another by their UUID.
@@ -1030,7 +1040,7 @@ class Device:
 
         if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             raise RuntimeError(
-                "cuda.core.system.Device requires cuda_bindings 13.1.2+ or 12.9.6+"
+                "cuda.core.system.Device requires cuda-bindings 12.9.6+ for CUDA 12.x, or cuda-bindings 13.2.0+ for CUDA 13.x"
             )
 
         from cuda.core.system import Device as SystemDevice
@@ -1454,7 +1464,134 @@ class Device:
         from cuda.core.graph._graph_builder import GraphBuilder
 
         self._check_context_initialized()
-        return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
+        return GraphBuilder._init(self.create_stream())
+
+    def create_opaque_array(self, options: OpaqueArrayOptions) -> OpaqueArray:
+        """Create an :obj:`~cuda.core.texture.OpaqueArray` on the current device.
+
+        Allocates an opaque, hardware-laid-out CUDA array for texture/surface
+        access. The array is created in the current CUDA context, so make this
+        device current with :meth:`set_current` before calling (mirroring
+        :meth:`create_stream` / :meth:`create_event`).
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`~cuda.core.texture.OpaqueArrayOptions`
+            Allocation options (shape, format, channels, surface flag).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.OpaqueArray`
+            Newly created opaque array.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._array import _create_opaque_array
+
+        self._check_context_initialized()
+        return _create_opaque_array(options)
+
+    def create_mipmapped_array(self, options: MipmappedArrayOptions) -> MipmappedArray:
+        """Create a :obj:`~cuda.core.texture.MipmappedArray` on the current device.
+
+        Allocates a mipmapped CUDA array for texture/surface access across
+        levels. The array is created in the current CUDA context, so make this
+        device current with :meth:`set_current` before calling (mirroring
+        :meth:`create_stream` / :meth:`create_event`).
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`~cuda.core.texture.MipmappedArrayOptions`
+            Allocation options (shape, format, channels, levels, surface flag).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.MipmappedArray`
+            Newly created mipmapped array.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._mipmapped_array import _create_mipmapped_array
+
+        self._check_context_initialized()
+        return _create_mipmapped_array(options)
+
+    def create_texture_object(
+        self, *, resource: ResourceDescriptor, options: TextureObjectOptions | None = None
+    ) -> TextureObject:
+        """Create a :obj:`~cuda.core.texture.TextureObject` on the current device.
+
+        Binds a resource (an :obj:`~cuda.core.texture.OpaqueArray` /
+        :obj:`~cuda.core.texture.MipmappedArray` / linear or pitch2d
+        :obj:`~cuda.core.Buffer`, wrapped in a
+        :obj:`~cuda.core.texture.ResourceDescriptor`) as a bindless texture for
+        kernel-side sampled reads. The object is created in the current CUDA
+        context, so make this device current with :meth:`set_current` before
+        calling (mirroring :meth:`create_stream` / :meth:`create_event`).
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        resource : :obj:`~cuda.core.texture.ResourceDescriptor`
+            The memory backing the texture.
+        options : :obj:`~cuda.core.texture.TextureObjectOptions`
+            Sampling state (address/filter/read modes, normalization, etc.).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.TextureObject`
+            Newly created texture object.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._texture import _create_texture_object
+
+        self._check_context_initialized()
+        return _create_texture_object(resource, options)
+
+    def create_surface_object(self, *, resource: ResourceDescriptor) -> SurfaceObject:
+        """Create a :obj:`~cuda.core.texture.SurfaceObject` on the current device.
+
+        Binds an :obj:`~cuda.core.texture.OpaqueArray` (via a
+        :obj:`~cuda.core.texture.ResourceDescriptor`) as a bindless surface for
+        kernel-side typed load/store. The backing array must have been created
+        with ``is_surface_load_store=True``. The object is created in the
+        current CUDA context, so make this device current with
+        :meth:`set_current` before calling (mirroring :meth:`create_stream` /
+        :meth:`create_event`).
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        resource : :obj:`~cuda.core.texture.ResourceDescriptor`
+            Must wrap an :obj:`~cuda.core.texture.OpaqueArray` allocated with
+            ``is_surface_load_store=True``.
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.SurfaceObject`
+            Newly created surface object.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._surface import _create_surface_object
+
+        self._check_context_initialized()
+        return _create_surface_object(resource)
 
 
 cdef inline int Device_ensure_cuda_initialized() except? -1:

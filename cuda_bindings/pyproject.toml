@@ -1,12 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 [build-system]
 requires = [
     "setuptools>=80.0.0",
-    "setuptools_scm[simple]>=8,<10.1",
-    "vcs-versioning<2.0",
+    "setuptools_scm[simple]>=8,!=10.1",
     "cython>=3.2,<3.3",
-    "pyclibrary>=0.1.7",
     "cuda-pathfinder>=1.5",
 ]
 build-backend = "build_hooks"
@@ -18,7 +16,8 @@ description = "Python bindings for CUDA"
 authors = [
     { name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" },
 ]
-license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
 classifiers = [
     "Intended Audience :: Developers",
@@ -92,6 +91,13 @@ required_plugins = "pytest-benchmark"
 addopts = "--benchmark-disable --showlocals"
 norecursedirs = ["tests/cython", "examples"]
 xfail_strict = true
+# Keep this authorship marker registry in sync across all pytest config roots.
+# Search for "agent_authored(model)" before editing.
+markers = [
+    "agent_authored(model): agent-authored test not yet materially human-reviewed",
+    "human_reviewed: agent-authored test materially reviewed or rewritten by a human",
+    "human_authored: test authored primarily by a human",
+]
 
 [tool.setuptools_scm]
 root = ".."

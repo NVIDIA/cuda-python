@@ -33,11 +33,12 @@ from cuda.core._utils.cuda_utils import (
 from cuda.core._utils.cuda_utils import (
     nvrtc as _nvrtc,
 )
+from cuda.core._utils.validators import check_str_enum, format_or_list
+from cuda.core.typing import SourceCodeType
 
 # Bump when the key schema changes in a way that invalidates existing caches.
 _KEY_SCHEMA_VERSION = 2
 
-_VALID_CODE_TYPES = frozenset({"c++", "ptx", "nvvm"})
 _VALID_TARGET_TYPES = frozenset({"ptx", "cubin", "ltoir"})
 
 # code_type -> allowed target_type set, mirroring Program.compile's
@@ -752,10 +753,12 @@ def make_program_cache_key(
     # the lowercase form.
     code_type = code_type.lower() if isinstance(code_type, str) else code_type
     target_type = target_type.lower() if isinstance(target_type, str) else target_type
-    if code_type not in _VALID_CODE_TYPES:
-        raise ValueError(f"code_type={code_type!r} is not supported (must be one of {sorted(_VALID_CODE_TYPES)})")
+    check_str_enum(code_type, SourceCodeType)
     if target_type not in _VALID_TARGET_TYPES:
-        raise ValueError(f"target_type={target_type!r} is not supported (must be one of {sorted(_VALID_TARGET_TYPES)})")
+        raise ValueError(
+            f"target_type={target_type!r} is not supported by the program cache "
+            f"(must be {format_or_list(sorted(_VALID_TARGET_TYPES))})"
+        )
     supported_for_code = _SUPPORTED_TARGETS_BY_CODE_TYPE[code_type]
     if target_type not in supported_for_code:
         raise ValueError(

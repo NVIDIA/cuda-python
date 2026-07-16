@@ -68,5 +68,4 @@ Windows.
 ## Useful commands
 
 - Run package tests: `pytest tests/`
-- Run package tests via orchestrator: `../scripts/run_tests.sh pathfinder`
 - Build package docs: `cd docs && ./build_docs.sh`

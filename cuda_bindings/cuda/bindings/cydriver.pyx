@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1622+g48467ab08.d20260421. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5b828e2ee0de9b245c71a6ba9361656ab10f7564caa7e3d9c162b2c6a07fb3df
 from ._internal cimport driver as _driver
 
 cdef CUresult cuGetErrorString(CUresult error, const char** pStr) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -104,6 +105,14 @@ cdef CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int*
 
 cdef CUresult cuDevicePrimaryCtxReset(CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
     return _driver._cuDevicePrimaryCtxReset_v2(dev)
+
+
+cdef CUresult cuCtxCreate_v2(CUcontext* pctx, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuCtxCreate_v2(pctx, flags, dev)
+
+
+cdef CUresult cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int numParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuCtxCreate_v3(pctx, paramsArray, numParams, flags, dev)
 
 
 cdef CUresult cuCtxCreate(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -856,6 +865,10 @@ cdef CUresult cuStreamEndCapture(CUstream hStream, CUgraph* phGraph) except ?CUD
 
 cdef CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captureStatus) except ?CUDA_ERROR_NOT_FOUND nogil:
     return _driver._cuStreamIsCapturing(hStream, captureStatus)
+
+
+cdef CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuStreamGetCaptureInfo_v2(hStream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out)
 
 
 cdef CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil:

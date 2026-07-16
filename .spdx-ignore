@@ -1,4 +1,4 @@
-LICENSE
+LICENSE*
 *.html
 *.json
 *.md
@@ -6,10 +6,9 @@ LICENSE
 .gitattributes
 .gitignore
 requirements*.txt
-cuda_bindings/examples/*
 
-# Samples are synced to NVIDIA/cuda-samples on release and carry the upstream
-# verbose BSD-style copyright header instead of the SPDX identifiers.
+# Samples are synced to NVIDIA/cuda-samples on release and carry either the
+# upstream verbose BSD-style copyright header or an SPDX identifier.
 samples/**/*.py
 
 # Vendored

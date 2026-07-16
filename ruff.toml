@@ -125,6 +125,7 @@ inline-quotes = "double"
   "N999",    # invalid module name (samples/Utilities is a directory, not a module)
   "RUF001",  # ambiguous unicode in strings (math symbols like ``×`` in shape annotations)
   "RUF003",  # ambiguous unicode in comments (same as RUF001)
+  "RUF059",  # unused unpacked variable (common in GL / kernel samples returning tuples)
 ]
 
 "**/benchmarks/**" = [

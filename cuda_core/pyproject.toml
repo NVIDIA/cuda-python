@@ -5,8 +5,7 @@
 [build-system]
 requires = [
     "setuptools>=80",
-    "setuptools-scm[simple]>=8,<10.1",
-    "vcs-versioning<2.0",
+    "setuptools-scm[simple]>=8,!=10.1",
     "Cython>=3.2,<3.3",
     "cuda-pathfinder>=1.5"
 ]
@@ -110,7 +109,7 @@ include-package-data = false
 [tool.setuptools.package-data]
 "*" = ["*.pxd", "*.pyi", "py.typed"]
 "cuda.core._include" = ["*.h", "*.hpp"]
-"cuda.core._cpp" = ["*.hpp"]
+"cuda.core._cpp" = ["*.h", "*.hpp"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }

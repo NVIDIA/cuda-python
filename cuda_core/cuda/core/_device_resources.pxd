@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+cimport cython
+
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle
 
@@ -15,6 +17,7 @@ cdef class SMResource:
         unsigned int _flags
         bint _is_usable
         object __weakref__
+        cython.pymutex _split_mutex
 
     @staticmethod
     cdef SMResource _from_dev_resource(cydriver.CUdevResource res, int device_id)
