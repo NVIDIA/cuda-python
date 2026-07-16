@@ -1,0 +1,5 @@
+# conjugateGradientMultiBlockCG Sample Requirements
+# Install with: pip install -r requirements.txt
+
+cuda-python>=13.0.0
+numpy>=1.24

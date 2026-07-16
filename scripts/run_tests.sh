@@ -7,7 +7,7 @@ set -euo pipefail
 
 # Simple, dependency-free orchestrator to run tests for all packages.
 # Usage:
-#   scripts/run_tests.sh [ -v|--verbose ] [ --install | --no-install ] [ --with-cython | --skip-cython ] [ --with-examples | --skip-examples ] [ --with-ptds ]
+#   scripts/run_tests.sh [ -v|--verbose ] [ --install | --no-install ] [ --with-cython | --skip-cython ] [ --with-ptds ]
 #   scripts/run_tests.sh [ flags ]                   # pathfinder -> bindings -> core
 #   scripts/run_tests.sh [ flags ] core              # only core
 #   scripts/run_tests.sh [ flags ] bindings          # only bindings
@@ -35,8 +35,6 @@ Options:
       --no-install    Skip install checks (assume environment is ready)
       --with-cython   Build and run cython tests (needs CUDA_HOME for core)
       --skip-cython   Skip cython tests (default)
-      --with-examples Run examples where applicable (e.g., cuda_bindings/examples)
-      --skip-examples Skip running examples (default)
       --with-ptds     Re-run cuda_bindings tests with PTDS (CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=1)
   -h, --help          Show this help and exit
 
@@ -51,7 +49,6 @@ USAGE
 # Parse optional flags
 VERBOSE=0
 RUN_CYTHON=0
-RUN_EXAMPLES=1
 RUN_PTDS=1
 INSTALL_MODE=auto  # auto|force|skip
 while [[ $# -gt 0 ]]; do
@@ -80,12 +77,9 @@ while [[ $# -gt 0 ]]; do
       RUN_CYTHON=0
       shift
       ;;
-    --with-examples)
-      RUN_EXAMPLES=1
-      shift
-      ;;
-    --skip-examples)
-      RUN_EXAMPLES=0
+    --with-examples|--skip-examples)
+      # No-op: examples were migrated to the top-level ./samples directory
+      # and are exercised by the cuda_core suite.
       shift
       ;;
     --with-ptds)
@@ -203,13 +197,8 @@ run_bindings() {
     local rc_ptds=$?
     add_result "bindings-ptds" "${rc_ptds}"
   fi
-  if [ ${RUN_EXAMPLES} -eq 1 ] && [ -d examples ]; then
-    # Bindings examples are pytest-based (contain their own pytest.ini)
-    echo "[examples] cuda_bindings/examples"
-    run_pytest examples/
-    local rc_ex=$?
-    add_result "bindings-examples" "${rc_ex}"
-  fi
+  # Note: cuda_bindings examples were migrated to the top-level ./samples
+  # directory and are exercised by the cuda_core suite.
   if [ ${RUN_CYTHON} -eq 1 ] && [ -d tests/cython ]; then
     if [ -x tests/cython/build_tests.sh ]; then
       echo "[build] cuda_bindings cython tests"
@@ -228,13 +217,9 @@ run_core() {
   run_pytest tests/
   local rc=$?
   add_result "core" "${rc}"
-  if [ ${RUN_EXAMPLES} -eq 1 ] && [ -d examples ] && [ -f examples/pytest.ini ]; then
-    # Only run examples under pytest if they are configured as tests
-    echo "[examples] cuda_core/examples"
-    run_pytest examples/
-    local rc_ex=$?
-    add_result "core-examples" "${rc_ex}"
-  fi
+  # Note: cuda_core examples were migrated to the top-level ./samples
+  # directory; the samples are exercised as parametrized tests inside
+  # cuda_core/tests/example_tests/test_samples.py above.
   if [ ${RUN_CYTHON} -eq 1 ] && [ -d tests/cython ]; then
     if [ -x tests/cython/build_tests.sh ]; then
       echo "[build] cuda_core cython tests"

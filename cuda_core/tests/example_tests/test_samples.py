@@ -28,13 +28,20 @@ from .run_samples import (
 )
 
 
-def _collect_samples() -> list[str]:
+def _collect_samples() -> dict[str, object]:
+    """Return an ordered mapping of ``sample_name -> entry_path``.
+
+    Sample names come from the leaf directory (e.g. ``clockNvrtc``); samples
+    may live either at the top of ``samples/`` or under a category
+    subdirectory such as ``samples/0_Introduction/``.
+    """
     if not DEFAULT_SAMPLES_DIR.is_dir():
-        return []
-    return [s.parent.name for s in discover_samples(DEFAULT_SAMPLES_DIR)]
+        return {}
+    return {entry.parent.name: entry for entry in discover_samples(DEFAULT_SAMPLES_DIR)}
 
 
-_SAMPLES = _collect_samples()
+_ENTRIES = _collect_samples()
+_SAMPLES = sorted(_ENTRIES)
 _CONFIG = load_config(DEFAULT_CONFIG)
 # Resolve GPU count once at collection time so we report the same skip reason
 # consistently across the parametrized test ids.
@@ -49,9 +56,9 @@ def test_sample(sample_name: str) -> None:
     if _GPU_COUNT == 0:
         pytest.skip("No CUDA GPU detected on the test runner")
 
-    entry = DEFAULT_SAMPLES_DIR / sample_name / f"{sample_name}.py"
-    if not entry.is_file():
-        pytest.fail(f"Sample entrypoint missing: {entry}")
+    entry = _ENTRIES.get(sample_name)
+    if entry is None or not entry.is_file():
+        pytest.fail(f"Sample entrypoint missing: {sample_name}")
 
     plan = build_run_plan(entry, _CONFIG, _GPU_COUNT)
     result = run_sample(plan)

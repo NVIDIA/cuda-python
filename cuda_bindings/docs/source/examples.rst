@@ -4,65 +4,68 @@
 Examples
 ========
 
-This page links to the ``cuda.bindings`` examples shipped in the
-:cuda-bindings-examples:`cuda-python repository </>`.
-Use it as a quick index when you want a runnable sample for a specific API area
-or CUDA feature.
+The canonical, runnable examples for ``cuda.bindings`` live under the top-level
+:samples:`samples/ directory </>` of the cuda-python repository, alongside
+the ``cuda.core`` samples. Each sample is a self-contained directory with
+its own ``README.md``, ``requirements.txt``, and PEP 723 dependency block,
+and every sample is exercised as part of the ``cuda.core`` test suite.
+
+The cuda-bindings-flavored samples preserve the same category structure the
+``cuda-samples`` repository uses, so they are grouped under
+``samples/0_Introduction/``, ``samples/2_Concepts_and_Techniques/``,
+``samples/3_CUDA_Features/``, ``samples/4_CUDA_Libraries/``, and
+``samples/extra/``.
 
 Introduction
 ------------
 
-- :cuda-bindings-example:`clock_nvrtc.py <0_Introduction/clock_nvrtc.py>`
-  uses NVRTC-compiled CUDA code and the device clock to time a reduction
-  kernel.
-- :cuda-bindings-example:`simple_cubemap_texture.py <0_Introduction/simple_cubemap_texture.py>`
-  demonstrates cubemap texture sampling and transformation.
-- :cuda-bindings-example:`system_wide_atomics.py <0_Introduction/system_wide_atomics.py>`
-  demonstrates system-wide atomic operations on managed memory.
-- :cuda-bindings-example:`vector_add_drv.py <0_Introduction/vector_add_drv.py>`
-  uses the CUDA Driver API and unified virtual addressing for vector addition.
-- :cuda-bindings-example:`vector_add_mmap.py <0_Introduction/vector_add_mmap.py>`
-  uses virtual memory management APIs such as ``cuMemCreate`` and
-  ``cuMemMap`` for vector addition.
-
-Peer-to-peer and zero-copy patterns (``simple_p2p.py`` and
-``simple_zero_copy.py``) are covered by the higher-level
-:samples:`samples/simpleP2P/ <simpleP2P/>` and
-:samples:`samples/simpleZeroCopy/ <simpleZeroCopy/>` sample directories,
-which use ``cuda.core``'s modern peer-access and pinned-memory APIs on top
-of ``cuda.bindings``.
+- :sample:`0_Introduction/clockNvrtc <0_Introduction/clockNvrtc/>`
+  uses NVRTC-compiled CUDA code and the device clock intrinsic to time a
+  reduction kernel; also demonstrates dynamic shared memory.
+- :sample:`0_Introduction/simpleCubemapTexture <0_Introduction/simpleCubemapTexture/>`
+  demonstrates cubemap texture sampling, ``cudaMemcpy3D``, and bindless
+  texture objects.
+- :sample:`0_Introduction/systemWideAtomics <0_Introduction/systemWideAtomics/>`
+  exercises every ``atomic*_system`` intrinsic on managed memory.
+- :sample:`0_Introduction/vectorAddDriverApi <0_Introduction/vectorAddDriverApi/>`
+  is the "hello world" of the raw driver API in Python.
+- :sample:`0_Introduction/vectorAddMmap <0_Introduction/vectorAddMmap/>`
+  uses the Virtual Memory Management API (``cuMemCreate``, ``cuMemMap``,
+  ``cuMemSetAccess``) to stripe an allocation across peer-capable devices.
 
 Concepts and techniques
 -----------------------
 
-- :cuda-bindings-example:`stream_ordered_allocation.py <2_Concepts_and_Techniques/stream_ordered_allocation.py>`
-  demonstrates ``cudaMallocAsync`` and ``cudaFreeAsync`` together with
+- :sample:`2_Concepts_and_Techniques/streamOrderedAllocation <2_Concepts_and_Techniques/streamOrderedAllocation/>`
+  demonstrates ``cudaMallocAsync`` / ``cudaFreeAsync`` together with
   memory-pool release thresholds.
 
 CUDA features
 -------------
 
-- :cuda-bindings-example:`global_to_shmem_async_copy.py <3_CUDA_Features/global_to_shmem_async_copy.py>`
-  compares asynchronous global-to-shared-memory copy strategies in matrix
-  multiplication kernels.
-- :cuda-bindings-example:`simple_cuda_graphs.py <3_CUDA_Features/simple_cuda_graphs.py>`
-  shows both manual CUDA graph construction and stream-capture-based replay.
+- :sample:`3_CUDA_Features/globalToShmemAsyncCopy <3_CUDA_Features/globalToShmemAsyncCopy/>`
+  compares asynchronous global-to-shared-memory copy strategies
+  (``cuda::memcpy_async`` + ``cuda::pipeline`` / ``cuda::barrier``) in
+  matrix-multiplication kernels.
+- :sample:`3_CUDA_Features/cudaGraphsManualNodes <3_CUDA_Features/cudaGraphsManualNodes/>`
+  shows both manual CUDA-graph construction (``cudaGraphAdd*Node``) and
+  stream-capture-based replay.
 
 Libraries and tools
 -------------------
 
-- :cuda-bindings-example:`conjugate_gradient_multi_block_cg.py <4_CUDA_Libraries/conjugate_gradient_multi_block_cg.py>`
+- :sample:`4_CUDA_Libraries/conjugateGradientMultiBlockCG <4_CUDA_Libraries/conjugateGradientMultiBlockCG/>`
   implements a conjugate-gradient solver with cooperative groups and
-  multi-block synchronization.
-- :cuda-bindings-example:`nvidia_smi.py <4_CUDA_Libraries/nvidia_smi.py>`
+  multi-block grid synchronization.
+- :sample:`4_CUDA_Libraries/nvidiaSmi <4_CUDA_Libraries/nvidiaSmi/>`
   uses NVML to implement a Python subset of ``nvidia-smi``.
 
 Advanced and interoperability
 -----------------------------
 
-- :cuda-bindings-example:`iso_fd_modelling.py <extra/iso_fd_modelling.py>`
-  runs isotropic finite-difference wave propagation across multiple GPUs with
-  peer-to-peer halo exchange.
-- :cuda-bindings-example:`jit_program.py <extra/jit_program.py>`
-  JIT-compiles a SAXPY kernel with NVRTC and launches it through the Driver
-  API.
+- :sample:`extra/isoFdModelling <extra/isoFdModelling/>`
+  runs isotropic finite-difference wave propagation across multiple GPUs
+  with peer-to-peer halo exchange.
+- :sample:`extra/jitProgram <extra/jitProgram/>`
+  JIT-compiles a SAXPY kernel with NVRTC and launches it through the
+  Driver API — the low-level companion to ``samples/jitLtoLinking/``.

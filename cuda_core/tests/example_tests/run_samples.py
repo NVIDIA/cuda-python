@@ -58,18 +58,29 @@ def _safe_print(*args: Any, **kwargs: Any) -> None:
 
 
 def discover_samples(samples_dir: Path) -> list[Path]:
-    """Return ``samples/<name>/<name>.py`` for every sample directory.
+    """Return every ``<name>/<name>.py`` sample entrypoint under ``samples_dir``.
 
-    Only one Python entrypoint per sample is recognised, matching the
-    cuda-samples convention. The Utilities directory is excluded.
+    Samples can either sit directly under ``samples_dir``
+    (``samples/<name>/<name>.py``) or in a category subdirectory such as
+    ``samples/0_Introduction/<name>/<name>.py``. The Utilities directory is
+    excluded at any level. Matching the cuda-samples convention, exactly one
+    Python entrypoint per sample directory is recognised (the one whose stem
+    matches the directory name).
     """
     samples: list[Path] = []
-    for sample_dir in sorted(samples_dir.iterdir()):
-        if not sample_dir.is_dir() or sample_dir.name == "Utilities":
-            continue
-        entry = sample_dir / f"{sample_dir.name}.py"
-        if entry.is_file():
-            samples.append(entry)
+
+    def walk(current: Path) -> None:
+        for child in sorted(current.iterdir()):
+            if not child.is_dir() or child.name == "Utilities":
+                continue
+            entry = child / f"{child.name}.py"
+            if entry.is_file():
+                samples.append(entry)
+            else:
+                # Not a sample dir; treat it as a category and recurse.
+                walk(child)
+
+    walk(samples_dir)
     return samples
 
 

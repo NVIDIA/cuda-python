@@ -1,0 +1,9 @@
+# isoFdModelling Sample Requirements
+# Install with: pip install -r requirements.txt
+
+cuda-python>=13.0.0
+numpy>=1.24
+# Optional: matplotlib enables the wavefield display at the end of the run.
+# The sample runs without it; the display is skipped when matplotlib is not
+# available.
+matplotlib
