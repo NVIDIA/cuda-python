@@ -47,7 +47,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
     as_intptr,
     as_py,
-    create_graph_handle_ref,
+    create_child_graph_handle,
     create_graph_node_handle,
     graph_node_get_graph,
     graph_set_slot,
@@ -604,7 +604,7 @@ cdef inline ConditionalNode _make_conditional_node(
     cdef GraphHandle h_branch
     for i in range(size):
         bg = params.conditional.phGraph_out[i]
-        h_branch = create_graph_handle_ref(bg, h_graph)
+        h_branch = create_child_graph_handle(bg, h_graph, new_node)
         branch_list.append(GraphDefinition._from_handle(h_branch))
     cdef tuple branches = tuple(branch_list)
 
@@ -1019,7 +1019,8 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
         HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(
             new_node, &embedded_graph))
 
-    cdef GraphHandle h_embedded = create_graph_handle_ref(embedded_graph, h_graph)
+    cdef GraphHandle h_embedded = create_child_graph_handle(
+        embedded_graph, h_graph, new_node)
 
     return _registered(ChildGraphNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), h_embedded))

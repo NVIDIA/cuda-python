@@ -15,7 +15,7 @@ from cuda.core._resource_handles cimport (
     GraphHandle,
     OpaqueHandle,
     as_cu, as_py,
-    create_graph_exec_handle, create_graph_handle, create_graph_handle_ref,
+    create_child_graph_handle, create_graph_exec_handle, create_graph_handle,
 )
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -893,9 +893,7 @@ cdef inline int GB_end_capture_if_needed(GraphBuilder gb, bint check_status) exc
 cdef inline GraphBuilder GB_init_forked(Stream stream, GraphHandle h_primary_graph):
     cdef GraphBuilder gb = GraphBuilder.__new__(GraphBuilder)
     # A FORKED builder captures into the primary's CUgraph. It holds the
-    # primary's GraphHandle so conditional bodies created on it (via
-    # GB_init_conditional -> create_graph_handle_ref(cond_graph, parent._h_graph))
-    # have a valid parent handle to pin.
+    # primary's GraphHandle so conditional bodies share its graph hierarchy.
     gb._h_graph = h_primary_graph
     gb._h_stream = stream._h_stream
     gb._kind = FORKED
@@ -904,9 +902,12 @@ cdef inline GraphBuilder GB_init_forked(Stream stream, GraphHandle h_primary_gra
     return gb
 
 
-cdef inline GraphBuilder GB_init_conditional(Stream stream, cydriver.CUgraph cond_graph, GraphBuilder parent):
+cdef inline GraphBuilder GB_init_conditional(
+        Stream stream, cydriver.CUgraph cond_graph,
+        GraphBuilder parent, cydriver.CUgraphNode owner_node):
     cdef GraphBuilder gb = GraphBuilder.__new__(GraphBuilder)
-    gb._h_graph = create_graph_handle_ref(cond_graph, parent._h_graph)
+    gb._h_graph = create_child_graph_handle(
+        cond_graph, parent._h_graph, owner_node)
     gb._h_stream = stream._h_stream
     gb._kind = CONDITIONAL_BODY
     gb._state = CAPTURE_NOT_STARTED
@@ -962,9 +963,9 @@ cdef inline tuple GB_cond_with_params(GraphBuilder gb, node_params):
     if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
         raise RuntimeError("Cannot add conditional node when not actively capturing")
 
-    deps_info_update = [
-        [handle_return(driver.cuGraphAddNode(graph, *deps_info, num_dependencies, node_params))]
-    ] + [None] * (len(deps_info) - 1)
+    new_node = handle_return(
+        driver.cuGraphAddNode(graph, *deps_info, num_dependencies, node_params))
+    deps_info_update = [[new_node]] + [None] * (len(deps_info) - 1)
 
     handle_return(
         driver.cuStreamUpdateCaptureDependencies(
@@ -980,6 +981,7 @@ cdef inline tuple GB_cond_with_params(GraphBuilder gb, node_params):
             gb._stream.device.create_stream(),
             <cydriver.CUgraph><intptr_t>int(node_params.conditional.phGraph_out[i]),
             gb,
+            <cydriver.CUgraphNode><intptr_t>int(new_node),
         )
         for i in range(node_params.conditional.size)
     )

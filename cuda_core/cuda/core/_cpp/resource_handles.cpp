@@ -1326,10 +1326,12 @@ void cleanup_graph_slot_table(void* table) noexcept {
     delete static_cast<GraphSlotTable*>(table);
 }
 
-const GraphBox* get_box(const GraphHandle& h) {
+GraphBox* get_box(const GraphHandle& h) noexcept {
     const CUgraph* p = h.get();
-    return reinterpret_cast<const GraphBox*>(
-        reinterpret_cast<const char*>(p) - offsetof(GraphBox, resource)
+    return const_cast<GraphBox*>(
+        reinterpret_cast<const GraphBox*>(
+            reinterpret_cast<const char*>(p) - offsetof(GraphBox, resource)
+        )
     );
 }
 
@@ -1384,20 +1386,57 @@ OpaqueHandle make_opaque_malloc(void* buf) {
 }
 
 GraphHandle create_graph_handle(CUgraph graph) {
-    auto box = std::shared_ptr<const GraphBox>(
-        new GraphBox{graph, {}},
-        [](const GraphBox* b) {
-            GILReleaseGuard gil;
-            p_cuGraphDestroy(b->resource);
-            delete b;
+    if (!graph) {
+        return {};
+    }
+
+    auto hierarchy = std::shared_ptr<GraphHierarchy>(
+        new GraphHierarchy{},
+        [](GraphHierarchy* hierarchy) {
+            for (const GraphBox& box : hierarchy->graphs) {
+                if (box.resource) {
+                    graph_registry.unregister_handle(box.resource);
+                }
+            }
+            if (hierarchy->root && hierarchy->root->resource) {
+                GILReleaseGuard gil;
+                p_cuGraphDestroy(hierarchy->root->resource);
+            }
+            delete hierarchy;
         }
     );
-    return GraphHandle(box, &box->resource);
+    GraphBox& root = hierarchy->graphs.emplace_back(
+        GraphBox{graph, hierarchy.get()});
+    hierarchy->root = &root;
+
+    GraphHandle h_graph(hierarchy, &root.resource);
+    graph_registry.register_handle(graph, h_graph);
+    return h_graph;
 }
 
-GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) {
-    auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent});
-    return GraphHandle(box, &box->resource);
+GraphHandle create_child_graph_handle(
+        CUgraph child_graph, const GraphHandle& h_parent,
+        CUgraphNode owner_node) {
+    if (!child_graph || !h_parent || !owner_node) {
+        return {};
+    }
+    if (GraphHandle h_graph = graph_registry.lookup(child_graph)) {
+        return h_graph;
+    }
+
+    GraphBox* parent = get_box(h_parent);
+    GraphHierarchy* hierarchy = parent->hierarchy;
+    GraphBox& child = hierarchy->graphs.emplace_back(
+        GraphBox{child_graph, hierarchy, parent, owner_node});
+
+    GraphHandle h_child(h_parent, &child.resource);
+    try {
+        graph_registry.register_handle(child_graph, h_child);
+    } catch (...) {
+        hierarchy->graphs.pop_back();
+        throw;
+    }
+    return h_child;
 }
 
 CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,

@@ -149,8 +149,6 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Graph handles
     GraphHandle create_graph_handle "cuda_core::create_graph_handle" (
         cydriver.CUgraph graph) except+ nogil
-    GraphHandle create_graph_handle_ref "cuda_core::create_graph_handle_ref" (
-        cydriver.CUgraph graph) except+ nogil
     GraphHandle create_child_graph_handle "cuda_core::create_child_graph_handle" (
         cydriver.CUgraph child_graph, const GraphHandle& h_parent,
         cydriver.CUgraphNode owner_node) except+ nogil

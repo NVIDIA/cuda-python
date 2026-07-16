@@ -465,9 +465,6 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
 // Create the owning handle for a root graph and its hierarchy.
 GraphHandle create_graph_handle(CUgraph graph);
 
-// Return the canonical handle for graph, or create a non-owning reference.
-GraphHandle create_graph_handle_ref(CUgraph graph);
-
 // Create the canonical handle for a graph whose CUDA lifetime is owned by a
 // node in h_parent.
 GraphHandle create_child_graph_handle(

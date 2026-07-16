@@ -227,7 +227,6 @@ cdef LibraryHandle get_kernel_library(const KernelHandle& h) noexcept nogil
 
 # Graph handles
 cdef GraphHandle create_graph_handle(cydriver.CUgraph graph) except+ nogil
-cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph) except+ nogil
 cdef GraphHandle create_child_graph_handle(
     cydriver.CUgraph child_graph, const GraphHandle& h_parent,
     cydriver.CUgraphNode owner_node) except+ nogil
