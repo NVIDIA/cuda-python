@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <list>
 #include <map>
 #include <mutex>
 #include <stdexcept>
@@ -1281,15 +1282,30 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept {
 
 namespace {
 
-// Slot table layout (internal). Each graph maps CUgraphNode -> a fixed-size
-// array of type-erased owners. The width is the most any single node needs: a
-// kernel node holds its kernel and its packed arguments; a host node holds its
-// callback and the userData. The table is heap-allocated and retained on the
-// graph as a user object, so the driver frees it -- and every owner in it --
-// when the graph is destroyed.
-constexpr std::size_t SLOTS_PER_NODE = 2;
-using NodeSlots = std::array<OpaqueHandle, SLOTS_PER_NODE>;
-using GraphSlotTable = std::map<CUgraphNode, NodeSlots>;
+struct NodeAttachment;
+using GraphAttachmentMap = std::map<CUgraphNode, NodeAttachment*>;
+
+struct GraphHierarchy;
+
+// Canonical state for one CUgraph. Its GraphHandle aliases resource, whose
+// address remains stable for the lifetime of the hierarchy.
+struct GraphBox {
+    CUgraph resource = nullptr;
+    GraphHierarchy* hierarchy = nullptr;  // Non-owning back-reference.
+    GraphBox* parent = nullptr;           // Null for the root graph.
+    CUgraphNode owner_node = nullptr;     // Node in parent that owns this graph.
+    GraphAttachmentMap attachments;       // Non-owning attachment index.
+};
+
+// Shared owner of stable GraphBox storage. Every GraphHandle aliases the same
+// control block, so any graph handle keeps the entire hierarchy alive.
+struct GraphHierarchy {
+    std::list<GraphBox> graphs;  // Includes invalidated boxes kept for alias safety.
+    GraphBox* root = nullptr;
+};
+
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
+static HandleRegistry<CUgraph, GraphHandle> graph_registry;
 
 // shared_ptr deleters for the payloads that need one. Typed handles convert to
 // OpaqueHandle by assignment and reuse their own control block, so they need no
@@ -1309,12 +1325,6 @@ void free_deleter(const void* p) noexcept {
 void cleanup_graph_slot_table(void* table) noexcept {
     delete static_cast<GraphSlotTable*>(table);
 }
-
-struct GraphBox {
-    CUgraph resource;
-    GraphHandle h_parent;                  // Keeps parent alive for child/branch graphs
-    mutable GraphSlotTable* slot_table = nullptr;  // Lazily created; owned by the graph's user object
-};
 
 const GraphBox* get_box(const GraphHandle& h) {
     const CUgraph* p = h.get();

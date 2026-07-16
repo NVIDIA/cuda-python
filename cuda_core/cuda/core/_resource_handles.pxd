@@ -227,14 +227,20 @@ cdef LibraryHandle get_kernel_library(const KernelHandle& h) noexcept nogil
 
 # Graph handles
 cdef GraphHandle create_graph_handle(cydriver.CUgraph graph) except+ nogil
-cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
+cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph) except+ nogil
+cdef GraphHandle create_child_graph_handle(
+    cydriver.CUgraph child_graph, const GraphHandle& h_parent,
+    cydriver.CUgraphNode owner_node) except+ nogil
 
-# Graph slot attachments
+# Graph node attachments
 cdef OpaqueHandle make_opaque_py(object obj) except+
 cdef OpaqueHandle make_opaque_malloc(void* buf) except+
-cdef cydriver.CUresult graph_set_slot(
+cdef cydriver.CUresult graph_get_node_attachment(
     const GraphHandle& h_graph, cydriver.CUgraphNode node,
-    unsigned int slot, OpaqueHandle owner) except+
+    OpaqueHandle* owner0, OpaqueHandle* owner1) except+
+cdef cydriver.CUresult graph_set_node_attachment(
+    const GraphHandle& h_graph, cydriver.CUgraphNode node,
+    OpaqueHandle owner0, OpaqueHandle owner1) except+
 
 # Graph exec handles
 cdef GraphExecHandle create_graph_exec_handle(cydriver.CUgraphExec graph_exec) except+ nogil

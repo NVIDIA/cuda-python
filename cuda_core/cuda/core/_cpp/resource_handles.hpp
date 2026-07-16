@@ -462,26 +462,22 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
 // Graph handle functions
 // ============================================================================
 
-// Wrap an externally-created CUgraph with RAII cleanup.
-// When the last reference is released, cuGraphDestroy is called automatically.
-// The caller must have already created the graph via cuGraphCreate.
+// Create the owning handle for a root graph and its hierarchy.
 GraphHandle create_graph_handle(CUgraph graph);
 
-// Create a non-owning graph handle that keeps h_parent alive.
-// Use for graphs owned by a child/conditional node in a parent graph.
-// The child graph will NOT be destroyed when this handle is released,
-// but h_parent will be prevented from destruction while this handle exists.
-GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
+// Return the canonical handle for graph, or create a non-owning reference.
+GraphHandle create_graph_handle_ref(CUgraph graph);
+
+// Create the canonical handle for a graph whose CUDA lifetime is owned by a
+// node in h_parent.
+GraphHandle create_child_graph_handle(
+    CUgraph child_graph, const GraphHandle& h_parent, CUgraphNode owner_node);
 
 // ============================================================================
-// Graph slot attachments
+// Graph node attachments
 //
-// A graph carries a side table that keeps resources used by its nodes (kernel
-// arguments, host callbacks, events, ...) alive for as long as the graph can
-// execute. The table is created on first use and retained on the CUgraph as a
-// user object, so the driver releases it -- and everything attached through it
-// -- when the graph is destroyed. The table layout is an internal detail;
-// callers use the abstract API below.
+// Each resource-bearing node has one immutable attachment retained on its
+// CUgraph as a CUDA user object.
 // ============================================================================
 
 // Type-erased shared owner of an attached resource. Typed handles such as
@@ -497,14 +493,20 @@ OpaqueHandle make_opaque_py(PyObject* obj);
 // Build an OpaqueHandle from a malloc'd buffer: std::free on release.
 OpaqueHandle make_opaque_malloc(void* buf);
 
-// Attach owner to one of node's fixed slots on h_graph, replacing whatever was
-// there. The graph's slot table is created on first use. A null owner is a
-// no-op (returns CUDA_SUCCESS without creating the table), so callers need not
-// guard optional owners. Returns CUDA_SUCCESS, or an error if slot is out of
-// range or the graph cannot hold a table (e.g. the driver lacks user-object
-// support).
-CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
-                        unsigned int slot, OpaqueHandle owner);
+// Copy both owners from node's current attachment. A missing attachment
+// produces two empty handles.
+CUresult graph_get_node_attachment(
+    const GraphHandle& h_graph,
+    CUgraphNode node,
+    OpaqueHandle* owner0,
+    OpaqueHandle* owner1);
+
+// Replace node's complete attachment. Two empty owners clear it.
+CUresult graph_set_node_attachment(
+    const GraphHandle& h_graph,
+    CUgraphNode node,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1);
 
 // ============================================================================
 // Graph exec handle functions
