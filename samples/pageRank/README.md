@@ -42,7 +42,7 @@ Demonstrates GPU-accelerated PageRank computation for graph analysis using RAPID
 ### From cuda.core:
 
 - `Device(0)` - Create device, `device.set_current()`, `device.create_stream()`
-- `EventOptions(enable_timing=True)` - GPU timing via `stream.record()`
+- `EventOptions(timing_enabled=True)` - GPU timing via `stream.record()`
 - `cp.cuda.Stream.from_external(stream).use()` - Make cuDF/cuGraph use cuda.core stream
 
 ### From cuGraph:

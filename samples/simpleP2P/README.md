@@ -37,7 +37,7 @@ This sample demonstrates peer-to-peer (P2P) memory access between multiple GPUs 
   - Example: `mr.peer_accessible_by = [1]` grants device 1 access
   - Example: `mr.peer_accessible_by = []` revokes all access
 - `PinnedMemoryResource()` – Allocate pinned (page-locked) host memory
-- `EventOptions(enable_timing=True)` – Create options for CUDA events with timing enabled
+- `EventOptions(timing_enabled=True)` – Create options for CUDA events with timing enabled
 - `stream.record(options=event_options)` – Record a CUDA event on a stream
 - `event.elapsed_time(start_event)` – Get elapsed time in milliseconds between two events
 - `stream.wait_event(event)` – Make a stream wait for an event to complete

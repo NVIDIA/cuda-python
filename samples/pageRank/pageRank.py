@@ -265,7 +265,7 @@ def run_pagerank_benchmark(
     G = cugraph.Graph(directed=True)
     G.from_cudf_edgelist(gdf, source="src", destination="dst", store_transposed=True)
 
-    event_opts = EventOptions(enable_timing=True)
+    event_opts = EventOptions(timing_enabled=True)
 
     try:
         # Warmup

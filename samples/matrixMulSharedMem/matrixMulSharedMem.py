@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-python>=13.0.0", "cuda-core==0.7.0", "cupy-cuda13x>=14.0.0", "numpy>=2.3.2", "nvmath-python[cu13]==0.9.0"]
+# dependencies = ["cuda-python>=13.0.0", "cuda-core>=1.0.0", "cupy-cuda13x>=14.0.0", "numpy>=1.24", "nvmath-python[cu13]>=1.0.0"]
 # ///
 
 """
@@ -137,12 +137,7 @@ def run_matmul_benchmark(
     # Setup
     print(f"\nMatrix: A({m}x{k}) × B({k}x{n}) = C({m}x{n})")
     total_ops = 2 * m * n * k
-    # NOTE: this sample is pinned to cuda-core==0.7.0 (see requirements.txt)
-    # because nvmath-python 0.9.0 still uses cuda-core's pre-1.0 API name
-    # `enable_timing`. Once nvmath ships a release compatible with cuda-core
-    # 1.0, bump the pins in requirements.txt and rename this kwarg to
-    # `timing_enabled` to match the rest of the samples.
-    event_opts = EventOptions(enable_timing=True)
+    event_opts = EventOptions(timing_enabled=True)
 
     # Allocate matrices
     rng = cp.random.default_rng(42)

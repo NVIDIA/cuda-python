@@ -44,8 +44,8 @@ Thread block size significantly impacts performance due to:
 
 ```python
 # Use CUDA events for accurate GPU timing (not CPU wall-clock)
-start_event = device.create_event(options=EventOptions(enable_timing=True))
-end_event = device.create_event(options=EventOptions(enable_timing=True))
+start_event = device.create_event(options=EventOptions(timing_enabled=True))
+end_event = device.create_event(options=EventOptions(timing_enabled=True))
 
 stream.record(start_event)
 for _ in range(n_iterations):
