@@ -182,23 +182,23 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
     return _locate_bitcode_lib(name)
 
 
-def locate_bitcode_lib_by_name(name: str, filename: str) -> LocatedBitcodeLib:
+def locate_bitcode_lib_by_name(libname: str, filename: str) -> LocatedBitcodeLib:
     """Locate an exact bitcode filename using a supported library's search paths.
 
     This lets a library define its own filename convention, including any
     architecture or other attributes encoded in the filename.
 
     Args:
-        name: Supported bitcode library whose configured directories to search.
+        libname: Supported bitcode library whose configured directories to search.
         filename: Exact file name to locate. Directory components are not allowed.
 
     Raises:
         TypeError: If ``filename`` is not a string.
-        ValueError: If ``name`` is unsupported or ``filename`` is not a file name.
+        ValueError: If ``libname`` is unsupported or ``filename`` is not a file name.
         BitcodeLibNotFoundError: If ``filename`` cannot be found.
     """
     _validate_filename(filename)
-    return _locate_bitcode_lib(name, filename=filename)
+    return _locate_bitcode_lib(libname, filename=filename)
 
 
 @functools.cache
@@ -213,19 +213,19 @@ def find_bitcode_lib(name: str) -> str:
 
 
 @functools.cache
-def find_bitcode_lib_by_name(name: str, filename: str) -> str:
+def find_bitcode_lib_by_name(libname: str, filename: str) -> str:
     """Find an exact bitcode filename using a supported library's search paths.
 
     This lets a library define its own filename convention, including any
     architecture or other attributes encoded in the filename.
 
     Args:
-        name: Supported bitcode library whose configured directories to search.
+        libname: Supported bitcode library whose configured directories to search.
         filename: Exact file name to find. Directory components are not allowed.
 
     Raises:
         TypeError: If ``filename`` is not a string.
-        ValueError: If ``name`` is unsupported or ``filename`` is not a file name.
+        ValueError: If ``libname`` is unsupported or ``filename`` is not a file name.
         BitcodeLibNotFoundError: If ``filename`` cannot be found.
     """
-    return locate_bitcode_lib_by_name(name, filename).abs_path
+    return locate_bitcode_lib_by_name(libname, filename).abs_path

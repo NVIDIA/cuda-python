@@ -269,11 +269,11 @@ def test_bitcode_lib_by_name_search_order(monkeypatch, tmp_path):
     monkeypatch.setenv("CUDA_HOME", str(cuda_home))
     monkeypatch.delenv("CUDA_PATH", raising=False)
 
-    located_lib = locate_bitcode_lib_by_name(libname, filename)
+    located_lib = locate_bitcode_lib_by_name(libname=libname, filename=filename)
     assert located_lib.abs_path == site_packages_path
     assert located_lib.filename == filename
     assert located_lib.found_via == "site-packages"
-    assert find_bitcode_lib_by_name(libname, filename) == site_packages_path
+    assert find_bitcode_lib_by_name(libname=libname, filename=filename) == site_packages_path
     os.remove(site_packages_path)
     find_bitcode_lib_by_name.cache_clear()
 
