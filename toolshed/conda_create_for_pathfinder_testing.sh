@@ -27,6 +27,7 @@ set -u
 cpkgs=(
     "cusparselt-dev"
     "cutensor"
+    "cutensornet"
     "cutlass"
     "libcublasmp-dev"
     "libcudss-dev"
