@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import ntpath
 import os
 from dataclasses import dataclass
 from typing import NoReturn, TypedDict
@@ -74,13 +75,21 @@ def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str]
         attachments.append(f'  Directory does not exist: "{dir_path}"')
 
 
+def _validate_filename(filename: str) -> str:
+    if not isinstance(filename, str):
+        raise TypeError(f"filename must be a string, got {type(filename).__name__}")
+    if filename in ("", ".", "..") or "\0" in filename or ntpath.basename(filename) != filename:
+        raise ValueError(f"filename must be a file name without a directory: {filename!r}")
+    return filename
+
+
 class _FindBitcodeLib:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, *, filename: str | None = None) -> None:
         if name not in _SUPPORTED_BITCODE_LIBS_INFO:  # Updated reference
             raise ValueError(f"Unknown bitcode library: '{name}'. Supported: {', '.join(SUPPORTED_BITCODE_LIBS)}")
         self.name: str = name
         self.config: _BitcodeLibInfo = _SUPPORTED_BITCODE_LIBS_INFO[name]  # Updated reference
-        self.filename: str = self.config["filename"]
+        self.filename: str = self.config["filename"] if filename is None else _validate_filename(filename)
         self.rel_path: str = self.config["rel_path"]
         self.site_packages_dirs: tuple[str, ...] = self.config["site_packages_dirs"]
         self.error_messages: list[str] = []
@@ -130,14 +139,8 @@ class _FindBitcodeLib:
         raise BitcodeLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
-def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
-    """Locate a bitcode library by name.
-
-    Raises:
-        ValueError: If ``name`` is not a supported bitcode library.
-        BitcodeLibNotFoundError: If the bitcode library cannot be found.
-    """
-    finder = _FindBitcodeLib(name)
+def _locate_bitcode_lib(name: str, *, filename: str | None = None) -> LocatedBitcodeLib:
+    finder = _FindBitcodeLib(name, filename=filename)
 
     abs_path = finder.try_site_packages()
     if abs_path is not None:
@@ -169,6 +172,35 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
     finder.raise_not_found_error()
 
 
+def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
+    """Locate a bitcode library by name.
+
+    Raises:
+        ValueError: If ``name`` is not a supported bitcode library.
+        BitcodeLibNotFoundError: If the bitcode library cannot be found.
+    """
+    return _locate_bitcode_lib(name)
+
+
+def locate_bitcode_lib_by_name(libname: str, filename: str) -> LocatedBitcodeLib:
+    """Locate an exact bitcode filename using a supported library's search paths.
+
+    This lets a library define its own filename convention, including any
+    architecture or other attributes encoded in the filename.
+
+    Args:
+        libname: Supported bitcode library whose configured directories to search.
+        filename: Exact file name to locate. Directory components are not allowed.
+
+    Raises:
+        TypeError: If ``filename`` is not a string.
+        ValueError: If ``libname`` is unsupported or ``filename`` is not a file name.
+        BitcodeLibNotFoundError: If ``filename`` cannot be found.
+    """
+    _validate_filename(filename)
+    return _locate_bitcode_lib(libname, filename=filename)
+
+
 @functools.cache
 def find_bitcode_lib(name: str) -> str:
     """Find the absolute path to a bitcode library.
@@ -178,3 +210,22 @@ def find_bitcode_lib(name: str) -> str:
         BitcodeLibNotFoundError: If the bitcode library cannot be found.
     """
     return locate_bitcode_lib(name).abs_path
+
+
+@functools.cache
+def find_bitcode_lib_by_name(libname: str, filename: str) -> str:
+    """Find an exact bitcode filename using a supported library's search paths.
+
+    This lets a library define its own filename convention, including any
+    architecture or other attributes encoded in the filename.
+
+    Args:
+        libname: Supported bitcode library whose configured directories to search.
+        filename: Exact file name to find. Directory components are not allowed.
+
+    Raises:
+        TypeError: If ``filename`` is not a string.
+        ValueError: If ``libname`` is unsupported or ``filename`` is not a file name.
+        BitcodeLibNotFoundError: If ``filename`` cannot be found.
+    """
+    return locate_bitcode_lib_by_name(libname, filename).abs_path
