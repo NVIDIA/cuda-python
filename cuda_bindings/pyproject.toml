@@ -54,6 +54,7 @@ test = [
     "pytest-repeat==0.9.4",
     "pytest-randomly==4.1.0",
     "pyglet==2.1.14",
+    {path = "../cuda_python_test_helpers"},
 ]
 
 [project.urls]

@@ -15,6 +15,9 @@ cuda-version = ["12.*", "13.3.*"]
 [feature.test.dependencies]
 cuda-bindings = { path = "." }
 pytest = ">=6.2.4"
+
+[feature.test.pypi-dependencies]
+cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
 pytest-benchmark = ">=3.4.1"
 pytest-randomly = "*"
 pytest-repeat = "*"
