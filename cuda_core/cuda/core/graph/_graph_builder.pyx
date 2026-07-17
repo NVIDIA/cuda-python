@@ -16,6 +16,7 @@ from cuda.core._resource_handles cimport (
     OpaqueHandle,
     as_cu, as_py,
     create_child_graph_handle, create_graph_exec_handle, create_graph_handle,
+    graph_clone_attachments,
 )
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -783,15 +784,31 @@ cdef class GraphBuilder:
         # See https://github.com/NVIDIA/cuda-python/pull/879#issuecomment-3211054159
         # for rationale
         deps_info_trimmed = deps_info_out[:num_dependencies_out]
-        deps_info_update = [
-            [
-                handle_return(
-                    driver.cuGraphAddChildGraphNode(
-                        graph_out, *deps_info_trimmed, num_dependencies_out, as_py(child._h_graph)
-                    )
-                )
-            ]
-        ] + [None] * (len(deps_info_out) - 1)
+        new_node = handle_return(
+            driver.cuGraphAddChildGraphNode(
+                graph_out, *deps_info_trimmed,
+                num_dependencies_out, as_py(child._h_graph)
+            )
+        )
+        cdef cydriver.CUgraphNode c_new_node = (
+            <cydriver.CUgraphNode><intptr_t>int(new_node)
+        )
+        cdef cydriver.CUgraph embedded_graph = NULL
+        cdef GraphHandle h_embedded
+        try:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(
+                    c_new_node, &embedded_graph))
+            h_embedded = create_child_graph_handle(
+                embedded_graph, self._h_graph, c_new_node)
+            HANDLE_RETURN(graph_clone_attachments(
+                h_embedded, child._h_graph))
+        except:
+            with nogil:
+                cydriver.cuGraphDestroyNode(c_new_node)  # best effort
+            raise
+
+        deps_info_update = [[new_node]] + [None] * (len(deps_info_out) - 1)
         handle_return(
             driver.cuStreamUpdateCaptureDependencies(
                 stream_handle,

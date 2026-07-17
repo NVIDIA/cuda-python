@@ -49,6 +49,7 @@ from cuda.core._resource_handles cimport (
     as_py,
     create_child_graph_handle,
     create_graph_node_handle,
+    graph_clone_attachments,
     graph_node_get_graph,
     graph_set_node_attachment,
     invalidate_graph_node,
@@ -1016,12 +1017,19 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
             &new_node, as_cu(h_graph), deps, num_deps, as_cu(child_def._h_graph)))
 
     cdef cydriver.CUgraph embedded_graph = NULL
-    with nogil:
-        HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(
-            new_node, &embedded_graph))
-
-    cdef GraphHandle h_embedded = create_child_graph_handle(
-        embedded_graph, h_graph, new_node)
+    cdef GraphHandle h_embedded
+    try:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(
+                new_node, &embedded_graph))
+        h_embedded = create_child_graph_handle(
+            embedded_graph, h_graph, new_node)
+        HANDLE_RETURN(graph_clone_attachments(
+            h_embedded, child_def._h_graph))
+    except:
+        with nogil:
+            cydriver.cuGraphDestroyNode(new_node)  # best effort
+        raise
 
     return _registered(ChildGraphNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), h_embedded))

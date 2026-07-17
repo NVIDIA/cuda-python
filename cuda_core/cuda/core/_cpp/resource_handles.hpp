@@ -113,6 +113,8 @@ extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
 extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
 extern decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject;
 extern decltype(&cuGraphReleaseUserObject) p_cuGraphReleaseUserObject;
+extern decltype(&cuGraphNodeFindInClone) p_cuGraphNodeFindInClone;
+extern decltype(&cuGraphChildGraphNodeGetGraph) p_cuGraphChildGraphNodeGetGraph;
 
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
@@ -505,6 +507,11 @@ CUresult graph_set_node_attachment(
     CUgraphNode node,
     OpaqueHandle owner0,
     OpaqueHandle owner1);
+
+// Copy attachment metadata from a source graph hierarchy into its CUDA clone.
+CUresult graph_clone_attachments(
+    const GraphHandle& h_clone,
+    const GraphHandle& h_source);
 
 // ============================================================================
 // Graph exec handle functions

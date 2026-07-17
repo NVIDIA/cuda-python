@@ -240,6 +240,8 @@ cdef cydriver.CUresult graph_get_node_attachment(
 cdef cydriver.CUresult graph_set_node_attachment(
     const GraphHandle& h_graph, cydriver.CUgraphNode node,
     OpaqueHandle owner0, OpaqueHandle owner1) except+
+cdef cydriver.CUresult graph_clone_attachments(
+    const GraphHandle& h_clone, const GraphHandle& h_source) except+
 
 # Graph exec handles
 cdef GraphExecHandle create_graph_exec_handle(cydriver.CUgraphExec graph_exec) except+ nogil

@@ -79,6 +79,8 @@ decltype(&cuUserObjectCreate) p_cuUserObjectCreate = nullptr;
 decltype(&cuUserObjectRelease) p_cuUserObjectRelease = nullptr;
 decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject = nullptr;
 decltype(&cuGraphReleaseUserObject) p_cuGraphReleaseUserObject = nullptr;
+decltype(&cuGraphNodeFindInClone) p_cuGraphNodeFindInClone = nullptr;
+decltype(&cuGraphChildGraphNodeGetGraph) p_cuGraphChildGraphNodeGetGraph = nullptr;
 
 // Linker
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
@@ -1323,6 +1325,89 @@ GraphBox* get_box(const GraphHandle& h) noexcept {
     );
 }
 
+// Rekey a staged attachment map from source nodes to their cloned nodes.
+// The caller must release the GIL before calling this function.
+CUresult rekey_attachments(
+        GraphAttachmentMap& attachments, CUgraph cloned_graph) {
+    if (!cloned_graph) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (!p_cuGraphNodeFindInClone) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    GraphAttachmentMap remapped;
+    while (!attachments.empty()) {
+        auto attachment = attachments.extract(attachments.begin());
+        CUgraphNode cloned_node = nullptr;
+        CUresult status = p_cuGraphNodeFindInClone(
+            &cloned_node, attachment.key(), cloned_graph);
+        if (status != CUDA_SUCCESS) {
+            return status;
+        }
+        attachment.key() = cloned_node;
+        if (!remapped.insert(std::move(attachment)).inserted) {
+            return CUDA_ERROR_INVALID_VALUE;
+        }
+    }
+    attachments.swap(remapped);
+    return CUDA_SUCCESS;
+}
+
+// Recursively copy and rekey attachments for a cloned graph hierarchy.
+// The caller must release the GIL before calling this function.
+CUresult copy_attachments(
+        const GraphBox& source,
+        GraphBox& clone,
+        GraphAttachmentMap& attachments,
+        std::list<GraphBox>& subgraphs) {
+    if (!p_cuGraphNodeFindInClone || !p_cuGraphChildGraphNodeGetGraph) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    attachments = source.attachments;
+    CUresult status = rekey_attachments(attachments, clone.resource);
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+
+    for (const GraphBox& source_child : source.hierarchy->graphs) {
+        if (source_child.parent != &source || !source_child.resource) {
+            continue;
+        }
+
+        CUgraphNode cloned_owner = nullptr;
+        status = p_cuGraphNodeFindInClone(
+            &cloned_owner, source_child.owner_node, clone.resource);
+        if (status != CUDA_SUCCESS) {
+            return status;
+        }
+
+        CUgraph cloned_graph = nullptr;
+        status = p_cuGraphChildGraphNodeGetGraph(
+            cloned_owner, &cloned_graph);
+        if (status != CUDA_SUCCESS) {
+            return status;
+        }
+
+        GraphBox& cloned_child = subgraphs.emplace_back(GraphBox{
+            cloned_graph,
+            clone.hierarchy,
+            &clone,
+            cloned_owner,
+        });
+        status = copy_attachments(
+            source_child,
+            cloned_child,
+            cloned_child.attachments,
+            subgraphs);
+        if (status != CUDA_SUCCESS) {
+            return status;
+        }
+    }
+    return CUDA_SUCCESS;
+}
+
 }  // namespace
 
 OpaqueHandle make_opaque_py(PyObject* obj) {
@@ -1482,6 +1567,47 @@ CUresult graph_set_node_attachment(
     GILReleaseGuard gil;
     return p_cuGraphReleaseUserObject(
         box->resource, previous->object, 1);
+}
+
+CUresult graph_clone_attachments(
+        const GraphHandle& h_clone,
+        const GraphHandle& h_source) {
+    if (!h_clone || !h_source) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphBox* clone = get_box(h_clone);
+    GraphBox* source = get_box(h_source);
+    if (!clone->resource || !source->resource ||
+        !clone->attachments.empty()) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphAttachmentMap attachments = source->attachments;
+    std::list<GraphBox> subgraphs;
+    CUresult status;
+    {
+        GILReleaseGuard gil;
+        status = copy_attachments(
+            *source, *clone, attachments, subgraphs);
+    }
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+
+    clone->attachments.swap(attachments);
+    if (subgraphs.empty()) {
+        return CUDA_SUCCESS;
+    }
+
+    auto first = subgraphs.begin();
+    clone->hierarchy->graphs.splice(
+        clone->hierarchy->graphs.end(), subgraphs);
+    for (auto it = first; it != clone->hierarchy->graphs.end(); ++it) {
+        GraphHandle h_graph(h_clone, &it->resource);
+        graph_registry.register_handle(it->resource, h_graph);
+    }
+    return CUDA_SUCCESS;
 }
 
 // ============================================================================

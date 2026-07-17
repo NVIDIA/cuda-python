@@ -162,6 +162,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUresult graph_set_node_attachment "cuda_core::graph_set_node_attachment" (
         const GraphHandle& h_graph, cydriver.CUgraphNode node,
         OpaqueHandle owner0, OpaqueHandle owner1) except+
+    cydriver.CUresult graph_clone_attachments "cuda_core::graph_clone_attachments" (
+        const GraphHandle& h_clone, const GraphHandle& h_source) except+
 
     # Graph exec handles
     GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (
@@ -320,6 +322,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuUserObjectRelease "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectRelease)"
     void* p_cuGraphRetainUserObject "reinterpret_cast<void*&>(cuda_core::p_cuGraphRetainUserObject)"
     void* p_cuGraphReleaseUserObject "reinterpret_cast<void*&>(cuda_core::p_cuGraphReleaseUserObject)"
+    void* p_cuGraphNodeFindInClone "reinterpret_cast<void*&>(cuda_core::p_cuGraphNodeFindInClone)"
+    void* p_cuGraphChildGraphNodeGetGraph "reinterpret_cast<void*&>(cuda_core::p_cuGraphChildGraphNodeGetGraph)"
 
     # Linker
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
@@ -382,6 +386,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuGraphDestroy, p_cuGraphExecDestroy
     global p_cuUserObjectCreate, p_cuUserObjectRelease
     global p_cuGraphRetainUserObject, p_cuGraphReleaseUserObject
+    global p_cuGraphNodeFindInClone, p_cuGraphChildGraphNodeGetGraph
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
     global p_cuDevSmResourceSplit
@@ -446,6 +451,8 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuUserObjectRelease = _get_driver_fn("cuUserObjectRelease")
     p_cuGraphRetainUserObject = _get_driver_fn("cuGraphRetainUserObject")
     p_cuGraphReleaseUserObject = _get_driver_fn("cuGraphReleaseUserObject")
+    p_cuGraphNodeFindInClone = _get_driver_fn("cuGraphNodeFindInClone")
+    p_cuGraphChildGraphNodeGetGraph = _get_driver_fn("cuGraphChildGraphNodeGetGraph")
 
     # Linker
     p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")
