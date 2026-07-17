@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6a92dc0345783c19c92a86ab536639223cf0274bbb87877f7e4ac43b2e949053
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=93bda6a9ebbc6155b50ef5165996f97e813dbc12de6f956e80fc613534c406c3
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -11,6 +11,11 @@
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 cimport cpython.memoryview as _cyb_cpython_memoryview
+from cpython.object cimport PyObject as _cyb_PyObject
+from cpython.ref cimport (
+    Py_XDECREF as _cyb_Py_XDECREF,
+    Py_XINCREF as _cyb_Py_XINCREF,
+)
 from cython cimport view as _cyb_view
 from libc.stdlib cimport (
     calloc as _cyb_calloc,
@@ -96,22 +101,24 @@ cdef class _py_anon_pod1:
     """
     cdef:
         cuda_bindings_cufile__anon_pod1 *_ptr
-        object _owner
+        _cyb_PyObject *_owner
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
-        self._owner = None
+        self._owner = NULL
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_cufile__anon_pod1 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owner == NULL and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
+        _cyb_Py_XDECREF(self._owner)
+        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
@@ -142,13 +149,14 @@ cdef class _py_anon_pod1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            if self._owner is None and self._ptr != NULL:
+            if self._owner == NULL and self._ptr != NULL:
                 _cyb_free(self._ptr)
+            _cyb_Py_XDECREF(self._owner)
             self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof((<CUfileDescr_t*>NULL).handle))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileDescr_t*>NULL).handle))
-            self._owner = None
+            self._owner = NULL
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -206,10 +214,11 @@ cdef class _py_anon_pod1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileDescr_t*>NULL).handle))
-            obj._owner = None
+            obj._owner = NULL
         else:
             obj._ptr = <cuda_bindings_cufile__anon_pod1 *>ptr
-            obj._owner = owner
+            obj._owner = <_cyb_PyObject *>owner
+            _cyb_Py_XINCREF(obj._owner)
         obj._readonly = readonly
         return obj
 
@@ -238,22 +247,24 @@ cdef class _py_anon_pod3:
     """
     cdef:
         cuda_bindings_cufile__anon_pod3 *_ptr
-        object _owner
+        _cyb_PyObject *_owner
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
-        self._owner = None
+        self._owner = NULL
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_cufile__anon_pod3 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owner == NULL and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
+        _cyb_Py_XDECREF(self._owner)
+        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
@@ -284,13 +295,14 @@ cdef class _py_anon_pod3:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            if self._owner is None and self._ptr != NULL:
+            if self._owner == NULL and self._ptr != NULL:
                 _cyb_free(self._ptr)
+            _cyb_Py_XDECREF(self._owner)
             self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u.batch))
-            self._owner = None
+            self._owner = NULL
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -370,10 +382,11 @@ cdef class _py_anon_pod3:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch))
-            obj._owner = None
+            obj._owner = NULL
         else:
             obj._ptr = <cuda_bindings_cufile__anon_pod3 *>ptr
-            obj._owner = owner
+            obj._owner = <_cyb_PyObject *>owner
+            _cyb_Py_XINCREF(obj._owner)
         obj._readonly = readonly
         return obj
 
@@ -565,22 +578,24 @@ cdef class OpCounter:
     """
     cdef:
         CUfileOpCounter_t *_ptr
-        object _owner
+        _cyb_PyObject *_owner
         bint _readonly
 
     def __init__(self):
         self._ptr = <CUfileOpCounter_t *>_cyb_calloc(1, sizeof(CUfileOpCounter_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating OpCounter")
-        self._owner = None
+        self._owner = NULL
         self._readonly = False
 
     def __dealloc__(self):
         cdef CUfileOpCounter_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owner == NULL and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
+        _cyb_Py_XDECREF(self._owner)
+        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.OpCounter object at {hex(id(self))}>"
@@ -611,13 +626,14 @@ cdef class OpCounter:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            if self._owner is None and self._ptr != NULL:
+            if self._owner == NULL and self._ptr != NULL:
                 _cyb_free(self._ptr)
+            _cyb_Py_XDECREF(self._owner)
             self._ptr = <CUfileOpCounter_t *>_cyb_malloc(sizeof(CUfileOpCounter_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating OpCounter")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileOpCounter_t))
-            self._owner = None
+            self._owner = NULL
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -675,10 +691,11 @@ cdef class OpCounter:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating OpCounter")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileOpCounter_t))
-            obj._owner = None
+            obj._owner = NULL
         else:
             obj._ptr = <CUfileOpCounter_t *>ptr
-            obj._owner = owner
+            obj._owner = <_cyb_PyObject *>owner
+            _cyb_Py_XINCREF(obj._owner)
         obj._readonly = readonly
         return obj
 
@@ -1348,22 +1365,24 @@ cdef class _py_anon_pod2:
     """
     cdef:
         cuda_bindings_cufile__anon_pod2 *_ptr
-        object _owner
+        _cyb_PyObject *_owner
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
-        self._owner = None
+        self._owner = NULL
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_cufile__anon_pod2 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owner == NULL and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
+        _cyb_Py_XDECREF(self._owner)
+        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
@@ -1394,13 +1413,14 @@ cdef class _py_anon_pod2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            if self._owner is None and self._ptr != NULL:
+            if self._owner == NULL and self._ptr != NULL:
                 _cyb_free(self._ptr)
+            _cyb_Py_XDECREF(self._owner)
             self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u))
-            self._owner = None
+            self._owner = NULL
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -1448,10 +1468,11 @@ cdef class _py_anon_pod2:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u))
-            obj._owner = None
+            obj._owner = NULL
         else:
             obj._ptr = <cuda_bindings_cufile__anon_pod2 *>ptr
-            obj._owner = owner
+            obj._owner = <_cyb_PyObject *>owner
+            _cyb_Py_XINCREF(obj._owner)
         obj._readonly = readonly
         return obj
 
@@ -1519,22 +1540,24 @@ cdef class StatsLevel1:
     """
     cdef:
         CUfileStatsLevel1_t *_ptr
-        object _owner
+        _cyb_PyObject *_owner
         bint _readonly
 
     def __init__(self):
         self._ptr = <CUfileStatsLevel1_t *>_cyb_calloc(1, sizeof(CUfileStatsLevel1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating StatsLevel1")
-        self._owner = None
+        self._owner = NULL
         self._readonly = False
 
     def __dealloc__(self):
         cdef CUfileStatsLevel1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owner == NULL and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
+        _cyb_Py_XDECREF(self._owner)
+        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.StatsLevel1 object at {hex(id(self))}>"
@@ -1565,13 +1588,14 @@ cdef class StatsLevel1:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            if self._owner is None and self._ptr != NULL:
+            if self._owner == NULL and self._ptr != NULL:
                 _cyb_free(self._ptr)
+            _cyb_Py_XDECREF(self._owner)
             self._ptr = <CUfileStatsLevel1_t *>_cyb_malloc(sizeof(CUfileStatsLevel1_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel1")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel1_t))
-            self._owner = None
+            self._owner = NULL
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -2101,10 +2125,11 @@ cdef class StatsLevel1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel1_t))
-            obj._owner = None
+            obj._owner = NULL
         else:
             obj._ptr = <CUfileStatsLevel1_t *>ptr
-            obj._owner = owner
+            obj._owner = <_cyb_PyObject *>owner
+            _cyb_Py_XINCREF(obj._owner)
         obj._readonly = readonly
         return obj
 
@@ -2319,22 +2344,24 @@ cdef class StatsLevel2:
     """
     cdef:
         CUfileStatsLevel2_t *_ptr
-        object _owner
+        _cyb_PyObject *_owner
         bint _readonly
 
     def __init__(self):
         self._ptr = <CUfileStatsLevel2_t *>_cyb_calloc(1, sizeof(CUfileStatsLevel2_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating StatsLevel2")
-        self._owner = None
+        self._owner = NULL
         self._readonly = False
 
     def __dealloc__(self):
         cdef CUfileStatsLevel2_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owner == NULL and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
+        _cyb_Py_XDECREF(self._owner)
+        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.StatsLevel2 object at {hex(id(self))}>"
@@ -2365,13 +2392,14 @@ cdef class StatsLevel2:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            if self._owner is None and self._ptr != NULL:
+            if self._owner == NULL and self._ptr != NULL:
                 _cyb_free(self._ptr)
+            _cyb_Py_XDECREF(self._owner)
             self._ptr = <CUfileStatsLevel2_t *>_cyb_malloc(sizeof(CUfileStatsLevel2_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel2")
             _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel2_t))
-            self._owner = None
+            self._owner = NULL
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -2453,10 +2481,11 @@ cdef class StatsLevel2:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating StatsLevel2")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel2_t))
-            obj._owner = None
+            obj._owner = NULL
         else:
             obj._ptr = <CUfileStatsLevel2_t *>ptr
-            obj._owner = owner
+            obj._owner = <_cyb_PyObject *>owner
+            _cyb_Py_XINCREF(obj._owner)
         obj._readonly = readonly
         return obj
 
