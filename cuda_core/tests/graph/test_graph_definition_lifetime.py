@@ -443,7 +443,8 @@ def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda, tmp_path):
             def __call__(self):
                 pass
 
-        Device()
+        device = Device()
+        device.set_current()
         graph = GraphDefinition()
         graph.callback(Callback())
         """
