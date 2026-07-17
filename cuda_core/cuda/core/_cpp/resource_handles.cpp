@@ -367,6 +367,13 @@ public:
         return {};
     }
 
+    MapType drain() noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        MapType extracted;
+        extracted.swap(map_);
+        return extracted;
+    }
+
 private:
     std::mutex mutex_;
     MapType map_;
@@ -1281,13 +1288,28 @@ struct GraphBox {
     GraphBox* parent = nullptr;           // Null for the root graph.
     CUgraphNode owner_node = nullptr;     // Node in parent that owns this graph.
     GraphAttachmentMap attachments;       // Non-owning attachment index.
+    HandleRegistry<CUgraphNode, GraphNodeHandle> node_handles;
+
+    GraphBox(
+            CUgraph resource_,
+            GraphHierarchy* hierarchy_,
+            GraphBox* parent_ = nullptr,
+            CUgraphNode owner_node_ = nullptr) noexcept
+        : resource(resource_),
+          hierarchy(hierarchy_),
+          parent(parent_),
+          owner_node(owner_node_) {}
 };
 
 // Shared owner of stable GraphBox storage. Every GraphHandle aliases the same
 // control block, so any graph handle keeps the entire hierarchy alive.
 struct GraphHierarchy {
-    std::list<GraphBox> graphs;  // Includes invalidated boxes kept for alias safety.
-    GraphBox* root = nullptr;
+    std::list<GraphBox> graphs;  // Parent boxes precede their descendants.
+    std::list<GraphBox> graveyard;  // Retired child graph tombstones.
+
+    GraphBox* root() noexcept {
+        return graphs.empty() ? nullptr : &graphs.front();
+    }
 };
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
@@ -1390,12 +1412,11 @@ CUresult copy_attachments(
             return status;
         }
 
-        GraphBox& cloned_child = subgraphs.emplace_back(GraphBox{
+        GraphBox& cloned_child = subgraphs.emplace_back(
             cloned_graph,
             clone.hierarchy,
             &clone,
-            cloned_owner,
-        });
+            cloned_owner);
         status = copy_attachments(
             source_child,
             cloned_child,
@@ -1432,16 +1453,16 @@ GraphHandle create_graph_handle(CUgraph graph) {
                     graph_registry.unregister_handle(box.resource);
                 }
             }
-            if (hierarchy->root && hierarchy->root->resource) {
+            GraphBox* root = hierarchy->root();
+            if (root && root->resource) {
                 GILReleaseGuard gil;
-                p_cuGraphDestroy(hierarchy->root->resource);
+                p_cuGraphDestroy(root->resource);
             }
             delete hierarchy;
         }
     );
     GraphBox& root = hierarchy->graphs.emplace_back(
-        GraphBox{graph, hierarchy.get()});
-    hierarchy->root = &root;
+        graph, hierarchy.get());
 
     GraphHandle h_graph(hierarchy, &root.resource);
     graph_registry.register_handle(graph, h_graph);
@@ -1461,7 +1482,7 @@ GraphHandle create_child_graph_handle(
     GraphBox* parent = get_box(h_parent);
     GraphHierarchy* hierarchy = parent->hierarchy;
     GraphBox& child = hierarchy->graphs.emplace_back(
-        GraphBox{child_graph, hierarchy, parent, owner_node});
+        child_graph, hierarchy, parent, owner_node);
 
     GraphHandle h_child(h_parent, &child.resource);
     try {
@@ -1646,21 +1667,63 @@ static const GraphNodeBox* get_box(const GraphNodeHandle& h) {
     );
 }
 
-// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static HandleRegistry<CUgraphNode, GraphNodeHandle> graph_node_registry;
+// graphs is ordered parent-before-child. Nulling a selected box marks its
+// later descendants, whose parent pointers remain valid after list splicing.
+// This permits one allocation-free sweep of the hierarchy.
+void invalidate_child_graph_state(
+        const GraphHandle& h_parent,
+        CUgraphNode owner_node) noexcept {
+    if (!h_parent || !owner_node) {
+        return;
+    }
+
+    GraphBox* parent = get_box(h_parent);
+    if (!parent->resource) {
+        return;
+    }
+    GraphHierarchy& hierarchy = *parent->hierarchy;
+    for (auto it = hierarchy.graphs.begin();
+         it != hierarchy.graphs.end();) {
+        auto graph = it++;
+        bool is_owned_root = graph->parent == parent &&
+                             graph->owner_node == owner_node;
+        bool is_descendant = graph->parent &&
+                             !graph->parent->resource;
+        if (!is_owned_root && !is_descendant) {
+            continue;
+        }
+
+        // Empty node_handles and invalidate each one.
+        for (auto& entry : graph->node_handles.drain()) {
+            if (GraphNodeHandle h_node = entry.second.lock()) {
+                get_box(h_node)->resource = nullptr;
+            }
+        }
+        graph_registry.unregister_handle(graph->resource);
+        graph->resource = nullptr;
+        graph->attachments.clear();
+        hierarchy.graveyard.splice(
+            hierarchy.graveyard.end(), hierarchy.graphs, graph);
+    }
+}
 
 GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
-    if (node) {
-        if (auto h = graph_node_registry.lookup(node)) {
-            return h;
-        }
+    if (!node) {
+        auto box = std::make_shared<const GraphNodeBox>(
+            GraphNodeBox{nullptr, h_graph});
+        return GraphNodeHandle(box, &box->resource);
     }
-    auto box = std::make_shared<const GraphNodeBox>(GraphNodeBox{node, h_graph});
-    GraphNodeHandle h(box, &box->resource);
-    if (node) {
-        graph_node_registry.register_handle(node, h);
+
+    GraphBox* graph = get_box(h_graph);
+    if (GraphNodeHandle h_node = graph->node_handles.lookup(node)) {
+        return h_node;
     }
-    return h;
+
+    auto box = std::make_shared<const GraphNodeBox>(
+        GraphNodeBox{node, h_graph});
+    GraphNodeHandle h_node(box, &box->resource);
+    graph->node_handles.register_handle(node, h_node);
+    return h_node;
 }
 
 GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
@@ -1668,13 +1731,18 @@ GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
 }
 
 void invalidate_graph_node(const GraphNodeHandle& h) noexcept {
-    if (h) {
-        CUgraphNode node = get_box(h)->resource;
-        if (node) {
-            graph_node_registry.unregister_handle(node);
-        }
-        get_box(h)->resource = nullptr;
+    if (!h) {
+        return;
     }
+
+    const GraphNodeBox* node_box = get_box(h);
+    CUgraphNode node = node_box->resource;
+    if (!node) {
+        return;
+    }
+    GraphBox* graph = get_box(node_box->h_graph);
+    graph->node_handles.unregister_handle(node);
+    node_box->resource = nullptr;
 }
 
 // ============================================================================

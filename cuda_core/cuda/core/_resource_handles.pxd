@@ -242,6 +242,8 @@ cdef cydriver.CUresult graph_set_node_attachment(
     OpaqueHandle owner0, OpaqueHandle owner1) except+
 cdef cydriver.CUresult graph_clone_attachments(
     const GraphHandle& h_clone, const GraphHandle& h_source) except+
+cdef void invalidate_child_graph_state(
+    const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
 # Graph exec handles
 cdef GraphExecHandle create_graph_exec_handle(cydriver.CUgraphExec graph_exec) except+ nogil

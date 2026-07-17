@@ -20,9 +20,9 @@ expires.
 ## Level 1: Driver Handle -> Resource Handle (C++)
 
 `HandleRegistry` in `resource_handles.cpp` maps a raw CUDA handle
-(e.g., `CUevent`, `CUkernel`, `CUgraph`, `CUgraphNode`) to a `weak_ptr`
-for its owning resource handle. When a `_ref` constructor receives a raw handle, it
-checks the registry first. If found, it returns the existing
+(e.g., `CUevent`, `CUkernel`, `CUgraph`) to a `weak_ptr`
+for its owning resource handle. When a `_ref` constructor receives a raw
+handle, it checks the registry first. If found, it returns the existing
 `shared_ptr`, preserving the Box and its metadata (e.g., `EventBox`
 carries timing/IPC flags, `KernelBox` carries the library dependency).
 
@@ -30,7 +30,13 @@ Without this level, a round-tripped handle would produce a new Box
 with default metadata, losing information that was set at creation.
 
 Instances: `context_registry`, `stream_registry`, `event_registry`,
-`kernel_registry`, `graph_registry`, `graph_node_registry`.
+`kernel_registry`, `graph_registry`.
+
+Graph node identity is scoped to its owning graph. Each `GraphBox` therefore
+stores its own node-handle `HandleRegistry` instead of using a process-wide
+`HandleRegistry`. This is to simplify invalidating handles when a child graph
+is destroyed. The registry's mutex protects this internal cache when
+concurrent reads reconstruct nodes.
 
 ## Level 2: Resource Handle -> Python Object (Cython)
 

@@ -164,6 +164,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         OpaqueHandle owner0, OpaqueHandle owner1) except+
     cydriver.CUresult graph_clone_attachments "cuda_core::graph_clone_attachments" (
         const GraphHandle& h_clone, const GraphHandle& h_source) except+
+    void invalidate_child_graph_state "cuda_core::invalidate_child_graph_state" (
+        const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
     # Graph exec handles
     GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (

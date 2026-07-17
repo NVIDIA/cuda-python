@@ -52,6 +52,7 @@ from cuda.core._resource_handles cimport (
     graph_clone_attachments,
     graph_node_get_graph,
     graph_set_node_attachment,
+    invalidate_child_graph_state,
     invalidate_graph_node,
     make_opaque_py,
 )
@@ -161,13 +162,21 @@ cdef class GraphNode:
         already-destroyed node (no-op).
         """
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        cdef GraphHandle h_graph
+        cdef cydriver.CUresult cleanup_status
         if node == NULL:
             return
 
-        _node_registry.pop(<uintptr_t>self._h_node.get(), None)
-        invalidate_graph_node(self._h_node)
+        h_graph = graph_node_get_graph(self._h_node)
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
+
+        cleanup_status = graph_set_node_attachment(
+            h_graph, node, OpaqueHandle(), OpaqueHandle())
+        invalidate_child_graph_state(h_graph, node)
+        _node_registry.pop(<uintptr_t>self._h_node.get(), None)
+        invalidate_graph_node(self._h_node)
+        HANDLE_RETURN(cleanup_status)
 
     @property
     def pred(self) -> AdjacencySetProxy:
@@ -1007,6 +1016,7 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef cydriver.CUresult rollback_status
 
     if pred_node != NULL:
         deps = &pred_node
@@ -1028,7 +1038,9 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
             h_embedded, child_def._h_graph))
     except:
         with nogil:
-            cydriver.cuGraphDestroyNode(new_node)  # best effort
+            rollback_status = cydriver.cuGraphDestroyNode(new_node)
+        if rollback_status == cydriver.CUDA_SUCCESS:
+            invalidate_child_graph_state(h_graph, new_node)
         raise
 
     return _registered(ChildGraphNode._create_with_params(

@@ -17,6 +17,7 @@ from cuda.core._resource_handles cimport (
     as_cu, as_py,
     create_child_graph_handle, create_graph_exec_handle, create_graph_handle,
     graph_clone_attachments,
+    invalidate_child_graph_state,
 )
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -794,6 +795,7 @@ cdef class GraphBuilder:
             <cydriver.CUgraphNode><intptr_t>int(new_node)
         )
         cdef cydriver.CUgraph embedded_graph = NULL
+        cdef cydriver.CUresult rollback_status
         cdef GraphHandle h_embedded
         try:
             with nogil:
@@ -805,7 +807,10 @@ cdef class GraphBuilder:
                 h_embedded, child._h_graph))
         except:
             with nogil:
-                cydriver.cuGraphDestroyNode(c_new_node)  # best effort
+                rollback_status = cydriver.cuGraphDestroyNode(c_new_node)
+            if rollback_status == cydriver.CUDA_SUCCESS:
+                invalidate_child_graph_state(
+                    self._h_graph, c_new_node)
             raise
 
         deps_info_update = [[new_node]] + [None] * (len(deps_info_out) - 1)

@@ -513,6 +513,11 @@ CUresult graph_clone_attachments(
     const GraphHandle& h_clone,
     const GraphHandle& h_source);
 
+// Invalidate cuda-core state for child graphs CUDA destroyed with owner_node.
+void invalidate_child_graph_state(
+    const GraphHandle& h_parent,
+    CUgraphNode owner_node) noexcept;
+
 // ============================================================================
 // Graph exec handle functions
 // ============================================================================
