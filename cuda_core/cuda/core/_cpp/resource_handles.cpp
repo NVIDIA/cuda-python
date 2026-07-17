@@ -241,8 +241,14 @@ private:
 
     // Coalesce all queued work behind at most one CPython pending call.
     void schedule() noexcept {
-        if (!accepting_.load(std::memory_order_acquire) ||
-            !head_.load(std::memory_order_acquire)) {
+        if (!accepting_.load(std::memory_order_acquire)) {
+            return;
+        }
+        if (!Py_IsInitialized() || py_is_finalizing()) {
+            stop();
+            return;
+        }
+        if (!head_.load(std::memory_order_acquire)) {
             return;
         }
         bool expected = false;
@@ -292,13 +298,6 @@ private:
 // Published once at module initialization and intentionally never freed.
 std::atomic<DeferredCleanupQueue*> deferred_cleanup_queue{nullptr};
 
-void stop_deferred_cleanup() {
-    if (DeferredCleanupQueue* queue =
-            deferred_cleanup_queue.load(std::memory_order_acquire)) {
-        queue->stop();
-    }
-}
-
 void ensure_deferred_cleanup_ready() {
     DeferredCleanupQueue* queue =
         deferred_cleanup_queue.load(std::memory_order_acquire);
@@ -327,8 +326,15 @@ void initialize_deferred_cleanup() {
     }
     auto* queue = new DeferredCleanupQueue();
     deferred_cleanup_queue.store(queue, std::memory_order_release);
-    if (Py_AtExit(stop_deferred_cleanup) != 0) {
-        queue->stop();
+}
+
+void retry_deferred_cleanup() noexcept {
+    if (!Py_IsInitialized() || py_is_finalizing()) {
+        return;
+    }
+    if (DeferredCleanupQueue* queue =
+            deferred_cleanup_queue.load(std::memory_order_acquire)) {
+        queue->retry_schedule();
     }
 }
 
@@ -365,6 +371,24 @@ public:
             map_.erase(it);
         }
         return {};
+    }
+
+    template<typename Factory>
+    Handle get_or_create(const Key& key, Factory&& create) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto it = map_.find(key);
+        if (it != map_.end()) {
+            if (Handle h = it->second.lock()) {
+                return h;
+            }
+            map_.erase(it);
+        }
+
+        Handle h = create();
+        if (h) {
+            map_[key] = h;
+        }
+        return h;
     }
 
     MapType drain() noexcept {
@@ -1280,10 +1304,14 @@ using GraphAttachmentMap = std::map<CUgraphNode, NodeAttachment*>;
 
 struct GraphHierarchy;
 
+// Standard-layout alias target for GraphHandle.
+struct GraphBoxBase {
+    CUgraph resource = nullptr;
+};
+
 // Canonical state for one CUgraph. Its GraphHandle aliases resource, whose
 // address remains stable for the lifetime of the hierarchy.
-struct GraphBox {
-    CUgraph resource = nullptr;
+struct GraphBox : GraphBoxBase {
     GraphHierarchy* hierarchy = nullptr;  // Non-owning back-reference.
     GraphBox* parent = nullptr;           // Null for the root graph.
     CUgraphNode owner_node = nullptr;     // Node in parent that owns this graph.
@@ -1295,7 +1323,7 @@ struct GraphBox {
             GraphHierarchy* hierarchy_,
             GraphBox* parent_ = nullptr,
             CUgraphNode owner_node_ = nullptr) noexcept
-        : resource(resource_),
+        : GraphBoxBase{resource_},
           hierarchy(hierarchy_),
           parent(parent_),
           owner_node(owner_node_) {}
@@ -1339,12 +1367,9 @@ void free_deleter(const void* p) noexcept {
 }
 
 GraphBox* get_box(const GraphHandle& h) noexcept {
-    const CUgraph* p = h.get();
+    auto* value = reinterpret_cast<const GraphBoxBase*>(h.get());
     return const_cast<GraphBox*>(
-        reinterpret_cast<const GraphBox*>(
-            reinterpret_cast<const char*>(p) - offsetof(GraphBox, resource)
-        )
-    );
+        static_cast<const GraphBox*>(value));
 }
 
 // Rekey a staged attachment map from source nodes to their cloned nodes.
@@ -1458,6 +1483,7 @@ GraphHandle create_graph_handle(CUgraph graph) {
                 GILReleaseGuard gil;
                 p_cuGraphDestroy(root->resource);
             }
+            retry_deferred_cleanup();
             delete hierarchy;
         }
     );
@@ -1653,8 +1679,11 @@ GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec) {
     auto box = std::shared_ptr<const GraphExecBox>(
         new GraphExecBox{graph_exec},
         [](const GraphExecBox* b) {
-            GILReleaseGuard gil;
-            p_cuGraphExecDestroy(b->resource);
+            {
+                GILReleaseGuard gil;
+                p_cuGraphExecDestroy(b->resource);
+            }
+            retry_deferred_cleanup();
             delete b;
         }
     );
@@ -1723,15 +1752,13 @@ GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_
     }
 
     GraphBox* graph = get_box(h_graph);
-    if (GraphNodeHandle h_node = graph->node_handles.lookup(node)) {
-        return h_node;
-    }
-
-    auto box = std::make_shared<const GraphNodeBox>(
-        GraphNodeBox{node, h_graph});
-    GraphNodeHandle h_node(box, &box->resource);
-    graph->node_handles.register_handle(node, h_node);
-    return h_node;
+    return graph->node_handles.get_or_create(
+        node,
+        [node, &h_graph] {
+            auto box = std::make_shared<const GraphNodeBox>(
+                GraphNodeBox{node, h_graph});
+            return GraphNodeHandle(box, &box->resource);
+        });
 }
 
 GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {

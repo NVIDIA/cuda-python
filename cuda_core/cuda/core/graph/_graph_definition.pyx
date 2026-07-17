@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from libc.stddef cimport size_t
+from libc.stdint cimport uintptr_t
 
 from libcpp.vector cimport vector
 
@@ -133,10 +134,13 @@ cdef class GraphDefinition:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GraphDefinition):
             return NotImplemented
-        return as_intptr(self._h_graph) == as_intptr((<GraphDefinition>other)._h_graph)
+        return (
+            <uintptr_t>self._h_graph.get()
+            == <uintptr_t>(<GraphDefinition>other)._h_graph.get()
+        )
 
     def __hash__(self) -> int:
-        return hash(as_intptr(self._h_graph))
+        return hash(<uintptr_t>self._h_graph.get())
 
     @property
     def _entry(self) -> GraphNode:

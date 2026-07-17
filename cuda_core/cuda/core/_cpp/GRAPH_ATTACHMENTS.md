@@ -221,9 +221,10 @@ destructor callback only adds the attachment to the process-lifetime
 One pending call drains all queued attachments from Python's main thread. The
 queue coalesces work because CPython's pending-call queue is bounded. If
 scheduling fails, attachments stay queued and a later enqueue or safe cuda-core
-entry retries. During Python finalization, scheduling stops and unreclaimable
-attachments are intentionally leaked rather than destroyed in an unsafe
-context.
+entry retries. Graph and executable-graph destruction and explicit close paths
+provide additional retry points. During Python finalization, scheduling stops
+and unreclaimable attachments are intentionally leaked rather than destroyed
+in an unsafe context.
 
 ## Invariants
 

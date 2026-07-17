@@ -34,12 +34,16 @@ responsibilities, we achieve:
 Resource handles provide **referentially transparent** wrappers around CUDA resources:
 
 - **No rebinding**: A handle always refers to the same resource.
-- **No invalidation**: If a handle exists, its resource is valid.
+- **Ownership-backed validity**: A handle keeps independently owned resources
+  alive.
 - **Structural dependencies**: If resource A depends on resource B, A's handle
   embeds B's handle, automatically extending B's lifetime.
 
-This eliminates global lifetime analysis. Correctness is enforced structurally—if you
-have a handle, you have a valid resource.
+Borrowed graph and node handles are an unavoidable exception. CUDA owns child
+graphs and their nodes, and explicitly removing or replacing an owner node
+destroys those resources even if cuda-core wrappers remain. cuda-core
+invalidates the affected handles while keeping their storage stable; see
+[Graph Node Attachments](GRAPH_ATTACHMENTS.md).
 
 ## Handle Types
 

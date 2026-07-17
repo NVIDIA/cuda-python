@@ -19,6 +19,7 @@ from cuda.core._resource_handles cimport (
     graph_clone_attachments,
     graph_set_attachment,
     invalidate_child_graph_state,
+    retry_deferred_cleanup,
 )
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -285,6 +286,7 @@ cdef class GraphBuilder:
         GB_end_capture_if_needed(self, True)
         self._h_graph.reset()
         self._h_stream.reset()
+        retry_deferred_cleanup()
         self._state = CLOSED
         self._stream = None
 
@@ -1057,6 +1059,7 @@ cdef class Graph:
     def close(self) -> None:
         """Destroy the graph."""
         self._h_graph_exec.reset()
+        retry_deferred_cleanup()
 
     @property
     def handle(self) -> driver.CUgraphExec:

@@ -62,6 +62,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void py_object_user_object_destroy "cuda_core::py_object_user_object_destroy" (
         void* py_object) noexcept nogil
     void initialize_deferred_cleanup "cuda_core::initialize_deferred_cleanup" () except+
+    void retry_deferred_cleanup "cuda_core::retry_deferred_cleanup" () noexcept
     ContextHandle get_stream_context "cuda_core::get_stream_context" (
         const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil

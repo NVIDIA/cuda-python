@@ -262,6 +262,7 @@ void py_object_user_object_destroy(void* py_object) noexcept;
 // Initialize the process-lifetime CUDA user-object cleanup queue. Called once
 // from module initialization while Python is fully initialized.
 void initialize_deferred_cleanup();
+void retry_deferred_cleanup() noexcept;
 
 // Return the context dependency associated with a stream handle, if any.
 ContextHandle get_stream_context(const StreamHandle& h) noexcept;

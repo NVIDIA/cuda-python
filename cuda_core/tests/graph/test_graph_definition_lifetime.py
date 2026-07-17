@@ -250,6 +250,28 @@ def test_child_graph_survives_parent_deletion(init_cuda):
     assert len(child_ref.nodes()) == 2
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroyed_child_graph_preserves_python_identity(init_cuda):
+    """Tombstoning does not change graph equality or hashing."""
+    parent = GraphDefinition()
+    first_owner = parent.embed(GraphDefinition())
+    second_owner = parent.embed(GraphDefinition())
+    first = first_owner.child_graph
+    second = second_owner.child_graph
+    first_hash = hash(first)
+    second_hash = hash(second)
+    values = {first: "first", second: "second"}
+
+    first_owner.destroy()
+    second_owner.destroy()
+
+    assert hash(first) == first_hash
+    assert hash(second) == second_hash
+    assert first != second
+    assert values[first] == "first"
+    assert values[second] == "second"
+
+
 def test_nested_child_graph_lifetime(init_cuda):
     """Grandchild graph keeps entire ancestor chain alive."""
     mod = compile_common_kernels()
@@ -624,15 +646,12 @@ def test_pending_call_queue_saturation_preserves_cleanup(init_cuda):
     worker.join()
     assert queue_was_full == [True]
 
-    # Preparing another attachment retries the first payload if its scheduling
-    # attempt observed the full queue. CUDA may also invoke its destructor
-    # later, after pending-call queue space is available.
-    second_callback = _ThreadRecordingCallback(finalized_threads)
-    second_graph = GraphDefinition()
-    second_graph.callback(second_callback)
-    del second_callback, second_graph
+    # A later safe cuda-core close retries after the main thread has had an
+    # opportunity to drain the foreign pending calls.
+    retry_builder = Device().create_graph_builder()
+    retry_builder.close()
 
-    _wait_until(lambda: len(finalized_threads) == 2)
+    _wait_until(lambda: len(finalized_threads) == 1)
     assert set(finalized_threads) == {main_thread}
 
 
@@ -717,16 +736,16 @@ def test_callback_survives_source_node_deletion(init_cuda):
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_inflight_launch_retains_attachments_until_completion(init_cuda):
-    """Exec destruction cannot release attachments still used by a launch."""
+    """An in-flight launch retains the final allocation reference."""
+    from cuda.core._utils._weak_handles import weak_handle
+
     _skip_if_no_mempool()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(8, stream=dev.default_stream)
     dev.default_stream.sync()
     dptr = int(buf.handle)
-
-    owner = _Sentinel()
-    owner_weak = weakref.ref(owner)
+    allocation_weak = weak_handle(buf)
     callback_started = threading.Event()
     release_callback = threading.Event()
 
@@ -735,13 +754,14 @@ def test_inflight_launch_retains_attachments_until_completion(init_cuda):
         assert release_callback.wait(timeout=_FINALIZE_TIMEOUT)
 
     graph_def = GraphDefinition()
-    copy_node = graph_def.memcpy(dptr, dptr + 4, 4, dst_owner=owner, src_owner=owner)
+    copy_node = graph_def.memcpy(dptr, dptr + 4, 4, dst_owner=buf, src_owner=buf)
     callback_node = copy_node.callback(blocking_callback)
     graph = graph_def.instantiate()
 
-    del owner, blocking_callback, callback_node, copy_node, graph_def
+    buf.close()
+    del buf, blocking_callback, callback_node, copy_node, graph_def
     gc.collect()
-    assert owner_weak() is not None
+    assert allocation_weak
 
     stream = dev.create_stream()
     graph.launch(stream)
@@ -762,7 +782,7 @@ def test_inflight_launch_retains_attachments_until_completion(init_cuda):
     assert close_started.wait(timeout=_FINALIZE_TIMEOUT)
     try:
         time.sleep(0.05)
-        assert owner_weak() is not None
+        assert allocation_weak
     finally:
         release_callback.set()
         stream.sync()
@@ -771,8 +791,7 @@ def test_inflight_launch_retains_attachments_until_completion(init_cuda):
     assert not close_thread.is_alive()
     assert close_errors == []
     del close_graph, close_thread, graph
-    _wait_until(lambda: owner_weak() is None)
-    buf.close()
+    _wait_until(lambda: not allocation_weak)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
