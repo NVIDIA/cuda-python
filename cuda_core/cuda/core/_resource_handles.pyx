@@ -156,10 +156,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Graph node attachments
     OpaqueHandle make_opaque_py "cuda_core::make_opaque_py" (object obj) except+
     OpaqueHandle make_opaque_malloc "cuda_core::make_opaque_malloc" (void* buf) except+
-    cydriver.CUresult graph_get_node_attachment "cuda_core::graph_get_node_attachment" (
+    cydriver.CUresult graph_get_attachment "cuda_core::graph_get_attachment" (
         const GraphHandle& h_graph, cydriver.CUgraphNode node,
         OpaqueHandle* owner0, OpaqueHandle* owner1) except+
-    cydriver.CUresult graph_set_node_attachment "cuda_core::graph_set_node_attachment" (
+    cydriver.CUresult graph_set_attachment "cuda_core::graph_set_attachment" (
         const GraphHandle& h_graph, cydriver.CUgraphNode node,
         OpaqueHandle owner0, OpaqueHandle owner1) except+
     cydriver.CUresult graph_clone_attachments "cuda_core::graph_clone_attachments" (

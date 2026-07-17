@@ -17,6 +17,7 @@ from cuda.core._resource_handles cimport (
     as_cu, as_py,
     create_child_graph_handle, create_graph_exec_handle, create_graph_handle,
     graph_clone_attachments,
+    graph_set_attachment,
     invalidate_child_graph_state,
 )
 from cuda.core._stream cimport Stream
@@ -784,10 +785,10 @@ cdef class GraphBuilder:
 
         # See https://github.com/NVIDIA/cuda-python/pull/879#issuecomment-3211054159
         # for rationale
-        deps_info_trimmed = deps_info_out[:num_dependencies_out]
+        dependencies_out = deps_info_out[0]
         new_node = handle_return(
             driver.cuGraphAddChildGraphNode(
-                graph_out, *deps_info_trimmed,
+                graph_out, dependencies_out,
                 num_dependencies_out, as_py(child._h_graph)
             )
         )
@@ -872,7 +873,17 @@ cdef class GraphBuilder:
 
         # Capturing the host function added a node to the graph; it is now the
         # stream's sole capture dependency. Attach the callback's owners to it.
-        cdef cydriver.CUgraphNode host_node = _capture_tail_node(c_stream)
+        cdef cydriver.CUgraphNode host_node
+        cdef cydriver.CUresult retain_status
+        try:
+            host_node = _capture_tail_node(c_stream)
+        except:
+            # CUDA added the callback, but its node cannot be identified.
+            # Retain its owners anonymously to prevent dangling pointers.
+            retain_status = graph_set_attachment(
+                self._h_graph, NULL, fn_owner, data_owner)
+            HANDLE_RETURN(retain_status)
+            raise
         _attach_host_callback_owners(self._h_graph, host_node, fn_owner, data_owner)
 
 

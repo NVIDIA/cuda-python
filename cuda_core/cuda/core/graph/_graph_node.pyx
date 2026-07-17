@@ -51,7 +51,7 @@ from cuda.core._resource_handles cimport (
     create_graph_node_handle,
     graph_clone_attachments,
     graph_node_get_graph,
-    graph_set_node_attachment,
+    graph_set_attachment,
     invalidate_child_graph_state,
     invalidate_graph_node,
     make_opaque_py,
@@ -171,7 +171,7 @@ cdef class GraphNode:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
 
-        cleanup_status = graph_set_node_attachment(
+        cleanup_status = graph_set_attachment(
             h_graph, node, OpaqueHandle(), OpaqueHandle())
         invalidate_child_graph_state(h_graph, node)
         _node_registry.pop(<uintptr_t>self._h_node.get(), None)
@@ -717,7 +717,7 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     if kernel_args is not None:
         args_owner = make_opaque_py(kernel_args)
     try:
-        HANDLE_RETURN(graph_set_node_attachment(
+        HANDLE_RETURN(graph_set_attachment(
             h_graph, new_node, kernel_owner, args_owner))
     except:
         with nogil:
@@ -928,7 +928,7 @@ cdef inline MemsetNode GN_memset(
 
     if dst_owner:
         try:
-            HANDLE_RETURN(graph_set_node_attachment(
+            HANDLE_RETURN(graph_set_attachment(
                 h_graph, new_node, dst_owner, OpaqueHandle()))
         except:
             with nogil:
@@ -998,7 +998,7 @@ cdef inline MemcpyNode GN_memcpy(
 
     if dst_owner or src_owner:
         try:
-            HANDLE_RETURN(graph_set_node_attachment(
+            HANDLE_RETURN(graph_set_attachment(
                 h_graph, new_node, dst_owner, src_owner))
         except:
             with nogil:
@@ -1065,7 +1065,7 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
 
     owner = ev._h_event
     try:
-        HANDLE_RETURN(graph_set_node_attachment(
+        HANDLE_RETURN(graph_set_attachment(
             h_graph, new_node, owner, OpaqueHandle()))
     except:
         with nogil:
@@ -1094,7 +1094,7 @@ cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
 
     owner = ev._h_event
     try:
-        HANDLE_RETURN(graph_set_node_attachment(
+        HANDLE_RETURN(graph_set_attachment(
             h_graph, new_node, owner, OpaqueHandle()))
     except:
         with nogil:

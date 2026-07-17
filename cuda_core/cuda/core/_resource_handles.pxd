@@ -234,10 +234,10 @@ cdef GraphHandle create_child_graph_handle(
 # Graph node attachments
 cdef OpaqueHandle make_opaque_py(object obj) except+
 cdef OpaqueHandle make_opaque_malloc(void* buf) except+
-cdef cydriver.CUresult graph_get_node_attachment(
+cdef cydriver.CUresult graph_get_attachment(
     const GraphHandle& h_graph, cydriver.CUgraphNode node,
     OpaqueHandle* owner0, OpaqueHandle* owner1) except+
-cdef cydriver.CUresult graph_set_node_attachment(
+cdef cydriver.CUresult graph_set_attachment(
     const GraphHandle& h_graph, cydriver.CUgraphNode node,
     OpaqueHandle owner0, OpaqueHandle owner1) except+
 cdef cydriver.CUresult graph_clone_attachments(

@@ -11,7 +11,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
     GraphHandle,
     OpaqueHandle,
-    graph_set_node_attachment,
+    graph_set_attachment,
     make_opaque_malloc,
     make_opaque_py,
 )
@@ -70,6 +70,6 @@ cdef int _attach_host_callback_owners(
         const GraphHandle& h_graph, cydriver.CUgraphNode node,
         OpaqueHandle fn_owner, OpaqueHandle data_owner) except -1:
     """Attach a resolved callback and copied user-data owner as one bundle."""
-    HANDLE_RETURN(graph_set_node_attachment(
+    HANDLE_RETURN(graph_set_attachment(
         h_graph, node, fn_owner, data_owner))
     return 0

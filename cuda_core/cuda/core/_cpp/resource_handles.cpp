@@ -1494,7 +1494,7 @@ GraphHandle create_child_graph_handle(
     return h_child;
 }
 
-CUresult graph_get_node_attachment(
+CUresult graph_get_attachment(
         const GraphHandle& h_graph, CUgraphNode node,
         OpaqueHandle* owner0, OpaqueHandle* owner1) {
     if (!h_graph || !node || (!owner0 && !owner1)) {
@@ -1523,22 +1523,27 @@ CUresult graph_get_node_attachment(
     return CUDA_SUCCESS;
 }
 
-CUresult graph_set_node_attachment(
+CUresult graph_set_attachment(
         const GraphHandle& h_graph, CUgraphNode node,
         OpaqueHandle owner0, OpaqueHandle owner1) {
-    if (!h_graph || !node) {
+    if (!h_graph || (!node && !owner0 && !owner1)) {
         return CUDA_ERROR_INVALID_VALUE;
     }
     GraphBox* box = get_box(h_graph);
     if (!box->resource) {
         return CUDA_ERROR_INVALID_VALUE;
     }
-    if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
-        !p_cuGraphRetainUserObject || !p_cuGraphReleaseUserObject) {
+    if (node && !p_cuGraphReleaseUserObject) {
         return CUDA_ERROR_NOT_SUPPORTED;
     }
+
     NodeAttachment* replacement = nullptr;
     if (owner0 || owner1) {
+        if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
+            !p_cuGraphRetainUserObject) {
+            return CUDA_ERROR_NOT_SUPPORTED;
+        }
+
         ensure_deferred_cleanup_ready();
         replacement = new NodeAttachment(
             std::move(owner0), std::move(owner1));
@@ -1565,6 +1570,9 @@ CUresult graph_set_node_attachment(
                 return status;
             }
         }
+    }
+    if (!node) {
+        return CUDA_SUCCESS;
     }
 
     NodeAttachment* previous = nullptr;

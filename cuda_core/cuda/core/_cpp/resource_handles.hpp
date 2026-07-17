@@ -495,14 +495,15 @@ OpaqueHandle make_opaque_malloc(void* buf);
 
 // Copy requested owners from node's current attachment. Pass nullptr to ignore
 // either owner; a missing attachment produces empty handles.
-CUresult graph_get_node_attachment(
+CUresult graph_get_attachment(
     const GraphHandle& h_graph,
     CUgraphNode node,
     OpaqueHandle* owner0,
     OpaqueHandle* owner1);
 
-// Replace node's complete attachment. Two empty owners clear it.
-CUresult graph_set_node_attachment(
+// Replace node's complete attachment, or retain it anonymously if node is
+// nullptr. Two empty owners clear a node attachment.
+CUresult graph_set_attachment(
     const GraphHandle& h_graph,
     CUgraphNode node,
     OpaqueHandle owner0,
