@@ -22,9 +22,9 @@ pattern: per-device contexts, halo exchange via ``cuMemcpyPeerAsync``,
 and compute/comm overlap on two streams per device.
 
 Waives with exit code 2 unless there are 2+ CUDA devices with
-peer-to-peer access enabled between them. The sample optionally displays
-the final wavefield with ``matplotlib`` if available; the display is
-skipped when ``matplotlib`` is not installed.
+peer-to-peer access enabled between them. The sample displays the final
+wavefield with ``matplotlib`` by default; pass ``--no-display`` for a
+non-interactive run.
 
 ## What You'll Learn
 
@@ -43,7 +43,7 @@ skipped when ``matplotlib`` is not installed.
 
 - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/) - driver + runtime bindings
 - `numpy` - array plumbing on the host
-- `matplotlib` (optional) - final-wavefield display
+- `matplotlib` - final-wavefield display
 
 ## Key APIs
 
@@ -83,7 +83,8 @@ pip install -r requirements.txt
 ## How to Run
 
 ```bash
-python isoFdModelling.py
+python isoFdModelling.py               # Display the final wavefield
+python isoFdModelling.py --no-display  # Run without opening a plot
 ```
 
 ## Expected Output

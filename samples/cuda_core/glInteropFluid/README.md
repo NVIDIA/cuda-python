@@ -57,7 +57,8 @@ pip install -r requirements.txt
 ## How to Run
 
 ```bash
-python glInteropFluid.py
+python glInteropFluid.py             # Run until the window is closed
+python glInteropFluid.py --frames 3  # Render three frames, then exit
 ```
 
 ## Files

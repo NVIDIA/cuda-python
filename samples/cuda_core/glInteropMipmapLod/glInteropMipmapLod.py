@@ -85,6 +85,7 @@
 # dependencies = ["cuda_bindings", "cuda_core>0.6.0", "pyglet"]
 # ///
 
+import argparse
 import ctypes
 import math
 import sys
@@ -401,7 +402,16 @@ def draw_fullscreen_quad(gl, shader_prog, vao_id, tex_id):
 # ================================== main() ==================================
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="CUDA/OpenGL interop mipmapped LOD demo")
+    parser.add_argument(
+        "--frames",
+        type=int,
+        default=None,
+        help="Number of frames to render before exiting (default: run until the window is closed)",
+    )
+    args = parser.parse_args(argv)
+
     # Waive when no display is available (headless CI, Wayland-only, etc.).
     import os
     import platform
@@ -463,7 +473,9 @@ def main():
     state = {"zoom": 1.0, "lod_bias": 0.0}
     start_time = time.monotonic()
     frame_count = [0]
+    frames_rendered = [0]
     fps_time = [start_time]
+    resources_closed = [False]
 
     block = (16, 16, 1)
     grid = (
@@ -472,6 +484,18 @@ def main():
         1,
     )
     config = LaunchConfig(grid=grid, block=block)
+
+    def close_resources():
+        if resources_closed[0]:
+            return
+        resources_closed[0] = True
+
+        # Release CUDA-side resources in reverse construction order. GL
+        # objects clean up via pyglet on window close.
+        resource.close()
+        display_tex.close()
+        mip.close()
+        stream.close()
 
     def effective_lod():
         # Same formula the display kernel uses, clamped to the legal range so
@@ -505,6 +529,7 @@ def main():
         draw_fullscreen_quad(gl, shader_prog, quad_vao, tex_id)
 
         frame_count[0] += 1
+        frames_rendered[0] += 1
         now = time.monotonic()
         if now - fps_time[0] >= 1.0:
             fps = frame_count[0] / (now - fps_time[0])
@@ -517,6 +542,11 @@ def main():
             )
             frame_count[0] = 0
             fps_time[0] = now
+
+        if args.frames is not None and frames_rendered[0] >= args.frames:
+            # Let pyglet finish the current refresh/flip before tearing down
+            # the GL context and registered CUDA graphics resource.
+            pyglet.app.exit()
 
     @window.event
     def on_mouse_scroll(_x, _y, _scroll_x, scroll_y):
@@ -539,14 +569,14 @@ def main():
 
     @window.event
     def on_close():
-        # Release CUDA-side resources in reverse construction order. GL
-        # objects clean up via pyglet on window close.
-        resource.close()
-        display_tex.close()
-        mip.close()
-        stream.close()
+        close_resources()
 
-    pyglet.app.run(interval=0)
+    try:
+        pyglet.app.run(interval=0)
+    finally:
+        close_resources()
+        window.close()
+    print(f"\nRendered {frames_rendered[0]} mipmapped LOD frames. Done")
 
 
 # ======================== GPU code (CUDA + GLSL) ============================

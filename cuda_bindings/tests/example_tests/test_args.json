@@ -1,1 +1,8 @@
-{}
+{
+  "cuda_bindings/extra/isoFdModelling": {
+    "min_gpus": 2,
+    "python": {
+      "args": ["--no-display"]
+    }
+  }
+}

@@ -52,7 +52,8 @@ pip install -r requirements.txt
 ## How to Run
 
 ```bash
-python glInteropMipmapLod.py
+python glInteropMipmapLod.py             # Run until the window is closed
+python glInteropMipmapLod.py --frames 3  # Render three frames, then exit
 ```
 
 ## Files

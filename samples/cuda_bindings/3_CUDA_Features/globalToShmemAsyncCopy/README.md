@@ -84,7 +84,7 @@ pip install -r requirements.txt
 
 ```bash
 python globalToShmemAsyncCopy.py                     # default variant
-python globalToShmemAsyncCopy.py --kernel=6          # NaiveLargeChunk
+python globalToShmemAsyncCopy.py --kernel=7          # NaiveLargeChunk
 python globalToShmemAsyncCopy.py --wA=1024 --wB=1024 # bigger matrices
 ```
 

@@ -41,11 +41,11 @@ This is the only sample in /samples/cuda_bindings that teaches the multi-GPU HPC
 pattern: per-device contexts, halo exchange via cuMemcpyPeerAsync,
 and compute/comm overlap on two streams per device.
 
-Note: the sample optionally displays the final wavefield with matplotlib
-if it is available; when running as a smoke test in CI you can pass
---no-display (default behavior).
+By default, the sample displays the final wavefield with matplotlib. When
+running as a smoke test in CI, pass --no-display to skip the plot.
 """
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -206,6 +206,16 @@ __global__ void fwd_3D_orderX2k(float *g_curr_1, float *g_prev_1, float *g_vsq_1
 
 display_graph = False
 verbose_prints = False
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(description="Multi-GPU isotropic finite-difference wave propagation")
+    parser.add_argument(
+        "--no-display",
+        action="store_true",
+        help="Skip the final matplotlib wavefield display",
+    )
+    return parser.parse_args(argv)
 
 
 def align_nx(nx, blk, nops):
@@ -833,6 +843,7 @@ def main():
 
 
 if __name__ == "__main__":
-    display_graph = True
+    args = parse_args()
+    display_graph = not args.no_display
     verbose_prints = True
     main()

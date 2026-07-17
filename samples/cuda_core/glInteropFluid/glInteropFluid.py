@@ -90,6 +90,7 @@
 # dependencies = ["cuda_bindings", "cuda_core>0.6.0", "pyglet"]
 # ///
 
+import argparse
 import colorsys
 import ctypes
 import math
@@ -527,7 +528,16 @@ def seed_field(stream, kernels, config, vel_surf, dye_surf, prs_surf, seed_value
 # ================================== main() ==================================
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="CUDA/OpenGL interop Stable Fluids demo")
+    parser.add_argument(
+        "--frames",
+        type=int,
+        default=None,
+        help="Number of frames to render before exiting (default: run until the window is closed)",
+    )
+    args = parser.parse_args(argv)
+
     # Waive when no display is available (headless CI, Wayland-only, etc.).
     import os
     import platform
@@ -634,8 +644,43 @@ def main():
     # --- Step 9: Render loop ---
     start_time = time.monotonic()
     frame_count = 0
+    frames_rendered = 0
     fps_time = start_time
     clock = {"last": start_time}  # wall-clock time of the previous frame
+    resources_closed = False
+
+    def close_resources():
+        nonlocal resources_closed
+        if resources_closed:
+            return
+        resources_closed = True
+
+        # Release everything we opened, in reverse order. Each of these is a
+        # context manager too, but pyglet owns the event loop here so we
+        # release explicitly to be deterministic about ordering.
+        resource.close()
+        dye_tex_a.close()
+        dye_tex_b.close()
+        dye_surf_a.close()
+        dye_surf_b.close()
+        div_tex.close()
+        div_surf.close()
+        prs_tex_a.close()
+        prs_tex_b.close()
+        prs_surf_a.close()
+        prs_surf_b.close()
+        vel_tex_a.close()
+        vel_tex_b.close()
+        vel_surf_a.close()
+        vel_surf_b.close()
+        dye_a.close()
+        dye_b.close()
+        div.close()
+        prs_a.close()
+        prs_b.close()
+        vel_a.close()
+        vel_b.close()
+        stream.close()
 
     def _window_to_sim(x, y):
         # Window: y = 0 at bottom. Simulation: y = 0 at top. Flip vertically.
@@ -647,8 +692,8 @@ def main():
     def on_key_press(symbol, _modifiers):
         key = pyglet.window.key
         if symbol == key.ESCAPE:
-            window.close()
-            return
+            pyglet.app.exit()
+            return pyglet.event.EVENT_HANDLED
         if symbol == key.R:
             state["seed"] += 1
             seed_field(
@@ -688,7 +733,7 @@ def main():
 
     @window.event
     def on_draw():
-        nonlocal frame_count, fps_time
+        nonlocal frame_count, frames_rendered, fps_time
 
         window.clear()
         now_t = time.monotonic()
@@ -897,6 +942,7 @@ def main():
 
         # FPS counter (shown in window title)
         frame_count += 1
+        frames_rendered += 1
         now = time.monotonic()
         if now - fps_time >= 1.0:
             fps = frame_count / (now - fps_time)
@@ -910,38 +956,23 @@ def main():
             frame_count = 0
             fps_time = now
 
+        if args.frames is not None and frames_rendered >= args.frames:
+            # Let pyglet finish the current refresh/flip before tearing down
+            # the GL context and registered CUDA graphics resource.
+            pyglet.app.exit()
+
     @window.event
     def on_close():
-        # Release everything we opened, in reverse order. Each of these is a
-        # context manager too, but pyglet owns the event loop here so we
-        # release explicitly to be deterministic about ordering.
-        resource.close()
-        dye_tex_a.close()
-        dye_tex_b.close()
-        dye_surf_a.close()
-        dye_surf_b.close()
-        div_tex.close()
-        div_surf.close()
-        prs_tex_a.close()
-        prs_tex_b.close()
-        prs_surf_a.close()
-        prs_surf_b.close()
-        vel_tex_a.close()
-        vel_tex_b.close()
-        vel_surf_a.close()
-        vel_surf_b.close()
-        dye_a.close()
-        dye_b.close()
-        div.close()
-        prs_a.close()
-        prs_b.close()
-        vel_a.close()
-        vel_b.close()
-        stream.close()
+        close_resources()
 
     # Render as fast as the GPU allows; the per-step rates are scaled by real
     # elapsed time (see REF_FPS) so the look is frame-rate independent.
-    pyglet.app.run(interval=0)
+    try:
+        pyglet.app.run(interval=0)
+    finally:
+        close_resources()
+        window.close()
+    print(f"\nRendered {frames_rendered} fluid simulation frames. Done")
 
 
 # ======================== GPU code (CUDA + GLSL) ============================

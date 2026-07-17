@@ -69,21 +69,40 @@ EXIT_WAIVED = 2
 # ---------------------------------------------------------------------------
 
 
+def _parse_cmd_line_option(option: str) -> tuple[str, str | None]:
+    """Return an option name and its optional value, ignoring leading dashes."""
+    name, separator, value = option.lstrip("-").partition("=")
+    return name, value if separator else None
+
+
 def check_cmd_line_flag(flag: str) -> bool:
-    """Return True when any argv entry starts with ``flag`` (e.g. ``device=``)."""
-    return any(arg.startswith(flag) for arg in sys.argv[1:])
+    """Return whether ``flag`` is present, with or without leading dashes.
+
+    A trailing ``=`` denotes a value-taking option. Matching the normalized
+    option name exactly prevents flags such as ``--device-name`` from being
+    mistaken for ``--device``.
+    """
+    normalized_flag = flag.lstrip("-")
+    expects_value = normalized_flag.endswith("=")
+    flag_name = normalized_flag.removesuffix("=")
+
+    for arg in sys.argv[1:]:
+        arg_name, value = _parse_cmd_line_option(arg)
+        if arg_name == flag_name and (value is not None) == expects_value:
+            return True
+    return False
 
 
 def get_cmd_line_argument_int(flag: str) -> int:
-    """Return the integer following ``flag=`` in argv, or 0 if not present."""
+    """Return the integer following ``flag=`` in argv, or 0 if invalid or absent."""
+    flag_name = flag.lstrip("-").removesuffix("=")
     for arg in sys.argv[1:]:
-        if arg.startswith(flag):
-            _, _, value = arg.partition("=")
-            if value:
-                try:
-                    return int(value)
-                except ValueError:
-                    return 0
+        arg_name, value = _parse_cmd_line_option(arg)
+        if arg_name == flag_name and value is not None:
+            try:
+                return int(value)
+            except ValueError:
+                return 0
     return 0
 
 

@@ -5,6 +5,21 @@
   "cuda_core/simpleMultiGpu": {
     "min_gpus": 2
   },
+  "cuda_core/glInteropFluid": {
+    "python": {
+      "args": ["--frames", "3"]
+    }
+  },
+  "cuda_core/glInteropMipmapLod": {
+    "python": {
+      "args": ["--frames", "3"]
+    }
+  },
+  "cuda_core/glInteropPlasma": {
+    "python": {
+      "args": ["--frames", "3"]
+    }
+  },
   "cuda_core/reductionMultiBlockCG": {
     "python": {
       "args": ["--cuda-include-dir=$CUDA_HOME/include:$CUDA_HOME/include/cccl"]

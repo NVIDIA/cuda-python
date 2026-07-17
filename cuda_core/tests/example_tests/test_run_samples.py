@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib.metadata
+import subprocess
 import sys
 from email.message import Message
 from pathlib import Path
@@ -59,6 +60,121 @@ def _sample_entry(root: Path, category: str, name: str) -> Path:
     entry = sample_dir / f"{name}.py"
     entry.write_text("print('not executed')\n", encoding="utf-8")
     return entry
+
+
+def _runtime_module(result: tuple[object, int | None] | BaseException) -> ModuleType:
+    runtime = ModuleType("cuda.bindings.runtime")
+
+    def get_device_count() -> tuple[object, int | None]:
+        if isinstance(result, BaseException):
+            raise result
+        return result
+
+    runtime.cudaGetDeviceCount = get_device_count
+    return runtime
+
+
+@pytest.mark.parametrize(
+    ("result", "expected"),
+    [
+        ((0, 3), 3),
+        ((100, None), 0),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_runtime_gpu_count_uses_runtime_result(
+    monkeypatch: pytest.MonkeyPatch,
+    result: tuple[object, int | None],
+    expected: int,
+) -> None:
+    runtime = _runtime_module(result)
+    monkeypatch.setattr(run_samples._runner.importlib, "import_module", lambda _name: runtime)
+
+    assert run_samples._runner._runtime_gpu_count() == expected
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_gpu_count_prefers_cuda_runtime_over_host_gpu_count(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "GPU-visible")
+    monkeypatch.setattr(run_samples._runner, "_runtime_gpu_count", lambda: 1)
+
+    def unexpected_nvidia_smi(*args, **kwargs):
+        raise AssertionError("nvidia-smi must not run when the CUDA Runtime is available")
+
+    monkeypatch.setattr(run_samples._runner.subprocess, "run", unexpected_nvidia_smi)
+
+    assert run_samples.get_gpu_count() == 1
+
+
+@pytest.mark.parametrize(
+    ("visible", "expected"),
+    [
+        ("", 0),
+        ("   ", 0),
+        ("-1", 0),
+        ("none", 0),
+        ("0", 1),
+        ("0, 2", 2),
+        ("GPU-01234567-89ab-cdef-0123-456789abcdef", 1),
+        ("MIG-GPU-01234567-89ab-cdef-0123-456789abcdef/1/2", 1),
+        ("MIG-01234567-89ab-cdef-0123-456789abcdef", 1),
+        ("NoDevFiles", 0),
+        ("0,-1,2", 1),
+        ("0,invalid,2", 1),
+        (",0", 0),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_gpu_count_honors_explicit_cuda_visible_devices_without_runtime(
+    monkeypatch: pytest.MonkeyPatch, visible: str, expected: int
+) -> None:
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", visible)
+    monkeypatch.setattr(run_samples._runner, "_runtime_gpu_count", lambda: None)
+
+    def unexpected_nvidia_smi(*args, **kwargs):
+        raise AssertionError("nvidia-smi must not override CUDA_VISIBLE_DEVICES")
+
+    monkeypatch.setattr(run_samples._runner.subprocess, "run", unexpected_nvidia_smi)
+
+    assert run_samples.get_gpu_count() == expected
+
+
+@pytest.mark.parametrize("exception", [ImportError("missing extension"), OSError("loader failure")])
+@pytest.mark.agent_authored(model="gpt-5")
+def test_runtime_gpu_count_handles_expected_import_failures(
+    monkeypatch: pytest.MonkeyPatch, exception: BaseException
+) -> None:
+    def fail_import(name: str) -> ModuleType:
+        raise exception
+
+    monkeypatch.setattr(run_samples._runner.importlib, "import_module", fail_import)
+
+    assert run_samples._runner._runtime_gpu_count() is None
+
+
+@pytest.mark.parametrize("exception", [OSError("loader failure"), RuntimeError("runtime unavailable")])
+@pytest.mark.agent_authored(model="gpt-5")
+def test_runtime_gpu_count_handles_expected_call_failures(
+    monkeypatch: pytest.MonkeyPatch, exception: BaseException
+) -> None:
+    runtime = _runtime_module(exception)
+    monkeypatch.setattr(run_samples._runner.importlib, "import_module", lambda _name: runtime)
+
+    assert run_samples._runner._runtime_gpu_count() is None
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_gpu_count_uses_nvidia_smi_only_when_visibility_is_unspecified(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
+    monkeypatch.setattr(run_samples._runner, "_runtime_gpu_count", lambda: None)
+    smi = subprocess.CompletedProcess(
+        ["nvidia-smi", "-L"],
+        0,
+        stdout="GPU 0: first\nGPU 1: second\n  MIG 1g.10gb Device 0: child\n",
+    )
+    monkeypatch.setattr(run_samples._runner.subprocess, "run", lambda *_args, **_kwargs: smi)
+
+    assert run_samples.get_gpu_count() == 2
 
 
 @pytest.mark.agent_authored(model="gpt-5")

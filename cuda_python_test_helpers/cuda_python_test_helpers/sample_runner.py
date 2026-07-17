@@ -124,12 +124,61 @@ def load_config(config_path: Path) -> dict[str, Any]:
     return {k: v for k, v in data.items() if not k.startswith("_")}
 
 
-def get_gpu_count() -> int:
-    """Return the visible CUDA GPU count, conservatively 0 on error.
+def _runtime_gpu_count() -> int | None:
+    """Return the CUDA Runtime's visible device count, or ``None`` if unavailable."""
+    try:
+        runtime = importlib.import_module("cuda.bindings.runtime")
+    except (ImportError, OSError):
+        return None
 
-    Matches cuda-samples/run_tests.py::get_gpu_count(): uses ``nvidia-smi -L``
-    first and falls back to ``CUDA_VISIBLE_DEVICES``.
+    try:
+        error, count = runtime.cudaGetDeviceCount()
+    except (OSError, RuntimeError):
+        return None
+
+    if int(error) != 0:
+        return 0
+    return int(count)
+
+
+def _visible_devices_gpu_count() -> int | None:
+    """Return the count implied by ``CUDA_VISIBLE_DEVICES``, if it is set."""
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if visible is None:
+        return None
+
+    count = 0
+    for raw_token in visible.split(","):
+        token = raw_token.strip()
+        if not token or token.lower() in {"-1", "no", "none"}:
+            break
+        if token.isascii() and token.isdecimal():
+            count += 1
+            continue
+        if token.startswith(("GPU-", "MIG-")) and len(token) > 4:
+            count += 1
+            continue
+        # CUDA stops enumerating at the first invalid device identifier.
+        break
+    return count
+
+
+def get_gpu_count() -> int:
+    """Return the number of GPUs visible to CUDA, conservatively 0 on error.
+
+    Prefer the CUDA Runtime because it applies the driver's complete visibility
+    rules, including UUIDs and MIG devices. When the runtime bindings are not
+    available, an explicitly set ``CUDA_VISIBLE_DEVICES`` remains authoritative;
+    ``nvidia-smi`` is only a last-resort estimate when visibility is unspecified.
     """
+    runtime_count = _runtime_gpu_count()
+    if runtime_count is not None:
+        return runtime_count
+
+    visible_count = _visible_devices_gpu_count()
+    if visible_count is not None:
+        return visible_count
+
     try:
         smi = subprocess.run(
             ["nvidia-smi", "-L"],  # noqa: S607
@@ -144,10 +193,6 @@ def get_gpu_count() -> int:
         pass
     except OSError:
         pass
-
-    visible = os.environ.get("CUDA_VISIBLE_DEVICES", "").strip()
-    if visible and visible.lower() not in {"no", "none"}:
-        return len([v for v in visible.split(",") if v])
     return 0
 
 

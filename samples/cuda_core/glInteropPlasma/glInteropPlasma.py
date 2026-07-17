@@ -333,6 +333,15 @@ def main():
     frame_count = 0
     fps_time = start_time
     frames_rendered = 0
+    resources_closed = False
+
+    def close_resources():
+        nonlocal resources_closed
+        if resources_closed:
+            return
+        resources_closed = True
+        resource.close()
+        stream.close()
 
     @window.event
     def on_draw():
@@ -380,13 +389,19 @@ def main():
 
         # Terminate after --frames iterations when not interactive.
         if not args.interactive and frames_rendered >= args.frames:
-            window.close()
+            # Let pyglet finish the current refresh/flip before tearing down
+            # the GL context and registered CUDA graphics resource.
+            pyglet.app.exit()
 
     @window.event
     def on_close():
-        resource.close()
+        close_resources()
 
-    pyglet.app.run(interval=0)
+    try:
+        pyglet.app.run(interval=0)
+    finally:
+        close_resources()
+        window.close()
     print(f"\nRendered {frames_rendered} frames via CUDA/OpenGL interop. Done")
     return 0
 
