@@ -19,7 +19,11 @@ cuda.core.Device
    .. automethod:: create_context
    .. automethod:: create_event
    .. automethod:: create_graph_builder
+   .. automethod:: create_mipmapped_array
+   .. automethod:: create_opaque_array
    .. automethod:: create_stream
+   .. automethod:: create_surface_object
+   .. automethod:: create_texture_object
    .. automethod:: get_all_devices
    .. automethod:: set_current
    .. automethod:: sync

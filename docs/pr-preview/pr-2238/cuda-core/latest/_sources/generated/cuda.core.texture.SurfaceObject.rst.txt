@@ -15,8 +15,6 @@ cuda.core.texture.SurfaceObject
    
    .. automethod:: __init__
    .. automethod:: close
-   .. automethod:: from_array
-   .. automethod:: from_descriptor
 
    
    

@@ -37,6 +37,7 @@ cuda.core.graph.GraphBuilder
    .. rubric:: Attributes
 
    
+   .. autoproperty:: graph_definition
    .. autoproperty:: is_building
    .. autoproperty:: is_join_required
    .. autoproperty:: stream
