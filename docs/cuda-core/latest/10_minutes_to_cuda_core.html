@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=6a595d3a"></script>
+    <script src="_static/documentation_options.js?v=ce21d923"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev16';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev17';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1003,7 +1003,7 @@ operations into the <em>builder</em> instead of the stream, then complete the gr
 <span class="n">stream</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>See <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/fb653f335771c3c86938678ec269e1329bbb7831/cuda_core/examples/cuda_graphs.py">cuda_graphs.py</a>
+<p>See <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/60d431f78dafbe46a114447a0ba847e6d78c002d/cuda_core/examples/cuda_graphs.py">cuda_graphs.py</a>
 for a complete capture-and-replay example with a measured speedup.</p>
 <p>Beyond the stream capture shown here, <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> also provides an explicit
 graph interface (the <code class="xref py py-mod docutils literal notranslate"><span class="pre">cuda.core.graph</span></code> module) for building, inspecting, and
@@ -1080,7 +1080,7 @@ can be handed to any DLPack importer for zero-copy exchange.</p>
 <h2>Cleaning up<a class="headerlink" href="#cleaning-up" title="Link to this heading">#</a></h2>
 <p>Buffers, streams, events, graphs, and graph builders hold CUDA resources. They
 are released when garbage-collected, but you can release them explicitly with
-<code class="docutils literal notranslate"><span class="pre">close()</span></code>, which the <a class="extlink-cuda-core-examples reference external" href="https://github.com/NVIDIA/cuda-python/tree/fb653f335771c3c86938678ec269e1329bbb7831/cuda_core/examples/">cuda.core examples</a> do in a
+<code class="docutils literal notranslate"><span class="pre">close()</span></code>, which the <a class="extlink-cuda-core-examples reference external" href="https://github.com/NVIDIA/cuda-python/tree/60d431f78dafbe46a114447a0ba847e6d78c002d/cuda_core/examples/">cuda.core examples</a> do in a
 <code class="docutils literal notranslate"><span class="pre">finally</span></code> block.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="n">gb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
