@@ -94,6 +94,8 @@ import argparse
 import colorsys
 import ctypes
 import math
+import os
+import platform
 import random
 import sys
 import time
@@ -138,6 +140,7 @@ CURL_SEED = 2.5  # strength of the ambient curl seeded on reset
 # This is the single extra kernel that turns soft blobs into crisp curling
 # plumes. Tunable: ~0.1-0.3 reads well at DT=1.0; higher gets turbulent.
 VORTICITY = 0.28  # confinement strength (0.0 disables it)
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 # Auto-bursts keep the simulation alive and colorful without any input: when
 # the mouse is idle we periodically drop a big blob of a random bright color
@@ -539,13 +542,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     # Waive when no display is available (headless CI, Wayland-only, etc.).
-    import os
-    import platform
-    import sys
-
     if platform.system() == "Linux" and not os.environ.get("DISPLAY"):
         print("No DISPLAY available; waiving glInteropFluid.", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(EXIT_WAIVED)
 
     # --- Step 1: Set up CUDA (compile kernels, create stream) ---
     dev, stream, kernels, config = setup_cuda()
@@ -555,7 +554,7 @@ def main(argv=None):
         window, gl, pyglet = create_window()
     except Exception as exc:
         print(f"Could not open a pyglet window ({exc}); waiving glInteropFluid.", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(EXIT_WAIVED)
 
     # --- Step 3: Create GL resources for drawing a texture to screen ---
     #     (Standard OpenGL boilerplate -- not CUDA-specific.)

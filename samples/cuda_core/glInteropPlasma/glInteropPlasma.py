@@ -55,7 +55,7 @@ swirling colors. Close the window (or press Escape) to exit.
 
 By default this sample runs for a bounded number of frames so it is
 CI-friendly; pass ``--interactive`` to run until the window is closed.
-Headless environments (no ``DISPLAY``) waive the sample with exit code 2.
+Headless environments (no ``DISPLAY``) waive the sample.
 """
 
 import argparse
@@ -88,7 +88,7 @@ except ImportError as e:
 # ---------------------------------------------------------------------------
 WIDTH = 800
 HEIGHT = 600
-EXIT_WAIVED = 2
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 
 # ============================= Helper functions =============================

@@ -35,6 +35,7 @@ Demonstrates GPU image blurring using cuda.core APIs for kernel compilation,
 launch, and unified memory allocation.
 """
 
+import os
 import sys
 
 try:
@@ -55,6 +56,9 @@ except ImportError as e:
     print("Please install from requirements.txt:")
     print("  pip install -r requirements.txt")
     sys.exit(1)
+
+
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 
 # CUDA kernel source code - compiled at runtime by cuda.core.Program
@@ -206,7 +210,7 @@ def main():
             "access, which is not supported on Windows "
             "(concurrent_managed_access=False). Waiving this sample."
         )
-        sys.exit(2)
+        sys.exit(EXIT_WAIVED)
 
     print("=" * 60)
     print("Image Blur with Unified Memory (cuda.core)")

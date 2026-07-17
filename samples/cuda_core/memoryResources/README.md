@@ -87,8 +87,8 @@ The `ManagedMemoryResource` demo in this sample exercises **concurrent host
 access** to managed allocations while the GPU is active, which requires the
 device property `concurrent_managed_access=True`. This is only supported on
 Linux with HMM (Pascal and newer). On Windows (WDDM/MCDM/TCC) the property
-is `False`, so the sample exits early with a waive message and exit code
-`2`. The `DeviceMemoryResource` + `PinnedMemoryResource` demos in this
+is `False`, so the sample exits early with a waive message. The
+`DeviceMemoryResource` + `PinnedMemoryResource` demos in this
 sample would still work on Windows on their own, but to keep the sample
 self-contained the entire script waives when concurrent managed access is
 unavailable.

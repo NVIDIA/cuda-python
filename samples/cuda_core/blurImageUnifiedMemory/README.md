@@ -116,8 +116,8 @@ This sample relies on `ManagedMemoryResource` with **concurrent host access**
 to managed allocations while GPU kernels are in flight. That behavior
 requires the device property `concurrent_managed_access=True`, which is only
 supported on Linux with HMM (Pascal and newer). On Windows (WDDM/MCDM/TCC)
-the property is `False`, so the sample exits early with a waive message and
-exit code `2` instead of attempting a run that would crash the process.
+the property is `False`, so the sample exits early with a waive message
+instead of attempting a run that would crash the process.
 
 ## Installation
 

@@ -55,6 +55,7 @@ and a pinned buffer, then we copy the result across resources to confirm
 each pathway works end-to-end.
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -83,6 +84,9 @@ except ImportError as e:
     print("Please install from requirements.txt:")
     print("  pip install -r requirements.txt")
     sys.exit(1)
+
+
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 
 SCALE_BIAS_KERNEL = r"""
@@ -348,7 +352,7 @@ def main():
             "access, which is not supported on Windows "
             "(concurrent_managed_access=False). Waiving this sample."
         )
-        sys.exit(2)
+        sys.exit(EXIT_WAIVED)
 
     device = Device(args.device)
     device.set_current()

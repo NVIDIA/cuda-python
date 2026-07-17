@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib.metadata
+import json
 import subprocess
 import sys
 from email.message import Message
@@ -229,6 +230,193 @@ def test_namespaced_config_lookup_falls_back_to_legacy_leaf_key(tmp_path: Path) 
     )
 
     assert plan.args == ["compatible"]
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_load_config_accepts_valid_schema_and_ignores_comments(tmp_path: Path) -> None:
+    config_path = tmp_path / "test_args.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "_comment": None,
+                "sample": {
+                    "skip": False,
+                    "min_gpus": 2,
+                    "python": {"args": ["--option", "value"], "launcher": ["mpirun", "-np", "2"]},
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert run_samples.load_config(config_path) == {
+        "sample": {
+            "skip": False,
+            "min_gpus": 2,
+            "python": {"args": ["--option", "value"], "launcher": ["mpirun", "-np", "2"]},
+        }
+    }
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_load_config_rejects_missing_file(tmp_path: Path) -> None:
+    config_path = tmp_path / "missing.json"
+
+    with pytest.raises(run_samples._runner.InvalidSampleConfig, match="cannot read configuration"):
+        run_samples.load_config(config_path)
+
+
+@pytest.mark.parametrize(
+    ("payload", "message"),
+    [
+        ("{", "invalid JSON"),
+        ("[]", "must contain a JSON object"),
+        ("null", "must contain a JSON object"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_load_config_rejects_malformed_or_non_object_json(tmp_path: Path, payload: str, message: str) -> None:
+    config_path = tmp_path / "test_args.json"
+    config_path.write_text(payload, encoding="utf-8")
+
+    with pytest.raises(run_samples._runner.InvalidSampleConfig, match=message):
+        run_samples.load_config(config_path)
+
+
+@pytest.mark.parametrize(
+    ("entry", "message"),
+    [
+        (None, "must be an object"),
+        ({"unknown": True}, "unknown field"),
+        ({"skip": None}, "'skip' must be a boolean"),
+        ({"skip": 1}, "'skip' must be a boolean"),
+        ({"min_gpus": True}, "'min_gpus' must be a positive integer"),
+        ({"min_gpus": 0}, "'min_gpus' must be a positive integer"),
+        ({"min_gpus": "2"}, "'min_gpus' must be a positive integer"),
+        ({"python": None}, "'python' must be an object"),
+        ({"python": []}, "'python' must be an object"),
+        ({"python": {"unknown": []}}, "'python' has unknown field"),
+        ({"python": {"args": None}}, "'args' must be a list of strings"),
+        ({"python": {"args": "--option"}}, "'args' must be a list of strings"),
+        ({"python": {"args": ["--option", 1]}}, "'args' must be a list of strings"),
+        ({"python": {"launcher": None}}, "'launcher' must be a list of strings"),
+        ({"python": {"launcher": ["mpirun", 2]}}, "'launcher' must be a list of strings"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_load_config_rejects_invalid_entry_schema(tmp_path: Path, entry: object, message: str) -> None:
+    config_path = tmp_path / "test_args.json"
+    config_path.write_text(json.dumps({"sample": entry}), encoding="utf-8")
+
+    with pytest.raises(run_samples._runner.InvalidSampleConfig, match=message):
+        run_samples.load_config(config_path)
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        {"sample": {"skip": True, "python": {"args": None}}},
+        {"sample": {"min_gpus": 2, "python": {"args": None}}},
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_build_run_plan_validates_config_before_skip_or_gpu_gating(tmp_path: Path, config: dict[str, object]) -> None:
+    sample = tmp_path / "sample" / "sample.py"
+    sample.parent.mkdir()
+    sample.write_text("print('not executed')\n", encoding="utf-8")
+
+    with pytest.raises(run_samples._runner.InvalidSampleConfig, match="'args' must be a list of strings"):
+        run_samples.build_run_plan(sample, config, gpu_count=0)
+
+
+@pytest.mark.parametrize("timeout", [True, 0, -1, 1.5, "10"])
+@pytest.mark.agent_authored(model="gpt-5")
+def test_build_run_plan_rejects_invalid_timeout(tmp_path: Path, timeout: object) -> None:
+    sample = tmp_path / "sample" / "sample.py"
+    sample.parent.mkdir()
+    sample.write_text("print('not executed')\n", encoding="utf-8")
+
+    with pytest.raises(run_samples._runner.InvalidSampleConfig, match="timeout must be a positive integer"):
+        run_samples.build_run_plan(sample, {}, gpu_count=1, timeout=timeout)
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cli_reports_invalid_config_before_detecting_gpus(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    samples_dir = tmp_path / "samples"
+    _sample_entry(samples_dir, "category", "sample")
+    config_path = tmp_path / "test_args.json"
+    config_path.write_text('{"sample": {"python": {"args": null}}}', encoding="utf-8")
+
+    def unexpected_gpu_detection() -> int:
+        raise AssertionError("GPU detection must not run for invalid configuration")
+
+    monkeypatch.setattr(run_samples._runner, "get_gpu_count", unexpected_gpu_detection)
+
+    return_code = run_samples._runner.main(
+        ["--config", str(config_path)],
+        default_samples_dir=samples_dir,
+        default_config=config_path,
+    )
+
+    assert return_code == 1
+    assert "Error: invalid sample configuration" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize(
+    "option",
+    [
+        ["--parallel", "0"],
+        ["--parallel", "-1"],
+        ["--parallel", "many"],
+        ["--timeout", "0"],
+        ["--timeout", "-1"],
+        ["--timeout", "forever"],
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cli_rejects_non_positive_parallelism_and_timeout(tmp_path: Path, option: list[str]) -> None:
+    with pytest.raises(SystemExit) as exc_info:
+        run_samples._runner.main(
+            option,
+            default_samples_dir=tmp_path / "samples",
+            default_config=tmp_path / "test_args.json",
+        )
+
+    assert exc_info.value.code == 2
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_child_argparse_exit_code_is_a_failure(tmp_path: Path) -> None:
+    sample = tmp_path / "sample.py"
+    sample.write_text(
+        "import argparse\n"
+        "parser = argparse.ArgumentParser()\n"
+        "parser.add_argument('--required', required=True)\n"
+        "parser.parse_args()\n",
+        encoding="utf-8",
+    )
+
+    result = run_samples.run_sample(run_samples.RunPlan(sample, [], [], timeout=10))
+
+    assert result.status == "FAIL"
+    assert result.return_code == 2
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_runner_propagates_negotiated_waiver_exit_code(tmp_path: Path) -> None:
+    sample = tmp_path / "sample.py"
+    sample.write_text(
+        "import os\nraise SystemExit(int(os.environ['CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE']))\n",
+        encoding="utf-8",
+    )
+
+    result = run_samples.run_sample(run_samples.RunPlan(sample, [], [], timeout=10))
+
+    assert result.status == "WAIVED"
+    assert result.return_code == 77
+    assert result.detail == "sample-reported"
 
 
 @pytest.mark.parametrize(

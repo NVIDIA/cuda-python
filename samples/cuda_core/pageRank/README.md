@@ -73,8 +73,8 @@ Demonstrates GPU-accelerated PageRank computation for graph analysis using RAPID
 This sample depends on RAPIDS (`cugraph-cu13`, `cudf-cu13`, `dask-cuda`),
 which is currently published only as **Linux (manylinux) wheels** on
 `pypi.nvidia.com` — no Windows wheels exist. On Windows the sample exits
-early with a waive message and exit code `2` instead of attempting an
-install that cannot succeed.
+early with a waive message instead of attempting an install that cannot
+succeed.
 
 ## Installation
 

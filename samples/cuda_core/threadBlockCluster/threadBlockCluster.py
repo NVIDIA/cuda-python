@@ -44,7 +44,7 @@ This sample:
   * Verifies that ``LaunchConfig(grid=G, cluster=C, block=B)`` produces
     ``G * C`` total blocks arranged as ``G`` clusters of ``C`` blocks each.
 
-Waives with exit code 2 when:
+Waives when:
 
   * the current device's compute capability is below 9.0, or
   * ``CUDA_PATH`` / ``CUDA_HOME`` is not set (needed to locate
@@ -73,7 +73,7 @@ except ImportError as e:
     sys.exit(1)
 
 
-EXIT_WAIVED = 2
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 
 CLUSTER_INFO_KERNEL = r"""

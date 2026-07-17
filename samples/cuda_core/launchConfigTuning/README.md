@@ -96,8 +96,7 @@ The benchmark loops in this sample read kernel results back from
 `ManagedMemoryResource` allocations between launches, which requires the
 device property `concurrent_managed_access=True`. This is only supported on
 Linux with HMM (Pascal and newer). On Windows (WDDM/MCDM/TCC) the property
-is `False`, so the sample exits early with a waive message and exit code
-`2`.
+is `False`, so the sample exits early with a waive message.
 
 ## Installation
 

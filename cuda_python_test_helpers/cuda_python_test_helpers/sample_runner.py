@@ -6,9 +6,9 @@
 Package-owned wrappers provide their sample root, namespace, and
 ``test_args.json`` path. Samples are executed in isolated subprocesses.
 
-Exit-code contract (matches cuda-samples):
+Exit-code contract:
     0  -> sample passed
-    2  -> sample waived (missing dependency / unmet hardware requirement)
+    77 -> sample waived when negotiated through the runner environment
     *  -> sample failed
 """
 
@@ -37,7 +37,8 @@ from packaging.version import InvalidVersion
 
 # Default timeout per sample run (seconds). Match cuda-samples.
 DEFAULT_TIMEOUT = 300
-EXIT_WAIVED = 2
+EXIT_WAIVED = 77
+WAIVER_EXIT_CODE_ENV = "CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE"
 _print_lock = threading.Lock()
 
 
@@ -108,20 +109,78 @@ def collect_sample_entries(samples_dir: Path, namespace: str | None = None) -> d
 # ---------------------------------------------------------------------------
 
 
+class InvalidSampleConfig(ValueError):  # noqa: N818 - requested public exception name
+    """The sample runner configuration does not match its expected schema."""
+
+
+_ENTRY_FIELDS = frozenset({"skip", "min_gpus", "python"})
+_PYTHON_FIELDS = frozenset({"args", "launcher"})
+
+
+def _validate_string_list(value: Any, *, field: str, location: str) -> list[str]:
+    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+        raise InvalidSampleConfig(f"{location}: {field!r} must be a list of strings")
+    return value
+
+
+def _validate_config_entry(key: str, value: Any, *, source: str) -> dict[str, Any]:
+    location = f"{source}: entry {key!r}"
+    if not isinstance(value, dict):
+        raise InvalidSampleConfig(f"{location} must be an object")
+
+    unknown_fields = set(value) - _ENTRY_FIELDS
+    if unknown_fields:
+        fields = ", ".join(repr(field) for field in sorted(unknown_fields))
+        raise InvalidSampleConfig(f"{location} has unknown field(s): {fields}")
+
+    if "skip" in value and not isinstance(value["skip"], bool):
+        raise InvalidSampleConfig(f"{location}: 'skip' must be a boolean")
+
+    if "min_gpus" in value:
+        min_gpus = value["min_gpus"]
+        if isinstance(min_gpus, bool) or not isinstance(min_gpus, int) or min_gpus < 1:
+            raise InvalidSampleConfig(f"{location}: 'min_gpus' must be a positive integer")
+
+    if "python" in value:
+        python_cfg = value["python"]
+        if not isinstance(python_cfg, dict):
+            raise InvalidSampleConfig(f"{location}: 'python' must be an object")
+
+        unknown_python_fields = set(python_cfg) - _PYTHON_FIELDS
+        if unknown_python_fields:
+            fields = ", ".join(repr(field) for field in sorted(unknown_python_fields))
+            raise InvalidSampleConfig(f"{location}: 'python' has unknown field(s): {fields}")
+
+        for field in _PYTHON_FIELDS:
+            if field in python_cfg:
+                _validate_string_list(python_cfg[field], field=field, location=f"{location}: 'python'")
+
+    return value
+
+
+def _validate_config(data: Any, *, source: str) -> dict[str, Any]:
+    if not isinstance(data, dict):
+        raise InvalidSampleConfig(f"{source} must contain a JSON object")
+
+    config: dict[str, Any] = {}
+    for key, value in data.items():
+        if not isinstance(key, str):
+            raise InvalidSampleConfig(f"{source} contains a non-string entry name")
+        if key.startswith("_"):
+            continue
+        config[key] = _validate_config_entry(key, value, source=source)
+    return config
+
+
 def load_config(config_path: Path) -> dict[str, Any]:
-    if not config_path.is_file():
-        return {}
     try:
-        with open(config_path, encoding="utf-8") as fh:
+        with config_path.open(encoding="utf-8") as fh:
             data = json.load(fh)
     except json.JSONDecodeError as exc:
-        _safe_print(f"Warning: failed to parse {config_path}: {exc}")
-        return {}
-    if not isinstance(data, dict):
-        _safe_print(f"Warning: {config_path} must contain a JSON object")
-        return {}
-    # Drop any keys starting with '_' (used for comments).
-    return {k: v for k, v in data.items() if not k.startswith("_")}
+        raise InvalidSampleConfig(f"{config_path}: invalid JSON: {exc}") from exc
+    except OSError as exc:
+        raise InvalidSampleConfig(f"{config_path}: cannot read configuration: {exc}") from exc
+    return _validate_config(data, source=str(config_path))
 
 
 def _runtime_gpu_count() -> int | None:
@@ -352,12 +411,20 @@ def build_run_plan(
     The returned plan carries either a ``skip_reason`` (sample must be
     waived) or the command components to invoke.
     """
+    if isinstance(timeout, bool) or not isinstance(timeout, int) or timeout < 1:
+        raise InvalidSampleConfig("sample timeout must be a positive integer")
+    if not isinstance(config, dict):
+        raise InvalidSampleConfig("sample configuration must be an object")
+
     # Namespaced keys prevent collisions. The leaf fallback keeps existing
     # cuda-samples-style configuration files compatible.
     if sample_key is not None and sample_key in config:
+        config_key = sample_key
         sample_cfg = config[sample_key]
     else:
-        sample_cfg = config.get(sample.parent.name, {})
+        config_key = sample.parent.name
+        sample_cfg = config.get(config_key, {})
+    sample_cfg = _validate_config_entry(config_key, sample_cfg, source="sample configuration")
 
     if sample_cfg.get("skip"):
         return RunPlan(
@@ -369,7 +436,7 @@ def build_run_plan(
             sample_key=sample_key,
         )
 
-    required_gpus = int(sample_cfg.get("min_gpus", 1))
+    required_gpus = sample_cfg.get("min_gpus", 1)
     if required_gpus > gpu_count:
         return RunPlan(
             sample,
@@ -381,22 +448,13 @@ def build_run_plan(
         )
 
     python_cfg = sample_cfg.get("python", {})
-    raw_args = python_cfg.get("args", []) or []
-    raw_launcher = python_cfg.get("launcher", []) or []
-    if not isinstance(raw_args, list) or not isinstance(raw_launcher, list):
-        return RunPlan(
-            sample,
-            [],
-            [],
-            timeout,
-            skip_reason="invalid config: 'args' and 'launcher' must be lists",
-            sample_key=sample_key,
-        )
+    raw_args = python_cfg.get("args", [])
+    raw_launcher = python_cfg.get("launcher", [])
 
     return RunPlan(
         sample=sample,
-        args=[_expand_env(str(a)) for a in raw_args],
-        launcher=[_expand_env(str(a)) for a in raw_launcher],
+        args=[_expand_env(arg) for arg in raw_args],
+        launcher=[_expand_env(arg) for arg in raw_launcher],
         timeout=timeout,
         sample_key=sample_key,
     )
@@ -437,6 +495,8 @@ def run_sample(plan: RunPlan) -> RunResult:
 
     cmd = list(plan.launcher) + [sys.executable, str(sample)] + list(plan.args)
     _safe_print(f"  [RUN ] {name}: {' '.join(cmd)}")
+    child_env = os.environ.copy()
+    child_env[WAIVER_EXIT_CODE_ENV] = str(EXIT_WAIVED)
 
     try:
         proc = subprocess.run(  # noqa: S603
@@ -446,6 +506,7 @@ def run_sample(plan: RunPlan) -> RunResult:
             text=True,
             timeout=plan.timeout,
             check=False,
+            env=child_env,
         )
     except subprocess.TimeoutExpired:
         _safe_print(f"  [TIMEOUT] {name}: exceeded {plan.timeout}s")
@@ -476,6 +537,16 @@ def run_sample(plan: RunPlan) -> RunResult:
 # ---------------------------------------------------------------------------
 
 
+def _positive_int(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(f"expected a positive integer, got {value!r}") from exc
+    if parsed < 1:
+        raise argparse.ArgumentTypeError(f"expected a positive integer, got {value!r}")
+    return parsed
+
+
 def main(
     argv: list[str] | None = None,
     *,
@@ -498,7 +569,7 @@ def main(
     )
     parser.add_argument(
         "--parallel",
-        type=int,
+        type=_positive_int,
         default=1,
         help="Maximum number of samples to run concurrently (default: 1)",
     )
@@ -510,7 +581,7 @@ def main(
     )
     parser.add_argument(
         "--timeout",
-        type=int,
+        type=_positive_int,
         default=DEFAULT_TIMEOUT,
         help=f"Per-sample timeout in seconds (default: {DEFAULT_TIMEOUT})",
     )
@@ -528,12 +599,22 @@ def main(
         _safe_print("No samples found.")
         return 1
 
-    config = load_config(args.config.resolve())
+    try:
+        config = load_config(args.config.resolve())
+    except InvalidSampleConfig as exc:
+        _safe_print(f"Error: invalid sample configuration: {exc}")
+        return 1
     gpu_count = get_gpu_count()
     _safe_print(f"Detected {gpu_count} GPU(s).")
     _safe_print(f"Running {len(entries)} sample(s) with parallelism={args.parallel}\n")
 
-    plans = [build_run_plan(sample, config, gpu_count, args.timeout, sample_key=key) for key, sample in entries.items()]
+    try:
+        plans = [
+            build_run_plan(sample, config, gpu_count, args.timeout, sample_key=key) for key, sample in entries.items()
+        ]
+    except InvalidSampleConfig as exc:
+        _safe_print(f"Error: invalid sample configuration: {exc}")
+        return 1
 
     if args.parallel <= 1:
         results = [run_sample(plan) for plan in plans]

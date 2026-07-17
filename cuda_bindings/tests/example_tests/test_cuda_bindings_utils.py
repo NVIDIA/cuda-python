@@ -12,7 +12,12 @@ import pytest
 _UTILITIES_DIR = Path(__file__).resolve().parents[3] / "samples" / "cuda_bindings" / "Utilities"
 sys.path.insert(0, str(_UTILITIES_DIR))
 
-from cuda_bindings_utils import check_cmd_line_flag, get_cmd_line_argument_int
+from cuda_bindings_utils import (
+    WAIVER_EXIT_CODE_ENV,
+    check_cmd_line_flag,
+    get_cmd_line_argument_int,
+    requirement_not_met,
+)
 
 
 @pytest.mark.parametrize(
@@ -66,3 +71,29 @@ def test_invalid_integer_value_preserves_zero_default(monkeypatch: pytest.Monkey
 
     assert check_cmd_line_flag("device=")
     assert get_cmd_line_argument_int("device=") == 0
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_requirement_not_met_uses_standalone_waiver_code(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.delenv(WAIVER_EXIT_CODE_ENV, raising=False)
+
+    with pytest.raises(SystemExit) as exc_info:
+        requirement_not_met("unsupported configuration")
+
+    assert exc_info.value.code == 2
+    assert capsys.readouterr().err == "unsupported configuration\n"
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_requirement_not_met_uses_negotiated_waiver_code(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv(WAIVER_EXIT_CODE_ENV, "77")
+
+    with pytest.raises(SystemExit) as exc_info:
+        requirement_not_met("unsupported configuration")
+
+    assert exc_info.value.code == 77
+    assert capsys.readouterr().err == "unsupported configuration\n"

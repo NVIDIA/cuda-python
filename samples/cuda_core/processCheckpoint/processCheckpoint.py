@@ -58,6 +58,8 @@ from cuda.core import (
     launch,
 )
 
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
+
 # Small fill kernel: deterministic, non-trivial pattern so the before/after
 # hashes would disagree on any bit flip.
 KERNEL_SRC = r"""
@@ -181,8 +183,8 @@ def main():
     args = parser.parse_args()
 
     if sys.platform != "linux":
-        print("Error: CUDA process checkpointing is Linux-only.")
-        return 1
+        print("CUDA process checkpointing is Linux-only; waiving this sample.")
+        return EXIT_WAIVED
 
     if args.buffer_mib <= 0:
         print("Error: --buffer-mib must be positive")
@@ -208,7 +210,7 @@ def main():
         print(
             f"CUDA process checkpointing is not supported on integrated GPUs (sm_{device.arch}), waiving this sample."
         )
-        return 2
+        return EXIT_WAIVED
 
     print()
     print("Compiling kernel ...")

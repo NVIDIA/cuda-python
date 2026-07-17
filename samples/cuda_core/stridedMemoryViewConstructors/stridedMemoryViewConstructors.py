@@ -49,6 +49,7 @@ device-accessibility, and reads the underlying data back through DLPack to
 verify the round-trip.
 """
 
+import os
 import sys
 
 try:
@@ -62,6 +63,9 @@ except ImportError as e:
     print("Please install from requirements.txt:")
     print("  pip install -r requirements.txt")
     sys.exit(1)
+
+
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 
 def dense_c_strides(shape):
@@ -82,7 +86,7 @@ def _describe(name, view):
 def main():
     if np.lib.NumpyVersion(np.__version__) < "2.1.0":
         print("This example requires NumPy 2.1.0 or later", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(EXIT_WAIVED)
 
     device = Device()
     device.set_current()

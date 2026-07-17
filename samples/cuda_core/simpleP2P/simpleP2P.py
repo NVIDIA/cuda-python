@@ -29,6 +29,7 @@
 # ///
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -55,6 +56,8 @@ except ImportError as e:
 # Add parent directory to path to import utilities
 sys.path.insert(0, str(Path(__file__).parent.parent / "Utilities"))
 from cuda_samples_utils import verify_array_result
+
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 # CUDA kernel for simple P2P operation
 SIMPLE_P2P_KERNEL = """
@@ -101,7 +104,7 @@ def run(num_elements=1024 * 1024 * 16):
 
     if num_devices < 2:
         print("Two or more GPUs with Peer-to-Peer access capability are required, waiving this sample.")
-        return 2
+        return EXIT_WAIVED
 
     # Get device properties
     devices = [Device(i) for i in range(num_devices)]
@@ -140,7 +143,7 @@ def run(num_elements=1024 * 1024 * 16):
     if p2p_capable_gpus[0] == -1 or p2p_capable_gpus[1] == -1:
         print("\nTwo or more GPUs with Peer-to-Peer access capability are required.")
         print("Peer to Peer access is not available amongst GPUs in the system, waiving test.")
-        return 2
+        return EXIT_WAIVED
 
     # Use first pair of P2P capable GPUs detected
     gpuid = [p2p_capable_gpus[0], p2p_capable_gpus[1]]

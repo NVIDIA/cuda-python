@@ -106,7 +106,7 @@ python ipcMemoryPool.py --device 1
 ```
 
 On platforms or devices that do not support CUDA IPC, the sample
-prints a diagnostic and exits cleanly with status 0.
+prints a diagnostic and waives.
 
 ## Expected Output
 

@@ -88,6 +88,8 @@
 import argparse
 import ctypes
 import math
+import os
+import platform
 import sys
 import time
 
@@ -120,6 +122,7 @@ WIDTH = 800
 HEIGHT = 600
 BASE_SIZE = 512  # Texture base-level edge length (must be a power of two).
 LOD_BIAS_STEP = 0.25
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 
 # ============================= Helper functions =============================
@@ -413,13 +416,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     # Waive when no display is available (headless CI, Wayland-only, etc.).
-    import os
-    import platform
-    import sys
-
     if platform.system() == "Linux" and not os.environ.get("DISPLAY"):
         print("No DISPLAY available; waiving glInteropMipmapLod.", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(EXIT_WAIVED)
 
     # --- Step 1: Set up CUDA (compile kernels, create stream) ---
     dev, stream, kernels, _arch = setup_cuda()

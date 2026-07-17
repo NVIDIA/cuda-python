@@ -48,7 +48,7 @@ The sample:
      ``replace_address()`` to avoid rebuilding it.
 
 On GPUs older than Hopper (sm < 90), the sample prints a diagnostic
-and exits cleanly.
+and waives.
 
 Migrated from the former ``cuda_core/examples/tma_tensor_map.py`` location in
 the `cuda-python` repository.
@@ -81,6 +81,7 @@ except ImportError as e:
     sys.exit(1)
 
 
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 TILE_SIZE = 128  # elements per tile, must match the kernel constant
 
 KERNEL_SRC = r"""
@@ -205,9 +206,9 @@ def main() -> int:
     if arch < (9, 0):
         print(
             f"\nTMA requires compute capability >= 9.0 (Hopper or later); "
-            f"this device is {arch.major}.{arch.minor}. Exiting cleanly."
+            f"this device is {arch.major}.{arch.minor}. Waiving this sample."
         )
-        return 0
+        return EXIT_WAIVED
 
     dev.set_current()
     include_path = _get_cccl_include_paths()

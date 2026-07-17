@@ -65,7 +65,7 @@ The sample:
 ### Hardware
 
 - NVIDIA Hopper or newer GPU with Compute Capability 9.0 or higher (H100, H200, B200, ...)
-- On GPUs older than Hopper the sample exits cleanly without running the kernel
+- On GPUs older than Hopper the sample waives without running the kernel
 - Minimum GPU memory: 512 MB
 
 ### Software

@@ -18,7 +18,7 @@ sample:
 4. Verifies that `LaunchConfig(grid=G, cluster=C, block=B)` produces
    `G * C` total blocks — `G` clusters of `C` blocks each.
 
-The sample **waives itself (exit code 2)** when:
+The sample **waives itself** when:
 
 - the current device has Compute Capability < 9.0, or
 - neither `CUDA_PATH` nor `CUDA_HOME` points to a CUDA toolkit whose

@@ -43,6 +43,7 @@ PageRank Algorithm:
     where d = damping factor (typically 0.85), N = number of nodes
 """
 
+import os
 import sys
 import time
 from pathlib import Path
@@ -50,13 +51,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "Utilities"))
 from cuda_samples_utils import print_gpu_info, verify_array_result
 
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
+
 if sys.platform == "win32":
     print(
         "This sample depends on RAPIDS (cugraph-cu13 / cudf-cu13), which is "
         "currently published only as Linux (manylinux) wheels on "
         "pypi.nvidia.com. Waiving this sample on Windows."
     )
-    sys.exit(2)
+    sys.exit(EXIT_WAIVED)
 
 try:
     import cudf
@@ -232,7 +235,7 @@ def run_pagerank_benchmark(
     if device.arch in _CUGRAPH_UNSUPPORTED_ARCHES:
         print(f"RAPIDS cuGraph does not yet ship kernels for sm_{device.arch}, waiving this sample.")
         stream.close()
-        sys.exit(2)
+        sys.exit(EXIT_WAIVED)
 
     # Make CuPy/cuDF use our cuda.core stream
     cp.cuda.Stream.from_external(stream).use()

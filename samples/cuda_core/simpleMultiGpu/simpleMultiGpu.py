@@ -46,10 +46,10 @@ also demonstrates the ``StreamAdaptor`` idiom for bridging a foreign stream
 (CuPy's current stream) into ``cuda.core`` so that memory initialized by
 CuPy is ordered before the kernel launch on our ``cuda.core`` stream.
 
-Waives with exit code 2 when fewer than 2 CUDA-capable devices are
-available.
+Waives when fewer than 2 CUDA-capable devices are available.
 """
 
+import os
 import sys
 
 try:
@@ -63,7 +63,7 @@ except ImportError as e:
     sys.exit(1)
 
 
-EXIT_WAIVED = 2
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 DTYPE = cp.float32
 SIZE = 50000

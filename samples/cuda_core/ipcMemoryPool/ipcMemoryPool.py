@@ -53,10 +53,11 @@ The sample does a round-trip test:
 
 IPC requires Linux (POSIX file-descriptor handles) and device support for
 memory pools. On unsupported platforms the sample prints a diagnostic and
-exits cleanly.
+waives.
 """
 
 import multiprocessing as mp
+import os
 import platform
 import sys
 from pathlib import Path
@@ -81,6 +82,7 @@ except ImportError as e:
 
 
 CHILD_TIMEOUT_SEC = 30
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 
 def check_ipc_support(device) -> bool:
@@ -150,8 +152,8 @@ def main() -> int:
     print_gpu_info(device)
 
     if not check_ipc_support(device):
-        print("\nCUDA IPC is not available on this system; exiting cleanly.")
-        return 0
+        print("\nCUDA IPC is not available on this system; waiving this sample.")
+        return EXIT_WAIVED
 
     N = args.elements
     nbytes = N * np.dtype(np.float32).itemsize

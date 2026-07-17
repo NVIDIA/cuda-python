@@ -50,7 +50,7 @@ input buffers, so the kernels see fully-materialized data.
 ### Hardware
 
 - **At least 2 CUDA-capable devices** in the system. The sample waives
-  itself (exit code 2) when only one GPU is visible.
+  itself when only one GPU is visible.
 - Compute Capability 7.0 or higher on both devices.
 
 ### Software

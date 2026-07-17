@@ -41,17 +41,19 @@ demonstrates instead of the boilerplate:
   * ``check_cmd_line_flag(flag)`` / ``get_cmd_line_argument_int(flag)`` --
     minimal CLI flag helpers used by the upstream cuda-samples style.
   * ``requirement_not_met(msg)`` -- print ``msg`` to stderr and exit with the
-    orchestrator-recognized WAIVED status (exit code 2).
+    negotiated WAIVED status (exit code 2 when run standalone).
   * ``check_compute_capability_too_low(dev_id, (major, minor))`` -- waive when
     the current device is below a required compute capability.
 
 These helpers were adapted from the private example-helpers module that
-used to ship with ``cuda.bindings`` before the examples migration, with
-one difference: ``requirement_not_met`` exits with code 2 (WAIVED,
-recognized by the ``samples/`` orchestrator) rather than the historic
-code 1.
+used to ship with ``cuda.bindings`` before the examples migration. When a
+sample is run standalone, ``requirement_not_met`` exits with the historical
+WAIVED code 2. The sample runner sets
+``CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE`` to a distinct code so command-line
+parser failures, which also use code 2, are not mistaken for waivers.
 """
 
+import os
 import sys
 
 import numpy as np
@@ -62,6 +64,7 @@ from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
 
 EXIT_WAIVED = 2
+WAIVER_EXIT_CODE_ENV = "CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE"
 
 
 # ---------------------------------------------------------------------------
@@ -112,9 +115,9 @@ def get_cmd_line_argument_int(flag: str) -> int:
 
 
 def requirement_not_met(message: str) -> None:
-    """Print ``message`` to stderr and exit with WAIVED status (exit code 2)."""
+    """Print ``message`` to stderr and exit with the negotiated WAIVED status."""
     print(message, file=sys.stderr)
-    sys.exit(EXIT_WAIVED)
+    sys.exit(int(os.environ.get(WAIVER_EXIT_CODE_ENV, EXIT_WAIVED)))
 
 
 # ---------------------------------------------------------------------------

@@ -7,7 +7,8 @@ low-level `cuda.bindings` APIs directly. It provides:
 - NVRTC compilation and CUDA module loading through `KernelHelper`
 - Runtime and driver API device selection
 - Command-line flag helpers used by CUDA sample ports
-- Consistent requirement waivers using exit code 2
+- Consistent requirement waivers using exit code 2 standalone, or the distinct
+  code negotiated by the automated sample runner
 
 ## Using the Helpers
 
@@ -33,3 +34,8 @@ python clockNvrtc.py
 
 These helpers support the samples and are not part of the public
 `cuda.bindings` API.
+
+`requirement_not_met()` reads `CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE` when it is
+set by an orchestrator. The repository sample runner sets it to `77`, keeping
+intentional waivers distinct from command-line parser errors, which use exit
+code `2`. Direct standalone execution retains exit code `2` for compatibility.

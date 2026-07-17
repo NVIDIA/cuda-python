@@ -100,6 +100,9 @@ running ---------> locked ------------> checkpointed -----------> locked -------
 - Python 3.10 or newer.
 - `cuda-core >= 1.0.0`.
 
+On non-Linux platforms and integrated GPUs, the sample prints a diagnostic
+and waives without attempting the checkpoint lifecycle.
+
 ## Installation
 
 Install the required packages from `requirements.txt`:
