@@ -4,7 +4,7 @@
 import ctypes
 
 import helpers
-from helpers.marks import requires_module
+from cuda_python_test_helpers.marks import requires_module
 from helpers.misc import StreamWrapper
 
 try:
@@ -13,8 +13,8 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
-
 from conftest import skipif_need_cuda_headers
+
 from cuda.core import (
     Device,
     DeviceMemoryResource,

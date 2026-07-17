@@ -6,12 +6,11 @@
 import os
 
 import pytest
+from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported
 
 from cuda.bindings import driver
 from cuda.core import system
 from cuda.core._utils.cuda_utils import handle_return
-
-from .conftest import skip_if_nvml_unsupported
 
 
 def test_user_mode_driver_version():

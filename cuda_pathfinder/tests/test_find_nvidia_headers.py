@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Currently these installations are only manually tested:
@@ -20,9 +20,9 @@ import sys
 from pathlib import Path
 
 import pytest
+from conftest import skip_if_missing_libnvcudla_so
 
 import cuda.pathfinder._headers.find_nvidia_headers as find_nvidia_headers_module
-from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, locate_nvidia_header_directory
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _resolve_system_loaded_abs_path_in_subprocess,

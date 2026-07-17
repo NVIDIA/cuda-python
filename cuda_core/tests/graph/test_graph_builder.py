@@ -7,8 +7,8 @@ import gc
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
-from helpers.marks import requires_module
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch

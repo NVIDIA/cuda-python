@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
@@ -8,6 +8,7 @@ import sys
 from contextlib import suppress
 
 __all__ = [
+    "IS_LINUX",
     "IS_WINDOWS",
     "IS_WSL",
     "libc",
@@ -26,6 +27,7 @@ def _detect_wsl() -> bool:
 
 IS_WSL: bool = _detect_wsl()
 IS_WINDOWS: bool = platform.system() == "Windows" or sys.platform.startswith("win")
+IS_LINUX: bool = not IS_WINDOWS and not IS_WSL and platform.system() == "Linux"
 
 if IS_WINDOWS:
     libc = ctypes.CDLL("msvcrt.dll")

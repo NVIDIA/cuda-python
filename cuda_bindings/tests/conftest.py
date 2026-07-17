@@ -12,18 +12,22 @@ import pytest
 
 import cuda.bindings.driver as cuda
 
-# Ensure cuda_python_test_helpers is importable. Prefer an installed package;
-# fall back to the sibling checkout. Keep in sync with cuda_core/tests/conftest.py.
+# Keep in sync with cuda_core/tests/conftest.py.
 try:
-    import cuda_python_test_helpers  # noqa: F401
+    import cuda_python_test_helpers._pytest_plugin  # noqa: F401
 except ImportError as e:
     # Don't call .resolve(): resolving symlinks can make parents[2] point
     # somewhere other than the monorepo root if a sub-directory is symlinked.
     _test_helpers_root = pathlib.Path(__file__).parents[2] / "cuda_python_test_helpers"
     if not _test_helpers_root.is_dir():
         raise RuntimeError(f"cuda-python-test-helpers not installed and not found at {_test_helpers_root}") from e
+    for _k in list(sys.modules):
+        if _k == "cuda_python_test_helpers" or _k.startswith("cuda_python_test_helpers."):
+            del sys.modules[_k]
     sys.path.insert(0, str(_test_helpers_root))
     importlib.invalidate_caches()
+
+pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
 
 def pytest_configure(config):

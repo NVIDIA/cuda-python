@@ -5,9 +5,9 @@
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.marks import requires_module
 from helpers.collection_interface_testers import assert_mutable_set_interface
 from helpers.graph_kernels import compile_parallel_kernels
-from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
