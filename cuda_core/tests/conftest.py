@@ -2,12 +2,27 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import importlib
 import multiprocessing
 import os
+import pathlib
 import sys
 from contextlib import contextmanager
 
 import pytest
+
+# Ensure cuda_python_test_helpers is importable. Prefer an installed package;
+# fall back to the sibling checkout. Keep in sync with cuda_bindings/tests/conftest.py.
+try:
+    import cuda_python_test_helpers  # noqa: F401
+except ImportError as e:
+    # Don't call .resolve(): resolving symlinks can make parents[2] point
+    # somewhere other than the monorepo root if a sub-directory is symlinked.
+    _test_helpers_root = pathlib.Path(__file__).parents[2] / "cuda_python_test_helpers"
+    if not _test_helpers_root.is_dir():
+        raise RuntimeError(f"cuda-python-test-helpers not installed and not found at {_test_helpers_root}") from e
+    sys.path.insert(0, str(_test_helpers_root))
+    importlib.invalidate_caches()
 
 import cuda.core
 from cuda.bindings import driver
