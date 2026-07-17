@@ -53,6 +53,68 @@ def _sample(tmp_path: Path, dependencies: str) -> Path:
     return sample
 
 
+def _sample_entry(root: Path, category: str, name: str) -> Path:
+    sample_dir = root / category / name
+    sample_dir.mkdir(parents=True)
+    entry = sample_dir / f"{name}.py"
+    entry.write_text("print('not executed')\n", encoding="utf-8")
+    return entry
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_collection_preserves_duplicate_leaf_names_with_path_aware_ids(tmp_path: Path) -> None:
+    _sample_entry(tmp_path, "first", "duplicate")
+    _sample_entry(tmp_path, "second", "duplicate")
+
+    entries = run_samples.collect_sample_entries(tmp_path, "cuda_bindings")
+
+    assert list(entries) == [
+        "cuda_bindings/first/duplicate",
+        "cuda_bindings/second/duplicate",
+    ]
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_namespaced_config_distinguishes_duplicate_leaf_names(tmp_path: Path) -> None:
+    first = _sample_entry(tmp_path, "first", "duplicate")
+    second = _sample_entry(tmp_path, "second", "duplicate")
+    config = {
+        "cuda_bindings/first/duplicate": {"python": {"args": ["first"]}},
+        "cuda_bindings/second/duplicate": {"python": {"args": ["second"]}},
+        "duplicate": {"python": {"args": ["legacy"]}},
+    }
+
+    first_plan = run_samples.build_run_plan(
+        first,
+        config,
+        gpu_count=1,
+        sample_key="cuda_bindings/first/duplicate",
+    )
+    second_plan = run_samples.build_run_plan(
+        second,
+        config,
+        gpu_count=1,
+        sample_key="cuda_bindings/second/duplicate",
+    )
+
+    assert first_plan.args == ["first"]
+    assert second_plan.args == ["second"]
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_namespaced_config_lookup_falls_back_to_legacy_leaf_key(tmp_path: Path) -> None:
+    entry = _sample_entry(tmp_path, "category", "legacy")
+
+    plan = run_samples.build_run_plan(
+        entry,
+        {"legacy": {"python": {"args": ["compatible"]}}},
+        gpu_count=1,
+        sample_key="cuda_core/category/legacy",
+    )
+
+    assert plan.args == ["compatible"]
+
+
 @pytest.mark.parametrize(
     ("version", "requirement", "is_met"),
     [

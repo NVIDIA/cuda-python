@@ -4,9 +4,9 @@
 Examples
 ========
 
-The canonical, runnable examples for ``cuda.core`` live under the top-level
-:samples:`samples/ directory </>` of the cuda-python repository. Each sample
-is a self-contained directory with its own ``README.md``, ``requirements.txt``,
+The canonical, runnable examples for ``cuda.core`` live under
+:samples:`samples/cuda_core/ </>` in the cuda-python repository. Each sample is
+a self-contained directory with its own ``README.md``, ``requirements.txt``,
 and PEP 723 dependency block, and every sample is exercised as part of the
 ``cuda.core`` test suite.
 

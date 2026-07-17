@@ -4,17 +4,19 @@
 Examples
 ========
 
-The canonical, runnable examples for ``cuda.bindings`` live under the top-level
-:samples:`samples/ directory </>` of the cuda-python repository, alongside
-the ``cuda.core`` samples. Each sample is a self-contained directory with
+The canonical, runnable examples for ``cuda.bindings`` live under
+:samples:`samples/cuda_bindings/ </>` in the cuda-python repository. Each
+sample is a self-contained directory with
 its own ``README.md``, ``requirements.txt``, and PEP 723 dependency block,
-and every sample is exercised as part of the ``cuda.core`` test suite.
+and every sample is exercised as part of the ``cuda.bindings`` test suite.
 
 The cuda-bindings-flavored samples preserve the same category structure the
 ``cuda-samples`` repository uses, so they are grouped under
-``samples/0_Introduction/``, ``samples/2_Concepts_and_Techniques/``,
-``samples/3_CUDA_Features/``, ``samples/4_CUDA_Libraries/``, and
-``samples/extra/``.
+``samples/cuda_bindings/0_Introduction/``,
+``samples/cuda_bindings/2_Concepts_and_Techniques/``,
+``samples/cuda_bindings/3_CUDA_Features/``,
+``samples/cuda_bindings/4_CUDA_Libraries/``, and
+``samples/cuda_bindings/extra/``.
 
 Introduction
 ------------
@@ -68,4 +70,5 @@ Advanced and interoperability
   with peer-to-peer halo exchange.
 - :sample:`extra/jitProgram <extra/jitProgram/>`
   JIT-compiles a SAXPY kernel with NVRTC and launches it through the
-  Driver API — the low-level companion to ``samples/jitLtoLinking/``.
+  Driver API -- the low-level companion to
+  :cuda-core-sample:`cuda.core's jitLtoLinking sample <jitLtoLinking/>`.

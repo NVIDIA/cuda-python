@@ -23,6 +23,8 @@ pytest-rerunfailures = "*"
 cloudpickle = "*"
 psutil = "*"
 pyglet = "*"
+packaging = "*"
+tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
 
 [feature.local-deps.dependencies]
 cuda-bindings = { path = "../cuda_bindings" }
@@ -37,10 +39,9 @@ pytest = "*"
 packaging = "*"
 tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
 # numpy pinned <2.5 so `numba` (transitive dep of `numba-cuda` in
-# samples/simplePrint) can install; numba currently requires numpy<2.5.
+# samples/cuda_core/simplePrint) can install; numba currently requires numpy<2.5.
 numpy = "<2.5"
-matplotlib = "*"                    # samples/extra/isoFdModelling
-setuptools = "*"                    # samples/0_Introduction/stridedMemoryViewCpu (cffi JIT build)
+setuptools = "*"                    # samples/cuda_core/stridedMemoryViewCpu (cffi JIT build)
 
 [feature.samples.system-requirements]
 cuda = "13"
@@ -51,14 +52,14 @@ cuda = "13"
 # The conda-forge `cuda-cccl` package only installs C++ headers; the PyPI
 # wheel is the one that exposes `cuda.cccl` to Python.
 cuda-cccl = { version = "*", extras = ["minimal-sysctk13"] }
-# nvtx: samples/kernelNsysProfile
+# nvtx: samples/cuda_core/kernelNsysProfile
 nvtx = "*"
-# numba-cuda: samples/simplePrint (pin >=0.29 to match the sample's
+# numba-cuda: samples/cuda_core/simplePrint (pin >=0.29 to match the sample's
 # PEP 723 declaration; older 0.0.x releases resolve otherwise).
 numba-cuda = ">=0.29.0"
-# nvmath-python: samples/matrixMulSharedMem
+# nvmath-python: samples/cuda_core/matrixMulSharedMem
 nvmath-python = { version = "*", extras = ["sysctk13"] }
-# nvidia-nvjitlink: samples/simplePrint (was nvidia-nvjitlink-cu13, now deprecated)
+# nvidia-nvjitlink: samples/cuda_core/simplePrint (was nvidia-nvjitlink-cu13, now deprecated)
 nvidia-nvjitlink = "*"
 
 # These packages are provided by the local Conda path builds in `local-deps`.
@@ -75,24 +76,24 @@ pytorch-gpu = "*"
 libgl-devel = "*"
 gxx = "*"
 pillow = "*"
-# mpi4py + openmpi: samples/multiGPUGradientAverage
+# mpi4py + openmpi: samples/cuda_core/multiGPUGradientAverage
 mpi4py = "*"
 openmpi = "*"
 # NOTE: two sample deps are intentionally NOT installed here:
 #
-#   * `tensorflow` (samples/customTensorFlowKernel) --
+#   * `tensorflow` (samples/cuda_core/customTensorFlowKernel) --
 #     conda-forge tensorflow ships an object whose shared library requires
 #     an executable stack, which fails to load on hardened kernels
 #     (`cannot enable executable stack as shared object requires`). The
 #     sample self-waives when TensorFlow is missing / broken; users who
 #     want to run it should `pip install tensorflow` into a separate env.
 #
-#   * `cudf-cu13`, `cugraph-cu13`, `dask-cuda` (samples/pageRank) --
+#   * `cudf-cu13`, `cugraph-cu13`, `dask-cuda` (samples/cuda_core/pageRank) --
 #     the RAPIDS stack is not on the conda-forge channel used here; it
 #     lives on the `rapidsai` channel and pulls in ~2 GB of dependencies.
 #     Left out to keep the samples env solvable. Users who want to run
-#     samples/pageRank can install those wheels via
-#     `pip install -r samples/pageRank/requirements.txt` into a dedicated
+#     samples/cuda_core/pageRank can install those wheels via
+#     `pip install -r samples/cuda_core/pageRank/requirements.txt` into a dedicated
 #     environment.
 
 [feature.samples.target.linux-64.activation.env]
@@ -168,7 +169,7 @@ nvidia-sphinx-theme = "*"
 make = "*"
 
 # Dedicated environment for the MLIR numba-cuda example
-# (examples/gl_interop_fluid_numba_cuda_mlir.py). numba-cuda-mlir pulls
+# (samples/cuda_core/glInteropFluidNumbaCudaMlir). numba-cuda-mlir pulls
 # *published* cuda-core / cuda-bindings through its pypi closure, which would
 # shadow (overwrite in site-packages) the editable dev path builds used
 # everywhere else -- so it MUST live in its own environment, isolated from the

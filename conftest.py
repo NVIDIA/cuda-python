@@ -41,8 +41,7 @@ def pytest_collection_modifyitems(config, items):  # noqa: ARG001
         if nodeid.startswith("tests/integration/") or "/tests/integration/" in nodeid:
             item.add_marker(pytest.mark.smoke)
 
-        # Sample tests run within the cuda_core suite (orchestrator + wrapper live
-        # under cuda_core/tests/example_tests/; sample sources under ./samples/).
+        # Each package owns the sample wrapper under its example_tests subtree.
         if "example_tests/test_samples.py" in nodeid:
             item.add_marker(pytest.mark.samples)
 

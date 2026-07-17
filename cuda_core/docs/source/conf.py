@@ -121,20 +121,25 @@ html_static_path = []  # ["_static"] does not exist in our environment
 copybutton_exclude = ".linenos, .gp"
 
 extlinks = {
+    # Historical release notes use this role to link into pre-migration tags.
     "cuda-core-example": (
         f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/cuda_core/examples/%s",
         "%s",
     ),
     "cuda-core-examples": (
-        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/cuda_core/examples%s",
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_core%s",
         "%s",
     ),
     "sample": (
-        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/%s",
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_core/%s",
+        "%s",
+    ),
+    "sample-file": (
+        f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/samples/cuda_core/%s",
         "%s",
     ),
     "samples": (
-        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples%s",
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_core%s",
         "%s",
     ),
 }

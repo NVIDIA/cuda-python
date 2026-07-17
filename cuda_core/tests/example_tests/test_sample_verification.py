@@ -11,7 +11,7 @@ import pytest
 from .run_samples import RunPlan, run_sample
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-UTILITIES_DIR = REPO_ROOT / "samples" / "Utilities"
+UTILITIES_DIR = REPO_ROOT / "samples" / "cuda_core" / "Utilities"
 
 
 @pytest.mark.agent_authored(model="gpt-5")

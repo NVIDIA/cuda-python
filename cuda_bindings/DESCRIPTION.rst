@@ -13,7 +13,7 @@ cuda-bindings: Low-level CUDA interfaces
 
 * `Repository <https://github.com/NVIDIA/cuda-python/tree/main/cuda_bindings>`_
 * `Documentation <https://nvidia.github.io/cuda-python/cuda-bindings/>`_
-* `Examples <https://github.com/NVIDIA/cuda-python/tree/main/samples>`_
+* `Examples <https://github.com/NVIDIA/cuda-python/tree/main/samples/cuda_bindings>`_
 * `Issue tracker <https://github.com/NVIDIA/cuda-python/issues/>`_
 
 For the installation instruction, please refer to the `Installation <https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html>`_ page.

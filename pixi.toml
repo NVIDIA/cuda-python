@@ -53,11 +53,24 @@ cmd = [
     'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_core" -e "$PIXI_ENVIRONMENT_NAME" test',
 ]
 
-[target.linux.tasks.test-samples]
+[target.linux.tasks.test-samples-bindings]
+cmd = [
+    "bash",
+    "-c",
+    'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings" test-samples',
+]
+
+[target.linux.tasks.test-samples-core]
 cmd = [
     "bash",
     "-c",
     'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_core" test-samples',
+]
+
+[target.linux.tasks.test-samples]
+depends-on = [
+    { task = "test-samples-bindings" },
+    { task = "test-samples-core" },
 ]
 
 [target.linux.tasks.test]
