@@ -852,39 +852,54 @@ cdef class GraphBuilder:
             pointer (caller manages lifetime). If bytes-like, the data is
             copied and its lifetime is tied to the graph.
         """
-        GB_check_open(self)
-        cdef Stream stream = self._stream
-        cdef cydriver.CUstream c_stream = as_cu(stream._h_stream)
-        cdef cydriver.CUstreamCaptureStatus capture_status
+        GB_callback(self, fn, user_data, False)
 
-        with nogil:
-            _get_capture_info(c_stream, &capture_status, NULL)
 
-        if capture_status != cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
-            raise RuntimeError("Cannot add callback when graph is not being built")
+cdef inline void GB_callback(
+        GraphBuilder gb, object fn, object user_data,
+        bint fail_tail_discovery_for_testing) except *:
+    GB_check_open(gb)
+    cdef Stream stream = gb._stream
+    cdef cydriver.CUstream c_stream = as_cu(stream._h_stream)
+    cdef cydriver.CUstreamCaptureStatus capture_status
 
-        cdef cydriver.CUhostFn c_fn
-        cdef void* c_user_data = NULL
-        cdef OpaqueHandle fn_owner, data_owner
-        _resolve_host_callback(fn, user_data, &c_fn, &c_user_data, &fn_owner, &data_owner)
+    with nogil:
+        _get_capture_info(c_stream, &capture_status, NULL)
 
-        with nogil:
-            HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
+    if capture_status != cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
+        raise RuntimeError("Cannot add callback when graph is not being built")
 
-        # Capturing the host function added a node to the graph; it is now the
-        # stream's sole capture dependency. Attach the callback's owners to it.
-        cdef cydriver.CUgraphNode host_node
-        cdef cydriver.CUresult retain_status
-        try:
-            host_node = _capture_tail_node(c_stream)
-        except:
-            # CUDA added the callback, but its node cannot be identified.
-            # Retain its owners anonymously to prevent dangling pointers.
-            retain_status = graph_set_attachment(
-                self._h_graph, NULL, fn_owner, data_owner)
-            HANDLE_RETURN(retain_status)
-            raise
-        _attach_host_callback_owners(self._h_graph, host_node, fn_owner, data_owner)
+    cdef cydriver.CUhostFn c_fn
+    cdef void* c_user_data = NULL
+    cdef OpaqueHandle fn_owner, data_owner
+    _resolve_host_callback(
+        fn, user_data, &c_fn, &c_user_data, &fn_owner, &data_owner)
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
+
+    # Capturing the host function added a node to the graph; it is now the
+    # stream's sole capture dependency. Attach the callback's owners to it.
+    cdef cydriver.CUgraphNode host_node
+    cdef cydriver.CUresult retain_status
+    try:
+        if fail_tail_discovery_for_testing:
+            raise RuntimeError("forced capture tail discovery failure")
+        host_node = _capture_tail_node(c_stream)
+    except:
+        # CUDA added the callback, but its node cannot be identified.
+        # Retain its owners anonymously to prevent dangling pointers.
+        retain_status = graph_set_attachment(
+            gb._h_graph, NULL, fn_owner, data_owner)
+        HANDLE_RETURN(retain_status)
+        raise
+    _attach_host_callback_owners(gb._h_graph, host_node, fn_owner, data_owner)
+
+
+def _capture_callback_with_tail_failure_for_testing(
+        GraphBuilder gb, fn, *, user_data=None):
+    """Exercise anonymous attachment retention after node discovery fails."""
+    GB_callback(gb, fn, user_data, True)
 
 
 cdef inline int GB_check_open(GraphBuilder gb) except -1:

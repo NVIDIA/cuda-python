@@ -491,3 +491,6 @@ __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOpti
 
 def _instantiate_graph(h_graph, options: GraphCompleteOptions | None=None) -> Graph:
     ...
+
+def _capture_callback_with_tail_failure_for_testing(gb: GraphBuilder, fn, *, user_data=None):
+    """Exercise anonymous attachment retention after node discovery fails."""

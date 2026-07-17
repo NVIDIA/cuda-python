@@ -208,6 +208,23 @@ def test_destroying_conditional_node_releases_branch_attachments(init_cuda, buil
     _wait_until(lambda: all(ref() is None for ref in callback_refs))
 
 
+@pytest.mark.parametrize("builder, expected_count", _COND_BUILDERS)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroying_conditional_node_invalidates_branch_handles(init_cuda, builder, expected_count):
+    """Destroying a conditional owner invalidates every branch graph and node."""
+    graph_def = GraphDefinition()
+    condition = try_create_condition(graph_def)
+    branches = builder(graph_def, condition)
+    branch_nodes = [branch.callback(lambda: None) for branch in branches]
+
+    owner = next(node for node in graph_def.nodes() if isinstance(node, ConditionalNode))
+    owner.destroy()
+
+    assert len(branches) == expected_count
+    assert all(int(branch.handle) == 0 for branch in branches)
+    assert all(not node.is_valid for node in branch_nodes)
+
+
 # =============================================================================
 # Child graph (embed) lifetime
 # =============================================================================
@@ -359,6 +376,30 @@ def test_destroying_child_node_recursively_releases_subgraph_attachments(init_cu
     outer_child.destroy()
     del outer_child
     _wait_until(lambda: callback_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroying_child_node_invalidates_embedded_handles(init_cuda):
+    """Destroying a child owner invalidates all embedded graph and node views."""
+    inner = GraphDefinition()
+    inner.callback(lambda: None)
+    middle = GraphDefinition()
+    middle.embed(inner)
+    outer = GraphDefinition()
+    outer_child = outer.embed(middle)
+
+    embedded_middle = outer_child.child_graph
+    embedded_child = next(node for node in embedded_middle.nodes() if isinstance(node, ChildGraphNode))
+    embedded_inner = embedded_child.child_graph
+    embedded_callback = next(node for node in embedded_inner.nodes() if isinstance(node, HostCallbackNode))
+
+    outer_child.destroy()
+
+    assert not outer_child.is_valid
+    assert int(embedded_middle.handle) == 0
+    assert int(embedded_inner.handle) == 0
+    assert not embedded_child.is_valid
+    assert not embedded_callback.is_valid
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
