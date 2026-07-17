@@ -48,7 +48,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "Utilities"))
 
 try:
     import numpy as np
-    from cuda_samples_utils import print_gpu_info
+    from cuda_samples_utils import print_gpu_info, verify_array_result_or_raise
 
     from cuda.core import (
         Device,
@@ -187,10 +187,15 @@ def main():
         expected = np_in.astype(np.float32) * scale
         for _ in range(50):
             expected = np.sqrt(expected * expected + 1.0).astype(np.float32)
-        if np.allclose(np_out, expected, rtol=1e-4, atol=1e-4):
-            print("Verification: PASSED")
-        else:
-            print("Verification: FAILED")
+        verify_array_result_or_raise(
+            np_out,
+            expected,
+            rtol=1e-4,
+            atol=1e-4,
+            verbose=False,
+            error_message="Sequential execution verification failed",
+        )
+        print("Verification: PASSED")
     finally:
         for buf in (h_in, h_out, d_in, d_out):
             if buf is not None:
@@ -289,8 +294,14 @@ def main():
             expected = np_in.astype(np.float32) * scale
             for _ in range(50):
                 expected = np.sqrt(expected * expected + 1.0).astype(np.float32)
-            if not np.allclose(np_out, expected, rtol=1e-4, atol=1e-4):
-                print(f"  Verification: FAILED for {n_streams} streams")
+            verify_array_result_or_raise(
+                np_out,
+                expected,
+                rtol=1e-4,
+                atol=1e-4,
+                verbose=False,
+                error_message=f"Verification failed for {n_streams} streams",
+            )
         finally:
             for buf in h_ins + h_outs + d_ins + d_outs:
                 buf.close()

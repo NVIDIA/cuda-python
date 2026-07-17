@@ -37,9 +37,13 @@ kernels using cuda.core APIs. Benchmarks different thread layouts to answer:
 """
 
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "Utilities"))
 
 try:
     import numpy as np
+    from cuda_samples_utils import verify_array_result_or_raise
 
     from cuda.core import (
         Device,
@@ -246,8 +250,13 @@ def demo_vector_add_tuning(device, stream, mr, kernel):
         # Verify result
         stream.sync()
         expected = np_a + np_b
-        if np.allclose(np_c, expected):
-            print("\n[OK] Results verified correct!")
+        verify_array_result_or_raise(
+            np_c,
+            expected,
+            verbose=False,
+            error_message="Vector addition verification failed",
+        )
+        print("\n[OK] Results verified correct!")
 
         return results
     finally:

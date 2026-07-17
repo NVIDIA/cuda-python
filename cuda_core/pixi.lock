@@ -3393,10 +3393,8 @@ environments:
       - conda: ../cuda_bindings
         build: py314hd3a1e81_0
       - conda: ../cuda_pathfinder
-      - pypi: https://files.pythonhosted.org/packages/d4/e0/c8a1f0c8f9ffdea4f5fe6dbab89b326cef4d85caf489dad39e209da89416/cuda_bindings-13.3.1-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/97/a7139cbecd8123d693c2b67b984a584d8088ea8a1f85617139b5879c0e47/cuda_cccl-1.1.1-cp314-cp314-manylinux_2_26_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/32/d4/fad332f1923d47a0eafac37fde5259aad8987969eed6cceb33cb04f035a4/cuda_core-1.1.0-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/d2/53/8fc9b0cdc5b7f62746e6a01b85b6461e5ae27f871010a5fcf8fa6950766d/cuda_pathfinder-1.5.6-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/19/da/53b58aad8261451ca4e9384791ac8af1fb8b4ca976e8feba56a50d5e53ba/cutensor_cu13-2.7.0-py3-none-manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/d6/e1/05b50692b647cac3c18200ac485b04f342f00ed173c9cc46767274469a15/llvmlite-0.48.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/0f/26/885774c006de6620ed3d10f45d8e20fe0b8e6aad6d573211a2cbc8b3e528/numba-0.66.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/df/73/8934508d27efd9a930489059b980bc1e75336574be31bffb284a9e782fa7/numba_cuda-0.30.4-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
@@ -3691,10 +3689,8 @@ environments:
       - conda: ../cuda_bindings
         build: py314h3ff45e1_0
       - conda: ../cuda_pathfinder
-      - pypi: https://files.pythonhosted.org/packages/b1/81/bff68ce829999c1e4209c761bbf903b1c06ec570416ddb25020864ad5907/cuda_bindings-13.3.1-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/d0/4e/89737a87b22a5ed8748951fb6446762ff1b0fb4aadc0865b759fbc51ba92/cuda_cccl-1.1.1-cp314-cp314-manylinux_2_24_aarch64.whl
-      - pypi: https://files.pythonhosted.org/packages/e0/14/db2256f3045fa17763726c09d519be4f876bfadeed85cfea539b42ecae25/cuda_core-1.1.0-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl
-      - pypi: https://files.pythonhosted.org/packages/d2/53/8fc9b0cdc5b7f62746e6a01b85b6461e5ae27f871010a5fcf8fa6950766d/cuda_pathfinder-1.5.6-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/b1/65/73c65022634bac7816bdeaf453a7c37820c4d6fcd79832108e2662d10cd6/cutensor_cu13-2.7.0-py3-none-manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/f7/c3/470b8c4ff9ae2db2f9cf5c3e73de76ed908a32788ae9eb5602d43e6a476b/llvmlite-0.48.0-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/93/99/edebf7de890b73973d839dd971cf73734adfb81ffa1b4504f84b9059c3e5/numba-0.66.0-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/bc/35/3c2a05375b01159632ed90384a04a08725b83b49d2e511f44158c5ec2c43/numba_cuda-0.30.4-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl
@@ -3847,10 +3843,8 @@ environments:
       - conda: ../cuda_bindings
         build: py314hd7f1909_0
       - conda: ../cuda_pathfinder
-      - pypi: https://files.pythonhosted.org/packages/48/45/2734be44dbc80ac082ec23a86b41c8294992dcb90033645ed1bc50aafe4c/cuda_bindings-13.3.1-cp314-cp314-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/f2/e9/bb426cdc083f7bce8482ec5f6ff932e1d9858a88a43eefbaa68cbb337416/cuda_cccl-1.1.1-cp314-cp314-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/6f/15/8d1f52cba966f7a130108132b197b13fbcacee715aa764baa79cd67f9169/cuda_core-1.1.0-cp314-cp314-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/d2/53/8fc9b0cdc5b7f62746e6a01b85b6461e5ae27f871010a5fcf8fa6950766d/cuda_pathfinder-1.5.6-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/a8/c2/b76e58bb8beb0ac95cbbfd79659d38b69f38b383f3e179671bcfa9caae6e/cutensor_cu13-2.7.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/c9/2d/6a5171fb7236ac0895e1a02ccba3735bf291e8597239aa6421894d3c0ba8/llvmlite-0.48.0-cp314-cp314-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/66/c5/b46ad28ac3681d035ea21365c5e052149062e1a0a9affd0563d2760ea6ff/numba-0.66.0-cp314-cp314-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/3f/e3/613f6fc457f430775d124bea2e38033802fe97ab412a032191ac9b117d3a/numba_cuda-0.30.4-cp314-cp314-win_amd64.whl
@@ -4809,17 +4803,6 @@ packages:
   - cuda-toolkit==13.* ; extra == 'all'
   - nvidia-cudla==13.* ; platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'all'
   requires_python: '>=3.10'
-- pypi: https://files.pythonhosted.org/packages/48/45/2734be44dbc80ac082ec23a86b41c8294992dcb90033645ed1bc50aafe4c/cuda_bindings-13.3.1-cp314-cp314-win_amd64.whl
-  name: cuda-bindings
-  version: 13.3.1
-  sha256: 8de12ef60bf40756852cb62bbb40460609269f6ece522903d1cc93d73a3ececb
-  requires_dist:
-  - cuda-pathfinder>=1.4.2
-  - cuda-toolkit[nvfatbin,nvjitlink,nvrtc,nvvm]==13.* ; extra == 'all'
-  - cuda-toolkit[cufile]==13.* ; sys_platform == 'linux' and extra == 'all'
-  - cuda-toolkit==13.* ; extra == 'all'
-  - nvidia-cudla==13.* ; platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'all'
-  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/b1/81/bff68ce829999c1e4209c761bbf903b1c06ec570416ddb25020864ad5907/cuda_bindings-13.3.1-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl
   name: cuda-bindings
   version: 13.3.1
@@ -4831,20 +4814,9 @@ packages:
   - cuda-toolkit==13.* ; extra == 'all'
   - nvidia-cudla==13.* ; platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'all'
   requires_python: '>=3.10'
-- pypi: https://files.pythonhosted.org/packages/d4/e0/c8a1f0c8f9ffdea4f5fe6dbab89b326cef4d85caf489dad39e209da89416/cuda_bindings-13.3.1-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
-  name: cuda-bindings
-  version: 13.3.1
-  sha256: efd4c814d311ec08c981f6dded1dbe7d4b371067ee4f6c14cccec4bde9590f80
-  requires_dist:
-  - cuda-pathfinder>=1.4.2
-  - cuda-toolkit[nvfatbin,nvjitlink,nvrtc,nvvm]==13.* ; extra == 'all'
-  - cuda-toolkit[cufile]==13.* ; sys_platform == 'linux' and extra == 'all'
-  - cuda-toolkit==13.* ; extra == 'all'
-  - nvidia-cudla==13.* ; platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'all'
-  requires_python: '>=3.10'
 - conda: ../cuda_bindings
   name: cuda-bindings
-  version: 13.2.0
+  version: 13.3.1
   build: py314h3ff45e1_0
   subdir: linux-aarch64
   variants:
@@ -4872,7 +4844,7 @@ packages:
       path: ../cuda_pathfinder
 - conda: ../cuda_bindings
   name: cuda-bindings
-  version: 13.2.0
+  version: 13.3.1
   build: py314hd3a1e81_0
   subdir: linux-64
   variants:
@@ -4900,7 +4872,7 @@ packages:
       path: ../cuda_pathfinder
 - conda: ../cuda_bindings
   name: cuda-bindings
-  version: 13.2.0
+  version: 13.3.1
   build: py314hd7f1909_0
   subdir: win-64
   variants:
@@ -5227,36 +5199,10 @@ packages:
   license: LicenseRef-NVIDIA-End-User-License-Agreement
   size: 1462453
   timestamp: 1779895589763
-- pypi: https://files.pythonhosted.org/packages/32/d4/fad332f1923d47a0eafac37fde5259aad8987969eed6cceb33cb04f035a4/cuda_core-1.1.0-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
-  name: cuda-core
-  version: 1.1.0
-  sha256: dc8103c78b9c15ad6b1ea48de7763b429c8fde42bec43a9dd0550868994a0ce4
-  requires_dist:
-  - cuda-pathfinder>=1.4.2
-  - numpy
-  - backports-strenum ; python_full_version < '3.11'
-  - cuda-bindings[all]==12.* ; extra == 'cu12'
-  - cuda-toolkit==12.* ; extra == 'cu12'
-  - cuda-bindings[all]==13.* ; extra == 'cu13'
-  - cuda-toolkit==13.* ; extra == 'cu13'
-  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/5a/e0/572f2179b4353a0a4ff1265b8708629192ff1245fabdc0576e5276731f24/cuda_core-1.1.0-cp314-cp314t-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
   name: cuda-core
   version: 1.1.0
   sha256: 3982a67eb16a8b9e9881455aa3d123db049891fab48b028434323bbde935e006
-  requires_dist:
-  - cuda-pathfinder>=1.4.2
-  - numpy
-  - backports-strenum ; python_full_version < '3.11'
-  - cuda-bindings[all]==12.* ; extra == 'cu12'
-  - cuda-toolkit==12.* ; extra == 'cu12'
-  - cuda-bindings[all]==13.* ; extra == 'cu13'
-  - cuda-toolkit==13.* ; extra == 'cu13'
-  requires_python: '>=3.10'
-- pypi: https://files.pythonhosted.org/packages/6f/15/8d1f52cba966f7a130108132b197b13fbcacee715aa764baa79cd67f9169/cuda_core-1.1.0-cp314-cp314-win_amd64.whl
-  name: cuda-core
-  version: 1.1.0
-  sha256: d0531306d2894523e261418491a68b8385481c9fa0552d78fd3ba6b746a20942
   requires_dist:
   - cuda-pathfinder>=1.4.2
   - numpy
@@ -5281,7 +5227,7 @@ packages:
   requires_python: '>=3.10'
 - conda: .
   name: cuda-core
-  version: 0.7.0
+  version: 1.1.0
   build: py314h3ff45e1_0
   subdir: linux-aarch64
   variants:
@@ -5304,7 +5250,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.7.0
+  version: 1.1.0
   build: py314h5e6f764_0
   subdir: win-64
   variants:
@@ -5329,7 +5275,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.7.0
+  version: 1.1.0
   build: py314ha6d028f_0
   subdir: linux-64
   variants:
@@ -5352,7 +5298,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.7.0
+  version: 1.1.0
   build: py314hd3a1e81_0
   subdir: linux-64
   variants:
@@ -5375,7 +5321,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.7.0
+  version: 1.1.0
   build: py314hd7f1909_0
   subdir: win-64
   variants:
@@ -5399,7 +5345,7 @@ packages:
   license: Apache-2.0
 - conda: .
   name: cuda-core
-  version: 0.7.0
+  version: 1.1.0
   build: py314he8946ed_0
   subdir: linux-aarch64
   variants:
@@ -6522,7 +6468,7 @@ packages:
   requires_python: '>=3.10'
 - conda: ../cuda_pathfinder
   name: cuda-pathfinder
-  version: 1.3.4a0
+  version: 1.5.6
   build: pyh4616a5c_0
   subdir: noarch
   variants:
@@ -6781,6 +6727,18 @@ packages:
   - pkg:pypi/cupy?source=hash-mapping
   size: 39191318
   timestamp: 1779504103703
+- pypi: https://files.pythonhosted.org/packages/19/da/53b58aad8261451ca4e9384791ac8af1fb8b4ca976e8feba56a50d5e53ba/cutensor_cu13-2.7.0-py3-none-manylinux2014_x86_64.whl
+  name: cutensor-cu13
+  version: 2.7.0
+  sha256: 9a4187a153ddd431dca4313e2efc6f6f8bd4fda4dd0e41d863c9e039705b6f8f
+- pypi: https://files.pythonhosted.org/packages/a8/c2/b76e58bb8beb0ac95cbbfd79659d38b69f38b383f3e179671bcfa9caae6e/cutensor_cu13-2.7.0-py3-none-win_amd64.whl
+  name: cutensor-cu13
+  version: 2.7.0
+  sha256: 7834c69b40cce5f6c086624ccb88a70a05461e263e52e368a9eaebca937c1c0f
+- pypi: https://files.pythonhosted.org/packages/b1/65/73c65022634bac7816bdeaf453a7c37820c4d6fcd79832108e2662d10cd6/cutensor_cu13-2.7.0-py3-none-manylinux2014_aarch64.whl
+  name: cutensor-cu13
+  version: 2.7.0
+  sha256: 293730541bdcc260c2f735ba4aa123cd907ca143a964252d1912a58c1e37c18a
 - conda: https://conda.anaconda.org/conda-forge/noarch/cycler-0.12.1-pyhcf101f3_2.conda
   sha256: bb47aec5338695ff8efbddbc669064a3b10fe34ad881fb8ad5d64fbfa6910ed1
   md5: 4c2a8fef270f6c69591889b93f9f55c1

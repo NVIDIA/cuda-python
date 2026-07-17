@@ -87,7 +87,7 @@ nvidia-sphinx-theme = "*"
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-bindings"
-version = "13.2.0"
+version = "13.3.1"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }

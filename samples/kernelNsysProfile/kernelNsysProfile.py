@@ -70,7 +70,7 @@ except ImportError as e:
 
 # Add parent directory to path to import utilities
 sys.path.insert(0, str(Path(__file__).parent.parent / "Utilities"))
-from cuda_samples_utils import verify_array_result
+from cuda_samples_utils import verify_array_result_or_raise
 
 # CUDA C++ kernel definitions
 # For larger projects, separating kernels into a separate file is also valid.
@@ -282,19 +282,31 @@ def run(size):
         print("  Validating cuda.core kernels:")
 
         print("    Vector Add: ", end="")
-        vec_add_match = verify_array_result(c_cuda, c_cupy, rtol=1e-5, atol=1e-6)
+        verify_array_result_or_raise(
+            c_cuda,
+            c_cupy,
+            rtol=1e-5,
+            atol=1e-6,
+            error_message="Vector Add verification failed",
+        )
 
         print("    SAXPY:      ", end="")
-        saxpy_match = verify_array_result(y_cuda, y_cupy, rtol=1e-5, atol=1e-6)
+        verify_array_result_or_raise(
+            y_cuda,
+            y_cupy,
+            rtol=1e-5,
+            atol=1e-6,
+            error_message="SAXPY verification failed",
+        )
 
         print("    Transform:  ", end="")
-        transform_match = verify_array_result(transform_cuda, transform_cupy, rtol=1e-5, atol=1e-6)
-
-        all_pass = vec_add_match and saxpy_match and transform_match
-
-        if not all_pass:
-            print("\n  ERROR: Kernel verification failed!")
-            return 1
+        verify_array_result_or_raise(
+            transform_cuda,
+            transform_cupy,
+            rtol=1e-5,
+            atol=1e-6,
+            error_message="Transform verification failed",
+        )
         print()
 
     # Final synchronization

@@ -25,15 +25,24 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import importlib.metadata
 import json
 import os
-import re
 import subprocess
 import sys
 import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.utils import canonicalize_name
+from packaging.version import InvalidVersion
 
 # Default timeout per sample run (seconds). Match cuda-samples.
 DEFAULT_TIMEOUT = 300
@@ -133,69 +142,91 @@ def get_gpu_count() -> int:
 
 
 # ---------------------------------------------------------------------------
-# PEP 723 dep gating (reuse the helper that ships with cuda-bindings test
-# infrastructure when available; otherwise fall back to a local parser so the
-# runner stays usable without cuda-bindings installed).
+# PEP 723 dependency gating
 # ---------------------------------------------------------------------------
 
-_DEP_NAME_RE = re.compile(r"[a-zA-Z0-9_-]+")
-_PEP723_RE = re.compile(r"(?m)^# /// (?P<type>[a-zA-Z0-9-]+)$\s(?P<content>(^#(| .*)$\s)+)^# ///$")
-
-# Aliases bridging PyPI distribution names declared in sample PEP 723 blocks
-# and the install-name a conda/pixi environment provides. CI uses wheels where
-# the names match exactly, so this map only fires in local pixi runs. Each
-# entry maps a PyPI name to a list of alternative import names to try with
-# ``importlib.import_module`` before declaring the dep missing.
-_DEP_FALLBACK_IMPORTS: dict[str, tuple[str, ...]] = {
-    "cuda-python": ("cuda.bindings",),
-    "cuda-bindings": ("cuda.bindings",),
-    "cuda-core": ("cuda.core",),
-    "cuda-pathfinder": ("cuda.pathfinder",),
-    "cuda-cccl": ("cuda.cccl", "cccl"),
-    "cupy-cuda11x": ("cupy",),
-    "cupy-cuda12x": ("cupy",),
-    "cupy-cuda13x": ("cupy",),
-    "nvidia-nvjitlink": ("nvjitlink",),
-    "nvmath-python": ("nvmath",),
-    "cugraph-cu12": ("cugraph",),
-    "cugraph-cu13": ("cugraph",),
-    "cudf-cu12": ("cudf",),
-    "cudf-cu13": ("cudf",),
+_DISTRIBUTION_PROVIDERS: dict[str, tuple[str, ...]] = {
+    # cuda-python is a metapackage; cuda-bindings carries the matching CUDA API
+    # version and is the package samples actually import.
+    "cuda-python": ("cuda-bindings",),
+    # Conda installs CuPy as ``cupy`` while PyPI uses CUDA-major-specific names.
+    "cupy-cuda11x": ("cupy-cuda11x", "cupy"),
+    "cupy-cuda12x": ("cupy-cuda12x", "cupy"),
+    "cupy-cuda13x": ("cupy-cuda13x", "cupy"),
 }
+
+
+class DependencyMetadataError(ValueError):
+    """A sample contains invalid PEP 723 dependency metadata."""
+
+
+def _metadata_error(example: Path, detail: str) -> DependencyMetadataError:
+    return DependencyMetadataError(f"{example}: invalid PEP 723 metadata: {detail}")
 
 
 def _extract_pep723_dependencies(example: Path) -> list[str] | None:
     """Return the dependency list declared via PEP 723, or ``None`` if absent."""
-    content = example.read_text(encoding="utf-8")
-    match = _PEP723_RE.search(content)
-    if not match:
+    lines = example.read_text(encoding="utf-8").splitlines()
+    starts = [index for index, line in enumerate(lines) if line == "# /// script"]
+    if not starts:
         return None
-    metadata: dict[str, str] = {}
-    for raw in match.group("content").splitlines():
-        line = raw.lstrip("# ").rstrip()
-        if not line:
-            continue
-        key, _, value = line.partition("=")
-        if not _:
-            continue
-        metadata[key.strip()] = value.strip()
-    deps_literal = metadata.get("dependencies")
-    if not deps_literal:
-        return None
+    if len(starts) != 1:
+        raise _metadata_error(example, "expected exactly one script block")
+
+    metadata_lines: list[str] = []
+    for line_number, line in enumerate(lines[starts[0] + 1 :], start=starts[0] + 2):
+        if line == "# ///":
+            break
+        if line == "#":
+            metadata_lines.append("")
+        elif line.startswith("# "):
+            metadata_lines.append(line[2:])
+        else:
+            raise _metadata_error(example, f"line {line_number} inside the script block is not a comment")
+    else:
+        raise _metadata_error(example, "script block is missing its closing '# ///'")
+
     try:
-        # The PEP 723 spec uses TOML semantics, but in practice the values
-        # are simple list-of-strings literals; eval keeps the runner aligned
-        # with the cuda-bindings helper without taking a TOML dependency.
-        result = eval(deps_literal, {"__builtins__": {}})  # noqa: S307
-    except Exception:
+        metadata = tomllib.loads("\n".join(metadata_lines))
+    except tomllib.TOMLDecodeError as exc:
+        raise _metadata_error(example, str(exc)) from exc
+
+    dependencies = metadata.get("dependencies")
+    if dependencies is None:
         return None
-    if not isinstance(result, list):
-        return None
-    return [str(item) for item in result]
+    if not isinstance(dependencies, list) or any(not isinstance(item, str) for item in dependencies):
+        raise _metadata_error(example, "'dependencies' must be an array of strings")
+    return dependencies
+
+
+def _distribution_providers(requirement: Requirement) -> tuple[str, ...]:
+    name = canonicalize_name(requirement.name)
+    return _DISTRIBUTION_PROVIDERS.get(name, (name,))
+
+
+def _provided_extras(dist: importlib.metadata.Distribution) -> set[str]:
+    return {canonicalize_name(extra) for extra in (dist.metadata.get_all("Provides-Extra") or ())}
+
+
+def _distribution_mismatches(requirement: Requirement, dist: importlib.metadata.Distribution) -> list[str]:
+    mismatches: list[str] = []
+    if requirement.specifier:
+        try:
+            version_matches = requirement.specifier.contains(dist.version)
+        except InvalidVersion:
+            mismatches.append(f"has invalid version {dist.version!r}")
+        else:
+            if not version_matches:
+                mismatches.append(f"version {dist.version} does not satisfy {requirement.specifier}")
+
+    missing_extras = {canonicalize_name(extra) for extra in requirement.extras} - _provided_extras(dist)
+    if missing_extras:
+        mismatches.append(f"does not provide extra(s): {', '.join(sorted(missing_extras))}")
+    return mismatches
 
 
 def missing_dependencies(example: Path) -> list[str]:
-    """Return the subset of declared deps that are not importable as distributions.
+    """Return useful diagnostics for unmet PEP 723 dependency requirements.
 
     Returns an empty list if all declared deps are present, or if no PEP 723
     block exists (no gating to perform).
@@ -203,33 +234,34 @@ def missing_dependencies(example: Path) -> list[str]:
     deps = _extract_pep723_dependencies(example)
     if not deps:
         return []
-    # Local imports keep top-level import cost down.
-    import importlib
-    import importlib.metadata
 
     missing: list[str] = []
     for spec in deps:
-        match = _DEP_NAME_RE.match(spec)
-        if match is None:
-            continue
-        name = match.group(0)
         try:
-            importlib.metadata.distribution(name)
-            continue
-        except importlib.metadata.PackageNotFoundError:
-            pass
+            requirement = Requirement(spec)
+        except InvalidRequirement as exc:
+            raise _metadata_error(example, f"invalid dependency requirement {spec!r}: {exc}") from exc
 
-        # Strict distribution check missed it. Try the known alias imports so
-        # conda/pixi environments (which install under different distribution
-        # names than the PyPI wheels) don't waive every sample.
-        for module_name in _DEP_FALLBACK_IMPORTS.get(name, ()):
+        if requirement.marker is not None and not requirement.marker.evaluate({"extra": ""}):
+            continue
+
+        providers = _distribution_providers(requirement)
+        installed: list[str] = []
+        for provider in providers:
             try:
-                importlib.import_module(module_name)
-                break
-            except ImportError:
+                dist = importlib.metadata.distribution(provider)
+            except importlib.metadata.PackageNotFoundError:
                 continue
+            mismatches = _distribution_mismatches(requirement, dist)
+            if not mismatches:
+                break
+            installed.append(f"{provider} {dist.version}: {', '.join(mismatches)}")
         else:
-            missing.append(name)
+            if installed:
+                detail = "; ".join(installed)
+            else:
+                detail = f"no provider distribution installed (checked: {', '.join(providers)})"
+            missing.append(f"{requirement} ({detail})")
     return missing
 
 
@@ -318,9 +350,14 @@ def run_sample(plan: RunPlan) -> RunResult:
         _safe_print(f"  [WAIVED] {name}: {plan.skip_reason}")
         return RunResult(sample, "WAIVED", EXIT_WAIVED, plan.skip_reason)
 
-    missing = missing_dependencies(sample)
+    try:
+        missing = missing_dependencies(sample)
+    except DependencyMetadataError as exc:
+        reason = str(exc)
+        _safe_print(f"  [ERROR] {name}: {reason}")
+        return RunResult(sample, "ERROR", -1, reason)
     if missing:
-        reason = f"missing package(s): {', '.join(missing)}"
+        reason = f"unmet package requirement(s): {'; '.join(missing)}"
         _safe_print(f"  [WAIVED] {name}: {reason}")
         return RunResult(sample, "WAIVED", EXIT_WAIVED, reason)
 

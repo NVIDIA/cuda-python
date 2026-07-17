@@ -40,7 +40,7 @@ from pathlib import Path
 
 # Add parent directory to path to import utilities
 sys.path.insert(0, str(Path(__file__).parent.parent / "Utilities"))
-from cuda_samples_utils import verify_array_result
+from cuda_samples_utils import verify_array_result_or_raise
 
 try:
     import cupy as cp
@@ -151,22 +151,20 @@ def copy_image_from_gpu_cuda_core(
     # Step 1: Create pinned memory for fast GPU-to-CPU transfer
     pinned_mr = PinnedMemoryResource()
     pinned_buffer = pinned_mr.allocate(nbytes, stream=stream)
+    try:
+        # Step 2: Copy from GPU memory to pinned CPU memory
+        device_buffer.copy_to(pinned_buffer, stream=stream)
+        stream.sync()  # Wait for the GPU transfer to complete
 
-    # Step 2: Copy from GPU memory to pinned CPU memory
-    device_buffer.copy_to(pinned_buffer, stream=stream)
-    stream.sync()  # Wait for the GPU transfer to complete
+        # Step 3: Create NumPy view of pinned memory using DLPack
+        pinned_view = np.from_dlpack(pinned_buffer).view(dtype=dtype).reshape(shape)
 
-    # Step 3: Create NumPy view of pinned memory using DLPack
-    pinned_view = np.from_dlpack(pinned_buffer).view(dtype=dtype).reshape(shape)
-
-    # Step 4: Copy from pinned CPU memory to regular CPU memory
-    # This creates the final result that can be used normally
-    host_result = pinned_view.copy()
-
-    # Step 5: Clean up the temporary pinned buffer
-    pinned_buffer.close(stream)
-
-    return host_result
+        # Step 4: Copy from pinned CPU memory to regular CPU memory
+        # This creates the final result that can be used normally
+        return pinned_view.copy()
+    finally:
+        # Step 5: Clean up the temporary pinned buffer
+        pinned_buffer.close(stream)
 
 
 # ------------------------------ Main Demo ------------------------------------
@@ -199,41 +197,51 @@ def main():
     print(f"Device: {dev.name}")
     print(f"[Image array copy of {H}x{W}x{C} image]")
 
-    # Step 2: Configure CuPy to use our CUDA stream (for interoperability)
-    cp.cuda.Stream.from_external(stream).use()
+    device_buffer = pinned_buffer = None
+    try:
+        # Step 2: Configure CuPy to use our CUDA stream (for interoperability)
+        cp.cuda.Stream.from_external(stream).use()
 
-    # Step 3: Create a test image on CPU
-    print("Creating sample image...")
-    host_np = make_random_image(H, W, C, dtype=dtype)
+        # Step 3: Create a test image on CPU
+        print("Creating sample image...")
+        host_np = make_random_image(H, W, C, dtype=dtype)
 
-    # Step 4: Copy image from CPU to GPU
-    print("Copying image to GPU...")
-    device_buffer, pinned_buffer = copy_image_to_gpu_cuda_core(host_np, dev, stream)
+        # Step 4: Copy image from CPU to GPU
+        print("Copying image to GPU...")
+        device_buffer, pinned_buffer = copy_image_to_gpu_cuda_core(host_np, dev, stream)
 
-    # Step 5: (Optional) Get a CuPy view of GPU data for processing
-    # This shows how you can work with the GPU data without copying it back
-    print("Creating CuPy view of GPU data...")
-    device_cp = cp.from_dlpack(device_buffer).view(dtype=dtype).reshape(H, W, C)
+        # Step 5: (Optional) Get a CuPy view of GPU data for processing
+        # This shows how you can work with the GPU data without copying it back
+        print("Creating CuPy view of GPU data...")
+        device_cp = cp.from_dlpack(device_buffer).view(dtype=dtype).reshape(H, W, C)
 
-    # Example: compute mean pixel value on GPU
-    mean_value = float(cp.mean(device_cp))
-    print(f"Mean pixel value (computed on GPU): {mean_value:.2f}")
+        # Example: compute mean pixel value on GPU
+        mean_value = float(cp.mean(device_cp))
+        print(f"Mean pixel value (computed on GPU): {mean_value:.2f}")
 
-    # Step 6: Copy image back from GPU to CPU
-    print("Copying image back from GPU...")
-    host_back = copy_image_from_gpu_cuda_core(device_buffer, host_np.shape, host_np.dtype, dev, stream)
+        # Step 6: Copy image back from GPU to CPU
+        print("Copying image back from GPU...")
+        host_back = copy_image_from_gpu_cuda_core(device_buffer, host_np.shape, host_np.dtype, dev, stream)
 
-    # Step 7: Verify that the data survived the round trip
-    print("Verifying result...")
-    host_back_cp = cp.asarray(host_back)
-    host_np_cp = cp.asarray(host_np)
-    verify_array_result(host_back_cp, host_np_cp, rtol=0, atol=0)
-
-    # Step 8: Clean up all allocated resources
-    device_buffer.close(stream)  # Free GPU memory
-    pinned_buffer.close(stream)  # Free pinned CPU memory
-    stream.close()  # Close CUDA stream
-    cp.cuda.Stream.null.use()  # Reset CuPy's stream to default
+        # Step 7: Verify that the data survived the round trip
+        print("Verifying result...")
+        host_back_cp = cp.asarray(host_back)
+        host_np_cp = cp.asarray(host_np)
+        verify_array_result_or_raise(
+            host_back_cp,
+            host_np_cp,
+            rtol=0,
+            atol=0,
+            error_message="Image round-trip verification failed",
+        )
+    finally:
+        # Step 8: Clean up all allocated resources
+        if device_buffer is not None:
+            device_buffer.close(stream)  # Free GPU memory
+        if pinned_buffer is not None:
+            pinned_buffer.close(stream)  # Free pinned CPU memory
+        stream.close()  # Close CUDA stream
+        cp.cuda.Stream.null.use()  # Reset CuPy's stream to default
 
     print("\nDone")
 

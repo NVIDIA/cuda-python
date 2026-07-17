@@ -34,6 +34,8 @@ cuda-core = { path = "." }
 cffi = "*"
 pyglet = "*"
 pytest = "*"
+packaging = "*"
+tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
 # numpy pinned <2.5 so `numba` (transitive dep of `numba-cuda` in
 # samples/simplePrint) can install; numba currently requires numpy<2.5.
 numpy = "<2.5"
@@ -48,16 +50,24 @@ cuda = "13"
 # cudaComputeLambdas, matrixMulSharedMem, parallelReduction, prefixSum.
 # The conda-forge `cuda-cccl` package only installs C++ headers; the PyPI
 # wheel is the one that exposes `cuda.cccl` to Python.
-cuda-cccl = "*"
+cuda-cccl = { version = "*", extras = ["minimal-sysctk13"] }
 # nvtx: samples/kernelNsysProfile
 nvtx = "*"
 # numba-cuda: samples/simplePrint (pin >=0.29 to match the sample's
 # PEP 723 declaration; older 0.0.x releases resolve otherwise).
 numba-cuda = ">=0.29.0"
 # nvmath-python: samples/matrixMulSharedMem
-nvmath-python = "*"
+nvmath-python = { version = "*", extras = ["sysctk13"] }
 # nvidia-nvjitlink: samples/simplePrint (was nvidia-nvjitlink-cu13, now deprecated)
 nvidia-nvjitlink = "*"
+
+# These packages are provided by the local Conda path builds in `local-deps`.
+# Ignore copies requested through PyPI dependency closures so they cannot
+# overwrite the branch-under-test packages in site-packages.
+[feature.samples.pypi-options.dependency-overrides]
+cuda-bindings = { version = "*", env-markers = "python_version < '0'" }
+cuda-core = { version = "*", env-markers = "python_version < '0'" }
+cuda-pathfinder = { version = "*", env-markers = "python_version < '0'" }
 
 [feature.samples.target.linux.dependencies]
 cupy = "*"
@@ -225,7 +235,7 @@ numba-classic = { features = ["numba-classic"] }
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-core"
-version = "0.7.0"
+version = "1.1.0"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
@@ -323,5 +333,12 @@ cmd = [
 depends-on = [{ task = "build-cython-tests" }]
 
 [tasks.test-samples]
-cmd = ["pytest", "-rxXs", "-v", "$PIXI_PROJECT_ROOT/tests/example_tests/test_samples.py"]
+cmd = [
+    "pytest",
+    "-rxXs",
+    "-v",
+    "--confcutdir",
+    "$PIXI_PROJECT_ROOT/tests/example_tests",
+    "$PIXI_PROJECT_ROOT/tests/example_tests",
+]
 default-environment = "samples"

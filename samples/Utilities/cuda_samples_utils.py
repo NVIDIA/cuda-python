@@ -126,6 +126,19 @@ def verify_array_result(result, expected, rtol: float = 1e-5, atol: float = 1e-8
         return False
 
 
+def verify_array_result_or_raise(
+    result,
+    expected,
+    rtol: float = 1e-5,
+    atol: float = 1e-8,
+    verbose: bool = True,
+    error_message: str = "Result verification failed",
+) -> None:
+    """Verify array contents and raise ``RuntimeError`` on mismatch."""
+    if not verify_array_result(result, expected, rtol=rtol, atol=atol, verbose=verbose):
+        raise RuntimeError(error_message)
+
+
 def print_gpu_info(device) -> None:
     """
     Print GPU device information.
