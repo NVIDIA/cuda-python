@@ -4,7 +4,7 @@
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=357125e2d24ab45b6b2e9c8cba153d59a70f46a832f2fd54d141d227e34c9a5a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2ead489e46eaac7d4f700aeb29e160ce35593ce21ad8d399ebb827146046f4b0
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -1274,16 +1274,16 @@ cdef extern from 'cuda.h':
         CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUgreenCtxCreate_flags:
+    ctypedef enum CUgreenCtxCreate_flags "CUgreenCtxCreate_flags":
         CU_GREEN_CTX_DEFAULT_STREAM
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevSmResourceSplit_flags:
+    ctypedef enum CUdevSmResourceSplit_flags "CUdevSmResourceSplit_flags":
         CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING
         CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevResourceType:
+    ctypedef enum CUdevResourceType "CUdevResourceType":
         CU_DEV_RESOURCE_TYPE_INVALID
         CU_DEV_RESOURCE_TYPE_SM
 
