@@ -122,7 +122,8 @@ The main operations are:
 - `create_child_graph_handle`: register a CUDA-owned child graph and return an
   aliasing handle
 - `graph_get_attachment`: copy either or both current owners
-- `graph_set_attachment`: replace, clear, or anonymously retain an attachment
+- `graph_prepare_attachment`: graph-retain a staged replacement before mutation
+- `graph_commit_attachment`: publish or anonymously retain the staged attachment
 - `graph_clone_attachments`: copy attachment metadata into an embedded clone
 - `invalidate_child_graph_state`: invalidate boxes and node handles after CUDA
   destroys child graphs
@@ -138,12 +139,15 @@ the C++ metadata synchronized with the driver.
 ### Adding a node
 
 Cython keeps the parameter owners alive while it calls the CUDA node-creation
-API. After CUDA returns the new node handle, `graph_set_attachment` creates and
-graph-retains one user object for the complete owner bundle, then records the
-non-owning payload pointer in the graph box.
+API. Before the call, `graph_prepare_attachment` creates and graph-retains one
+user object for the complete owner bundle. It also preallocates the metadata
+entry needed by commit.
 
-If attachment setup fails, cuda-core makes a best-effort attempt to remove the
-new CUDA node before reporting the error.
+After CUDA returns the new node handle, `graph_commit_attachment` publishes the
+preallocated entry without allocating. If preparation or node creation fails,
+destruction of the `PreparedAttachment` automatically releases the staged graph
+reference. CUDA therefore never receives node parameters whose owners could
+not be retained.
 
 ### Reading and replacing attachments
 
@@ -151,14 +155,16 @@ new CUDA node before reporting the error.
 be null when the caller needs only one owner. A missing attachment returns
 empty handles.
 
-`graph_set_attachment` replaces the complete bundle. It records the new
-attachment before releasing the graph's reference to the old user object, so
-the metadata never points at a released payload. Passing two empty owners
-clears a node attachment.
+`graph_prepare_attachment` creates and graph-retains a complete replacement
+bundle before the CUDA parameter update. After the update succeeds,
+`graph_commit_attachment` publishes the replacement before releasing the
+graph's reference to the old user object, so metadata never points at a
+released payload. Preparing two empty owners stages removal of the current
+attachment.
 
 A partial parameter update first gets the current owners, replaces the values
-covered by the update, asks CUDA to apply the new complete parameter set, and
-then stores the resulting complete attachment.
+covered by the update, prepares the resulting complete attachment, asks CUDA
+to apply the new complete parameter set, and then commits the attachment.
 
 ### Embedding a child graph
 
@@ -184,7 +190,8 @@ metadata unchanged.
 
 cuda-core asks CUDA to destroy the node before changing any wrapper or
 attachment state. If CUDA rejects deletion, all cuda-core state remains
-unchanged.
+unchanged. An empty `PreparedAttachment` is created before the call and
+committed only after deletion succeeds.
 
 After a successful deletion, cuda-core:
 
@@ -204,7 +211,7 @@ its `CUgraphNode`. cuda-core normally recovers the node from the stream's
 capture dependencies and records the callback attachment there.
 
 If CUDA accepted the callback but its node cannot be identified, cuda-core
-calls `graph_set_attachment` with a null node. This retains the owners
+commits the prepared attachment with a null node. This retains the owners
 anonymously on the graph without publishing node metadata. The owners then
 remain alive until graph destruction, preventing a dangling callback pointer.
 
@@ -231,14 +238,16 @@ in an unsafe context.
 1. A published `NodeAttachment` is immutable.
 2. CUDA user-object references, not metadata pointers, own attachments.
 3. Metadata is removed or replaced before its graph reference is released.
-4. Every live cuda-core `CUgraph` has one canonical `GraphBox` and registry
+4. Fallible attachment setup and metadata allocation happen before the CUDA
+   graph mutation they support.
+5. Every live cuda-core `CUgraph` has one canonical `GraphBox` and registry
    entry.
-5. Graph boxes remain in parent-before-child order.
-6. Destroyed child boxes remain at stable addresses in the graveyard.
-7. A raw graph handle is unregistered before its box becomes a tombstone.
-8. CUDA callbacks only enqueue attachments; they never release owners or call
+6. Graph boxes remain in parent-before-child order.
+7. Destroyed child boxes remain at stable addresses in the graveyard.
+8. A raw graph handle is unregistered before its box becomes a tombstone.
+9. CUDA callbacks only enqueue attachments; they never release owners or call
    CUDA.
-9. Graph mutations and their metadata updates require the same external
+10. Graph mutations and their metadata updates require the same external
    synchronization as the underlying CUDA graph.
 
 ## Scope

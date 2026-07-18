@@ -160,9 +160,11 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUresult graph_get_attachment "cuda_core::graph_get_attachment" (
         const GraphHandle& h_graph, cydriver.CUgraphNode node,
         OpaqueHandle* owner0, OpaqueHandle* owner1) except+
-    cydriver.CUresult graph_set_attachment "cuda_core::graph_set_attachment" (
-        const GraphHandle& h_graph, cydriver.CUgraphNode node,
-        OpaqueHandle owner0, OpaqueHandle owner1) except+
+    cydriver.CUresult graph_prepare_attachment "cuda_core::graph_prepare_attachment" (
+        const GraphHandle& h_graph, OpaqueHandle owner0, OpaqueHandle owner1,
+        PreparedAttachment* out_prepared) except+
+    cydriver.CUresult graph_commit_attachment "cuda_core::graph_commit_attachment" (
+        PreparedAttachment& prepared, cydriver.CUgraphNode node) except+
     cydriver.CUresult graph_clone_attachments "cuda_core::graph_clone_attachments" (
         const GraphHandle& h_clone, const GraphHandle& h_source) except+
     void invalidate_child_graph_state "cuda_core::invalidate_child_graph_state" (

@@ -9,13 +9,10 @@ from libc.string cimport memcpy as c_memcpy
 from cuda.bindings cimport cydriver
 
 from cuda.core._resource_handles cimport (
-    GraphHandle,
     OpaqueHandle,
-    graph_set_attachment,
     make_opaque_malloc,
     make_opaque_py,
 )
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import ctypes as ct
 
@@ -64,12 +61,3 @@ cdef void _resolve_host_callback(
         out_user_data[0] = <void*>fn
 
     out_fn_owner[0] = make_opaque_py(fn)
-
-
-cdef int _attach_host_callback_owners(
-        const GraphHandle& h_graph, cydriver.CUgraphNode node,
-        OpaqueHandle fn_owner, OpaqueHandle data_owner) except -1:
-    """Attach a resolved callback and copied user-data owner as one bundle."""
-    HANDLE_RETURN(graph_set_attachment(
-        h_graph, node, fn_owner, data_owner))
-    return 0

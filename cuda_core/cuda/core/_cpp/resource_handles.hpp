@@ -494,6 +494,13 @@ OpaqueHandle make_opaque_py(PyObject* obj);
 // Build an OpaqueHandle from a malloc'd buffer: std::free on release.
 OpaqueHandle make_opaque_malloc(void* buf);
 
+struct PreparedAttachmentState;
+struct PreparedAttachmentDeleter {
+    void operator()(PreparedAttachmentState* state) const noexcept;
+};
+using PreparedAttachment =
+    std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
+
 // Copy requested owners from node's current attachment. Pass nullptr to ignore
 // either owner; a missing attachment produces empty handles.
 CUresult graph_get_attachment(
@@ -502,13 +509,19 @@ CUresult graph_get_attachment(
     OpaqueHandle* owner0,
     OpaqueHandle* owner1);
 
-// Replace node's complete attachment, or retain it anonymously if node is
-// nullptr. Two empty owners clear a node attachment.
-CUresult graph_set_attachment(
+// Create and graph-retain a replacement attachment before a CUDA mutation.
+// Destruction rolls the prepared attachment back unless it is committed.
+CUresult graph_prepare_attachment(
     const GraphHandle& h_graph,
-    CUgraphNode node,
     OpaqueHandle owner0,
-    OpaqueHandle owner1);
+    OpaqueHandle owner1,
+    PreparedAttachment* out_prepared);
+
+// Publish a prepared attachment after the CUDA mutation succeeds. A null node
+// retains the attachment anonymously without publishing node metadata.
+CUresult graph_commit_attachment(
+    PreparedAttachment& prepared,
+    CUgraphNode node);
 
 // Copy attachment metadata from a source graph hierarchy into its CUDA clone.
 CUresult graph_clone_attachments(

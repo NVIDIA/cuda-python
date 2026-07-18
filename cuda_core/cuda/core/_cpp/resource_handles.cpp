@@ -1465,6 +1465,31 @@ OpaqueHandle make_opaque_malloc(void* buf) {
     return OpaqueHandle(static_cast<const void*>(buf), free_deleter);
 }
 
+struct PreparedAttachmentState {
+    GraphHandle h_graph;
+    NodeAttachment* replacement = nullptr;
+    GraphAttachmentMap::node_type replacement_entry;
+
+    explicit PreparedAttachmentState(GraphHandle h_graph_)
+        : h_graph(std::move(h_graph_)) {}
+};
+
+void PreparedAttachmentDeleter::operator()(
+        PreparedAttachmentState* state) const noexcept {
+    if (!state) {
+        return;
+    }
+    if (state->replacement) {
+        GraphBox* box = get_box(state->h_graph);
+        if (box->resource) {
+            GILReleaseGuard gil;
+            p_cuGraphReleaseUserObject(
+                box->resource, state->replacement->object, 1);
+        }
+    }
+    delete state;
+}
+
 GraphHandle create_graph_handle(CUgraph graph) {
     if (!graph) {
         return {};
@@ -1549,21 +1574,29 @@ CUresult graph_get_attachment(
     return CUDA_SUCCESS;
 }
 
-CUresult graph_set_attachment(
-        const GraphHandle& h_graph, CUgraphNode node,
-        OpaqueHandle owner0, OpaqueHandle owner1) {
-    if (!h_graph || (!node && !owner0 && !owner1)) {
+CUresult graph_prepare_attachment(
+        const GraphHandle& h_graph,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1,
+        PreparedAttachment* out_prepared) {
+    if (!out_prepared) {
         return CUDA_ERROR_INVALID_VALUE;
     }
+    out_prepared->reset();
+    if (!h_graph) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
     GraphBox* box = get_box(h_graph);
     if (!box->resource) {
         return CUDA_ERROR_INVALID_VALUE;
     }
-    if (node && !p_cuGraphReleaseUserObject) {
+    if (!p_cuGraphReleaseUserObject) {
         return CUDA_ERROR_NOT_SUPPORTED;
     }
 
-    NodeAttachment* replacement = nullptr;
+    PreparedAttachment prepared(
+        new PreparedAttachmentState(h_graph));
     if (owner0 || owner1) {
         if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
             !p_cuGraphRetainUserObject) {
@@ -1571,10 +1604,21 @@ CUresult graph_set_attachment(
         }
 
         ensure_deferred_cleanup_ready();
-        replacement = new NodeAttachment(
+        prepared->replacement = new NodeAttachment(
             std::move(owner0), std::move(owner1));
+        GraphAttachmentMap staged;
+        try {
+            staged.emplace(nullptr, prepared->replacement);
+            prepared->replacement_entry =
+                staged.extract(staged.begin());
+        } catch (...) {
+            delete prepared->replacement;
+            prepared->replacement = nullptr;
+            throw;
+        }
         auto* cleanup_item =
-            static_cast<DeferredCleanupItem*>(replacement);
+            static_cast<DeferredCleanupItem*>(
+                prepared->replacement);
 
         CUuserObject object = nullptr;
         CUresult status;
@@ -1585,37 +1629,69 @@ CUresult graph_set_attachment(
                 reinterpret_cast<CUhostFn>(enqueue_cleanup),
                 1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC);
             if (status != CUDA_SUCCESS) {
-                delete replacement;
+                prepared->replacement_entry.mapped() = nullptr;
+                delete prepared->replacement;
+                prepared->replacement = nullptr;
                 return status;
             }
-            replacement->object = object;
+            prepared->replacement->object = object;
             status = p_cuGraphRetainUserObject(
                 box->resource, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
             if (status != CUDA_SUCCESS) {
+                prepared->replacement_entry.mapped() = nullptr;
+                prepared->replacement = nullptr;
                 p_cuUserObjectRelease(object, 1);
                 return status;
             }
         }
     }
+
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+CUresult graph_commit_attachment(
+        PreparedAttachment& prepared,
+        CUgraphNode node) {
+    if (!prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphHandle h_graph = prepared->h_graph;
+    GraphBox* box = get_box(h_graph);
+    if (!box->resource || (!node && !prepared->replacement)) {
+        delete prepared.release();
+        return CUDA_ERROR_INVALID_VALUE;
+    }
     if (!node) {
+        delete prepared.release();
         return CUDA_SUCCESS;
     }
 
     NodeAttachment* previous = nullptr;
     auto it = box->attachments.find(node);
     if (it == box->attachments.end()) {
-        if (replacement) {
-            box->attachments.emplace(node, replacement);
+        if (prepared->replacement) {
+            prepared->replacement_entry.key() = node;
+            auto result = box->attachments.insert(
+                std::move(prepared->replacement_entry));
+            if (!result.inserted) {
+                prepared->replacement_entry =
+                    std::move(result.node);
+                delete prepared.release();
+                return CUDA_ERROR_INVALID_VALUE;
+            }
         }
     } else {
         previous = it->second;
-        if (replacement) {
-            it->second = replacement;
+        if (prepared->replacement) {
+            it->second = prepared->replacement;
         } else {
             box->attachments.erase(it);
         }
     }
 
+    delete prepared.release();
     if (!previous) {
         return CUDA_SUCCESS;
     }

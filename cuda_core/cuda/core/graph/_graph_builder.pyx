@@ -10,14 +10,16 @@ from libc.stdint cimport intptr_t
 from cuda.bindings cimport cydriver
 
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
-from cuda.core.graph._host_callback cimport _attach_host_callback_owners, _resolve_host_callback
+from cuda.core.graph._host_callback cimport _resolve_host_callback
 from cuda.core._resource_handles cimport (
     GraphHandle,
     OpaqueHandle,
+    PreparedAttachment,
     as_cu, as_py,
     create_child_graph_handle, create_graph_exec_handle, create_graph_handle,
     graph_clone_attachments,
-    graph_set_attachment,
+    graph_commit_attachment,
+    graph_prepare_attachment,
     invalidate_child_graph_state,
     retry_deferred_cleanup,
 )
@@ -874,8 +876,11 @@ cdef inline void GB_callback(
     cdef cydriver.CUhostFn c_fn
     cdef void* c_user_data = NULL
     cdef OpaqueHandle fn_owner, data_owner
+    cdef PreparedAttachment prepared
     _resolve_host_callback(
         fn, user_data, &c_fn, &c_user_data, &fn_owner, &data_owner)
+    HANDLE_RETURN(graph_prepare_attachment(
+        gb._h_graph, fn_owner, data_owner, &prepared))
 
     with nogil:
         HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
@@ -883,7 +888,7 @@ cdef inline void GB_callback(
     # Capturing the host function added a node to the graph; it is now the
     # stream's sole capture dependency. Attach the callback's owners to it.
     cdef cydriver.CUgraphNode host_node
-    cdef cydriver.CUresult retain_status
+    cdef cydriver.CUresult commit_status
     try:
         if fail_tail_discovery_for_testing:
             raise RuntimeError("forced capture tail discovery failure")
@@ -891,11 +896,10 @@ cdef inline void GB_callback(
     except:
         # CUDA added the callback, but its node cannot be identified.
         # Retain its owners anonymously to prevent dangling pointers.
-        retain_status = graph_set_attachment(
-            gb._h_graph, NULL, fn_owner, data_owner)
-        HANDLE_RETURN(retain_status)
+        commit_status = graph_commit_attachment(prepared, NULL)
+        HANDLE_RETURN(commit_status)
         raise
-    _attach_host_callback_owners(gb._h_graph, host_node, fn_owner, data_owner)
+    HANDLE_RETURN(graph_commit_attachment(prepared, host_node))
 
 
 def _capture_callback_with_tail_failure_for_testing(

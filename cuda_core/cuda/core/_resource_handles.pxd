@@ -5,7 +5,7 @@
 from libc.stddef cimport size_t
 from libc.stdint cimport intptr_t
 
-from libcpp.memory cimport shared_ptr
+from libcpp.memory cimport shared_ptr, unique_ptr
 
 from cuda.bindings cimport cydriver
 from cuda.bindings cimport cynvrtc
@@ -62,6 +62,14 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # block); make_opaque_py / make_opaque_malloc cover the two cases needing a
     # custom deleter.
     ctypedef shared_ptr[const void] OpaqueHandle
+
+    cppclass PreparedAttachmentState:
+        pass
+    cppclass PreparedAttachmentDeleter:
+        pass
+    ctypedef unique_ptr[
+        PreparedAttachmentState, PreparedAttachmentDeleter
+    ] PreparedAttachment
 
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
@@ -238,9 +246,11 @@ cdef OpaqueHandle make_opaque_malloc(void* buf) except+
 cdef cydriver.CUresult graph_get_attachment(
     const GraphHandle& h_graph, cydriver.CUgraphNode node,
     OpaqueHandle* owner0, OpaqueHandle* owner1) except+
-cdef cydriver.CUresult graph_set_attachment(
-    const GraphHandle& h_graph, cydriver.CUgraphNode node,
-    OpaqueHandle owner0, OpaqueHandle owner1) except+
+cdef cydriver.CUresult graph_prepare_attachment(
+    const GraphHandle& h_graph, OpaqueHandle owner0, OpaqueHandle owner1,
+    PreparedAttachment* out_prepared) except+
+cdef cydriver.CUresult graph_commit_attachment(
+    PreparedAttachment& prepared, cydriver.CUgraphNode node) except+
 cdef cydriver.CUresult graph_clone_attachments(
     const GraphHandle& h_clone, const GraphHandle& h_source) except+
 cdef void invalidate_child_graph_state(

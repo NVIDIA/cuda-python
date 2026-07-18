@@ -44,14 +44,16 @@ from cuda.core._resource_handles cimport (
     GraphHandle,
     GraphNodeHandle,
     OpaqueHandle,
+    PreparedAttachment,
     as_cu,
     as_intptr,
     as_py,
     create_child_graph_handle,
     create_graph_node_handle,
     graph_clone_attachments,
+    graph_commit_attachment,
     graph_node_get_graph,
-    graph_set_attachment,
+    graph_prepare_attachment,
     invalidate_child_graph_state,
     invalidate_graph_node,
     make_opaque_py,
@@ -59,7 +61,6 @@ from cuda.core._resource_handles cimport (
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 from cuda.core.graph._host_callback cimport (
-    _attach_host_callback_owners,
     _resolve_host_callback,
 )
 
@@ -164,15 +165,17 @@ cdef class GraphNode:
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         cdef GraphHandle h_graph
         cdef cydriver.CUresult cleanup_status
+        cdef PreparedAttachment prepared
         if node == NULL:
             return
 
         h_graph = graph_node_get_graph(self._h_node)
+        HANDLE_RETURN(graph_prepare_attachment(
+            h_graph, OpaqueHandle(), OpaqueHandle(), &prepared))
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
 
-        cleanup_status = graph_set_attachment(
-            h_graph, node, OpaqueHandle(), OpaqueHandle())
+        cleanup_status = graph_commit_attachment(prepared, node)
         invalidate_child_graph_state(h_graph, node)
         _node_registry.pop(<uintptr_t>self._h_node.get(), None)
         invalidate_graph_node(self._h_node)
@@ -688,6 +691,7 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
     cdef OpaqueHandle kernel_owner, args_owner
+    cdef PreparedAttachment prepared
 
     if pred_node != NULL:
         deps = &pred_node
@@ -706,23 +710,20 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     node_params.extra = NULL
     node_params.ctx = <cydriver.CUcontext>NULL
 
-    with nogil:
-        HANDLE_RETURN(cydriver.cuGraphAddKernelNode(
-            &new_node, as_cu(h_graph), deps, num_deps, &node_params))
-
     # Keep the kernel and argument objects alive because CUDA copies argument
     # values but does not retain the resources they reference.
     kernel_owner = ker._h_kernel
     kernel_args = ker_args.kernel_args
     if kernel_args is not None:
         args_owner = make_opaque_py(kernel_args)
-    try:
-        HANDLE_RETURN(graph_set_attachment(
-            h_graph, new_node, kernel_owner, args_owner))
-    except:
-        with nogil:
-            cydriver.cuGraphDestroyNode(new_node)  # best effort
-        raise
+    HANDLE_RETURN(graph_prepare_attachment(
+        h_graph, kernel_owner, args_owner, &prepared))
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuGraphAddKernelNode(
+            &new_node, as_cu(h_graph), deps, num_deps, &node_params))
+
+    HANDLE_RETURN(graph_commit_attachment(prepared, new_node))
 
     return _registered(KernelNode._create_with_params(
         create_graph_node_handle(new_node, h_graph),
@@ -904,6 +905,7 @@ cdef inline MemsetNode GN_memset(
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef PreparedAttachment prepared
 
     if pred_node != NULL:
         deps = &pred_node
@@ -921,19 +923,17 @@ cdef inline MemsetNode GN_memset(
     memset_params.height = height
     memset_params.pitch = pitch
 
+    if dst_owner:
+        HANDLE_RETURN(graph_prepare_attachment(
+            h_graph, dst_owner, OpaqueHandle(), &prepared))
+
     with nogil:
         HANDLE_RETURN(cydriver.cuGraphAddMemsetNode(
             &new_node, as_cu(h_graph), deps, num_deps,
             &memset_params, ctx))
 
     if dst_owner:
-        try:
-            HANDLE_RETURN(graph_set_attachment(
-                h_graph, new_node, dst_owner, OpaqueHandle()))
-        except:
-            with nogil:
-                cydriver.cuGraphDestroyNode(new_node)  # best effort
-            raise
+        HANDLE_RETURN(graph_commit_attachment(prepared, new_node))
 
     return _registered(MemsetNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst,
@@ -985,25 +985,24 @@ cdef inline MemcpyNode GN_memcpy(
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
+    cdef PreparedAttachment prepared
 
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
 
     cdef cydriver.CUcontext ctx = NULL
+    if dst_owner or src_owner:
+        HANDLE_RETURN(graph_prepare_attachment(
+            h_graph, dst_owner, src_owner, &prepared))
+
     with nogil:
         HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
         HANDLE_RETURN(cydriver.cuGraphAddMemcpyNode(
             &new_node, as_cu(h_graph), deps, num_deps, &params, ctx))
 
     if dst_owner or src_owner:
-        try:
-            HANDLE_RETURN(graph_set_attachment(
-                h_graph, new_node, dst_owner, src_owner))
-        except:
-            with nogil:
-                cydriver.cuGraphDestroyNode(new_node)  # best effort
-            raise
+        HANDLE_RETURN(graph_commit_attachment(prepared, new_node))
 
     return _registered(MemcpyNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), c_dst, c_src, size,
@@ -1054,23 +1053,21 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
     cdef OpaqueHandle owner
+    cdef PreparedAttachment prepared
 
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
 
+    owner = ev._h_event
+    HANDLE_RETURN(graph_prepare_attachment(
+        h_graph, owner, OpaqueHandle(), &prepared))
+
     with nogil:
         HANDLE_RETURN(cydriver.cuGraphAddEventRecordNode(
             &new_node, as_cu(h_graph), deps, num_deps, as_cu(ev._h_event)))
 
-    owner = ev._h_event
-    try:
-        HANDLE_RETURN(graph_set_attachment(
-            h_graph, new_node, owner, OpaqueHandle()))
-    except:
-        with nogil:
-            cydriver.cuGraphDestroyNode(new_node)  # best effort
-        raise
+    HANDLE_RETURN(graph_commit_attachment(prepared, new_node))
 
     return _registered(EventRecordNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), ev._h_event))
@@ -1083,23 +1080,21 @@ cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
     cdef OpaqueHandle owner
+    cdef PreparedAttachment prepared
 
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
 
+    owner = ev._h_event
+    HANDLE_RETURN(graph_prepare_attachment(
+        h_graph, owner, OpaqueHandle(), &prepared))
+
     with nogil:
         HANDLE_RETURN(cydriver.cuGraphAddEventWaitNode(
             &new_node, as_cu(h_graph), deps, num_deps, as_cu(ev._h_event)))
 
-    owner = ev._h_event
-    try:
-        HANDLE_RETURN(graph_set_attachment(
-            h_graph, new_node, owner, OpaqueHandle()))
-    except:
-        with nogil:
-            cydriver.cuGraphDestroyNode(new_node)  # best effort
-        raise
+    HANDLE_RETURN(graph_commit_attachment(prepared, new_node))
 
     return _registered(EventWaitNode._create_with_params(
         create_graph_node_handle(new_node, h_graph), ev._h_event))
@@ -1113,6 +1108,7 @@ cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
     cdef OpaqueHandle fn_owner, data_owner
+    cdef PreparedAttachment prepared
 
     if pred_node != NULL:
         deps = &pred_node
@@ -1121,19 +1117,14 @@ cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_
     _resolve_host_callback(
         fn, user_data, &node_params.fn, &node_params.userData,
         &fn_owner, &data_owner)
+    HANDLE_RETURN(graph_prepare_attachment(
+        h_graph, fn_owner, data_owner, &prepared))
 
     with nogil:
         HANDLE_RETURN(cydriver.cuGraphAddHostNode(
             &new_node, as_cu(h_graph), deps, num_deps, &node_params))
 
-    # Roll the node back if owner attachment fails: an unretained host node
-    # leaves the driver holding a raw pointer into freed Python memory.
-    try:
-        _attach_host_callback_owners(h_graph, new_node, fn_owner, data_owner)
-    except:
-        with nogil:
-            cydriver.cuGraphDestroyNode(new_node)  # best effort
-        raise
+    HANDLE_RETURN(graph_commit_attachment(prepared, new_node))
 
     cdef object callable_obj = fn if not isinstance(fn, ct._CFuncPtr) else None
     return _registered(HostCallbackNode._create_with_params(
