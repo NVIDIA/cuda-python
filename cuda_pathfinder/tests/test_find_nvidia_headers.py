@@ -119,8 +119,7 @@ def _fake_cudart_canary_abs_path(ctk_root: Path) -> str:
 
 )
 _NON_CTK_HEADER_PARAMS = [
-    pytest.param(name) if name in ("cutlass", "cute") else name
-    for name in SUPPORTED_HEADERS_NON_CTK
+    name for name in SUPPORTED_HEADERS_NON_CTK
 ]
 
 
