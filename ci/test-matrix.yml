@@ -74,11 +74,15 @@ linux:
     - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'arm64', PY_VER: '3.15t', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     # special runners
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest' }
+    - { ARCH: 'amd64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest' }
+    - { ARCH: 'amd64', PY_VER: '3.15t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'h100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest', FLAVOR: 'wsl' }
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtx4090',    GPU_COUNT: '1', DRIVER: 'latest', FLAVOR: 'wsl' }
   nightly:
@@ -106,6 +110,9 @@ linux:
     - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gb300',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
     - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
     - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
+    - { ARCH: 'arm64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gb300',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
+    - { ARCH: 'arm64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
+    - { ARCH: 'arm64', PY_VER: '3.15t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
 
 windows:
   pull-request:
@@ -128,6 +135,7 @@ windows:
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.15t', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
     # special runners
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
@@ -145,3 +153,5 @@ windows:
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-numba-cuda-mlir' } }
     # nightly-cuda-core (released cuda-core from PyPI against main pathfinder/bindings)
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-cuda-core' } }
+    - { ARCH: 'amd64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-cuda-core' } }
+    - { ARCH: 'amd64', PY_VER: '3.15t',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-cuda-core' } }
