@@ -798,7 +798,11 @@ cdef class ObjectCode:
         return Kernel._from_handle(h_kernel)
 
     def get_module(self) -> object:
-        """Return the :obj:`~driver.CUmodule` associated with this object code.
+        """Return a context-dependent :obj:`~driver.CUmodule` for legacy interop.
+
+        Bridges the native :obj:`~driver.CUlibrary` (see :attr:`handle`) to a
+        ``CUmodule`` via ``cuLibraryGetModule``, for use with legacy driver APIs
+        that only accept ``CUmodule``.
 
         Returns
         -------
@@ -834,7 +838,10 @@ cdef class ObjectCode:
 
     @property
     def handle(self) -> object:
-        """Return the underlying handle object.
+        """Return the native, context-independent :obj:`~driver.CUlibrary` handle.
+
+        Used by ``cuda.core`` and newer driver library APIs. For legacy APIs
+        that only accept a ``CUmodule``, use :meth:`get_module` instead.
 
         .. caution::
 
