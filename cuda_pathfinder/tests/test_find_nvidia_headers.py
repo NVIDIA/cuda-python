@@ -117,14 +117,9 @@ def _fake_cudart_canary_abs_path(ctk_root: Path) -> str:
         return str(ctk_root / "bin" / "x64" / "cudart64_13.dll")
     return str(ctk_root / "lib64" / "libcudart.so.13")
 
-
-# TODO: remove the Python 3.15 guard once 3.15 is officially supported
-_CUTLASS_SKIP = pytest.mark.skipif(
-    sys.version_info >= (3, 15),
-    reason="nvidia-cutlass not available on Python 3.15 (scipy missing)",
 )
 _NON_CTK_HEADER_PARAMS = [
-    pytest.param(name, marks=_CUTLASS_SKIP) if name in ("cutlass", "cute") else name
+    pytest.param(name) if name in ("cutlass", "cute") else name
     for name in SUPPORTED_HEADERS_NON_CTK
 ]
 
