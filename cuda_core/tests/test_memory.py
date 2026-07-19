@@ -751,6 +751,24 @@ def test_pinned_memory_resource_initialization(init_cuda):
     buffer.close()
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
+    device = init_cuda
+    try:
+        supported = device.properties.host_memory_pools_supported
+    except AttributeError:
+        pytest.skip("Host memory pool capability query requires CUDA 13.0 or later")
+    if supported:
+        pytest.skip("Device supports host memory pools")
+
+    mr = PinnedMemoryResource()
+    try:
+        with pytest.raises(CUDAError, match="CUDA_ERROR_NOT_SUPPORTED.*LegacyPinnedMemoryResource"):
+            mr.allocate(1024, stream=device.default_stream)
+    finally:
+        mr.close()
+
+
 def test_managed_memory_resource_initialization(init_cuda):
     device = Device()
     skip_if_managed_memory_unsupported(device)
