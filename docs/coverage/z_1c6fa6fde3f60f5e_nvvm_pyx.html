@@ -93,10 +93,11 @@
   "_": "tests/test_program_cache.py::test_make_program_cache_key_nvvm_use_libdevice_requires_extra_digest|run",
   "`": "tests/test_program_cache.py::test_make_program_cache_key_survives_cuda_core_version_change[nvvm]|run",
   "{": "tests/test_nvvm.py::test_get_error_string|run",
-  "|": "tests/test_object_protocols.py::test_repr_format[sample_program_nvvm-\u003cProgram backend='NVVM'\u003e]|teardown",
-  "}": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
-  "~": "tests/test_program.py::test_bitcode_format[txt]|setup",
-  "ab": "tests/test_program.py::test_nvvm_compile_invalid_target|setup"
+  "|": "tests/graph/test_graph_definition.py::test_registry_cleanup|run",
+  "}": "tests/test_object_protocols.py::test_repr_format[sample_program_nvvm-\u003cProgram backend='NVVM'\u003e]|teardown",
+  "~": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
+  "ab": "tests/test_program.py::test_bitcode_format[txt]|setup",
+  "bb": "tests/test_program.py::test_nvvm_program_options[options0-ptx]|setup"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -159,7 +160,7 @@
             <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-16 01:28 +0000
+            created at 2026-07-19 01:12 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -331,8 +332,8 @@
     <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><span class="r"><label for="ctxs155" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">cdef inline int _check_or_init_nvvm() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs157" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">    if _cyb___py_nvvm_init:</span>&nbsp;</span><input type="checkbox" id="ctxs158"><span class="r"><label for="ctxs158" class="ctx">90 ctx</label></span><span class="ctxs">2a Y Z j 5 k 6 l 7 m 8 n o W X b 9 c ! d # e $ f % g ' h ( i ) 0 N w { * 3 4 O + P , Q - R . S / T : ; | x } y ~ 1 U 2 abV z A B C D E F G H I J K L M u v = ? @ [ ] ^ _ ` p q r s t </span></p>
-    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs159"><span class="r"><label for="ctxs159" class="ctx">90 ctx</label></span><span class="ctxs">2a Y Z j 5 k 6 l 7 m 8 n o W X b 9 c ! d # e $ f % g ' h ( i ) 0 N w { * 3 4 O + P , Q - R . S / T : ; | x } y ~ 1 U 2 abV z A B C D E F G H I J K L M u v = ? @ [ ] ^ _ ` p q r s t </span></p>
+    <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">    if _cyb___py_nvvm_init:</span>&nbsp;</span><input type="checkbox" id="ctxs158"><span class="r"><label for="ctxs158" class="ctx">91 ctx</label></span><span class="ctxs">2a | Y Z j 5 k 6 l 7 m 8 n o W X b 9 c ! d # e $ f % g ' h ( i ) 0 N w { * 3 4 O + P , Q - R . S / T : ; } x ~ y ab1 U 2 V z A bbB C D E F G H I J K L M u v = ? @ [ ] ^ _ ` p q r s t </span></p>
+    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs159"><span class="r"><label for="ctxs159" class="ctx">91 ctx</label></span><span class="ctxs">2a | Y Z j 5 k 6 l 7 m 8 n o W X b 9 c ! d # e $ f % g ' h ( i ) 0 N w { * 3 4 O + P , Q - R . S / T : ; } x ~ y ab1 U 2 V z A bbB C D E F G H I J K L M u v = ? @ [ ] ^ _ ` p q r s t </span></p>
     <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">    return _init_nvvm()</span>&nbsp;</span><span class="r"><label for="ctxs161" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -429,11 +430,11 @@
     <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">cdef nvvmResult _nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs254" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">    global __nvvmIRVersion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs256"><span class="r"><label for="ctxs256" class="ctx">38 ctx</label></span><span class="ctxs">2a 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : } ~ abu v = ? @ [ ] ^ _ ` p q r s t </span></p>
-    <p class="run"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">    if __nvvmIRVersion == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs257"><span class="r"><label for="ctxs257" class="ctx">38 ctx</label></span><span class="ctxs">2a 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : } ~ abu v = ? @ [ ] ^ _ ` p q r s t </span></p>
+    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs256"><span class="r"><label for="ctxs256" class="ctx">38 ctx</label></span><span class="ctxs">2a 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ~ abbbu v = ? @ [ ] ^ _ ` p q r s t </span></p>
+    <p class="run"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">    if __nvvmIRVersion == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs257"><span class="r"><label for="ctxs257" class="ctx">38 ctx</label></span><span class="ctxs">2a 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ~ abbbu v = ? @ [ ] ^ _ ` p q r s t </span></p>
     <p class="mis show_mis"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvvmIRVersion is not found")</span>&nbsp;</span><input type="checkbox" id="ctxs259"><span class="r"><label for="ctxs259" class="ctx">10 ctx</label></span><span class="ctxs">1kmoXOPQRST</span></p>
-    <p class="run"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(int*, int*, int*, int*) noexcept nogil>__nvvmIRVersion)(</span>&nbsp;</span><input type="checkbox" id="ctxs260"><span class="r"><label for="ctxs260" class="ctx">48 ctx</label></span><span class="ctxs">2a 5 k 6 7 m 8 o X 9 ! # $ % ' ( ) * O + P , Q - R . S / T : } ~ abu v = ? @ [ ] ^ _ ` p q r s t </span></p>
+    <p class="run"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(int*, int*, int*, int*) noexcept nogil>__nvvmIRVersion)(</span>&nbsp;</span><input type="checkbox" id="ctxs260"><span class="r"><label for="ctxs260" class="ctx">48 ctx</label></span><span class="ctxs">2a 5 k 6 7 m 8 o X 9 ! # $ % ' ( ) * O + P , Q - R . S / T : ~ abbbu v = ? @ [ ] ^ _ ` p q r s t </span></p>
     <p class="pln"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">        majorIR, minorIR, majorDbg, minorDbg)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -449,11 +450,11 @@
     <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">cdef nvvmResult _nvvmDestroyProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs274" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">    global __nvvmDestroyProgram</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">55 ctx</label></span><span class="ctxs">1aYZjklmnoWXbcdefghi0NwOPQRST|xy1U2zABCDEFGHIJKLMuvpqrst</span></p>
-    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">    if __nvvmDestroyProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs277"><span class="r"><label for="ctxs277" class="ctx">55 ctx</label></span><span class="ctxs">1aYZjklmnoWXbcdefghi0NwOPQRST|xy1U2zABCDEFGHIJKLMuvpqrst</span></p>
+    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">    _check_or_init_nvvm()</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">56 ctx</label></span><span class="ctxs">1a|YZjklmnoWXbcdefghi0NwOPQRST}xy1U2zABCDEFGHIJKLMuvpqrst</span></p>
+    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">    if __nvvmDestroyProgram == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs277"><span class="r"><label for="ctxs277" class="ctx">56 ctx</label></span><span class="ctxs">1a|YZjklmnoWXbcdefghi0NwOPQRST}xy1U2zABCDEFGHIJKLMuvpqrst</span></p>
     <p class="mis show_mis"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError("function nvvmDestroyProgram is not found")</span>&nbsp;</span><input type="checkbox" id="ctxs279"><span class="r"><label for="ctxs279" class="ctx">9 ctx</label></span><span class="ctxs">1bcdefghiN</span></p>
-    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(nvvmProgram*) noexcept nogil>__nvvmDestroyProgram)(</span>&nbsp;</span><input type="checkbox" id="ctxs280"><span class="r"><label for="ctxs280" class="ctx">55 ctx</label></span><span class="ctxs">1aYZjklmnoWXbcdefghi0NwOPQRST|xy1U2zABCDEFGHIJKLMuvpqrst</span></p>
+    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">    return (&lt;nvvmResult (*)(nvvmProgram*) noexcept nogil>__nvvmDestroyProgram)(</span>&nbsp;</span><input type="checkbox" id="ctxs280"><span class="r"><label for="ctxs280" class="ctx">56 ctx</label></span><span class="ctxs">1a|YZjklmnoWXbcdefghi0NwOPQRST}xy1U2zABCDEFGHIJKLMuvpqrst</span></p>
     <p class="pln"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">        prog)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -554,7 +555,7 @@
             <a class="nav" href="z_1c6fa6fde3f60f5e_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-16 01:28 +0000
+            created at 2026-07-19 01:12 +0000
         </p>
     </div>
 </footer>
