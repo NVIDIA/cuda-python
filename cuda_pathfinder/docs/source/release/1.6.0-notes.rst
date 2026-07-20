@@ -9,10 +9,32 @@
 Highlights
 ----------
 
-* :func:`find_nvidia_binary_utility` now resolves binaries through a bounded,
-  deterministic search of trusted directories instead of ``shutil.which`` and
-  gains a CTK-root canary fallback. When the NVIDIA wheel, ``CONDA_PREFIX``, and
-  ``CUDA_HOME`` / ``CUDA_PATH`` directories all miss, ``cudart`` is resolved
-  through the OS dynamic loader, the CUDA Toolkit root is derived from that
-  path, and its ``bin`` layout is searched.
+* :func:`find_nvidia_binary_utility` now probes configured binary directories
+  directly instead of delegating to ``shutil.which``, avoiding implicit
+  current-working-directory lookup on Windows. If those locations miss, a new
+  CTK-root canary fallback resolves ``cudart`` through the OS dynamic loader,
+  derives its CUDA Toolkit root, and searches that root's ``bin`` layout. With
+  multiple visible toolkits, the result follows the ``cudart`` selected by the
+  dynamic loader and may differ from the executable selected by a shell.
   (`PR #2196 <https://github.com/NVIDIA/cuda-python/pull/2196>`_)
+
+* Add dynamic-library loading and header discovery for the cuQuantum libraries
+  ``cudensitymat``, ``cupauliprop``, ``cutensornet``, ``custabilizer``, and
+  ``custatevec`` on Linux.
+  (`PR #2376 <https://github.com/NVIDIA/cuda-python/pull/2376>`_)
+
+* Add dynamic-library loading support for ``cutensorMp`` on Linux, including
+  preloading the packaged CUDA runtime in CUDA 12 wheel-only environments.
+  (`PR #2374 <https://github.com/NVIDIA/cuda-python/pull/2374>`_)
+
+* Add Windows Arm64 discovery for ``cudla.dll``, enabling
+  ``load_nvidia_dynamic_lib("cudla")`` to find cuDLA in the CUDA Toolkit's
+  architecture-specific ``bin`` directories.
+  (`PR #2274 <https://github.com/NVIDIA/cuda-python/pull/2274>`_)
+
+Internal maintenance
+--------------------
+
+* Clean up dead and misleading error-handling code in the Linux and Windows
+  dynamic-library loaders; runtime behavior is unchanged.
+  (`PR #2239 <https://github.com/NVIDIA/cuda-python/pull/2239>`_)
