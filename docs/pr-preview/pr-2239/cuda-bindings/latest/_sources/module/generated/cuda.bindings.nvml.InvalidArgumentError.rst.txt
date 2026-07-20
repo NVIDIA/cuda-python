@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.InvalidArgumentError
+=======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: InvalidArgumentError
