@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -18,6 +18,11 @@ on:
         description: "Component to download wheels for"
         type: string
         required: true
+      dry-run:
+        description: "Validate release artifacts without uploading them to the GitHub release"
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   # Concurrency group that uses the workflow name and PR number if available
@@ -41,7 +46,7 @@ jobs:
       ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ inputs.git-tag }}
     steps:
       - name: Checkout Source
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
@@ -64,6 +69,7 @@ jobs:
           > "release/${{ env.ARCHIVE_NAME }}.tar.gz.sha256sum"
 
       - name: Upload Archive
+        if: ${{ !inputs.dry-run }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: >
@@ -72,7 +78,7 @@ jobs:
           --repo "${{ github.repository }}"
           release/*
 
-      - name: Download and Upload Wheels
+      - name: Download and Validate Wheels
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -82,8 +88,20 @@ jobs:
           # Validate that release wheels match the expected version from tag.
           ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "release/wheels"
 
-          # Upload wheels to the release
+      - name: Upload Wheels
+        if: ${{ !inputs.dry-run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
           if [[ -d "release/wheels" && $(ls -A release/wheels 2>/dev/null | wc -l) -gt 0 ]]; then
             echo "Uploading wheels to release ${{ inputs.git-tag }}"
             gh release upload --clobber "${{ inputs.git-tag }}" --repo "${{ github.repository }}" release/wheels/*
           fi
+
+      - name: Upload dry-run release artifacts
+        if: ${{ inputs.dry-run }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: release-artifacts-dry-run-${{ inputs.component }}-${{ inputs.git-tag }}
+          path: release/
+          retention-days: 3

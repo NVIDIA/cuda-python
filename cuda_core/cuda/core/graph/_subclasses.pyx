@@ -30,7 +30,7 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-from cuda.core.graph._utils cimport _is_py_host_trampoline
+from cuda.core.graph._host_callback cimport _is_py_host_trampoline
 
 from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core.typing import GraphConditionalType

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 cimport cython
 from libc.stdint cimport uintptr_t
+from libcpp.atomic cimport memory_order_acquire, memory_order_release
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
@@ -76,6 +77,68 @@ register_mr_dealloc_callback(_mr_dealloc_callback)
 __all__ = ['Buffer', 'MemoryResource']
 
 
+# Memory Attribute Query Helpers
+# ------------------------------
+cdef inline int _query_memory_attrs(
+    _MemAttrs& out,
+    cydriver.CUdeviceptr ptr
+) except -1 nogil:
+    """Query memory attributes for a device pointer."""
+    cdef unsigned int memory_type = 0
+    cdef int is_managed = 0
+    cdef int device_id = 0
+    cdef cydriver.CUpointer_attribute[3] attrs = [
+        cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+        cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED,
+        cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+    ]
+    cdef uintptr_t[3] vals = [
+        <uintptr_t><void*>&memory_type,
+        <uintptr_t><void*>&is_managed,
+        <uintptr_t><void*>&device_id,
+    ]
+
+    cdef cydriver.CUresult ret
+    ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
+    if ret == cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
+        with cython.gil:
+            # Device class handles the cuInit call internally
+            Device()
+        ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
+    HANDLE_RETURN(ret)
+
+    # TODO: HMM/ATS-enabled sysmem should also report is_managed=True; the
+    # CU_POINTER_ATTRIBUTE_IS_MANAGED query does not capture that yet.
+    out.is_managed = is_managed != 0
+
+    if memory_type == 0:
+        # unregistered host pointer
+        out.is_host_accessible = True
+        out.is_device_accessible = False
+        out.device_id = -1
+    elif (
+        is_managed
+        or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
+    ):
+        # Managed memory or pinned host memory
+        out.is_host_accessible = True
+        out.is_device_accessible = True
+        out.device_id = device_id
+    elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
+        out.is_host_accessible = False
+        out.is_device_accessible = True
+        out.device_id = device_id
+    else:
+        with cython.gil:
+            raise ValueError(f"Unsupported memory type: {memory_type}")
+    return 0
+
+
+cdef inline void _init_memory_attrs(Buffer self):
+    """Initialize memory attributes by querying the pointer."""
+    if not self._mem_attrs_inited.load(memory_order_acquire):
+        _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
+        self._mem_attrs_inited.store(True, memory_order_release)
 
 
 cdef class Buffer:
@@ -86,6 +149,13 @@ cdef class Buffer:
     allocations.
 
     Support for data interchange mechanisms are provided by DLPack.
+
+    Note
+    ----
+    Pickling an IPC-enabled :class:`Buffer` embeds an
+    :class:`~_memory.IPCBufferDescriptor`. Unpickling reconstructs the buffer
+    by calling :meth:`from_ipc_descriptor` and therefore performs an IPC
+    import. Do not unpickle buffers from untrusted sources.
     """
     def __cinit__(self) -> None:
         self._clear()
@@ -96,7 +166,7 @@ cdef class Buffer:
         self._memory_resource = None
         self._ipc_data = None
         self._owner = None
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
 
     def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Buffer objects cannot be instantiated directly. "
@@ -126,7 +196,7 @@ cdef class Buffer:
         self._memory_resource = mr
         self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._owner = owner
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
         return self
 
     @staticmethod
@@ -138,6 +208,8 @@ cdef class Buffer:
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self) -> tuple[object, ...]:
+        # Unpickling performs a live CUDA IPC import from descriptor bytes in the
+        # pickle stream. Only deserialize Buffers from a trusted principal.
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
@@ -187,10 +259,17 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream`
             Keyword-only. The stream used for asynchronous deallocation when
             the buffer is closed or garbage collected.
+
+        Note
+        ----
+        The descriptor payload and ``size`` are supplied by the exporting peer
+        and must be treated as untrusted input unless the peer is known to be
+        cooperating.
         """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
     @property
+    @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
         if self._ipc_data is None:
@@ -365,7 +444,7 @@ cdef class Buffer:
         """Return the device ordinal of this buffer."""
         if self._memory_resource is not None:
             return self._memory_resource.device_id
-        _init_mem_attrs(self)
+        _init_memory_attrs(self)
         return self._mem_attrs.device_id
 
     @property
@@ -400,7 +479,7 @@ cdef class Buffer:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_device_accessible
-        _init_mem_attrs(self)
+        _init_memory_attrs(self)
         return self._mem_attrs.is_device_accessible
 
     @property
@@ -408,13 +487,13 @@ cdef class Buffer:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_host_accessible
-        _init_mem_attrs(self)
+        _init_memory_attrs(self)
         return self._mem_attrs.is_host_accessible
 
     @property
     def is_managed(self) -> bool:
         """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
-        _init_mem_attrs(self)
+        _init_memory_attrs(self)
         if self._mem_attrs.is_managed:
             return True
         # Pool-allocated managed memory does not set CU_POINTER_ATTRIBUTE_IS_MANAGED,
@@ -441,69 +520,6 @@ cdef class Buffer:
     def owner(self) -> object:
         """Return the object holding external allocation."""
         return self._owner
-
-
-# Memory Attribute Query Helpers
-# ------------------------------
-cdef inline void _init_mem_attrs(Buffer self):
-    """Initialize memory attributes by querying the pointer."""
-    if not self._mem_attrs_inited:
-        _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
-        self._mem_attrs_inited = True
-
-
-cdef inline int _query_memory_attrs(
-    _MemAttrs& out,
-    cydriver.CUdeviceptr ptr
-) except -1 nogil:
-    """Query memory attributes for a device pointer."""
-    cdef unsigned int memory_type = 0
-    cdef int is_managed = 0
-    cdef int device_id = 0
-    cdef cydriver.CUpointer_attribute attrs[3]
-    cdef uintptr_t vals[3]
-
-    attrs[0] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE
-    attrs[1] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED
-    attrs[2] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL
-    vals[0] = <uintptr_t><void*>&memory_type
-    vals[1] = <uintptr_t><void*>&is_managed
-    vals[2] = <uintptr_t><void*>&device_id
-
-    cdef cydriver.CUresult ret
-    ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
-    if ret == cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
-        with cython.gil:
-            # Device class handles the cuInit call internally
-            Device()
-        ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
-    HANDLE_RETURN(ret)
-
-    # TODO: HMM/ATS-enabled sysmem should also report is_managed=True; the
-    # CU_POINTER_ATTRIBUTE_IS_MANAGED query does not capture that yet.
-    out.is_managed = is_managed != 0
-
-    if memory_type == 0:
-        # unregistered host pointer
-        out.is_host_accessible = True
-        out.is_device_accessible = False
-        out.device_id = -1
-    elif (
-        is_managed
-        or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
-    ):
-        # Managed memory or pinned host memory
-        out.is_host_accessible = True
-        out.is_device_accessible = True
-        out.device_id = device_id
-    elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
-        out.is_host_accessible = False
-        out.is_device_accessible = True
-        out.device_id = device_id
-    else:
-        with cython.gil:
-            raise ValueError(f"Unsupported memory type: {memory_type}")
-    return 0
 
 
 cdef class MemoryResource:
@@ -597,7 +613,7 @@ cdef Buffer Buffer_from_deviceptr_handle(
     buf._memory_resource = mr
     buf._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
     buf._owner = None
-    buf._mem_attrs_inited = False
+    buf._mem_attrs_inited.store(False)
     return buf
 
 

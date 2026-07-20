@@ -1,15 +1,23 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=85275f1596953f034c156776f8fe4f6e518dbb89ffedda994d8e78bfd9284246
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
                                get_buffer_pointer, get_resource_ptrs)
 
-from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 from libcpp.vector cimport vector
 
 
@@ -17,10 +25,10 @@ from libcpp.vector cimport vector
 # Enum
 ###############################################################################
 
-class Result(_FastEnum):
+class Result(_cyb_FastEnum):
     """
-    The enumerated type nvJitLinkResult defines API call result codes.
-    nvJitLink APIs return nvJitLinkResult codes to indicate the result.
+    The enumerated type `nvJitLinkResult` defines API call result codes.
+    nvJitLink APIs return `nvJitLinkResult` codes to indicate the result.
 
     See `nvJitLinkResult`.
     """
@@ -44,10 +52,10 @@ class Result(_FastEnum):
     ERROR_UNSUPPORTED_ARCH = (NVJITLINK_ERROR_UNSUPPORTED_ARCH, 'Unsupported -arch value')
     ERROR_LTO_NOT_ENABLED = (NVJITLINK_ERROR_LTO_NOT_ENABLED, 'Requires -lto')
 
-class InputType(_FastEnum):
+class InputType(_cyb_FastEnum):
     """
-    The enumerated type nvJitLinkInputType defines the kind of inputs that
-    can be passed to nvJitLinkAdd* APIs.
+    The enumerated type `nvJitLinkInputType` defines the kind of inputs
+    that can be passed to nvJitLinkAdd* APIs.
 
     See `nvJitLinkInputType`.
     """
@@ -105,7 +113,7 @@ cpdef destroy(intptr_t handle):
 
 
 cpdef intptr_t create(uint32_t num_options, options) except -1:
-    """nvJitLinkCreate creates an instance of nvJitLinkHandle with the given input options, and sets the output parameter ``handle``.
+    """nvJitLinkCreate creates an instance of ``nvJitLinkHandle`` with the given input options, and sets the output parameter ``handle``.
 
     Args:
         num_options (uint32_t): Number of options passed.
@@ -334,3 +342,37 @@ cpdef tuple version():
         __status__ = nvJitLinkVersion(&major, &minor)
     check_status(__status__)
     return (major, minor)
+
+
+cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0:
+    """nvJitLinkGetLinkedLTOIRSize gets the size of the linked LTOIR.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+
+    Returns:
+        size_t: Size of the linked LTOIR.
+
+    .. seealso:: `nvJitLinkGetLinkedLTOIRSize`
+    """
+    cdef size_t size
+    with nogil:
+        __status__ = nvJitLinkGetLinkedLTOIRSize(<Handle>handle, &size)
+    check_status(__status__)
+    return size
+
+
+cpdef get_linked_ltoir(intptr_t handle, ltoir):
+    """nvJitLinkGetLinkedLTOIR gets the linked LTOIR.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+        ltoir (bytes): The linked LTOIR in Container format.
+
+    .. seealso:: `nvJitLinkGetLinkedLTOIR`
+    """
+    cdef void* _ltoir_ = get_buffer_pointer(ltoir, -1, readonly=False)
+    with nogil:
+        __status__ = nvJitLinkGetLinkedLTOIR(<Handle>handle, <void*>_ltoir_)
+    check_status(__status__)
+del _cyb_FastEnum

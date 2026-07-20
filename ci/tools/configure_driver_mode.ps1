@@ -30,26 +30,30 @@ function Set-DriverMode {
         exit 1
     }
 
-    # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA)
-    $nvidia_devices = Get-PnpDevice -Class Display -FriendlyName "NVIDIA*"
+    # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA).
+    $nvidia_devices = @(Get-PnpDevice -Class Display -FriendlyName "NVIDIA*")
+    $gpu_count = $nvidia_devices.Count
     foreach ($device in $nvidia_devices) {
         Write-Output "Restarting device: $($device.FriendlyName) ($($device.InstanceId))"
         pnputil /disable-device "$($device.InstanceId)"
         pnputil /enable-device "$($device.InstanceId)"
     }
 
-    # Poll nvidia-smi until NVML can initialize, or give up after ~60s.
-    # A fixed sleep is not enough on slower-coming-back-up multi-GPU rows
-    # (e.g. 2x H100 MCDM) where pnputil enable returns before NVML is
-    # ready. Pattern borrowed from the runner-team `nvgha-driver.ps1`.
+    # Initial settle after the device cycle.
+    Start-Sleep -Seconds 5
+
+    # Poll nvidia-smi for N consecutive successes (N == cycled GPUs)
+    # so a mid-init "ok" flap doesn't fool the loop; bail after ~60s.
     Write-Output "Waiting for nvidia-smi/NVML to come back up after device cycle..."
     $deadline = (Get-Date).AddSeconds(60)
+    $consecutive_ok = 0
     do {
-        Start-Sleep -Seconds 2
+        Start-Sleep -Seconds 3
         & nvidia-smi.exe 2>&1 | Out-Null
-    } while ($LASTEXITCODE -ne 0 -and (Get-Date) -lt $deadline)
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "nvidia-smi did not return cleanly within 60s of the device cycle"
+        if ($LASTEXITCODE -eq 0) { $consecutive_ok++ } else { $consecutive_ok = 0 }
+    } while ($consecutive_ok -lt $gpu_count -and (Get-Date) -lt $deadline)
+    if ($consecutive_ok -lt $gpu_count) {
+        Write-Error "nvidia-smi did not return cleanly $gpu_count times in a row within 60s of the device cycle"
         exit 1
     }
 }

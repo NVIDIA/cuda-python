@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import cython
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._memory._pinned_memory_resource import PinnedMemoryResource
@@ -19,6 +20,13 @@ class Buffer:
     allocations.
 
     Support for data interchange mechanisms are provided by DLPack.
+
+    Note
+    ----
+    Pickling an IPC-enabled :class:`Buffer` embeds an
+    :class:`~_memory.IPCBufferDescriptor`. Unpickling reconstructs the buffer
+    by calling :meth:`from_ipc_descriptor` and therefore performs an IPC
+    import. Do not unpickle buffers from untrusted sources.
     """
 
     def __cinit__(self) -> None:
@@ -85,9 +93,16 @@ class Buffer:
         stream : :obj:`~_stream.Stream`
             Keyword-only. The stream used for asynchronous deallocation when
             the buffer is closed or garbage collected.
+
+        Note
+        ----
+        The descriptor payload and ``size`` are supplied by the exporting peer
+        and must be treated as untrusted input unless the peer is known to be
+        cooperating.
         """
 
     @property
+    @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
 

@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 [workspace]
 channels = ["conda-forge"]
@@ -33,7 +33,6 @@ myst-parser = "*"
 numpy = "*"
 numpydoc = "*"
 pip = "*"
-pyclibrary = "*"
 pydata-sphinx-theme = "*"
 pytest = "*"
 scipy = "*"
@@ -96,9 +95,6 @@ backend = { name = "pixi-build-python", version = "*" }
 [package.build.config]
 compilers = ["c", "cxx"]
 
-[package.build.config.env]
-CUDA_PYTHON_PARSER_CACHING = "1"
-
 [package.build.target.linux-64.config.env]
 CUDA_HOME = "$PREFIX/targets/x86_64-linux"
 CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)"
@@ -120,7 +116,6 @@ cuda-version = "*"
 setuptools = ">=80"
 setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
-pyclibrary = ">=0.1.7"
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 cuda-cudart-static = "*"
 cuda-nvrtc-dev = "*"

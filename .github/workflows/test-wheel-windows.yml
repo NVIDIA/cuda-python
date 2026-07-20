@@ -37,8 +37,9 @@ on:
         default: ''
       test-mode:
         description: >
-          Test mode: 'standard' (default), 'nightly-pytorch', or
-          'nightly-numba-cuda'.
+          Test mode: 'standard' (default), 'nightly-pytorch',
+          'nightly-numba-cuda', 'nightly-numba-cuda-mlir', or
+          'nightly-cuda-core'.
         type: string
         default: 'standard'
       sha:
@@ -61,7 +62,7 @@ jobs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
       - name: Validate Test Type
         run: |
@@ -90,7 +91,7 @@ jobs:
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
   test:
-    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.TORCH_VER && format(', {0}', matrix.TORCH_VER) || '' }}${{ matrix.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
+    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     timeout-minutes: 60
     # The build stage could fail but we want the CI to keep moving.
     needs: compute-matrix
@@ -103,7 +104,7 @@ jobs:
     runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -148,6 +149,13 @@ jobs:
           SKIP_BINDINGS_TEST_OVERRIDE: ${{ inputs.skip-bindings-test && '1' || '0' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: ./ci/tools/env-vars test
+
+      - name: Apply extra matrix environment variables
+        if: ${{ matrix.ENV }}
+        env:
+          MATRIX_ENV: ${{ toJSON(matrix.ENV) }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: echo "$MATRIX_ENV" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
 
       - name: Download cuda-pathfinder build artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
@@ -252,8 +260,21 @@ jobs:
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
+      - name: Download cuda.core test binaries
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
+          path: ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Display structure of downloaded cuda.core test binaries
+        run: |
+          Get-Location
+          Get-ChildItem -Recurse -Force $env:CUDA_CORE_TEST_BINARIES_DIR | Select-Object Mode, LastWriteTime, Length, FullName
+
       - name: Set up Python ${{ matrix.PY_VER }}
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ matrix.PY_VER }}
 
@@ -320,10 +341,12 @@ jobs:
       - name: Ensure cuda-python installable
         if: ${{ inputs.test-mode == 'standard' && env.BINDINGS_SOURCE == 'main' }}
         run: |
+          # Subpackages are already installed from CI artifacts; --no-deps keeps
+          # tag-release cuda-core wheels from being replaced by PyPI pins.
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            pip install --only-binary=:all: (Get-ChildItem -Filter cuda_python*.whl).FullName
+            pip install --only-binary=:all: --no-deps (Get-ChildItem -Filter cuda_python*.whl).FullName
           } else {
-            pip install --only-binary=:all: "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
+            pip install --only-binary=:all: --no-deps "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
 
       - name: Install cuda.pathfinder extra wheels for testing
@@ -357,8 +380,6 @@ jobs:
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-          TORCH_VER: ${{ matrix.TORCH_VER }}
-          TORCH_CUDA: ${{ matrix.TORCH_CUDA }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests nightly-pytorch
 
@@ -369,6 +390,22 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests nightly-numba-cuda
+
+      - name: Install cuda-python wheels + numba-cuda-mlir
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests nightly-numba-cuda-mlir
+
+      - name: Install main pathfinder/bindings + released cuda-core
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests nightly-cuda-core
 
       # ── Nightly: run tests ──
       - name: Run PyTorch interop tests
@@ -383,3 +420,85 @@ jobs:
         if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: python -m numba.runtests numba.cuda.tests
+
+      - name: Checkout numba-cuda-mlir tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          repository: NVIDIA/numba-cuda-mlir
+          ref: v${{ env.NUMBA_CUDA_MLIR_VER }}
+          path: numba-cuda-mlir-released
+
+      - name: Run numba-cuda-mlir tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pushd numba-cuda-mlir-released
+          pip install --upgrade "pip>=25.1"
+          pip install --group test
+          # Version-gated deselects — dropped automatically when newer
+          # cuSIMT release ships. See linux step for full rationale.
+          # NVIDIA/numba-cuda-mlir#135 poisons a subset of tests that
+          # varies across runs based on collection order, so we deselect
+          # the full union rather than trying to enumerate what happened
+          # to fail on the most recent nightly.
+          DESELECTS=()
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${NUMBA_CUDA_MLIR_VER}') <= Version('0.4.1') else 1)"; then
+            DESELECTS+=(
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_default_stream'
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_supplied_stream'
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_no_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_no_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync_two_streams'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_fortran_contiguous'
+            )
+          fi
+          pytest -rxXs -v --durations=0 \
+            --ignore=tests/benchmarks \
+            --ignore=tests/doc_examples \
+            "${DESELECTS[@]}" \
+            tests/
+          popd
+
+      - name: Checkout released cuda-core tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_VER != '' }}
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          ref: cuda-core-v${{ env.CUDA_CORE_RELEASED_VER }}
+          path: cuda-core-released
+
+      - name: Run released cuda-core tests
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_VER != '' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pushd cuda-core-released/cuda_core
+          pip install --upgrade "pip>=25.1"
+          pip install --group "${CUDA_CORE_TEST_GROUP}"
+          # Cap pytest below 9.1 — released cuda-core <=1.0.1 has parametrize
+          # patterns that pytest 9.1 rejects (see #2212).
+          pip install "pytest<9.1"
+          # Version-gated deselects — dropped automatically when a newer
+          # cuda-core release ships. See linux step for full rationale on
+          # NvlinkVersion. The Windows-only tests are:
+          # - test_rlcompleter_patch: env-dependent expectation that
+          #   passes on Linux, fails on Windows MCDM.
+          # - test_non_managed_resources_report_not_managed[pinned]: same
+          #   MCDM mempool OOM v1.0.1 already xfails in
+          #   test_pinned_memory_resource_initialization (TODO(#9999));
+          #   main fixed the parametrized case via #2139 but v1.0.1 lacks
+          #   the fix.
+          DESELECTS=()
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.0.1') else 1)"; then
+            DESELECTS+=(
+              --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]'
+              --deselect 'tests/test_rlcompleter_patch.py::test_opt_out_env_var_disables_patch_even_when_interactive'
+              --deselect 'tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]'
+            )
+          fi
+          pytest -rxXs -v --durations=0 --randomly-dont-reorganize \
+            "${DESELECTS[@]}" \
+            tests/
+          popd

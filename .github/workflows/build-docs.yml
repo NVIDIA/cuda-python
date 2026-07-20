@@ -33,6 +33,16 @@ on:
         required: false
         default: false
         type: boolean
+      deploy-docs:
+        description: "Deploy generated docs to GitHub Pages or preview branches"
+        required: false
+        default: true
+        type: boolean
+      docs-branch:
+        description: "Branch that receives deployed docs"
+        required: false
+        default: "gh-pages"
+        type: string
 
 jobs:
   build:
@@ -45,14 +55,21 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
 
       - name: Read build CTK version
         run: |
-          BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
+          if [[ -f ci/versions.yml ]]; then
+            BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
+          elif [[ -f ci/versions.json ]]; then
+            BUILD_CTK_VER=$(jq -r '.cuda.build.version' ci/versions.json)
+          else
+            echo "error: cannot find ci/versions.yml or ci/versions.json" >&2
+            exit 1
+          fi
           if [[ ! "${BUILD_CTK_VER}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "error: derived CTK build version ${BUILD_CTK_VER} does not match MAJOR.MINOR.MICRO" >&2
             exit 1
@@ -195,7 +212,9 @@ jobs:
           pip install *.whl
           popd
 
-          pip install cuda_python*.whl
+          # Subpackages are already installed from CI artifacts above.
+          # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
+          pip install --no-deps cuda_python*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number
@@ -259,7 +278,7 @@ jobs:
       - name: Restore lychee cache
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
         id: restore-lychee-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: .lycheecache
           key: docs-rendered-lychee-${{ env.PR_NUMBER }}-${{ github.sha }}
@@ -299,19 +318,28 @@ jobs:
 
       - name: Save lychee cache
         if: ${{ always() && !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && steps.restore-lychee-cache.outputs.cache-hit != 'true' && steps.restore-lychee-cache.outputs.cache-primary-key != '' }}
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: .lycheecache
           key: ${{ steps.restore-lychee-cache.outputs.cache-primary-key }}
 
       - name: Upload docs GitHub Pages artifact
+        if: ${{ inputs.deploy-docs }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: artifacts/
           retention-days: 3
 
+      - name: Upload dry-run docs artifact
+        if: ${{ !inputs.deploy-docs || (inputs.is-release && inputs.docs-branch != 'gh-pages') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: release-docs-dry-run-${{ inputs.component }}-${{ inputs.git-tag }}
+          path: artifacts/docs/
+          retention-days: 3
+
       - name: Deploy or clean up doc preview
-        if: ${{ !inputs.is-release }}
+        if: ${{ inputs.deploy-docs && !inputs.is-release }}
         uses: ./.github/actions/doc_preview
         with:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||
@@ -319,11 +347,12 @@ jobs:
           pr-number: ${{ env.PR_NUMBER }}
 
       - name: Deploy doc update
-        if: ${{ github.ref_name == 'main' || inputs.is-release }}
+        if: ${{ inputs.deploy-docs && (github.ref_name == 'main' || inputs.is-release) }}
         uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f  # v4.8.0
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
+          branch: ${{ inputs.docs-branch }}
           folder: artifacts/docs/
           target-folder: docs/
           commit-message: "Deploy ${{ (inputs.is-release && 'release') || 'latest' }} docs: ${{ env.CUDA_PYTHON_DOCS_GITHUB_REF }}"

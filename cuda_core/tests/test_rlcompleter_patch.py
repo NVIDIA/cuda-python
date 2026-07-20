@@ -96,7 +96,9 @@ def test_patched_completion_succeeds_on_non_ipc_resource():
     assert "allocation_handle: True" in result.stdout, result.stdout
 
 
-@pytest.mark.skipif(sys.version_info >= (3, 15), reason="Python 3.15 fixed the rlcompleter bug upstream")
+@pytest.mark.skipif(
+    sys.version_info >= (3, 13), reason="Python 3.13.13, 3.14.6 and 3.15 fixed the rlcompleter bug upstream"
+)
 def test_opt_out_env_var_disables_patch_even_when_interactive():
     """`CUDA_CORE_DONT_FIX_TAB_COMPLETION=1` must short-circuit before the
     interactive check, so the bug reproduces again even under PYTHONINSPECT."""
