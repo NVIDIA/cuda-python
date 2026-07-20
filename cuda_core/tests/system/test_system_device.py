@@ -678,13 +678,13 @@ def test_cooler(subtests):
             with unsupported_before(device, DeviceArch.MAXWELL):
                 cooler_info = device.cooler
 
-        assert isinstance(cooler_info, _device.CoolerInfo)
+                assert isinstance(cooler_info, _device.CoolerInfo)
 
-        signal_type = cooler_info.signal_type
-        assert isinstance(signal_type, (typing.CoolerControl, type(None)))
+                signal_type = cooler_info.signal_type
+                assert isinstance(signal_type, (typing.CoolerControl, type(None)))
 
-        target = cooler_info.target
-        assert all(isinstance(t, typing.CoolerTarget) for t in target)
+                target = cooler_info.target
+                assert all(isinstance(t, typing.CoolerTarget) for t in target)
 
 
 def test_temperature(subtests):
