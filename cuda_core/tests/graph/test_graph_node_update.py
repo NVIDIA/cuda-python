@@ -9,7 +9,6 @@ from typing import Callable
 
 import pytest
 
-from cuda.core import Device
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core._utils.version import driver_version
 from cuda.core.graph import GraphDefinition
