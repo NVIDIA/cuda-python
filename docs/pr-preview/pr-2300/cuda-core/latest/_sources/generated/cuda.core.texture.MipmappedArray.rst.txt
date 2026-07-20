@@ -15,7 +15,6 @@ cuda.core.texture.MipmappedArray
    
    .. automethod:: __init__
    .. automethod:: close
-   .. automethod:: from_descriptor
    .. automethod:: get_level
 
    

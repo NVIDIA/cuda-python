@@ -17,7 +17,6 @@ cuda.core.texture.OpaqueArray
    .. automethod:: close
    .. automethod:: copy_from
    .. automethod:: copy_to
-   .. automethod:: from_descriptor
 
    
    
@@ -28,7 +27,7 @@ cuda.core.texture.OpaqueArray
 
    
    .. autoattribute:: device
-   .. autoattribute:: element_size
+   .. autoattribute:: element_bytes
    .. autoattribute:: format
    .. autoattribute:: handle
    .. autoattribute:: is_surface_load_store
