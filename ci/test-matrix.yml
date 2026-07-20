@@ -104,9 +104,8 @@ linux:
     - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gb300',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
     - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
     - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
-    - { ARCH: 'arm64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gb300',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
-    - { ARCH: 'arm64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
-    - { ARCH: 'arm64', PY_VER: '3.15t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
+    - { ARCH: 'arm64', PY_VER: '3.15',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
+    - { ARCH: 'arm64', PY_VER: '3.15t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
 
 windows:
   pull-request:
