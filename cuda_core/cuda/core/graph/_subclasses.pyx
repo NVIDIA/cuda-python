@@ -34,6 +34,7 @@ from cuda.core._resource_handles cimport (
     graph_prepare_attachment,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
 
 from cuda.core.graph._host_callback cimport (
     _is_py_host_trampoline,
@@ -71,6 +72,19 @@ cdef void _set_definition_node_params(
         cydriver.CUgraphNodeParams* params,
         OpaqueHandle owner0,
         OpaqueHandle owner1=OpaqueHandle()) except *:
+    cdef tuple version = cy_driver_version()
+    if version < (12, 2, 0):
+        raise RuntimeError(
+            "Graph node mutation requires CUDA driver 12.2 or newer; "
+            f"using driver version {'.'.join(map(str, version))}"
+        )
+    version = cy_binding_version()
+    if version < (12, 2, 0):
+        raise RuntimeError(
+            "Graph node mutation requires cuda.bindings 12.2 or newer; "
+            f"using cuda.bindings version {'.'.join(map(str, version))}"
+        )
+
     cdef GraphHandle h_graph = graph_node_get_graph(h_node)
     cdef cydriver.CUgraphNode node = as_cu(h_node)
     cdef PreparedAttachment prepared
