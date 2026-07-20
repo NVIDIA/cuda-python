@@ -14,7 +14,7 @@ from cuda.core.graph import GraphDefinition
 
 
 @pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDefinition"])
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_update_kernel_args(init_cuda, builder):
     """Update redirects a kernel to write to a different pointer."""
     mod = compile_common_kernels()
@@ -60,7 +60,7 @@ def test_graph_update_kernel_args(init_cuda, builder):
     b.close()
 
 
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_update_conditional(init_cuda):
     """Update swaps conditional switch graphs with matching topology."""
     mod = compile_conditional_kernels(int)
