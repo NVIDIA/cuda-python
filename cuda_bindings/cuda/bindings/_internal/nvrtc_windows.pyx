@@ -3,10 +3,42 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=53cf0d3710b141df164e10d1365f8f74781b4f338606aa9ea2481a027c25f519
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f7bf76f469f683723715a85ab6db5d3b00ab94d04f3f789c5c6f2bc04e0c020f
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
+
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
 
 cdef extern from "<windows.h>":
     ctypedef void* HMODULE
@@ -16,7 +48,7 @@ from libc.stdint cimport intptr_t as _cyb_intptr_t
 
 import threading as _cyb_threading
 
-cdef bint _cyb___py_nvrtc_init = False
+cdef int _cyb___py_nvrtc_init = 0
 cdef dict _cyb_func_ptrs = None
 cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
@@ -135,11 +167,11 @@ cdef int _init_nvrtc() except -1 nogil:
         global __nvrtcSetFlowCallback
         __nvrtcSetFlowCallback = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcSetFlowCallback')
 
-        _cyb___py_nvrtc_init = True
+        _cyb_atomic_int_store(<int *>&_cyb___py_nvrtc_init, 1)
         return 0
 
 cdef inline int _check_or_init_nvrtc() except -1 nogil:
-    if _cyb___py_nvrtc_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_nvrtc_init):
         return 0
 
     return _init_nvrtc()
