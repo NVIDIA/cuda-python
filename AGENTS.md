@@ -14,103 +14,83 @@ guide for package-specific conventions and workflows.
 
 # Pull requests
 
-Treat the canonical repository used as the pull-request base as read-only by
-default. Push branches and commits to an approved fork, which may be owned by
-either a personal account or an organization.
+## Remote-write policy
 
-Before pushing:
+Do not push branches or commits, create or update a pull request, or perform
+any other remote write unless the user directly requests that specific action
+in the current conversation. Finishing work, committing it locally, or
+finding a suitable fork does not imply authorization. This rule overrides the
+general autonomy and persistence guidance elsewhere in this file.
+
+A request to push a branch does not authorize creating a pull request. A
+direct request to create a pull request authorizes only the fork push needed
+for that pull request, if one is required, and creation of the pull request
+itself. Ask before performing any other remote write.
+
+Treat the canonical repository used as the pull-request base as read-only.
+Never push branches or commits to it. If a workflow must be tested from a
+branch in the canonical repository, explain that requirement and leave the
+upstream push to the user.
+
+The technical instructions below apply only after the user has authorized the
+corresponding remote action. They explain how to perform that action; they do
+not grant permission or define when to perform it.
+
+## Technical procedure after authorization
+
+### Selecting a fork
+
+For an explicitly requested push, use an approved fork, which may be owned by
+either a personal account or an organization. Before pushing:
 
 - Run `git remote -v` and resolve the complete `OWNER/REPOSITORY` names of the
-  base repository and intended fork.
+  base repository and intended fork. Do not rely on remote names such as
+  `origin` or `upstream`.
 - Confirm that the push target is a fork of the base repository and is not the
   base repository itself. Compare complete repository names; the owner alone
   is not sufficient to distinguish them.
 - Push using the explicit fork remote and branch, for example
   `git push <fork-remote> <branch>`.
 
-Do not push to the canonical repository unless the user explicitly requests,
-in the current conversation, a push to a specific branch in that repository.
-This can be necessary, for example, to test workflows that run only for
-upstream branches. Before such a push, verify the exact `OWNER/REPOSITORY`,
-remote, and destination branch. Authorization to push a test branch does not
-authorize pushing to a default or protected branch, creating tags,
-force-pushing, or deleting branches; those actions require separate explicit
-authorization.
+### Creating a requested pull request
+
+Follow this procedure only when the user has directly requested creation of a
+pull request. Follow the repository's pull-request template when preparing the
+body.
 
 Use `gh pr create` when it can identify the fork unambiguously. Always select
 the base repository explicitly with `--repo <base-owner>/<base-repository>`.
-When the head is an organization-owned fork that `gh pr create` cannot
-identify, create the pull request through the GraphQL API. Follow the
-applicable pull-request template when preparing the body because the API does
-not populate the template automatically.
 
-For the API fallback, resolve these values from the remotes and intended PR:
+[GitHub CLI issue cli/cli#10093](https://github.com/cli/cli/issues/10093)
+tracks the inability of `gh pr create` to select some organization-owned forks
+whose repository name differs from the base repository. The link lets
+maintainers check whether the workaround is still necessary.
 
-```
-BASE_REPO="<base-owner>/<base-repository>"
-BASE_BRANCH="<base-branch>"
-BASE_REPO_ID="<base-repository-node-id>"
-HEAD_REPO="<fork-owner>/<fork-repository>"
-HEAD_REPO_ID="<fork-repository-node-id>"
-HEAD_BRANCH="<head-branch>"
-BODY_FILE="<path-to-pr-body>"
-```
-
-Obtain the node IDs with `gh api "repos/${BASE_REPO}" --jq '.node_id'` and
-`gh api "repos/${HEAD_REPO}" --jq '.node_id'`. Then create the PR with
-`headRepositoryId` to identify the organization-owned fork:
+When `gh pr create` cannot identify such a fork, use the GraphQL
+`createPullRequest` mutation and supply `headRepositoryId` explicitly. Resolve
+the base and head repository node IDs with:
 
 ```
-gh api graphql \
-  -f repositoryId="${BASE_REPO_ID}" \
-  -f headRepositoryId="${HEAD_REPO_ID}" \
-  -f baseRefName="${BASE_BRANCH}" \
-  -f headRefName="${HEAD_BRANCH}" \
-  -f title="<title>" \
-  -F body="@${BODY_FILE}" \
-  -F draft=false \
-  -f query='
-    mutation CreatePullRequest(
-      $repositoryId: ID!
-      $headRepositoryId: ID!
-      $baseRefName: String!
-      $headRefName: String!
-      $title: String!
-      $body: String!
-      $draft: Boolean!
-    ) {
-      createPullRequest(input: {
-        repositoryId: $repositoryId
-        headRepositoryId: $headRepositoryId
-        baseRefName: $baseRefName
-        headRefName: $headRefName
-        title: $title
-        body: $body
-        draft: $draft
-      }) {
-        pullRequest { number url }
-      }
-    }' \
-  --jq '.data.createPullRequest.pullRequest'
+gh api "repos/<base-owner>/<base-repository>" --jq '.node_id'
+gh api "repos/<fork-owner>/<fork-repository>" --jq '.node_id'
 ```
 
-Use `-F draft=true` instead when a draft pull request is intended.
+Pass the base repository ID as `repositoryId`, the fork ID as
+`headRepositoryId`, and provide `baseRefName`, `headRefName`, `title`, `body`,
+and `draft`. Request the created pull request's number and URL in the mutation
+result. The GraphQL API does not populate the pull-request template
+automatically, so prepare the complete body before creating the pull request.
 
 Every pull request must have at least one assignee, one label, and a milestone,
 regardless of how it was created. CI enforces this via the
 `pr-metadata-check` workflow. With `gh pr create`, use the `--assignee`,
-`--label`, and `--milestone` flags. After the API fallback, use the returned PR
-number with the base repository explicitly:
+`--label`, and `--milestone` flags. After the GraphQL fallback, add the same
+metadata with `gh pr edit <pr-number> --repo <base-owner>/<base-repository>`.
 
-```
-gh pr edit <pr-number> --repo "${BASE_REPO}" \
-  --add-assignee "<assignee>" --add-label "<label>" \
-  --milestone "<milestone>"
-```
-
-If you are unsure which label or milestone to use, inspect the base repository
-with `gh label list --repo "${BASE_REPO}"` and `gh api
-"repos/${BASE_REPO}/milestones" --jq '.[].title'`, then pick the best match.
+If required metadata is unclear, do not guess. Inspect the available labels
+with `gh label list --repo <base-owner>/<base-repository>` and milestones with
+`gh api "repos/<base-owner>/<base-repository>/milestones" --jq '.[].title'`,
+then ask the user to choose.
 
 
 # General
