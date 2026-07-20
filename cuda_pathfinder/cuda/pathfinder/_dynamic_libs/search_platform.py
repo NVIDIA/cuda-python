@@ -13,13 +13,15 @@ from __future__ import annotations
 import glob
 import os
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from pathlib import PurePath
 from typing import Protocol, cast
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dll_file
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.windows_arch import windows_python_arch
 
 
 def _no_such_file_in_sub_dirs(
@@ -41,7 +43,7 @@ def _find_so_in_rel_dirs(
     sub_dirs_searched: list[tuple[str, ...]] = []
     file_wild = so_basename + "*"
     for rel_dir in rel_dirs:
-        sub_dir = tuple(rel_dir.split(os.path.sep))
+        sub_dir = PurePath(rel_dir).parts
         for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
             # Exact unversioned match first; fall back to versioned names because some
             # distros only ship lib<name>.so.<major> (e.g. conda libcupti). Only one match
@@ -78,7 +80,7 @@ def _find_dll_in_rel_dirs(
 ) -> str | None:
     sub_dirs_searched: list[tuple[str, ...]] = []
     for rel_dir in rel_dirs:
-        sub_dir = tuple(rel_dir.split(os.path.sep))
+        sub_dir = PurePath(rel_dir).parts
         for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
             dll_name = _find_dll_under_dir(abs_dir, lib_searched_for)
             if dll_name is not None:
@@ -173,17 +175,19 @@ class LinuxSearchPlatform:
 
 @dataclass(frozen=True, slots=True)
 class WindowsSearchPlatform:
+    target_arch: str = field(default_factory=windows_python_arch)
+
     def lib_searched_for(self, libname: str) -> str:
         return f"{libname}*.dll"
 
     def site_packages_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
-        return cast(tuple[str, ...], desc.site_packages_windows)
+        return desc.site_packages_windows.for_arch(self.target_arch)
 
     def conda_anchor_point(self, conda_prefix: str) -> str:
         return os.path.join(conda_prefix, "Library")
 
     def anchor_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
-        return cast(tuple[str, ...], desc.anchor_rel_dirs_windows)
+        return desc.anchor_rel_dirs_windows.for_arch(self.target_arch)
 
     def find_in_site_packages(
         self,

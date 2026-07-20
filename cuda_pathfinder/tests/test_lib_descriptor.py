@@ -58,7 +58,7 @@ def test_site_packages_linux_match(name):
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
 def test_site_packages_windows_match(name):
-    assert LIB_DESCRIPTORS[name].site_packages_windows == SITE_PACKAGES_LIBDIRS_WINDOWS.get(name, ())
+    assert LIB_DESCRIPTORS[name].site_packages_windows.for_arch("x64") == SITE_PACKAGES_LIBDIRS_WINDOWS.get(name, ())
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))

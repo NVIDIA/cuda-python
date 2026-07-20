@@ -9,6 +9,8 @@ import os
 
 import pytest
 
+from cuda.pathfinder import UnsupportedWindowsArchError
+from cuda.pathfinder._dynamic_libs.descriptor_catalog import WindowsSearchDir, WindowsSearchDirs
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_platform import LinuxSearchPlatform, WindowsSearchPlatform
@@ -23,6 +25,7 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     find_in_site_packages,
     run_find_steps,
 )
+from cuda.pathfinder._utils import windows_arch as windows_arch_mod
 
 _STEPS_MOD = "cuda.pathfinder._dynamic_libs.search_steps"
 _PLAT_MOD = "cuda.pathfinder._dynamic_libs.search_platform"
@@ -40,7 +43,7 @@ def _make_desc(name: str = "cudart", **overrides) -> LibDescriptor:
         "linux_sonames": ("libcudart.so",),
         "windows_dlls": ("cudart64_12.dll",),
         "site_packages_linux": (os.path.join("nvidia", "cuda_runtime", "lib"),),
-        "site_packages_windows": (os.path.join("nvidia", "cuda_runtime", "bin"),),
+        "site_packages_windows": WindowsSearchDirs.common(os.path.join("nvidia", "cuda_runtime", "bin")),
     }
     defaults.update(overrides)
     return LibDescriptor(**defaults)
@@ -50,6 +53,14 @@ def _ctx(desc: LibDescriptor | None = None, *, platform=None) -> SearchContext:
     if platform is None:
         platform = LinuxSearchPlatform()
     return SearchContext(desc or _make_desc(), platform=platform)
+
+
+def _patch_site_packages_search(mocker, root):
+    def _find_sub_dirs(sub_dirs):
+        path = root.joinpath(*sub_dirs)
+        return [str(path)] if path.is_dir() else []
+
+    return mocker.patch(f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages", side_effect=_find_sub_dirs)
 
 
 # ---------------------------------------------------------------------------
@@ -84,13 +95,40 @@ class TestSearchContext:
 
 
 # ---------------------------------------------------------------------------
+# Windows Python architecture detection
+# ---------------------------------------------------------------------------
+
+
+class TestWindowsPythonArch:
+    def test_detects_sysconfig_x64(self, mocker):
+        mocker.patch.object(windows_arch_mod.sysconfig, "get_platform", return_value="win-amd64")
+
+        assert windows_arch_mod.windows_python_arch() == "x64"
+
+    def test_detects_sysconfig_arm64(self, mocker):
+        mocker.patch.object(windows_arch_mod.sysconfig, "get_platform", return_value="win-arm64")
+
+        assert windows_arch_mod.windows_python_arch() == "arm64"
+
+    def test_rejects_unknown_sysconfig_tag(self, mocker):
+        mocker.patch.object(windows_arch_mod.sysconfig, "get_platform", return_value="custom-win")
+
+        with pytest.raises(
+            UnsupportedWindowsArchError,
+            match=r"Unsupported Windows Python platform tag: 'custom-win'.*win-amd64.*win-arm64",
+        ) as exc_info:
+            windows_arch_mod.windows_python_arch()
+        assert exc_info.value.platform_tag == "custom-win"
+
+
+# ---------------------------------------------------------------------------
 # find_in_site_packages
 # ---------------------------------------------------------------------------
 
 
 class TestFindInSitePackages:
     def test_returns_none_when_no_rel_dirs(self):
-        desc = _make_desc(site_packages_linux=(), site_packages_windows=())
+        desc = _make_desc(site_packages_linux=(), site_packages_windows=WindowsSearchDirs())
         result = find_in_site_packages(_ctx(desc))
         assert result is None
 
@@ -127,11 +165,70 @@ class TestFindInSitePackages:
 
         desc = _make_desc(
             name="cudart",
-            site_packages_windows=(os.path.join("nvidia", "cuda_runtime", "bin"),),
+            site_packages_windows=WindowsSearchDirs.common(os.path.join("nvidia", "cuda_runtime", "bin")),
         )
         result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(dll)
+        assert result.found_via == "site-packages"
+
+    def test_found_windows_arm64_prefers_cuda13_arch_dir_to_cuda12(self, mocker, tmp_path):
+        x86_64_dir = tmp_path / "nvidia" / "cu13" / "bin" / "x86_64"
+        arm64_dir = tmp_path / "nvidia" / "cu13" / "bin" / "arm64"
+        cuda12_dir = tmp_path / "nvidia" / "cuda_runtime" / "bin"
+        x86_64_dir.mkdir(parents=True)
+        arm64_dir.mkdir(parents=True)
+        cuda12_dir.mkdir(parents=True)
+        (x86_64_dir / "cudart64_12.dll").touch()
+        (cuda12_dir / "cudart64_12.dll").touch()
+        arm64_dll = arm64_dir / "cudart64_12.dll"
+        arm64_dll.touch()
+
+        _patch_site_packages_search(mocker, tmp_path)
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        desc = LIB_DESCRIPTORS["cudart"]
+        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="arm64")))
+        assert result is not None
+        assert result.abs_path == str(arm64_dll)
+        assert result.found_via == "site-packages"
+
+    def test_found_windows_x64_prefers_cuda13_arch_dir_to_cuda12(self, mocker, tmp_path):
+        x86_64_dir = tmp_path / "nvidia" / "cu13" / "bin" / "x86_64"
+        arm64_dir = tmp_path / "nvidia" / "cu13" / "bin" / "arm64"
+        cuda12_dir = tmp_path / "nvidia" / "cuda_runtime" / "bin"
+        x86_64_dir.mkdir(parents=True)
+        arm64_dir.mkdir(parents=True)
+        cuda12_dir.mkdir(parents=True)
+        x86_64_dll = x86_64_dir / "cudart64_12.dll"
+        x86_64_dll.touch()
+        (arm64_dir / "cudart64_12.dll").touch()
+        (cuda12_dir / "cudart64_12.dll").touch()
+
+        _patch_site_packages_search(mocker, tmp_path)
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        desc = LIB_DESCRIPTORS["cudart"]
+        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
+        assert result is not None
+        assert result.abs_path == str(x86_64_dll)
+        assert result.found_via == "site-packages"
+
+    @pytest.mark.parametrize("target_arch", ["x64", "arm64"])
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_found_windows_uses_cuda12_when_cuda13_is_absent(self, mocker, tmp_path, target_arch):
+        cuda12_dir = tmp_path / "nvidia" / "cuda_runtime" / "bin"
+        cuda12_dir.mkdir(parents=True)
+        cuda12_dll = cuda12_dir / "cudart64_12.dll"
+        cuda12_dll.touch()
+
+        _patch_site_packages_search(mocker, tmp_path)
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        desc = LIB_DESCRIPTORS["cudart"]
+        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch=target_arch)))
+        assert result is not None
+        assert result.abs_path == str(cuda12_dll)
         assert result.found_via == "site-packages"
 
     def test_not_found_appends_error(self, mocker, tmp_path):
@@ -246,6 +343,22 @@ class TestFindInConda:
         assert result.abs_path == str(dll)
         assert result.found_via == "conda"
 
+    def test_found_windows_arm64_prefers_arch_dir(self, mocker, tmp_path):
+        x64_dir = tmp_path / "Library" / "bin" / "x64"
+        arm64_dir = tmp_path / "Library" / "bin" / "arm64"
+        x64_dir.mkdir(parents=True)
+        arm64_dir.mkdir(parents=True)
+        (x64_dir / "cudart64_12.dll").touch()
+        arm64_dll = arm64_dir / "cudart64_12.dll"
+        arm64_dll.touch()
+
+        mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
+
+        result = find_in_conda(_ctx(platform=WindowsSearchPlatform(target_arch="arm64")))
+        assert result is not None
+        assert result.abs_path == str(arm64_dll)
+        assert result.found_via == "conda"
+
     # The next three tests cover the Linux glob fallback in
     # cuda.pathfinder._dynamic_libs.search_platform.LinuxSearchPlatform.find_in_lib_dir,
     # which is exercised by find_in_conda (and find_in_cuda_path) when the
@@ -331,6 +444,22 @@ class TestFindInCudaHome:
         assert result.abs_path == str(dll)
         assert result.found_via == "CUDA_PATH"
 
+    def test_found_windows_arm64_prefers_arch_dir(self, mocker, tmp_path):
+        x64_dir = tmp_path / "bin" / "x64"
+        arm64_dir = tmp_path / "bin" / "arm64"
+        x64_dir.mkdir(parents=True)
+        arm64_dir.mkdir(parents=True)
+        (x64_dir / "cudart64_12.dll").touch()
+        arm64_dll = arm64_dir / "cudart64_12.dll"
+        arm64_dll.touch()
+
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
+
+        result = find_in_cuda_path(_ctx(platform=WindowsSearchPlatform(target_arch="arm64")))
+        assert result is not None
+        assert result.abs_path == str(arm64_dll)
+        assert result.found_via == "CUDA_PATH"
+
 
 # ---------------------------------------------------------------------------
 # run_find_steps
@@ -394,13 +523,37 @@ class TestAnchorRelDirs:
 
     def test_nvvm_has_custom_windows_paths(self):
         desc = LIB_DESCRIPTORS["nvvm"]
-        assert desc.anchor_rel_dirs_windows == ("nvvm/bin/*", "nvvm/bin")
+        assert desc.anchor_rel_dirs_windows.for_arch("x64") == ("nvvm/bin/x64", "nvvm/bin")
+        assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("nvvm/bin/arm64", "nvvm/bin")
 
     @pytest.mark.parametrize("libname", ["cudart", "cublas", "nvrtc"])
     def test_regular_ctk_libs_use_defaults(self, libname):
         desc = LIB_DESCRIPTORS[libname]
         assert desc.anchor_rel_dirs_linux == ("lib64", "lib")
-        assert desc.anchor_rel_dirs_windows == ("bin/x64", "bin")
+        assert desc.anchor_rel_dirs_windows.for_arch("x64") == ("bin/x64", "bin")
+        assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("bin/arm64", "bin")
+
+    def test_windows_anchor_dirs_select_arm64(self):
+        desc = _make_desc(
+            anchor_rel_dirs_windows=WindowsSearchDirs(
+                paths=(
+                    WindowsSearchDir(x64="bin/x64", arm64="bin/arm64"),
+                    WindowsSearchDir.common("bin"),
+                )
+            )
+        )
+        assert WindowsSearchPlatform(target_arch="arm64").anchor_rel_dirs(desc) == ("bin/arm64", "bin")
+
+    def test_windows_anchor_dirs_select_x64(self):
+        desc = _make_desc(
+            anchor_rel_dirs_windows=WindowsSearchDirs(
+                paths=(
+                    WindowsSearchDir(x64="bin/x64", arm64="bin/arm64"),
+                    WindowsSearchDir.common("bin"),
+                )
+            )
+        )
+        assert WindowsSearchPlatform(target_arch="x64").anchor_rel_dirs(desc) == ("bin/x64", "bin")
 
     def test_find_lib_dir_uses_descriptor_linux(self, tmp_path):
         (tmp_path / "nvvm" / "lib64").mkdir(parents=True)
@@ -413,10 +566,35 @@ class TestAnchorRelDirs:
     def test_find_lib_dir_uses_descriptor_windows(self, tmp_path):
         (tmp_path / "nvvm" / "bin").mkdir(parents=True)
 
-        desc = _make_desc(name="nvvm", anchor_rel_dirs_windows=("nvvm/bin/*", "nvvm/bin"))
+        desc = _make_desc(
+            name="nvvm",
+            anchor_rel_dirs_windows=WindowsSearchDirs(
+                paths=(
+                    WindowsSearchDir(x64="nvvm/bin/x64", arm64="nvvm/bin/arm64"),
+                    WindowsSearchDir.common("nvvm/bin"),
+                )
+            ),
+        )
         result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(), str(tmp_path))
         assert result is not None
         assert result.endswith(os.path.join("nvvm", "bin"))
+
+    def test_find_lib_dir_windows_arm64_uses_arm64_anchor(self, tmp_path):
+        (tmp_path / "nvvm" / "bin" / "x64").mkdir(parents=True)
+        (tmp_path / "nvvm" / "bin" / "arm64").mkdir(parents=True)
+
+        desc = _make_desc(
+            name="nvvm",
+            anchor_rel_dirs_windows=WindowsSearchDirs(
+                paths=(
+                    WindowsSearchDir(x64="nvvm/bin/x64", arm64="nvvm/bin/arm64"),
+                    WindowsSearchDir.common("nvvm/bin"),
+                )
+            ),
+        )
+        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="arm64"), str(tmp_path))
+        assert result is not None
+        assert result.endswith(os.path.join("nvvm", "bin", "arm64"))
 
     def test_find_lib_dir_returns_none_when_no_match(self, tmp_path):
         desc = _make_desc(anchor_rel_dirs_linux=("nonexistent",))
