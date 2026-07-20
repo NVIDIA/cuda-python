@@ -8,6 +8,22 @@ Covers the flat ``cuda.core`` namespace and every public subpackage
 (``graph``, ``system``, ``texture``, ``utils``, and any added later) discovered
 automatically from ``cuda.core.__path__``. For each public namespace, exported
 ``__all__`` names must appear somewhere in ``cuda_core/docs/source``.
+
+The enforced direction is deliberately one-way (public export -> documented).
+This is intentionally a *name-presence* check, and it does not verify:
+
+- the reverse direction (documented -> exported): documenting a private or
+  internal symbol on any page is allowed, so a documented name is never
+  required to be public;
+- signatures, docstrings, parameter lists, or rendered output: only that each
+  exported name appears as a documented entry;
+- whether an entry is marked ``:no-index:`` or deprecated: such entries still
+  count as documented;
+- class members or attributes nested below the namespace level: only top-level
+  names of each namespace are matched (entries deeper than
+  ``<subpackage>.<name>`` are ignored);
+- docs outside the top-level ``docs/source/*.rst`` files: nested pages are not
+  scanned.
 """
 
 import collections
