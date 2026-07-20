@@ -121,7 +121,7 @@ def test_graph_is_join_required(init_cuda):
     gb.end_building().complete()
 
 
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_repeat_capture(init_cuda):
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -341,7 +341,7 @@ def test_graph_capture_callback_ctypes_user_data_survives_del(init_cuda):
     assert result[0] == 0xAB
 
 
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_child_graph(init_cuda):
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
