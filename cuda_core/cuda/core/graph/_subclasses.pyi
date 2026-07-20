@@ -219,6 +219,9 @@ class EventRecordNode(GraphNode):
     def __repr__(self) -> str:
         ...
 
+    def update(self, event: Event) -> None:
+        """Replace the event recorded by this node."""
+
     @property
     def event(self) -> Event:
         """The event being recorded."""

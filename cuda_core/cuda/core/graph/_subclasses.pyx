@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from libc.stddef cimport size_t
 from libc.stdint cimport uintptr_t
+from libc.string cimport memset as c_memset
 
 from cuda.bindings cimport cydriver
 
@@ -19,14 +20,18 @@ from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core._resource_handles cimport (
     EventHandle,
     GraphHandle,
-    KernelHandle,
     GraphNodeHandle,
+    KernelHandle,
+    OpaqueHandle,
+    PreparedAttachment,
     as_cu,
     as_intptr,
-    create_event_handle_ref,
     create_child_graph_handle,
+    create_event_handle_ref,
     create_kernel_handle_ref,
+    graph_commit_attachment,
     graph_node_get_graph,
+    graph_prepare_attachment,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
@@ -56,6 +61,23 @@ __all__ = [
 
 cdef bint _has_cuGraphNodeGetParams = False
 cdef bint _version_checked = False
+
+
+cdef void _set_definition_node_params(
+        const GraphNodeHandle& h_node,
+        cydriver.CUgraphNodeParams* params,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1=OpaqueHandle()) except *:
+    cdef GraphHandle h_graph = graph_node_get_graph(h_node)
+    cdef cydriver.CUgraphNode node = as_cu(h_node)
+    cdef PreparedAttachment prepared
+
+    HANDLE_RETURN(graph_prepare_attachment(
+        h_graph, owner0, owner1, &prepared))
+    with nogil:
+        HANDLE_RETURN(cydriver.cuGraphNodeSetParams(node, params))
+    HANDLE_RETURN(graph_commit_attachment(prepared, node))
+
 
 cdef bint _check_node_get_params():
     global _has_cuGraphNodeGetParams, _version_checked
@@ -515,6 +537,19 @@ cdef class EventRecordNode(GraphNode):
     def __repr__(self) -> str:
         return (f"<EventRecordNode handle=0x{as_intptr(self._h_node):x}"
                 f" event=0x{as_intptr(self._h_event):x}>")
+
+    def update(self, event: Event) -> None:
+        """Replace the event recorded by this node."""
+        cdef OpaqueHandle event_owner = event._h_event
+        cdef cydriver.CUgraphNodeParams params
+
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_EVENT_RECORD
+        params.eventRecord.event = as_cu(event._h_event)
+
+        _set_definition_node_params(
+            self._h_node, &params, event_owner)
+        self._h_event = event._h_event
 
     @property
     def event(self) -> Event:
