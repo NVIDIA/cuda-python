@@ -17,7 +17,7 @@ from cuda.core.graph import GraphBuilder
 @pytest.mark.parametrize(
     "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
 )
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_conditional_if(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -81,7 +81,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
 @pytest.mark.parametrize(
     "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
 )
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_conditional_if_else(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -153,7 +153,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
 
 
 @pytest.mark.parametrize("condition_value", [0, 1, 2, 3])
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_conditional_switch(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -244,7 +244,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
 
 
 @pytest.mark.parametrize("condition_value", [True, False, 1, 0])
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_conditional_while(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -289,4 +289,98 @@ def test_graph_conditional_while(init_cuda, condition_value):
 
     # Close the memory resource now because the garbage collected might
     # de-allocate it during the next graph builder process
+    b.close()
+
+
+@requires_module(np, "2.1")
+def test_graph_conditional_on_forked_builder(init_cuda):
+    """A conditional created on a forked builder keeps its body graph's parent
+    handle pinned to the owning primary graph."""
+    mod = compile_conditional_kernels(int)
+    add_one = mod.get_kernel("add_one")
+    set_handle = mod.get_kernel("set_handle")
+
+    launch_stream = Device().create_stream()
+    mr = LegacyPinnedMemoryResource()
+    b = mr.allocate(4)
+    arr = np.from_dlpack(b).view(np.int32)
+    arr[0] = 0
+
+    gb = Device().create_graph_builder().begin_building()
+    launch(gb, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+
+    # Fork, then create the conditional on the forked builder (not the primary).
+    left, right = gb.split(2)
+    try:
+        condition = right.create_condition()
+    except RuntimeError as e:
+        with pytest.raises(RuntimeError, match="^(Driver|Binding) version"):
+            raise e
+        right.end_building()
+        GraphBuilder.join(left, right).end_building()
+        b.close()
+        pytest.skip("Driver does not support conditional handle")
+    launch(right, LaunchConfig(grid=1, block=1), set_handle, condition, 1)
+    gb_if = right.if_then(condition).begin_building()
+    launch(gb_if, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+    gb_if.end_building()
+
+    gb = GraphBuilder.join(left, right)
+    graph = gb.end_building().complete()
+
+    arr[0] = 0
+    graph.launch(launch_stream)
+    launch_stream.sync()
+    # add_one on primary (1) + add_one inside the taken if-branch (1)
+    assert arr[0] == 2
+
+    b.close()
+
+
+@requires_module(np, "2.1")
+def test_graph_conditional_nested(init_cuda):
+    """A conditional nested inside another conditional body exercises the
+    multi-level body -> outer-body -> primary keep-alive chain."""
+    mod = compile_conditional_kernels(int)
+    add_one = mod.get_kernel("add_one")
+    set_handle = mod.get_kernel("set_handle")
+
+    launch_stream = Device().create_stream()
+    mr = LegacyPinnedMemoryResource()
+    b = mr.allocate(4)
+    arr = np.from_dlpack(b).view(np.int32)
+    arr[0] = 0
+
+    gb = Device().create_graph_builder().begin_building()
+
+    try:
+        outer_condition = gb.create_condition()
+    except RuntimeError as e:
+        with pytest.raises(RuntimeError, match="^(Driver|Binding) version"):
+            raise e
+        gb.end_building()
+        b.close()
+        pytest.skip("Driver does not support conditional handle")
+    launch(gb, LaunchConfig(grid=1, block=1), set_handle, outer_condition, 1)
+
+    # Outer if-branch
+    gb_outer = gb.if_then(outer_condition).begin_building()
+    launch(gb_outer, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+
+    # Inner if-branch, created inside the outer body
+    inner_condition = gb_outer.create_condition()
+    launch(gb_outer, LaunchConfig(grid=1, block=1), set_handle, inner_condition, 1)
+    gb_inner = gb_outer.if_then(inner_condition).begin_building()
+    launch(gb_inner, LaunchConfig(grid=1, block=1), add_one, arr.ctypes.data)
+    gb_inner.end_building()
+    gb_outer.end_building()
+
+    graph = gb.end_building().complete()
+
+    arr[0] = 0
+    graph.launch(launch_stream)
+    launch_stream.sync()
+    # add_one in outer body (1) + add_one in inner body (1)
+    assert arr[0] == 2
+
     b.close()

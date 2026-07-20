@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -44,9 +44,13 @@ def test_supported_libnames_linux_site_packages_libdirs_ctk_consistency():
 
 
 def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency():
-    assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)) == tuple(
-        sorted(supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK.keys())
-    )
+    # Not every Windows CTK library ships in a pip wheel (e.g. cudla is loaded
+    # from the local CUDA Toolkit only), so a library may legitimately omit
+    # site_packages_windows. Only assert that every site-packages entry maps to
+    # a supported Windows libname, not the other way around.
+    site_packages_libnames = set(supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK.keys())
+    supported_libnames = set(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)
+    assert site_packages_libnames <= supported_libnames
 
 
 @pytest.mark.parametrize("dict_name", ["SUPPORTED_LINUX_SONAMES", "SUPPORTED_WINDOWS_DLLS"])

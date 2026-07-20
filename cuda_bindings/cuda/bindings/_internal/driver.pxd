@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1622+g48467ab08.d20260421. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a82b3f5dcb30b13294f6896a4d9d9f2f8d7be6b29c8f0a0c61677b1c622d4480
 from ..cydriver cimport *
 
 
@@ -36,6 +37,8 @@ cdef CUresult _cuDevicePrimaryCtxRelease_v2(CUdevice dev) except ?CUDA_ERROR_NOT
 cdef CUresult _cuDevicePrimaryCtxSetFlags_v2(CUdevice dev, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int* active) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuDevicePrimaryCtxReset_v2(CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuCtxCreate_v2(CUcontext* pctx, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int numParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuCtxCreate_v4(CUcontext* pctx, CUctxCreateParams* ctxCreateParams, unsigned int flags, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuCtxDestroy_v2(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuCtxPushCurrent_v2(CUcontext ctx) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -224,6 +227,7 @@ cdef CUresult _cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, con
 cdef CUresult _cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode* mode) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuStreamEndCapture(CUstream hStream, CUgraph* phGraph) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus* captureStatus) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus* captureStatus_out, cuuint64_t* id_out, CUgraph* graph_out, const CUgraphNode** dependencies_out, const CUgraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, size_t length, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil

@@ -1,5 +1,5 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
 Environment Variables
 =====================
@@ -23,7 +23,5 @@ Build-Time Environment Variables
      (``CUDA_HOME`` > ``CUDA_PATH``). See the
      `cuda-pathfinder 1.5.0 release notes <https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/release/1.5.0-notes.html>`_
      for details and migration guidance.
-
-- ``CUDA_PYTHON_PARSER_CACHING`` : bool, toggles the caching of parsed header files during the cuda-bindings build process. If caching is enabled (``CUDA_PYTHON_PARSER_CACHING`` is True), the cache path is set to ./cache_<library_name>, where <library_name> is derived from the cuda toolkit libraries used to build cuda-bindings.
 
 - ``CUDA_PYTHON_PARALLEL_LEVEL`` (previously ``PARALLEL_LEVEL``) : int, sets the number of threads used in the compilation of extension modules. Not setting it or setting it to 0 would disable parallel builds.

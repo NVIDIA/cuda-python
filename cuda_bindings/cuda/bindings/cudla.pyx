@@ -1,52 +1,30 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated across versions from 1.5.0 to 13.3.0, generator version 0.3.1.dev1719+g565f73f4e. Do not modify it directly.
+# This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3ee237ed16e651bae93e2bc6d4d63dcf99b309ad7a74cb3e2bd5b9e540e714f4
 
-cimport cython  # NOQA
-from libc.stdint cimport intptr_t, uintptr_t
 
-from ._internal.utils cimport get_buffer_pointer
+# <<<< PREAMBLE CONTENT >>>>
 
-from enum import IntEnum as _IntEnum
+cimport cpython as _cyb_cpython
+cimport cpython.buffer as _cyb_cpython_buffer
+from cython cimport view as _cyb_view
+from libc.stdlib cimport (
+    calloc as _cyb_calloc,
+    free as _cyb_free,
+    malloc as _cyb_malloc,
+)
+from libc.string cimport (
+    memcmp as _cyb_memcmp,
+    memcpy as _cyb_memcpy,
+)
 
-from libc.stdlib cimport calloc, free, malloc
-from cython cimport view
-cimport cpython.buffer
-cimport cpython.memoryview
-cimport cpython
-from libc.string cimport memcmp, memcpy
+from enum import IntEnum as _cyb_IntEnum
+
 import numpy as _numpy
 
-
-cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
-    # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
-    if isinstance(data, lowpp_type):
-        return data
-    if not isinstance(data, _numpy.ndarray):
-        raise TypeError("data argument must be a NumPy ndarray")
-    if data.size != 1:
-        raise ValueError("data array must have a size of 1")
-    if data.dtype != expected_dtype:
-        raise ValueError(f"data array must be of dtype {dtype_name}")
-    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
-
-
-cdef __from_buffer(buffer, size, lowpp_type):
-    cdef Py_buffer view
-    if cpython.PyObject_GetBuffer(buffer, &view, cpython.PyBUF_SIMPLE) != 0:
-        raise TypeError("buffer argument does not support the buffer protocol")
-    try:
-        if view.itemsize != 1:
-            raise ValueError("buffer itemsize must be 1 byte")
-        if view.len != size:
-            raise ValueError(f"buffer length must be {size} bytes")
-        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
-    finally:
-        cpython.PyBuffer_Release(&view)
-
-
-cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
+cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
     buffer.buf = <char *>ptr
     buffer.format = 'b'
     buffer.internal = NULL
@@ -59,6 +37,40 @@ cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bi
     buffer.strides = &buffer.itemsize
     buffer.suboffsets = NULL
 
+cdef _cyb_from_buffer(buffer, size, lowpp_type):
+    cdef _cyb_cpython.Py_buffer view
+    if _cyb_cpython.PyObject_GetBuffer(buffer, &view, _cyb_cpython_buffer.PyBUF_SIMPLE) != 0:
+        raise TypeError("buffer argument does not support the buffer protocol")
+    try:
+        if view.itemsize != 1:
+            raise ValueError("buffer itemsize must be 1 byte")
+        if view.len != size:
+            raise ValueError(f"buffer length must be {size} bytes")
+        return lowpp_type.from_ptr(<intptr_t><void *>view.buf, not view.readonly, buffer)
+    finally:
+        _cyb_cpython.PyBuffer_Release(&view)
+
+cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
+    # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
+    if isinstance(data, lowpp_type):
+        return data
+    if not isinstance(data, _numpy.ndarray):
+        raise TypeError("data argument must be a NumPy ndarray")
+    if data.size != 1:
+        raise ValueError("data array must have a size of 1")
+    if data.dtype != expected_dtype:
+        raise ValueError(f"data array must be of dtype {dtype_name}")
+    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+cimport cython  # NOQA
+from libc.stdint cimport intptr_t, uintptr_t
+from libc.stdlib cimport malloc, free
+
+from ._internal.utils cimport get_buffer_pointer
+
 
 
 
@@ -67,7 +79,7 @@ cdef __getbuffer(object self, cpython.Py_buffer *buffer, void *ptr, int size, bi
 ###############################################################################
 
 cdef _get_external_memory_handle_desc_dtype_offsets():
-    cdef cudlaExternalMemoryHandleDesc_t pod = cudlaExternalMemoryHandleDesc_t()
+    cdef cudlaExternalMemoryHandleDesc_t pod
     return _numpy.dtype({
         'names': ['ext_buf_object', 'size_'],
         'formats': [_numpy.intp, _numpy.uint64],
@@ -93,7 +105,7 @@ cdef class ExternalMemoryHandleDesc:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaExternalMemoryHandleDesc_t *>calloc(1, sizeof(cudlaExternalMemoryHandleDesc_t))
+        self._ptr = <cudlaExternalMemoryHandleDesc_t *>_cyb_calloc(1, sizeof(cudlaExternalMemoryHandleDesc_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ExternalMemoryHandleDesc")
         self._owner = None
@@ -105,7 +117,7 @@ cdef class ExternalMemoryHandleDesc:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ExternalMemoryHandleDesc object at {hex(id(self))}>"
@@ -126,20 +138,20 @@ cdef class ExternalMemoryHandleDesc:
         if not isinstance(other, ExternalMemoryHandleDesc):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaExternalMemoryHandleDesc_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaExternalMemoryHandleDesc_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaExternalMemoryHandleDesc_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaExternalMemoryHandleDesc_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaExternalMemoryHandleDesc_t *>malloc(sizeof(cudlaExternalMemoryHandleDesc_t))
+            self._ptr = <cudlaExternalMemoryHandleDesc_t *>_cyb_malloc(sizeof(cudlaExternalMemoryHandleDesc_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ExternalMemoryHandleDesc")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaExternalMemoryHandleDesc_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaExternalMemoryHandleDesc_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -171,7 +183,7 @@ cdef class ExternalMemoryHandleDesc:
     @staticmethod
     def from_buffer(buffer):
         """Create an ExternalMemoryHandleDesc instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cudlaExternalMemoryHandleDesc_t), ExternalMemoryHandleDesc)
+        return _cyb_from_buffer(buffer, sizeof(cudlaExternalMemoryHandleDesc_t), ExternalMemoryHandleDesc)
 
     @staticmethod
     def from_data(data):
@@ -180,7 +192,7 @@ cdef class ExternalMemoryHandleDesc:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `external_memory_handle_desc_dtype` holding the data.
         """
-        return __from_data(data, "external_memory_handle_desc_dtype", external_memory_handle_desc_dtype, ExternalMemoryHandleDesc)
+        return _cyb_from_data(data, "external_memory_handle_desc_dtype", external_memory_handle_desc_dtype, ExternalMemoryHandleDesc)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -195,10 +207,10 @@ cdef class ExternalMemoryHandleDesc:
             raise ValueError("ptr must not be null (0)")
         cdef ExternalMemoryHandleDesc obj = ExternalMemoryHandleDesc.__new__(ExternalMemoryHandleDesc)
         if owner is None:
-            obj._ptr = <cudlaExternalMemoryHandleDesc_t *>malloc(sizeof(cudlaExternalMemoryHandleDesc_t))
+            obj._ptr = <cudlaExternalMemoryHandleDesc_t *>_cyb_malloc(sizeof(cudlaExternalMemoryHandleDesc_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ExternalMemoryHandleDesc")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaExternalMemoryHandleDesc_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaExternalMemoryHandleDesc_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -210,7 +222,7 @@ cdef class ExternalMemoryHandleDesc:
 
 
 cdef _get_external_semaphore_handle_desc_dtype_offsets():
-    cdef cudlaExternalSemaphoreHandleDesc_t pod = cudlaExternalSemaphoreHandleDesc_t()
+    cdef cudlaExternalSemaphoreHandleDesc_t pod
     return _numpy.dtype({
         'names': ['ext_sync_object'],
         'formats': [_numpy.intp],
@@ -235,7 +247,7 @@ cdef class ExternalSemaphoreHandleDesc:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaExternalSemaphoreHandleDesc_t *>calloc(1, sizeof(cudlaExternalSemaphoreHandleDesc_t))
+        self._ptr = <cudlaExternalSemaphoreHandleDesc_t *>_cyb_calloc(1, sizeof(cudlaExternalSemaphoreHandleDesc_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ExternalSemaphoreHandleDesc")
         self._owner = None
@@ -247,7 +259,7 @@ cdef class ExternalSemaphoreHandleDesc:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ExternalSemaphoreHandleDesc object at {hex(id(self))}>"
@@ -268,20 +280,20 @@ cdef class ExternalSemaphoreHandleDesc:
         if not isinstance(other, ExternalSemaphoreHandleDesc):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaExternalSemaphoreHandleDesc_t)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaExternalSemaphoreHandleDesc_t)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaExternalSemaphoreHandleDesc_t), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaExternalSemaphoreHandleDesc_t), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaExternalSemaphoreHandleDesc_t *>malloc(sizeof(cudlaExternalSemaphoreHandleDesc_t))
+            self._ptr = <cudlaExternalSemaphoreHandleDesc_t *>_cyb_malloc(sizeof(cudlaExternalSemaphoreHandleDesc_t))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ExternalSemaphoreHandleDesc")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaExternalSemaphoreHandleDesc_t))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaExternalSemaphoreHandleDesc_t))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -302,7 +314,7 @@ cdef class ExternalSemaphoreHandleDesc:
     @staticmethod
     def from_buffer(buffer):
         """Create an ExternalSemaphoreHandleDesc instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cudlaExternalSemaphoreHandleDesc_t), ExternalSemaphoreHandleDesc)
+        return _cyb_from_buffer(buffer, sizeof(cudlaExternalSemaphoreHandleDesc_t), ExternalSemaphoreHandleDesc)
 
     @staticmethod
     def from_data(data):
@@ -311,7 +323,7 @@ cdef class ExternalSemaphoreHandleDesc:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `external_semaphore_handle_desc_dtype` holding the data.
         """
-        return __from_data(data, "external_semaphore_handle_desc_dtype", external_semaphore_handle_desc_dtype, ExternalSemaphoreHandleDesc)
+        return _cyb_from_data(data, "external_semaphore_handle_desc_dtype", external_semaphore_handle_desc_dtype, ExternalSemaphoreHandleDesc)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -326,10 +338,10 @@ cdef class ExternalSemaphoreHandleDesc:
             raise ValueError("ptr must not be null (0)")
         cdef ExternalSemaphoreHandleDesc obj = ExternalSemaphoreHandleDesc.__new__(ExternalSemaphoreHandleDesc)
         if owner is None:
-            obj._ptr = <cudlaExternalSemaphoreHandleDesc_t *>malloc(sizeof(cudlaExternalSemaphoreHandleDesc_t))
+            obj._ptr = <cudlaExternalSemaphoreHandleDesc_t *>_cyb_malloc(sizeof(cudlaExternalSemaphoreHandleDesc_t))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ExternalSemaphoreHandleDesc")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaExternalSemaphoreHandleDesc_t))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaExternalSemaphoreHandleDesc_t))
             obj._owner = None
             obj._owned = True
         else:
@@ -341,7 +353,7 @@ cdef class ExternalSemaphoreHandleDesc:
 
 
 cdef _get_module_tensor_descriptor_dtype_offsets():
-    cdef cudlaModuleTensorDescriptor pod = cudlaModuleTensorDescriptor()
+    cdef cudlaModuleTensorDescriptor pod
     return _numpy.dtype({
         'names': ['name', 'size_', 'n', 'c', 'h', 'w', 'data_format', 'data_type', 'data_category', 'pixel_format', 'pixel_mapping', 'stride'],
         'formats': [(_numpy.int8, 81), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, (_numpy.uint32, 8)],
@@ -377,7 +389,7 @@ cdef class ModuleTensorDescriptor:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaModuleTensorDescriptor *>calloc(1, sizeof(cudlaModuleTensorDescriptor))
+        self._ptr = <cudlaModuleTensorDescriptor *>_cyb_calloc(1, sizeof(cudlaModuleTensorDescriptor))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ModuleTensorDescriptor")
         self._owner = None
@@ -389,7 +401,7 @@ cdef class ModuleTensorDescriptor:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ModuleTensorDescriptor object at {hex(id(self))}>"
@@ -410,20 +422,20 @@ cdef class ModuleTensorDescriptor:
         if not isinstance(other, ModuleTensorDescriptor):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaModuleTensorDescriptor)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaModuleTensorDescriptor)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaModuleTensorDescriptor), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaModuleTensorDescriptor), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaModuleTensorDescriptor *>malloc(sizeof(cudlaModuleTensorDescriptor))
+            self._ptr = <cudlaModuleTensorDescriptor *>_cyb_malloc(sizeof(cudlaModuleTensorDescriptor))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ModuleTensorDescriptor")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaModuleTensorDescriptor))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaModuleTensorDescriptor))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -433,7 +445,7 @@ cdef class ModuleTensorDescriptor:
     @property
     def name(self):
         """~_numpy.int8: (array of length 81)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].name)
+        return _cyb_cpython.PyUnicode_FromString(self._ptr[0].name)
 
     @name.setter
     def name(self, val):
@@ -443,7 +455,7 @@ cdef class ModuleTensorDescriptor:
         if len(buf) >= 81:
             raise ValueError("String too long for field name, max length is 80")
         cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].name), <void *>ptr, 81)
+        _cyb_memcpy(<void *>(self._ptr[0].name), <void *>ptr, 81)
 
     @property
     def size_(self):
@@ -558,7 +570,7 @@ cdef class ModuleTensorDescriptor:
     @property
     def stride(self):
         """~_numpy.uint32: (array of length 8)."""
-        cdef view.array arr = view.array(shape=(8,), itemsize=sizeof(uint32_t), format="I", mode="c", allocate_buffer=False)
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(8,), itemsize=sizeof(uint32_t), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].stride))
         return _numpy.asarray(arr)
 
@@ -568,14 +580,14 @@ cdef class ModuleTensorDescriptor:
             raise ValueError("This ModuleTensorDescriptor instance is read-only")
         if len(val) != 8:
             raise ValueError(f"Expected length { 8 } for field stride, got {len(val)}")
-        cdef view.array arr = view.array(shape=(8,), itemsize=sizeof(uint32_t), format="I", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(8,), itemsize=sizeof(uint32_t), format="I", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
-        memcpy(<void *>(&(self._ptr[0].stride)), <void *>(arr.data), sizeof(uint32_t) * len(val))
+        _cyb_memcpy(<void *>(&(self._ptr[0].stride)), <void *>(arr.data), sizeof(uint32_t) * len(val))
 
     @staticmethod
     def from_buffer(buffer):
         """Create an ModuleTensorDescriptor instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cudlaModuleTensorDescriptor), ModuleTensorDescriptor)
+        return _cyb_from_buffer(buffer, sizeof(cudlaModuleTensorDescriptor), ModuleTensorDescriptor)
 
     @staticmethod
     def from_data(data):
@@ -584,7 +596,7 @@ cdef class ModuleTensorDescriptor:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `module_tensor_descriptor_dtype` holding the data.
         """
-        return __from_data(data, "module_tensor_descriptor_dtype", module_tensor_descriptor_dtype, ModuleTensorDescriptor)
+        return _cyb_from_data(data, "module_tensor_descriptor_dtype", module_tensor_descriptor_dtype, ModuleTensorDescriptor)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -599,10 +611,10 @@ cdef class ModuleTensorDescriptor:
             raise ValueError("ptr must not be null (0)")
         cdef ModuleTensorDescriptor obj = ModuleTensorDescriptor.__new__(ModuleTensorDescriptor)
         if owner is None:
-            obj._ptr = <cudlaModuleTensorDescriptor *>malloc(sizeof(cudlaModuleTensorDescriptor))
+            obj._ptr = <cudlaModuleTensorDescriptor *>_cyb_malloc(sizeof(cudlaModuleTensorDescriptor))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ModuleTensorDescriptor")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaModuleTensorDescriptor))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaModuleTensorDescriptor))
             obj._owner = None
             obj._owned = True
         else:
@@ -614,7 +626,7 @@ cdef class ModuleTensorDescriptor:
 
 
 cdef _get_fence_dtype_offsets():
-    cdef CudlaFence pod = CudlaFence()
+    cdef CudlaFence pod
     return _numpy.dtype({
         'names': ['fence', 'type'],
         'formats': [_numpy.intp, _numpy.int32],
@@ -640,7 +652,7 @@ cdef class Fence:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <CudlaFence *>calloc(1, sizeof(CudlaFence))
+        self._ptr = <CudlaFence *>_cyb_calloc(1, sizeof(CudlaFence))
         if self._ptr == NULL:
             raise MemoryError("Error allocating Fence")
         self._owner = None
@@ -652,7 +664,7 @@ cdef class Fence:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Fence object at {hex(id(self))}>"
@@ -673,20 +685,20 @@ cdef class Fence:
         if not isinstance(other, Fence):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CudlaFence)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CudlaFence)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(CudlaFence), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CudlaFence), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <CudlaFence *>malloc(sizeof(CudlaFence))
+            self._ptr = <CudlaFence *>_cyb_malloc(sizeof(CudlaFence))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating Fence")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CudlaFence))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CudlaFence))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -718,7 +730,7 @@ cdef class Fence:
     @staticmethod
     def from_buffer(buffer):
         """Create an Fence instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(CudlaFence), Fence)
+        return _cyb_from_buffer(buffer, sizeof(CudlaFence), Fence)
 
     @staticmethod
     def from_data(data):
@@ -727,7 +739,7 @@ cdef class Fence:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `fence_dtype` holding the data.
         """
-        return __from_data(data, "fence_dtype", fence_dtype, Fence)
+        return _cyb_from_data(data, "fence_dtype", fence_dtype, Fence)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -742,10 +754,10 @@ cdef class Fence:
             raise ValueError("ptr must not be null (0)")
         cdef Fence obj = Fence.__new__(Fence)
         if owner is None:
-            obj._ptr = <CudlaFence *>malloc(sizeof(CudlaFence))
+            obj._ptr = <CudlaFence *>_cyb_malloc(sizeof(CudlaFence))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating Fence")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CudlaFence))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CudlaFence))
             obj._owner = None
             obj._owned = True
         else:
@@ -777,7 +789,7 @@ cdef class DevAttribute:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaDevAttribute *>calloc(1, sizeof(cudlaDevAttribute))
+        self._ptr = <cudlaDevAttribute *>_cyb_calloc(1, sizeof(cudlaDevAttribute))
         if self._ptr == NULL:
             raise MemoryError("Error allocating DevAttribute")
         self._owner = None
@@ -789,7 +801,7 @@ cdef class DevAttribute:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.DevAttribute object at {hex(id(self))}>"
@@ -810,20 +822,20 @@ cdef class DevAttribute:
         if not isinstance(other, DevAttribute):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaDevAttribute)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaDevAttribute)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaDevAttribute), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaDevAttribute), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaDevAttribute *>malloc(sizeof(cudlaDevAttribute))
+            self._ptr = <cudlaDevAttribute *>_cyb_malloc(sizeof(cudlaDevAttribute))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating DevAttribute")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaDevAttribute))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaDevAttribute))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -855,7 +867,7 @@ cdef class DevAttribute:
     @staticmethod
     def from_buffer(buffer):
         """Create an DevAttribute instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cudlaDevAttribute), DevAttribute)
+        return _cyb_from_buffer(buffer, sizeof(cudlaDevAttribute), DevAttribute)
 
     @staticmethod
     def from_data(data):
@@ -864,7 +876,7 @@ cdef class DevAttribute:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `dev_attribute_dtype` holding the data.
         """
-        return __from_data(data, "dev_attribute_dtype", dev_attribute_dtype, DevAttribute)
+        return _cyb_from_data(data, "dev_attribute_dtype", dev_attribute_dtype, DevAttribute)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -879,10 +891,10 @@ cdef class DevAttribute:
             raise ValueError("ptr must not be null (0)")
         cdef DevAttribute obj = DevAttribute.__new__(DevAttribute)
         if owner is None:
-            obj._ptr = <cudlaDevAttribute *>malloc(sizeof(cudlaDevAttribute))
+            obj._ptr = <cudlaDevAttribute *>_cyb_malloc(sizeof(cudlaDevAttribute))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating DevAttribute")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaDevAttribute))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaDevAttribute))
             obj._owner = None
             obj._owned = True
         else:
@@ -916,7 +928,7 @@ cdef class ModuleAttribute:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaModuleAttribute *>calloc(1, sizeof(cudlaModuleAttribute))
+        self._ptr = <cudlaModuleAttribute *>_cyb_calloc(1, sizeof(cudlaModuleAttribute))
         if self._ptr == NULL:
             raise MemoryError("Error allocating ModuleAttribute")
         self._owner = None
@@ -928,7 +940,7 @@ cdef class ModuleAttribute:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ModuleAttribute object at {hex(id(self))}>"
@@ -949,20 +961,20 @@ cdef class ModuleAttribute:
         if not isinstance(other, ModuleAttribute):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaModuleAttribute)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaModuleAttribute)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaModuleAttribute), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaModuleAttribute), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaModuleAttribute *>malloc(sizeof(cudlaModuleAttribute))
+            self._ptr = <cudlaModuleAttribute *>_cyb_malloc(sizeof(cudlaModuleAttribute))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating ModuleAttribute")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaModuleAttribute))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaModuleAttribute))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -1016,7 +1028,7 @@ cdef class ModuleAttribute:
     @staticmethod
     def from_buffer(buffer):
         """Create an ModuleAttribute instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cudlaModuleAttribute), ModuleAttribute)
+        return _cyb_from_buffer(buffer, sizeof(cudlaModuleAttribute), ModuleAttribute)
 
     @staticmethod
     def from_data(data):
@@ -1025,7 +1037,7 @@ cdef class ModuleAttribute:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `module_attribute_dtype` holding the data.
         """
-        return __from_data(data, "module_attribute_dtype", module_attribute_dtype, ModuleAttribute)
+        return _cyb_from_data(data, "module_attribute_dtype", module_attribute_dtype, ModuleAttribute)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1040,10 +1052,10 @@ cdef class ModuleAttribute:
             raise ValueError("ptr must not be null (0)")
         cdef ModuleAttribute obj = ModuleAttribute.__new__(ModuleAttribute)
         if owner is None:
-            obj._ptr = <cudlaModuleAttribute *>malloc(sizeof(cudlaModuleAttribute))
+            obj._ptr = <cudlaModuleAttribute *>_cyb_malloc(sizeof(cudlaModuleAttribute))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating ModuleAttribute")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaModuleAttribute))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaModuleAttribute))
             obj._owner = None
             obj._owned = True
         else:
@@ -1055,7 +1067,7 @@ cdef class ModuleAttribute:
 
 
 cdef _get_wait_events_dtype_offsets():
-    cdef cudlaWaitEvents pod = cudlaWaitEvents()
+    cdef cudlaWaitEvents pod
     return _numpy.dtype({
         'names': ['pre_fences', 'num_events'],
         'formats': [_numpy.intp, _numpy.uint32],
@@ -1082,7 +1094,7 @@ cdef class WaitEvents:
         dict _refs
 
     def __init__(self):
-        self._ptr = <cudlaWaitEvents *>calloc(1, sizeof(cudlaWaitEvents))
+        self._ptr = <cudlaWaitEvents *>_cyb_calloc(1, sizeof(cudlaWaitEvents))
         if self._ptr == NULL:
             raise MemoryError("Error allocating WaitEvents")
         self._owner = None
@@ -1095,7 +1107,7 @@ cdef class WaitEvents:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.WaitEvents object at {hex(id(self))}>"
@@ -1116,20 +1128,20 @@ cdef class WaitEvents:
         if not isinstance(other, WaitEvents):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaWaitEvents)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaWaitEvents)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaWaitEvents), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaWaitEvents), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaWaitEvents *>malloc(sizeof(cudlaWaitEvents))
+            self._ptr = <cudlaWaitEvents *>_cyb_malloc(sizeof(cudlaWaitEvents))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating WaitEvents")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaWaitEvents))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaWaitEvents))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -1155,7 +1167,7 @@ cdef class WaitEvents:
     @staticmethod
     def from_buffer(buffer):
         """Create an WaitEvents instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cudlaWaitEvents), WaitEvents)
+        return _cyb_from_buffer(buffer, sizeof(cudlaWaitEvents), WaitEvents)
 
     @staticmethod
     def from_data(data):
@@ -1164,7 +1176,7 @@ cdef class WaitEvents:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `wait_events_dtype` holding the data.
         """
-        return __from_data(data, "wait_events_dtype", wait_events_dtype, WaitEvents)
+        return _cyb_from_data(data, "wait_events_dtype", wait_events_dtype, WaitEvents)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1179,10 +1191,10 @@ cdef class WaitEvents:
             raise ValueError("ptr must not be null (0)")
         cdef WaitEvents obj = WaitEvents.__new__(WaitEvents)
         if owner is None:
-            obj._ptr = <cudlaWaitEvents *>malloc(sizeof(cudlaWaitEvents))
+            obj._ptr = <cudlaWaitEvents *>_cyb_malloc(sizeof(cudlaWaitEvents))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating WaitEvents")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaWaitEvents))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaWaitEvents))
             obj._owner = None
             obj._owned = True
         else:
@@ -1195,7 +1207,7 @@ cdef class WaitEvents:
 
 
 cdef _get_signal_events_dtype_offsets():
-    cdef cudlaSignalEvents pod = cudlaSignalEvents()
+    cdef cudlaSignalEvents pod
     return _numpy.dtype({
         'names': ['dev_ptrs', 'eof_fences', 'num_events'],
         'formats': [_numpy.intp, _numpy.intp, _numpy.uint32],
@@ -1223,7 +1235,7 @@ cdef class SignalEvents:
         dict _refs
 
     def __init__(self):
-        self._ptr = <cudlaSignalEvents *>calloc(1, sizeof(cudlaSignalEvents))
+        self._ptr = <cudlaSignalEvents *>_cyb_calloc(1, sizeof(cudlaSignalEvents))
         if self._ptr == NULL:
             raise MemoryError("Error allocating SignalEvents")
         self._owner = None
@@ -1236,7 +1248,7 @@ cdef class SignalEvents:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.SignalEvents object at {hex(id(self))}>"
@@ -1257,20 +1269,20 @@ cdef class SignalEvents:
         if not isinstance(other, SignalEvents):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaSignalEvents)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaSignalEvents)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaSignalEvents), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaSignalEvents), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaSignalEvents *>malloc(sizeof(cudlaSignalEvents))
+            self._ptr = <cudlaSignalEvents *>_cyb_malloc(sizeof(cudlaSignalEvents))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating SignalEvents")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaSignalEvents))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaSignalEvents))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -1281,8 +1293,8 @@ cdef class SignalEvents:
     def dev_ptrs(self):
         """int: """
         if self._ptr[0].devPtrs == NULL or self._ptr[0].numEvents == 0:
-            return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")[:0]
-        cdef view.array arr = view.array(shape=(self._ptr[0].numEvents,), itemsize=sizeof(intptr_t), format="q", mode="c", allocate_buffer=False)
+            return _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")[:0]
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].numEvents,), itemsize=sizeof(intptr_t), format="q", mode="c", allocate_buffer=False)
         arr.data = <char *>(self._ptr[0].devPtrs)
         return arr
 
@@ -1294,7 +1306,7 @@ cdef class SignalEvents:
         self._ptr[0].numEvents = _n
         if _n == 0:
             return
-        cdef view.array arr = view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
         cdef intptr_t[:] mv = arr
         cdef Py_ssize_t i
         for i in range(_n):
@@ -1321,7 +1333,7 @@ cdef class SignalEvents:
     @staticmethod
     def from_buffer(buffer):
         """Create an SignalEvents instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cudlaSignalEvents), SignalEvents)
+        return _cyb_from_buffer(buffer, sizeof(cudlaSignalEvents), SignalEvents)
 
     @staticmethod
     def from_data(data):
@@ -1330,7 +1342,7 @@ cdef class SignalEvents:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `signal_events_dtype` holding the data.
         """
-        return __from_data(data, "signal_events_dtype", signal_events_dtype, SignalEvents)
+        return _cyb_from_data(data, "signal_events_dtype", signal_events_dtype, SignalEvents)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1345,10 +1357,10 @@ cdef class SignalEvents:
             raise ValueError("ptr must not be null (0)")
         cdef SignalEvents obj = SignalEvents.__new__(SignalEvents)
         if owner is None:
-            obj._ptr = <cudlaSignalEvents *>malloc(sizeof(cudlaSignalEvents))
+            obj._ptr = <cudlaSignalEvents *>_cyb_malloc(sizeof(cudlaSignalEvents))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating SignalEvents")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaSignalEvents))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaSignalEvents))
             obj._owner = None
             obj._owned = True
         else:
@@ -1361,7 +1373,7 @@ cdef class SignalEvents:
 
 
 cdef _get_task_dtype_offsets():
-    cdef cudlaTask pod = cudlaTask()
+    cdef cudlaTask pod
     return _numpy.dtype({
         'names': ['module_handle', 'output_tensor', 'num_output_tensors', 'num_input_tensors', 'input_tensor', 'wait_events', 'signal_events'],
         'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.intp],
@@ -1393,7 +1405,7 @@ cdef class Task:
         dict _refs
 
     def __init__(self):
-        self._ptr = <cudlaTask *>calloc(1, sizeof(cudlaTask))
+        self._ptr = <cudlaTask *>_cyb_calloc(1, sizeof(cudlaTask))
         if self._ptr == NULL:
             raise MemoryError("Error allocating Task")
         self._owner = None
@@ -1406,7 +1418,7 @@ cdef class Task:
         if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
-            free(ptr)
+            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Task object at {hex(id(self))}>"
@@ -1427,20 +1439,20 @@ cdef class Task:
         if not isinstance(other, Task):
             return False
         other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaTask)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cudlaTask)) == 0)
 
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        __getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaTask), self._readonly)
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cudlaTask), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaTask *>malloc(sizeof(cudlaTask))
+            self._ptr = <cudlaTask *>_cyb_malloc(sizeof(cudlaTask))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating Task")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaTask))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaTask))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -1462,8 +1474,8 @@ cdef class Task:
     def output_tensor(self):
         """int: """
         if self._ptr[0].outputTensor == NULL or self._ptr[0].numOutputTensors == 0:
-            return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")[:0]
-        cdef view.array arr = view.array(shape=(self._ptr[0].numOutputTensors,), itemsize=sizeof(intptr_t), format="q", mode="c", allocate_buffer=False)
+            return _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")[:0]
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].numOutputTensors,), itemsize=sizeof(intptr_t), format="q", mode="c", allocate_buffer=False)
         arr.data = <char *>(self._ptr[0].outputTensor)
         return arr
 
@@ -1475,7 +1487,7 @@ cdef class Task:
         self._ptr[0].numOutputTensors = _n
         if _n == 0:
             return
-        cdef view.array arr = view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
         cdef intptr_t[:] mv = arr
         cdef Py_ssize_t i
         for i in range(_n):
@@ -1487,8 +1499,8 @@ cdef class Task:
     def input_tensor(self):
         """int: """
         if self._ptr[0].inputTensor == NULL or self._ptr[0].numInputTensors == 0:
-            return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")[:0]
-        cdef view.array arr = view.array(shape=(self._ptr[0].numInputTensors,), itemsize=sizeof(intptr_t), format="q", mode="c", allocate_buffer=False)
+            return _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")[:0]
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].numInputTensors,), itemsize=sizeof(intptr_t), format="q", mode="c", allocate_buffer=False)
         arr.data = <char *>(self._ptr[0].inputTensor)
         return arr
 
@@ -1500,7 +1512,7 @@ cdef class Task:
         self._ptr[0].numInputTensors = _n
         if _n == 0:
             return
-        cdef view.array arr = view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
         cdef intptr_t[:] mv = arr
         cdef Py_ssize_t i
         for i in range(_n):
@@ -1533,7 +1545,7 @@ cdef class Task:
     @staticmethod
     def from_buffer(buffer):
         """Create an Task instance with the memory from the given buffer."""
-        return __from_buffer(buffer, sizeof(cudlaTask), Task)
+        return _cyb_from_buffer(buffer, sizeof(cudlaTask), Task)
 
     @staticmethod
     def from_data(data):
@@ -1542,7 +1554,7 @@ cdef class Task:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `task_dtype` holding the data.
         """
-        return __from_data(data, "task_dtype", task_dtype, Task)
+        return _cyb_from_data(data, "task_dtype", task_dtype, Task)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1557,10 +1569,10 @@ cdef class Task:
             raise ValueError("ptr must not be null (0)")
         cdef Task obj = Task.__new__(Task)
         if owner is None:
-            obj._ptr = <cudlaTask *>malloc(sizeof(cudlaTask))
+            obj._ptr = <cudlaTask *>_cyb_malloc(sizeof(cudlaTask))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating Task")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaTask))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaTask))
             obj._owner = None
             obj._owned = True
         else:
@@ -1576,7 +1588,7 @@ cdef class Task:
 # Enum
 ###############################################################################
 
-class Status(_IntEnum):
+class Status(_cyb_IntEnum):
     """
     See `cudlaStatus`.
     """
@@ -1605,14 +1617,14 @@ class Status(_IntEnum):
     ErrorDlaErrDataMismatch = cudlaErrorDlaErrDataMismatch
     ErrorUnknown = cudlaErrorUnknown
 
-class Mode(_IntEnum):
+class Mode(_cyb_IntEnum):
     """
     See `cudlaMode`.
     """
     CUDA_DLA = CUDLA_CUDA_DLA
     STANDALONE = CUDLA_STANDALONE
 
-class ModuleAttributeType(_IntEnum):
+class ModuleAttributeType(_cyb_IntEnum):
     """
     See `cudlaModuleAttributeType`.
     """
@@ -1623,21 +1635,21 @@ class ModuleAttributeType(_IntEnum):
     NUM_OUTPUT_TASK_STATISTICS = CUDLA_NUM_OUTPUT_TASK_STATISTICS
     OUTPUT_TASK_STATISTICS_DESCRIPTORS = CUDLA_OUTPUT_TASK_STATISTICS_DESCRIPTORS
 
-class FenceType(_IntEnum):
+class FenceType(_cyb_IntEnum):
     """
     See `cudlaFenceType`.
     """
     NVSCISYNC_FENCE = CUDLA_NVSCISYNC_FENCE
     NVSCISYNC_FENCE_SOF = CUDLA_NVSCISYNC_FENCE_SOF
 
-class ModuleLoadFlags(_IntEnum):
+class ModuleLoadFlags(_cyb_IntEnum):
     """
     See `cudlaModuleLoadFlags`.
     """
     MODULE_DEFAULT = CUDLA_MODULE_DEFAULT
     MODULE_ENABLE_FAULT_DIAGNOSTICS = CUDLA_MODULE_ENABLE_FAULT_DIAGNOSTICS
 
-class SubmissionFlags(_IntEnum):
+class SubmissionFlags(_cyb_IntEnum):
     """
     See `cudlaSubmissionFlags`.
     """
@@ -1645,7 +1657,7 @@ class SubmissionFlags(_IntEnum):
     SUBMIT_SKIP_LOCK_ACQUIRE = CUDLA_SUBMIT_SKIP_LOCK_ACQUIRE
     SUBMIT_DIAGNOSTICS_TASK = CUDLA_SUBMIT_DIAGNOSTICS_TASK
 
-class AccessPermissionFlags(_IntEnum):
+class AccessPermissionFlags(_cyb_IntEnum):
     """
     See `cudlaAccessPermissionFlags`.
     """
@@ -1653,7 +1665,7 @@ class AccessPermissionFlags(_IntEnum):
     READ_ONLY_PERM = CUDLA_READ_ONLY_PERM
     TASK_STATISTICS = CUDLA_TASK_STATISTICS
 
-class DevAttributeType(_IntEnum):
+class DevAttributeType(_cyb_IntEnum):
     """
     See `cudlaDevAttributeType`.
     """
@@ -1758,7 +1770,10 @@ cpdef mem_unregister(intptr_t dev_handle, intptr_t dev_ptr):
 
 
 cpdef int get_last_error(intptr_t dev_handle) except? 0:
-    return <int>cudlaGetLastError(<const DevHandle>dev_handle)
+    cdef int ret
+    with nogil:
+        ret = <int>cudlaGetLastError(<const DevHandle>dev_handle)
+    return ret
 
 
 cpdef destroy_device(intptr_t dev_handle):
@@ -1825,3 +1840,4 @@ cpdef module_get_attributes(intptr_t h_module, int attr_type) except *:
             free(desc_buf)
     else:
         raise ValueError(f"Unknown attribute type: {attr_type}")
+del _cyb_IntEnum

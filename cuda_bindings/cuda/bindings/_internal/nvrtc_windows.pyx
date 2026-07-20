@@ -1,81 +1,65 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=becc61b4d220395420a59980fa3a7dc2ea4c45e7c64881bf7819df3a57443343
 
-from libc.stdint cimport intptr_t
 
-import threading
-from .utils import FunctionNotFoundError, NotSupportedError
+# <<<< PREAMBLE CONTENT >>>>
 
-from cuda.pathfinder import load_nvidia_dynamic_lib
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
 
-from libc.stddef cimport wchar_t
-from libc.stdint cimport uintptr_t
-from cpython cimport PyUnicode_AsWideCharString, PyMem_Free
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
 
-# You must 'from .utils import NotSupportedError' before using this template
-
-cdef extern from "windows.h" nogil:
+cdef extern from "<windows.h>":
     ctypedef void* HMODULE
-    ctypedef void* HANDLE
-    ctypedef void* FARPROC
-    ctypedef unsigned long DWORD
-    ctypedef const wchar_t *LPCWSTR
-    ctypedef const char *LPCSTR
+    void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
-    cdef DWORD LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-    cdef DWORD LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+from libc.stdint cimport intptr_t as _cyb_intptr_t
 
-    HMODULE _LoadLibraryExW "LoadLibraryExW"(
-        LPCWSTR lpLibFileName,
-        HANDLE hFile,
-        DWORD dwFlags
-    )
+import threading as _cyb_threading
 
-    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, LPCSTR lpProcName)
+cdef int _cyb___py_nvrtc_init = 0
+cdef dict _cyb_func_ptrs = None
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
-cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
-    cdef uintptr_t result
-    cdef wchar_t* wpath = PyUnicode_AsWideCharString(path, NULL)
-    with nogil:
-        result = <uintptr_t>_LoadLibraryExW(
-            wpath,
-            hFile,
-            dwFlags
-        )
-    PyMem_Free(wpath)
-    return result
+# <<<< END OF PREAMBLE CONTENT >>>>
 
-cdef inline void *GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
-    return _GetProcAddress(<HMODULE>hModule, lpProcName)
-
-cdef int get_cuda_version():
-    cdef int err, driver_ver = 0
-
-    # Load driver to check version
-    handle = LoadLibraryExW("nvcuda.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)
-    if handle == 0:
-        raise NotSupportedError('CUDA driver is not found')
-    cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
-    if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in nvcuda.dll')
-    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
-
-    return driver_ver
-
-
-
+from libc.stdint cimport uintptr_t
+from cuda.pathfinder import load_nvidia_dynamic_lib
+from .utils import FunctionNotFoundError, NotSupportedError
 ###############################################################################
 # Wrapper init
 ###############################################################################
-
-cdef object __symbol_lock = threading.Lock()
-cdef bint __py_nvrtc_init = False
 
 cdef void* __nvrtcGetErrorString = NULL
 cdef void* __nvrtcVersion = NULL
@@ -107,223 +91,220 @@ cdef void* __nvrtcInstallBundledHeaders = NULL
 cdef void* __nvrtcGetBundledHeadersInfo = NULL
 cdef void* __nvrtcRemoveBundledHeaders = NULL
 
-
 cdef int _init_nvrtc() except -1 nogil:
-    global __py_nvrtc_init
+    global _cyb___py_nvrtc_init
 
-    with gil, __symbol_lock:
-        # Recheck the flag after obtaining the locks
-        if __py_nvrtc_init:
-            return 0
+    cdef int err
+    cdef uintptr_t handle
+    with gil, _cyb_symbol_lock:
+        if _cyb___py_nvrtc_init: return 0
 
-        # Load library
-        handle = load_nvidia_dynamic_lib("nvrtc")._handle_uint
-
-        # Load function
+        handle = load_library()
         global __nvrtcGetErrorString
-        __nvrtcGetErrorString = GetProcAddress(handle, 'nvrtcGetErrorString')
+        __nvrtcGetErrorString = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetErrorString')
 
         global __nvrtcVersion
-        __nvrtcVersion = GetProcAddress(handle, 'nvrtcVersion')
+        __nvrtcVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcVersion')
 
         global __nvrtcGetNumSupportedArchs
-        __nvrtcGetNumSupportedArchs = GetProcAddress(handle, 'nvrtcGetNumSupportedArchs')
+        __nvrtcGetNumSupportedArchs = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetNumSupportedArchs')
 
         global __nvrtcGetSupportedArchs
-        __nvrtcGetSupportedArchs = GetProcAddress(handle, 'nvrtcGetSupportedArchs')
+        __nvrtcGetSupportedArchs = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetSupportedArchs')
 
         global __nvrtcCreateProgram
-        __nvrtcCreateProgram = GetProcAddress(handle, 'nvrtcCreateProgram')
+        __nvrtcCreateProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcCreateProgram')
 
         global __nvrtcDestroyProgram
-        __nvrtcDestroyProgram = GetProcAddress(handle, 'nvrtcDestroyProgram')
+        __nvrtcDestroyProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcDestroyProgram')
 
         global __nvrtcCompileProgram
-        __nvrtcCompileProgram = GetProcAddress(handle, 'nvrtcCompileProgram')
+        __nvrtcCompileProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcCompileProgram')
 
         global __nvrtcGetPTXSize
-        __nvrtcGetPTXSize = GetProcAddress(handle, 'nvrtcGetPTXSize')
+        __nvrtcGetPTXSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPTXSize')
 
         global __nvrtcGetPTX
-        __nvrtcGetPTX = GetProcAddress(handle, 'nvrtcGetPTX')
+        __nvrtcGetPTX = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPTX')
 
         global __nvrtcGetCUBINSize
-        __nvrtcGetCUBINSize = GetProcAddress(handle, 'nvrtcGetCUBINSize')
+        __nvrtcGetCUBINSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetCUBINSize')
 
         global __nvrtcGetCUBIN
-        __nvrtcGetCUBIN = GetProcAddress(handle, 'nvrtcGetCUBIN')
+        __nvrtcGetCUBIN = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetCUBIN')
 
         global __nvrtcGetLTOIRSize
-        __nvrtcGetLTOIRSize = GetProcAddress(handle, 'nvrtcGetLTOIRSize')
+        __nvrtcGetLTOIRSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetLTOIRSize')
 
         global __nvrtcGetLTOIR
-        __nvrtcGetLTOIR = GetProcAddress(handle, 'nvrtcGetLTOIR')
+        __nvrtcGetLTOIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetLTOIR')
 
         global __nvrtcGetOptiXIRSize
-        __nvrtcGetOptiXIRSize = GetProcAddress(handle, 'nvrtcGetOptiXIRSize')
+        __nvrtcGetOptiXIRSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetOptiXIRSize')
 
         global __nvrtcGetOptiXIR
-        __nvrtcGetOptiXIR = GetProcAddress(handle, 'nvrtcGetOptiXIR')
+        __nvrtcGetOptiXIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetOptiXIR')
 
         global __nvrtcGetProgramLogSize
-        __nvrtcGetProgramLogSize = GetProcAddress(handle, 'nvrtcGetProgramLogSize')
+        __nvrtcGetProgramLogSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetProgramLogSize')
 
         global __nvrtcGetProgramLog
-        __nvrtcGetProgramLog = GetProcAddress(handle, 'nvrtcGetProgramLog')
+        __nvrtcGetProgramLog = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetProgramLog')
 
         global __nvrtcAddNameExpression
-        __nvrtcAddNameExpression = GetProcAddress(handle, 'nvrtcAddNameExpression')
+        __nvrtcAddNameExpression = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcAddNameExpression')
 
         global __nvrtcGetLoweredName
-        __nvrtcGetLoweredName = GetProcAddress(handle, 'nvrtcGetLoweredName')
+        __nvrtcGetLoweredName = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetLoweredName')
 
         global __nvrtcGetPCHHeapSize
-        __nvrtcGetPCHHeapSize = GetProcAddress(handle, 'nvrtcGetPCHHeapSize')
+        __nvrtcGetPCHHeapSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPCHHeapSize')
 
         global __nvrtcSetPCHHeapSize
-        __nvrtcSetPCHHeapSize = GetProcAddress(handle, 'nvrtcSetPCHHeapSize')
+        __nvrtcSetPCHHeapSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcSetPCHHeapSize')
 
         global __nvrtcGetPCHCreateStatus
-        __nvrtcGetPCHCreateStatus = GetProcAddress(handle, 'nvrtcGetPCHCreateStatus')
+        __nvrtcGetPCHCreateStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPCHCreateStatus')
 
         global __nvrtcGetPCHHeapSizeRequired
-        __nvrtcGetPCHHeapSizeRequired = GetProcAddress(handle, 'nvrtcGetPCHHeapSizeRequired')
+        __nvrtcGetPCHHeapSizeRequired = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPCHHeapSizeRequired')
 
         global __nvrtcSetFlowCallback
-        __nvrtcSetFlowCallback = GetProcAddress(handle, 'nvrtcSetFlowCallback')
+        __nvrtcSetFlowCallback = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcSetFlowCallback')
 
         global __nvrtcGetTileIRSize
-        __nvrtcGetTileIRSize = GetProcAddress(handle, 'nvrtcGetTileIRSize')
+        __nvrtcGetTileIRSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetTileIRSize')
 
         global __nvrtcGetTileIR
-        __nvrtcGetTileIR = GetProcAddress(handle, 'nvrtcGetTileIR')
+        __nvrtcGetTileIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetTileIR')
 
         global __nvrtcInstallBundledHeaders
-        __nvrtcInstallBundledHeaders = GetProcAddress(handle, 'nvrtcInstallBundledHeaders')
+        __nvrtcInstallBundledHeaders = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcInstallBundledHeaders')
 
         global __nvrtcGetBundledHeadersInfo
-        __nvrtcGetBundledHeadersInfo = GetProcAddress(handle, 'nvrtcGetBundledHeadersInfo')
+        __nvrtcGetBundledHeadersInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetBundledHeadersInfo')
 
         global __nvrtcRemoveBundledHeaders
-        __nvrtcRemoveBundledHeaders = GetProcAddress(handle, 'nvrtcRemoveBundledHeaders')
+        __nvrtcRemoveBundledHeaders = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcRemoveBundledHeaders')
 
-        __py_nvrtc_init = True
+        _cyb_atomic_int_store(<int *>&_cyb___py_nvrtc_init, 1)
         return 0
 
-
 cdef inline int _check_or_init_nvrtc() except -1 nogil:
-    if __py_nvrtc_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_nvrtc_init):
         return 0
 
     return _init_nvrtc()
 
-cdef dict func_ptrs = None
-
 
 cpdef dict _inspect_function_pointers():
-    global func_ptrs
-    if func_ptrs is not None:
-        return func_ptrs
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is not None:
+        return _cyb_func_ptrs
 
     _check_or_init_nvrtc()
     cdef dict data = {}
-
     global __nvrtcGetErrorString
-    data["__nvrtcGetErrorString"] = <intptr_t>__nvrtcGetErrorString
+    data["__nvrtcGetErrorString"] = <_cyb_intptr_t>__nvrtcGetErrorString
 
     global __nvrtcVersion
-    data["__nvrtcVersion"] = <intptr_t>__nvrtcVersion
+    data["__nvrtcVersion"] = <_cyb_intptr_t>__nvrtcVersion
 
     global __nvrtcGetNumSupportedArchs
-    data["__nvrtcGetNumSupportedArchs"] = <intptr_t>__nvrtcGetNumSupportedArchs
+    data["__nvrtcGetNumSupportedArchs"] = <_cyb_intptr_t>__nvrtcGetNumSupportedArchs
 
     global __nvrtcGetSupportedArchs
-    data["__nvrtcGetSupportedArchs"] = <intptr_t>__nvrtcGetSupportedArchs
+    data["__nvrtcGetSupportedArchs"] = <_cyb_intptr_t>__nvrtcGetSupportedArchs
 
     global __nvrtcCreateProgram
-    data["__nvrtcCreateProgram"] = <intptr_t>__nvrtcCreateProgram
+    data["__nvrtcCreateProgram"] = <_cyb_intptr_t>__nvrtcCreateProgram
 
     global __nvrtcDestroyProgram
-    data["__nvrtcDestroyProgram"] = <intptr_t>__nvrtcDestroyProgram
+    data["__nvrtcDestroyProgram"] = <_cyb_intptr_t>__nvrtcDestroyProgram
 
     global __nvrtcCompileProgram
-    data["__nvrtcCompileProgram"] = <intptr_t>__nvrtcCompileProgram
+    data["__nvrtcCompileProgram"] = <_cyb_intptr_t>__nvrtcCompileProgram
 
     global __nvrtcGetPTXSize
-    data["__nvrtcGetPTXSize"] = <intptr_t>__nvrtcGetPTXSize
+    data["__nvrtcGetPTXSize"] = <_cyb_intptr_t>__nvrtcGetPTXSize
 
     global __nvrtcGetPTX
-    data["__nvrtcGetPTX"] = <intptr_t>__nvrtcGetPTX
+    data["__nvrtcGetPTX"] = <_cyb_intptr_t>__nvrtcGetPTX
 
     global __nvrtcGetCUBINSize
-    data["__nvrtcGetCUBINSize"] = <intptr_t>__nvrtcGetCUBINSize
+    data["__nvrtcGetCUBINSize"] = <_cyb_intptr_t>__nvrtcGetCUBINSize
 
     global __nvrtcGetCUBIN
-    data["__nvrtcGetCUBIN"] = <intptr_t>__nvrtcGetCUBIN
+    data["__nvrtcGetCUBIN"] = <_cyb_intptr_t>__nvrtcGetCUBIN
 
     global __nvrtcGetLTOIRSize
-    data["__nvrtcGetLTOIRSize"] = <intptr_t>__nvrtcGetLTOIRSize
+    data["__nvrtcGetLTOIRSize"] = <_cyb_intptr_t>__nvrtcGetLTOIRSize
 
     global __nvrtcGetLTOIR
-    data["__nvrtcGetLTOIR"] = <intptr_t>__nvrtcGetLTOIR
+    data["__nvrtcGetLTOIR"] = <_cyb_intptr_t>__nvrtcGetLTOIR
 
     global __nvrtcGetOptiXIRSize
-    data["__nvrtcGetOptiXIRSize"] = <intptr_t>__nvrtcGetOptiXIRSize
+    data["__nvrtcGetOptiXIRSize"] = <_cyb_intptr_t>__nvrtcGetOptiXIRSize
 
     global __nvrtcGetOptiXIR
-    data["__nvrtcGetOptiXIR"] = <intptr_t>__nvrtcGetOptiXIR
+    data["__nvrtcGetOptiXIR"] = <_cyb_intptr_t>__nvrtcGetOptiXIR
 
     global __nvrtcGetProgramLogSize
-    data["__nvrtcGetProgramLogSize"] = <intptr_t>__nvrtcGetProgramLogSize
+    data["__nvrtcGetProgramLogSize"] = <_cyb_intptr_t>__nvrtcGetProgramLogSize
 
     global __nvrtcGetProgramLog
-    data["__nvrtcGetProgramLog"] = <intptr_t>__nvrtcGetProgramLog
+    data["__nvrtcGetProgramLog"] = <_cyb_intptr_t>__nvrtcGetProgramLog
 
     global __nvrtcAddNameExpression
-    data["__nvrtcAddNameExpression"] = <intptr_t>__nvrtcAddNameExpression
+    data["__nvrtcAddNameExpression"] = <_cyb_intptr_t>__nvrtcAddNameExpression
 
     global __nvrtcGetLoweredName
-    data["__nvrtcGetLoweredName"] = <intptr_t>__nvrtcGetLoweredName
+    data["__nvrtcGetLoweredName"] = <_cyb_intptr_t>__nvrtcGetLoweredName
 
     global __nvrtcGetPCHHeapSize
-    data["__nvrtcGetPCHHeapSize"] = <intptr_t>__nvrtcGetPCHHeapSize
+    data["__nvrtcGetPCHHeapSize"] = <_cyb_intptr_t>__nvrtcGetPCHHeapSize
 
     global __nvrtcSetPCHHeapSize
-    data["__nvrtcSetPCHHeapSize"] = <intptr_t>__nvrtcSetPCHHeapSize
+    data["__nvrtcSetPCHHeapSize"] = <_cyb_intptr_t>__nvrtcSetPCHHeapSize
 
     global __nvrtcGetPCHCreateStatus
-    data["__nvrtcGetPCHCreateStatus"] = <intptr_t>__nvrtcGetPCHCreateStatus
+    data["__nvrtcGetPCHCreateStatus"] = <_cyb_intptr_t>__nvrtcGetPCHCreateStatus
 
     global __nvrtcGetPCHHeapSizeRequired
-    data["__nvrtcGetPCHHeapSizeRequired"] = <intptr_t>__nvrtcGetPCHHeapSizeRequired
+    data["__nvrtcGetPCHHeapSizeRequired"] = <_cyb_intptr_t>__nvrtcGetPCHHeapSizeRequired
 
     global __nvrtcSetFlowCallback
-    data["__nvrtcSetFlowCallback"] = <intptr_t>__nvrtcSetFlowCallback
+    data["__nvrtcSetFlowCallback"] = <_cyb_intptr_t>__nvrtcSetFlowCallback
 
     global __nvrtcGetTileIRSize
-    data["__nvrtcGetTileIRSize"] = <intptr_t>__nvrtcGetTileIRSize
+    data["__nvrtcGetTileIRSize"] = <_cyb_intptr_t>__nvrtcGetTileIRSize
 
     global __nvrtcGetTileIR
-    data["__nvrtcGetTileIR"] = <intptr_t>__nvrtcGetTileIR
+    data["__nvrtcGetTileIR"] = <_cyb_intptr_t>__nvrtcGetTileIR
 
     global __nvrtcInstallBundledHeaders
-    data["__nvrtcInstallBundledHeaders"] = <intptr_t>__nvrtcInstallBundledHeaders
+    data["__nvrtcInstallBundledHeaders"] = <_cyb_intptr_t>__nvrtcInstallBundledHeaders
 
     global __nvrtcGetBundledHeadersInfo
-    data["__nvrtcGetBundledHeadersInfo"] = <intptr_t>__nvrtcGetBundledHeadersInfo
+    data["__nvrtcGetBundledHeadersInfo"] = <_cyb_intptr_t>__nvrtcGetBundledHeadersInfo
 
     global __nvrtcRemoveBundledHeaders
-    data["__nvrtcRemoveBundledHeaders"] = <intptr_t>__nvrtcRemoveBundledHeaders
-
-    func_ptrs = data
+    data["__nvrtcRemoveBundledHeaders"] = <_cyb_intptr_t>__nvrtcRemoveBundledHeaders
+    _cyb_func_ptrs = data
     return data
 
 
 cpdef _inspect_function_pointer(str name):
-    global func_ptrs
-    if func_ptrs is None:
-        func_ptrs = _inspect_function_pointers()
-    return func_ptrs[name]
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is None:
+        _cyb_func_ptrs = _inspect_function_pointers()
+    return _cyb_func_ptrs[name]
+
+
+
+
+cdef uintptr_t load_library() except* with gil:
+    return load_nvidia_dynamic_lib("nvrtc")._handle_uint
 
 
 ###############################################################################

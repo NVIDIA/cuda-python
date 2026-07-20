@@ -25,7 +25,7 @@ def _get_nvml_state() -> _NVMLState:
 
 cpdef void _initialize() except *:
     """
-    Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.
+    Initializes NVIDIA Management Library (NVML), ensuring it only happens once per process.
     """
     global _NVML_STATE, _NVML_OWNER_PID
 

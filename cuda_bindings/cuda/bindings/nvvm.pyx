@@ -1,22 +1,29 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=82dc56ccc695031faa515d1971c9841131d5aadc60c6d6e6cc223580fc544d16
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
 
-from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
-
 
 ###############################################################################
 # Enum
 ###############################################################################
 
-class Result(_IntEnum):
+class Result(_cyb_FastEnum):
     """
     NVVM API call result code.
 
@@ -85,8 +92,11 @@ cpdef str get_error_string(int result):
 
     .. seealso:: `nvvmGetErrorString`
     """
+    cdef const char *_output_cstr_
     cdef bytes _output_
-    _output_ = nvvmGetErrorString(<_Result>result)
+    with nogil:
+        _output_cstr_ = nvvmGetErrorString(<_Result>result)
+    _output_ = _output_cstr_
     return _output_.decode()
 
 
@@ -321,3 +331,4 @@ cpdef int llvm_version(arch) except? 0:
         __status__ = nvvmLLVMVersion(<const char*>_arch_, &major)
     check_status(__status__)
     return major
+del _cyb_FastEnum

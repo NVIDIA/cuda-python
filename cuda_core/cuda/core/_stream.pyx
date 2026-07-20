@@ -414,7 +414,7 @@ cdef class Stream:
         """
         from cuda.core.graph._graph_builder import GraphBuilder
 
-        return GraphBuilder._init(stream=self, is_stream_owner=False)
+        return GraphBuilder._init(self)
 
 
 LEGACY_DEFAULT_STREAM: Stream = Stream._legacy_default()

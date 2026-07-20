@@ -7,6 +7,10 @@ import time
 
 import pytest
 
+from cuda.core import _linker
+
+is_culink_backend = _linker._decide_nvjitlink_or_driver()
+
 
 def test_program_cache_resource_is_abstract():
     from cuda.core.utils import ProgramCacheResource
@@ -317,7 +321,9 @@ def test_make_program_cache_key_rejects_extra_sources_outside_nvvm(code_type, co
 @pytest.mark.parametrize(
     "kwargs, exc_type, match",
     [
-        pytest.param({"code_type": "fortran"}, ValueError, "code_type", id="unknown_code_type"),
+        pytest.param(
+            {"code_type": "fortran"}, ValueError, "'fortran' is not a valid SourceCodeType", id="unknown_code_type"
+        ),
         pytest.param({"target_type": "exe"}, ValueError, "target_type", id="unknown_target_type"),
         pytest.param({"code": 12345}, TypeError, "code", id="non_str_bytes_code"),
         # Backend-specific target matrix -- Program.compile rejects these
@@ -371,7 +377,12 @@ def test_make_program_cache_key_ignores_name_expressions_for_non_nvrtc(code_type
         ),
         # ``time`` is a presence gate: the linker emits ``-time`` for any
         # non-None value, so True / "path" produce the same flag.
-        pytest.param({"time": True}, {"time": "timing.csv"}, id="time_true_eq_path"),
+        pytest.param(
+            {"time": True},
+            {"time": "timing.csv"},
+            id="time_true_eq_path",
+            marks=pytest.mark.skipif(is_culink_backend, reason="-time is not supported in cuLink"),
+        ),
         # ``no_cache`` has an ``is True`` gate; False and None equivalent.
         pytest.param({"no_cache": False}, {"no_cache": None}, id="no_cache_false_eq_none"),
     ],
@@ -999,6 +1010,7 @@ def test_make_program_cache_key_rejects_side_effect_options_nvrtc(option_kw, ext
         pytest.param({"time": "whatever.csv"}, id="time_path"),
     ],
 )
+@pytest.mark.skipif(is_culink_backend, reason="-time is not supported in cuLink")
 def test_make_program_cache_key_accepts_side_effect_options_for_ptx(option_kw):
     """The side-effect guard is NVRTC-specific: PTX (linker) and NVVM must
     not be blocked by options whose side effects only apply under NVRTC."""
@@ -1927,6 +1939,7 @@ def test_filestream_cache_tracker_reconciles_after_external_drift(tmp_path):
         assert cache._tracked_size_bytes <= 1100  # actual on-disk is 'b' + 'c' or just 'c'
 
 
+@pytest.mark.thread_unsafe(reason="already threaded and patches _file_stream")
 def test_filestream_cache_tracker_clamps_at_zero_under_delete_race(tmp_path):
     """Two-thread reproduction of the ``__delitem__`` vs
     ``_enforce_size_cap`` race. Thread A is mid-delete: it has stat'd the

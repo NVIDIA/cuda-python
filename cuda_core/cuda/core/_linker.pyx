@@ -52,7 +52,6 @@ _keep_driver_in_stub: "cuda.bindings.driver.CUlinkState"
 _keep_nvjitlink_in_stub: "cuda.bindings.nvjitlink.nvJitLinkHandle"
 
 ctypedef const char* const_char_ptr
-ctypedef void* void_ptr
 
 __all__ = ["Linker", "LinkerOptions"]
 
@@ -155,10 +154,21 @@ cdef class Linker:
 
     def close(self) -> None:
         """Destroy this linker."""
+        cdef vector[cydriver.CUjit_option] empty_keys
+        cdef vector[void*] empty_values
         if self._use_nvjitlink:
             self._nvjitlink_handle.reset()
         else:
+            if self._drv_log_bufs is not None:
+                if self._info_log is None:
+                    self._info_log = self.get_info_log()
+                if self._error_log is None:
+                    self._error_log = self.get_error_log()
+            # Destroy the CUlinkState before releasing storage referenced by it.
             self._culink_handle.reset()
+            self._drv_jit_keys.swap(empty_keys)
+            self._drv_jit_values.swap(empty_values)
+            self._drv_log_bufs = None
 
     @property
     def handle(self) -> LinkerHandleT:
@@ -473,8 +483,8 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
     cdef cydriver.CUlinkState c_raw_culink
     cdef Py_ssize_t c_num_opts, i
     cdef vector[const_char_ptr] c_str_opts
-    cdef vector[cydriver.CUjit_option] c_jit_keys
-    cdef vector[void_ptr] c_jit_values
+    cdef cydriver.CUjit_option* c_drv_jit_keys_ptr
+    cdef void** c_drv_jit_values_ptr
 
     self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
 
@@ -496,19 +506,24 @@ cdef inline int Linker_init(Linker self, tuple object_codes, object options) exc
         # the driver writes into via raw pointers during linking operations.
         self._drv_log_bufs = formatted_options
         c_num_opts = len(option_keys)
-        c_jit_keys.resize(c_num_opts)
-        c_jit_values.resize(c_num_opts)
+        self._drv_jit_keys.resize(c_num_opts)
+        self._drv_jit_values.resize(c_num_opts)
         for i in range(c_num_opts):
-            c_jit_keys[i] = <cydriver.CUjit_option><int>option_keys[i]
+            self._drv_jit_keys[i] = <cydriver.CUjit_option><int>option_keys[i]
             val = formatted_options[i]
             if isinstance(val, bytearray):
-                c_jit_values[i] = <void*>PyByteArray_AS_STRING(val)
+                self._drv_jit_values[i] = <void*>PyByteArray_AS_STRING(val)
             else:
-                c_jit_values[i] = <void*><intptr_t>int(val)
+                self._drv_jit_values[i] = <void*><intptr_t>int(val)
+        c_drv_jit_keys_ptr = self._drv_jit_keys.data()
+        c_drv_jit_values_ptr = self._drv_jit_values.data()
         try:
             with nogil:
                 HANDLE_RETURN(cydriver.cuLinkCreate(
-                    <unsigned int>c_num_opts, c_jit_keys.data(), c_jit_values.data(), &c_raw_culink))
+                    <unsigned int>c_num_opts,
+                    c_drv_jit_keys_ptr,
+                    c_drv_jit_values_ptr,
+                    &c_raw_culink))
         except CUDAError as e:
             Linker_annotate_error_log(self, e)
             raise
@@ -622,11 +637,10 @@ cdef inline object Linker_link(Linker self, str target_type):
             raise
         code = (<char*>c_cubin_out)[:c_output_size]
 
-    # Linking is complete; cache the decoded log strings and release
-    # the driver's raw bytearray buffers (no longer written to).
+    # Linking is complete; cache the decoded logs. cuLinkDestroy may still
+    # dereference the raw log-buffer pointers, so retain them until close().
     self._info_log = self.get_info_log()
     self._error_log = self.get_error_log()
-    self._drv_log_bufs = None
 
     return ObjectCode._init(bytes(code), target_type, name=self._options.name)
 

@@ -1,63 +1,68 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0, generator version 0.3.1.dev1630+gadce055ea.d20260422. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ff5d5beb8dc8a8fb1dac0241d4b72d29bf8c55cfd2cba627567cfab2d4d10767
 
-from libc.stdint cimport intptr_t, uintptr_t
 
-import threading
+# <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
+
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
+
+cdef extern from "<dlfcn.h>":
+    void* _cyb_dlsym "dlsym"(void*, const char*) nogil
+    const void * _cyb_RTLD_DEFAULT "RTLD_DEFAULT"
+
+from libc.stdint cimport intptr_t as _cyb_intptr_t
+
+import threading as _cyb_threading
+
+cdef int _cyb___py_nvrtc_init = 0
+cdef dict _cyb_func_ptrs = None
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport uintptr_t
+
 from .utils import FunctionNotFoundError, NotSupportedError
-
 from cuda.pathfinder import load_nvidia_dynamic_lib
-
-
-###############################################################################
-# Extern
-###############################################################################
-
-# You must 'from .utils import NotSupportedError' before using this template
-
-cdef extern from "<dlfcn.h>" nogil:
-    void* dlopen(const char*, int)
-    char* dlerror()
-    void* dlsym(void*, const char*)
-    int dlclose(void*)
-
-    enum:
-        RTLD_LAZY
-        RTLD_NOW
-        RTLD_GLOBAL
-        RTLD_LOCAL
-
-    const void* RTLD_DEFAULT 'RTLD_DEFAULT'
-
-cdef int get_cuda_version():
-    cdef void* handle = NULL
-    cdef int err, driver_ver = 0
-
-    # Load driver to check version
-    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
-    if handle == NULL:
-        err_msg = dlerror()
-        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
-    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
-    if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
-    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
-
-    return driver_ver
-
 
 
 ###############################################################################
 # Wrapper init
 ###############################################################################
-
-cdef object __symbol_lock = threading.Lock()
-cdef bint __py_nvrtc_init = False
 
 cdef void* __nvrtcGetErrorString = NULL
 cdef void* __nvrtcVersion = NULL
@@ -89,343 +94,334 @@ cdef void* __nvrtcInstallBundledHeaders = NULL
 cdef void* __nvrtcGetBundledHeadersInfo = NULL
 cdef void* __nvrtcRemoveBundledHeaders = NULL
 
-
-cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvrtc")._handle_uint
-    return <void*>handle
-
-
 cdef int _init_nvrtc() except -1 nogil:
-    global __py_nvrtc_init
-
+    global _cyb___py_nvrtc_init
     cdef void* handle = NULL
+    with gil, _cyb_symbol_lock:
+        if _cyb___py_nvrtc_init: return 0
 
-    with gil, __symbol_lock:
-        # Recheck the flag after obtaining the locks
-        if __py_nvrtc_init:
-            return 0
-
-        # Load function
         global __nvrtcGetErrorString
-        __nvrtcGetErrorString = dlsym(RTLD_DEFAULT, 'nvrtcGetErrorString')
+        __nvrtcGetErrorString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetErrorString')
         if __nvrtcGetErrorString == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetErrorString = dlsym(handle, 'nvrtcGetErrorString')
+            __nvrtcGetErrorString = _cyb_dlsym(handle, 'nvrtcGetErrorString')
 
         global __nvrtcVersion
-        __nvrtcVersion = dlsym(RTLD_DEFAULT, 'nvrtcVersion')
+        __nvrtcVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcVersion')
         if __nvrtcVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcVersion = dlsym(handle, 'nvrtcVersion')
+            __nvrtcVersion = _cyb_dlsym(handle, 'nvrtcVersion')
 
         global __nvrtcGetNumSupportedArchs
-        __nvrtcGetNumSupportedArchs = dlsym(RTLD_DEFAULT, 'nvrtcGetNumSupportedArchs')
+        __nvrtcGetNumSupportedArchs = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetNumSupportedArchs')
         if __nvrtcGetNumSupportedArchs == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetNumSupportedArchs = dlsym(handle, 'nvrtcGetNumSupportedArchs')
+            __nvrtcGetNumSupportedArchs = _cyb_dlsym(handle, 'nvrtcGetNumSupportedArchs')
 
         global __nvrtcGetSupportedArchs
-        __nvrtcGetSupportedArchs = dlsym(RTLD_DEFAULT, 'nvrtcGetSupportedArchs')
+        __nvrtcGetSupportedArchs = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetSupportedArchs')
         if __nvrtcGetSupportedArchs == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetSupportedArchs = dlsym(handle, 'nvrtcGetSupportedArchs')
+            __nvrtcGetSupportedArchs = _cyb_dlsym(handle, 'nvrtcGetSupportedArchs')
 
         global __nvrtcCreateProgram
-        __nvrtcCreateProgram = dlsym(RTLD_DEFAULT, 'nvrtcCreateProgram')
+        __nvrtcCreateProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcCreateProgram')
         if __nvrtcCreateProgram == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcCreateProgram = dlsym(handle, 'nvrtcCreateProgram')
+            __nvrtcCreateProgram = _cyb_dlsym(handle, 'nvrtcCreateProgram')
 
         global __nvrtcDestroyProgram
-        __nvrtcDestroyProgram = dlsym(RTLD_DEFAULT, 'nvrtcDestroyProgram')
+        __nvrtcDestroyProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcDestroyProgram')
         if __nvrtcDestroyProgram == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcDestroyProgram = dlsym(handle, 'nvrtcDestroyProgram')
+            __nvrtcDestroyProgram = _cyb_dlsym(handle, 'nvrtcDestroyProgram')
 
         global __nvrtcCompileProgram
-        __nvrtcCompileProgram = dlsym(RTLD_DEFAULT, 'nvrtcCompileProgram')
+        __nvrtcCompileProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcCompileProgram')
         if __nvrtcCompileProgram == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcCompileProgram = dlsym(handle, 'nvrtcCompileProgram')
+            __nvrtcCompileProgram = _cyb_dlsym(handle, 'nvrtcCompileProgram')
 
         global __nvrtcGetPTXSize
-        __nvrtcGetPTXSize = dlsym(RTLD_DEFAULT, 'nvrtcGetPTXSize')
+        __nvrtcGetPTXSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPTXSize')
         if __nvrtcGetPTXSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetPTXSize = dlsym(handle, 'nvrtcGetPTXSize')
+            __nvrtcGetPTXSize = _cyb_dlsym(handle, 'nvrtcGetPTXSize')
 
         global __nvrtcGetPTX
-        __nvrtcGetPTX = dlsym(RTLD_DEFAULT, 'nvrtcGetPTX')
+        __nvrtcGetPTX = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPTX')
         if __nvrtcGetPTX == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetPTX = dlsym(handle, 'nvrtcGetPTX')
+            __nvrtcGetPTX = _cyb_dlsym(handle, 'nvrtcGetPTX')
 
         global __nvrtcGetCUBINSize
-        __nvrtcGetCUBINSize = dlsym(RTLD_DEFAULT, 'nvrtcGetCUBINSize')
+        __nvrtcGetCUBINSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetCUBINSize')
         if __nvrtcGetCUBINSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetCUBINSize = dlsym(handle, 'nvrtcGetCUBINSize')
+            __nvrtcGetCUBINSize = _cyb_dlsym(handle, 'nvrtcGetCUBINSize')
 
         global __nvrtcGetCUBIN
-        __nvrtcGetCUBIN = dlsym(RTLD_DEFAULT, 'nvrtcGetCUBIN')
+        __nvrtcGetCUBIN = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetCUBIN')
         if __nvrtcGetCUBIN == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetCUBIN = dlsym(handle, 'nvrtcGetCUBIN')
+            __nvrtcGetCUBIN = _cyb_dlsym(handle, 'nvrtcGetCUBIN')
 
         global __nvrtcGetLTOIRSize
-        __nvrtcGetLTOIRSize = dlsym(RTLD_DEFAULT, 'nvrtcGetLTOIRSize')
+        __nvrtcGetLTOIRSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetLTOIRSize')
         if __nvrtcGetLTOIRSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetLTOIRSize = dlsym(handle, 'nvrtcGetLTOIRSize')
+            __nvrtcGetLTOIRSize = _cyb_dlsym(handle, 'nvrtcGetLTOIRSize')
 
         global __nvrtcGetLTOIR
-        __nvrtcGetLTOIR = dlsym(RTLD_DEFAULT, 'nvrtcGetLTOIR')
+        __nvrtcGetLTOIR = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetLTOIR')
         if __nvrtcGetLTOIR == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetLTOIR = dlsym(handle, 'nvrtcGetLTOIR')
+            __nvrtcGetLTOIR = _cyb_dlsym(handle, 'nvrtcGetLTOIR')
 
         global __nvrtcGetOptiXIRSize
-        __nvrtcGetOptiXIRSize = dlsym(RTLD_DEFAULT, 'nvrtcGetOptiXIRSize')
+        __nvrtcGetOptiXIRSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetOptiXIRSize')
         if __nvrtcGetOptiXIRSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetOptiXIRSize = dlsym(handle, 'nvrtcGetOptiXIRSize')
+            __nvrtcGetOptiXIRSize = _cyb_dlsym(handle, 'nvrtcGetOptiXIRSize')
 
         global __nvrtcGetOptiXIR
-        __nvrtcGetOptiXIR = dlsym(RTLD_DEFAULT, 'nvrtcGetOptiXIR')
+        __nvrtcGetOptiXIR = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetOptiXIR')
         if __nvrtcGetOptiXIR == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetOptiXIR = dlsym(handle, 'nvrtcGetOptiXIR')
+            __nvrtcGetOptiXIR = _cyb_dlsym(handle, 'nvrtcGetOptiXIR')
 
         global __nvrtcGetProgramLogSize
-        __nvrtcGetProgramLogSize = dlsym(RTLD_DEFAULT, 'nvrtcGetProgramLogSize')
+        __nvrtcGetProgramLogSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetProgramLogSize')
         if __nvrtcGetProgramLogSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetProgramLogSize = dlsym(handle, 'nvrtcGetProgramLogSize')
+            __nvrtcGetProgramLogSize = _cyb_dlsym(handle, 'nvrtcGetProgramLogSize')
 
         global __nvrtcGetProgramLog
-        __nvrtcGetProgramLog = dlsym(RTLD_DEFAULT, 'nvrtcGetProgramLog')
+        __nvrtcGetProgramLog = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetProgramLog')
         if __nvrtcGetProgramLog == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetProgramLog = dlsym(handle, 'nvrtcGetProgramLog')
+            __nvrtcGetProgramLog = _cyb_dlsym(handle, 'nvrtcGetProgramLog')
 
         global __nvrtcAddNameExpression
-        __nvrtcAddNameExpression = dlsym(RTLD_DEFAULT, 'nvrtcAddNameExpression')
+        __nvrtcAddNameExpression = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcAddNameExpression')
         if __nvrtcAddNameExpression == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcAddNameExpression = dlsym(handle, 'nvrtcAddNameExpression')
+            __nvrtcAddNameExpression = _cyb_dlsym(handle, 'nvrtcAddNameExpression')
 
         global __nvrtcGetLoweredName
-        __nvrtcGetLoweredName = dlsym(RTLD_DEFAULT, 'nvrtcGetLoweredName')
+        __nvrtcGetLoweredName = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetLoweredName')
         if __nvrtcGetLoweredName == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetLoweredName = dlsym(handle, 'nvrtcGetLoweredName')
+            __nvrtcGetLoweredName = _cyb_dlsym(handle, 'nvrtcGetLoweredName')
 
         global __nvrtcGetPCHHeapSize
-        __nvrtcGetPCHHeapSize = dlsym(RTLD_DEFAULT, 'nvrtcGetPCHHeapSize')
+        __nvrtcGetPCHHeapSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPCHHeapSize')
         if __nvrtcGetPCHHeapSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetPCHHeapSize = dlsym(handle, 'nvrtcGetPCHHeapSize')
+            __nvrtcGetPCHHeapSize = _cyb_dlsym(handle, 'nvrtcGetPCHHeapSize')
 
         global __nvrtcSetPCHHeapSize
-        __nvrtcSetPCHHeapSize = dlsym(RTLD_DEFAULT, 'nvrtcSetPCHHeapSize')
+        __nvrtcSetPCHHeapSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcSetPCHHeapSize')
         if __nvrtcSetPCHHeapSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcSetPCHHeapSize = dlsym(handle, 'nvrtcSetPCHHeapSize')
+            __nvrtcSetPCHHeapSize = _cyb_dlsym(handle, 'nvrtcSetPCHHeapSize')
 
         global __nvrtcGetPCHCreateStatus
-        __nvrtcGetPCHCreateStatus = dlsym(RTLD_DEFAULT, 'nvrtcGetPCHCreateStatus')
+        __nvrtcGetPCHCreateStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPCHCreateStatus')
         if __nvrtcGetPCHCreateStatus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetPCHCreateStatus = dlsym(handle, 'nvrtcGetPCHCreateStatus')
+            __nvrtcGetPCHCreateStatus = _cyb_dlsym(handle, 'nvrtcGetPCHCreateStatus')
 
         global __nvrtcGetPCHHeapSizeRequired
-        __nvrtcGetPCHHeapSizeRequired = dlsym(RTLD_DEFAULT, 'nvrtcGetPCHHeapSizeRequired')
+        __nvrtcGetPCHHeapSizeRequired = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPCHHeapSizeRequired')
         if __nvrtcGetPCHHeapSizeRequired == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetPCHHeapSizeRequired = dlsym(handle, 'nvrtcGetPCHHeapSizeRequired')
+            __nvrtcGetPCHHeapSizeRequired = _cyb_dlsym(handle, 'nvrtcGetPCHHeapSizeRequired')
 
         global __nvrtcSetFlowCallback
-        __nvrtcSetFlowCallback = dlsym(RTLD_DEFAULT, 'nvrtcSetFlowCallback')
+        __nvrtcSetFlowCallback = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcSetFlowCallback')
         if __nvrtcSetFlowCallback == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcSetFlowCallback = dlsym(handle, 'nvrtcSetFlowCallback')
+            __nvrtcSetFlowCallback = _cyb_dlsym(handle, 'nvrtcSetFlowCallback')
 
         global __nvrtcGetTileIRSize
-        __nvrtcGetTileIRSize = dlsym(RTLD_DEFAULT, 'nvrtcGetTileIRSize')
+        __nvrtcGetTileIRSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetTileIRSize')
         if __nvrtcGetTileIRSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetTileIRSize = dlsym(handle, 'nvrtcGetTileIRSize')
+            __nvrtcGetTileIRSize = _cyb_dlsym(handle, 'nvrtcGetTileIRSize')
 
         global __nvrtcGetTileIR
-        __nvrtcGetTileIR = dlsym(RTLD_DEFAULT, 'nvrtcGetTileIR')
+        __nvrtcGetTileIR = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetTileIR')
         if __nvrtcGetTileIR == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetTileIR = dlsym(handle, 'nvrtcGetTileIR')
+            __nvrtcGetTileIR = _cyb_dlsym(handle, 'nvrtcGetTileIR')
 
         global __nvrtcInstallBundledHeaders
-        __nvrtcInstallBundledHeaders = dlsym(RTLD_DEFAULT, 'nvrtcInstallBundledHeaders')
+        __nvrtcInstallBundledHeaders = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcInstallBundledHeaders')
         if __nvrtcInstallBundledHeaders == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcInstallBundledHeaders = dlsym(handle, 'nvrtcInstallBundledHeaders')
+            __nvrtcInstallBundledHeaders = _cyb_dlsym(handle, 'nvrtcInstallBundledHeaders')
 
         global __nvrtcGetBundledHeadersInfo
-        __nvrtcGetBundledHeadersInfo = dlsym(RTLD_DEFAULT, 'nvrtcGetBundledHeadersInfo')
+        __nvrtcGetBundledHeadersInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetBundledHeadersInfo')
         if __nvrtcGetBundledHeadersInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcGetBundledHeadersInfo = dlsym(handle, 'nvrtcGetBundledHeadersInfo')
+            __nvrtcGetBundledHeadersInfo = _cyb_dlsym(handle, 'nvrtcGetBundledHeadersInfo')
 
         global __nvrtcRemoveBundledHeaders
-        __nvrtcRemoveBundledHeaders = dlsym(RTLD_DEFAULT, 'nvrtcRemoveBundledHeaders')
+        __nvrtcRemoveBundledHeaders = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcRemoveBundledHeaders')
         if __nvrtcRemoveBundledHeaders == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvrtcRemoveBundledHeaders = dlsym(handle, 'nvrtcRemoveBundledHeaders')
+            __nvrtcRemoveBundledHeaders = _cyb_dlsym(handle, 'nvrtcRemoveBundledHeaders')
 
-        __py_nvrtc_init = True
+        _cyb_atomic_int_store(<int *>&_cyb___py_nvrtc_init, 1)
         return 0
 
-
 cdef inline int _check_or_init_nvrtc() except -1 nogil:
-    if __py_nvrtc_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_nvrtc_init):
         return 0
 
     return _init_nvrtc()
 
-cdef dict func_ptrs = None
-
 
 cpdef dict _inspect_function_pointers():
-    global func_ptrs
-    if func_ptrs is not None:
-        return func_ptrs
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is not None:
+        return _cyb_func_ptrs
 
     _check_or_init_nvrtc()
     cdef dict data = {}
-
     global __nvrtcGetErrorString
-    data["__nvrtcGetErrorString"] = <intptr_t>__nvrtcGetErrorString
+    data["__nvrtcGetErrorString"] = <_cyb_intptr_t>__nvrtcGetErrorString
 
     global __nvrtcVersion
-    data["__nvrtcVersion"] = <intptr_t>__nvrtcVersion
+    data["__nvrtcVersion"] = <_cyb_intptr_t>__nvrtcVersion
 
     global __nvrtcGetNumSupportedArchs
-    data["__nvrtcGetNumSupportedArchs"] = <intptr_t>__nvrtcGetNumSupportedArchs
+    data["__nvrtcGetNumSupportedArchs"] = <_cyb_intptr_t>__nvrtcGetNumSupportedArchs
 
     global __nvrtcGetSupportedArchs
-    data["__nvrtcGetSupportedArchs"] = <intptr_t>__nvrtcGetSupportedArchs
+    data["__nvrtcGetSupportedArchs"] = <_cyb_intptr_t>__nvrtcGetSupportedArchs
 
     global __nvrtcCreateProgram
-    data["__nvrtcCreateProgram"] = <intptr_t>__nvrtcCreateProgram
+    data["__nvrtcCreateProgram"] = <_cyb_intptr_t>__nvrtcCreateProgram
 
     global __nvrtcDestroyProgram
-    data["__nvrtcDestroyProgram"] = <intptr_t>__nvrtcDestroyProgram
+    data["__nvrtcDestroyProgram"] = <_cyb_intptr_t>__nvrtcDestroyProgram
 
     global __nvrtcCompileProgram
-    data["__nvrtcCompileProgram"] = <intptr_t>__nvrtcCompileProgram
+    data["__nvrtcCompileProgram"] = <_cyb_intptr_t>__nvrtcCompileProgram
 
     global __nvrtcGetPTXSize
-    data["__nvrtcGetPTXSize"] = <intptr_t>__nvrtcGetPTXSize
+    data["__nvrtcGetPTXSize"] = <_cyb_intptr_t>__nvrtcGetPTXSize
 
     global __nvrtcGetPTX
-    data["__nvrtcGetPTX"] = <intptr_t>__nvrtcGetPTX
+    data["__nvrtcGetPTX"] = <_cyb_intptr_t>__nvrtcGetPTX
 
     global __nvrtcGetCUBINSize
-    data["__nvrtcGetCUBINSize"] = <intptr_t>__nvrtcGetCUBINSize
+    data["__nvrtcGetCUBINSize"] = <_cyb_intptr_t>__nvrtcGetCUBINSize
 
     global __nvrtcGetCUBIN
-    data["__nvrtcGetCUBIN"] = <intptr_t>__nvrtcGetCUBIN
+    data["__nvrtcGetCUBIN"] = <_cyb_intptr_t>__nvrtcGetCUBIN
 
     global __nvrtcGetLTOIRSize
-    data["__nvrtcGetLTOIRSize"] = <intptr_t>__nvrtcGetLTOIRSize
+    data["__nvrtcGetLTOIRSize"] = <_cyb_intptr_t>__nvrtcGetLTOIRSize
 
     global __nvrtcGetLTOIR
-    data["__nvrtcGetLTOIR"] = <intptr_t>__nvrtcGetLTOIR
+    data["__nvrtcGetLTOIR"] = <_cyb_intptr_t>__nvrtcGetLTOIR
 
     global __nvrtcGetOptiXIRSize
-    data["__nvrtcGetOptiXIRSize"] = <intptr_t>__nvrtcGetOptiXIRSize
+    data["__nvrtcGetOptiXIRSize"] = <_cyb_intptr_t>__nvrtcGetOptiXIRSize
 
     global __nvrtcGetOptiXIR
-    data["__nvrtcGetOptiXIR"] = <intptr_t>__nvrtcGetOptiXIR
+    data["__nvrtcGetOptiXIR"] = <_cyb_intptr_t>__nvrtcGetOptiXIR
 
     global __nvrtcGetProgramLogSize
-    data["__nvrtcGetProgramLogSize"] = <intptr_t>__nvrtcGetProgramLogSize
+    data["__nvrtcGetProgramLogSize"] = <_cyb_intptr_t>__nvrtcGetProgramLogSize
 
     global __nvrtcGetProgramLog
-    data["__nvrtcGetProgramLog"] = <intptr_t>__nvrtcGetProgramLog
+    data["__nvrtcGetProgramLog"] = <_cyb_intptr_t>__nvrtcGetProgramLog
 
     global __nvrtcAddNameExpression
-    data["__nvrtcAddNameExpression"] = <intptr_t>__nvrtcAddNameExpression
+    data["__nvrtcAddNameExpression"] = <_cyb_intptr_t>__nvrtcAddNameExpression
 
     global __nvrtcGetLoweredName
-    data["__nvrtcGetLoweredName"] = <intptr_t>__nvrtcGetLoweredName
+    data["__nvrtcGetLoweredName"] = <_cyb_intptr_t>__nvrtcGetLoweredName
 
     global __nvrtcGetPCHHeapSize
-    data["__nvrtcGetPCHHeapSize"] = <intptr_t>__nvrtcGetPCHHeapSize
+    data["__nvrtcGetPCHHeapSize"] = <_cyb_intptr_t>__nvrtcGetPCHHeapSize
 
     global __nvrtcSetPCHHeapSize
-    data["__nvrtcSetPCHHeapSize"] = <intptr_t>__nvrtcSetPCHHeapSize
+    data["__nvrtcSetPCHHeapSize"] = <_cyb_intptr_t>__nvrtcSetPCHHeapSize
 
     global __nvrtcGetPCHCreateStatus
-    data["__nvrtcGetPCHCreateStatus"] = <intptr_t>__nvrtcGetPCHCreateStatus
+    data["__nvrtcGetPCHCreateStatus"] = <_cyb_intptr_t>__nvrtcGetPCHCreateStatus
 
     global __nvrtcGetPCHHeapSizeRequired
-    data["__nvrtcGetPCHHeapSizeRequired"] = <intptr_t>__nvrtcGetPCHHeapSizeRequired
+    data["__nvrtcGetPCHHeapSizeRequired"] = <_cyb_intptr_t>__nvrtcGetPCHHeapSizeRequired
 
     global __nvrtcSetFlowCallback
-    data["__nvrtcSetFlowCallback"] = <intptr_t>__nvrtcSetFlowCallback
+    data["__nvrtcSetFlowCallback"] = <_cyb_intptr_t>__nvrtcSetFlowCallback
 
     global __nvrtcGetTileIRSize
-    data["__nvrtcGetTileIRSize"] = <intptr_t>__nvrtcGetTileIRSize
+    data["__nvrtcGetTileIRSize"] = <_cyb_intptr_t>__nvrtcGetTileIRSize
 
     global __nvrtcGetTileIR
-    data["__nvrtcGetTileIR"] = <intptr_t>__nvrtcGetTileIR
+    data["__nvrtcGetTileIR"] = <_cyb_intptr_t>__nvrtcGetTileIR
 
     global __nvrtcInstallBundledHeaders
-    data["__nvrtcInstallBundledHeaders"] = <intptr_t>__nvrtcInstallBundledHeaders
+    data["__nvrtcInstallBundledHeaders"] = <_cyb_intptr_t>__nvrtcInstallBundledHeaders
 
     global __nvrtcGetBundledHeadersInfo
-    data["__nvrtcGetBundledHeadersInfo"] = <intptr_t>__nvrtcGetBundledHeadersInfo
+    data["__nvrtcGetBundledHeadersInfo"] = <_cyb_intptr_t>__nvrtcGetBundledHeadersInfo
 
     global __nvrtcRemoveBundledHeaders
-    data["__nvrtcRemoveBundledHeaders"] = <intptr_t>__nvrtcRemoveBundledHeaders
-
-    func_ptrs = data
+    data["__nvrtcRemoveBundledHeaders"] = <_cyb_intptr_t>__nvrtcRemoveBundledHeaders
+    _cyb_func_ptrs = data
     return data
 
 
 cpdef _inspect_function_pointer(str name):
-    global func_ptrs
-    if func_ptrs is None:
-        func_ptrs = _inspect_function_pointers()
-    return func_ptrs[name]
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is None:
+        _cyb_func_ptrs = _inspect_function_pointers()
+    return _cyb_func_ptrs[name]
+
+
+
+
+cdef void* load_library() except* with gil:
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvrtc")._handle_uint
+    return <void*>handle
 
 
 ###############################################################################

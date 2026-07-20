@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 from contextlib import contextmanager
 
@@ -68,6 +68,12 @@ def check_nvjitlink_usable():
     from cuda.bindings._internal import nvjitlink as inner_nvjitlink
 
     return inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") != 0
+
+
+def check_nvjitlink_get_linked_ltoir_usable():
+    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+
+    return inner_nvjitlink._inspect_function_pointer("__nvJitLinkGetLinkedLTOIR") != 0
 
 
 pytestmark = pytest.mark.skipif(
@@ -181,6 +187,21 @@ def test_get_linked_ptx(arch, get_dummy_ltoir):
         ptx = bytearray(ptx_size)
         nvjitlink.get_linked_ptx(handle, ptx)
         assert len(ptx) == ptx_size
+
+
+@pytest.mark.parametrize("arch", ARCHITECTURES)
+@pytest.mark.skipif(
+    not check_nvjitlink_get_linked_ltoir_usable(),
+    reason="nvJitLinkGetLinkedLTOIR not available in installed nvJitLink",
+)
+def test_get_linked_ltoir(arch, get_dummy_ltoir):
+    with nvjitlink_session(2, [f"-arch={arch}", "-lto"]) as handle:
+        nvjitlink.add_data(handle, nvjitlink.InputType.LTOIR, get_dummy_ltoir, len(get_dummy_ltoir), "test_data")
+        nvjitlink.complete(handle)
+        ltoir_size = nvjitlink.get_linked_ltoir_size(handle)
+        ltoir = bytearray(ltoir_size)
+        nvjitlink.get_linked_ltoir(handle, ltoir)
+        assert len(ltoir) == ltoir_size
 
 
 def test_package_version():

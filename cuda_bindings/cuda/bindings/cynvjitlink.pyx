@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
 
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e507515291c3bc20b88d0b58ab5b01a1cc38c5d21bca87a4f379cc846b869ed4
 from ._internal cimport nvjitlink as _nvjitlink
 
 
@@ -65,3 +66,11 @@ cdef nvJitLinkResult nvJitLinkGetInfoLog(nvJitLinkHandle handle, char* log) exce
 
 cdef nvJitLinkResult nvJitLinkVersion(unsigned int* major, unsigned int* minor) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvjitlink._nvJitLinkVersion(major, minor)
+
+
+cdef nvJitLinkResult nvJitLinkGetLinkedLTOIRSize(nvJitLinkHandle handle, size_t* size) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+    return _nvjitlink._nvJitLinkGetLinkedLTOIRSize(handle, size)
+
+
+cdef nvJitLinkResult nvJitLinkGetLinkedLTOIR(nvJitLinkHandle handle, void* ltoir) except?_NVJITLINKRESULT_INTERNAL_LOADING_ERROR nogil:
+    return _nvjitlink._nvJitLinkGetLinkedLTOIR(handle, ltoir)
