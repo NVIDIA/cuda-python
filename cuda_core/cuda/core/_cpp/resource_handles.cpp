@@ -1343,6 +1343,9 @@ struct GraphHierarchy {
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 static HandleRegistry<CUgraph, GraphHandle> graph_registry;
 
+// Immutable resource owners for one version of a graph node's parameters.
+// Inheriting DeferredCleanupItem lets CUDA's user-object destructor enqueue
+// the payload without destroying owners on the callback thread.
 struct NodeAttachment : DeferredCleanupItem {
     CUuserObject object = nullptr;
     std::array<OpaqueHandle, 2> owners;
@@ -1465,6 +1468,10 @@ OpaqueHandle make_opaque_malloc(void* buf) {
     return OpaqueHandle(static_cast<const void*>(buf), free_deleter);
 }
 
+// State held by PreparedAttachment between preparation and commit. It keeps the
+// graph alive, tracks the graph-retained replacement, and holds a preallocated
+// map entry so commit cannot allocate. Destroying PreparedAttachment rolls back
+// the staged user-object retain unless graph_commit_attachment publishes it.
 struct PreparedAttachmentState {
     GraphHandle h_graph;
     NodeAttachment* replacement = nullptr;

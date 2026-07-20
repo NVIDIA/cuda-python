@@ -30,13 +30,7 @@ Without this level, a round-tripped handle would produce a new Box
 with default metadata, losing information that was set at creation.
 
 Instances: `context_registry`, `stream_registry`, `event_registry`,
-`kernel_registry`, `graph_registry`.
-
-Graph node identity is scoped to its owning graph. Each `GraphBox` therefore
-stores its own node-handle `HandleRegistry` instead of using a process-wide
-`HandleRegistry`. This is to simplify invalidating handles when a child graph
-is destroyed. The registry's mutex protects this internal cache when
-concurrent reads reconstruct nodes.
+`kernel_registry`, `graph_registry`, and one node registry per `GraphBox`.
 
 ## Level 2: Resource Handle -> Python Object (Cython)
 
