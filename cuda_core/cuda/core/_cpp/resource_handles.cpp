@@ -1474,8 +1474,8 @@ struct PreparedAttachmentState {
         : h_graph(std::move(h_graph_)) {}
 };
 
-void PreparedAttachmentDeleter::operator()(
-        PreparedAttachmentState* state) const noexcept {
+void rollback_prepared_attachment(
+        PreparedAttachmentState* state) noexcept {
     if (!state) {
         return;
     }
@@ -1596,7 +1596,8 @@ CUresult graph_prepare_attachment(
     }
 
     PreparedAttachment prepared(
-        new PreparedAttachmentState(h_graph));
+        new PreparedAttachmentState(h_graph),
+        PreparedAttachmentDeleter{rollback_prepared_attachment});
     if (owner0 || owner1) {
         if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
             !p_cuGraphRetainUserObject) {

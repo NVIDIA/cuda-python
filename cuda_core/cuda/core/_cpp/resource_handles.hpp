@@ -495,8 +495,14 @@ OpaqueHandle make_opaque_py(PyObject* obj);
 OpaqueHandle make_opaque_malloc(void* buf);
 
 struct PreparedAttachmentState;
+using PreparedAttachmentRollback =
+    void (*)(PreparedAttachmentState*) noexcept;
 struct PreparedAttachmentDeleter {
-    void operator()(PreparedAttachmentState* state) const noexcept;
+    PreparedAttachmentRollback rollback = nullptr;
+
+    void operator()(PreparedAttachmentState* state) const noexcept {
+        rollback(state);
+    }
 };
 using PreparedAttachment =
     std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
