@@ -65,24 +65,26 @@ def test_device_get_handle_by_pci_bus_id(ngpus, pci_info):
 
 @pytest.mark.parametrize("scope", [nvml.AffinityScope.NODE, nvml.AffinityScope.SOCKET])
 @pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
-def test_device_get_memory_affinity(handles, scope):
+def test_device_get_memory_affinity(handles, scope, subtests):
     size = 1024
     for handle in handles:
-        with unsupported_before(handle, nvml.DeviceArch.KEPLER):
-            node_set = nvml.device_get_memory_affinity(handle, size, scope)
-        assert node_set is not None
-        assert len(node_set) == size
+        with subtests.test(handle=handle):
+            with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+                node_set = nvml.device_get_memory_affinity(handle, size, scope)
+            assert node_set is not None
+            assert len(node_set) == size
 
 
 @pytest.mark.parametrize("scope", [nvml.AffinityScope.NODE, nvml.AffinityScope.SOCKET])
 @pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
-def test_device_get_cpu_affinity_within_scope(handles, scope):
+def test_device_get_cpu_affinity_within_scope(handles, scope, subtests):
     size = 1024
     for handle in handles:
-        with unsupported_before(handle, nvml.DeviceArch.KEPLER):
-            cpu_set = nvml.device_get_cpu_affinity_within_scope(handle, size, scope)
-        assert cpu_set is not None
-        assert len(cpu_set) == size
+        with subtests.test(handle=handle):
+            with unsupported_before(handle, nvml.DeviceArch.KEPLER):
+                cpu_set = nvml.device_get_cpu_affinity_within_scope(handle, size, scope)
+            assert cpu_set is not None
+            assert len(cpu_set) == size
 
 
 @pytest.mark.parametrize(
@@ -138,29 +140,31 @@ def test_device_get_p2p_status(handles, index):
 # [Skipping] pynvml.nvmlDeviceGetEnforcedPowerLimit
 
 
-def test_device_get_power_usage(ngpus, handles):
+def test_device_get_power_usage(ngpus, handles, subtests):
     for i in range(ngpus):
-        # Note: documentation says this is supported on Fermi or newer,
-        # but in practice it fails on some later architectures.
-        with unsupported_before(handles[i], None):
-            power_mwatts = nvml.device_get_power_usage(handles[i])
-        assert power_mwatts >= 0.0
-
-
-def test_device_get_total_energy_consumption(ngpus, handles):
-    for i in range(ngpus):
-        with unsupported_before(handles[i], None):
-            energy_mjoules1 = nvml.device_get_total_energy_consumption(handles[i])
-
-        for j in range(10):  # idle for 150 ms
-            time.sleep(0.015)  # and check for increase every 15 ms
+        with subtests.test(i=i):
+            # Note: documentation says this is supported on Fermi or newer,
+            # but in practice it fails on some later architectures.
             with unsupported_before(handles[i], None):
-                energy_mjoules2 = nvml.device_get_total_energy_consumption(handles[i])
-            assert energy_mjoules2 >= energy_mjoules1
-            if energy_mjoules2 > energy_mjoules1:
-                break
-        else:
-            raise AssertionError("energy did not increase across 150 ms interval")
+                power_mwatts = nvml.device_get_power_usage(handles[i])
+            assert power_mwatts >= 0.0
+
+
+def test_device_get_total_energy_consumption(ngpus, handles, subtests):
+    for i in range(ngpus):
+        with subtests.test(i=i):
+            with unsupported_before(handles[i], None):
+                energy_mjoules1 = nvml.device_get_total_energy_consumption(handles[i])
+
+            for _ in range(10):  # idle for 150 ms
+                time.sleep(0.015)  # and check for increase every 15 ms
+                with unsupported_before(handles[i], None):
+                    energy_mjoules2 = nvml.device_get_total_energy_consumption(handles[i])
+                assert energy_mjoules2 >= energy_mjoules1
+                if energy_mjoules2 > energy_mjoules1:
+                    break
+            else:
+                raise AssertionError("energy did not increase across 150 ms interval")
 
 
 # [Skipping] pynvml.nvmlDeviceGetGpuOperationMode
@@ -168,11 +172,12 @@ def test_device_get_total_energy_consumption(ngpus, handles):
 # [Skipping] pynvml.nvmlDeviceGetPendingGpuOperationMode
 
 
-def test_device_get_memory_info(ngpus, handles):
+def test_device_get_memory_info(ngpus, handles, subtests):
     for i in range(ngpus):
-        with unsupported_before(handles[i], None):
-            meminfo = nvml.device_get_memory_info_v2(handles[i])
-        assert (meminfo.used <= meminfo.total) and (meminfo.free <= meminfo.total)
+        with subtests.test(i=i):
+            with unsupported_before(handles[i], None):
+                meminfo = nvml.device_get_memory_info_v2(handles[i])
+            assert (meminfo.used <= meminfo.total) and (meminfo.free <= meminfo.total)
 
 
 # [Skipping] pynvml.nvmlDeviceGetBAR1MemoryInfo
@@ -185,12 +190,13 @@ def test_device_get_memory_info(ngpus, handles):
 # [Skipping] pynvml.nvmlDeviceGetMemoryErrorCounter
 
 
-def test_device_get_utilization_rates(ngpus, handles):
+def test_device_get_utilization_rates(ngpus, handles, subtests):
     for i in range(ngpus):
-        with unsupported_before(handles[i], None):
-            urate = nvml.device_get_utilization_rates(handles[i])
-        assert urate.gpu >= 0
-        assert urate.memory >= 0
+        with subtests.test(i=i):
+            with unsupported_before(handles[i], None):
+                urate = nvml.device_get_utilization_rates(handles[i])
+            assert urate.gpu >= 0
+            assert urate.memory >= 0
 
 
 # [Skipping] pynvml.nvmlDeviceGetEncoderUtilization
@@ -243,14 +249,15 @@ def test_device_get_utilization_rates(ngpus, handles):
 # [Skipping] pynvml.nvmlDeviceGetViolationStatus
 
 
-def test_device_get_pcie_throughput(ngpus, handles):
+def test_device_get_pcie_throughput(ngpus, handles, subtests):
     for i in range(ngpus):
-        with unsupported_before(handles[i], None):
-            tx_bytes_tp = nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_TX_BYTES)
-        assert tx_bytes_tp >= 0
-        with unsupported_before(handles[i], None):
-            rx_bytes_tp = nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_RX_BYTES)
-        assert rx_bytes_tp >= 0
+        with subtests.test(i=i):
+            with unsupported_before(handles[i], None):
+                tx_bytes_tp = nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_TX_BYTES)
+            assert tx_bytes_tp >= 0
+            with unsupported_before(handles[i], None):
+                rx_bytes_tp = nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_RX_BYTES)
+            assert rx_bytes_tp >= 0
 
         # with pytest.raises(nvml.InvalidArgumentError):
         #     nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_COUNT)
@@ -276,14 +283,15 @@ def test_device_get_pcie_throughput(ngpus, handles):
         nvml.NvLinkCapability.NVLINK_CAP_VALID,
     ],
 )  # Link is supported on this device
-def test_device_get_nvlink_capability(ngpus, handles, cap_type):
+def test_device_get_nvlink_capability(ngpus, handles, cap_type, subtests):
     for i in range(ngpus):
-        for j in range(nvml.NVLINK_MAX_LINKS):
-            # By the documentation, this should be supported on PASCAL or newer,
-            # but this also seems to fail on newer.
-            with unsupported_before(handles[i], None):
-                cap = nvml.device_get_nvlink_capability(handles[i], j, cap_type)
-            assert cap >= 0
+        with subtests.test(i=i):
+            for j in range(nvml.NVLINK_MAX_LINKS):
+                # By the documentation, this should be supported on PASCAL or newer,
+                # but this also seems to fail on newer.
+                with unsupported_before(handles[i], None):
+                    cap = nvml.device_get_nvlink_capability(handles[i], j, cap_type)
+                assert cap >= 0
 
 
 # Test pynvml.nvmlDeviceResetNvLinkUtilizationCounter
