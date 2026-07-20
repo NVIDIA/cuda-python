@@ -20,7 +20,7 @@ from conftest import (
     skip_if_managed_memory_unsupported,
     skip_if_pinned_memory_unsupported,
 )
-from helpers import IS_WINDOWS, supports_ipc_mempool
+from helpers import supports_ipc_mempool
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
 
 from cuda.core import (
@@ -53,6 +53,7 @@ from cuda.core.typing import (
     VirtualMemoryLocationType,
 )
 from cuda.core.utils import StridedMemoryView
+from cuda_python_test_helpers import IS_WINDOWS
 
 POOL_SIZE = 2097152  # 2MB size
 

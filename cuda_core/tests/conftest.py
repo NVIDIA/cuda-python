@@ -194,7 +194,9 @@ def _device_id_from_resource_options(device, args, kwargs):
 
 def _require_ipc_mempool_devices(devices):
     """Return devices if they all support IPC-enabled mempools, otherwise skip."""
-    from helpers import IS_WSL, supports_ipc_mempool
+    from helpers import supports_ipc_mempool
+
+    from cuda_python_test_helpers import IS_WSL
 
     checked_devices = tuple(devices)
 

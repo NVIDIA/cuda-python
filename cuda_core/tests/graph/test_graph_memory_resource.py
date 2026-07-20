@@ -6,7 +6,6 @@
 
 import pytest
 from conftest import xfail_on_graph_mempool_oom
-from helpers import IS_WINDOWS, IS_WSL
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
 
 from cuda.core import (
@@ -20,6 +19,7 @@ from cuda.core import (
 )
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.graph import GraphCompleteOptions
+from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
 
 
 def _common_kernels_alloc():
