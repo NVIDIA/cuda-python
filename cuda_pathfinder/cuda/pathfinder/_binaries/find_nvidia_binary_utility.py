@@ -28,13 +28,7 @@ def _normalize_utility_name(utility_name: str) -> str:
     return utility_name
 
 
-def _is_executable_file(path: str) -> bool:
-    """Return True if ``path`` is a file the OS would run as an executable.
-
-    On Windows executability is determined by the file extension (the
-    candidate name already carries one), so existence is sufficient. On POSIX
-    the execute permission bit must be set.
-    """
+def _is_executable_candidate(path: str) -> bool:
     if not os.path.isfile(path):
         return False
     if IS_WINDOWS:
@@ -68,7 +62,7 @@ def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[str]) -> str | Non
         assert directory
         seen.add(directory)
         candidate = os.path.join(directory, normalized_name)
-        if _is_executable_file(candidate):
+        if _is_executable_candidate(candidate):
             return candidate
     return None
 

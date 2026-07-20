@@ -143,7 +143,7 @@ def resolve_ctk_root_via_canary(canary_libname: str) -> str | None:
     an isolated subprocess, which honors ``LD_LIBRARY_PATH`` on Linux and the
     native DLL search on Windows. The toolkit root is then derived from that
     path. Returns ``None`` if the canary cannot be resolved or no root can be
-    derived. The ambient ``PATH`` is never consulted.
+    derived.
     """
     canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(canary_libname)
     if canary_abs_path is None:

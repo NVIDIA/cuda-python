@@ -50,11 +50,11 @@ def _patch_exec_probe(mocker, existing=()):
     existing = set(existing)
     checked: list[str] = []
 
-    def fake_is_executable_file(path):
+    def fake_is_executable_candidate(path):
         checked.append(path)
         return path in existing
 
-    mocker.patch.object(binary_finder_module, "_is_executable_file", side_effect=fake_is_executable_file)
+    mocker.patch.object(binary_finder_module, "_is_executable_candidate", side_effect=fake_is_executable_candidate)
     return checked
 
 
