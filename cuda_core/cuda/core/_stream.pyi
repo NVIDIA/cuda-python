@@ -212,6 +212,7 @@ class Stream:
             Newly created graph builder object.
 
         """
+__all__ = ['LEGACY_DEFAULT_STREAM', 'PER_THREAD_DEFAULT_STREAM', 'Stream', 'StreamOptions']
 LEGACY_DEFAULT_STREAM: Stream = Stream._legacy_default()
 PER_THREAD_DEFAULT_STREAM: Stream = Stream._per_thread_default()
 

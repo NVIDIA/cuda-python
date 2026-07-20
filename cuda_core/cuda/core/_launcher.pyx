@@ -24,6 +24,8 @@ if TYPE_CHECKING:
     from cuda.core.graph import GraphBuilder
     from cuda.core.typing import IsStreamType
 
+__all__ = ['launch']
+
 
 def launch(
     stream: Stream | GraphBuilder | IsStreamType,

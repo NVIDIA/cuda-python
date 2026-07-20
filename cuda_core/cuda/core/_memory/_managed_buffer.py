@@ -25,6 +25,8 @@ if TYPE_CHECKING:
     from cuda.core._stream import Stream
     from cuda.core.graph import GraphBuilder
 
+__all__ = ["ManagedBuffer"]
+
 
 _INT_SIZE = 4
 
