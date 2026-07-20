@@ -17545,7 +17545,7 @@ the specified function does not exist, then it is assumed to be a
 the function symbol as follows:
 func_name&lt;template_arg_0,…,template_arg_N&gt;</p>
 <p>Note that some function attributes such as
-<a class="reference internal" href="#cuda.bindings.runtime.cudaFuncAttributes.maxThreadsPerBlock" title="cuda.bindings.runtime.cudaFuncAttributes.maxThreadsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxThreadsPerBlock</span></code></a> may vary based on the device that is
+<a class="reference internal" href="driver.html#cuda.bindings.driver.CUdevprop_st.maxThreadsPerBlock" title="cuda.bindings.driver.CUdevprop_st.maxThreadsPerBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxThreadsPerBlock</span></code></a> may vary based on the device that is
 currently being used.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -21925,7 +21925,7 @@ can be <a class="reference internal" href="#cuda.bindings.runtime.cudaMemoryType
 memory, <a class="reference internal" href="#cuda.bindings.runtime.cudaMemoryType.cudaMemoryTypeHost" title="cuda.bindings.runtime.cudaMemoryType.cudaMemoryTypeHost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemoryTypeHost</span></code></a> for registered host memory,
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemoryType.cudaMemoryTypeDevice" title="cuda.bindings.runtime.cudaMemoryType.cudaMemoryTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemoryTypeDevice</span></code></a> for device memory or
 <a class="reference internal" href="#cuda.bindings.runtime.cudaMemoryType.cudaMemoryTypeManaged" title="cuda.bindings.runtime.cudaMemoryType.cudaMemoryTypeManaged"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemoryTypeManaged</span></code></a> for managed memory.</p></li>
-<li><p><a class="reference internal" href="#cuda.bindings.runtime.cudaPointerAttributes.device" title="cuda.bindings.runtime.cudaPointerAttributes.device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device</span></code></a> is the device against which <cite>ptr</cite> was allocated.
+<li><p><a class="reference internal" href="driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource_st.device" title="cuda.bindings.driver.CUdevWorkqueueConfigResource_st.device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">device</span></code></a> is the device against which <cite>ptr</cite> was allocated.
 If <cite>ptr</cite> has memory type <a class="reference internal" href="#cuda.bindings.runtime.cudaMemoryType.cudaMemoryTypeDevice" title="cuda.bindings.runtime.cudaMemoryType.cudaMemoryTypeDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemoryTypeDevice</span></code></a> then this
 identifies the device on which the memory referred to by <cite>ptr</cite>
 physically resides. If <cite>ptr</cite> has memory type
