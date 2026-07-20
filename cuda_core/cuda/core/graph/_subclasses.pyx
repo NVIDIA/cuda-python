@@ -35,7 +35,10 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-from cuda.core.graph._host_callback cimport _is_py_host_trampoline
+from cuda.core.graph._host_callback cimport (
+    _is_py_host_trampoline,
+    _resolve_host_callback,
+)
 
 from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core.typing import GraphConditionalType
@@ -589,6 +592,19 @@ cdef class EventWaitNode(GraphNode):
         return (f"<EventWaitNode handle=0x{as_intptr(self._h_node):x}"
                 f" event=0x{as_intptr(self._h_event):x}>")
 
+    def update(self, event: Event) -> None:
+        """Replace the event waited on by this node."""
+        cdef OpaqueHandle event_owner = event._h_event
+        cdef cydriver.CUgraphNodeParams params
+
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_WAIT_EVENT
+        params.eventWait.event = as_cu(event._h_event)
+
+        _set_definition_node_params(
+            self._h_node, &params, event_owner)
+        self._h_event = event._h_event
+
     @property
     def event(self) -> Event:
         """The event being waited on."""
@@ -638,6 +654,26 @@ cdef class HostCallbackNode(GraphNode):
                     f" callback={name}>")
         return (f"<HostCallbackNode handle=0x{as_intptr(self._h_node):x}"
                 f" cfunc=0x{<uintptr_t>self._fn:x}>")
+
+    def update(self, fn, *, user_data=None) -> None:
+        """Replace the callback and user-data binding for this node."""
+        cdef cydriver.CUhostFn c_fn
+        cdef void* c_user_data
+        cdef OpaqueHandle fn_owner, data_owner
+        cdef cydriver.CUgraphNodeParams params
+
+        _resolve_host_callback(
+            fn, user_data, &c_fn, &c_user_data, &fn_owner, &data_owner)
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_HOST
+        params.host.fn = c_fn
+        params.host.userData = c_user_data
+
+        _set_definition_node_params(
+            self._h_node, &params, fn_owner, data_owner)
+        self._callable = fn if _is_py_host_trampoline(c_fn) else None
+        self._fn = c_fn
+        self._user_data = c_user_data
 
     @property
     def callback(self):

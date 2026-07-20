@@ -3,6 +3,7 @@
 
 """Tests for updating individual graph node parameters."""
 
+import ctypes
 import threading
 from dataclasses import dataclass
 from typing import Callable
@@ -20,13 +21,20 @@ class _DefinitionUpdateCase:
     node: object
     original: object
     replacement: object
-    invalid_replacement: object
     update: Callable[[object], None]
-    current: Callable[[], object]
+    assert_current: Callable[[object], None]
     assert_exec_uses: Callable[[object, object], None]
+    invalid_update: Callable[[], None] | None
+    invalid_exception: type[BaseException] | None
+    invalid_argument_update: Callable[[], None] | None
+
+
+def _assert_equal(actual, expected):
+    assert actual == expected
 
 
 def _event_record_case(device):
+    """Keep the selected event pending to identify each exec's record target."""
     original = device.create_event()
     replacement = device.create_event()
     invalid_replacement = device.create_event()
@@ -62,16 +70,156 @@ def _event_record_case(device):
         node=node,
         original=original,
         replacement=replacement,
-        invalid_replacement=invalid_replacement,
         update=node.update,
-        current=lambda: node.event,
+        assert_current=lambda expected: _assert_equal(node.event, expected),
         assert_exec_uses=assert_exec_uses,
+        invalid_update=lambda: node.update(invalid_replacement),
+        invalid_exception=CUDAError,
+        invalid_argument_update=lambda: node.update(object()),
+    )
+
+
+def _event_wait_case(device):
+    """Keep the selected event pending to identify each exec's wait target."""
+    original = device.create_event()
+    replacement = device.create_event()
+    invalid_replacement = device.create_event()
+    invalid_replacement.close()
+
+    callback_called = threading.Event()
+    graph_def = GraphDefinition()
+    node = graph_def.wait(original)
+    node.callback(callback_called.set)
+
+    def assert_exec_uses(graph, expected):
+        producer_started = threading.Event()
+        producer_release = threading.Event()
+
+        def blocking_callback():
+            producer_started.set()
+            producer_release.wait(timeout=30)
+
+        producer_def = GraphDefinition()
+        producer_def.callback(blocking_callback).record(expected)
+        producer_graph = producer_def.instantiate()
+        producer_stream = device.create_stream()
+        consumer_stream = device.create_stream()
+
+        callback_called.clear()
+        producer_graph.launch(producer_stream)
+        try:
+            assert producer_started.wait(timeout=5)
+            graph.launch(consumer_stream)
+            assert not callback_called.wait(timeout=0.1)
+        finally:
+            producer_release.set()
+            producer_stream.sync()
+            consumer_stream.sync()
+        assert callback_called.is_set()
+
+    return _DefinitionUpdateCase(
+        graph_def=graph_def,
+        node=node,
+        original=original,
+        replacement=replacement,
+        update=node.update,
+        assert_current=lambda expected: _assert_equal(node.event, expected),
+        assert_exec_uses=assert_exec_uses,
+        invalid_update=lambda: node.update(invalid_replacement),
+        invalid_exception=CUDAError,
+        invalid_argument_update=lambda: node.update(object()),
+    )
+
+
+def _host_callback_case(device):
+    """Use callbacks that report their identity to distinguish each exec."""
+    called = []
+
+    def original():
+        called.append(original)
+
+    def replacement():
+        called.append(replacement)
+
+    graph_def = GraphDefinition()
+    node = graph_def.callback(original)
+
+    def assert_exec_uses(graph, expected):
+        called.clear()
+        stream = device.create_stream()
+        graph.launch(stream)
+        stream.sync()
+        assert called == [expected]
+
+    return _DefinitionUpdateCase(
+        graph_def=graph_def,
+        node=node,
+        original=original,
+        replacement=replacement,
+        update=node.update,
+        assert_current=lambda expected: _assert_equal(node.callback, expected),
+        assert_exec_uses=assert_exec_uses,
+        invalid_update=lambda: node.update(replacement, user_data=b"not valid for a Python callback"),
+        invalid_exception=ValueError,
+        invalid_argument_update=None,
+    )
+
+
+def _host_callback_ctypes_case(device):
+    """Use ctypes callbacks and copied payloads to distinguish each exec."""
+    callback_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    called = []
+
+    def read_byte(data):
+        return ctypes.cast(data, ctypes.POINTER(ctypes.c_uint8))[0]
+
+    @callback_type
+    def original_fn(data):
+        called.append((original_fn, read_byte(data)))
+
+    @callback_type
+    def replacement_fn(data):
+        called.append((replacement_fn, read_byte(data)))
+
+    original = original_fn, bytes([0xA1])
+    replacement = replacement_fn, bytes([0xB2])
+    graph_def = GraphDefinition()
+    node = graph_def.callback(original_fn, user_data=original[1])
+
+    def update(value):
+        fn, user_data = value
+        node.update(fn, user_data=user_data)
+
+    def assert_exec_uses(graph, expected):
+        called.clear()
+        stream = device.create_stream()
+        graph.launch(stream)
+        stream.sync()
+        assert called == [(expected[0], expected[1][0])]
+
+    def invalid_update():
+        node.update(lambda: None, user_data=b"not valid for a Python callback")
+
+    return _DefinitionUpdateCase(
+        graph_def=graph_def,
+        node=node,
+        original=original,
+        replacement=replacement,
+        update=update,
+        assert_current=lambda _expected: _assert_equal(node.callback, None),
+        assert_exec_uses=assert_exec_uses,
+        invalid_update=invalid_update,
+        invalid_exception=ValueError,
+        invalid_argument_update=None,
     )
 
 
 @pytest.fixture(
     params=[
         pytest.param(_event_record_case, id="event-record"),
+        pytest.param(_event_wait_case, id="event-wait"),
+        pytest.param(_host_callback_case, id="host-callback-python"),
+        pytest.param(_host_callback_ctypes_case, id="host-callback-ctypes"),
     ]
 )
 def definition_update_case(request, init_cuda):
@@ -88,7 +236,7 @@ def test_definition_node_update_changes_future_instantiations(
     old_graph = case.graph_def.instantiate()
 
     case.update(case.replacement)
-    assert case.current() == case.replacement
+    case.assert_current(case.replacement)
 
     new_graph = case.graph_def.instantiate()
     case.assert_exec_uses(old_graph, case.original)
@@ -101,10 +249,12 @@ def test_failed_definition_node_update_preserves_state(
 ):
     case = definition_update_case
 
-    with pytest.raises(CUDAError):
-        case.update(case.invalid_replacement)
+    assert case.invalid_update is not None
+    assert case.invalid_exception is not None
+    with pytest.raises(case.invalid_exception):
+        case.invalid_update()
 
-    assert case.current() == case.original
+    case.assert_current(case.original)
     graph = case.graph_def.instantiate()
     case.assert_exec_uses(graph, case.original)
 
@@ -113,5 +263,7 @@ def test_failed_definition_node_update_preserves_state(
 def test_definition_node_update_rejects_wrong_type(
     definition_update_case,
 ):
+    if definition_update_case.invalid_argument_update is None:
+        pytest.skip("update method has no typed positional argument")
     with pytest.raises(TypeError):
-        definition_update_case.update(object())
+        definition_update_case.invalid_argument_update()
