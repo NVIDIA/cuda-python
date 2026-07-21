@@ -152,7 +152,7 @@ def test_find_binary_first_matching_dir_wins(monkeypatch, mocker):
     result = find_nvidia_binary_utility("nvcc")
 
     # Conda comes before CUDA_HOME, so the Conda hit wins and CUDA_HOME is never probed.
-    assert result == conda_nvcc
+    assert result == os.path.abspath(conda_nvcc)
     assert checked == [os.path.join(site_dir, "nvcc"), conda_nvcc]
 
 
@@ -173,7 +173,7 @@ def test_find_binary_ctk_root_canary_fallback(monkeypatch, mocker):
 
     result = find_nvidia_binary_utility("nvcc")
 
-    assert result == ctk_nvcc
+    assert result == os.path.abspath(ctk_nvcc)
     canary_mock.assert_called_once_with()
     # No earlier trusted dirs existed, so the only probe is the canary bin dir.
     assert checked == [ctk_nvcc]
@@ -218,7 +218,7 @@ def test_find_binary_canary_not_consulted_when_found_earlier(monkeypatch, mocker
 
     result = find_nvidia_binary_utility("nvcc")
 
-    assert result == conda_nvcc
+    assert result == os.path.abspath(conda_nvcc)
     canary_mock.assert_not_called()
 
 
