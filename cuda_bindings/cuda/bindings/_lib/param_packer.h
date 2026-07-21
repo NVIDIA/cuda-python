@@ -71,6 +71,14 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
+#if PY_VERSION_HEX >= 0x030D0000
+                // Python 3.13+: PyLong_AsInt range-checks and raises
+                // OverflowError itself, so let CPython own the bounds check.
+                int iv = PyLong_AsInt(value);
+                if (iv == -1 && PyErr_Occurred())
+                    return -1;
+                *((int*)ptr) = iv;
+#else
                 long v = PyLong_AsLong(value);
                 if (v == -1 && PyErr_Occurred())
                     return -1;  // value out of C long range; propagate the error
@@ -81,6 +89,7 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
                     return -1;
                 }
                 *((int*)ptr) = (int)v;
+#endif
                 return sizeof(int);
             };
             return;
