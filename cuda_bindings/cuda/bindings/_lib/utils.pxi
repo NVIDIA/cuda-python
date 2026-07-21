@@ -664,9 +664,7 @@ cdef class _HelperCUcoredumpSettings:
                 self._cptr = <void*><void_ptr>self._charstar
                 self._size = 1024
             else:
-                # Assigning bytes to a char* borrows the object's internal
-                # buffer without incref/copy; retain init_value so the borrowed
-                # _charstar/_cptr can never outlive their backing buffer (#379).
+                # Keep a reference so the borrowed _charstar buffer stays alive.
                 self._references = init_value
                 self._charstar = init_value
                 self._cptr = <void*><void_ptr>self._charstar
@@ -684,11 +682,9 @@ cdef class _HelperCUcoredumpSettings:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
     def __dealloc__(self):
-        # Only the getter path owns heap: _charstar is a _callocWrapper(1024)
-        # buffer that pyObj() copies out, orphaning the original (#381). The
-        # setter path borrows the caller's bytes (retained via _references) and
-        # the bool path points _cptr at &self._bool, so freeing in those cases
-        # would corrupt memory -- guard the free to the getter branch.
+        # Only the getter path owns heap (the calloc'd 1024-byte buffer). The
+        # setter borrows caller bytes and the bool path points at &self._bool,
+        # so only free for the getter.
         if self._is_getter:
             free(self._charstar)
 

@@ -75,11 +75,8 @@ def add_dll_directory(dll_abs_path: str) -> None:
     # unconditionally below to also cover legacy dependent-DLL resolution.
     cookie = kernel32.AddDllDirectory(dirpath)
     if not cookie:
-        # Surface the failure instead of masking it with a bare pass: the PATH
-        # widening below is a weaker, broader fallback that py3.8+ loaders
-        # (SetDefaultDllDirectories) may ignore, so a swallowed failure here
-        # would otherwise surface only as an unexplained dependent-DLL
-        # not-found later, with no breadcrumb (#377).
+        # Warn instead of failing silently; the PATH update below is a weaker
+        # fallback that newer loaders may ignore.
         error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
         warnings.warn(
             f"AddDllDirectory({dirpath!r}) failed (error code: {error_code}); "

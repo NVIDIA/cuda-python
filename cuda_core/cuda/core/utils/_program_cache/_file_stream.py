@@ -397,15 +397,10 @@ class FileStreamProgramCache(ProgramCacheResource):
         self._entries = self._root / _ENTRIES_SUBDIR
         self._tmp = self._root / _TMP_SUBDIR
         self._max_size_bytes = max_size_bytes
-        # The cache stores raw executable device code that is later handed to
-        # ``cuLibraryLoadData``. Create the tree owner-only (0o700) so another
-        # local principal can neither read another user's compiled kernels
-        # (#375) nor plant a binary this process would later load (#359).
-        # ``mkdir``'s ``mode`` is masked by the process umask, and
-        # ``exist_ok=True`` silently accepts a pre-existing (possibly
-        # world-writable) directory, so on POSIX also re-assert 0o700 on the
-        # tree rather than trusting the ambient umask or an attacker-supplied
-        # directory's permissions.
+        # Cache holds compiled device code loaded via cuLibraryLoadData, so keep
+        # it owner-only (0o700) so other local users can't read or replace it.
+        # mkdir's mode is umask-masked and exist_ok keeps an existing dir's
+        # perms, so re-chmod on POSIX.
         self._root.mkdir(parents=True, exist_ok=True, mode=0o700)
         self._entries.mkdir(exist_ok=True, mode=0o700)
         self._tmp.mkdir(exist_ok=True, mode=0o700)
