@@ -7,6 +7,8 @@
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <climits>
+#include <cstdint>
 
 static PyObject* ctypes_module = nullptr;
 
@@ -69,7 +71,16 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
-                *((int*)ptr) = (int)PyLong_AsLong(value);
+                long v = PyLong_AsLong(value);
+                if (v == -1 && PyErr_Occurred())
+                    return -1;  // value out of C long range; propagate the error
+                if (v < INT_MIN || v > INT_MAX)
+                {
+                    PyErr_Format(PyExc_OverflowError,
+                        "Python int %ld is out of range for a c_int (32-bit) kernel argument", v);
+                    return -1;
+                }
+                *((int*)ptr) = (int)v;
                 return sizeof(int);
             };
             return;
@@ -89,7 +100,16 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
-                *((int8_t*)ptr) = (int8_t)PyLong_AsLong(value);
+                long v = PyLong_AsLong(value);
+                if (v == -1 && PyErr_Occurred())
+                    return -1;  // value out of C long range; propagate the error
+                if (v < INT8_MIN || v > INT8_MAX)
+                {
+                    PyErr_Format(PyExc_OverflowError,
+                        "Python int %ld is out of range for a c_byte (8-bit) kernel argument", v);
+                    return -1;
+                }
+                *((int8_t*)ptr) = (int8_t)v;
                 return sizeof(int8_t);
             };
             return;
