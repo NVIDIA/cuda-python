@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_power\_mizer\_mode\_v1
-======================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_power_mizer_mode_v1
