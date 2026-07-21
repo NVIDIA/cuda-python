@@ -183,3 +183,7 @@ be invalidated when CUDA destroys that graph. They use separate
   not tracked by definition attachment metadata.
 - Stream capture explicitly retains host callbacks. Other captured operations
   keep their documented caller-owned lifetime contract.
+- CPython's cyclic garbage collector cannot follow the ownership path from a
+  CUDA graph through a driver-held CUDA user object to an attached Python
+  parameter. Reference cycles involving attached Python parameters therefore
+  cannot be collected and are resource leaks.
