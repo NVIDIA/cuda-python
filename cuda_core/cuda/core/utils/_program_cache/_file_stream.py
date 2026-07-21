@@ -397,9 +397,21 @@ class FileStreamProgramCache(ProgramCacheResource):
         self._entries = self._root / _ENTRIES_SUBDIR
         self._tmp = self._root / _TMP_SUBDIR
         self._max_size_bytes = max_size_bytes
-        self._root.mkdir(parents=True, exist_ok=True)
-        self._entries.mkdir(exist_ok=True)
-        self._tmp.mkdir(exist_ok=True)
+        # The cache stores raw executable device code that is later handed to
+        # ``cuLibraryLoadData``. Create the tree owner-only (0o700) so another
+        # local principal can neither read another user's compiled kernels
+        # (#375) nor plant a binary this process would later load (#359).
+        # ``mkdir``'s ``mode`` is masked by the process umask, and
+        # ``exist_ok=True`` silently accepts a pre-existing (possibly
+        # world-writable) directory, so on POSIX also re-assert 0o700 on the
+        # tree rather than trusting the ambient umask or an attacker-supplied
+        # directory's permissions.
+        self._root.mkdir(parents=True, exist_ok=True, mode=0o700)
+        self._entries.mkdir(exist_ok=True, mode=0o700)
+        self._tmp.mkdir(exist_ok=True, mode=0o700)
+        if os.name != "nt":
+            for d in (self._root, self._entries, self._tmp):
+                os.chmod(d, 0o700)
         # Opportunistic startup sweep of orphaned temp files left by any
         # crashed writers. Age-based so concurrent in-flight writes from
         # other processes are preserved.

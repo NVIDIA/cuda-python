@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
+import os
 import time
 
 import pytest
@@ -2535,3 +2536,41 @@ def test_inmemory_cache_concurrent_threads_stay_consistent():
     # Internal accounting must agree with the cap and with __len__.
     assert cache._total_bytes <= 4096
     assert len(cache) == len(cache._entries)  # no orphan entries
+
+
+@pytest.mark.agent_authored(model="claude-opus-4-8")
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
+def test_program_cache_dir_created_owner_only(tmp_path):
+    """#359/#375: the on-disk program cache stores raw executable device code,
+    so its directory tree must be created owner-only (0o700), independent of the
+    inherited umask, so other local principals can neither read cached kernels
+    nor plant a binary this process would later load."""
+    import stat
+
+    from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
+
+    root = tmp_path / "pc"
+    FileStreamProgramCache(path=root)
+
+    for d in (root, root / "entries", root / "tmp"):
+        mode = stat.S_IMODE(os.stat(d).st_mode)
+        assert mode == 0o700, f"{d} has mode {oct(mode)}"
+
+
+@pytest.mark.agent_authored(model="claude-opus-4-8")
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
+def test_program_cache_dir_tightens_preexisting_world_writable(tmp_path):
+    """#359: a pre-created world-writable cache root (the poisoning precondition)
+    must be re-tightened to 0o700; mkdir(exist_ok=True) alone would keep the
+    attacker-supplied permissions."""
+    import stat
+
+    from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
+
+    root = tmp_path / "pc"
+    root.mkdir()
+    os.chmod(root, 0o777)
+
+    FileStreamProgramCache(path=root)
+
+    assert stat.S_IMODE(os.stat(root).st_mode) == 0o700

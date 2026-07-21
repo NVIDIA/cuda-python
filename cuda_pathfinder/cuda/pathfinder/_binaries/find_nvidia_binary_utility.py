@@ -63,7 +63,11 @@ def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[str]) -> str | Non
         seen.add(directory)
         candidate = os.path.join(directory, normalized_name)
         if _is_executable_candidate(candidate):
-            return candidate
+            # Honor the docstring's absolute-path contract even when a search
+            # dir was supplied as a relative path (e.g. a relative CUDA_HOME);
+            # a relative result would otherwise re-resolve against a possibly
+            # different CWD at execution time (#374).
+            return os.path.abspath(candidate)
     return None
 
 

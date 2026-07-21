@@ -7,6 +7,7 @@ import ctypes
 import ctypes.wintypes
 import os
 import struct
+import warnings
 from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
@@ -72,7 +73,20 @@ def add_dll_directory(dll_abs_path: str) -> None:
     # Add the DLL directory to the native search path. AddDllDirectory only
     # affects the LOAD_LIBRARY_SEARCH_USER_DIRS search; PATH is updated
     # unconditionally below to also cover legacy dependent-DLL resolution.
-    kernel32.AddDllDirectory(dirpath)
+    cookie = kernel32.AddDllDirectory(dirpath)
+    if not cookie:
+        # Surface the failure instead of masking it with a bare pass: the PATH
+        # widening below is a weaker, broader fallback that py3.8+ loaders
+        # (SetDefaultDllDirectories) may ignore, so a swallowed failure here
+        # would otherwise surface only as an unexplained dependent-DLL
+        # not-found later, with no breadcrumb (#377).
+        error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
+        warnings.warn(
+            f"AddDllDirectory({dirpath!r}) failed (error code: {error_code}); "
+            "falling back to process-global PATH mutation for dependent-DLL resolution.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
     # Update PATH as a fallback for dependent DLL resolution
     curr_path = os.environ.get("PATH")

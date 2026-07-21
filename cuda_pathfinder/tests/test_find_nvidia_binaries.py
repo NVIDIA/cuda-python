@@ -370,3 +370,28 @@ def test_caching_per_utility():
     # them is None)
     if nvdisasm1 is not None and nvcc1 is not None:
         assert nvdisasm1 != nvcc1
+
+
+@pytest.mark.agent_authored(model="claude-opus-4-8")
+def test_resolve_in_trusted_dirs_returns_absolute_path(tmp_path, monkeypatch, mocker):
+    """#374: a match found under a relative search dir must be absolutized.
+
+    ``find_nvidia_binary_utility`` documents an absolute, separator-resolved
+    result. A relative search dir (e.g. a relative ``CUDA_HOME``) previously
+    leaked a relative path that would re-resolve against a possibly different
+    CWD at execution time.
+    """
+    rel_dir = os.path.join("some", "relative", "bin")
+    candidate = os.path.join(rel_dir, "nvcc")
+    mocker.patch.object(
+        binary_finder_module,
+        "_is_executable_candidate",
+        side_effect=lambda path: path == candidate,
+    )
+
+    # Anchor CWD so os.path.abspath is deterministic for the assertion.
+    monkeypatch.chdir(tmp_path)
+    result = binary_finder_module._resolve_in_trusted_dirs("nvcc", [rel_dir])
+
+    assert os.path.isabs(result)
+    assert result == os.path.abspath(os.path.join(str(tmp_path), candidate))
