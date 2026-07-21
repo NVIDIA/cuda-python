@@ -13,6 +13,14 @@ Deprecation Notices
   removed in a future version.  Python 3.10 reaches end of life in October 2026
   per the `CPython support cycle <https://devguide.python.org/versions/>`_.
 
+Prerelease feature
+------------------
+
+A new version of the ``nvrtc`` API is available as ``cuda.bindings._v2.nvrtc``.  The
+primary improvements are: (1) raising exceptions rather than returning error
+codes, (2) uses PEP8-compliant naming, and (3) is more performant.  This API is
+still experimental and subject to change.
+
 Known issues
 ------------
 
