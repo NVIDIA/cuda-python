@@ -2567,7 +2567,8 @@ def test_program_cache_dir_tightens_preexisting_world_writable(tmp_path):
 
     root = tmp_path / "pc"
     root.mkdir()
-    os.chmod(root, 0o777)
+    # Simulate the attack precondition: a pre-existing world-writable cache dir.
+    os.chmod(root, 0o777)  # noqa: S103
 
     FileStreamProgramCache(path=root)
 
