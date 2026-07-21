@@ -71,25 +71,20 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
-#if PY_VERSION_HEX >= 0x030D0000
-                // Python 3.13+: PyLong_AsInt range-checks and raises
-                // OverflowError itself, so let CPython own the bounds check.
-                int iv = PyLong_AsInt(value);
-                if (iv == -1 && PyErr_Occurred())
-                    return -1;
-                *((int*)ptr) = iv;
-#else
-                long v = PyLong_AsLong(value);
-                if (v == -1 && PyErr_Occurred())
-                    return -1;  // value out of C long range; propagate the error
-                if (v < INT_MIN || v > INT_MAX)
+                // One code path across all supported Pythons: AsLongAndOverflow
+                // flags values outside C long via `overflow` (without setting an
+                // exception), then we bounds-check the 32-bit int range.
+                int overflow = 0;
+                long v = PyLong_AsLongAndOverflow(value, &overflow);
+                if (overflow == 0 && v == -1 && PyErr_Occurred())
+                    return -1;  // non-overflow conversion error; exception already set
+                if (overflow != 0 || v < INT_MIN || v > INT_MAX)
                 {
-                    PyErr_Format(PyExc_OverflowError,
-                        "Python int %ld is out of range for a c_int (32-bit) kernel argument", v);
+                    PyErr_SetString(PyExc_OverflowError,
+                        "Python int is out of range for a c_int (32-bit) kernel argument");
                     return -1;
                 }
                 *((int*)ptr) = (int)v;
-#endif
                 return sizeof(int);
             };
             return;
@@ -109,13 +104,14 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
-                long v = PyLong_AsLong(value);
-                if (v == -1 && PyErr_Occurred())
-                    return -1;  // value out of C long range; propagate the error
-                if (v < INT8_MIN || v > INT8_MAX)
+                int overflow = 0;
+                long v = PyLong_AsLongAndOverflow(value, &overflow);
+                if (overflow == 0 && v == -1 && PyErr_Occurred())
+                    return -1;  // non-overflow conversion error; exception already set
+                if (overflow != 0 || v < INT8_MIN || v > INT8_MAX)
                 {
-                    PyErr_Format(PyExc_OverflowError,
-                        "Python int %ld is out of range for a c_byte (8-bit) kernel argument", v);
+                    PyErr_SetString(PyExc_OverflowError,
+                        "Python int is out of range for a c_byte (8-bit) kernel argument");
                     return -1;
                 }
                 *((int8_t*)ptr) = (int8_t)v;
