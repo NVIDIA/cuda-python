@@ -45,8 +45,8 @@ CUDA runtime
 
    DeviceResources
    _device.DeviceProperties
-   _memory._ipc.IPCAllocationHandle
-   _memory._ipc.IPCBufferDescriptor
+   IPCAllocationHandle
+   IPCBufferDescriptor
    _memory._managed_buffer.AccessedBySetProxy
 
 

@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=9628479d"></script>
+    <script src="_static/documentation_options.js?v=3250c384"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev12';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev13';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -734,10 +734,6 @@
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.__init__">__init__() (cuda.core._device.DeviceProperties method)</a>
 
       <ul>
-        <li><a href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle.__init__">(cuda.core._memory._ipc.IPCAllocationHandle method)</a>
-</li>
-        <li><a href="generated/cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor.__init__">(cuda.core._memory._ipc.IPCBufferDescriptor method)</a>
-</li>
         <li><a href="generated/cuda.core._memory._managed_buffer.AccessedBySetProxy.html#cuda.core._memory._managed_buffer.AccessedBySetProxy.__init__">(cuda.core._memory._managed_buffer.AccessedBySetProxy method)</a>
 </li>
         <li><a href="generated/cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.html#cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy.__init__">(cuda.core._memory._peer_access_utils.PeerAccessibleBySetProxy method)</a>
@@ -809,6 +805,10 @@
         <li><a href="generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource.__init__">(cuda.core.GraphMemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.Host.html#cuda.core.Host.__init__">(cuda.core.Host method)</a>
+</li>
+        <li><a href="generated/cuda.core.IPCAllocationHandle.html#cuda.core.IPCAllocationHandle.__init__">(cuda.core.IPCAllocationHandle method)</a>
+</li>
+        <li><a href="generated/cuda.core.IPCBufferDescriptor.html#cuda.core.IPCBufferDescriptor.__init__">(cuda.core.IPCBufferDescriptor method)</a>
 </li>
         <li><a href="generated/cuda.core.Kernel.html#cuda.core.Kernel.__init__">(cuda.core.Kernel method)</a>
 </li>
@@ -1215,11 +1215,9 @@
 </li>
       <li><a href="generated/cuda.core.system.typing.ClockType.html#cuda.core.system.typing.ClockType">ClockType (class in cuda.core.system.typing)</a>
 </li>
-      <li><a href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle.close">close() (cuda.core._memory._ipc.IPCAllocationHandle method)</a>
+      <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.close">close() (cuda.core.Buffer method)</a>
 
       <ul>
-        <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.close">(cuda.core.Buffer method)</a>
-</li>
         <li><a href="generated/cuda.core.Context.html#cuda.core.Context.close">(cuda.core.Context method)</a>
 </li>
         <li><a href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.close">(cuda.core.DeviceMemoryResource method)</a>
@@ -1233,6 +1231,8 @@
         <li><a href="generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource.close">(cuda.core.GraphicsResource method)</a>
 </li>
         <li><a href="generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource.close">(cuda.core.GraphMemoryResource method)</a>
+</li>
+        <li><a href="generated/cuda.core.IPCAllocationHandle.html#cuda.core.IPCAllocationHandle.close">(cuda.core.IPCAllocationHandle method)</a>
 </li>
         <li><a href="generated/cuda.core.Linker.html#cuda.core.Linker.close">(cuda.core.Linker method)</a>
 </li>
@@ -2179,11 +2179,9 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle.handle">handle (cuda.core._memory._ipc.IPCAllocationHandle attribute)</a>
+      <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.handle">handle (cuda.core.Buffer attribute)</a>
 
       <ul>
-        <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.handle">(cuda.core.Buffer attribute)</a>
-</li>
         <li><a href="generated/cuda.core.Context.html#cuda.core.Context.handle">(cuda.core.Context attribute)</a>
 </li>
         <li><a href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.handle">(cuda.core.DeviceMemoryResource attribute)</a>
@@ -2225,6 +2223,8 @@
         <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode.handle">(cuda.core.graph.WhileNode attribute)</a>
 </li>
         <li><a href="generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource.handle">(cuda.core.GraphicsResource attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.IPCAllocationHandle.html#cuda.core.IPCAllocationHandle.handle">(cuda.core.IPCAllocationHandle attribute)</a>
 </li>
         <li><a href="generated/cuda.core.Kernel.html#cuda.core.Kernel.handle">(cuda.core.Kernel attribute)</a>
 </li>
@@ -2447,9 +2447,9 @@
       </ul></li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.ipc_event_supported">ipc_event_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-      <li><a href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle">IPCAllocationHandle (class in cuda.core._memory._ipc)</a>
+      <li><a href="generated/cuda.core.IPCAllocationHandle.html#cuda.core.IPCAllocationHandle">IPCAllocationHandle (class in cuda.core)</a>
 </li>
-      <li><a href="generated/cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor">IPCBufferDescriptor (class in cuda.core._memory._ipc)</a>
+      <li><a href="generated/cuda.core.IPCBufferDescriptor.html#cuda.core.IPCBufferDescriptor">IPCBufferDescriptor (class in cuda.core)</a>
 </li>
       <li><a href="generated/cuda.core.system.IrqIssueError.html#cuda.core.system.IrqIssueError">IrqIssueError</a>
 </li>
@@ -3620,12 +3620,12 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.single_to_double_precision_perf_ratio">single_to_double_precision_perf_ratio (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-      <li><a href="generated/cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor.size">size (cuda.core._memory._ipc.IPCBufferDescriptor attribute)</a>
+      <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.size">size (cuda.core.Buffer attribute)</a>
 
       <ul>
-        <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.size">(cuda.core.Buffer attribute)</a>
-</li>
         <li><a href="generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode.size">(cuda.core.graph.MemcpyNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.IPCBufferDescriptor.html#cuda.core.IPCBufferDescriptor.size">(cuda.core.IPCBufferDescriptor attribute)</a>
 </li>
         <li><a href="generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.size">(cuda.core.ManagedBuffer attribute)</a>
 </li>
@@ -3972,12 +3972,12 @@
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.utilization">utilization (cuda.core.system.Device attribute)</a>
 </li>
-      <li><a href="generated/cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle.uuid">uuid (cuda.core._memory._ipc.IPCAllocationHandle attribute)</a>
+      <li><a href="generated/cuda.core.Device.html#cuda.core.Device.uuid">uuid (cuda.core.Device property)</a>
 
       <ul>
-        <li><a href="generated/cuda.core.Device.html#cuda.core.Device.uuid">(cuda.core.Device property)</a>
-</li>
         <li><a href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.uuid">(cuda.core.DeviceMemoryResource attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.IPCAllocationHandle.html#cuda.core.IPCAllocationHandle.uuid">(cuda.core.IPCAllocationHandle attribute)</a>
 </li>
         <li><a href="generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.uuid">(cuda.core.ManagedMemoryResource attribute)</a>
 </li>
