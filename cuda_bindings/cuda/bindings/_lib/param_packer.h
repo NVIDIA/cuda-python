@@ -7,6 +7,8 @@
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <climits>
+#include <cstdint>
 
 static PyObject* ctypes_module = nullptr;
 
@@ -69,7 +71,20 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
-                *((int*)ptr) = (int)PyLong_AsLong(value);
+                // One code path across all supported Pythons: AsLongAndOverflow
+                // flags values outside C long via `overflow` (without setting an
+                // exception), then we bounds-check the 32-bit int range.
+                int overflow = 0;
+                long v = PyLong_AsLongAndOverflow(value, &overflow);
+                if (overflow == 0 && v == -1 && PyErr_Occurred())
+                    return -1;  // non-overflow conversion error; exception already set
+                if (overflow != 0 || v < INT_MIN || v > INT_MAX)
+                {
+                    PyErr_SetString(PyExc_OverflowError,
+                        "Python int is out of range for a c_int (32-bit) kernel argument");
+                    return -1;
+                }
+                *((int*)ptr) = (int)v;
                 return sizeof(int);
             };
             return;
@@ -89,7 +104,17 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
-                *((int8_t*)ptr) = (int8_t)PyLong_AsLong(value);
+                int overflow = 0;
+                long v = PyLong_AsLongAndOverflow(value, &overflow);
+                if (overflow == 0 && v == -1 && PyErr_Occurred())
+                    return -1;  // non-overflow conversion error; exception already set
+                if (overflow != 0 || v < INT8_MIN || v > INT8_MAX)
+                {
+                    PyErr_SetString(PyExc_OverflowError,
+                        "Python int is out of range for a c_byte (8-bit) kernel argument");
+                    return -1;
+                }
+                *((int8_t*)ptr) = (int8_t)v;
                 return sizeof(int8_t);
             };
             return;
