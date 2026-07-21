@@ -170,11 +170,14 @@ cdef class GraphNode:
             return
 
         h_graph = graph_node_get_graph(self._h_node)
+        # Allocate the cleanup transaction before asking CUDA to destroy the
+        # node. A failed CUDA call leaves metadata and wrappers unchanged.
         HANDLE_RETURN(graph_prepare_attachment(
             h_graph, OpaqueHandle(), OpaqueHandle(), &prepared))
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphDestroyNode(node))
 
+        # Publish attachment removal before invalidating graph and node aliases.
         cleanup_status = graph_commit_attachment(prepared, node)
         invalidate_child_graph_state(h_graph, node)
         _node_registry.pop(<uintptr_t>self._h_node.get(), None)

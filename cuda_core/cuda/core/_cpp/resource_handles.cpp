@@ -1676,6 +1676,9 @@ CUresult graph_commit_attachment(
         return CUDA_SUCCESS;
     }
 
+    // Publish the replacement or removal before releasing the previous graph
+    // reference; that release can make the previous payload eligible for
+    // destruction.
     NodeAttachment* previous = nullptr;
     auto it = box->attachments.find(node);
     if (it == box->attachments.end()) {
@@ -1722,6 +1725,8 @@ CUresult graph_clone_attachments(
         return CUDA_ERROR_INVALID_VALUE;
     }
 
+    // Build and rekey the clone metadata off-hierarchy so a CUDA mapping error
+    // cannot partially publish it.
     GraphAttachmentMap attachments = source->attachments;
     std::list<GraphBox> subgraphs;
     CUresult status;

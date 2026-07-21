@@ -477,8 +477,17 @@ GraphHandle create_child_graph_handle(
 // ============================================================================
 // Graph node attachments
 //
-// Each resource-bearing node has one immutable attachment retained on its
-// CUgraph as a CUDA user object.
+// Each resource-bearing node has one attachment with an immutable owner bundle,
+// retained on its CUgraph as a CUDA user object.
+//
+// Attachment mutations use prepare -> CUDA mutation -> commit. Preparation
+// graph-retains a replacement and preallocates its map entry when needed; an
+// empty replacement stages removal. Dropping an uncommitted PreparedAttachment
+// rolls back any staged retain. Commit updates metadata before releasing the
+// previous graph reference.
+// graph_get_attachment lets callers carry unchanged owners into partial
+// updates. The clone and invalidation helpers synchronize non-owning metadata
+// after CUDA copies or destroys graph state.
 // ============================================================================
 
 // Type-erased shared owner of an attached resource. Typed handles such as
@@ -534,7 +543,7 @@ CUresult graph_clone_attachments(
     const GraphHandle& h_clone,
     const GraphHandle& h_source);
 
-// Invalidate cuda-core state for child graphs CUDA destroyed with owner_node.
+// Invalidate cuda.core state for child graphs CUDA destroyed with owner_node.
 void invalidate_child_graph_state(
     const GraphHandle& h_parent,
     CUgraphNode owner_node) noexcept;
