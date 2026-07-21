@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .conftest import skip_if_nvml_unsupported, unsupported_before
+from .conftest import SHOULD_SKIP_NVML_TESTS, skip_if_nvml_unsupported, unsupported_before
 
 pytestmark = skip_if_nvml_unsupported
 
@@ -439,6 +439,10 @@ def test_module_id():
         assert module_id >= 0
 
 
+@pytest.mark.skipif(
+    not SHOULD_SKIP_NVML_TESTS and system.get_kernel_mode_driver_version()[0] < 580,
+    reason="nvmlDeviceGetAddressingMode requires an R580+ kernel-mode driver",
+)
 def test_addressing_mode():
     for device in system.Device.get_all_devices():
         # By docs, should be supported on TURING or newer, but experimentally,
@@ -457,6 +461,10 @@ def test_display_mode():
         assert isinstance(is_display_active, bool)
 
 
+@pytest.mark.skipif(
+    not SHOULD_SKIP_NVML_TESTS and system.get_kernel_mode_driver_version()[0] < 580,
+    reason="nvmlDeviceGetRepairStatus requires an R580+ kernel-mode driver",
+)
 def test_repair_status():
     for device in system.Device.get_all_devices():
         # By docs, should be supported on AMPERE or newer, but experimentally,
