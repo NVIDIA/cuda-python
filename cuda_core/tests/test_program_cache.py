@@ -2538,7 +2538,6 @@ def test_inmemory_cache_concurrent_threads_stay_consistent():
     assert len(cache) == len(cache._entries)  # no orphan entries
 
 
-@pytest.mark.agent_authored(model="claude-opus-4-8")
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
 def test_program_cache_dir_created_owner_only(tmp_path):
     """#359/#375: the on-disk program cache stores raw executable device code,
@@ -2557,7 +2556,6 @@ def test_program_cache_dir_created_owner_only(tmp_path):
         assert mode == 0o700, f"{d} has mode {oct(mode)}"
 
 
-@pytest.mark.agent_authored(model="claude-opus-4-8")
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
 def test_program_cache_dir_tightens_preexisting_world_writable(tmp_path):
     """#359: a pre-created world-writable cache root (the poisoning precondition)

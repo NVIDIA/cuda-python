@@ -372,7 +372,6 @@ def test_caching_per_utility():
         assert nvdisasm1 != nvcc1
 
 
-@pytest.mark.agent_authored(model="claude-opus-4-8")
 def test_resolve_in_trusted_dirs_returns_absolute_path(tmp_path, monkeypatch, mocker):
     """#374: a match found under a relative search dir must be absolutized.
 

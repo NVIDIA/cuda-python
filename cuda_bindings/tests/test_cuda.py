@@ -560,7 +560,6 @@ def test_cuda_coredump_attr():
     or not supportsCudaAPI("cuCoredumpGetAttributeGlobal"),
     reason="Coredump API not present",
 )
-@pytest.mark.agent_authored(model="claude-opus-4-8")
 def test_cuda_coredump_attr_buffer_lifetime():
     """Regression for the _HelperCUcoredumpSettings lifetime fixes.
 
