@@ -1,0 +1,40 @@
+﻿cuda.bindings.nvml.VgpuMetadata
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuMetadata
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuMetadata.__init__
+      ~VgpuMetadata.from_buffer
+      ~VgpuMetadata.from_data
+      ~VgpuMetadata.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuMetadata.guest_driver_version
+      ~VgpuMetadata.guest_info_state
+      ~VgpuMetadata.guest_vgpu_version
+      ~VgpuMetadata.host_driver_version
+      ~VgpuMetadata.opaque_data
+      ~VgpuMetadata.opaque_data_size
+      ~VgpuMetadata.ptr
+      ~VgpuMetadata.revision
+      ~VgpuMetadata.version
+      ~VgpuMetadata.vgpu_virtualization_caps
+   
+   
