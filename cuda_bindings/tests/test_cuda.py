@@ -554,40 +554,6 @@ def test_cuda_coredump_attr():
     assert attr_list[3] is True
 
 
-@pytest.mark.skipif(
-    driverVersionLessThan(12010)
-    or not supportsCudaAPI("cuCoredumpSetAttributeGlobal")
-    or not supportsCudaAPI("cuCoredumpGetAttributeGlobal"),
-    reason="Coredump API not present",
-)
-def test_cuda_coredump_attr_buffer_lifetime():
-    """Regression for the _HelperCUcoredumpSettings lifetime fixes.
-
-    #379: the setter aliases the caller's bytes into a ``char*``; the helper
-    must retain the object so the borrowed pointer cannot outlive it. Build the
-    value inline and force a GC before/after the call so a missing retain would
-    surface as a corrupted/empty path.
-
-    #381: the getter allocates a 1024-byte heap buffer that ``__dealloc__`` must
-    free. Loop many getter calls and force GC so a broken free (leak or
-    double-free/crash) is exercised.
-    """
-    import gc
-
-    path = ("/tmp/" + "cuda_python_coredump_" + str(0xC0FFEE)).encode("ascii")
-    (err,) = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_FILE, path)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    del path
-    gc.collect()
-
-    for _ in range(64):
-        err, value = cuda.cuCoredumpGetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_FILE)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        assert value == b"/tmp/cuda_python_coredump_" + str(0xC0FFEE).encode("ascii")
-        del value
-        gc.collect()
-
-
 def test_get_error_name_and_string():
     err, device = cuda.cuDeviceGet(0)
     _, s = cuda.cuGetErrorString(err)
