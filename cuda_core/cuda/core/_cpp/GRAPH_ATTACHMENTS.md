@@ -62,13 +62,15 @@ deleting a source node therefore releases only the source graph's reference.
 Clones, executable graphs, and launches retain the old attachment for as long
 as they need it.
 
-```text
-CUgraph definition ─┐
-CUgraph clone ──────┼── retains ──> CUuserObject ── owns ──> NodeAttachment
-CUgraphExec ────────┤                                      │
-in-flight launch ───┘                                      └── owns resources
-
-GraphAttachmentMap ── non-owning lookup ──> current NodeAttachment
+```mermaid
+flowchart LR
+    Definition["CUgraph definition"] -->|retains| UserObject["CUuserObject"]
+    Clone["CUgraph clone"] -->|retains| UserObject
+    Executable["CUgraphExec"] -->|retains| UserObject
+    Launch["in-flight launch"] -->|retains| UserObject
+    UserObject -->|owns| Attachment["NodeAttachment"]
+    Attachment -->|owns| Resources["resources"]
+    Metadata["GraphAttachmentMap"] -. non-owning current lookup .-> Attachment
 ```
 
 The CUDA user-object reference count controls the attachment lifetime.
@@ -115,27 +117,38 @@ One `GraphHierarchy` represents a root graph and every CUDA-owned child or
 conditional-body graph below it. Every graph in the hierarchy has one
 canonical `GraphBox`.
 
-A `GraphHandle` points at `GraphBox::resource` while sharing ownership of the
-whole `GraphHierarchy`. Holding any root or child handle therefore keeps every
-box and the root CUDA graph alive. Only the root graph is destroyed with
-`cuGraphDestroy`; CUDA owns and destroys embedded child graphs.
+A `GraphHandle` (type `std::shared_ptr<const CUgraph>`) points to a
+`GraphBox::resource` while sharing ownership of the whole `GraphHierarchy`.
+Holding any root or child handle therefore keeps the entire hierarchy
+alive. Only the root graph is destroyed with `cuGraphDestroy`; CUDA itself
+destroys embedded child graphs.
 
-`GraphBox` stores:
+```mermaid
+flowchart LR
+    subgraph Hierarchy ["**GraphHierarchy**"]
+        Boxes["**GraphBox**
+resource: CUgraph
+hierarchy: GraphHierarchy*"]
+    end
+
+    Hierarchy ~~~ Handle["**GraphHandle**"]
+    Handle -. derefs to CUgraph .-> Boxes
+    Handle -->|owns via control block| Hierarchy
+```
+
+`GraphHierarchy::graphs` is a list of live `GraphBox` objects containing
+metadata for the root graph and subgraphs. Each `GraphBox` stores:
 
 - the `CUgraph`
 - its parent box and owning node, when it is a child graph
-- a `GraphAttachmentMap` from `CUgraphNode` to `NodeAttachment*`
-- a per-graph weak registry of canonical `GraphNodeHandle` objects
+- a `GraphAttachmentMap` from nodes to node attachments (`NodeAttachment*`)
+- a per-graph weak registry to canonicalize node handles
 
-`GraphHierarchy::graphs` stores live boxes in parent-before-child order. When
-CUDA destroys a child graph, cuda.core unregisters its raw handle, nulls the
-resource, clears its non-owning metadata, and moves the box to
-`GraphHierarchy::graveyard`. The graveyard contains retired `GraphBox` objects.
-Each `GraphHandle` aliases its box's `resource` field while sharing
-ownership of the `GraphHierarchy`. Nulling that field invalidates every alias;
-splicing the box into the graveyard preserves the field's address until the
-hierarchy's last shared owner is released. Removing the registry entry also
-prevents corruption if a future CUDA graph reuses the raw handle value.
+When CUDA destroys a child graph, the associated `GraphBox` is cleared and
+moved to `GraphHierarchy::graveyard`. That invalidates existing handles and
+preserves the storage until the hierarchy's last shared owner is released.
+Removing the registry entry also prevents corruption if a future CUDA graph
+reuses the raw handle value.
 
 The process-wide graph registry maps a live `CUgraph` to its canonical
 `GraphHandle`. Node handles are scoped to their `GraphBox`, where they can all
