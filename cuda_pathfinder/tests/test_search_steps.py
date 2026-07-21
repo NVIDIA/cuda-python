@@ -10,6 +10,7 @@ import os
 import pytest
 
 from cuda.pathfinder import UnsupportedWindowsArchError
+from cuda.pathfinder._dynamic_libs import search_platform as search_platform_mod
 from cuda.pathfinder._dynamic_libs.descriptor_catalog import WindowsSearchDir, WindowsSearchDirs
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
@@ -78,7 +79,7 @@ class TestSearchContext:
         assert ctx.lib_searched_for == "libcublas.so"
 
     def test_lib_searched_for_windows(self):
-        ctx = SearchContext(_make_desc(name="cublas"), platform=WindowsSearchPlatform())
+        ctx = SearchContext(_make_desc(name="cublas"), platform=WindowsSearchPlatform(target_arch="x64"))
         assert ctx.lib_searched_for == "cublas*.dll"
 
     def test_raise_not_found_includes_messages(self):
@@ -100,6 +101,16 @@ class TestSearchContext:
 
 
 class TestWindowsPythonArch:
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_linux_platform_does_not_detect_windows_arch(self, mocker):
+        mocker.patch.object(search_platform_mod, "IS_WINDOWS", False)
+        get_windows_arch = mocker.patch.object(search_platform_mod, "windows_python_arch")
+
+        platform = search_platform_mod._platform_for_current_system()
+
+        assert isinstance(platform, LinuxSearchPlatform)
+        get_windows_arch.assert_not_called()
+
     def test_detects_sysconfig_x64(self, mocker):
         mocker.patch.object(windows_arch_mod.sysconfig, "get_platform", return_value="win-amd64")
 
@@ -167,7 +178,7 @@ class TestFindInSitePackages:
             name="cudart",
             site_packages_windows=WindowsSearchDirs.common(os.path.join("nvidia", "cuda_runtime", "bin")),
         )
-        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform()))
+        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "site-packages"
@@ -338,7 +349,7 @@ class TestFindInConda:
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        result = find_in_conda(_ctx(platform=WindowsSearchPlatform()))
+        result = find_in_conda(_ctx(platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "conda"
@@ -439,7 +450,7 @@ class TestFindInCudaHome:
 
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
-        result = find_in_cuda_path(_ctx(platform=WindowsSearchPlatform()))
+        result = find_in_cuda_path(_ctx(platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "CUDA_PATH"
@@ -575,7 +586,7 @@ class TestAnchorRelDirs:
                 )
             ),
         )
-        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(), str(tmp_path))
+        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="x64"), str(tmp_path))
         assert result is not None
         assert result.endswith(os.path.join("nvvm", "bin"))
 

@@ -13,7 +13,7 @@ from __future__ import annotations
 import glob
 import os
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import PurePath
 from typing import Protocol, cast
 
@@ -175,19 +175,19 @@ class LinuxSearchPlatform:
 
 @dataclass(frozen=True, slots=True)
 class WindowsSearchPlatform:
-    target_arch: str = field(default_factory=windows_python_arch)
+    target_arch: str
 
     def lib_searched_for(self, libname: str) -> str:
         return f"{libname}*.dll"
 
     def site_packages_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
-        return desc.site_packages_windows.for_arch(self.target_arch)
+        return cast(tuple[str, ...], desc.site_packages_windows.for_arch(self.target_arch))
 
     def conda_anchor_point(self, conda_prefix: str) -> str:
         return os.path.join(conda_prefix, "Library")
 
     def anchor_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
-        return desc.anchor_rel_dirs_windows.for_arch(self.target_arch)
+        return cast(tuple[str, ...], desc.anchor_rel_dirs_windows.for_arch(self.target_arch))
 
     def find_in_site_packages(
         self,
@@ -220,4 +220,10 @@ class WindowsSearchPlatform:
         return None
 
 
-PLATFORM: SearchPlatform = WindowsSearchPlatform() if IS_WINDOWS else LinuxSearchPlatform()
+def _platform_for_current_system() -> SearchPlatform:
+    if IS_WINDOWS:
+        return WindowsSearchPlatform(target_arch=windows_python_arch())
+    return LinuxSearchPlatform()
+
+
+PLATFORM = _platform_for_current_system()
