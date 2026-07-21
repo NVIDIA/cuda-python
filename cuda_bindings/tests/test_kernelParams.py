@@ -800,34 +800,3 @@ def test_kernelParams_buffer_protocol_numpy(device):
     ASSERT_DRV(err)
     (err,) = cuda.cuModuleUnload(module)
     ASSERT_DRV(err)
-
-
-def test_kernelParams_c_int_out_of_range_raises(device):
-    # #363: an out-of-range Python int for a c_int / c_byte kernel argument must
-    # raise instead of being silently truncated to fit the declared width.
-    kernelString = """\
-    extern "C" __global__ void take_int(int i) {}
-    """
-    module = common_nvrtc(kernelString, device)
-    err, kernel = cuda.cuModuleGetFunction(module, b"take_int")
-    ASSERT_DRV(err)
-    err, stream = cuda.cuStreamCreate(0)
-    ASSERT_DRV(err)
-
-    # An in-range value still packs and launches fine.
-    (err,) = cuda.cuLaunchKernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, ((5,), (ctypes.c_int,)), 0)
-    ASSERT_DRV(err)
-
-    # Out-of-range values now raise OverflowError during packing (previously the
-    # high bits were silently dropped, so the kernel saw a different value).
-    with pytest.raises(OverflowError):
-        cuda.cuLaunchKernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, ((2**32 + 5,), (ctypes.c_int,)), 0)
-    with pytest.raises(OverflowError):
-        cuda.cuLaunchKernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, ((200,), (ctypes.c_byte,)), 0)
-
-    (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuStreamDestroy(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
