@@ -71,9 +71,13 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
-                // One code path across all supported Pythons: AsLongAndOverflow
-                // flags values outside C long via `overflow` (without setting an
-                // exception), then we bounds-check the 32-bit int range.
+                // Bound to the 32-bit int slot, NOT to `long`. AsLongAndOverflow's
+                // `overflow` only flags values outside `long`, which is 64-bit on
+                // LP64 (Linux/macOS) -- so a value in 2**31..2**63 comes back with
+                // overflow==0 and would be silently truncated by (int)v. The
+                // explicit INT_MIN/INT_MAX check rejects it. When overflow!=0, v is
+                // the -1 sentinel (not the real value), so that case must be caught
+                // first, before trusting v.
                 int overflow = 0;
                 long v = PyLong_AsLongAndOverflow(value, &overflow);
                 if (overflow == 0 && v == -1 && PyErr_Occurred())
@@ -104,6 +108,8 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
+                // Same rationale as the c_int feeder above; here the slot is an
+                // 8-bit c_byte, so bound to INT8_MIN/INT8_MAX.
                 int overflow = 0;
                 long v = PyLong_AsLongAndOverflow(value, &overflow);
                 if (overflow == 0 && v == -1 && PyErr_Occurred())
