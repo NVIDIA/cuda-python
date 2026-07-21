@@ -1,0 +1,43 @@
+﻿cuda.bindings.nvml.ComputeInstanceProfileInfo\_v3
+=================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: ComputeInstanceProfileInfo_v3
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ComputeInstanceProfileInfo_v3.__init__
+      ~ComputeInstanceProfileInfo_v3.from_buffer
+      ~ComputeInstanceProfileInfo_v3.from_data
+      ~ComputeInstanceProfileInfo_v3.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ComputeInstanceProfileInfo_v3.capabilities
+      ~ComputeInstanceProfileInfo_v3.id
+      ~ComputeInstanceProfileInfo_v3.instance_count
+      ~ComputeInstanceProfileInfo_v3.multiprocessor_count
+      ~ComputeInstanceProfileInfo_v3.name
+      ~ComputeInstanceProfileInfo_v3.ptr
+      ~ComputeInstanceProfileInfo_v3.shared_copy_engine_count
+      ~ComputeInstanceProfileInfo_v3.shared_decoder_count
+      ~ComputeInstanceProfileInfo_v3.shared_encoder_count
+      ~ComputeInstanceProfileInfo_v3.shared_jpeg_count
+      ~ComputeInstanceProfileInfo_v3.shared_ofa_count
+      ~ComputeInstanceProfileInfo_v3.slice_count
+      ~ComputeInstanceProfileInfo_v3.version
+   
+   
