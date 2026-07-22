@@ -2540,10 +2540,10 @@ def test_inmemory_cache_concurrent_threads_stay_consistent():
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
 def test_program_cache_tmp_dir_created_owner_only(tmp_path):
-    """#359/#375: ``tmp`` stages in-flight compiled device code before the atomic
-    rename into ``entries``, so it must be created owner-only (0o700) regardless of
-    the inherited umask. ``root``/``entries`` intentionally inherit the umask to keep
-    deliberately shared caches working (PR #2399 review), so only ``tmp`` is asserted."""
+    """``tmp`` stages in-flight compiled device code before the atomic rename into
+    ``entries``, so it must be created owner-only (0o700) regardless of the inherited
+    umask. ``root``/``entries`` intentionally inherit the umask to keep deliberately
+    shared caches working (PR #2399 review), so only ``tmp`` is asserted."""
     import stat
 
     from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
