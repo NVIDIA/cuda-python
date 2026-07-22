@@ -9,12 +9,20 @@ ci:
     autoupdate_branch: ''
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: quarterly
-    skip: [lychee, check-precommit-installed]
+    skip: [lychee, check-precommit-installed, secret-scan-trufflehog]
     submodules: false
 
 # Please update the rev: SHAs below with this command:
 # pre-commit autoupdate --freeze
 repos:
+  # Runs first so a leaked credential blocks the commit before any formatter runs.
+  # Requires `trufflehog` on $PATH; the wrapper prints install commands if missing.
+  # Skipped on pre-commit.ci (no trufflehog binary in that sandbox); Pulse CI enforces server-side.
+  - repo: https://github.com/NVIDIA/security-workflows
+    rev: v0.1.0
+    hooks:
+      - id: secret-scan-trufflehog
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: c60c980e561ed3e73101667fe8365c609d19a438  # frozen: v0.15.9
     hooks:
