@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.TemperatureSensors
-=====================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: TemperatureSensors
