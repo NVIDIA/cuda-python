@@ -1899,3 +1899,73 @@ def test_dmr_peer_accessible_by_setter_empty(mempool_device):
     assert set(mr.peer_accessible_by) == set()
     mr.peer_accessible_by = []
     assert set(mr.peer_accessible_by) == set()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_mempool_attributes_cannot_instantiate_directly():
+    """_MemPoolAttributes cannot be instantiated directly."""
+    from cuda.core._memory._memory_pool import _MemPoolAttributes
+
+    with pytest.raises(RuntimeError, match="cannot be instantiated directly"):
+        _MemPoolAttributes()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_dmr_handle_and_ownership(mempool_device):
+    """An options-created pool is handle-owning with a live handle; wrapping the device's current pool is non-owning."""
+    owned = DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    assert owned.is_handle_owned is True
+    handle = owned.handle
+    assert handle is not None
+    assert int(handle) != 0
+
+    non_owned = DeviceMemoryResource(mempool_device)
+    assert non_owned.is_handle_owned is False
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_dmr_deallocate_frees_pool_pointer(mempool_device):
+    """Closing a Buffer.from_handle(..., mr=mr) view frees the pointer via the Python
+    _MemPool.deallocate path; the pool's in-use bytes drop back."""
+    dev = mempool_device
+    stream = dev.default_stream
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    size = 256
+    # Raw pool allocation owned by nobody else, so exactly one owner frees it (no
+    # double free); a Buffer.from_handle view then routes teardown through the
+    # Python deallocate path that mr.allocate()'s C++-direct free would skip.
+    ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, mr.handle, stream.handle))
+    stream.sync()
+    used_after_alloc = mr.attributes.used_mem_current
+    assert used_after_alloc >= size
+    buf = Buffer.from_handle(int(ptr), size, mr=mr)
+    buf.close(stream)
+    stream.sync()
+    assert int(buf.handle) == 0
+    # In-use bytes fell back, so the pointer was actually returned (buf.handle == 0
+    # alone wouldn't prove it: the deleter callback swallows a failed free).
+    assert mr.attributes.used_mem_current < used_after_alloc
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_dmr_close_is_idempotent(mempool_device):
+    """Closing an owned DeviceMemoryResource twice is safe (the second close is a no-op)."""
+    mr = DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    assert mr.is_handle_owned is True
+    assert int(mr.handle) != 0
+    mr.close()
+    # First close releases the pool handle itself, not just ownership.
+    assert int(mr.handle) == 0
+    assert mr.is_handle_owned is False
+    mr.close()  # no-op on the now-null handle
+    assert int(mr.handle) == 0
+    assert mr.is_handle_owned is False
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_dmr_ipc_enabled_unsupported_raises(mempool_device):
+    """Requesting an IPC-enabled pool where memory IPC is unsupported raises RuntimeError."""
+    if not IS_WINDOWS:
+        pytest.skip("memory IPC is supported on this platform; unsupported-raise path is Windows-only")
+    with pytest.raises(RuntimeError, match="IPC is not available"):
+        DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(ipc_enabled=True))

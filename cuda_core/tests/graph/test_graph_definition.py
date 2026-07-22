@@ -701,6 +701,22 @@ def test_node_attrs_preserved_by_nodes(node_spec):
         assert getattr(retrieved, attr) == getattr(node, attr), f"{spec.name}.{attr} not preserved by nodes()"
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_host_callback_node_reconstructed_from_embedded_child(init_cuda):
+    """A host-callback node read through an embedded child graph is reconstructed via _create_from_driver."""
+    # The same-wrapper nodes() (test_node_attrs_preserved_by_nodes) returns the
+    # registry-cached object and never exercises reconstruction; only the embedded
+    # child graph carries fresh, unregistered node handles. Host callback is
+    # mempool-free so it reconstructs here; alloc-based nodes stay cached.
+    child = GraphDefinition()
+    _build_host_callback_node(child)
+    parent = GraphDefinition()
+    reconstructed = list(parent.embed(child).child_graph.nodes())
+    assert any(isinstance(n, HostCallbackNode) for n in reconstructed), (
+        f"no reconstructed HostCallbackNode in {[type(n).__name__ for n in reconstructed]}"
+    )
+
+
 def test_identity_preservation(init_cuda):
     """Round-trips through nodes(), edges(), and pred/succ return extant
     objects rather than duplicates."""

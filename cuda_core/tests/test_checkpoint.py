@@ -409,6 +409,145 @@ class TestInputValidation:
             proc.pid = 2
 
 
+# -- Pure helpers (no GPU / driver needed) ---------------------------------
+
+import ctypes
+
+from cuda.bindings import driver as _bindings_driver
+
+# The checkpoint functions, structs, and enums are generated and shipped
+# together from the same CUDA headers, so probe them as one atomic API surface.
+_HAS_CHECKPOINT_BINDINGS = all(hasattr(_bindings_driver, name) for name in checkpoint._REQUIRED_BINDING_ATTRS)
+
+needs_checkpoint_bindings = pytest.mark.skipif(
+    not _HAS_CHECKPOINT_BINDINGS,
+    reason="cuda.bindings does not expose the CUDA checkpoint API",
+)
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+class TestCheckpointHelpers:
+    """Host-only tests for the arg-validation and struct-marshalling helpers.
+
+    The driver-backed lifecycle/migration scenarios skip without a checkpoint-capable
+    Linux driver, so these are the only coverage of these helpers on most CI.
+    """
+
+    @pytest.mark.parametrize(
+        ("value", "error_type", "match"),
+        [
+            (True, TypeError, "timeout_ms must be an int"),
+            (1.5, TypeError, "timeout_ms must be an int"),
+            ("0", TypeError, "timeout_ms must be an int"),
+            (-1, ValueError, "timeout_ms must be >= 0"),
+        ],
+    )
+    def test_check_timeout_ms_rejects_invalid(self, value, error_type, match):
+        with pytest.raises(error_type, match=match):
+            checkpoint._check_timeout_ms(value)
+
+    def test_make_restore_args_rejects_non_mapping(self):
+        with pytest.raises(TypeError, match="gpu_mapping must be a mapping"):
+            checkpoint._make_restore_args(_bindings_driver, [("a", "b")])
+
+    def test_make_restore_args_empty_mapping_returns_none(self):
+        # An empty mapping produces no GPU pairs, so there is nothing to restore.
+        assert checkpoint._make_restore_args(_bindings_driver, {}) is None
+
+    @needs_checkpoint_bindings
+    def test_make_restore_args_builds_pairs(self):
+        old = "00000000-0000-0000-0000-000000000001"
+        new = "00000000-0000-0000-0000-000000000002"
+        args = checkpoint._make_restore_args(_bindings_driver, {old: new})
+        assert isinstance(args, _bindings_driver.CUcheckpointRestoreArgs)
+        assert args.gpuPairsCount == 1
+        # The pair must map old->new in that order (not swapped or duplicated).
+        pair = args.gpuPairs[0]
+        assert bytes(pair.oldUuid.bytes) == bytes.fromhex(old.replace("-", ""))
+        assert bytes(pair.newUuid.bytes) == bytes.fromhex(new.replace("-", ""))
+
+    @pytest.mark.parametrize(
+        ("value", "match"),
+        [
+            ("not-hex-zz", "32 hex characters"),
+            ("00", "32 hex characters"),  # valid hex but wrong length (1 byte)
+        ],
+    )
+    def test_as_cuuuid_rejects_bad_strings(self, value, match):
+        with pytest.raises(ValueError, match=match):
+            checkpoint._as_cuuuid(_bindings_driver, value, [])
+
+    def test_as_cuuuid_rejects_wrong_type(self):
+        with pytest.raises(TypeError, match="must be CUDA UUID objects or UUID strings"):
+            checkpoint._as_cuuuid(_bindings_driver, 12345, [])
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "0123456789abcdef0123456789abcdef",  # bare 32 hex chars
+            "01234567-89ab-cdef-0123-456789abcdef",  # hyphenated form (Device.uuid style)
+        ],
+    )
+    def test_as_cuuuid_from_string_decodes_bytes_and_appends_backing_buffer(self, value):
+        buffers = []
+        result = checkpoint._as_cuuuid(_bindings_driver, value, buffers)
+        assert isinstance(result, _bindings_driver.CUuuid)
+        # Stripped hex must decode to the exact 16 CUuuid bytes (guards fromhex/replace).
+        assert bytes(result.bytes) == bytes.fromhex(value.replace("-", ""))
+        # _as_cuuuid appends the backing ctypes buffer to the caller's list so it survives
+        # until the caller copies the bytes into the pair struct.
+        assert len(buffers) == 1
+        assert isinstance(buffers[0], ctypes.Array)
+
+    def test_as_cuuuid_passes_through_cuuuid_instance(self):
+        existing = _bindings_driver.CUuuid()
+        # An already-constructed CUuuid is returned unchanged and adds no buffer.
+        buffers = []
+        assert checkpoint._as_cuuuid(_bindings_driver, existing, buffers) is existing
+        assert buffers == []
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+class TestCheckpointDriverDispatch:
+    """Driver-dispatch (_call_driver) result-code / exception translation.
+
+    _call_driver runs against a boundary-mock ``func`` (dependency-injected as its
+    argument) so the translation branches exercise without a live driver — the real
+    ``checkpoint._driver`` still supplies the CUresult enum.
+    """
+
+    @pytest.mark.parametrize("err_name", ["CUDA_ERROR_NOT_FOUND", "CUDA_ERROR_NOT_SUPPORTED"])
+    def test_call_driver_translates_unsupported_result_codes(self, err_name):
+        """NOT_FOUND / NOT_SUPPORTED become the 'not supported by the installed NVIDIA driver' RuntimeError."""
+        driver = checkpoint._driver
+
+        def fake(*args):
+            return (getattr(driver.CUresult, err_name),)
+
+        with pytest.raises(RuntimeError, match="not supported by the installed NVIDIA driver"):
+            checkpoint._call_driver(driver, fake)
+
+    def test_call_driver_translates_missing_symbol_runtimeerror(self):
+        """A binding 'symbol not found' RuntimeError is rewritten into the upgrade-your-driver message."""
+        driver = checkpoint._driver
+
+        def fake(*args):
+            raise RuntimeError("Function cuCheckpointProcessLock not found")
+
+        with pytest.raises(RuntimeError, match="not supported by the installed NVIDIA driver"):
+            checkpoint._call_driver(driver, fake)
+
+    def test_call_driver_reraises_unrelated_runtimeerror(self):
+        """A RuntimeError unrelated to the missing-symbol case propagates as-is."""
+        driver = checkpoint._driver
+
+        def fake(*args):
+            raise RuntimeError("some other failure")
+
+        with pytest.raises(RuntimeError, match="some other failure"):
+            checkpoint._call_driver(driver, fake)
+
+
 # -- Lifecycle (single GPU, real driver) -----------------------------------
 
 

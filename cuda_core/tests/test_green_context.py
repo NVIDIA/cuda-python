@@ -181,6 +181,24 @@ def test_create_context_requires_resources(init_cuda):
         init_cuda.create_context(object())
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_context_handle_alias_and_closed_queries(init_cuda, sm_resource):
+    """``Context._handle`` mirrors ``.handle``; after a (non-current) green
+    context is closed its handle-backed queries degrade gracefully: ``handle`` is
+    ``None``, ``is_green`` is ``False``, and ``resources`` raises."""
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    ctx = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
+    # `_handle` is a thin alias of the public `handle` property.
+    assert ctx._handle == ctx.handle
+    assert ctx.handle is not None
+
+    ctx.close()
+    assert ctx.handle is None
+    assert ctx.is_green is False
+    with pytest.raises(RuntimeError, match="Cannot query resources"):
+        _ = ctx.resources
+
+
 # ---------------------------------------------------------------------------
 # SM resource query
 # ---------------------------------------------------------------------------
@@ -305,6 +323,20 @@ class TestSMResourceSplitValidation:
     def test_negative_count_raises(self, sm_resource):
         with pytest.raises(ValueError, match="count must be non-negative"):
             sm_resource.split(SMResourceOptions(count=-1))
+
+    @pytest.mark.agent_authored(model="claude-opus-4.8")
+    def test_empty_count_sequence_raises(self, sm_resource):
+        """An empty ``count`` sequence has no groups to split into."""
+        with pytest.raises(ValueError, match="count sequence must not be empty"):
+            sm_resource.split(SMResourceOptions(count=[]))
+
+    @pytest.mark.agent_authored(model="claude-opus-4.8")
+    @pytest.mark.parametrize("bad_count", [3.5, object()])
+    def test_count_wrong_type_raises(self, sm_resource, bad_count):
+        """``count`` that is neither int, Sequence, nor None is rejected before
+        any driver call."""
+        with pytest.raises(TypeError, match="count must be int, Sequence, or None"):
+            sm_resource.split(SMResourceOptions(count=bad_count))
 
     def test_dry_run_cannot_create_context(self, init_cuda, sm_resource):
         groups, _ = sm_resource.split(SMResourceOptions(count=None), dry_run=True)
@@ -495,6 +527,19 @@ class TestContextResources:
             assert ctx_wq.handle != 0
         except (RuntimeError, ValueError, CUDAError):
             pass  # workqueue not available on this driver/build
+
+    @pytest.mark.agent_authored(model="claude-opus-4.8")
+    def test_primary_context_stream_sm_resources(self, init_cuda, sm_resource):
+        """A stream on the *primary* (non-green) context queries SM resources via
+        the plain ``cuCtxGetDevResource`` path (distinct from the green-context
+        path exercised elsewhere): the stream carries a context handle but it is
+        not a green context, so the whole device is reported."""
+        stream = init_cuda.create_stream()
+        try:
+            stream_sm = stream.resources.sm
+            assert stream_sm.sm_count == sm_resource.sm_count
+        finally:
+            stream.close()
 
 
 # ---------------------------------------------------------------------------
