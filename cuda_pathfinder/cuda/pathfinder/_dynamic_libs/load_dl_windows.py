@@ -69,11 +69,10 @@ def add_dll_directory(dll_abs_path: str) -> None:
     dirpath = os.path.dirname(dll_abs_path)
     assert os.path.isdir(dirpath), dll_abs_path
 
-    # Add the DLL directory to the search path
-    result = kernel32.AddDllDirectory(dirpath)
-    if not result:
-        # Fallback: just update PATH if AddDllDirectory fails
-        pass
+    # Add the DLL directory to the native search path. AddDllDirectory only
+    # affects the LOAD_LIBRARY_SEARCH_USER_DIRS search; PATH is updated
+    # unconditionally below to also cover legacy dependent-DLL resolution.
+    kernel32.AddDllDirectory(dirpath)
 
     # Update PATH as a fallback for dependent DLL resolution
     curr_path = os.environ.get("PATH")
