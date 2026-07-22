@@ -194,6 +194,20 @@ class MemcpyNode(GraphNode):
     def __repr__(self) -> str:
         ...
 
+    def update(self, dst: Buffer | int | None=None, src: Buffer | int | None=None, size: int | None=None, *, dst_owner=None, src_owner=None) -> None:
+        """Replace selected memcpy parameters.
+
+        Omitted parameters preserve their current values. ``dst_owner`` and
+        ``src_owner`` may only accompany their corresponding raw addresses.
+
+        .. warning::
+
+            Use caution when a retained operand owner directly or indirectly
+            owns a graph. Any reference cycle involving the owner and a graph
+            that retains it cannot be broken by Python's cyclic garbage
+            collector. Use a weak reference to break such cycles.
+        """
+
     @property
     def dst(self) -> int:
         """The destination pointer."""
