@@ -6,7 +6,7 @@ from __future__ import annotations
 import sysconfig
 
 
-class UnsupportedWindowsArchError(RuntimeError):
+class UnsupportedArchError(RuntimeError):
     """Raised when Python reports an unsupported Windows architecture."""
 
     def __init__(self, platform_tag: str) -> None:
@@ -27,4 +27,4 @@ def windows_python_arch() -> str:
     if platform_tag == "win-amd64":
         return "x64"
 
-    raise UnsupportedWindowsArchError(raw_platform_tag)
+    raise UnsupportedArchError(raw_platform_tag)

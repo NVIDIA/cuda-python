@@ -9,7 +9,7 @@ import os
 
 import pytest
 
-from cuda.pathfinder import UnsupportedWindowsArchError
+from cuda.pathfinder import UnsupportedArchError
 from cuda.pathfinder._dynamic_libs import search_platform as search_platform_mod
 from cuda.pathfinder._dynamic_libs.descriptor_catalog import WindowsSearchDir, WindowsSearchDirs
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
@@ -125,7 +125,7 @@ class TestWindowsPythonArch:
         mocker.patch.object(windows_arch_mod.sysconfig, "get_platform", return_value="custom-win")
 
         with pytest.raises(
-            UnsupportedWindowsArchError,
+            UnsupportedArchError,
             match=r"Unsupported Windows Python platform tag: 'custom-win'.*win-amd64.*win-arm64",
         ) as exc_info:
             windows_arch_mod.windows_python_arch()
