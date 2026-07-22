@@ -373,7 +373,7 @@ def test_caching_per_utility():
 
 
 def test_resolve_in_trusted_dirs_returns_absolute_path(tmp_path, monkeypatch, mocker):
-    """#374: a match found under a relative search dir must be absolutized.
+    """A match found under a relative search dir must be absolutized.
 
     ``find_nvidia_binary_utility`` documents an absolute, separator-resolved
     result. A relative search dir (e.g. a relative ``CUDA_HOME``) previously
