@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport GraphHandle, GraphNodeHandle
+from cuda.core._resource_handles cimport GraphHandle, GraphNodeHandle, OpaqueHandle
 
 
 cdef class GraphNode:
@@ -13,3 +13,7 @@ cdef class GraphNode:
 
     @staticmethod
     cdef GraphNode _create(GraphHandle h_graph, cydriver.CUgraphNode node)
+
+
+cdef OpaqueHandle _resolve_memcpy_operand(
+    object operand, object owner, str side, cydriver.CUdeviceptr* out_ptr) except *

@@ -10,6 +10,7 @@ from typing import Callable
 
 import pytest
 
+from cuda.core import LegacyPinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core._utils.version import driver_version
 from cuda.core.graph import GraphDefinition
@@ -27,10 +28,15 @@ class _DefinitionUpdateCase:
     invalid_update: Callable[[], None] | None
     invalid_exception: type[BaseException] | None
     invalid_argument_update: Callable[[], None] | None
+    cleanup: Callable[[], None]
 
 
 def _assert_equal(actual, expected):
     assert actual == expected
+
+
+def _noop():
+    pass
 
 
 def _event_record_case(device):
@@ -76,6 +82,7 @@ def _event_record_case(device):
         invalid_update=lambda: node.update(invalid_replacement),
         invalid_exception=CUDAError,
         invalid_argument_update=lambda: node.update(object()),
+        cleanup=_noop,
     )
 
 
@@ -128,6 +135,7 @@ def _event_wait_case(device):
         invalid_update=lambda: node.update(invalid_replacement),
         invalid_exception=CUDAError,
         invalid_argument_update=lambda: node.update(object()),
+        cleanup=_noop,
     )
 
 
@@ -162,6 +170,7 @@ def _host_callback_case(device):
         invalid_update=lambda: node.update(replacement, user_data=b"not valid for a Python callback"),
         invalid_exception=ValueError,
         invalid_argument_update=None,
+        cleanup=_noop,
     )
 
 
@@ -211,7 +220,92 @@ def _host_callback_ctypes_case(device):
         invalid_update=invalid_update,
         invalid_exception=ValueError,
         invalid_argument_update=None,
+        cleanup=_noop,
     )
+
+
+def _memset_case(device, *, replace_dst):
+    memory_resource = LegacyPinnedMemoryResource()
+    original_buffer = memory_resource.allocate(4)
+    replacement_buffer = memory_resource.allocate(4) if replace_dst else original_buffer
+    original = {
+        "dst": original_buffer,
+        "value": 0x11,
+        "element_size": 1,
+        "width": 4,
+        "height": 1,
+        "pitch": 0,
+    }
+    replacement = {
+        **original,
+        "dst": replacement_buffer,
+        "value": 0x22,
+    }
+
+    graph_def = GraphDefinition()
+    node = graph_def.memset(original["dst"], original["value"], original["width"])
+
+    def update(expected):
+        if replace_dst:
+            node.update(dst=expected["dst"], value=expected["value"])
+        else:
+            node.update(value=expected["value"])
+
+    def assert_current(expected):
+        assert node.dptr == int(expected["dst"].handle)
+        assert node.value == expected["value"]
+        assert node.element_size == expected["element_size"]
+        assert node.width == expected["width"]
+        assert node.height == expected["height"]
+        assert node.pitch == expected["pitch"]
+
+    def as_bytes(buffer):
+        return (ctypes.c_uint8 * 4).from_address(int(buffer.handle))
+
+    def assert_exec_uses(graph, expected):
+        original_data = as_bytes(original_buffer)
+        replacement_data = as_bytes(replacement_buffer)
+        original_data[:] = [0] * 4
+        replacement_data[:] = [0] * 4
+
+        stream = device.create_stream()
+        graph.launch(stream)
+        stream.sync()
+
+        assert list(as_bytes(expected["dst"])) == [expected["value"]] * 4
+        if replace_dst:
+            unexpected = replacement_buffer if expected["dst"] is original_buffer else original_buffer
+            assert list(as_bytes(unexpected)) == [0] * 4
+
+    def cleanup():
+        node.destroy()
+        original_buffer.close()
+        if replacement_buffer is not original_buffer:
+            replacement_buffer.close()
+
+    return _DefinitionUpdateCase(
+        graph_def=graph_def,
+        node=node,
+        original=original,
+        replacement=replacement,
+        update=update,
+        assert_current=assert_current,
+        assert_exec_uses=assert_exec_uses,
+        invalid_update=lambda: node.update(value=256),
+        invalid_exception=OverflowError,
+        invalid_argument_update=lambda: node.update(dst=object()),
+        cleanup=cleanup,
+    )
+
+
+def _memset_value_case(device):
+    """Change the fill value while preserving destination ownership."""
+    return _memset_case(device, replace_dst=False)
+
+
+def _memset_destination_case(device):
+    """Replace the destination and its retained allocation owner."""
+    return _memset_case(device, replace_dst=True)
 
 
 @pytest.fixture(
@@ -220,12 +314,16 @@ def _host_callback_ctypes_case(device):
         pytest.param(_event_wait_case, id="event-wait"),
         pytest.param(_host_callback_case, id="host-callback-python"),
         pytest.param(_host_callback_ctypes_case, id="host-callback-ctypes"),
+        pytest.param(_memset_value_case, id="memset-value"),
+        pytest.param(_memset_destination_case, id="memset-destination"),
     ]
 )
 def definition_update_case(request, init_cuda):
     if driver_version() < (12, 2, 0):
         pytest.skip("individual graph node updates require CUDA 12.2+")
-    return request.param(init_cuda)
+    case = request.param(init_cuda)
+    yield case
+    case.cleanup()
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from cuda.core._event import Event
 from cuda.core._launch_config import LaunchConfig
+from cuda.core._memory._buffer import Buffer
 from cuda.core._module import Kernel
 from cuda.core.graph._graph_definition import GraphCondition, GraphDefinition
 from cuda.core.graph._graph_node import GraphNode
@@ -139,6 +140,20 @@ class MemsetNode(GraphNode):
     def __repr__(self) -> str:
         ...
 
+    def update(self, dst: Buffer | int | None=None, value=None, width: int | None=None, height: int | None=None, pitch: int | None=None, *, dst_owner=None) -> None:
+        """Replace selected memset parameters.
+
+        Omitted parameters preserve their current values. ``dst_owner`` may
+        only accompany a raw-address ``dst``.
+
+        .. warning::
+
+            Use caution when a retained operand owner directly or indirectly
+            owns a graph. Any reference cycle involving the owner and a graph
+            that retains it cannot be broken by Python's cyclic garbage
+            collector. Use a weak reference to break such cycles.
+        """
+
     @property
     def dptr(self) -> int:
         """The destination device pointer."""
@@ -258,7 +273,18 @@ class HostCallbackNode(GraphNode):
         ...
 
     def update(self, fn, *, user_data=None) -> None:
-        """Replace the callback and user-data binding for this node."""
+        """Replace the callback and user-data binding for this node.
+
+        .. warning::
+
+            Callbacks must not call CUDA API functions. Doing so may
+            deadlock or corrupt driver state.
+
+            Use caution when a Python callback retains an object that owns a
+            graph. Any reference cycle involving the callback and a graph that
+            retains it cannot be broken by Python's cyclic garbage collector.
+            Use a weak reference to break such cycles.
+        """
 
     @property
     def callback(self):

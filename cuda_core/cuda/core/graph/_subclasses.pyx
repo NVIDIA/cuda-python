@@ -14,9 +14,10 @@ from cuda.bindings cimport cydriver
 
 from cuda.core._event cimport Event
 from cuda.core._launch_config cimport LaunchConfig
+from cuda.core._memory._buffer cimport Buffer
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
-from cuda.core.graph._graph_node cimport GraphNode
+from cuda.core.graph._graph_node cimport GraphNode, _resolve_memcpy_operand
 from cuda.core._resource_handles cimport (
     EventHandle,
     GraphHandle,
@@ -30,10 +31,11 @@ from cuda.core._resource_handles cimport (
     create_event_handle_ref,
     create_kernel_handle_ref,
     graph_commit_attachment,
+    graph_get_attachment,
     graph_node_get_graph,
     graph_prepare_attachment,
 )
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
 
 from cuda.core.graph._host_callback cimport (
@@ -379,6 +381,77 @@ cdef class MemsetNode(GraphNode):
         return (f"<MemsetNode handle=0x{as_intptr(self._h_node):x}"
                 f" dptr=0x{self._dptr:x} value={self._value}>")
 
+    def update(
+        self,
+        dst: Buffer | int | None = None,
+        value=None,
+        width: int | None = None,
+        height: int | None = None,
+        pitch: int | None = None,
+        *,
+        dst_owner=None,
+    ) -> None:
+        """Replace selected memset parameters.
+
+        Omitted parameters preserve their current values. ``dst_owner`` may
+        only accompany a raw-address ``dst``.
+
+        .. warning::
+
+            Use caution when a retained operand owner directly or indirectly
+            owns a graph. Any reference cycle involving the owner and a graph
+            that retains it cannot be broken by Python's cyclic garbage
+            collector. Use a weak reference to break such cycles.
+        """
+        cdef cydriver.CUdeviceptr c_dst = self._dptr
+        cdef unsigned int c_value = self._value
+        cdef unsigned int c_element_size = self._element_size
+        cdef size_t c_width = self._width
+        cdef size_t c_height = self._height
+        cdef size_t c_pitch = self._pitch
+        cdef OpaqueHandle dst_attachment_owner
+        cdef GraphHandle h_graph
+        cdef cydriver.CUgraphNodeParams params
+
+        if dst is None:
+            if dst_owner is not None:
+                raise ValueError("dst_owner requires dst")
+            h_graph = graph_node_get_graph(self._h_node)
+            HANDLE_RETURN(graph_get_attachment(
+                h_graph, as_cu(self._h_node),
+                &dst_attachment_owner, NULL))
+        else:
+            dst_attachment_owner = _resolve_memcpy_operand(
+                dst, dst_owner, "dst", &c_dst)
+
+        if value is not None:
+            c_value, c_element_size = _parse_fill_value(value)
+        if width is not None:
+            c_width = width
+        if height is not None:
+            c_height = height
+        if pitch is not None:
+            c_pitch = pitch
+
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMSET
+        params.memset.dst = c_dst
+        params.memset.value = c_value
+        params.memset.elementSize = c_element_size
+        params.memset.width = c_width
+        params.memset.height = c_height
+        params.memset.pitch = c_pitch
+        params.memset.ctx = NULL
+
+        _set_definition_node_params(
+            self._h_node, &params, dst_attachment_owner)
+        self._dptr = c_dst
+        self._value = c_value
+        self._element_size = c_element_size
+        self._width = c_width
+        self._height = c_height
+        self._pitch = c_pitch
+
     @property
     def dptr(self) -> int:
         """The destination device pointer."""
@@ -670,7 +743,18 @@ cdef class HostCallbackNode(GraphNode):
                 f" cfunc=0x{<uintptr_t>self._fn:x}>")
 
     def update(self, fn, *, user_data=None) -> None:
-        """Replace the callback and user-data binding for this node."""
+        """Replace the callback and user-data binding for this node.
+
+        .. warning::
+
+            Callbacks must not call CUDA API functions. Doing so may
+            deadlock or corrupt driver state.
+
+            Use caution when a Python callback retains an object that owns a
+            graph. Any reference cycle involving the callback and a graph that
+            retains it cannot be broken by Python's cyclic garbage collector.
+            Use a weak reference to break such cycles.
+        """
         cdef cydriver.CUhostFn c_fn
         cdef void* c_user_data
         cdef OpaqueHandle fn_owner, data_owner
