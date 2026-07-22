@@ -386,7 +386,7 @@ def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_pending_call_queue_saturation_preserves_cleanup(tmp_path):
     """A full CPython queue neither strands nor mis-threads cleanup."""
-    code = textwrap.dedent(
+    code = f"timeout = {_FINALIZE_TIMEOUT!r}\n" + textwrap.dedent(
         """
         import ctypes
         import gc
@@ -395,9 +395,6 @@ def test_pending_call_queue_saturation_preserves_cleanup(tmp_path):
 
         from cuda.core import Device
         from cuda.core.graph import GraphDefinition
-        from cuda_python_test_helpers import under_compute_sanitizer
-
-        timeout = 30.0 if under_compute_sanitizer() else 5.0
 
         class ThreadRecordingCallback:
             def __init__(self, finalized_threads):
