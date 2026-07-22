@@ -397,23 +397,18 @@ class FileStreamProgramCache(ProgramCacheResource):
         self._entries = self._root / _ENTRIES_SUBDIR
         self._tmp = self._root / _TMP_SUBDIR
         self._max_size_bytes = max_size_bytes
+        # Permissions (see PR #2399):
+        # root/ and entries/ use default permissions so a shared cache (e.g. one
+        # a group shares on a cluster) keeps working. The cached files themselves
+        # are still private: each is written to tmp/ as owner-only and moved into
+        # entries/, which keeps its permissions. tmp/ is made owner-only so no one
+        # can read or swap a file while it's being written. We don't chmod, so an
+        # existing directory is left as-is.
+        # Trade-off: if a group deliberately shares a writable entries/, a member
+        # could replace a cached file. Blocking that needs a check at load time,
+        # not just permissions, and is out of scope here.
         self._root.mkdir(parents=True, exist_ok=True)
         self._entries.mkdir(exist_ok=True)
-        # Security scope (glasswing #359/#375, narrowed per PR #2399 review):
-        #  - Confidentiality: committed entries are written via ``mkstemp`` (0o600)
-        #    and ``os.replace`` preserves that mode, so cached kernel *contents*
-        #    stay owner-readable even though ``entries/`` itself inherits the umask.
-        #    Other local users can list entry filenames (key hashes) but not read
-        #    the compiled code.
-        #  - ``tmp`` stages in-flight writes before the atomic rename; create it
-        #    owner-only (0o700) so no one can read or swap device code mid-write.
-        #  - ``root``/``entries`` intentionally inherit the umask / any pre-existing
-        #    permissions so a deliberately shared cache (e.g. group-writable on a
-        #    cluster) keeps working. Accepted trade-off: in that shared setup a
-        #    group member with write access to ``entries/`` could replace a cached
-        #    kernel this process later loads. Tamper-proofing shared caches is out
-        #    of scope for permissions alone; it needs load-time integrity checks.
-        # mkdir's mode is not chmod'd afterward, so an existing dir is used as-is.
         self._tmp.mkdir(exist_ok=True, mode=0o700)
         # Opportunistic startup sweep of orphaned temp files left by any
         # crashed writers. Age-based so concurrent in-flight writes from
