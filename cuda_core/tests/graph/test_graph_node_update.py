@@ -308,6 +308,101 @@ def _memset_destination_case(device):
     return _memset_case(device, replace_dst=True)
 
 
+def _memcpy_case(device, *, replace_operand):
+    memory_resource = LegacyPinnedMemoryResource()
+    original_src = memory_resource.allocate(4)
+    original_dst = memory_resource.allocate(4)
+    replacement_src = memory_resource.allocate(4) if replace_operand == "src" else original_src
+    replacement_dst = memory_resource.allocate(4) if replace_operand == "dst" else original_dst
+    original = {
+        "dst": original_dst,
+        "src": original_src,
+        "size": 2 if replace_operand is None else 4,
+    }
+    replacement = {
+        "dst": replacement_dst,
+        "src": replacement_src,
+        "size": 4,
+    }
+
+    graph_def = GraphDefinition()
+    node = graph_def.memcpy(original["dst"], original["src"], original["size"])
+
+    def update(expected):
+        if replace_operand == "src":
+            node.update(src=expected["src"])
+        elif replace_operand == "dst":
+            node.update(dst=expected["dst"])
+        else:
+            node.update(size=expected["size"])
+
+    def assert_current(expected):
+        assert node.dst == int(expected["dst"].handle)
+        assert node.src == int(expected["src"].handle)
+        assert node.size == expected["size"]
+
+    def as_bytes(buffer):
+        return (ctypes.c_uint8 * 4).from_address(int(buffer.handle))
+
+    def assert_exec_uses(graph, expected):
+        as_bytes(original_src)[:] = [0x11] * 4
+        as_bytes(original_dst)[:] = [0] * 4
+        if replacement_src is not original_src:
+            as_bytes(replacement_src)[:] = [0x22] * 4
+        if replacement_dst is not original_dst:
+            as_bytes(replacement_dst)[:] = [0] * 4
+
+        stream = device.create_stream()
+        graph.launch(stream)
+        stream.sync()
+
+        source_value = 0x11 if expected["src"] is original_src else 0x22
+        expected_data = [source_value] * expected["size"]
+        expected_data.extend([0] * (4 - expected["size"]))
+        assert list(as_bytes(expected["dst"])) == expected_data
+        if replacement_dst is not original_dst:
+            unexpected_dst = replacement_dst if expected["dst"] is original_dst else original_dst
+            assert list(as_bytes(unexpected_dst)) == [0] * 4
+
+    def cleanup():
+        node.destroy()
+        original_src.close()
+        original_dst.close()
+        if replacement_src is not original_src:
+            replacement_src.close()
+        if replacement_dst is not original_dst:
+            replacement_dst.close()
+
+    return _DefinitionUpdateCase(
+        graph_def=graph_def,
+        node=node,
+        original=original,
+        replacement=replacement,
+        update=update,
+        assert_current=assert_current,
+        assert_exec_uses=assert_exec_uses,
+        invalid_update=lambda: node.update(size=-1),
+        invalid_exception=OverflowError,
+        invalid_argument_update=lambda: node.update(src=object()),
+        cleanup=cleanup,
+    )
+
+
+def _memcpy_size_case(device):
+    """Change the copy size while preserving both operand owners."""
+    return _memcpy_case(device, replace_operand=None)
+
+
+def _memcpy_source_case(device):
+    """Replace the source while preserving destination ownership."""
+    return _memcpy_case(device, replace_operand="src")
+
+
+def _memcpy_destination_case(device):
+    """Replace the destination while preserving source ownership."""
+    return _memcpy_case(device, replace_operand="dst")
+
+
 @pytest.fixture(
     params=[
         pytest.param(_event_record_case, id="event-record"),
@@ -316,6 +411,9 @@ def _memset_destination_case(device):
         pytest.param(_host_callback_ctypes_case, id="host-callback-ctypes"),
         pytest.param(_memset_value_case, id="memset-value"),
         pytest.param(_memset_destination_case, id="memset-destination"),
+        pytest.param(_memcpy_size_case, id="memcpy-size"),
+        pytest.param(_memcpy_source_case, id="memcpy-source"),
+        pytest.param(_memcpy_destination_case, id="memcpy-destination"),
     ]
 )
 def definition_update_case(request, init_cuda):

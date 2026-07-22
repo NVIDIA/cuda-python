@@ -17,7 +17,11 @@ from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
-from cuda.core.graph._graph_node cimport GraphNode, _resolve_memcpy_operand
+from cuda.core.graph._graph_node cimport (
+    GraphNode,
+    _init_memcpy_params,
+    _resolve_memcpy_operand,
+)
 from cuda.core._resource_handles cimport (
     EventHandle,
     GraphHandle,
@@ -539,6 +543,74 @@ cdef class MemcpyNode(GraphNode):
         cdef str st = "H" if self._src_type == cydriver.CU_MEMORYTYPE_HOST else "D"
         return (f"<MemcpyNode handle=0x{as_intptr(self._h_node):x}"
                 f" dst=0x{self._dst:x}({dt}) src=0x{self._src:x}({st}) size={self._size}>")
+
+    def update(
+        self,
+        dst: Buffer | int | None = None,
+        src: Buffer | int | None = None,
+        size: int | None = None,
+        *,
+        dst_owner=None,
+        src_owner=None,
+    ) -> None:
+        """Replace selected memcpy parameters.
+
+        Omitted parameters preserve their current values. ``dst_owner`` and
+        ``src_owner`` may only accompany their corresponding raw addresses.
+
+        .. warning::
+
+            Use caution when a retained operand owner directly or indirectly
+            owns a graph. Any reference cycle involving the owner and a graph
+            that retains it cannot be broken by Python's cyclic garbage
+            collector. Use a weak reference to break such cycles.
+        """
+        cdef cydriver.CUdeviceptr c_dst = self._dst
+        cdef cydriver.CUdeviceptr c_src = self._src
+        cdef size_t c_size = self._size
+        cdef OpaqueHandle dst_attachment_owner
+        cdef OpaqueHandle src_attachment_owner
+        cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
+        cdef cydriver.CUcontext ctx = NULL
+        cdef cydriver.CUgraphNodeParams params
+        cdef cydriver.CUmemorytype c_dst_type
+        cdef cydriver.CUmemorytype c_src_type
+
+        HANDLE_RETURN(graph_get_attachment(
+            h_graph, as_cu(self._h_node),
+            &dst_attachment_owner, &src_attachment_owner))
+        if dst is None:
+            if dst_owner is not None:
+                raise ValueError("dst_owner requires dst")
+        else:
+            dst_attachment_owner = _resolve_memcpy_operand(
+                dst, dst_owner, "dst", &c_dst)
+        if src is None:
+            if src_owner is not None:
+                raise ValueError("src_owner requires src")
+        else:
+            src_attachment_owner = _resolve_memcpy_operand(
+                src, src_owner, "src", &c_src)
+        if size is not None:
+            c_size = size
+
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMCPY
+        _init_memcpy_params(
+            c_dst, c_src, c_size, &params.memcpy.copyParams,
+            &c_dst_type, &c_src_type)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+        params.memcpy.copyCtx = ctx
+
+        _set_definition_node_params(
+            self._h_node, &params,
+            dst_attachment_owner, src_attachment_owner)
+        self._dst = c_dst
+        self._src = c_src
+        self._size = c_size
+        self._dst_type = c_dst_type
+        self._src_type = c_src_type
 
     @property
     def dst(self) -> int:
