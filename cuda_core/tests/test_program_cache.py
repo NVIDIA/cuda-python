@@ -2539,11 +2539,11 @@ def test_inmemory_cache_concurrent_threads_stay_consistent():
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
-def test_program_cache_dir_created_owner_only(tmp_path):
-    """#359/#375: the on-disk program cache stores raw executable device code,
-    so its directory tree must be created owner-only (0o700), independent of the
-    inherited umask, so other local principals can neither read cached kernels
-    nor plant a binary this process would later load."""
+def test_program_cache_tmp_dir_created_owner_only(tmp_path):
+    """#359/#375: ``tmp`` stages in-flight compiled device code before the atomic
+    rename into ``entries``, so it must be created owner-only (0o700) regardless of
+    the inherited umask. ``root``/``entries`` intentionally inherit the umask to keep
+    deliberately shared caches working (PR #2399 review), so only ``tmp`` is asserted."""
     import stat
 
     from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
@@ -2551,25 +2551,25 @@ def test_program_cache_dir_created_owner_only(tmp_path):
     root = tmp_path / "pc"
     FileStreamProgramCache(path=root)
 
-    for d in (root, root / "entries", root / "tmp"):
-        mode = stat.S_IMODE(os.stat(d).st_mode)
-        assert mode == 0o700, f"{d} has mode {oct(mode)}"
+    mode = stat.S_IMODE(os.stat(root / "tmp").st_mode)
+    assert mode == 0o700, f"tmp has mode {oct(mode)}"
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
-def test_program_cache_dir_tightens_preexisting_world_writable(tmp_path):
-    """#359: a pre-created world-writable cache root (the poisoning precondition)
-    must be re-tightened to 0o700; mkdir(exist_ok=True) alone would keep the
-    attacker-supplied permissions."""
+def test_program_cache_preexisting_shared_root_used_as_is(tmp_path):
+    """PR #2399 review: a deliberately shared cache root (e.g. group-writable on a
+    compute cluster) must be used as-is, not re-tightened. Only ``tmp`` is forced
+    owner-only; ``root`` keeps whatever permissions it was created with."""
     import stat
 
     from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
 
     root = tmp_path / "pc"
     root.mkdir()
-    # Simulate the attack precondition: a pre-existing world-writable cache dir.
+    # Simulate an intentionally shared cache directory.
     os.chmod(root, 0o777)  # noqa: S103
 
     FileStreamProgramCache(path=root)
 
-    assert stat.S_IMODE(os.stat(root).st_mode) == 0o700
+    assert stat.S_IMODE(os.stat(root).st_mode) == 0o777
+    assert stat.S_IMODE(os.stat(root / "tmp").st_mode) == 0o700

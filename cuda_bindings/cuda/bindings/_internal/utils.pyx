@@ -42,13 +42,7 @@ cdef bint is_nested_sequence(data):
 
 
 cdef void* get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except*:
-    """Return a raw pointer into ``buf``.
-
-    The caller must keep ``buf`` alive AND not resize it while the pointer is in
-    use. The buffer export is released before this returns, so resizing a mutable
-    buffer (e.g. ``bytearray``) during a ``nogil`` call is a use-after-free.
-    Prefer immutable ``bytes``.
-    """
+    """The caller must ensure ``buf`` is alive when the returned pointer is in use."""
     cdef void* bufPtr
     cdef int flags = cpython.PyBUF_ANY_CONTIGUOUS
     if not readonly:

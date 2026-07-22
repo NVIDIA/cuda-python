@@ -397,16 +397,16 @@ class FileStreamProgramCache(ProgramCacheResource):
         self._entries = self._root / _ENTRIES_SUBDIR
         self._tmp = self._root / _TMP_SUBDIR
         self._max_size_bytes = max_size_bytes
-        # Cache holds compiled device code loaded via cuLibraryLoadData, so keep
-        # it owner-only (0o700) so other local users can't read or replace it.
-        # mkdir's mode is umask-masked and exist_ok keeps an existing dir's
-        # perms, so re-chmod on POSIX.
-        self._root.mkdir(parents=True, exist_ok=True, mode=0o700)
-        self._entries.mkdir(exist_ok=True, mode=0o700)
+        self._root.mkdir(parents=True, exist_ok=True)
+        self._entries.mkdir(exist_ok=True)
+        # ``tmp`` stages in-flight writes before they are atomically renamed into
+        # ``entries``. Create it owner-only (0o700) to keep other local users from
+        # reading or replacing compiled device code mid-write. ``root``/``entries``
+        # intentionally inherit the umask / any pre-existing permissions so a
+        # deliberately shared cache directory keeps working (see PR #2399 review).
+        # mkdir's mode is not chmod'd afterward, so an existing ``tmp`` is left
+        # as-is rather than re-tightened.
         self._tmp.mkdir(exist_ok=True, mode=0o700)
-        if os.name != "nt":
-            for d in (self._root, self._entries, self._tmp):
-                os.chmod(d, 0o700)
         # Opportunistic startup sweep of orphaned temp files left by any
         # crashed writers. Age-based so concurrent in-flight writes from
         # other processes are preserved.
