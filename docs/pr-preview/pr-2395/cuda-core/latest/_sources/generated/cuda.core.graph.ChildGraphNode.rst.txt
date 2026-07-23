@@ -27,6 +27,7 @@ cuda.core.graph.ChildGraphNode
    .. automethod:: memset
    .. automethod:: record
    .. automethod:: switch
+   .. automethod:: update
    .. automethod:: wait
    .. automethod:: while_loop
 

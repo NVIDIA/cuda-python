@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=efa4da69"></script>
+    <script src="../_static/documentation_options.js?v=baa9d088"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev38';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev42';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -845,6 +845,10 @@ for the lifetime of the graph.</p></li>
 <p class="admonition-title">Warning</p>
 <p>Callbacks must not call CUDA API functions. Doing so may
 deadlock or corrupt driver state.</p>
+<p>Use caution when a Python callback retains an object that owns a
+graph. Any reference cycle involving the callback and a graph that
+retains it cannot be broken by Python’s cyclic garbage collector.
+Use a weak reference to break such cycles.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1001,6 +1005,13 @@ a non-zero value at runtime.</p>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><span class="pre">KernelNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.MemsetNode.launch" title="Link to this definition">#</a></dt>
 <dd><p>Add a kernel launch node depending on this node.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use caution when a retained kernel argument directly or indirectly
+owns a graph. Any reference cycle involving the argument and a
+graph that retains it cannot be broken by Python’s cyclic garbage
+collector. Use a weak reference to break such cycles.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1037,6 +1048,13 @@ a non-zero value at runtime.</p>
 <p>Copies <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes from <code class="docutils literal notranslate"><span class="pre">src</span></code> to <code class="docutils literal notranslate"><span class="pre">dst</span></code>. Memory types are
 auto-detected via the driver, so both device and pinned host
 pointers are supported.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use caution when a retained operand owner directly or indirectly
+owns a graph. Any reference cycle involving the owner and a graph
+that retains it cannot be broken by Python’s cyclic garbage
+collector. Use a weak reference to break such cycles.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1085,6 +1103,13 @@ Must not be passed when <code class="docutils literal notranslate"><span class="
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><span class="pre">MemsetNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.MemsetNode.memset" title="Link to this definition">#</a></dt>
 <dd><p>Add a memset node depending on this node.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use caution when a retained operand owner directly or indirectly
+owns a graph. Any reference cycle involving the owner and a graph
+that retains it cannot be broken by Python’s cyclic garbage
+collector. Use a weak reference to break such cycles.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1159,6 +1184,34 @@ value is out of range, no branch executes.</p>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.SwitchNode.html#cuda.core.graph.SwitchNode" title="cuda.core.graph.SwitchNode">SwitchNode</a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph.MemsetNode.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">value=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">width:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">height:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">pitch:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst_owner=None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.MemsetNode.update" title="Link to this definition">#</a></dt>
+<dd><p>Replace selected memset parameters.</p>
+<p>Omitted parameters preserve their current values. <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> may
+only accompany a raw-address <code class="docutils literal notranslate"><span class="pre">dst</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use caution when a retained operand owner directly or indirectly
+owns a graph. Any reference cycle involving the owner and a graph
+that retains it cannot be broken by Python’s cyclic garbage
+collector. Use a weak reference to break such cycles.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -1390,6 +1443,7 @@ evaluates to a non-zero value.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemsetNode.memset"><code class="docutils literal notranslate"><span class="pre">MemsetNode.memset()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemsetNode.record"><code class="docutils literal notranslate"><span class="pre">MemsetNode.record()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemsetNode.switch"><code class="docutils literal notranslate"><span class="pre">MemsetNode.switch()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemsetNode.update"><code class="docutils literal notranslate"><span class="pre">MemsetNode.update()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemsetNode.wait"><code class="docutils literal notranslate"><span class="pre">MemsetNode.wait()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemsetNode.while_loop"><code class="docutils literal notranslate"><span class="pre">MemsetNode.while_loop()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemsetNode.dptr"><code class="docutils literal notranslate"><span class="pre">MemsetNode.dptr</span></code></a></li>

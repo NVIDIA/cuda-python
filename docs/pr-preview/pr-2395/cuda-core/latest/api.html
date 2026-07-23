@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=efa4da69"></script>
+    <script src="_static/documentation_options.js?v=baa9d088"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev38';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev42';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -952,6 +952,15 @@ launched on a <code class="xref py py-class docutils literal notranslate"><span 
 <p>Every graph node is a subclass of <a class="reference internal" href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode" title="cuda.core.graph.GraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphNode</span></code></a>, which
 provides the common interface (dependencies, successors, destruction).
 Each subclass exposes attributes unique to its operation type.</p>
+<p>Parameter-bearing definition nodes expose subclass-specific <code class="docutils literal notranslate"><span class="pre">update()</span></code>
+methods: <a class="reference internal" href="generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelNode</span></code></a>, <a class="reference internal" href="generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemcpyNode</span></code></a>,
+<a class="reference internal" href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemsetNode</span></code></a>, <a class="reference internal" href="generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode" title="cuda.core.graph.ChildGraphNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChildGraphNode</span></code></a>,
+<a class="reference internal" href="generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode" title="cuda.core.graph.EventRecordNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventRecordNode</span></code></a>, <a class="reference internal" href="generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode" title="cuda.core.graph.EventWaitNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventWaitNode</span></code></a>, and
+<a class="reference internal" href="generated/cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">HostCallbackNode</span></code></a>. These methods require CUDA driver and
+<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions 12.2 or newer. Updates affect future graph
+instantiations; executable graphs that were already instantiated continue
+using their previous parameters and retained resources. Omitted optional
+arguments preserve their current values where supported.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode" title="cuda.core.graph.EmptyNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.EmptyNode</span></code></a></p></td>

@@ -154,6 +154,16 @@ Every graph node is a subclass of :class:`~graph.GraphNode`, which
 provides the common interface (dependencies, successors, destruction).
 Each subclass exposes attributes unique to its operation type.
 
+Parameter-bearing definition nodes expose subclass-specific ``update()``
+methods: :class:`~graph.KernelNode`, :class:`~graph.MemcpyNode`,
+:class:`~graph.MemsetNode`, :class:`~graph.ChildGraphNode`,
+:class:`~graph.EventRecordNode`, :class:`~graph.EventWaitNode`, and
+:class:`~graph.HostCallbackNode`. These methods require CUDA driver and
+``cuda.bindings`` versions 12.2 or newer. Updates affect future graph
+instantiations; executable graphs that were already instantiated continue
+using their previous parameters and retained resources. Omitted optional
+arguments preserve their current values where supported.
+
 .. autosummary::
    :toctree: generated/
 
