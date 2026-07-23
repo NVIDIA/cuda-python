@@ -9,8 +9,7 @@ import subprocess
 
 import pytest
 
-from cuda.bindings import nvfatbin
-from cuda.bindings._v2 import nvrtc
+from cuda.bindings import nvfatbin, nvrtc
 
 ARCHITECTURES = ["sm_75", "sm_80", "sm_90", "sm_100"]
 PTX_VERSIONS = ["6.4", "7.0", "8.5", "8.8"]
@@ -123,9 +122,22 @@ def nvcc_smoke(tmpdir) -> str:
 
 
 def _build_cubin(arch):
-    program_handle = nvrtc.create_program(CODE.encode(), b"")
-    nvrtc.compile_program(program_handle, [f"-arch={arch}".encode()])
-    return nvrtc.get_cubin(program_handle)
+    def CHECK_NVRTC(err):
+        if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
+            raise RuntimeError(repr(err))
+
+    err, program_handle = nvrtc.nvrtcCreateProgram(CODE.encode(), b"", 0, [], [])
+    CHECK_NVRTC(err)
+    err = nvrtc.nvrtcCompileProgram(program_handle, 1, [f"-arch={arch}".encode()])[0]
+    CHECK_NVRTC(err)
+    err, size = nvrtc.nvrtcGetCUBINSize(program_handle)
+    CHECK_NVRTC(err)
+    cubin = b" " * size
+    (err,) = nvrtc.nvrtcGetCUBIN(program_handle, cubin)
+    CHECK_NVRTC(err)
+    (err,) = nvrtc.nvrtcDestroyProgram(program_handle)
+    CHECK_NVRTC(err)
+    return cubin
 
 
 @pytest.fixture
@@ -137,10 +149,24 @@ def CUBIN(arch):
 @pytest.fixture
 def LTOIR(arch):
     arch = arch.replace("sm", "compute")
+
+    def CHECK_NVRTC(err):
+        if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
+            raise RuntimeError(repr(err))
+
     empty_cplusplus_kernel = "__global__ void A() {}"
-    program_handle = nvrtc.create_program(empty_cplusplus_kernel.encode(), b"")
-    nvrtc.compile_program(program_handle, [b"-dlto", f"-arch={arch}".encode()])
-    return nvrtc.get_ltoir(program_handle)
+    err, program_handle = nvrtc.nvrtcCreateProgram(empty_cplusplus_kernel.encode(), b"", 0, [], [])
+    CHECK_NVRTC(err)
+    err = nvrtc.nvrtcCompileProgram(program_handle, 1, [b"-dlto", f"-arch={arch}".encode()])[0]
+    CHECK_NVRTC(err)
+    err, size = nvrtc.nvrtcGetLTOIRSize(program_handle)
+    CHECK_NVRTC(err)
+    empty_kernel_ltoir = b" " * size
+    (err,) = nvrtc.nvrtcGetLTOIR(program_handle, empty_kernel_ltoir)
+    CHECK_NVRTC(err)
+    (err,) = nvrtc.nvrtcDestroyProgram(program_handle)
+    CHECK_NVRTC(err)
+    return empty_kernel_ltoir
 
 
 @pytest.fixture
