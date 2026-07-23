@@ -3658,12 +3658,12 @@ desired preferred cluster dimensions for the kernel. Opaque type
 with the following fields: - <cite>x</cite> - The X dimension of the preferred
 cluster, in blocks. Must be a divisor of the grid X dimension, and
 must be a multiple of the <cite>x</cite> field of
-::cudaLaunchAttributeValue::clusterDim.    - <cite>y</cite> - The Y dimension
-of the preferred cluster, in blocks. Must be a divisor of the grid
-Y dimension, and must be a multiple of the <cite>y</cite> field of
-::cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension
-of the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field
-of ::cudaLaunchAttributeValue::clusterDim.</p>
+cudaLaunchAttributeValue::clusterDim.    - <cite>y</cite> - The Y dimension of
+the preferred cluster, in blocks. Must be a divisor of the grid Y
+dimension, and must be a multiple of the <cite>y</cite> field of
+cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension of
+the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field of
+cudaLaunchAttributeValue::clusterDim.</p>
 </dd>
 <dt>launchCompletionEvent<span class="classifier">anon_struct20</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
 with the following fields: - <cite>cudaEvent_t</cite> event - Event to fire
@@ -8436,7 +8436,7 @@ are on the same GPU.</p>
 <span class="sig-name descname"><span class="pre">cudaLaunchAttributeDeviceUpdatableKernelNode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode:</span> <span class="pre">13&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode" title="Link to this definition">#</a></dt>
 <dd><p>Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error.</p>
 <blockquote>
-<div><p>:cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via <code class="xref py py-obj docutils literal notranslate"><span class="pre">devNode</span></code> which can be passed to the various device-side update functions to update the node’s kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeUpdatesApply</span></code>.</p>
+<div><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">deviceUpdatable</span></code> can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via <code class="xref py py-obj docutils literal notranslate"><span class="pre">devNode</span></code> which can be passed to the various device-side update functions to update the node’s kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeUpdatesApply</span></code>.</p>
 <p>Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphDestroyNode" title="cuda.bindings.runtime.cudaGraphDestroyNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphDestroyNode</span></code></a>. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphKernelNodeCopyAttributes" title="cuda.bindings.runtime.cudaGraphKernelNodeCopyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeCopyAttributes</span></code></a>. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphExecUpdate" title="cuda.bindings.runtime.cudaGraphExecUpdate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExecUpdate</span></code></a>.</p>
 <p>If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with <a class="reference internal" href="driver.html#cuda.bindings.driver.cuGraphUpload" title="cuda.bindings.driver.cuGraphUpload"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuGraphUpload</span></code></a> before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.</p>
 </div></blockquote>
@@ -10058,12 +10058,12 @@ desired preferred cluster dimensions for the kernel. Opaque type
 with the following fields: - <cite>x</cite> - The X dimension of the preferred
 cluster, in blocks. Must be a divisor of the grid X dimension, and
 must be a multiple of the <cite>x</cite> field of
-::cudaLaunchAttributeValue::clusterDim.    - <cite>y</cite> - The Y dimension
-of the preferred cluster, in blocks. Must be a divisor of the grid
-Y dimension, and must be a multiple of the <cite>y</cite> field of
-::cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension
-of the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field
-of ::cudaLaunchAttributeValue::clusterDim.</p>
+cudaLaunchAttributeValue::clusterDim.    - <cite>y</cite> - The Y dimension of
+the preferred cluster, in blocks. Must be a divisor of the grid Y
+dimension, and must be a multiple of the <cite>y</cite> field of
+cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension of
+the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field of
+cudaLaunchAttributeValue::clusterDim.</p>
 </dd>
 <dt>launchCompletionEvent<span class="classifier">anon_struct20</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
 with the following fields: - <cite>cudaEvent_t</cite> event - Event to fire
