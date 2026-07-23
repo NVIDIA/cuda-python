@@ -481,12 +481,12 @@ cdef class MemsetNode(GraphNode):
 
     def update(
         self,
+        *,
         dst: Buffer | int | None = None,
         value=None,
         width: int | None = None,
         height: int | None = None,
         pitch: int | None = None,
-        *,
         dst_owner=None,
     ) -> None:
         """Replace selected memset parameters.
@@ -640,10 +640,10 @@ cdef class MemcpyNode(GraphNode):
 
     def update(
         self,
+        *,
         dst: Buffer | int | None = None,
         src: Buffer | int | None = None,
         size: int | None = None,
-        *,
         dst_owner=None,
         src_owner=None,
     ) -> None:
