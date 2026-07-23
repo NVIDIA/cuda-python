@@ -517,13 +517,10 @@ using PreparedAttachment =
     std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
 
 struct PreparedChildGraphUpdateState;
-struct PreparedChildGraphUpdateDeleter {
-    void operator()(PreparedChildGraphUpdateState* state) const noexcept;
-};
-// Move-only unpublished hierarchy transaction; destruction discards it unless
-// graph_commit_child_graph_update publishes the staged replacement.
-using PreparedChildGraphUpdate = std::unique_ptr<
-    PreparedChildGraphUpdateState, PreparedChildGraphUpdateDeleter>;
+// Opaque unpublished hierarchy transaction; releasing it discards staged
+// metadata unless graph_commit_child_graph_update publishes the replacement.
+using PreparedChildGraphUpdate =
+    std::shared_ptr<PreparedChildGraphUpdateState>;
 
 // Copy requested owners from node's current attachment. Pass nullptr to ignore
 // either owner; a missing attachment produces empty handles.

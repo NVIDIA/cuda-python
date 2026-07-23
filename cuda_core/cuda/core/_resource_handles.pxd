@@ -73,10 +73,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     cppclass PreparedChildGraphUpdateState:
         pass
-    cppclass PreparedChildGraphUpdateDeleter:
-        pass
-    ctypedef unique_ptr[
-        PreparedChildGraphUpdateState, PreparedChildGraphUpdateDeleter
+    ctypedef shared_ptr[
+        PreparedChildGraphUpdateState
     ] PreparedChildGraphUpdate
 
     # as_cu() - extract the raw CUDA handle (inline C++)

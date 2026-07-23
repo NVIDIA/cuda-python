@@ -1550,11 +1550,6 @@ struct PreparedChildGraphUpdateState {
           owner_node(owner_node_) {}
 };
 
-void PreparedChildGraphUpdateDeleter::operator()(
-        PreparedChildGraphUpdateState* state) const noexcept {
-    delete state;
-}
-
 GraphHandle create_graph_handle(CUgraph graph) {
     if (!graph) {
         return {};
@@ -1634,9 +1629,9 @@ CUresult graph_prepare_child_graph_update(
         return CUDA_ERROR_INVALID_VALUE;
     }
 
-    PreparedChildGraphUpdate prepared(
-        new PreparedChildGraphUpdateState(
-            h_parent, h_source, old_root, owner_node));
+    PreparedChildGraphUpdate prepared =
+        std::make_shared<PreparedChildGraphUpdateState>(
+            h_parent, h_source, old_root, owner_node);
 
     GraphBox& replacement_root =
         prepared->replacement.emplace_back(
@@ -1722,7 +1717,7 @@ CUresult graph_commit_child_graph_update(
     }
 
     publish_child_graph_update(state, out_child);
-    delete prepared.release();
+    prepared.reset();
     return status;
 }
 
