@@ -6,7 +6,7 @@ import time
 
 import pytest
 from helpers import IS_WINDOWS, IS_WSL
-from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
+from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer, thread_unsafe_on_windows
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
@@ -18,7 +18,7 @@ NBYTES = 64
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
-def test_latchkernel():
+def test_latchkernel(barrier_wait):
     """Test LatchKernel."""
     log = TimestampedLogger(enabled=ENABLE_LOGGING)
     log("begin")
@@ -29,6 +29,8 @@ def test_latchkernel():
     zeros = make_scratch_buffer(device, 0, NBYTES)
     ones = make_scratch_buffer(device, 1, NBYTES)
     latch = LatchKernel(device)
+    # Avoid overlapping pinned alloc/free with another worker's live latch.
+    barrier_wait()
     log("launching latch kernel")
     latch.launch(stream)
     log("launching copy (0->1) kernel")
@@ -43,6 +45,8 @@ def test_latchkernel():
     log("releasing latch and syncing")
     latch.release()
     stream.sync()
+    # Quiesce all workers before host access / teardown frees.
+    barrier_wait()
     log("checking target == 1")
     assert compare_equal_buffers(target, ones)
     log("done")
@@ -52,6 +56,7 @@ def test_latchkernel():
     under_compute_sanitizer(),
     reason="Too slow under compute-sanitizer (UVM-heavy test).",
 )
+@thread_unsafe_on_windows
 def test_patterngen_seeds():
     """Test PatternGen with seed argument."""
     device = Device()
@@ -70,6 +75,7 @@ def test_patterngen_seeds():
                 pgen.verify_buffer(buffer, seed=j)
 
 
+@thread_unsafe_on_windows
 def test_patterngen_values():
     """Test PatternGen with value argument, also compare_equal_buffers."""
     device = Device()

@@ -3,10 +3,12 @@
 
 import ctypes
 
+import pytest
+
 from cuda.core import Buffer, Device, MemoryResource
 from cuda.core._utils.cuda_utils import driver, handle_return
 
-from . import libc
+from . import IS_WINDOWS, IS_WSL, libc
 
 __all__ = [
     "DummyDeviceMemoryResource",
@@ -16,7 +18,18 @@ __all__ = [
     "compare_buffer_to_constant",
     "compare_equal_buffers",
     "make_scratch_buffer",
+    "thread_unsafe_on_windows",
 ]
+
+
+def thread_unsafe_on_windows(func):
+    # Tests that use these buffers and access the memory on the host are
+    # thread-unsafe on windows. On windows the GPU must be fully quiescent for host
+    # access to be safe and with threaded tests could be achieved with barrier_wait
+    # fixture, but it is a bit of a pain.
+    if IS_WINDOWS or IS_WSL:
+        return pytest.mark.thread_unsafe(reason="windows host-access unsafe while GPU is working")
+    return func
 
 
 class DummyDeviceMemoryResource(MemoryResource):
