@@ -8,6 +8,11 @@
 #include <stdexcept>
 #include <string>
 
+// Strong reference to the ctypes module, acquired once at import in
+// init_param_packer() and intentionally never released. This ref is
+// load-bearing: the ctypes_c_* pointers below are *borrowed* references into
+// the ctypes module dict, and stay valid only while this strong ref keeps the
+// module (and therefore its type objects) alive. Do not Py_DECREF it.
 static PyObject* ctypes_module = nullptr;
 
 static PyTypeObject* ctypes_c_char = nullptr;
@@ -28,6 +33,10 @@ static PyTypeObject* ctypes_c_float = nullptr;
 static PyTypeObject* ctypes_c_double = nullptr;
 static PyTypeObject* ctypes_c_void_p = nullptr;
 
+// Import ctypes and cache pointers to its scalar type objects. May throw
+// std::runtime_error (translated to a Python exception via the `except +`
+// declaration on init_param_packer in param_packer.pxd). Called exactly once,
+// from init_param_packer() at module import while single-threaded.
 static void fetch_ctypes()
 {
     ctypes_module = PyImport_ImportModule("ctypes");
@@ -127,17 +136,45 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
     }
 }
 
+// Initialize all shared state once, at module import, while single-threaded
+// (called as a bare module-level statement from utils.pxi -- mirroring the
+// _resource_handles.pyx pattern of calling initialize_deferred_cleanup() at
+// import). This fetches the ctypes type pointers and pre-builds the *entire*
+// feeder table, so the hot feed() path below is afterwards a pure read of
+// never-mutated global state. That is what makes feed() safe to call
+// concurrently from multiple threads under free-threading (Py_MOD_GIL_NOT_USED)
+// without any lock: doing the work lazily inside feed() would race the map and
+// the ctypes lazy-init across threads launching distinct kernels.
+//
+// May throw (e.g. if `import ctypes` fails); declared `except +` in the pxd so
+// the failure surfaces as a Python exception during module import rather than
+// std::terminate.
+static void init_param_packer()
+{
+    if (ctypes_module != nullptr)
+        return;  // defensive: module import already runs exactly once
+    fetch_ctypes();
+    // Pre-build every feeder the old lazy path could ever have created. This is
+    // a fixed, finite set of (target, source) type pairs, so a table built here
+    // is identical to the one feed() used to build on demand; any unmatched
+    // pair still falls through to feed() returning 0 -> the ctype() fallback in
+    // utils.pxi. After this, m_feeders is never mutated again.
+    populate_feeders(ctypes_c_int,      &PyLong_Type);
+    populate_feeders(ctypes_c_bool,     &PyBool_Type);
+    populate_feeders(ctypes_c_byte,     &PyLong_Type);
+    populate_feeders(ctypes_c_double,   &PyFloat_Type);
+    populate_feeders(ctypes_c_float,    &PyFloat_Type);
+    populate_feeders(ctypes_c_longlong, &PyLong_Type);
+}
+
+// Hot path. Read-only lookup on the import-time-populated feeder table; no
+// mutation, no allocation, no throwing C-API translation -> effectively
+// noexcept and safe under concurrent, GIL-free calls. Returns 0 for any
+// unhandled (target, source) pair so the caller applies its ctype() fallback.
 static int feed(void* ptr, PyObject* value, PyObject* type)
 {
     PyTypeObject* pto = (PyTypeObject*)type;
-    if (ctypes_c_int == nullptr)
-        fetch_ctypes();
     auto found = m_feeders.find({pto,value->ob_type});
-    if (found == m_feeders.end())
-    {
-        populate_feeders(pto, value->ob_type);
-        found = m_feeders.find({pto,value->ob_type});
-    }
     if (found != m_feeders.end())
     {
         return found->second(ptr, value);
