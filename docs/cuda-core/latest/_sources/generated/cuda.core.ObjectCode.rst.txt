@@ -21,6 +21,7 @@ cuda.core.ObjectCode
    .. automethod:: from_object
    .. automethod:: from_ptx
    .. automethod:: get_kernel
+   .. automethod:: get_module
 
    
    
