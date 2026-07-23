@@ -30,15 +30,18 @@ from cuda.core._resource_handles cimport (
     KernelHandle,
     OpaqueHandle,
     PreparedAttachment,
+    PreparedChildGraphUpdate,
     as_cu,
     as_intptr,
     create_child_graph_handle,
     create_event_handle_ref,
     create_kernel_handle_ref,
     graph_commit_attachment,
+    graph_commit_child_graph_update,
     graph_get_attachment,
     graph_node_get_graph,
     graph_prepare_attachment,
+    graph_prepare_child_graph_update,
     make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
@@ -75,11 +78,7 @@ cdef bint _has_cuGraphNodeGetParams = False
 cdef bint _version_checked = False
 
 
-cdef void _set_definition_node_params(
-        const GraphNodeHandle& h_node,
-        cydriver.CUgraphNodeParams* params,
-        OpaqueHandle owner0,
-        OpaqueHandle owner1=OpaqueHandle()) except *:
+cdef void _require_graph_node_update_support() except *:
     cdef tuple version = cy_driver_version()
     if version < (12, 2, 0):
         raise RuntimeError(
@@ -92,6 +91,14 @@ cdef void _set_definition_node_params(
             "Graph node mutation requires cuda.bindings 12.2 or newer; "
             f"using cuda.bindings version {'.'.join(map(str, version))}"
         )
+
+
+cdef void _set_definition_node_params(
+        const GraphNodeHandle& h_node,
+        cydriver.CUgraphNodeParams* params,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1=OpaqueHandle()) except *:
+    _require_graph_node_update_support()
 
     cdef GraphHandle h_graph = graph_node_get_graph(h_node)
     cdef cydriver.CUgraphNode node = as_cu(h_node)
@@ -748,6 +755,37 @@ cdef class ChildGraphNode(GraphNode):
     def __repr__(self) -> str:
         return (f"<ChildGraphNode handle=0x{as_intptr(self._h_node):x}"
                 f" child=0x{as_intptr(self._h_child_graph):x}>")
+
+    def update(self, child: GraphDefinition) -> None:
+        """Replace the embedded graph with a clone of ``child``.
+
+        ``child`` must belong to an independent graph hierarchy.
+        """
+        cdef GraphHandle h_parent = graph_node_get_graph(self._h_node)
+        cdef GraphHandle h_replacement
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        cdef cydriver.CUgraphNodeParams params
+        cdef cydriver.CUresult commit_status
+        cdef PreparedChildGraphUpdate prepared
+
+        _require_graph_node_update_support()
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_GRAPH
+        params.graph.graph = as_cu(child._h_graph)
+
+        HANDLE_RETURN(graph_prepare_child_graph_update(
+            h_parent, self._h_child_graph, node,
+            child._h_graph, &prepared))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphNodeSetParams(
+                node, &params))
+        try:
+            commit_status = graph_commit_child_graph_update(
+                prepared, &h_replacement)
+        finally:
+            if h_replacement:
+                self._h_child_graph = h_replacement
+        HANDLE_RETURN(commit_status)
 
     @property
     def child_graph(self) -> GraphDefinition:

@@ -14,7 +14,7 @@ from helpers.graph_kernels import compile_common_kernels
 from cuda.core import LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core._utils.version import driver_version
-from cuda.core.graph import GraphDefinition
+from cuda.core.graph import GraphDefinition, HostCallbackNode
 
 
 @dataclass
@@ -517,6 +517,64 @@ def _kernel_function_case(device):
     return _kernel_case(device, replace="kernel")
 
 
+def _child_graph_case(device):
+    """Replace the embedded clone while preserving existing executables."""
+    called = []
+
+    def original_callback():
+        called.append(original_callback)
+
+    def replacement_callback():
+        called.append(replacement_callback)
+
+    original_child = GraphDefinition()
+    original_child.callback(original_callback)
+    replacement_child = GraphDefinition()
+    replacement_child.callback(replacement_callback)
+    original = {
+        "child": original_child,
+        "callback": original_callback,
+    }
+    replacement = {
+        "child": replacement_child,
+        "callback": replacement_callback,
+    }
+
+    graph_def = GraphDefinition()
+    node = graph_def.embed(original_child)
+    invalid_child = node.child_graph
+
+    def update(expected):
+        node.update(expected["child"])
+
+    def assert_current(expected):
+        callback_node = next(
+            child_node for child_node in node.child_graph.nodes() if isinstance(child_node, HostCallbackNode)
+        )
+        assert callback_node.callback is expected["callback"]
+
+    def assert_exec_uses(graph, expected):
+        called.clear()
+        stream = device.create_stream()
+        graph.launch(stream)
+        stream.sync()
+        assert called == [expected["callback"]]
+
+    return _DefinitionUpdateCase(
+        graph_def=graph_def,
+        node=node,
+        original=original,
+        replacement=replacement,
+        update=update,
+        assert_current=assert_current,
+        assert_exec_uses=assert_exec_uses,
+        invalid_update=lambda: node.update(invalid_child),
+        invalid_exception=CUDAError,
+        invalid_argument_update=lambda: node.update(object()),
+        cleanup=node.destroy,
+    )
+
+
 @pytest.fixture(
     params=[
         pytest.param(_event_record_case, id="event-record"),
@@ -531,6 +589,7 @@ def _kernel_function_case(device):
         pytest.param(_kernel_config_case, id="kernel-config"),
         pytest.param(_kernel_args_case, id="kernel-args"),
         pytest.param(_kernel_function_case, id="kernel-function"),
+        pytest.param(_child_graph_case, id="child-graph"),
     ]
 )
 def definition_update_case(request, init_cuda):

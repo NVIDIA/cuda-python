@@ -246,6 +246,12 @@ class ChildGraphNode(GraphNode):
     def __repr__(self) -> str:
         ...
 
+    def update(self, child: GraphDefinition) -> None:
+        """Replace the embedded graph with a clone of ``child``.
+
+        ``child`` must belong to an independent graph hierarchy.
+        """
+
     @property
     def child_graph(self) -> GraphDefinition:
         """The embedded graph definition (non-owning wrapper)."""

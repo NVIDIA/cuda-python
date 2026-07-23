@@ -71,6 +71,14 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         PreparedAttachmentState, PreparedAttachmentDeleter
     ] PreparedAttachment
 
+    cppclass PreparedChildGraphUpdateState:
+        pass
+    cppclass PreparedChildGraphUpdateDeleter:
+        pass
+    ctypedef unique_ptr[
+        PreparedChildGraphUpdateState, PreparedChildGraphUpdateDeleter
+    ] PreparedChildGraphUpdate
+
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
     cydriver.CUgreenCtx as_cu(GreenCtxHandle h) noexcept nogil
@@ -253,6 +261,12 @@ cdef cydriver.CUresult graph_commit_attachment(
     PreparedAttachment& prepared, cydriver.CUgraphNode node) except+
 cdef cydriver.CUresult graph_clone_attachments(
     const GraphHandle& h_clone, const GraphHandle& h_source) except+
+cdef cydriver.CUresult graph_prepare_child_graph_update(
+    const GraphHandle& h_parent, const GraphHandle& h_old_child,
+    cydriver.CUgraphNode owner_node, const GraphHandle& h_source,
+    PreparedChildGraphUpdate* out_prepared) except+
+cdef cydriver.CUresult graph_commit_child_graph_update(
+    PreparedChildGraphUpdate& prepared, GraphHandle* out_child) except+
 cdef void invalidate_child_graph_state(
     const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 

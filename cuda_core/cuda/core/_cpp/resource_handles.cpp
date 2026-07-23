@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <iterator>
 #include <list>
 #include <map>
 #include <mutex>
@@ -359,6 +360,15 @@ public:
     void unregister_handle(const Key& key) noexcept {
         std::lock_guard<std::mutex> lock(mutex_);
         map_.erase(key);
+    }
+
+    void register_handles(const std::vector<Handle>& handles) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for (const Handle& h : handles) {
+            if (h) {
+                map_[*h] = h;
+            }
+        }
     }
 
     Handle lookup(const Key& key) {
@@ -1341,7 +1351,8 @@ struct GraphHierarchy {
 };
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static HandleRegistry<CUgraph, GraphHandle> graph_registry;
+using GraphRegistry = HandleRegistry<CUgraph, GraphHandle>;
+static GraphRegistry graph_registry;
 
 // Immutable resource owners for one version of a graph node's parameters.
 // Inheriting DeferredCleanupItem lets CUDA's user-object destructor enqueue
@@ -1404,52 +1415,71 @@ CUresult rekey_attachments(
     return CUDA_SUCCESS;
 }
 
-// Recursively copy and rekey attachments for a cloned graph hierarchy.
-// The caller must release the GIL before calling this function.
-CUresult copy_attachments(
+struct StagedGraphMetadata {
+    const GraphBox* source;
+    GraphBox* clone;
+    GraphAttachmentMap* attachments;
+};
+using StagedGraphMetadataList = std::vector<StagedGraphMetadata>;
+
+// Copy a source hierarchy into detached metadata before CUDA mutation.
+void stage_graph_metadata(
         const GraphBox& source,
         GraphBox& clone,
         GraphAttachmentMap& attachments,
-        std::list<GraphBox>& subgraphs) {
-    if (!p_cuGraphNodeFindInClone || !p_cuGraphChildGraphNodeGetGraph) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
+        std::list<GraphBox>& subgraphs,
+        StagedGraphMetadataList& staged) {
     attachments = source.attachments;
-    CUresult status = rekey_attachments(attachments, clone.resource);
-    if (status != CUDA_SUCCESS) {
-        return status;
-    }
+    staged.push_back({&source, &clone, &attachments});
 
     for (const GraphBox& source_child : source.hierarchy->graphs) {
         if (source_child.parent != &source || !source_child.resource) {
             continue;
         }
-
-        CUgraphNode cloned_owner = nullptr;
-        status = p_cuGraphNodeFindInClone(
-            &cloned_owner, source_child.owner_node, clone.resource);
-        if (status != CUDA_SUCCESS) {
-            return status;
-        }
-
-        CUgraph cloned_graph = nullptr;
-        status = p_cuGraphChildGraphNodeGetGraph(
-            cloned_owner, &cloned_graph);
-        if (status != CUDA_SUCCESS) {
-            return status;
-        }
-
         GraphBox& cloned_child = subgraphs.emplace_back(
-            cloned_graph,
+            nullptr,
             clone.hierarchy,
             &clone,
-            cloned_owner);
-        status = copy_attachments(
+            nullptr);
+        stage_graph_metadata(
             source_child,
             cloned_child,
             cloned_child.attachments,
-            subgraphs);
+            subgraphs,
+            staged);
+    }
+}
+
+// Bind staged metadata to a CUDA-cloned hierarchy. The root clone resource
+// must be populated before entry. The caller must release the GIL.
+CUresult rekey_graph_metadata(
+        StagedGraphMetadataList& staged) {
+    if (!p_cuGraphNodeFindInClone || !p_cuGraphChildGraphNodeGetGraph) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    CUresult status;
+    for (size_t i = 0; i < staged.size(); ++i) {
+        const GraphBox& source = *staged[i].source;
+        GraphBox& clone = *staged[i].clone;
+        if (i != 0) {
+            CUgraphNode cloned_owner = nullptr;
+            status = p_cuGraphNodeFindInClone(
+                &cloned_owner,
+                source.owner_node,
+                clone.parent->resource);
+            if (status == CUDA_SUCCESS) {
+                status = p_cuGraphChildGraphNodeGetGraph(
+                    cloned_owner, &clone.resource);
+            }
+            if (status != CUDA_SUCCESS) {
+                return status;
+            }
+            clone.owner_node = cloned_owner;
+        }
+
+        status = rekey_attachments(
+            *staged[i].attachments, clone.resource);
         if (status != CUDA_SUCCESS) {
             return status;
         }
@@ -1494,6 +1524,34 @@ void rollback_prepared_attachment(
                 box->resource, state->replacement->object, 1);
         }
     }
+    delete state;
+}
+
+// Detached metadata for a replacement embedded graph hierarchy. Preparation
+// copies every attachment map and allocates every GraphBox before CUDA destroys
+// the old embedded graph. Commit only rekeys and publishes it.
+struct PreparedChildGraphUpdateState {
+    GraphHandle h_parent;
+    GraphHandle h_source;
+    GraphBox* old_root = nullptr;
+    CUgraphNode owner_node = nullptr;
+    std::list<GraphBox> replacement;
+    StagedGraphMetadataList staged;
+    std::vector<GraphHandle> handles;
+
+    PreparedChildGraphUpdateState(
+            GraphHandle h_parent_,
+            GraphHandle h_source_,
+            GraphBox* old_root_,
+            CUgraphNode owner_node_)
+        : h_parent(std::move(h_parent_)),
+          h_source(std::move(h_source_)),
+          old_root(old_root_),
+          owner_node(owner_node_) {}
+};
+
+void PreparedChildGraphUpdateDeleter::operator()(
+        PreparedChildGraphUpdateState* state) const noexcept {
     delete state;
 }
 
@@ -1550,6 +1608,122 @@ GraphHandle create_child_graph_handle(
         throw;
     }
     return h_child;
+}
+
+CUresult graph_prepare_child_graph_update(
+        const GraphHandle& h_parent,
+        const GraphHandle& h_old_child,
+        CUgraphNode owner_node,
+        const GraphHandle& h_source,
+        PreparedChildGraphUpdate* out_prepared) {
+    if (!h_parent || !h_old_child || !owner_node ||
+        !h_source || !out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+
+    GraphBox* parent = get_box(h_parent);
+    GraphBox* old_root = get_box(h_old_child);
+    GraphBox* source = get_box(h_source);
+    // A source from the destination hierarchy can include the old embedded
+    // subtree whose raw node keys CUDA destroys during replacement.
+    if (!parent->resource || !old_root->resource || !source->resource ||
+        old_root->parent != parent ||
+        old_root->owner_node != owner_node ||
+        source->hierarchy == parent->hierarchy) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    PreparedChildGraphUpdate prepared(
+        new PreparedChildGraphUpdateState(
+            h_parent, h_source, old_root, owner_node));
+
+    GraphBox& replacement_root =
+        prepared->replacement.emplace_back(
+            nullptr, parent->hierarchy, parent, owner_node);
+    stage_graph_metadata(
+        *source,
+        replacement_root,
+        replacement_root.attachments,
+        prepared->replacement,
+        prepared->staged);
+
+    const size_t graph_count = prepared->staged.size();
+    prepared->handles.reserve(graph_count);
+    for (const StagedGraphMetadata& graph : prepared->staged) {
+        prepared->handles.emplace_back(
+            h_parent, &graph.clone->resource);
+    }
+
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+void keep_replacement_root_only(
+        PreparedChildGraphUpdateState& state) {
+    state.staged.front().clone->attachments.clear();
+    state.staged.resize(1);
+    state.handles.resize(1);
+    auto descendant = std::next(state.replacement.begin());
+    state.replacement.erase(
+        descendant, state.replacement.end());
+}
+
+void publish_child_graph_update(
+        PreparedChildGraphUpdateState& state,
+        GraphHandle* out_child) {
+    GraphBox* parent = get_box(state.h_parent);
+    parent->hierarchy->graphs.splice(
+        parent->hierarchy->graphs.end(), state.replacement);
+    *out_child = state.handles.front();
+    graph_registry.register_handles(state.handles);
+}
+
+CUresult graph_commit_child_graph_update(
+        PreparedChildGraphUpdate& prepared,
+        GraphHandle* out_child) {
+    if (!prepared || !out_child) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_child->reset();
+
+    PreparedChildGraphUpdateState& state = *prepared;
+    GraphBox* parent = get_box(state.h_parent);
+    if (!parent->resource || !state.old_root->resource) {
+        prepared.reset();
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    CUresult status = CUDA_ERROR_NOT_SUPPORTED;
+    CUgraph cloned_root = nullptr;
+    if (p_cuGraphChildGraphNodeGetGraph) {
+        GILReleaseGuard gil;
+        status = p_cuGraphChildGraphNodeGetGraph(
+            state.owner_node, &cloned_root);
+        if (status == CUDA_SUCCESS) {
+            state.staged.front().clone->resource = cloned_root;
+            status = rekey_graph_metadata(state.staged);
+        }
+    }
+
+    // CUDA has already destroyed the old embedded graph. No replacement
+    // metadata is visible yet, so this selects only the old generation.
+    invalidate_child_graph_state(
+        state.h_parent, state.owner_node);
+
+    if (status != CUDA_SUCCESS) {
+        if (!cloned_root) {
+            prepared.reset();
+            return status;
+        }
+        // Preserve access to CUDA's replacement root after a nested metadata
+        // mapping failure; its descendants can be reconstructed on demand.
+        keep_replacement_root_only(state);
+    }
+
+    publish_child_graph_update(state, out_child);
+    delete prepared.release();
+    return status;
 }
 
 CUresult graph_get_attachment(
@@ -1727,13 +1901,22 @@ CUresult graph_clone_attachments(
 
     // Build and rekey the clone metadata off-hierarchy so a CUDA mapping error
     // cannot partially publish it.
-    GraphAttachmentMap attachments = source->attachments;
+    GraphAttachmentMap attachments;
     std::list<GraphBox> subgraphs;
+    StagedGraphMetadataList staged;
+    stage_graph_metadata(
+        *source, *clone, attachments, subgraphs, staged);
+
+    std::vector<GraphHandle> handles;
+    handles.reserve(subgraphs.size());
+    for (GraphBox& graph : subgraphs) {
+        handles.emplace_back(h_clone, &graph.resource);
+    }
+
     CUresult status;
     {
         GILReleaseGuard gil;
-        status = copy_attachments(
-            *source, *clone, attachments, subgraphs);
+        status = rekey_graph_metadata(staged);
     }
     if (status != CUDA_SUCCESS) {
         return status;
@@ -1744,13 +1927,9 @@ CUresult graph_clone_attachments(
         return CUDA_SUCCESS;
     }
 
-    auto first = subgraphs.begin();
     clone->hierarchy->graphs.splice(
         clone->hierarchy->graphs.end(), subgraphs);
-    for (auto it = first; it != clone->hierarchy->graphs.end(); ++it) {
-        GraphHandle h_graph(h_clone, &it->resource);
-        graph_registry.register_handle(it->resource, h_graph);
-    }
+    graph_registry.register_handles(handles);
     return CUDA_SUCCESS;
 }
 
