@@ -19,21 +19,22 @@ class NVRTCError(CUDAError):
 
 class Transaction:
     """
-    A context manager for transactional operations with undo capability.
+    A context manager for transactional operations with failure and exit callbacks.
 
-    The Transaction class allows you to register undo actions (callbacks) that will be executed
-    if the transaction is not committed before exiting the context. This is useful for managing
-    resources or operations that need to be rolled back in case of errors or early exits.
+    Failure callbacks are executed in LIFO order if the transaction exits without being committed.
+    Exit callbacks always run: in LIFO order on rollback or FIFO order during commit.
 
     Usage:
         with Transaction() as txn:
-            txn.append(some_cleanup_function, arg1, arg2)
+            txn.on_failure(some_cleanup_function, arg1, arg2)
+            txn.on_exit(some_finalize_function, arg1, arg2)
             # ... perform operations ...
-            txn.commit()  # Disarm undo actions; nothing will be rolled back on exit
+            txn.commit()
 
     Methods:
-        append(fn, *args, **kwargs): Register an undo action to be called on rollback.
-        commit(): Disarm all undo actions; nothing will be rolled back on exit.
+        on_failure(fn, *args, **kwargs): Register a callback to be called on rollback.
+        on_exit(fn, *args, **kwargs): Register a callback to be called on rollback or commit.
+        commit(): Disarm failure callbacks and run exit callbacks.
     """
 
     def __init__(self) -> None:
@@ -45,15 +46,21 @@ class Transaction:
     def __exit__(self, exc_type, exc, tb):
         ...
 
-    def append(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
+    def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
         """
-        Register an undo action (runs if the with-block exits without commit()).
+        Register a failure callback (runs if the with-block exits without commit()).
+        Values are bound now via partial so late mutations don't bite you.
+        """
+
+    def on_exit(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
+        """
+        Register an exit callback (runs exactly once, on rollback or during commit()).
         Values are bound now via partial so late mutations don't bite you.
         """
 
     def commit(self) -> None:
         """
-        Disarm all undo actions. After this, exiting the with-block does nothing.
+        Disarm all failure callbacks, then run exit callbacks in FIFO order.
         """
 _keep_driver_in_stub: 'driver.CUresult'
 _keep_nvrtc_in_stub: 'nvrtc.nvrtcResult'

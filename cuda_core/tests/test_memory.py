@@ -989,8 +989,8 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
         calls.append(("set_access", ptr, size, count))
         return (SUCCESS,)
 
-    # Rollback-only entry points: registered as undo actions but, on a
-    # successful commit, must never be invoked.
+    # Cleanup entry points. Release runs on commit; unmap and address free
+    # remain rollback-only.
     def fake_unmap(ptr, size):
         calls.append(("unmap", ptr, size))
         return (SUCCESS,)
@@ -1028,11 +1028,43 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert result is buf
     assert buf._size == new_size
 
-    # Successful commit: create, map, set access, and no rollback calls.
-    assert [c[0] for c in calls] == ["create", "map", "set_access"]
+    # Successful commit: create, map, set access, and release the creation handle.
+    assert [c[0] for c in calls] == ["create", "map", "set_access", "release"]
     assert ("create", aligned_additional) in calls
     assert ("map", new_ptr, aligned_additional, NEW_HANDLE) in calls
     assert ("set_access", new_ptr, aligned_additional, 1) in calls
+    assert ("release", NEW_HANDLE) in calls
+
+
+@pytest.mark.parametrize("grow", [False, True], ids=["allocate", "grow"])
+def test_vmm_allocate_close_does_not_leak(init_cuda, grow):
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+    requested_size = 8 * 1024 * 1024
+
+    def allocate_and_close():
+        buf = mr.allocate(requested_size)
+        if grow:
+            buf = mr.modify_allocation(buf, 2 * buf.size)
+        aligned_size = buf.size
+        buf.close()
+        return aligned_size
+
+    aligned_size = allocate_and_close()  # Warm up and learn the aligned allocation size.
+
+    baseline = handle_return(driver.cuMemGetInfo())[0]
+    for _ in range(8):
+        allocate_and_close()
+    free = handle_return(driver.cuMemGetInfo())[0]
+
+    # Current main leaks aligned_size per iteration; the fixed path stays near baseline.
+    assert baseline - free < aligned_size
 
 
 def test_vmm_allocator_rdma_unsupported_exception():

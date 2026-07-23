@@ -317,19 +317,18 @@ class VirtualMemoryResource(MemoryResource):
         """
         with Transaction() as trans:
             # Create new physical memory for the additional size
-            trans.append(
+            trans.on_failure(
                 lambda np=new_ptr, s=aligned_additional_size: raise_if_driver_error(driver.cuMemAddressFree(np, s)[0])
             )
             res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
             raise_if_driver_error(res)
-            # Register undo for creation
-            trans.append(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
+            trans.on_exit(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # Map the new physical memory to the extended VA range
             (res,) = driver.cuMemMap(new_ptr, aligned_additional_size, 0, new_handle, 0)
             raise_if_driver_error(res)
             # Register undo for mapping
-            trans.append(
+            trans.on_failure(
                 lambda np=new_ptr, s=aligned_additional_size: raise_if_driver_error(driver.cuMemUnmap(np, s)[0])
             )
 
@@ -382,15 +381,14 @@ class VirtualMemoryResource(MemoryResource):
             res, new_ptr = driver.cuMemAddressReserve(total_aligned_size, addr_align, 0, 0)
             raise_if_driver_error(res)
             # Register undo for VA reservation
-            trans.append(
+            trans.on_failure(
                 lambda np=new_ptr, s=total_aligned_size: raise_if_driver_error(driver.cuMemAddressFree(np, s)[0])
             )
 
             # Get the old allocation handle for remapping
             result, old_handle = driver.cuMemRetainAllocationHandle(buf.handle)
             raise_if_driver_error(result)
-            # Register undo for old_handle
-            trans.append(lambda h=old_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
+            trans.on_exit(lambda h=old_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # Unmap the old VA range (aligned previous size)
             aligned_prev_size = total_aligned_size - aligned_additional_size
@@ -406,28 +404,26 @@ class VirtualMemoryResource(MemoryResource):
                     # TODO: consider logging this exception
                     pass
 
-            trans.append(_remap_old)
+            trans.on_failure(_remap_old)
 
             # Remap the old physical memory to the new VA range (aligned previous size)
             (res,) = driver.cuMemMap(int(new_ptr), aligned_prev_size, 0, old_handle, 0)
             raise_if_driver_error(res)
 
             # Register undo for mapping
-            trans.append(lambda np=new_ptr, s=aligned_prev_size: raise_if_driver_error(driver.cuMemUnmap(np, s)[0]))
+            trans.on_failure(lambda np=new_ptr, s=aligned_prev_size: raise_if_driver_error(driver.cuMemUnmap(np, s)[0]))
 
             # Create new physical memory for the additional size
             res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
             raise_if_driver_error(res)
-
-            # Register undo for new physical memory
-            trans.append(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
+            trans.on_exit(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # Map the new physical memory to the extended portion (aligned offset)
             (res,) = driver.cuMemMap(int(new_ptr) + aligned_prev_size, aligned_additional_size, 0, new_handle, 0)
             raise_if_driver_error(res)
 
             # Register undo for mapping
-            trans.append(
+            trans.on_failure(
                 lambda base=int(new_ptr), offs=aligned_prev_size, s=aligned_additional_size: raise_if_driver_error(
                     driver.cuMemUnmap(base + offs, s)[0]
                 )
@@ -542,20 +538,20 @@ class VirtualMemoryResource(MemoryResource):
             # ---- Create physical memory ----
             res, handle = driver.cuMemCreate(aligned_size, prop, 0)
             raise_if_driver_error(res)
-            # Register undo for physical memory
-            trans.append(lambda h=handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
+            # Drop the creation reference on either outcome; a successful mapping keeps the allocation alive.
+            trans.on_exit(lambda h=handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # ---- Reserve VA space ----
             # Potentially, use a separate size for the VA reservation from the physical allocation size
             res, ptr = driver.cuMemAddressReserve(aligned_size, addr_align, config.addr_hint, 0)
             raise_if_driver_error(res)
             # Register undo for VA reservation
-            trans.append(lambda p=ptr, s=aligned_size: raise_if_driver_error(driver.cuMemAddressFree(p, s)[0]))
+            trans.on_failure(lambda p=ptr, s=aligned_size: raise_if_driver_error(driver.cuMemAddressFree(p, s)[0]))
 
             # ---- Map physical memory into VA ----
             (res,) = driver.cuMemMap(ptr, aligned_size, 0, handle, 0)
-            trans.append(lambda p=ptr, s=aligned_size: raise_if_driver_error(driver.cuMemUnmap(p, s)[0]))
             raise_if_driver_error(res)
+            trans.on_failure(lambda p=ptr, s=aligned_size: raise_if_driver_error(driver.cuMemUnmap(p, s)[0]))
 
             # ---- Set access for owner + peers ----
             descs = self._build_access_descriptors(prop)
@@ -589,13 +585,10 @@ class VirtualMemoryResource(MemoryResource):
             from cuda.core._stream import Stream_accept
 
             Stream_accept(stream)
-        result, handle = driver.cuMemRetainAllocationHandle(ptr)
-        raise_if_driver_error(result)
+        # The mapping owns the allocation; unmapping frees its backing memory when no external references remain.
         (result,) = driver.cuMemUnmap(ptr, size)
         raise_if_driver_error(result)
         (result,) = driver.cuMemAddressFree(ptr, size)
-        raise_if_driver_error(result)
-        (result,) = driver.cuMemRelease(handle)
         raise_if_driver_error(result)
 
     @property
