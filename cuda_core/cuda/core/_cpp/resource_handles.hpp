@@ -112,6 +112,9 @@ extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
 extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
 extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
 extern decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject;
+extern decltype(&cuGraphReleaseUserObject) p_cuGraphReleaseUserObject;
+extern decltype(&cuGraphNodeFindInClone) p_cuGraphNodeFindInClone;
+extern decltype(&cuGraphChildGraphNodeGetGraph) p_cuGraphChildGraphNodeGetGraph;
 
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
@@ -259,6 +262,7 @@ void py_object_user_object_destroy(void* py_object) noexcept;
 // Initialize the process-lifetime CUDA user-object cleanup queue. Called once
 // from module initialization while Python is fully initialized.
 void initialize_deferred_cleanup();
+void retry_deferred_cleanup() noexcept;
 
 // Return the context dependency associated with a stream handle, if any.
 ContextHandle get_stream_context(const StreamHandle& h) noexcept;
@@ -462,26 +466,28 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
 // Graph handle functions
 // ============================================================================
 
-// Wrap an externally-created CUgraph with RAII cleanup.
-// When the last reference is released, cuGraphDestroy is called automatically.
-// The caller must have already created the graph via cuGraphCreate.
+// Create the owning handle for a root graph and its hierarchy.
 GraphHandle create_graph_handle(CUgraph graph);
 
-// Create a non-owning graph handle that keeps h_parent alive.
-// Use for graphs owned by a child/conditional node in a parent graph.
-// The child graph will NOT be destroyed when this handle is released,
-// but h_parent will be prevented from destruction while this handle exists.
-GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
+// Create the canonical handle for a graph whose CUDA lifetime is owned by a
+// node in h_parent.
+GraphHandle create_child_graph_handle(
+    CUgraph child_graph, const GraphHandle& h_parent, CUgraphNode owner_node);
 
 // ============================================================================
-// Graph slot attachments
+// Graph node attachments
 //
-// A graph carries a side table that keeps resources used by its nodes (kernel
-// arguments, host callbacks, events, ...) alive for as long as the graph can
-// execute. The table is created on first use and retained on the CUgraph as a
-// user object, so the driver releases it -- and everything attached through it
-// -- when the graph is destroyed. The table layout is an internal detail;
-// callers use the abstract API below.
+// Each resource-bearing node has one attachment with an immutable owner bundle,
+// retained on its CUgraph as a CUDA user object.
+//
+// Attachment mutations use prepare -> CUDA mutation -> commit. Preparation
+// graph-retains a replacement and preallocates its map entry when needed; an
+// empty replacement stages removal. Dropping an uncommitted PreparedAttachment
+// rolls back any staged retain. Commit updates metadata before releasing the
+// previous graph reference.
+// graph_get_attachment lets callers carry unchanged owners into partial
+// updates. The clone and invalidation helpers synchronize non-owning metadata
+// after CUDA copies or destroys graph state.
 // ============================================================================
 
 // Type-erased shared owner of an attached resource. Typed handles such as
@@ -497,14 +503,50 @@ OpaqueHandle make_opaque_py(PyObject* obj);
 // Build an OpaqueHandle from a malloc'd buffer: std::free on release.
 OpaqueHandle make_opaque_malloc(void* buf);
 
-// Attach owner to one of node's fixed slots on h_graph, replacing whatever was
-// there. The graph's slot table is created on first use. A null owner is a
-// no-op (returns CUDA_SUCCESS without creating the table), so callers need not
-// guard optional owners. Returns CUDA_SUCCESS, or an error if slot is out of
-// range or the graph cannot hold a table (e.g. the driver lacks user-object
-// support).
-CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
-                        unsigned int slot, OpaqueHandle owner);
+struct PreparedAttachmentState;
+using PreparedAttachmentRollback =
+    void (*)(PreparedAttachmentState*) noexcept;
+struct PreparedAttachmentDeleter {
+    PreparedAttachmentRollback rollback = nullptr;
+
+    void operator()(PreparedAttachmentState* state) const noexcept {
+        rollback(state);
+    }
+};
+using PreparedAttachment =
+    std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
+
+// Copy requested owners from node's current attachment. Pass nullptr to ignore
+// either owner; a missing attachment produces empty handles.
+CUresult graph_get_attachment(
+    const GraphHandle& h_graph,
+    CUgraphNode node,
+    OpaqueHandle* owner0,
+    OpaqueHandle* owner1);
+
+// Create and graph-retain a replacement attachment before a CUDA mutation.
+// Destruction rolls the prepared attachment back unless it is committed.
+CUresult graph_prepare_attachment(
+    const GraphHandle& h_graph,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedAttachment* out_prepared);
+
+// Publish a prepared attachment after the CUDA mutation succeeds. A null node
+// retains the attachment anonymously without publishing node metadata.
+CUresult graph_commit_attachment(
+    PreparedAttachment& prepared,
+    CUgraphNode node);
+
+// Copy attachment metadata from a source graph hierarchy into its CUDA clone.
+CUresult graph_clone_attachments(
+    const GraphHandle& h_clone,
+    const GraphHandle& h_source);
+
+// Invalidate cuda.core state for child graphs CUDA destroyed with owner_node.
+void invalidate_child_graph_state(
+    const GraphHandle& h_parent,
+    CUgraphNode owner_node) noexcept;
 
 // ============================================================================
 // Graph exec handle functions
