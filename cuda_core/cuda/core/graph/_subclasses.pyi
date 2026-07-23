@@ -154,7 +154,7 @@ class MemsetNode(GraphNode):
     def __repr__(self) -> str:
         ...
 
-    def update(self, dst: Buffer | int | None=None, value=None, width: int | None=None, height: int | None=None, pitch: int | None=None, *, dst_owner=None) -> None:
+    def update(self, *, dst: Buffer | int | None=None, value=None, width: int | None=None, height: int | None=None, pitch: int | None=None, dst_owner=None) -> None:
         """Replace selected memset parameters.
 
         Omitted parameters preserve their current values. ``dst_owner`` may
@@ -208,7 +208,7 @@ class MemcpyNode(GraphNode):
     def __repr__(self) -> str:
         ...
 
-    def update(self, dst: Buffer | int | None=None, src: Buffer | int | None=None, size: int | None=None, *, dst_owner=None, src_owner=None) -> None:
+    def update(self, *, dst: Buffer | int | None=None, src: Buffer | int | None=None, size: int | None=None, dst_owner=None, src_owner=None) -> None:
         """Replace selected memcpy parameters.
 
         Omitted parameters preserve their current values. ``dst_owner`` and
