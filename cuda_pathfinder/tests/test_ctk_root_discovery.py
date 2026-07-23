@@ -19,6 +19,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _try_ctk_root_canary,
     resolve_ctk_root_via_canary,
 )
+from cuda.pathfinder._dynamic_libs.search_platform import WindowsSearchPlatform
 from cuda.pathfinder._dynamic_libs.search_steps import (
     SearchContext,
     _derive_ctk_root_linux,
@@ -126,6 +127,11 @@ def test_derive_ctk_root_windows_ctk13():
     assert _derive_ctk_root_windows(path) == r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0"
 
 
+def test_derive_ctk_root_windows_ctk13_arm64():
+    path = r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.4\bin\arm64\cudart64_13.dll"
+    assert _derive_ctk_root_windows(path) == r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.4"
+
+
 def test_derive_ctk_root_windows_ctk12():
     path = r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\bin\cudart64_12.dll"
     assert _derive_ctk_root_windows(path) == r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8"
@@ -187,6 +193,23 @@ def test_try_via_ctk_root_regular_lib(tmp_path):
     result = find_via_ctk_root(_ctx("cudart"), str(ctk_root))
     assert result is not None
     assert result.abs_path == str(cudart_lib)
+    assert result.found_via == "system-ctk-root"
+
+
+def test_try_via_ctk_root_windows_arm64_prefers_arch_dir(tmp_path):
+    ctk_root = tmp_path / "cuda-13"
+    x64_dir = ctk_root / "bin" / "x64"
+    arm64_dir = ctk_root / "bin" / "arm64"
+    x64_dir.mkdir(parents=True)
+    arm64_dir.mkdir(parents=True)
+    (x64_dir / "cudart64_13.dll").write_bytes(b"fake")
+    arm64_lib = arm64_dir / "cudart64_13.dll"
+    arm64_lib.write_bytes(b"fake")
+
+    ctx = SearchContext(LIB_DESCRIPTORS["cudart"], platform=WindowsSearchPlatform(target_arch="arm64"))
+    result = find_via_ctk_root(ctx, str(ctk_root))
+    assert result is not None
+    assert result.abs_path == str(arm64_lib)
     assert result.found_via == "system-ctk-root"
 
 

@@ -60,11 +60,16 @@ SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
 }
 SITE_PACKAGES_LIBDIRS_LINUX = SITE_PACKAGES_LIBDIRS_LINUX_CTK | SITE_PACKAGES_LIBDIRS_LINUX_OTHER
 
+# Historical table exports represent the original x64 catalog.
 SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
-    desc.name: desc.site_packages_windows for desc in _CTK_DESCRIPTORS if desc.site_packages_windows
+    desc.name: desc.site_packages_windows.for_arch("x64")
+    for desc in _CTK_DESCRIPTORS
+    if desc.site_packages_windows.paths
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
-    desc.name: desc.site_packages_windows for desc in _NON_CTK_DESCRIPTORS if desc.site_packages_windows
+    desc.name: desc.site_packages_windows.for_arch("x64")
+    for desc in _NON_CTK_DESCRIPTORS
+    if desc.site_packages_windows.paths
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
 

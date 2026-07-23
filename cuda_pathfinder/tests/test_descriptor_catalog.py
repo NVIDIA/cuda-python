@@ -59,7 +59,7 @@ def test_no_self_dependency(spec: DescriptorSpec):
 def test_driver_libs_have_no_site_packages(spec: DescriptorSpec):
     """Driver libs are system-search-only; site-packages paths would be unused."""
     assert not spec.site_packages_linux, f"driver lib {spec.name} has site_packages_linux"
-    assert not spec.site_packages_windows, f"driver lib {spec.name} has site_packages_windows"
+    assert not spec.site_packages_windows.paths, f"driver lib {spec.name} has site_packages_windows"
 
 
 @pytest.mark.parametrize(

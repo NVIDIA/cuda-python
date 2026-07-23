@@ -6,11 +6,67 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import PurePosixPath
 from typing import Literal
 
 from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
 
 PackagedWith = Literal["ctk", "other", "driver"]
+
+
+@dataclass(frozen=True, slots=True)
+class WindowsSearchDir:
+    """One Windows search location with architecture-specific spellings."""
+
+    x64: str
+    arm64: str
+
+    @classmethod
+    def common(cls, path: str) -> WindowsSearchDir:
+        return cls(x64=path, arm64=path)
+
+    def for_arch(self, target_arch: str) -> str:
+        if target_arch == "x64":
+            return self.x64
+        if target_arch == "arm64":
+            return self.arm64
+        raise ValueError(f"Unsupported Windows target architecture: {target_arch!r}")
+
+
+@dataclass(frozen=True, slots=True)
+class WindowsSearchDirs:
+    """Ordered Windows search locations selected for one architecture."""
+
+    paths: tuple[WindowsSearchDir, ...] = ()
+
+    @classmethod
+    def common(cls, *paths: str) -> WindowsSearchDirs:
+        return cls(tuple(WindowsSearchDir.common(path) for path in paths))
+
+    def for_arch(self, target_arch: str) -> tuple[str, ...]:
+        return tuple(path.for_arch(target_arch) for path in self.paths)
+
+
+DEFAULT_WINDOWS_CTK_ANCHOR_DIRS = WindowsSearchDirs(
+    paths=(
+        WindowsSearchDir(x64="bin/x64", arm64="bin/arm64"),
+        WindowsSearchDir.common("bin"),
+    )
+)
+
+
+def _ctk_windows_wheel_dirs(cuda13_bin_dir: str, cuda12_dir: str) -> WindowsSearchDirs:
+    """Search the CUDA 13 aggregate wheel before its CUDA 12 component wheel."""
+    cuda13_bin_path = PurePosixPath(cuda13_bin_dir)
+    return WindowsSearchDirs(
+        paths=(
+            WindowsSearchDir(
+                x64=(cuda13_bin_path / "x86_64").as_posix(),
+                arm64=(cuda13_bin_path / "arm64").as_posix(),
+            ),
+            WindowsSearchDir.common(cuda12_dir),
+        )
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,10 +76,10 @@ class DescriptorSpec:
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
     site_packages_linux: tuple[str, ...] = ()
-    site_packages_windows: tuple[str, ...] = ()
+    site_packages_windows: WindowsSearchDirs = WindowsSearchDirs()
     dependencies: tuple[str, ...] = ()
     anchor_rel_dirs_linux: tuple[str, ...] = ("lib64", "lib")
-    anchor_rel_dirs_windows: tuple[str, ...] = ("bin/x64", "bin")
+    anchor_rel_dirs_windows: WindowsSearchDirs = DEFAULT_WINDOWS_CTK_ANCHOR_DIRS
     ctk_root_canary_anchor_libnames: tuple[str, ...] = ()
     requires_add_dll_directory: bool = False
     requires_rtld_deepbind: bool = False
@@ -39,7 +95,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcudart.so.12", "libcudart.so.13"),
         windows_dlls=("cudart64_12.dll", "cudart64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_runtime/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cuda_runtime/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_runtime/bin"),
     ),
     DescriptorSpec(
         name="nvfatbin",
@@ -47,7 +103,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnvfatbin.so.12", "libnvfatbin.so.13"),
         windows_dlls=("nvfatbin_120_0.dll", "nvfatbin_130_0.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/nvfatbin/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/nvfatbin/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/nvfatbin/bin"),
     ),
     DescriptorSpec(
         name="nvJitLink",
@@ -55,7 +111,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnvJitLink.so.12", "libnvJitLink.so.13"),
         windows_dlls=("nvJitLink_120_0.dll", "nvJitLink_130_0.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/nvjitlink/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/nvjitlink/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/nvjitlink/bin"),
     ),
     DescriptorSpec(
         name="nvrtc",
@@ -63,7 +119,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnvrtc.so.12", "libnvrtc.so.13"),
         windows_dlls=("nvrtc64_120_0.dll", "nvrtc64_130_0.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_nvrtc/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvrtc/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_nvrtc/bin"),
         requires_add_dll_directory=True,
     ),
     DescriptorSpec(
@@ -72,9 +128,14 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnvvm.so.4",),
         windows_dlls=("nvvm64.dll", "nvvm64_40_0.dll", "nvvm70.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvcc/nvvm/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_nvcc/nvvm/bin"),
         anchor_rel_dirs_linux=("nvvm/lib64",),
-        anchor_rel_dirs_windows=("nvvm/bin/*", "nvvm/bin"),
+        anchor_rel_dirs_windows=WindowsSearchDirs(
+            paths=(
+                WindowsSearchDir(x64="nvvm/bin/x64", arm64="nvvm/bin/arm64"),
+                WindowsSearchDir.common("nvvm/bin"),
+            )
+        ),
         ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
     ),
     DescriptorSpec(
@@ -83,7 +144,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcublas.so.12", "libcublas.so.13"),
         windows_dlls=("cublas64_12.dll", "cublas64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cublas/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cublas/bin"),
         dependencies=("cublasLt",),
     ),
     DescriptorSpec(
@@ -92,7 +153,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcublasLt.so.12", "libcublasLt.so.13"),
         windows_dlls=("cublasLt64_12.dll", "cublasLt64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cublas/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cublas/bin"),
     ),
     DescriptorSpec(
         name="cufft",
@@ -100,7 +161,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcufft.so.11", "libcufft.so.12"),
         windows_dlls=("cufft64_11.dll", "cufft64_12.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cufft/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cufft/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cufft/bin"),
         requires_add_dll_directory=True,
     ),
     DescriptorSpec(
@@ -109,7 +170,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcufftw.so.11", "libcufftw.so.12"),
         windows_dlls=("cufftw64_11.dll", "cufftw64_12.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cufft/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cufft/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cufft/bin"),
         dependencies=("cufft",),
     ),
     DescriptorSpec(
@@ -118,7 +179,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcurand.so.10",),
         windows_dlls=("curand64_10.dll",),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/curand/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/curand/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/curand/bin"),
     ),
     DescriptorSpec(
         name="cusolver",
@@ -126,7 +187,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcusolver.so.11", "libcusolver.so.12"),
         windows_dlls=("cusolver64_11.dll", "cusolver64_12.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cusolver/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cusolver/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cusolver/bin"),
         dependencies=("nvJitLink", "cusparse", "cublasLt", "cublas"),
     ),
     DescriptorSpec(
@@ -135,7 +196,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcusolverMg.so.11", "libcusolverMg.so.12"),
         windows_dlls=("cusolverMg64_11.dll", "cusolverMg64_12.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cusolver/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cusolver/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cusolver/bin"),
         dependencies=("nvJitLink", "cublasLt", "cublas"),
     ),
     DescriptorSpec(
@@ -144,7 +205,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcusparse.so.12",),
         windows_dlls=("cusparse64_12.dll",),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cusparse/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cusparse/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cusparse/bin"),
         dependencies=("nvJitLink",),
     ),
     DescriptorSpec(
@@ -153,7 +214,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppc.so.12", "libnppc.so.13"),
         windows_dlls=("nppc64_12.dll", "nppc64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
     ),
     DescriptorSpec(
         name="nppial",
@@ -161,7 +222,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppial.so.12", "libnppial.so.13"),
         windows_dlls=("nppial64_12.dll", "nppial64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -170,7 +231,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppicc.so.12", "libnppicc.so.13"),
         windows_dlls=("nppicc64_12.dll", "nppicc64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -179,7 +240,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppidei.so.12", "libnppidei.so.13"),
         windows_dlls=("nppidei64_12.dll", "nppidei64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -188,7 +249,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppif.so.12", "libnppif.so.13"),
         windows_dlls=("nppif64_12.dll", "nppif64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -197,7 +258,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppig.so.12", "libnppig.so.13"),
         windows_dlls=("nppig64_12.dll", "nppig64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -206,7 +267,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppim.so.12", "libnppim.so.13"),
         windows_dlls=("nppim64_12.dll", "nppim64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -215,7 +276,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppist.so.12", "libnppist.so.13"),
         windows_dlls=("nppist64_12.dll", "nppist64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -224,7 +285,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppisu.so.12", "libnppisu.so.13"),
         windows_dlls=("nppisu64_12.dll", "nppisu64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -233,7 +294,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnppitc.so.12", "libnppitc.so.13"),
         windows_dlls=("nppitc64_12.dll", "nppitc64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -242,7 +303,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnpps.so.12", "libnpps.so.13"),
         windows_dlls=("npps64_12.dll", "npps64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/npp/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/npp/bin"),
         dependencies=("nppc",),
     ),
     DescriptorSpec(
@@ -251,7 +312,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnvblas.so.12", "libnvblas.so.13"),
         windows_dlls=("nvblas64_12.dll", "nvblas64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cublas/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cublas/bin"),
         dependencies=("cublas", "cublasLt"),
     ),
     DescriptorSpec(
@@ -260,7 +321,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libnvjpeg.so.12", "libnvjpeg.so.13"),
         windows_dlls=("nvjpeg64_12.dll", "nvjpeg64_13.dll"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/nvjpeg/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/nvjpeg/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/nvjpeg/bin"),
     ),
     DescriptorSpec(
         name="cufile",
@@ -291,9 +352,15 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
             "cupti64_2022.4.1.dll",
         ),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_cupti/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x86_64", "nvidia/cuda_cupti/bin"),
+        site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_cupti/bin"),
         anchor_rel_dirs_linux=("extras/CUPTI/lib64", "lib"),
-        anchor_rel_dirs_windows=("extras/CUPTI/lib64", "bin"),
+        anchor_rel_dirs_windows=WindowsSearchDirs(
+            paths=(
+                WindowsSearchDir.common("extras/CUPTI/lib64"),
+                WindowsSearchDir(x64="bin/x64", arm64="bin/arm64"),
+                WindowsSearchDir.common("bin"),
+            )
+        ),
         ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
     ),
     DescriptorSpec(
@@ -304,9 +371,6 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_linux=("nvidia/cu13/lib",),
         # No Windows pip wheel ships cudla.dll today; it is loaded from the local
         # CUDA Toolkit only, so site_packages_windows is intentionally left empty.
-        # The Windows CUDA Toolkit ships cudla.dll under per-architecture bin
-        # subdirs (e.g. bin/arm64 on N1X); search those ahead of the defaults.
-        anchor_rel_dirs_windows=("bin/arm64", "bin/x64", "bin"),
     ),
     # -----------------------------------------------------------------------
     # Third-party / separately packaged libraries
@@ -339,7 +403,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libmathdx.so.0",),
         windows_dlls=("mathdx64_0.dll",),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cu12/lib"),
-        site_packages_windows=("nvidia/cu13/bin", "nvidia/cu12/bin"),
+        site_packages_windows=WindowsSearchDirs.common("nvidia/cu13/bin", "nvidia/cu12/bin"),
         dependencies=("nvrtc",),
     ),
     DescriptorSpec(
@@ -348,7 +412,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcudss.so.0",),
         windows_dlls=("cudss64_0.dll",),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cu12/lib"),
-        site_packages_windows=("nvidia/cu13/bin", "nvidia/cu12/bin"),
+        site_packages_windows=WindowsSearchDirs.common("nvidia/cu13/bin", "nvidia/cu12/bin"),
         dependencies=("cublas", "cublasLt"),
     ),
     DescriptorSpec(
@@ -357,7 +421,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcusparseLt.so.0",),
         windows_dlls=("cusparseLt.dll",),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cusparselt/lib"),
-        site_packages_windows=("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
+        site_packages_windows=WindowsSearchDirs.common("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
     ),
     DescriptorSpec(
         name="cutensor",
@@ -365,7 +429,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcutensor.so.2",),
         windows_dlls=("cutensor.dll",),
         site_packages_linux=("cutensor/lib",),
-        site_packages_windows=("cutensor/bin",),
+        site_packages_windows=WindowsSearchDirs.common("cutensor/bin"),
         dependencies=("cublasLt",),
     ),
     DescriptorSpec(
@@ -374,7 +438,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcutensorMg.so.2",),
         windows_dlls=("cutensorMg.dll",),
         site_packages_linux=("cutensor/lib",),
-        site_packages_windows=("cutensor/bin",),
+        site_packages_windows=WindowsSearchDirs.common("cutensor/bin"),
         dependencies=("cutensor", "cublasLt"),
     ),
     DescriptorSpec(

@@ -121,13 +121,14 @@ def _derive_ctk_root_windows(resolved_lib_path: str) -> str | None:
 
     Supports:
     - ``$CTK_ROOT/bin/x64/foo.dll`` (CTK 13 style)
+    - ``$CTK_ROOT/bin/arm64/foo.dll`` (Windows on Arm CTK 13 style)
     - ``$CTK_ROOT/bin/foo.dll`` (CTK 12 style)
     """
     import ntpath
 
     lib_dir = ntpath.dirname(resolved_lib_path)
     basename = ntpath.basename(lib_dir).lower()
-    if basename == "x64":
+    if basename in ("x64", "arm64"):
         parent = ntpath.dirname(lib_dir)
         if ntpath.basename(parent).lower() == "bin":
             return ntpath.dirname(parent)
