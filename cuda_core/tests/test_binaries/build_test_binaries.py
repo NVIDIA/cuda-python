@@ -37,7 +37,7 @@ def main() -> None:
                 "nvcc",
                 "-dc",
                 *nvcc_extra_flags,
-                "-arch=all-major",
+                "-arch=all",
                 "-o",
                 str(object_path),
                 str(source_path),

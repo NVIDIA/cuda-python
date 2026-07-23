@@ -320,7 +320,7 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
 
 
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_launch_scalar_argument(python_type, cpp_type, init_value):
     dev = Device()
     dev.set_current()
@@ -536,7 +536,7 @@ def test_kernel_arg_ctypes_subclass_isinstance_fallback():
     assert holder.ptr != 0
 
 
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 @pytest.mark.parametrize(
     ("scalar_kind", "np_dtype", "cpp_type", "raw_value"),
     [

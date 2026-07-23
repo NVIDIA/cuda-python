@@ -3,80 +3,63 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3b89f4c5e0a102d65950a485dab14517cb67887864d22152311d76341701e667
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2052c33a9bbfdef36b362c4eedc1284ce8fa2fc905a53ac9c366218ca99f5913
-from libc.stdint cimport intptr_t
 
-import threading
-from .utils import FunctionNotFoundError, NotSupportedError
+# <<<< PREAMBLE CONTENT >>>>
 
-from cuda.pathfinder import load_nvidia_dynamic_lib
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
 
-from libc.stddef cimport wchar_t
-from libc.stdint cimport uintptr_t
-from cpython cimport PyUnicode_AsWideCharString, PyMem_Free
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
 
-# You must 'from .utils import NotSupportedError' before using this template
-
-cdef extern from "windows.h" nogil:
+cdef extern from "<windows.h>":
     ctypedef void* HMODULE
-    ctypedef void* HANDLE
-    ctypedef void* FARPROC
-    ctypedef unsigned long DWORD
-    ctypedef const wchar_t *LPCWSTR
-    ctypedef const char *LPCSTR
+    void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
-    cdef DWORD LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-    cdef DWORD LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+from libc.stdint cimport intptr_t as _cyb_intptr_t
 
-    HMODULE _LoadLibraryExW "LoadLibraryExW"(
-        LPCWSTR lpLibFileName,
-        HANDLE hFile,
-        DWORD dwFlags
-    )
+import threading as _cyb_threading
 
-    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, LPCSTR lpProcName)
+cdef int _cyb___py_nvfatbin_init = 0
+cdef dict _cyb_func_ptrs = None
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
-cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
-    cdef uintptr_t result
-    cdef wchar_t* wpath = PyUnicode_AsWideCharString(path, NULL)
-    with nogil:
-        result = <uintptr_t>_LoadLibraryExW(
-            wpath,
-            hFile,
-            dwFlags
-        )
-    PyMem_Free(wpath)
-    return result
+# <<<< END OF PREAMBLE CONTENT >>>>
 
-cdef inline void *GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
-    return _GetProcAddress(<HMODULE>hModule, lpProcName)
-
-cdef int get_cuda_version():
-    cdef int err, driver_ver = 0
-
-    # Load driver to check version
-    handle = LoadLibraryExW("nvcuda.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)
-    if handle == 0:
-        raise NotSupportedError('CUDA driver is not found')
-    cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
-    if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in nvcuda.dll')
-    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
-
-    return driver_ver
-
-
-
+from libc.stdint cimport uintptr_t
+from cuda.pathfinder import load_nvidia_dynamic_lib
+from .utils import FunctionNotFoundError, NotSupportedError
 ###############################################################################
 # Wrapper init
 ###############################################################################
-
-cdef object __symbol_lock = threading.Lock()
-cdef bint __py_nvfatbin_init = False
 
 cdef void* __nvFatbinGetErrorString = NULL
 cdef void* __nvFatbinCreate = NULL
@@ -91,122 +74,118 @@ cdef void* __nvFatbinAddIndex = NULL
 cdef void* __nvFatbinAddReloc = NULL
 cdef void* __nvFatbinAddTileIR = NULL
 
-
 cdef int _init_nvfatbin() except -1 nogil:
-    global __py_nvfatbin_init
+    global _cyb___py_nvfatbin_init
 
-    with gil, __symbol_lock:
-        # Recheck the flag after obtaining the locks
-        if __py_nvfatbin_init:
-            return 0
+    cdef int err
+    cdef uintptr_t handle
+    with gil, _cyb_symbol_lock:
+        if _cyb___py_nvfatbin_init: return 0
 
-        # Load library
-        handle = load_nvidia_dynamic_lib("nvfatbin")._handle_uint
-
-        # Load function
+        handle = load_library()
         global __nvFatbinGetErrorString
-        __nvFatbinGetErrorString = GetProcAddress(handle, 'nvFatbinGetErrorString')
+        __nvFatbinGetErrorString = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinGetErrorString')
 
         global __nvFatbinCreate
-        __nvFatbinCreate = GetProcAddress(handle, 'nvFatbinCreate')
+        __nvFatbinCreate = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinCreate')
 
         global __nvFatbinDestroy
-        __nvFatbinDestroy = GetProcAddress(handle, 'nvFatbinDestroy')
+        __nvFatbinDestroy = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinDestroy')
 
         global __nvFatbinAddPTX
-        __nvFatbinAddPTX = GetProcAddress(handle, 'nvFatbinAddPTX')
+        __nvFatbinAddPTX = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddPTX')
 
         global __nvFatbinAddCubin
-        __nvFatbinAddCubin = GetProcAddress(handle, 'nvFatbinAddCubin')
+        __nvFatbinAddCubin = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddCubin')
 
         global __nvFatbinAddLTOIR
-        __nvFatbinAddLTOIR = GetProcAddress(handle, 'nvFatbinAddLTOIR')
+        __nvFatbinAddLTOIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddLTOIR')
 
         global __nvFatbinSize
-        __nvFatbinSize = GetProcAddress(handle, 'nvFatbinSize')
+        __nvFatbinSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinSize')
 
         global __nvFatbinGet
-        __nvFatbinGet = GetProcAddress(handle, 'nvFatbinGet')
+        __nvFatbinGet = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinGet')
 
         global __nvFatbinVersion
-        __nvFatbinVersion = GetProcAddress(handle, 'nvFatbinVersion')
+        __nvFatbinVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinVersion')
 
         global __nvFatbinAddIndex
-        __nvFatbinAddIndex = GetProcAddress(handle, 'nvFatbinAddIndex')
+        __nvFatbinAddIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddIndex')
 
         global __nvFatbinAddReloc
-        __nvFatbinAddReloc = GetProcAddress(handle, 'nvFatbinAddReloc')
+        __nvFatbinAddReloc = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddReloc')
 
         global __nvFatbinAddTileIR
-        __nvFatbinAddTileIR = GetProcAddress(handle, 'nvFatbinAddTileIR')
+        __nvFatbinAddTileIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddTileIR')
 
-        __py_nvfatbin_init = True
+        _cyb_atomic_int_store(<int *>&_cyb___py_nvfatbin_init, 1)
         return 0
 
-
 cdef inline int _check_or_init_nvfatbin() except -1 nogil:
-    if __py_nvfatbin_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_nvfatbin_init):
         return 0
 
     return _init_nvfatbin()
 
 
-cdef dict func_ptrs = None
-
-
 cpdef dict _inspect_function_pointers():
-    global func_ptrs
-    if func_ptrs is not None:
-        return func_ptrs
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is not None:
+        return _cyb_func_ptrs
 
     _check_or_init_nvfatbin()
     cdef dict data = {}
-
     global __nvFatbinGetErrorString
-    data["__nvFatbinGetErrorString"] = <intptr_t>__nvFatbinGetErrorString
+    data["__nvFatbinGetErrorString"] = <_cyb_intptr_t>__nvFatbinGetErrorString
 
     global __nvFatbinCreate
-    data["__nvFatbinCreate"] = <intptr_t>__nvFatbinCreate
+    data["__nvFatbinCreate"] = <_cyb_intptr_t>__nvFatbinCreate
 
     global __nvFatbinDestroy
-    data["__nvFatbinDestroy"] = <intptr_t>__nvFatbinDestroy
+    data["__nvFatbinDestroy"] = <_cyb_intptr_t>__nvFatbinDestroy
 
     global __nvFatbinAddPTX
-    data["__nvFatbinAddPTX"] = <intptr_t>__nvFatbinAddPTX
+    data["__nvFatbinAddPTX"] = <_cyb_intptr_t>__nvFatbinAddPTX
 
     global __nvFatbinAddCubin
-    data["__nvFatbinAddCubin"] = <intptr_t>__nvFatbinAddCubin
+    data["__nvFatbinAddCubin"] = <_cyb_intptr_t>__nvFatbinAddCubin
 
     global __nvFatbinAddLTOIR
-    data["__nvFatbinAddLTOIR"] = <intptr_t>__nvFatbinAddLTOIR
+    data["__nvFatbinAddLTOIR"] = <_cyb_intptr_t>__nvFatbinAddLTOIR
 
     global __nvFatbinSize
-    data["__nvFatbinSize"] = <intptr_t>__nvFatbinSize
+    data["__nvFatbinSize"] = <_cyb_intptr_t>__nvFatbinSize
 
     global __nvFatbinGet
-    data["__nvFatbinGet"] = <intptr_t>__nvFatbinGet
+    data["__nvFatbinGet"] = <_cyb_intptr_t>__nvFatbinGet
 
     global __nvFatbinVersion
-    data["__nvFatbinVersion"] = <intptr_t>__nvFatbinVersion
+    data["__nvFatbinVersion"] = <_cyb_intptr_t>__nvFatbinVersion
 
     global __nvFatbinAddIndex
-    data["__nvFatbinAddIndex"] = <intptr_t>__nvFatbinAddIndex
+    data["__nvFatbinAddIndex"] = <_cyb_intptr_t>__nvFatbinAddIndex
 
     global __nvFatbinAddReloc
-    data["__nvFatbinAddReloc"] = <intptr_t>__nvFatbinAddReloc
+    data["__nvFatbinAddReloc"] = <_cyb_intptr_t>__nvFatbinAddReloc
 
     global __nvFatbinAddTileIR
-    data["__nvFatbinAddTileIR"] = <intptr_t>__nvFatbinAddTileIR
-
-    func_ptrs = data
+    data["__nvFatbinAddTileIR"] = <_cyb_intptr_t>__nvFatbinAddTileIR
+    _cyb_func_ptrs = data
     return data
 
 
 cpdef _inspect_function_pointer(str name):
-    global func_ptrs
-    if func_ptrs is None:
-        func_ptrs = _inspect_function_pointers()
-    return func_ptrs[name]
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is None:
+        _cyb_func_ptrs = _inspect_function_pointers()
+    return _cyb_func_ptrs[name]
+
+
+
+
+cdef uintptr_t load_library() except* with gil:
+    return load_nvidia_dynamic_lib("nvfatbin")._handle_uint
 
 
 ###############################################################################

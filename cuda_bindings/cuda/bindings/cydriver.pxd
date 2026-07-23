@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=be542bd43838a355344b0cdedcf3496368dd3cf0ebdfeda22b5963f384f4d06d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cccb0572002cd20232f2b9f5c7acf559c92813d33dfc364136d57c8f453e50c6
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -1329,12 +1329,12 @@ cdef extern from 'cuda.h':
         CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUgreenCtxCreate_flags:
+    ctypedef enum CUgreenCtxCreate_flags "CUgreenCtxCreate_flags":
         CU_GREEN_CTX_NONE
         CU_GREEN_CTX_DEFAULT_STREAM
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevResourceType:
+    ctypedef enum CUdevResourceType "CUdevResourceType":
         CU_DEV_RESOURCE_TYPE_INVALID
         CU_DEV_RESOURCE_TYPE_SM
         CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
@@ -1531,17 +1531,17 @@ cdef extern from 'cuda.h':
     ctypedef CUstreamAtomicReductionDataType_enum CUstreamAtomicReductionDataType
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevSmResourceGroup_flags:
+    ctypedef enum CUdevSmResourceGroup_flags "CUdevSmResourceGroup_flags":
         CU_DEV_SM_RESOURCE_GROUP_DEFAULT
         CU_DEV_SM_RESOURCE_GROUP_BACKFILL
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevSmResourceSplitByCount_flags:
+    ctypedef enum CUdevSmResourceSplitByCount_flags "CUdevSmResourceSplitByCount_flags":
         CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING
         CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE
 
 cdef extern from 'cuda.h':
-    ctypedef enum CUdevWorkqueueConfigScope:
+    ctypedef enum CUdevWorkqueueConfigScope "CUdevWorkqueueConfigScope":
         CU_WORKQUEUE_SCOPE_DEVICE_CTX
         CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
 

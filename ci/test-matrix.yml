@@ -93,7 +93,7 @@ linux:
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu130' } }
     # nightly-numba-cuda
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '580.65.06', ENV: { MODE: 'nightly-numba-cuda' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '580.65.06',  ENV: { MODE: 'nightly-numba-cuda' } }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
     # nightly-numba-cuda-mlir (MLIR backend, linux-64 only)
@@ -102,45 +102,44 @@ linux:
     # nightly-cuda-core (released cuda-core from PyPI against main pathfinder/bindings)
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-cuda-core' } }
     # nightly-standard (arm64 nightly-only runners — per runner team request)
-    # TODO: gh200 row disabled — currently hangs on stream-ordered memory
-    #       allocator (cudaMallocAsync); runner pool needs fixing first.
-    # - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gh200',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
+    - { ARCH: 'arm64', PY_VER: '3.13',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gh200',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
+    - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'gb300',      GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
     - { ARCH: 'arm64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
     - { ARCH: 'arm64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '2', DRIVER: 'latest',     ENV: { MODE: 'nightly-standard' } }
 
 windows:
   pull-request:
     # win-64
-    - { ARCH: 'amd64', PY_VER: '3.10',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'rtx2080',    GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'WDDM' }
-    - { ARCH: 'amd64', PY_VER: '3.10',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { ARCH: 'amd64', PY_VER: '3.10',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'v100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
-    - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'rtx4090',    GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'WDDM' }
-    - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtx4090',    GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'WDDM' }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
-    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM', ENV: { CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM: '1' } }
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'v100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
-    - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
-    - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.10',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'rtx2080',    GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'WDDM' }
+    - { ARCH: 'amd64', PY_VER: '3.10',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
+    - { ARCH: 'amd64', PY_VER: '3.10',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
+    - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'v100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'rtx4090',    GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'WDDM' }
+    - { ARCH: 'amd64', PY_VER: '3.11',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtx4090',    GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'WDDM' }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
+    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
+    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM: '1' } }
+    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'v100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
+    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
+    - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'a100',       GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
     # special runners
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest', DRIVER_MODE: 'TCC' }
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest', DRIVER_MODE: 'MCDM' }
+    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
+    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
   nightly:
     # nightly-pytorch
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.6.3', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC', ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.12.1', TORCH_CUDA: 'cu126' } }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC', ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.12.1', TORCH_CUDA: 'cu130' } }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.6.3', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC', ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu126' } }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC', ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu130' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.6.3', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.12.1', TORCH_CUDA: 'cu126' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.12.1', TORCH_CUDA: 'cu130' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.6.3', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu126' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu130' } }
     # nightly-numba-cuda
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC', ENV: { MODE: 'nightly-numba-cuda' } }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '596.36',  DRIVER_MODE: 'TCC', ENV: { MODE: 'nightly-numba-cuda' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-numba-cuda' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '596.36',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-numba-cuda' } }
     # nightly-numba-cuda-mlir (MLIR backend, win-64)
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-numba-cuda-mlir' } }
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-numba-cuda-mlir' } }

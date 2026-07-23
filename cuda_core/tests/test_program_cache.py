@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
+import os
 import time
 
 import pytest
@@ -321,7 +322,9 @@ def test_make_program_cache_key_rejects_extra_sources_outside_nvvm(code_type, co
 @pytest.mark.parametrize(
     "kwargs, exc_type, match",
     [
-        pytest.param({"code_type": "fortran"}, ValueError, "code_type", id="unknown_code_type"),
+        pytest.param(
+            {"code_type": "fortran"}, ValueError, "'fortran' is not a valid SourceCodeType", id="unknown_code_type"
+        ),
         pytest.param({"target_type": "exe"}, ValueError, "target_type", id="unknown_target_type"),
         pytest.param({"code": 12345}, TypeError, "code", id="non_str_bytes_code"),
         # Backend-specific target matrix -- Program.compile rejects these
@@ -373,6 +376,14 @@ def test_make_program_cache_key_ignores_name_expressions_for_non_nvrtc(code_type
             {"link_time_optimization": None},
             id="lto_false_eq_none",
         ),
+        # ``time`` is a presence gate: the linker emits ``-time`` for any
+        # non-None value, so True / "path" produce the same flag.
+        pytest.param(
+            {"time": True},
+            {"time": "timing.csv"},
+            id="time_true_eq_path",
+            marks=pytest.mark.skipif(is_culink_backend, reason="-time is not supported in cuLink"),
+        ),
         # ``no_cache`` has an ``is True`` gate; False and None equivalent.
         pytest.param({"no_cache": False}, {"no_cache": None}, id="no_cache_false_eq_none"),
     ],
@@ -389,18 +400,6 @@ def test_make_program_cache_key_ptx_linker_equivalent_options_hash_same(a, b, mo
     k_a = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**a))
     k_b = _make_key(code=".version 7.0", code_type="ptx", options=_opts(**b))
     assert k_a == k_b
-
-
-@pytest.mark.skipif(is_culink_backend, reason="test requires nvJitLink backend")
-@pytest.mark.agent_authored(model="gpt-5")
-def test_make_program_cache_key_ptx_nvjitlink_time_values_hash_same(monkeypatch):
-    """nvJitLink emits ``-time`` for any non-None value."""
-    from cuda.core.utils import _program_cache
-
-    monkeypatch.setattr(_program_cache._keys, "_linker_backend_and_version", lambda _use_driver: ("nvJitLink", "12030"))
-    k_true = _make_key(code=".version 7.0", code_type="ptx", options=_opts(time=True))
-    k_path = _make_key(code=".version 7.0", code_type="ptx", options=_opts(time="timing.csv"))
-    assert k_true == k_path
 
 
 @pytest.mark.parametrize(
@@ -1012,9 +1011,10 @@ def test_make_program_cache_key_rejects_side_effect_options_nvrtc(option_kw, ext
         pytest.param({"time": "whatever.csv"}, id="time_path"),
     ],
 )
-@pytest.mark.skipif(is_culink_backend, reason="test requires nvJitLink backend")
+@pytest.mark.skipif(is_culink_backend, reason="-time is not supported in cuLink")
 def test_make_program_cache_key_accepts_side_effect_options_for_ptx(option_kw):
-    """nvJitLink ``-time`` writes only to its info log, not the filesystem."""
+    """The side-effect guard is NVRTC-specific: PTX (linker) and NVVM must
+    not be blocked by options whose side effects only apply under NVRTC."""
     _make_key(code=".version 7.0", code_type="ptx", options=_opts(**option_kw))  # no raise
 
 
@@ -2536,3 +2536,40 @@ def test_inmemory_cache_concurrent_threads_stay_consistent():
     # Internal accounting must agree with the cap and with __len__.
     assert cache._total_bytes <= 4096
     assert len(cache) == len(cache._entries)  # no orphan entries
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
+def test_program_cache_tmp_dir_created_owner_only(tmp_path):
+    """``tmp`` stages in-flight compiled device code before the atomic rename into
+    ``entries``, so it must be created owner-only (0o700) regardless of the inherited
+    umask. ``root``/``entries`` intentionally inherit the umask to keep deliberately
+    shared caches working (PR #2399 review), so only ``tmp`` is asserted."""
+    import stat
+
+    from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
+
+    root = tmp_path / "pc"
+    FileStreamProgramCache(path=root)
+
+    mode = stat.S_IMODE(os.stat(root / "tmp").st_mode)
+    assert mode == 0o700, f"tmp has mode {oct(mode)}"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits only")
+def test_program_cache_preexisting_shared_root_used_as_is(tmp_path):
+    """PR #2399 review: a deliberately shared cache root (e.g. group-writable on a
+    compute cluster) must be used as-is, not re-tightened. Only ``tmp`` is forced
+    owner-only; ``root`` keeps whatever permissions it was created with."""
+    import stat
+
+    from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
+
+    root = tmp_path / "pc"
+    root.mkdir()
+    # Simulate an intentionally shared cache directory.
+    os.chmod(root, 0o777)  # noqa: S103
+
+    FileStreamProgramCache(path=root)
+
+    assert stat.S_IMODE(os.stat(root).st_mode) == 0o777
+    assert stat.S_IMODE(os.stat(root / "tmp").st_mode) == 0o700

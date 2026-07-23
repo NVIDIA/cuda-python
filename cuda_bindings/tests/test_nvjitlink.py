@@ -5,7 +5,8 @@ from contextlib import contextmanager
 
 import pytest
 
-from cuda.bindings import nvjitlink, nvrtc
+from cuda.bindings import nvjitlink
+from cuda.bindings._v2 import nvrtc
 
 
 @contextmanager
@@ -70,6 +71,12 @@ def check_nvjitlink_usable():
     return inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") != 0
 
 
+def check_nvjitlink_get_linked_ltoir_usable():
+    from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+
+    return inner_nvjitlink._inspect_function_pointer("__nvJitLinkGetLinkedLTOIR") != 0
+
+
 pytestmark = pytest.mark.skipif(
     not check_nvjitlink_usable(), reason="nvJitLink not usable, maybe not installed or too old (<12.3)"
 )
@@ -78,23 +85,10 @@ pytestmark = pytest.mark.skipif(
 # create a valid LTOIR input for testing
 @pytest.fixture
 def get_dummy_ltoir():
-    def CHECK_NVRTC(err):
-        if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
-            raise RuntimeError(repr(err))
-
     empty_cplusplus_kernel = "__global__ void A() {}"
-    err, program_handle = nvrtc.nvrtcCreateProgram(empty_cplusplus_kernel.encode(), b"", 0, [], [])
-    CHECK_NVRTC(err)
-    err = nvrtc.nvrtcCompileProgram(program_handle, 1, [b"-dlto"])[0]
-    CHECK_NVRTC(err)
-    err, size = nvrtc.nvrtcGetLTOIRSize(program_handle)
-    CHECK_NVRTC(err)
-    empty_kernel_ltoir = b" " * size
-    (err,) = nvrtc.nvrtcGetLTOIR(program_handle, empty_kernel_ltoir)
-    CHECK_NVRTC(err)
-    (err,) = nvrtc.nvrtcDestroyProgram(program_handle)
-    CHECK_NVRTC(err)
-    return empty_kernel_ltoir
+    program_handle = nvrtc.create_program(empty_cplusplus_kernel.encode(), b"")
+    nvrtc.compile_program(program_handle, [b"-dlto"])
+    return nvrtc.get_ltoir(program_handle)
 
 
 def test_unrecognized_option_error():
@@ -181,6 +175,21 @@ def test_get_linked_ptx(arch, get_dummy_ltoir):
         ptx = bytearray(ptx_size)
         nvjitlink.get_linked_ptx(handle, ptx)
         assert len(ptx) == ptx_size
+
+
+@pytest.mark.parametrize("arch", ARCHITECTURES)
+@pytest.mark.skipif(
+    not check_nvjitlink_get_linked_ltoir_usable(),
+    reason="nvJitLinkGetLinkedLTOIR not available in installed nvJitLink",
+)
+def test_get_linked_ltoir(arch, get_dummy_ltoir):
+    with nvjitlink_session(2, [f"-arch={arch}", "-lto"]) as handle:
+        nvjitlink.add_data(handle, nvjitlink.InputType.LTOIR, get_dummy_ltoir, len(get_dummy_ltoir), "test_data")
+        nvjitlink.complete(handle)
+        ltoir_size = nvjitlink.get_linked_ltoir_size(handle)
+        ltoir = bytearray(ltoir_size)
+        nvjitlink.get_linked_ltoir(handle, ltoir)
+        assert len(ltoir) == ltoir_size
 
 
 def test_package_version():
