@@ -32,6 +32,7 @@ _GPU_COUNT = get_gpu_count() if _SAMPLES else 0
 @pytest.mark.parallel_threads_limit(1)
 @pytest.mark.parametrize("sample_key", _SAMPLES)
 @pytest.mark.samples
+@pytest.mark.agent_authored(model="gpt-5")
 def test_sample(sample_key: str) -> None:
     if _GPU_COUNT == 0:
         pytest.skip("No CUDA GPU detected on the test runner")

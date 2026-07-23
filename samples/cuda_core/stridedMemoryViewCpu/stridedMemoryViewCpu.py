@@ -52,6 +52,7 @@ protocol its caller uses.
 """
 
 import importlib
+import os
 import string
 import sys
 import tempfile
@@ -67,6 +68,9 @@ except ImportError as e:
     print("Please install from requirements.txt:")
     print("  pip install -r requirements.txt")
     sys.exit(1)
+
+
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
 
 
 # ---------------------------------------------------------------------------
@@ -140,6 +144,10 @@ def _compiled_cpu_func(cpu_prog, temp_dir):
 
 
 def main():
+    if sys.platform == "win32":
+        print("This sample requires a non-Windows C++ toolchain. Waiving this sample on Windows.")
+        return EXIT_WAIVED
+
     cpu_prog = _create_cpu_program()
     with tempfile.TemporaryDirectory() as temp_dir, _compiled_cpu_func(cpu_prog, temp_dir) as cpu_func:
         arr_cpu = np.zeros(1024, dtype=np.int32)
