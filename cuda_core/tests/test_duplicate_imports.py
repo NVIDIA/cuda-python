@@ -16,5 +16,7 @@ def test_typing_module_imports():
     Importing cuda.core.system should not also import cuda.core.cuXX.system
     """
 
+    from cuda.core import *  # NOQA
+
     assert "cuda.core.system" in sys.modules
-    assert f"cuda.core.cu{cuda_major}.system" not in sys.modules
+    assert f"cuda.core.cu{cuda_major}" not in sys.modules
