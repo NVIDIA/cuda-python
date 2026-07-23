@@ -9,8 +9,9 @@ from dataclasses import dataclass
 from typing import Callable
 
 import pytest
+from helpers.graph_kernels import compile_common_kernels
 
-from cuda.core import LegacyPinnedMemoryResource
+from cuda.core import LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core._utils.version import driver_version
 from cuda.core.graph import GraphDefinition
@@ -403,6 +404,119 @@ def _memcpy_destination_case(device):
     return _memcpy_case(device, replace_operand="dst")
 
 
+def _kernel_case(device, *, replace):
+    module = compile_common_kernels()
+    add_one = module.get_kernel("add_one")
+    empty_kernel = module.get_kernel("empty_kernel")
+    write_launch_dims = module.get_kernel("write_launch_dims")
+    memory_resource = LegacyPinnedMemoryResource()
+    original_buffer = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    replacement_buffer = memory_resource.allocate(ctypes.sizeof(ctypes.c_int)) if replace == "args" else original_buffer
+
+    original_config = LaunchConfig(grid=1, block=1)
+    replacement_config = LaunchConfig(grid=2, block=3) if replace == "config" else original_config
+    original_kernel = write_launch_dims if replace == "config" else add_one
+    replacement_kernel = empty_kernel if replace == "kernel" else original_kernel
+    original_args = (original_buffer,)
+    if replace == "kernel":
+        replacement_args = ()
+    elif replace == "args":
+        replacement_args = (replacement_buffer,)
+    else:
+        replacement_args = original_args
+
+    original = {
+        "config": original_config,
+        "kernel": original_kernel,
+        "args": original_args,
+        "output": original_buffer,
+        "expected": 1001 if replace == "config" else 1,
+    }
+    replacement = {
+        "config": replacement_config,
+        "kernel": replacement_kernel,
+        "args": replacement_args,
+        "output": replacement_buffer,
+        "expected": 2003 if replace == "config" else int(replace != "kernel"),
+    }
+
+    graph_def = GraphDefinition()
+    node = graph_def.launch(original["config"], original["kernel"], *original["args"])
+
+    def update(expected):
+        if replace == "config":
+            node.update(config=expected["config"])
+        elif replace == "args":
+            node.update(args=expected["args"])
+        else:
+            node.update(kernel=expected["kernel"], args=expected["args"])
+
+    def assert_current(expected):
+        assert node.config == expected["config"]
+        assert int(node.kernel.handle) == int(expected["kernel"].handle)
+
+    def as_int(buffer):
+        return ctypes.c_int.from_address(int(buffer.handle))
+
+    def assert_exec_uses(graph, expected):
+        as_int(original_buffer).value = 0
+        as_int(replacement_buffer).value = 0
+
+        stream = device.create_stream()
+        graph.launch(stream)
+        stream.sync()
+
+        assert as_int(expected["output"]).value == expected["expected"]
+        if replacement_buffer is not original_buffer:
+            unexpected = replacement_buffer if expected["output"] is original_buffer else original_buffer
+            assert as_int(unexpected).value == 0
+
+    def invalid_update():
+        if replace == "kernel":
+            node.update(kernel=replacement_kernel)
+        elif replace == "args":
+            node.update(args=(object(),))
+        else:
+            node.update(config=object())
+
+    invalid_exception = ValueError if replace == "kernel" else TypeError
+
+    def cleanup():
+        node.destroy()
+        original_buffer.close()
+        if replacement_buffer is not original_buffer:
+            replacement_buffer.close()
+
+    return _DefinitionUpdateCase(
+        graph_def=graph_def,
+        node=node,
+        original=original,
+        replacement=replacement,
+        update=update,
+        assert_current=assert_current,
+        assert_exec_uses=assert_exec_uses,
+        invalid_update=invalid_update,
+        invalid_exception=invalid_exception,
+        invalid_argument_update=lambda: node.update(config=object()),
+        cleanup=cleanup,
+    )
+
+
+def _kernel_config_case(device):
+    """Replace launch dimensions while preserving the kernel and arguments."""
+    return _kernel_case(device, replace="config")
+
+
+def _kernel_args_case(device):
+    """Replace arguments while preserving the kernel and configuration."""
+    return _kernel_case(device, replace="args")
+
+
+def _kernel_function_case(device):
+    """Replace a kernel and explicitly supply its coupled arguments."""
+    return _kernel_case(device, replace="kernel")
+
+
 @pytest.fixture(
     params=[
         pytest.param(_event_record_case, id="event-record"),
@@ -414,6 +528,9 @@ def _memcpy_destination_case(device):
         pytest.param(_memcpy_size_case, id="memcpy-size"),
         pytest.param(_memcpy_source_case, id="memcpy-source"),
         pytest.param(_memcpy_destination_case, id="memcpy-destination"),
+        pytest.param(_kernel_config_case, id="kernel-config"),
+        pytest.param(_kernel_args_case, id="kernel-args"),
+        pytest.param(_kernel_function_case, id="kernel-function"),
     ]
 )
 def definition_update_case(request, init_cuda):

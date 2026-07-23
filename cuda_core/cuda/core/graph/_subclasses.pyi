@@ -38,6 +38,20 @@ class KernelNode(GraphNode):
     def __repr__(self) -> str:
         ...
 
+    def update(self, *, config: LaunchConfig | None=None, kernel: Kernel | None=None, args=None) -> None:
+        """Replace selected kernel launch parameters.
+
+        Omitted parameters preserve their current values. Changing ``kernel``
+        requires ``args``, including ``args=()`` for a no-argument kernel.
+
+        .. warning::
+
+            Use caution when a retained kernel argument directly or indirectly
+            owns a graph. Any reference cycle involving the argument and a
+            graph that retains it cannot be broken by Python's cyclic garbage
+            collector. Use a weak reference to break such cycles.
+        """
+
     @property
     def grid(self) -> tuple[int, int, int]:
         """Grid dimensions as a 3-tuple (gridDimX, gridDimY, gridDimZ)."""

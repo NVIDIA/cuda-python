@@ -13,6 +13,7 @@ from libc.string cimport memset as c_memset
 from cuda.bindings cimport cydriver
 
 from cuda.core._event cimport Event
+from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._module cimport Kernel
@@ -38,6 +39,7 @@ from cuda.core._resource_handles cimport (
     graph_get_attachment,
     graph_node_get_graph,
     graph_prepare_attachment,
+    make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
@@ -174,6 +176,91 @@ cdef class KernelNode(GraphNode):
     def __repr__(self) -> str:
         return (f"<KernelNode handle=0x{as_intptr(self._h_node):x}"
                 f" kernel=0x{as_intptr(self._h_kernel):x}>")
+
+    def update(
+        self,
+        *,
+        config: LaunchConfig | None = None,
+        kernel: Kernel | None = None,
+        args=None,
+    ) -> None:
+        """Replace selected kernel launch parameters.
+
+        Omitted parameters preserve their current values. Changing ``kernel``
+        requires ``args``, including ``args=()`` for a no-argument kernel.
+
+        .. warning::
+
+            Use caution when a retained kernel argument directly or indirectly
+            owns a graph. Any reference cycle involving the argument and a
+            graph that retains it cannot be broken by Python's cyclic garbage
+            collector. Use a weak reference to break such cycles.
+        """
+        cdef LaunchConfig c_config
+        cdef Kernel c_kernel
+        cdef ParamHolder arg_holder
+        cdef object kernel_args
+        cdef KernelHandle h_kernel = self._h_kernel
+        cdef OpaqueHandle kernel_owner
+        cdef OpaqueHandle args_owner
+        cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        cdef cydriver.CUgraphNodeParams params
+
+        if config is not None:
+            c_config = config
+        if kernel is not None:
+            if args is None:
+                raise ValueError("changing kernel requires args")
+            c_kernel = kernel
+            h_kernel = c_kernel._h_kernel
+        if args is not None:
+            arg_holder = ParamHolder(args)
+
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_KERNEL
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphKernelNodeGetParams(
+                node, <cydriver.CUDA_KERNEL_NODE_PARAMS*>&params.kernel))
+        HANDLE_RETURN(graph_get_attachment(
+            h_graph, node, &kernel_owner, &args_owner))
+
+        if config is not None:
+            params.kernel.gridDimX = c_config.grid[0]
+            params.kernel.gridDimY = c_config.grid[1]
+            params.kernel.gridDimZ = c_config.grid[2]
+            params.kernel.blockDimX = c_config.block[0]
+            params.kernel.blockDimY = c_config.block[1]
+            params.kernel.blockDimZ = c_config.block[2]
+            params.kernel.sharedMemBytes = c_config.shmem_size
+        if kernel is not None:
+            params.kernel.kern = as_cu(h_kernel)
+            params.kernel.func = <cydriver.CUfunction>NULL
+            params.kernel.ctx = <cydriver.CUcontext>NULL
+            kernel_owner = h_kernel
+        if args is not None:
+            params.kernel.kernelParams = <void**><uintptr_t>arg_holder.ptr
+            params.kernel.extra = NULL
+            kernel_args = arg_holder.kernel_args
+            if kernel_args is None:
+                args_owner = OpaqueHandle()
+            else:
+                args_owner = make_opaque_py(kernel_args)
+
+        _set_definition_node_params(
+            self._h_node, &params, kernel_owner, args_owner)
+        self._grid = (
+            params.kernel.gridDimX,
+            params.kernel.gridDimY,
+            params.kernel.gridDimZ,
+        )
+        self._block = (
+            params.kernel.blockDimX,
+            params.kernel.blockDimY,
+            params.kernel.blockDimZ,
+        )
+        self._shmem_size = params.kernel.sharedMemBytes
+        self._h_kernel = h_kernel
 
     @property
     def grid(self) -> tuple[int, int, int]:
