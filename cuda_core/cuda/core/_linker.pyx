@@ -684,10 +684,10 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    nvjitlink_module = _optional_cuda_import(
-        "cuda.bindings.nvjitlink",
-        probe_function=lambda module: module.version(),  # probe triggers nvJitLink runtime load
-    )
+    # Do not probe via module.version(): nvJitLink 12.0-12.2 lacks the unversioned
+    # nvJitLinkVersion symbol, so calling version() raises FunctionNotFoundError.
+    # Use _nvjitlink_has_version_symbol() below instead (symbol pointer inspection).
+    nvjitlink_module = _optional_cuda_import("cuda.bindings.nvjitlink")
     if nvjitlink_module is None:
         warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
     else:

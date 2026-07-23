@@ -78,7 +78,7 @@ def test_get_nvvm_module_handles_missing_libnvvm(monkeypatch):
 def test_decide_nvjitlink_or_driver_reraises_nested_module_not_found(monkeypatch):
     def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvjitlink"
-        assert probe_function is not None
+        assert probe_function is None
         err = ModuleNotFoundError("No module named 'not_a_real_dependency'")
         err.name = "not_a_real_dependency"
         raise err
@@ -93,7 +93,7 @@ def test_decide_nvjitlink_or_driver_reraises_nested_module_not_found(monkeypatch
 def test_decide_nvjitlink_or_driver_falls_back_when_module_missing(monkeypatch):
     def fake__optional_cuda_import(modname, probe_function=None):
         assert modname == "cuda.bindings.nvjitlink"
-        assert probe_function is not None
+        assert probe_function is None
         return None
 
     monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
@@ -103,3 +103,34 @@ def test_decide_nvjitlink_or_driver_falls_back_when_module_missing(monkeypatch):
 
     assert use_driver_backend is True
     assert _linker._use_nvjitlink_backend is False
+
+
+def test_decide_nvjitlink_or_driver_falls_back_when_nvjitlink_too_old(monkeypatch):
+    def fake__optional_cuda_import(modname, probe_function=None):
+        assert modname == "cuda.bindings.nvjitlink"
+        assert probe_function is None
+        return object()
+
+    monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+    monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: False)
+
+    with pytest.warns(RuntimeWarning, match="too old \\(<12.3\\)"):
+        use_driver_backend = _linker._decide_nvjitlink_or_driver()
+
+    assert use_driver_backend is True
+    assert _linker._use_nvjitlink_backend is False
+
+
+def test_decide_nvjitlink_or_driver_selects_nvjitlink_when_version_symbol_present(monkeypatch):
+    def fake__optional_cuda_import(modname, probe_function=None):
+        assert modname == "cuda.bindings.nvjitlink"
+        assert probe_function is None
+        return object()
+
+    monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+    monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: True)
+
+    use_driver_backend = _linker._decide_nvjitlink_or_driver()
+
+    assert use_driver_backend is False
+    assert _linker._use_nvjitlink_backend is True
