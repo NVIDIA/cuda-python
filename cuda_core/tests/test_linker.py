@@ -303,6 +303,24 @@ class TestWhichBackendClassmethod:
         assert result == "nvJitLink"
         assert called, "_decide_nvjitlink_or_driver was not called"
 
+    def test_which_backend_falls_back_when_nvjitlink_too_old(self, monkeypatch):
+        """Regression test for #2408: old nvJitLink must not crash which_backend()."""
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
+        monkeypatch.setattr(_linker, "_driver", None)
+
+        def fake__optional_cuda_import(modname, probe_function=None):
+            assert modname == "cuda.bindings.nvjitlink"
+            assert probe_function is None
+            return object()
+
+        monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+        monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: False)
+
+        with pytest.warns(RuntimeWarning, match="too old \\(<12.3\\)"):
+            assert Linker.which_backend() == "driver"
+
+        assert _linker._use_nvjitlink_backend is False
+
     def test_which_backend_is_classmethod(self):
         attr = inspect.getattr_static(Linker, "which_backend")
         assert isinstance(attr, classmethod)
