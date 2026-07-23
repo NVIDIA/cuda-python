@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.IPCBufferDescriptor &#8212; cuda.core</title>
+    <title>cuda.core.typing.WorkqueueSharingScopeType &#8212; cuda.core</title>
   
   
   
@@ -44,22 +44,22 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a3c6fdb2"></script>
+    <script src="../_static/documentation_options.js?v=8d515ae2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.IPCBufferDescriptor';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.typing.WorkqueueSharingScopeType';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev36';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev41';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2347/cuda-core/latest/generated/cuda.core.IPCBufferDescriptor.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-2347/cuda-core/latest/generated/cuda.core.typing.WorkqueueSharingScopeType.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
@@ -725,7 +725,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.IPCBufferDescriptor</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.typing.WorkqueueSharingScopeType</span></li>
   </ul>
 </nav>
 </div>
@@ -742,30 +742,54 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-ipcbufferdescriptor">
-<h1>cuda.core.IPCBufferDescriptor<a class="headerlink" href="#cuda-core-ipcbufferdescriptor" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-typing-workqueuesharingscopetype">
+<h1>cuda.core.typing.WorkqueueSharingScopeType<a class="headerlink" href="#cuda-core-typing-workqueuesharingscopetype" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.IPCBufferDescriptor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">IPCBufferDescriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.IPCBufferDescriptor" title="Link to this definition">#</a></dt>
-<dd><p>Serializable object describing a buffer that can be shared between processes.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The payload and <code class="docutils literal notranslate"><span class="pre">size</span></code> fields are controlled by the exporting peer.
-Receivers must treat them as untrusted and import only through
-<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a>.</p>
+<dt class="sig sig-object py" id="cuda.core.typing.WorkqueueSharingScopeType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.typing.</span></span><span class="sig-name descname"><span class="pre">WorkqueueSharingScopeType</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.typing.WorkqueueSharingScopeType" title="Link to this definition">#</a></dt>
+<dd><p>Sharing scope for <a class="reference internal" href="cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource" title="cuda.core.WorkqueueResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DEVICE_CTX</span></code> — use all shared workqueue resources across all
+contexts (default driver behavior).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GREEN_CTX_BALANCED</span></code> — when possible, use non-overlapping
+workqueue resources with other balanced green contexts.</p></li>
+</ul>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.1.0.</span></p>
 </div>
-<p class="rubric">Methods</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.IPCBufferDescriptor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.IPCBufferDescriptor.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dl class="simple">
+<dt><strong>DEVICE_CTX</strong>: device_ctx</dt><dd><p>Sharing scope for <a class="reference internal" href="cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource" title="cuda.core.WorkqueueResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a>.
 
-<p class="rubric">Attributes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.IPCBufferDescriptor.size">
-<span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.core.IPCBufferDescriptor.size" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+    * <code class="docutils literal notranslate"><span class="pre">DEVICE_CTX</span></code> — use all shared workqueue resources across all
+      contexts (default driver behavior).
+    * <code class="docutils literal notranslate"><span class="pre">GREEN_CTX_BALANCED</span></code> — when possible, use non-overlapping
+      workqueue resources with other balanced green contexts.
 
+    .. versionadded:: 1.1.0</p>
+</dd>
+<dt><strong>GREEN_CTX_BALANCED</strong>: green_ctx_balanced</dt><dd><p>Sharing scope for <a class="reference internal" href="cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource" title="cuda.core.WorkqueueResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a>.
+
+    * <code class="docutils literal notranslate"><span class="pre">DEVICE_CTX</span></code> — use all shared workqueue resources across all
+      contexts (default driver behavior).
+    * <code class="docutils literal notranslate"><span class="pre">GREEN_CTX_BALANCED</span></code> — when possible, use non-overlapping
+      workqueue resources with other balanced green contexts.
+
+    .. versionadded:: 1.1.0</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -801,11 +825,7 @@ Receivers must treat them as untrusted and import only through
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.IPCBufferDescriptor"><code class="docutils literal notranslate"><span class="pre">IPCBufferDescriptor</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.IPCBufferDescriptor.__init__"><code class="docutils literal notranslate"><span class="pre">IPCBufferDescriptor.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.IPCBufferDescriptor.size"><code class="docutils literal notranslate"><span class="pre">IPCBufferDescriptor.size</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.typing.WorkqueueSharingScopeType"><code class="docutils literal notranslate"><span class="pre">WorkqueueSharingScopeType</span></code></a></li>
 </ul>
   </nav></div>
 
