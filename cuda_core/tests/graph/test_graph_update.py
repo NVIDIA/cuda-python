@@ -3,6 +3,10 @@
 
 """Tests for whole-graph update (Graph.update)."""
 
+import gc
+import time
+import weakref
+
 import numpy as np
 import pytest
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
@@ -11,6 +15,15 @@ from helpers.marks import requires_module
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.graph import GraphDefinition
+
+
+def _wait_until(predicate, timeout=5.0):
+    deadline = time.monotonic() + timeout
+    while not predicate():
+        if time.monotonic() >= deadline:
+            raise AssertionError(f"condition not satisfied within {timeout}s")
+        gc.collect()
+        time.sleep(0.02)
 
 
 @pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDefinition"])
@@ -148,6 +161,108 @@ def test_graph_update_conditional(init_cuda):
     # Close the memory resource now because the garbage collected might
     # de-allocate it during the next graph builder process
     b.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_graph_update_replaces_attachment_user_objects(init_cuda):
+    """A successful update adopts new owners and safely retires old ones."""
+    called = []
+
+    def old_callback():
+        called.append("old")
+
+    def new_callback():
+        called.append("new")
+
+    old_weak = weakref.ref(old_callback)
+    new_weak = weakref.ref(new_callback)
+    old_def = GraphDefinition()
+    old_def.callback(old_callback)
+    graph = old_def.instantiate()
+    new_def = GraphDefinition()
+    new_def.callback(new_callback)
+
+    del old_callback, new_callback
+    graph.update(new_def)
+    del old_def, new_def
+    gc.collect()
+
+    _wait_until(lambda: old_weak() is None)
+    assert new_weak() is not None
+
+    stream = Device().create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called == ["new"]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_failed_graph_update_does_not_adopt_attachments(init_cuda):
+    """A rejected source graph keeps ownership separate from the exec."""
+    called = []
+
+    def active_callback():
+        called.append("active")
+
+    def rejected_callback():
+        called.append("rejected")
+
+    rejected_weak = weakref.ref(rejected_callback)
+    active_def = GraphDefinition()
+    active_def.callback(active_callback)
+    graph = active_def.instantiate()
+
+    rejected_def = GraphDefinition()
+    rejected_def.callback(rejected_callback)
+    rejected_def.empty()  # Force a topology mismatch.
+    del rejected_callback
+
+    with pytest.raises(CUDAError):
+        graph.update(rejected_def)
+
+    del rejected_def
+    _wait_until(lambda: rejected_weak() is None)
+
+    stream = Device().create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called == ["active"]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_failed_graph_update_preserves_active_attachment_ownership(init_cuda):
+    """A rejected update leaves the executable's active owner unchanged."""
+    called = []
+
+    def active_callback():
+        called.append("active")
+
+    def rejected_callback():
+        called.append("rejected")
+
+    active_weak = weakref.ref(active_callback)
+    active_def = GraphDefinition()
+    active_def.callback(active_callback)
+    graph = active_def.instantiate()
+
+    rejected_def = GraphDefinition()
+    rejected_def.callback(rejected_callback)
+    rejected_def.empty()  # Force a topology mismatch.
+
+    with pytest.raises(CUDAError):
+        graph.update(rejected_def)
+
+    del active_callback, active_def, rejected_callback, rejected_def
+    gc.collect()
+    assert active_weak() is not None
+
+    stream = Device().create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called == ["active"]
+
+    del graph
+    _wait_until(lambda: active_weak() is None)
 
 
 # =============================================================================
