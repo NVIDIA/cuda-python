@@ -7,8 +7,8 @@ import ctypes
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_conditional_kernels
-from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 from cuda.core.graph import GraphBuilder

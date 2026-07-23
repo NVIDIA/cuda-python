@@ -27,7 +27,7 @@ def test_to_system_device(deinit_cuda):
             device.to_system_device()
         pytest.skip("NVML support requires cuda.bindings version 12.9.6+ for CUDA 12.x or 13.2.0+ for CUDA 13.x")
 
-    from cuda.bindings._test_helpers.arch_check import hardware_supports_nvml
+    from cuda_python_test_helpers.arch_check import hardware_supports_nvml
 
     if not hardware_supports_nvml():
         pytest.skip("NVML not supported on this platform")
