@@ -40,13 +40,14 @@ CUDA runtime
    typing.VirtualMemoryGranularityType
    typing.VirtualMemoryHandleType
    typing.VirtualMemoryLocationType
+   typing.WorkqueueSharingScopeType
 
    :template: autosummary/cyclass.rst
 
    DeviceResources
    _device.DeviceProperties
-   IPCAllocationHandle
-   IPCBufferDescriptor
+   _memory._ipc.IPCAllocationHandle
+   _memory._ipc.IPCBufferDescriptor
    _memory._managed_buffer.AccessedBySetProxy
 
 

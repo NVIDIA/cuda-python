@@ -4,10 +4,11 @@
 
 """Consistency checks between the public ``__all__`` surface and the API docs.
 
-Covers the flat ``cuda.core`` namespace and every public subpackage
-(``graph``, ``system``, ``texture``, ``utils``, and any added later) discovered
-automatically from ``cuda.core.__path__``. For each public namespace, exported
-``__all__`` names must appear somewhere in ``cuda_core/docs/source``.
+Covers the flat ``cuda.core`` namespace and every public submodule
+(``checkpoint``, ``graph``, ``system``, ``texture``, ``typing``, ``utils``,
+and any added later) discovered automatically from ``cuda.core.__path__``.
+For each public namespace, exported ``__all__`` names must appear somewhere
+in ``cuda_core/docs/source``.
 
 The enforced direction is deliberately one-way (public export -> documented).
 This is intentionally a *name-presence* check, and it does not verify:
@@ -46,10 +47,10 @@ DOCS_SOURCE_DIR = pathlib.Path(__file__).resolve().parent.parent / "docs" / "sou
 # those are an internal packaging mechanism, not public API.
 _VERSIONED_SUBPACKAGE = re.compile(r"^cu\d+$")
 
-PUBLIC_SUBPACKAGES = sorted(
+PUBLIC_SUBMODULES = sorted(
     name
     for _, name, ispkg in pkgutil.iter_modules(cuda.core.__path__)
-    if ispkg and not name.startswith("_") and not _VERSIONED_SUBPACKAGE.match(name)
+    if not name.startswith("_") and not _VERSIONED_SUBPACKAGE.match(name)
 )
 
 
@@ -157,7 +158,7 @@ def _add_documented_name(documented, module, entry):
             documented[module].add(entry)
             return
         sub, name = entry.split(".", 1)
-        if sub in PUBLIC_SUBPACKAGES and "." not in name:
+        if sub in PUBLIC_SUBMODULES and "." not in name:
             documented[f"cuda.core.{sub}"].add(name)
         return
     if module.startswith("cuda.core."):
@@ -176,7 +177,7 @@ def _documented_names(docs_dir, *, exclude=frozenset()):
     return documented
 
 
-PUBLIC_NAMESPACES = ("cuda.core", *(f"cuda.core.{sub}" for sub in PUBLIC_SUBPACKAGES))
+PUBLIC_NAMESPACES = ("cuda.core", *(f"cuda.core.{sub}" for sub in PUBLIC_SUBMODULES))
 
 
 @pytest.fixture(scope="module")
@@ -199,10 +200,10 @@ def documented(docs_dir):
 
 
 @pytest.mark.human_authored
-def test_public_subpackages_discovered():
+def test_public_submodules_discovered():
     # Guards against a broken __path__ walk silently turning every
-    # parametrized subpackage check into a no-op.
-    assert PUBLIC_SUBPACKAGES, "no public cuda.core subpackages were discovered"
+    # parametrized submodule check into a no-op.
+    assert PUBLIC_SUBMODULES, "no public cuda.core submodules were discovered"
 
 
 @pytest.mark.human_authored
@@ -219,7 +220,7 @@ def test_main_package_symbols_are_documented(exported, documented):
     assert not undocumented, f"public by cuda.core.__all__ but missing from docs/source/*.rst: {sorted(undocumented)}"
 
 
-@pytest.mark.parametrize("sub", PUBLIC_SUBPACKAGES)
+@pytest.mark.parametrize("sub", PUBLIC_SUBMODULES)
 def test_subpackage_symbols_define_all(sub):
     module = importlib.import_module(f"cuda.core.{sub}")
     assert hasattr(module, "__all__"), f"cuda.core.{sub} does not define __all__"
@@ -228,7 +229,7 @@ def test_subpackage_symbols_define_all(sub):
 
 
 @pytest.mark.human_authored
-@pytest.mark.parametrize("sub", PUBLIC_SUBPACKAGES)
+@pytest.mark.parametrize("sub", PUBLIC_SUBMODULES)
 def test_subpackage_exports_are_documented(sub, documented):
     documented = documented[f"cuda.core.{sub}"]
     module = importlib.import_module(f"cuda.core.{sub}")
