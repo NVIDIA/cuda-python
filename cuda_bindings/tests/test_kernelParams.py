@@ -6,8 +6,8 @@ import ctypes
 import numpy as np
 import pytest
 
+import cuda.bindings._v2.nvrtc as nvrtc
 import cuda.bindings.driver as cuda
-import cuda.bindings.nvrtc as nvrtc
 import cuda.bindings.runtime as cudart
 
 
@@ -18,9 +18,6 @@ def ASSERT_DRV(err):
     elif isinstance(err, cudart.cudaError_t):
         if err != cudart.cudaError_t.cudaSuccess:
             raise RuntimeError(f"Cudart Error: {err}")
-    elif isinstance(err, nvrtc.nvrtcResult):
-        if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
-            raise RuntimeError(f"Nvrtc Error: {err}")
     else:
         raise RuntimeError(f"Unknown error type: {err}")
 
@@ -30,39 +27,24 @@ def common_nvrtc(allKernelStrings, dev):
     ASSERT_DRV(err)
     err, minor = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, dev)
     ASSERT_DRV(err)
-    err, _, nvrtc_minor = nvrtc.nvrtcVersion()
-    ASSERT_DRV(err)
+    _, nvrtc_minor = nvrtc.version()
     use_cubin = nvrtc_minor >= 1
     prefix = "sm" if use_cubin else "compute"
     arch_arg = bytes(f"--gpu-architecture={prefix}_{major}{minor}", "ascii")
 
-    err, prog = nvrtc.nvrtcCreateProgram(str.encode(allKernelStrings), b"allKernelStrings.cu", 0, None, None)
-    ASSERT_DRV(err)
+    prog = nvrtc.create_program(str.encode(allKernelStrings), b"allKernelStrings.cu")
     opts = (b"--fmad=false", arch_arg)
-    (err,) = nvrtc.nvrtcCompileProgram(prog, len(opts), opts)
+    nvrtc.compile_program(prog, opts)
 
-    err_log, logSize = nvrtc.nvrtcGetProgramLogSize(prog)
-    ASSERT_DRV(err_log)
-    log = b" " * logSize
-    (err_log,) = nvrtc.nvrtcGetProgramLog(prog, log)
-    ASSERT_DRV(err_log)
+    log = nvrtc.get_program_log(prog)
     result = log.decode()
     if len(result) > 1:
         print(result)
-    ASSERT_DRV(err)
 
     if use_cubin:
-        err, dataSize = nvrtc.nvrtcGetCUBINSize(prog)
-        ASSERT_DRV(err)
-        data = b" " * dataSize
-        (err,) = nvrtc.nvrtcGetCUBIN(prog, data)
-        ASSERT_DRV(err)
+        data = nvrtc.get_cubin(prog)
     else:
-        err, dataSize = nvrtc.nvrtcGetPTXSize(prog)
-        ASSERT_DRV(err)
-        data = b" " * dataSize
-        (err,) = nvrtc.nvrtcGetPTX(prog, data)
-        ASSERT_DRV(err)
+        data = nvrtc.get_ptx(prog)
 
     err, module = cuda.cuModuleLoadData(np.char.array(data))
     ASSERT_DRV(err)

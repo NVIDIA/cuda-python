@@ -196,7 +196,7 @@ def _build_cuda_bindings(debug=False):
 
     # Build extension list
     extensions = []
-    cuda_bindings_files = glob.glob("cuda/bindings/*.pyx")
+    cuda_bindings_files = glob.glob("cuda/bindings/*.pyx") + glob.glob("cuda/bindings/_v2/*.pyx")
     if sys.platform == "win32":
         cuda_bindings_files = [f for f in cuda_bindings_files if "cufile" not in f]
 
