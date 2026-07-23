@@ -18,15 +18,18 @@ COMPUTE_MODES = [
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Test not supported on Windows")
-def test_compute_mode_supported_nonroot(all_devices):
+def test_compute_mode_supported_nonroot(all_devices, subtests):
     for device in all_devices:
-        with unsupported_before(device, None):
-            original_compute_mode = nvml.device_get_compute_mode(device)
+        with subtests.test(device=device):
+            with unsupported_before(device, None):
+                original_compute_mode = nvml.device_get_compute_mode(device)
 
-        for cm in COMPUTE_MODES:
-            try:
-                nvml.device_set_compute_mode(device, cm)
-            except nvml.NoPermissionError:
-                pytest.skip("Insufficient permissions to set compute mode")
-            nvml.device_set_compute_mode(device, original_compute_mode)
-            assert original_compute_mode == nvml.device_get_compute_mode(device), "Compute mode shouldn't have changed"
+            for cm in COMPUTE_MODES:
+                try:
+                    nvml.device_set_compute_mode(device, cm)
+                except nvml.NoPermissionError:
+                    pytest.skip("Insufficient permissions to set compute mode")
+                nvml.device_set_compute_mode(device, original_compute_mode)
+                assert original_compute_mode == nvml.device_get_compute_mode(device), (
+                    "Compute mode shouldn't have changed"
+                )

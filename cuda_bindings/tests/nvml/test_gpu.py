@@ -10,7 +10,7 @@ from . import util
 from .conftest import unsupported_before
 
 
-def test_gpu_get_module_id(nvml_init):
+def test_gpu_get_module_id(nvml_init, subtests):
     # Unique module IDs cannot exceed the number of GPUs on the system
     device_count = nvml.device_get_count_v2()
 
@@ -21,23 +21,25 @@ def test_gpu_get_module_id(nvml_init):
         if util.is_vgpu(device):
             continue
 
-        with unsupported_before(device, None):
-            module_id = nvml.device_get_module_id(device)
-        assert isinstance(module_id, int)
+        with subtests.test(i=i):
+            with unsupported_before(device, None):
+                module_id = nvml.device_get_module_id(device)
+            assert isinstance(module_id, int)
 
 
-def test_gpu_get_platform_info(all_devices):
+def test_gpu_get_platform_info(all_devices, subtests):
     for device in all_devices:
-        if util.is_vgpu(device):
-            pytest.skip(f"Not supported on vGPU device {device}")
+        with subtests.test(device=device):
+            if util.is_vgpu(device):
+                pytest.skip(f"Not supported on vGPU device {device}")
 
-        # Documentation says Blackwell or newer only, but this does seem to pass
-        # on some newer GPUs.
+            # Documentation says Blackwell or newer only, but this does seem to pass
+            # on some newer GPUs.
 
-        with unsupported_before(device, None):
-            platform_info = nvml.device_get_platform_info(device)
+            with unsupported_before(device, None):
+                platform_info = nvml.device_get_platform_info(device)
 
-        assert isinstance(platform_info, (nvml.PlatformInfo_v1, nvml.PlatformInfo_v2))
+            assert isinstance(platform_info, (nvml.PlatformInfo_v1, nvml.PlatformInfo_v2))
 
 
 # TODO: Test APIs related to GPU instances, which require specific hardware and root
@@ -58,10 +60,10 @@ def test_conf_compute_attestation_report_t(all_devices):
     assert report.nonce.dtype == np.uint8
 
 
-def test_gpu_conf_compute_attestation_report(all_devices):
+def test_gpu_conf_compute_attestation_report(all_devices, subtests):
     for device in all_devices:
         # Documentation says AMPERE or newer
-        with unsupported_before(device, None), pytest.raises(nvml.UnknownError):
+        with subtests.test(device=device), unsupported_before(device, None), pytest.raises(nvml.UnknownError):
             # The nonce string is nonsensical, so if this "works", we expect an UnknownError
             nvml.device_get_conf_compute_gpu_attestation_report(device, nonce=b"12345678")
 
@@ -74,9 +76,9 @@ def test_conf_compute_gpu_certificate_t():
     assert len(cert.attestation_cert_chain) == 0
 
 
-def test_conf_compute_gpu_certificate(all_devices):
+def test_conf_compute_gpu_certificate(all_devices, subtests):
     for device in all_devices:
         # Documentation says AMPERE or newer
-        with unsupported_before(device, None), pytest.raises(nvml.UnknownError):
+        with subtests.test(device=device), unsupported_before(device, None), pytest.raises(nvml.UnknownError):
             # This is expected to fail if the device doesn't have a proper certificate
             nvml.device_get_conf_compute_gpu_certificate(device)

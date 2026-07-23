@@ -38,11 +38,12 @@ def test_clk_mon_status_t():
     assert not hasattr(obj, "clk_mon_list_size")
 
 
-def test_current_clock_freqs(all_devices):
+def test_current_clock_freqs(all_devices, subtests):
     for device in all_devices:
-        with unsupported_before(device, None):
-            clk_freqs = nvml.device_get_current_clock_freqs(device)
-        assert isinstance(clk_freqs, str)
+        with subtests.test(device=device):
+            with unsupported_before(device, None):
+                clk_freqs = nvml.device_get_current_clock_freqs(device)
+            assert isinstance(clk_freqs, str)
 
 
 def test_grid_licensable_features(all_devices):
@@ -69,17 +70,18 @@ def test_get_handle_by_uuidv(all_devices):
         assert new_handle == device
 
 
-def test_get_nv_link_supported_bw_modes(all_devices):
+def test_get_nv_link_supported_bw_modes(all_devices, subtests):
     for device in all_devices:
-        with unsupported_before(device, None):
-            modes = nvml.device_get_nvlink_supported_bw_modes(device)
-        assert isinstance(modes, nvml.NvlinkSupportedBwModes_v1)
-        # #define NVML_NVLINK_TOTAL_SUPPORTED_BW_MODES 23
-        assert len(modes.bw_modes) <= 23
-        assert not hasattr(modes, "total_bw_modes")
+        with subtests.test(device=device):
+            with unsupported_before(device, None):
+                modes = nvml.device_get_nvlink_supported_bw_modes(device)
+            assert isinstance(modes, nvml.NvlinkSupportedBwModes_v1)
+            # #define NVML_NVLINK_TOTAL_SUPPORTED_BW_MODES 23
+            assert len(modes.bw_modes) <= 23
+            assert not hasattr(modes, "total_bw_modes")
 
-        for mode in modes.bw_modes:
-            assert isinstance(mode, np.uint8)
+            for mode in modes.bw_modes:
+                assert isinstance(mode, np.uint8)
 
 
 def test_device_get_pdi(all_devices):
@@ -88,62 +90,67 @@ def test_device_get_pdi(all_devices):
         assert isinstance(pdi, int)
 
 
-def test_device_get_performance_modes(all_devices):
+def test_device_get_performance_modes(all_devices, subtests):
     for device in all_devices:
-        with unsupported_before(device, None):
-            modes = nvml.device_get_performance_modes(device)
-        assert isinstance(modes, str)
+        with subtests.test(device=device):
+            with unsupported_before(device, None):
+                modes = nvml.device_get_performance_modes(device)
+            assert isinstance(modes, str)
 
 
 @pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
-def test_device_get_unrepairable_memory_flag(all_devices):
+def test_device_get_unrepairable_memory_flag(all_devices, subtests):
     for device in all_devices:
-        with unsupported_before(device, None):
-            status = nvml.device_get_unrepairable_memory_flag_v1(device)
-        assert isinstance(status, int)
+        with subtests.test(device=device):
+            with unsupported_before(device, None):
+                status = nvml.device_get_unrepairable_memory_flag_v1(device)
+            assert isinstance(status, int)
 
 
-def test_device_vgpu_get_heterogeneous_mode(all_devices):
+def test_device_vgpu_get_heterogeneous_mode(all_devices, subtests):
     for device in all_devices:
-        with unsupported_before(device, None):
-            mode = nvml.device_get_vgpu_heterogeneous_mode(device)
-        assert isinstance(mode, int)
+        with subtests.test(device=device):
+            with unsupported_before(device, None):
+                mode = nvml.device_get_vgpu_heterogeneous_mode(device)
+            assert isinstance(mode, int)
 
 
 @pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
-def test_read_prm_counters(all_devices):
+def test_read_prm_counters(all_devices, subtests):
     for device in all_devices:
-        counters = nvml.PRMCounter_v1(5)
-        with unsupported_before(device, None):
-            read_counters = nvml.device_read_prm_counters_v1(device, counters)
-        assert counters is read_counters
-        assert len(read_counters) == 5
+        with subtests.test(device=device):
+            counters = nvml.PRMCounter_v1(5)
+            with unsupported_before(device, None):
+                read_counters = nvml.device_read_prm_counters_v1(device, counters)
+            assert counters is read_counters
+            assert len(read_counters) == 5
 
 
 @pytest.mark.thread_unsafe(reason="API appears to be thread-unsafe (2026-06)")
-def test_read_write_prm(all_devices):
+def test_read_write_prm(all_devices, subtests):
     for device in all_devices:
-        # Docs say supported in BLACKWELL or later
-        with unsupported_before(device, None):
-            try:
-                result = nvml.device_read_write_prm_v1(device, b"012345678")
-            except nvml.NoPermissionError:
-                pytest.skip("No permission to read/write PRM")
-        assert isinstance(result, tuple)
-        assert isinstance(result[0], int)
-        assert isinstance(result[1], bytes)
+        with subtests.test(device=device):
+            # Docs say supported in BLACKWELL or later
+            with unsupported_before(device, None):
+                try:
+                    result = nvml.device_read_write_prm_v1(device, b"012345678")
+                except nvml.NoPermissionError:
+                    pytest.skip("No permission to read/write PRM")
+            assert isinstance(result, tuple)
+            assert isinstance(result[0], int)
+            assert isinstance(result[1], bytes)
 
 
-def test_get_power_management_limit(all_devices):
+def test_get_power_management_limit(all_devices, subtests):
     for device in all_devices:
         # Docs say supported on KEPLER or later
-        with unsupported_before(device, None):
+        with subtests.test(device=device), unsupported_before(device, nvml.DeviceArch.KEPLER):
             nvml.device_get_power_management_limit(device)
 
 
-def test_set_power_management_limit(all_devices):
+def test_set_power_management_limit(all_devices, subtests):
     for device in all_devices:
-        with unsupported_before(device, nvml.DeviceArch.KEPLER):
+        with subtests.test(device=device), unsupported_before(device, nvml.DeviceArch.KEPLER):
             try:
                 nvml.device_set_power_management_limit_v2(device, nvml.PowerScope.GPU, 10000)
             except nvml.NoPermissionError:
@@ -152,18 +159,19 @@ def test_set_power_management_limit(all_devices):
                 pytest.skip("Invalid argument when setting power management limit -- probably unsupported")
 
 
-def test_set_temperature_threshold(all_devices):
+def test_set_temperature_threshold(all_devices, subtests):
     for device in all_devices:
-        # Docs say supported on MAXWELL or newer
-        with unsupported_before(device, None):
-            temp = nvml.device_get_temperature_threshold(
-                device, nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR
-            )
-        try:
-            nvml.device_set_temperature_threshold(
-                device, nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR, temp
-            )
-        except nvml.NoPermissionError:
-            pytest.skip("No permission to set temperature threshold")
-        except nvml.InvalidArgumentError:
-            pytest.skip("Invalid argument when setting temperature threshold -- this is probably the temp type")
+        with subtests.test(device=device):
+            # Docs say supported on MAXWELL or newer
+            with unsupported_before(device, None):
+                temp = nvml.device_get_temperature_threshold(
+                    device, nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR
+                )
+            try:
+                nvml.device_set_temperature_threshold(
+                    device, nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR, temp
+                )
+            except nvml.NoPermissionError:
+                pytest.skip("No permission to set temperature threshold")
+            except nvml.InvalidArgumentError:
+                pytest.skip("Invalid argument when setting temperature threshold -- this is probably the temp type")
