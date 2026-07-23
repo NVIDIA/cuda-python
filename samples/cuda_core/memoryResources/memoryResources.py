@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-python>=13.0.0", "cuda-core>=1.0.0", "cupy-cuda13x>=14.0.0"]
+# dependencies = ["cuda-python>=13.0.0", "cuda-core>=1.0.0", "cupy-cuda13x>=14.0.0", "numpy>=2.2.5"]
 # ///
 
 """
@@ -335,6 +335,12 @@ def demo_pool_options_and_graph_mr(device, stream, kernel, size):
 
 def main():
     import argparse
+
+    # Writing into host arrays imported via DLPack requires NumPy 2.2.5+;
+    # np.from_dlpack returns a read-only array on earlier versions.
+    if np.lib.NumpyVersion(np.__version__) < "2.2.5":
+        print("This sample requires NumPy 2.2.5 or later", file=sys.stderr)
+        sys.exit(1)
 
     parser = argparse.ArgumentParser(description="Demonstrate cuda.core memory resources (Buffer + MR)")
     parser.add_argument(

@@ -40,7 +40,7 @@ packaging = "*"
 tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
 # numpy pinned <2.5 so `numba` (transitive dep of `numba-cuda` in
 # samples/cuda_core/simplePrint) can install; numba currently requires numpy<2.5.
-numpy = "<2.5"
+numpy = ">=2.2.5,<2.5"
 setuptools = "*"                    # samples/cuda_core/stridedMemoryViewCpu (cffi JIT build)
 
 [feature.samples.system-requirements]

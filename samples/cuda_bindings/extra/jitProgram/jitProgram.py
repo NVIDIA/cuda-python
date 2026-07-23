@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-python>=13.0.0", "numpy>=1.24"]
+# dependencies = ["cuda-python>=13.4.0", "numpy>=1.24"]
 # ///
 
 """
@@ -37,8 +37,8 @@ This is the under-the-hood companion to the high-level
 compile and link device code, this sample walks through the raw calls that
 those higher-level classes wrap:
 
-  * ``nvrtcCreateProgram`` -> ``nvrtcCompileProgram`` -> retrieve the log
-  * ``nvrtcGetCUBIN`` (or ``nvrtcGetPTX`` on older NVRTC) -> device bytes
+  * ``nvrtc.create_program`` -> ``nvrtc.compile_program`` -> retrieve the log
+  * ``nvrtc.get_cubin`` (or ``nvrtc.get_ptx`` on older NVRTC) -> device bytes
   * ``cuModuleLoadData`` -> load the module
   * ``cuModuleGetFunction`` -> get a ``CUfunction`` for a named symbol
   * ``cuLaunchKernel`` -> launch it, then ``cuModuleUnload``
@@ -54,7 +54,7 @@ try:
     import numpy as np
 
     from cuda.bindings import driver as cuda
-    from cuda.bindings import nvrtc
+    from cuda.bindings._v2 import nvrtc
 except ImportError as e:
     print(f"Error: Required package not found: {e}")
     print("Please install from requirements.txt:")
@@ -78,9 +78,6 @@ def _assert_drv(err):
     if isinstance(err, cuda.CUresult):
         if err != cuda.CUresult.CUDA_SUCCESS:
             raise RuntimeError(f"Cuda Error: {err}")
-    elif isinstance(err, nvrtc.nvrtcResult):
-        if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
-            raise RuntimeError(f"Nvrtc Error: {err}")
     else:
         raise RuntimeError(f"Unknown error type: {err}")
 
@@ -97,8 +94,7 @@ def main():
     _assert_drv(err)
 
     # ---- 2) Create an NVRTC program from the SAXPY source ----
-    err, prog = nvrtc.nvrtcCreateProgram(str.encode(SAXPY_KERNEL), b"saxpy.cu", 0, None, None)
-    _assert_drv(err)
+    prog = nvrtc.create_program(str.encode(SAXPY_KERNEL), b"saxpy.cu")
 
     # ---- 3) Pick a target architecture and choose CUBIN vs PTX ----
     err, major = cuda.cuDeviceGetAttribute(
@@ -109,37 +105,23 @@ def main():
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cu_device
     )
     _assert_drv(err)
-    err, _nvrtc_major, nvrtc_minor = nvrtc.nvrtcVersion()
-    _assert_drv(err)
+    _nvrtc_major, nvrtc_minor = nvrtc.version()
     use_cubin = nvrtc_minor >= 1
     prefix = "sm" if use_cubin else "compute"
     arch_arg = bytes(f"--gpu-architecture={prefix}_{major}{minor}", "ascii")
 
     # ---- 4) Compile and print the log (may be empty on success) ----
     opts = [b"--fmad=false", arch_arg]
-    (err,) = nvrtc.nvrtcCompileProgram(prog, len(opts), opts)
-    _assert_drv(err)
+    nvrtc.compile_program(prog, opts)
 
-    err, log_size = nvrtc.nvrtcGetProgramLogSize(prog)
-    _assert_drv(err)
-    log = b" " * log_size
-    (err,) = nvrtc.nvrtcGetProgramLog(prog, log)
-    _assert_drv(err)
+    log = nvrtc.get_program_log(prog)
     print(log.decode())
 
     # ---- 5) Retrieve either CUBIN or PTX bytes ----
     if use_cubin:
-        err, data_size = nvrtc.nvrtcGetCUBINSize(prog)
-        _assert_drv(err)
-        data = b" " * data_size
-        (err,) = nvrtc.nvrtcGetCUBIN(prog, data)
-        _assert_drv(err)
+        data = nvrtc.get_cubin(prog)
     else:
-        err, data_size = nvrtc.nvrtcGetPTXSize(prog)
-        _assert_drv(err)
-        data = b" " * data_size
-        (err,) = nvrtc.nvrtcGetPTX(prog, data)
-        _assert_drv(err)
+        data = nvrtc.get_ptx(prog)
 
     # ---- 6) Load the module and get the kernel entry point ----
     data = np.char.array(data)

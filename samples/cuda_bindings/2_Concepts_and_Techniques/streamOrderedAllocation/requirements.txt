@@ -1,5 +1,5 @@
 # streamOrderedAllocation Sample Requirements
 # Install with: pip install -r requirements.txt
 
-cuda-python>=13.0.0
+cuda-python>=13.4.0
 numpy>=1.24

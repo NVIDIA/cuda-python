@@ -12,8 +12,8 @@ higher-level abstractions wrap.
 The full flow is:
 
 ```
-nvrtcCreateProgram  ->  nvrtcCompileProgram  ->  nvrtcGetProgramLog
-                    ->  nvrtcGetCUBIN / nvrtcGetPTX
+nvrtc.create_program  ->  nvrtc.compile_program  ->  nvrtc.get_program_log
+                      ->  nvrtc.get_cubin / nvrtc.get_ptx
 cuModuleLoadData    ->  cuModuleGetFunction("saxpy")
 cuLaunchKernel      ->  cuStreamSynchronize
 cuModuleUnload      ->  cuCtxDestroy
@@ -39,13 +39,13 @@ The kernel is the standard single-precision AXPY: ``out = a * x + y``.
 
 ## Key APIs
 
-### From `cuda.bindings.nvrtc`
+### From `cuda.bindings._v2.nvrtc`
 
-- `nvrtcCreateProgram` / `nvrtcCompileProgram`
-- `nvrtcGetProgramLogSize` / `nvrtcGetProgramLog`
-- `nvrtcGetCUBINSize` / `nvrtcGetCUBIN`
-- `nvrtcGetPTXSize` / `nvrtcGetPTX`
-- `nvrtcVersion`
+- `create_program` / `compile_program`
+- `get_program_log`
+- `get_cubin`
+- `get_ptx`
+- `version`
 
 ### From `cuda.bindings.driver`
 
@@ -67,7 +67,7 @@ The kernel is the standard single-precision AXPY: ``out = a * x + y``.
 
 - CUDA Toolkit 13.0 or newer
 - Python 3.10 or newer
-- `cuda-python` (>=13.0.0)
+- `cuda-python` (>=13.4.0)
 - `numpy`
 
 ## Installation
@@ -93,7 +93,7 @@ Done
 
 ## Files
 
-- `jitProgram.py` - Python implementation using raw `cuda.bindings.nvrtc` + `cuda.bindings.driver`
+- `jitProgram.py` - Python implementation using `cuda.bindings._v2.nvrtc` + `cuda.bindings.driver`
 - `README.md` - This file
 - `requirements.txt` - Sample dependencies
 

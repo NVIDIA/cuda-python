@@ -70,7 +70,7 @@ non-interactive run.
 
 - CUDA Toolkit 13.0 or newer
 - Python 3.10 or newer
-- `cuda-python` (>=13.0.0)
+- `cuda-python` (>=13.4.0)
 - `numpy`
 - `matplotlib` (optional)
 

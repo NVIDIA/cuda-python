@@ -28,7 +28,7 @@
 Common helpers for cuda-bindings-flavored samples.
 
 Provides small utilities used by samples that program directly against
-``cuda.bindings.driver`` / ``cuda.bindings.runtime`` / ``cuda.bindings.nvrtc``
+``cuda.bindings.driver`` / ``cuda.bindings.runtime`` / ``cuda.bindings._v2.nvrtc``
 / ``cuda.bindings.nvml``, so each sample stays focused on the concept it
 demonstrates instead of the boilerplate:
 
@@ -60,8 +60,8 @@ import numpy as np
 
 from cuda import pathfinder
 from cuda.bindings import driver as cuda
-from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
+from cuda.bindings._v2 import nvrtc
 
 EXIT_WAIVED = 2
 WAIVER_EXIT_CODE_ENV = "CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE"
@@ -131,8 +131,6 @@ def _cuda_get_error_enum(error):
         return name if err == cuda.CUresult.CUDA_SUCCESS else "<unknown>"
     if isinstance(error, cudart.cudaError_t):
         return cudart.cudaGetErrorName(error)[1]
-    if isinstance(error, nvrtc.nvrtcResult):
-        return nvrtc.nvrtcGetErrorString(error)[1]
     raise RuntimeError(f"Unknown error type: {error}")
 
 
@@ -215,7 +213,7 @@ class KernelHelper:
                 requirement_not_met(f'pathfinder.find_nvidia_header_directory("{libname}") returned None')
             include_dirs.append(hdr_dir)
 
-        prog = check_cuda_errors(nvrtc.nvrtcCreateProgram(str.encode(code), b"sourceCode.cu", 0, None, None))
+        prog = nvrtc.create_program(str.encode(code), b"sourceCode.cu")
 
         # Initialize CUDA runtime (needed on the very first device call).
         check_cuda_errors(cudart.cudaFree(0))
@@ -226,7 +224,7 @@ class KernelHelper:
         minor = check_cuda_errors(
             cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, dev_id)
         )
-        _, nvrtc_minor = check_cuda_errors(nvrtc.nvrtcVersion())
+        _, nvrtc_minor = nvrtc.version()
         use_cubin = nvrtc_minor >= 1
         prefix = "sm" if use_cubin else "compute"
         arch_arg = bytes(f"--gpu-architecture={prefix}_{major}{minor}", "ascii")
@@ -241,23 +239,17 @@ class KernelHelper:
             opts.append(f"--include-path={inc_dir}".encode())
 
         try:
-            check_cuda_errors(nvrtc.nvrtcCompileProgram(prog, len(opts), opts))
-        except RuntimeError as err:
-            log_size = check_cuda_errors(nvrtc.nvrtcGetProgramLogSize(prog))
-            log = b" " * log_size
-            check_cuda_errors(nvrtc.nvrtcGetProgramLog(prog, log))
+            nvrtc.compile_program(prog, opts)
+        except nvrtc.NvrtcError as err:
+            log = nvrtc.get_program_log(prog)
             print(log.decode(), file=sys.stderr)
             print(err, file=sys.stderr)
             sys.exit(1)
 
         if use_cubin:
-            data_size = check_cuda_errors(nvrtc.nvrtcGetCUBINSize(prog))
-            data = b" " * data_size
-            check_cuda_errors(nvrtc.nvrtcGetCUBIN(prog, data))
+            data = nvrtc.get_cubin(prog)
         else:
-            data_size = check_cuda_errors(nvrtc.nvrtcGetPTXSize(prog))
-            data = b" " * data_size
-            check_cuda_errors(nvrtc.nvrtcGetPTX(prog, data))
+            data = nvrtc.get_ptx(prog)
 
         self.module = check_cuda_errors(cuda.cuModuleLoadData(np.char.array(data)))
 

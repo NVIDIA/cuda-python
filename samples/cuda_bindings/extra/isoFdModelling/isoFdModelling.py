@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-python>=13.0.0", "numpy>=1.24", "matplotlib"]
+# dependencies = ["cuda-python>=13.4.0", "numpy>=1.24", "matplotlib"]
 # ///
 
 """

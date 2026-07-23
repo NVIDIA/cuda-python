@@ -80,6 +80,7 @@ result is verified on the host.
 - `cuda-python` (>=13.0.0)
 - `cuda-core` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
+- `numpy` (>=2.2.5; earlier versions expose DLPack arrays as read-only)
 
 ### Platform Support
 
@@ -107,6 +108,7 @@ The `requirements.txt` installs:
 - `cuda-python` (>=13.0.0)
 - `cuda-core` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
+- `numpy` (>=2.2.5)
 
 ## How to Run
 
