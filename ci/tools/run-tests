@@ -1,12 +1,34 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 # A utility script to install the correct packages and run the tests.
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+_GDB_CMDS="${SCRIPT_DIR}/gdb_pytest_cmds"
+
+# Run pytest, wrapping with gdb on Linux to capture backtraces on crashes.
+# When compute-sanitizer is active (SANITIZER_CMD non-empty) gdb is skipped
+# because the two tools conflict.
+run_pytest() {
+  local san="${SANITIZER_CMD:-}"
+  if [[ -n "${san}" ]]; then
+    ${san} pytest "$@"
+  elif [[ "$(uname -s)" == "Linux" ]] && command -v gdb &>/dev/null; then
+    # python is the ELF binary gdb needs; the pytest shebang script cannot be
+    # used as gdb's inferior directly.  Passing the script path as python's
+    # argument makes Python set sys.path[0] to the script's directory rather
+    # than '' (CWD), matching a bare "pytest" call and preventing the source
+    # tree from shadowing installed namespace packages such as cuda.pathfinder.
+    gdb -batch -x "${_GDB_CMDS}" --args python "$(command -v pytest)" "$@"
+  else
+    pytest "$@"
+  fi
+}
 
 # Check if the script was called with exactly 1 argument
 if [[ ${#} -ne 1 ]]; then
@@ -36,7 +58,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
     "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
     "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS} " \
     "BC:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS}"
-  pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
+  run_pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
   # Report the number of "INFO test_" lines (including zero)
   # to support quick validations based on GHA log archives.
   line_count=$(awk '/^INFO test_/ {count++} END {print count+0}' /tmp/pathfinder_test_log.txt)
@@ -51,9 +73,9 @@ elif [[ "${test_module}" == "bindings" ]]; then
     pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
   fi
   echo "Running bindings tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
+  run_pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
+    run_pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
   fi
   popd
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
@@ -105,11 +127,11 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
+    run_pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
     # Currently our CI always installs the latest bindings (from either major version).
     # This is not compatible with the test requirements.
     if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-      ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
+      run_pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
     fi
     popd
   elif [[ "${test_module}" == "nightly-cuda-core" ]]; then

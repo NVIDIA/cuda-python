@@ -137,9 +137,10 @@ jobs:
         with:
           # for artifact fetching, graphics libs, g++ required for cffi in
           # example; util-linux for `nsenter` (custom-DRIVER rows re-exec
-          # install_gpu_driver.sh onto the host through nsenter)
-          dependencies: "jq wget libgl1 libegl1 g++ util-linux"
-          dependent_exes: "jq wget"
+          # install_gpu_driver.sh onto the host through nsenter); gdb for
+          # crash backtraces in run-tests
+          dependencies: "jq wget libgl1 libegl1 g++ util-linux gdb"
+          dependent_exes: "jq wget gdb"
 
       - name: Install GPU driver
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}

@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# GDB batch commands: run pytest and print a full backtrace only when the
+# process terminates due to a signal (e.g. SIGSEGV).  Exit with the
+# inferior's own exit code so the caller sees the right failure status.
+set pagination off
+set print thread-events off
+handle SIGTERM nostop pass
+run
+# $_exitcode is void when the inferior crashed (exited via signal) or was
+# stopped mid-run by a signal (e.g. SIGSEGV during import).  In both cases
+# the backtrace is meaningful and we want to exit non-zero.
+if $_isvoid($_exitcode)
+  echo \n=== GDB: process crashed or was stopped by signal, backtrace follows ===\n
+  bt full
+  echo \n=== Thread backtraces ===\n
+  thread apply all bt full
+  echo \n============================================================\n
+  quit 1
+end
+quit $_exitcode
