@@ -68,6 +68,48 @@ _patch_rlcompleter_for_cython_properties()
 del _patch_rlcompleter_for_cython_properties
 
 
+__all__ = [
+    "LEGACY_DEFAULT_STREAM",
+    "PER_THREAD_DEFAULT_STREAM",
+    "Buffer",
+    "Context",
+    "ContextOptions",
+    "Device",
+    "DeviceMemoryResource",
+    "DeviceMemoryResourceOptions",
+    "DeviceResources",
+    "Event",
+    "EventOptions",
+    "GraphMemoryResource",
+    "GraphicsResource",
+    "Host",
+    "Kernel",
+    "LaunchConfig",
+    "LegacyPinnedMemoryResource",
+    "Linker",
+    "LinkerOptions",
+    "ManagedBuffer",
+    "ManagedMemoryResource",
+    "ManagedMemoryResourceOptions",
+    "MemoryResource",
+    "ObjectCode",
+    "PinnedMemoryResource",
+    "PinnedMemoryResourceOptions",
+    "Program",
+    "ProgramOptions",
+    "SMResource",
+    "SMResourceOptions",
+    "Stream",
+    "StreamOptions",
+    "TensorMapDescriptor",
+    "TensorMapDescriptorOptions",
+    "VirtualMemoryResource",
+    "VirtualMemoryResourceOptions",
+    "WorkqueueResource",
+    "WorkqueueResourceOptions",
+    "launch",
+]
+
 from cuda.core import checkpoint, system, utils
 from cuda.core._context import Context, ContextOptions
 from cuda.core._device import Device
