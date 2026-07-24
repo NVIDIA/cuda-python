@@ -254,8 +254,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="$(gh api "repos/$GITHUB_REPOSITORY/tags" \
-            --jq '[.[] | select(.name | startswith("cuda-core-v"))] | first | .name')"
+          # --paginate fetches all pages; jq outputs one name per line per page;
+          # head -1 takes the first (newest) match since GitHub returns tags
+          # newest-first. Fails hard if no cuda-core-v* tag is found.
+          tag="$(gh api "repos/$GITHUB_REPOSITORY/tags" --paginate \
+            --jq '.[] | select(.name | startswith("cuda-core-v")) | .name' \
+            | head -1)"
+          if [[ -z "${tag}" ]]; then
+            echo "::error::No cuda-core-v* tag found in the repository." >&2
+            exit 1
+          fi
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
       - name: Fetch release tag
