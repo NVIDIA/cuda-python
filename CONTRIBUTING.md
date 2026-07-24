@@ -85,7 +85,7 @@ commit` workflow.  To resolve this, you can either:
 1. Run `pre-commit` it in Git Bash, rather directly in PowerShell or cmd
 
 2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
-   be `$env:SKIP = "lychee"` in PowerShell or `SKIP=lychee` in cmd.
+   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
 
 ## Signing Your Work
 

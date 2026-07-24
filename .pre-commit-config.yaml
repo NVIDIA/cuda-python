@@ -88,7 +88,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:^|/)CLAUDE\.md|(?:^|/)\.git_archival\.txt|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
