@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=7db075da"></script>
+    <script src="_static/documentation_options.js?v=4bdc5e70"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.2.dev129';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev39';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -202,6 +202,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="10_minutes_to_cuda_core.html">
+    10 minutes to cuda.core
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="examples.html">
     Examples
   </a>
@@ -214,13 +221,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="api.html">
-    cuda.core API Reference
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -229,6 +229,20 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="concurrency.html">
+    Concurrency and Thread Safety
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api.html">
+    cuda.core API Reference
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="api_nvml.html">
     cuda.core.system API Reference
@@ -422,6 +436,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="10_minutes_to_cuda_core.html">
+    10 minutes to cuda.core
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="examples.html">
     Examples
   </a>
@@ -431,6 +452,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="interoperability.html">
     Interoperability
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="concurrency.html">
+    Concurrency and Thread Safety
   </a>
 </li>
 
@@ -531,8 +559,10 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_minutes_to_cuda_core.html">10 minutes to <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concurrency.html">Concurrency and Thread Safety</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Host.html">cuda.core.Host</a></li>
@@ -636,6 +666,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.1.0-notes.html">1.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.0.1-notes.html">1.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.0.0-notes.html">1.0.0</a></li>
@@ -1255,10 +1286,10 @@
 </li>
       <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.complete">complete() (cuda.core.graph.GraphBuilder method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.compute_capability">compute_capability (cuda.core.Device property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.compute_capability_major">compute_capability_major (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.compute_capability_minor">compute_capability_minor (cuda.core._device.DeviceProperties attribute)</a>
@@ -1277,6 +1308,12 @@
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.compute_running_processes">compute_running_processes (cuda.core.system.Device attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.concurrency_limit">concurrency_limit (cuda.core.WorkqueueResource attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions.concurrency_limit">(cuda.core.WorkqueueResourceOptions attribute)</a>
+</li>
+      </ul></li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.concurrent_kernels">concurrent_kernels (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.concurrent_managed_access">concurrent_managed_access (cuda.core._device.DeviceProperties attribute)</a>
@@ -1573,6 +1610,8 @@
         <li><a href="generated/cuda.core.texture.SurfaceObject.html#cuda.core.texture.SurfaceObject.device">(cuda.core.texture.SurfaceObject attribute)</a>
 </li>
         <li><a href="generated/cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject.device">(cuda.core.texture.TextureObject attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.device">(cuda.core.WorkqueueResource attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1988,6 +2027,8 @@
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_memory_affinity">get_memory_affinity() (cuda.core.system.Device method)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.ClockInfo.html#cuda.core.system._device.ClockInfo.get_min_max_clock_of_pstate_mhz">get_min_max_clock_of_pstate_mhz() (cuda.core.system._device.ClockInfo method)</a>
+</li>
+      <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.get_module">get_module() (cuda.core.ObjectCode method)</a>
 </li>
       <li><a href="generated/cuda.core.system.get_num_devices.html#cuda.core.system.get_num_devices">get_num_devices() (in module cuda.core.system)</a>
 </li>
@@ -3522,8 +3563,12 @@
 </li>
       <li><a href="generated/cuda.core.system._device.DeviceAttributes.html#cuda.core.system._device.DeviceAttributes.shared_ofa_count">shared_ofa_count (cuda.core.system._device.DeviceAttributes attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions.sharing_scope">sharing_scope (cuda.core.WorkqueueResourceOptions attribute)</a>
+      <li><a href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.sharing_scope">sharing_scope (cuda.core.WorkqueueResource attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions.sharing_scope">(cuda.core.WorkqueueResourceOptions attribute)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode.shmem_size">shmem_size (cuda.core.graph.KernelNode attribute)</a>
 
       <ul>
@@ -3598,10 +3643,10 @@
 </li>
       <li><a href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions">StreamOptions (class in cuda.core)</a>
 </li>
-      <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView">StridedMemoryView (class in cuda.core.utils)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView">StridedMemoryView (class in cuda.core.utils)</a>
+</li>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.strides">strides (cuda.core.utils.StridedMemoryView attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.PciInfo.html#cuda.core.system._device.PciInfo.sub_class">sub_class (cuda.core.system._device.PciInfo attribute)</a>
