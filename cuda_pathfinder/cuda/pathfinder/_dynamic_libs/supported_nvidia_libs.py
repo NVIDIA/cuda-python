@@ -6,6 +6,11 @@
 The canonical data entry point is :mod:`descriptor_catalog`. This module keeps
 historical constant names for backward compatibility by deriving them from the
 catalog.
+
+The unsuffixed ``SITE_PACKAGES_LIBDIRS_WINDOWS*`` constants retain their
+historical x64 meaning for compatibility, but are not recommended for new code.
+Use the explicit ``*_X64`` or ``*_ARM64`` projection instead. Never combine the
+two architecture projections.
 """
 
 from __future__ import annotations
@@ -60,14 +65,29 @@ SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
 }
 SITE_PACKAGES_LIBDIRS_LINUX = SITE_PACKAGES_LIBDIRS_LINUX_CTK | SITE_PACKAGES_LIBDIRS_LINUX_OTHER
 
-# Historical table exports represent the original x64 catalog.
-SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
+# Architecture-specific Windows projections. Keep these separate: combining
+# them would make the table unsafe to consume for either process ABI.
+SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64 = {
     desc.name: desc.site_packages_windows.x64 for desc in _CTK_DESCRIPTORS if desc.site_packages_windows.x64
 }
-SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
+SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_ARM64 = {
+    desc.name: desc.site_packages_windows.arm64 for desc in _CTK_DESCRIPTORS if desc.site_packages_windows.arm64
+}
+SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_X64 = {
     desc.name: desc.site_packages_windows.x64 for desc in _NON_CTK_DESCRIPTORS if desc.site_packages_windows.x64
 }
-SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
+SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_ARM64 = {
+    desc.name: desc.site_packages_windows.arm64 for desc in _NON_CTK_DESCRIPTORS if desc.site_packages_windows.arm64
+}
+SITE_PACKAGES_LIBDIRS_WINDOWS_X64 = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64 | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_X64
+SITE_PACKAGES_LIBDIRS_WINDOWS_ARM64 = (
+    SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_ARM64 | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_ARM64
+)
+
+# Backward-compatible aliases preserve the historical x64 meaning.
+SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64
+SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_X64
+SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_X64
 
 
 def is_suppressed_dll_file(path_basename: str) -> bool:

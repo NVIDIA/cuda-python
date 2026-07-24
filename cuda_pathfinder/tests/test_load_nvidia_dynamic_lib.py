@@ -43,12 +43,20 @@ def test_supported_libnames_linux_site_packages_libdirs_ctk_consistency():
     )
 
 
-def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency():
+@pytest.mark.parametrize(
+    "site_packages_libdirs",
+    [
+        supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64,
+        supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_ARM64,
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency(site_packages_libdirs):
     # Not every Windows CTK library ships in a pip wheel (e.g. cudla is loaded
     # from the local CUDA Toolkit only), so a library may legitimately omit
     # site_packages_windows. Only assert that every site-packages entry maps to
     # a supported Windows libname, not the other way around.
-    site_packages_libnames = set(supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK.keys())
+    site_packages_libnames = set(site_packages_libdirs)
     supported_libnames = set(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)
     assert site_packages_libnames <= supported_libnames
 

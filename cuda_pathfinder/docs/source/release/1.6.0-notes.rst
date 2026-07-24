@@ -35,6 +35,12 @@ Highlights
 Internal maintenance
 --------------------
 
+* Add explicit ``_X64`` and ``_ARM64`` variants of the internal
+  ``SITE_PACKAGES_LIBDIRS_WINDOWS*`` tables. The unsuffixed names remain x64
+  aliases for backward compatibility, but are not recommended for new code.
+  Consumers should select the projection matching the current process
+  architecture and must not combine the two.
+
 * Clean up dead and misleading error-handling code in the Linux and Windows
   dynamic-library loaders; runtime behavior is unchanged.
   (`PR #2239 <https://github.com/NVIDIA/cuda-python/pull/2239>`_)

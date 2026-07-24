@@ -13,6 +13,12 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     LIBNAMES_REQUIRING_RTLD_DEEPBIND,
     SITE_PACKAGES_LIBDIRS_LINUX,
     SITE_PACKAGES_LIBDIRS_WINDOWS,
+    SITE_PACKAGES_LIBDIRS_WINDOWS_ARM64,
+    SITE_PACKAGES_LIBDIRS_WINDOWS_CTK,
+    SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64,
+    SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER,
+    SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_X64,
+    SITE_PACKAGES_LIBDIRS_WINDOWS_X64,
     SUPPORTED_LIBNAMES,
     SUPPORTED_LINUX_SONAMES,
     SUPPORTED_WINDOWS_DLLS,
@@ -56,9 +62,24 @@ def test_site_packages_linux_match(name):
     assert LIB_DESCRIPTORS[name].site_packages_linux == SITE_PACKAGES_LIBDIRS_LINUX.get(name, ())
 
 
+@pytest.mark.parametrize(
+    ("target_arch", "site_packages_libdirs"),
+    [
+        ("x64", SITE_PACKAGES_LIBDIRS_WINDOWS_X64),
+        ("arm64", SITE_PACKAGES_LIBDIRS_WINDOWS_ARM64),
+    ],
+)
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
-def test_site_packages_windows_match(name):
-    assert LIB_DESCRIPTORS[name].site_packages_windows.for_arch("x64") == SITE_PACKAGES_LIBDIRS_WINDOWS.get(name, ())
+@pytest.mark.agent_authored(model="gpt-5")
+def test_site_packages_windows_match(name, target_arch, site_packages_libdirs):
+    assert LIB_DESCRIPTORS[name].site_packages_windows.for_arch(target_arch) == site_packages_libdirs.get(name, ())
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_legacy_site_packages_windows_tables_are_x64_aliases():
+    assert SITE_PACKAGES_LIBDIRS_WINDOWS_CTK is SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64
+    assert SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER is SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_X64
+    assert SITE_PACKAGES_LIBDIRS_WINDOWS is SITE_PACKAGES_LIBDIRS_WINDOWS_X64
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
