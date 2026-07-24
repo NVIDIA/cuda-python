@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c7092df6"></script>
+    <script src="../_static/documentation_options.js?v=fbcf630c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev26';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev33';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -916,6 +916,24 @@ them (default to no mappings).</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.ObjectCode.get_module">
+<span class="sig-name descname"><span class="pre">get_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#cuda.core.ObjectCode.get_module" title="Link to this definition">#</a></dt>
+<dd><p>Return a context-dependent <code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmodule</span></code> for legacy interop.</p>
+<p>Bridges the native <code class="xref py py-obj docutils literal notranslate"><span class="pre">CUlibrary</span></code> (see <a class="reference internal" href="#cuda.core.ObjectCode.handle" title="cuda.core.ObjectCode.handle"><code class="xref py py-attr docutils literal notranslate"><span class="pre">handle</span></code></a>) to a
+<code class="docutils literal notranslate"><span class="pre">CUmodule</span></code> via <code class="docutils literal notranslate"><span class="pre">cuLibraryGetModule</span></code>, for use with legacy driver APIs
+that only accept <code class="docutils literal notranslate"><span class="pre">CUmodule</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Module handle for the current CUDA context, suitable for legacy
+driver APIs that accept <code class="docutils literal notranslate"><span class="pre">CUmodule</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmodule</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.code">
@@ -932,7 +950,9 @@ them (default to no mappings).</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.handle">
 <span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.ObjectCode.handle" title="Link to this definition">#</a></dt>
-<dd><p>Return the underlying handle object.</p>
+<dd><p>Return the native, context-independent <code class="xref py py-obj docutils literal notranslate"><span class="pre">CUlibrary</span></code> handle.</p>
+<p>Used by <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and newer driver library APIs. For legacy APIs
+that only accept a <code class="docutils literal notranslate"><span class="pre">CUmodule</span></code>, use <a class="reference internal" href="#cuda.core.ObjectCode.get_module" title="cuda.core.ObjectCode.get_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_module()</span></code></a> instead.</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
 <p>This handle is a Python object. To get the memory address of the underlying C
@@ -1015,6 +1035,7 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Ob
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_object"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_object()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_ptx"><code class="docutils literal notranslate"><span class="pre">ObjectCode.from_ptx()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.get_kernel"><code class="docutils literal notranslate"><span class="pre">ObjectCode.get_kernel()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.get_module"><code class="docutils literal notranslate"><span class="pre">ObjectCode.get_module()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.code"><code class="docutils literal notranslate"><span class="pre">ObjectCode.code</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.code_type"><code class="docutils literal notranslate"><span class="pre">ObjectCode.code_type</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.handle"><code class="docutils literal notranslate"><span class="pre">ObjectCode.handle</span></code></a></li>
