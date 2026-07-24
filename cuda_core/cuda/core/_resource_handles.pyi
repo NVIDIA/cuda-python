@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from libcpp.memory import shared_ptr
+from libcpp.memory import shared_ptr, unique_ptr
 
 ContextHandle = shared_ptr
 GreenCtxHandle = shared_ptr
@@ -26,3 +26,4 @@ MipmappedArrayHandle = shared_ptr
 TexObjectHandle = shared_ptr
 SurfObjectHandle = shared_ptr
 OpaqueHandle = shared_ptr
+PreparedAttachment = unique_ptr

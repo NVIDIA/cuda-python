@@ -42,6 +42,11 @@ subpackage in the `cuda-python` monorepo.
 - **Examples**: example coverage is pytest-based under `examples/`.
 - **Benchmarks**: run with `pytest --benchmark-only benchmarks/` when needed.
 
+The `legacy_tests` subdirectory tests the old pre-v2 APIs of `driver`, `runtime`
+and `nvrtc`.  These test files should not be added to, only updated when
+necessary to fix test failures.  The canonical set of tests are those outside of
+the `legacy_tests` subdirectory.
+
 ## Build and environment notes
 
 - `CUDA_HOME` or `CUDA_PATH` must point to a valid CUDA Toolkit for source
