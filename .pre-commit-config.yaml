@@ -61,7 +61,7 @@ repos:
 
       - id: stubgen-pyx-cuda-core
         name: Generate .pyi stubs for cuda_core
-        entry: stubgen-pyx cuda_core/cuda --continue-on-error --include-private
+        entry: python ./toolshed/run_stubgen_pyx.py
         language: python
         files: ^cuda_core/cuda/.*\.(pyx|pxd)$
         pass_filenames: false
@@ -95,7 +95,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |

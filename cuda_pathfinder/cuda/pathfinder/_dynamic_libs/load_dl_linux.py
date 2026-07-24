@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -7,6 +7,7 @@ import contextlib
 import ctypes
 import ctypes.util
 import os
+import sys
 from typing import TYPE_CHECKING, cast
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
@@ -14,7 +15,10 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 if TYPE_CHECKING:
     from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 
-CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
+if sys.platform == "linux":
+    CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
+else:
+    CDLL_MODE = 0
 
 
 def _load_libdl() -> ctypes.CDLL:
@@ -132,27 +136,35 @@ def _candidate_sonames(desc: LibDescriptor) -> list[str]:
     return candidates
 
 
-def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, _have_abs_path: bool) -> LoadedDL | None:
-    for soname in _candidate_sonames(desc):
-        try:
-            handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
-        except OSError:
-            continue
-        else:
-            return LoadedDL(
-                abs_path_for_dynamic_library(desc.name, handle),
-                True,
-                handle._handle,
-                "was-already-loaded-from-elsewhere",
-            )
-    return None
+if sys.platform == "linux":
 
+    def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, _have_abs_path: bool) -> LoadedDL | None:
+        for soname in _candidate_sonames(desc):
+            try:
+                handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
+            except OSError:
+                continue
+            else:
+                return LoadedDL(
+                    abs_path_for_dynamic_library(desc.name, handle),
+                    True,
+                    handle._handle,
+                    "was-already-loaded-from-elsewhere",
+                )
+        return None
 
-def _load_lib(desc: LibDescriptor, filename: str) -> ctypes.CDLL:
-    cdll_mode = CDLL_MODE
-    if desc.requires_rtld_deepbind:
-        cdll_mode |= os.RTLD_DEEPBIND
-    return ctypes.CDLL(filename, cdll_mode)
+    def _load_lib(desc: LibDescriptor, filename: str) -> ctypes.CDLL:
+        cdll_mode = CDLL_MODE
+        if desc.requires_rtld_deepbind:
+            cdll_mode |= os.RTLD_DEEPBIND
+        return ctypes.CDLL(filename, cdll_mode)
+else:
+
+    def check_if_already_loaded_from_elsewhere(_desc: LibDescriptor, _have_abs_path: bool) -> LoadedDL | None:
+        raise RuntimeError(f"check_if_already_loaded_from_elsewhere() is not supported on platform {sys.platform!r}")
+
+    def _load_lib(_desc: LibDescriptor, _filename: str) -> ctypes.CDLL:
+        raise RuntimeError(f"_load_lib() is not supported on platform {sys.platform!r}")
 
 
 def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:

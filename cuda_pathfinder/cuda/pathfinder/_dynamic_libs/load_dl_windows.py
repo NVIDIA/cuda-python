@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -7,6 +7,7 @@ import ctypes
 import ctypes.wintypes
 import os
 import struct
+import sys
 import warnings
 from typing import TYPE_CHECKING
 
@@ -22,7 +23,10 @@ WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
 POINTER_ADDRESS_SPACE = 2 ** (struct.calcsize("P") * 8)
 
 # Set up kernel32 functions with proper types
-kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+windll = getattr(ctypes, "windll", None)
+if windll is None:
+    raise RuntimeError("ctypes.windll is required on Windows")
+kernel32 = windll.kernel32
 
 # GetModuleHandleW
 kernel32.GetModuleHandleW.argtypes = [ctypes.wintypes.LPCWSTR]
@@ -43,6 +47,14 @@ kernel32.GetModuleFileNameW.argtypes = [
     ctypes.wintypes.DWORD,  # nSize
 ]
 kernel32.GetModuleFileNameW.restype = ctypes.wintypes.DWORD
+
+# AddDllDirectory (Windows 7+)
+kernel32.AddDllDirectory.argtypes = [ctypes.wintypes.LPCWSTR]
+kernel32.AddDllDirectory.restype = ctypes.c_void_p  # DLL_DIRECTORY_COOKIE
+
+# GetLastError
+kernel32.GetLastError.argtypes = []
+kernel32.GetLastError.restype = ctypes.wintypes.DWORD
 
 
 def ctypes_handle_to_unsigned_int(handle: ctypes.wintypes.HMODULE) -> int:
@@ -73,7 +85,8 @@ def add_dll_directory(dll_abs_path: str) -> None:
     # the directory must stay on the search path for the process lifetime, and
     # the handle has no finalizer, so dropping it does not remove the directory.
     try:
-        os.add_dll_directory(dirpath)  # type: ignore[attr-defined]
+        if sys.platform == "win32":
+            os.add_dll_directory(dirpath)
     except OSError as e:
         # Warn instead of failing silently; the PATH update below is a weaker
         # fallback that newer loaders may ignore.
@@ -96,7 +109,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     length = kernel32.GetModuleFileNameW(handle, buffer, len(buffer))
 
     if length == 0:
-        error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
+        error_code = kernel32.GetLastError()
         raise RuntimeError(f"GetModuleFileNameW failed for {libname!r} (error code: {error_code})")
 
     # If buffer was too small, try with larger buffer
@@ -104,7 +117,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
         buffer = ctypes.create_unicode_buffer(32768)  # Extended path length
         length = kernel32.GetModuleFileNameW(handle, buffer, len(buffer))
         if length == 0:
-            error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
+            error_code = kernel32.GetLastError()
             raise RuntimeError(f"GetModuleFileNameW failed for {libname!r} (error code: {error_code})")
 
     return buffer.value
@@ -170,7 +183,7 @@ def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | No
     handle = kernel32.LoadLibraryExW(found_path, None, flags)
 
     if not handle:
-        error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
+        error_code = kernel32.GetLastError()
         raise RuntimeError(f"Failed to load DLL at {found_path}: Windows error {error_code}")
 
     return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle), found_via)

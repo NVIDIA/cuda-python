@@ -5,13 +5,13 @@ from __future__ import annotations
 
 import ctypes
 import functools
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     load_nvidia_dynamic_lib as _load_nvidia_dynamic_lib,
 )
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
 class QueryDriverCudaVersionError(RuntimeError):
@@ -60,16 +60,16 @@ def query_driver_cuda_version() -> DriverCudaVersion:
         raise QueryDriverCudaVersionError("Failed to query the CUDA driver version.") from exc
 
 
+if sys.platform == "win32":
+    _DRIVER_LIB_LOADER: Callable[[str], ctypes.CDLL] = ctypes.WinDLL
+else:
+    _DRIVER_LIB_LOADER = ctypes.CDLL
+
+
 def _query_driver_cuda_version_int() -> int:
     """Return the encoded CUDA driver version from ``cuDriverGetVersion()``."""
     loaded_cuda = _load_nvidia_dynamic_lib("cuda")
-    if IS_WINDOWS:
-        # `ctypes.WinDLL` exists on Windows at runtime. The ignore is only for
-        # Linux mypy runs, where the platform stubs do not define that attribute.
-        loader_cls: Callable[[str], ctypes.CDLL] = ctypes.WinDLL  # type: ignore[attr-defined]
-    else:
-        loader_cls = ctypes.CDLL
-    driver_lib = loader_cls(loaded_cuda.abs_path)
+    driver_lib = _DRIVER_LIB_LOADER(loaded_cuda.abs_path)
     cu_driver_get_version = driver_lib.cuDriverGetVersion
     cu_driver_get_version.argtypes = [ctypes.POINTER(ctypes.c_int)]
     cu_driver_get_version.restype = ctypes.c_int
