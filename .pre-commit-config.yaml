@@ -16,10 +16,10 @@ ci:
 # pre-commit autoupdate --freeze
 repos:
   # Runs first so a leaked credential blocks the commit before any formatter runs.
-  # Requires `trufflehog` on $PATH; the wrapper prints install commands if missing.
-  # Skipped on pre-commit.ci (no trufflehog binary in that sandbox); Pulse CI enforces server-side.
+  # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on
+  # first use (no manual install). Skipped on pre-commit.ci; Pulse CI enforces server-side.
   - repo: https://github.com/NVIDIA/security-workflows
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
       - id: secret-scan-trufflehog
 
