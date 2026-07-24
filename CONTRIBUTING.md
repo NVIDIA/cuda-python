@@ -75,6 +75,16 @@ If the hook isn't installed, `pre-commit run` (and CI) will print a visible
 warning reminding you to run `pre-commit install`.
 
 
+## Secret Scanning
+
+Two complementary controls prevent accidental credential leakage:
+
+- **Local pre-commit** (`secret-scan-trufflehog`, via `.pre-commit-config.yaml`): catches credentials before commit. Self-installing — no manual setup beyond `pre-commit install`; the hook downloads a pinned, checksum-verified `trufflehog` on first use. Never commit a flagged secret; check with maintainers on false positives, and only use `git commit --no-verify` in exceptional, agreed cases.
+- **Server-side enforcement** (Pulse reusable workflow from `NVIDIA/security-workflows`, pinned by SHA): runs on `main`, `ctk-next`, and trusted copy-pr-bot branches on Linux runners, and blocks merges on verified secrets.
+
+The local hook is skipped on hosted pre-commit.ci (no `trufflehog` binary there); Pulse remains the authoritative CI enforcement. On **Windows**, run the hook from a Git Bash / MSYS shell (bundled with Git for Windows), which the hook requires; the CI (Pulse) control is Linux-runner-only by design.
+
+
 ## Signing Your Work
 
 Contributions to files licensed under Apache 2.0 must be certified under the
