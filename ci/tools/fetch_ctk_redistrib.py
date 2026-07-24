@@ -28,6 +28,21 @@ COMPONENT_ALIASES: dict[str, tuple[str, ...]] = {
     "cuda_cccl": ("cccl",),
 }
 
+PREVIEW_COMPONENT_PACKAGES: dict[str, str] = {
+    "cuda_cccl": "cccl",
+    "cuda_crt": "cuda-crt",
+    "cuda_cudart": "cuda-cudart-dev",
+    "cuda_cupti": "cuda-cupti-dev",
+    "cuda_nvcc": "cuda-nvcc",
+    "cuda_nvrtc": "cuda-nvrtc-dev",
+    "cuda_profiler_api": "cuda-profiler-api",
+    "libcudla": "libcudla-dev",
+    "libcufile": "libcufile-dev",
+    "libnvfatbin": "libnvfatbin-dev",
+    "libnvjitlink": "libnvjitlink-dev",
+    "libnvvm": "libnvvm",
+}
+
 
 def host_platform_to_subdir(host_platform: str) -> str:
     try:
@@ -108,6 +123,31 @@ def filter_components(
     return filtered, skipped
 
 
+def get_preview_packages(*, host_platform: str, cuda_version: str, components: str) -> tuple[list[str], list[str]]:
+    if not host_platform.startswith("linux-"):
+        raise ValueError(f"CUDA prerelease packages are not supported for host-platform {host_platform!r}")
+
+    version_parts = cuda_version.split(".")
+    if len(version_parts) != 3 or not all(part.isdigit() for part in version_parts):
+        raise ValueError(f"invalid cuda-version: {cuda_version!r}")
+    package_suffix = "-".join(version_parts[:2])
+
+    packages = []
+    skipped = []
+    for component in filter_static_components(split_components(components), host_platform, cuda_version):
+        if component == "libcudla" and host_platform != "linux-aarch64":
+            skipped.append(component)
+            continue
+        try:
+            package_base = PREVIEW_COMPONENT_PACKAGES[component]
+        except KeyError as exc:
+            raise ValueError(f"unsupported CUDA prerelease component: {component!r}") from exc
+        package = f"{package_base}-{package_suffix}"
+        if package not in packages:
+            packages.append(package)
+    return packages, skipped
+
+
 def get_component_relative_path(metadata: dict[str, Any], *, host_platform: str, component: str) -> str:
     ctk_subdir = host_platform_to_subdir(host_platform)
     component = resolve_component_name(metadata, component)
@@ -142,6 +182,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     relpath_parser.add_argument("--metadata-path")
     relpath_parser.add_argument("--metadata-url")
 
+    preview_parser = subparsers.add_parser("preview-packages")
+    preview_parser.add_argument("--host-platform", required=True)
+    preview_parser.add_argument("--cuda-version", required=True)
+    preview_parser.add_argument("--components", required=True)
+
     return parser.parse_args(argv)
 
 
@@ -149,8 +194,22 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
 
     try:
-        metadata = load_metadata(metadata_path=args.metadata_path, metadata_url=args.metadata_url)
+        if args.command == "preview-packages":
+            packages, skipped = get_preview_packages(
+                host_platform=args.host_platform,
+                cuda_version=args.cuda_version,
+                components=args.components,
+            )
+            for component in skipped:
+                print(
+                    f"Skipping unsupported CUDA prerelease component {component!r} "
+                    f"for host-platform {args.host_platform!r}",
+                    file=sys.stderr,
+                )
+            print(",".join(packages))
+            return 0
 
+        metadata = load_metadata(metadata_path=args.metadata_path, metadata_url=args.metadata_url)
         if args.command == "filter-components":
             filtered, skipped = filter_components(
                 metadata,

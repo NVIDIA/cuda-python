@@ -11,6 +11,10 @@ inputs:
     required: true
   cuda-version:
     required: true
+  cuda-channel:
+    description: "CUDA package channel: stable redistributables or prerelease packages"
+    required: false
+    default: "stable"
   cuda-components:
     description: "A list of the CTK components to install as a comma-separated list. e.g. 'cuda_nvcc,cuda_nvrtc,cuda_cudart'"
     required: false
@@ -30,17 +34,34 @@ runs:
         # Use the runtime workspace mount so this also works inside container jobs.
         CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
         CTK_CACHE_COMPONENTS=${{ inputs.cuda-components }}
-        CTK_JSON_URL="https://developer.download.nvidia.com/compute/cuda/redist/redistrib_${{ inputs.cuda-version }}.json"
-        CTK_CACHE_COMPONENTS="$(python "$CTK_REDIST_TOOL" filter-components \
-          --host-platform "${{ inputs.host-platform }}" \
-          --cuda-version "${{ inputs.cuda-version }}" \
-          --components "$CTK_CACHE_COMPONENTS" \
-          --metadata-url "$CTK_JSON_URL")"
+        CTK_PREVIEW_PACKAGES=
+        if [[ "${{ inputs.cuda-channel }}" == "stable" ]]; then
+          CTK_JSON_URL="https://developer.download.nvidia.com/compute/cuda/redist/redistrib_${{ inputs.cuda-version }}.json"
+          CTK_CACHE_COMPONENTS="$(python "$CTK_REDIST_TOOL" filter-components \
+            --host-platform "${{ inputs.host-platform }}" \
+            --cuda-version "${{ inputs.cuda-version }}" \
+            --components "$CTK_CACHE_COMPONENTS" \
+            --metadata-url "$CTK_JSON_URL")"
+        elif [[ "${{ inputs.cuda-channel }}" == "prerelease" ]]; then
+          CTK_PREVIEW_PACKAGES="$(python "$CTK_REDIST_TOOL" preview-packages \
+            --host-platform "${{ inputs.host-platform }}" \
+            --cuda-version "${{ inputs.cuda-version }}" \
+            --components "$CTK_CACHE_COMPONENTS")"
+          CTK_CACHE_COMPONENTS="$CTK_PREVIEW_PACKAGES"
+        else
+          echo "Unsupported CUDA package channel: ${{ inputs.cuda-channel }}" >&2
+          exit 1
+        fi
 
         HASH=$(echo -n "${CTK_CACHE_COMPONENTS}" | sha256sum | awk '{print $1}')
-        echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH" >> $GITHUB_ENV
+        CHANNEL_CACHE_SEGMENT=
+        if [[ "${{ inputs.cuda-channel }}" != "stable" ]]; then
+          CHANNEL_CACHE_SEGMENT="-${{ inputs.cuda-channel }}"
+        fi
+        echo "CTK_CACHE_KEY=mini-ctk${CHANNEL_CACHE_SEGMENT}-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH" >> $GITHUB_ENV
         echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH.tar.gz" >> $GITHUB_ENV
         echo "CTK_CACHE_COMPONENTS=${CTK_CACHE_COMPONENTS}" >> $GITHUB_ENV
+        echo "CTK_PREVIEW_PACKAGES=${CTK_PREVIEW_PACKAGES}" >> $GITHUB_ENV
 
     - name: Install dependencies
       uses: ./.github/actions/install_unix_deps
@@ -68,48 +89,92 @@ runs:
         rm -rf $CACHE_TMP_DIR
         mkdir $CACHE_TMP_DIR
 
-        # The binary archives (redist) are guaranteed to be updated as part of the release posting.
-        # Use the runtime workspace mount so this also works inside container jobs.
-        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
-        CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
-        CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
-        CTK_JSON_FILE="$CACHE_TMP_DIR/redistrib.json"
-        curl -LSs "$CTK_JSON_URL" -o "$CTK_JSON_FILE"
-        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-          function extract() {
-            tar -xvf $1 -C $CACHE_TMP_DIR --strip-components=1
-          }
-        elif [[ "${{ inputs.host-platform }}" == "win-64" ]]; then
-          function extract() {
-            _TEMP_DIR_=$(mktemp -d)
-            unzip $1 -d $_TEMP_DIR_
-            cp -r $_TEMP_DIR_/*/* $CACHE_TMP_DIR
-            rm -rf $_TEMP_DIR_
-            # see commit NVIDIA/cuda-python@69410f1d9228e775845ef6c8b4a9c7f37ffc68a5
-            chmod 644 $CACHE_TMP_DIR/LICENSE
-          }
-        fi
-        function populate_cuda_path() {
-          # take the component name as a argument
-          function download() {
-            curl -LSs $1 -o $2
-          }
-          CTK_COMPONENT=$1
-          CTK_COMPONENT_REL_PATH="$(python "$CTK_REDIST_TOOL" component-relative-path \
-            --host-platform "${{ inputs.host-platform }}" \
-            --component "$CTK_COMPONENT" \
-            --metadata-path "$CTK_JSON_FILE")"
-          CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
-          CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
-          download $CTK_COMPONENT_URL $CTK_COMPONENT_COMPONENT_FILENAME
-          extract $CTK_COMPONENT_COMPONENT_FILENAME
-          rm $CTK_COMPONENT_COMPONENT_FILENAME
-        }
+        if [[ "${{ inputs.cuda-channel }}" == "prerelease" ]]; then
+          if [[ "${{ inputs.host-platform }}" != linux* ]]; then
+            echo "CUDA prerelease package extraction currently supports Linux only" >&2
+            exit 1
+          fi
 
-        # Get headers and shared libraries in place
-        for item in $(echo $CTK_CACHE_COMPONENTS | tr ',' ' '); do
-            populate_cuda_path "$item"
-        done
+          source /etc/os-release
+          DISTRO_CODENAME="${VERSION_CODENAME:-}"
+          case "$DISTRO_CODENAME" in
+            bookworm|jammy|noble|resolute|trixie) ;;
+            *)
+              echo "Unsupported distribution for CUDA prerelease packages: ${DISTRO_CODENAME:-unknown}" >&2
+              exit 1
+              ;;
+          esac
+
+          KEYRING_DEB="$CACHE_TMP_DIR/nvidia-preview-keyring.deb"
+          curl -fLSs "https://packages.nvidia.com/${DISTRO_CODENAME}/nvidia-preview-keyring.deb" -o "$KEYRING_DEB"
+          sudo dpkg -i "$KEYRING_DEB"
+          sudo apt-get update
+
+          DEB_DIR="$CACHE_TMP_DIR/debs"
+          DEB_ROOT="$CACHE_TMP_DIR/deb-root"
+          mkdir -p "$DEB_DIR/partial" "$DEB_ROOT"
+          DEB_DIR="$(realpath "$DEB_DIR")"
+          IFS=, read -ra PREVIEW_PACKAGES <<< "$CTK_PREVIEW_PACKAGES"
+          sudo apt-get install --yes --download-only --no-install-recommends \
+            -o "Dir::Cache::archives=$DEB_DIR" \
+            "${PREVIEW_PACKAGES[@]}"
+          for package in "$DEB_DIR"/*.deb; do
+            dpkg-deb -x "$package" "$DEB_ROOT"
+          done
+
+          CUDA_SHORT_VERSION="${{ inputs.cuda-version }}"
+          CUDA_SHORT_VERSION="${CUDA_SHORT_VERSION%.*}"
+          CUDA_PACKAGE_ROOT="$DEB_ROOT/usr/local/cuda-${CUDA_SHORT_VERSION}"
+          if [[ ! -d "$CUDA_PACKAGE_ROOT/include" ]]; then
+            echo "CUDA prerelease packages did not provide $CUDA_PACKAGE_ROOT/include" >&2
+            exit 1
+          fi
+          cp -a "$CUDA_PACKAGE_ROOT/." "$CACHE_TMP_DIR/"
+          rm -rf "$DEB_DIR" "$DEB_ROOT" "$KEYRING_DEB"
+        else
+          # The binary archives (redist) are guaranteed to be updated as part of the release posting.
+          # Use the runtime workspace mount so this also works inside container jobs.
+          CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
+          CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
+          CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
+          CTK_JSON_FILE="$CACHE_TMP_DIR/redistrib.json"
+          curl -fLSs "$CTK_JSON_URL" -o "$CTK_JSON_FILE"
+          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+            function extract() {
+              tar -xvf $1 -C $CACHE_TMP_DIR --strip-components=1
+            }
+          elif [[ "${{ inputs.host-platform }}" == "win-64" ]]; then
+            function extract() {
+              _TEMP_DIR_=$(mktemp -d)
+              unzip $1 -d $_TEMP_DIR_
+              cp -r $_TEMP_DIR_/*/* $CACHE_TMP_DIR
+              rm -rf $_TEMP_DIR_
+              # see commit NVIDIA/cuda-python@69410f1d9228e775845ef6c8b4a9c7f37ffc68a5
+              chmod 644 $CACHE_TMP_DIR/LICENSE
+            }
+          fi
+          function populate_cuda_path() {
+            # take the component name as a argument
+            function download() {
+              curl -fLSs $1 -o $2
+            }
+            CTK_COMPONENT=$1
+            CTK_COMPONENT_REL_PATH="$(python "$CTK_REDIST_TOOL" component-relative-path \
+              --host-platform "${{ inputs.host-platform }}" \
+              --component "$CTK_COMPONENT" \
+              --metadata-path "$CTK_JSON_FILE")"
+            CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
+            CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
+            download $CTK_COMPONENT_URL $CTK_COMPONENT_COMPONENT_FILENAME
+            extract $CTK_COMPONENT_COMPONENT_FILENAME
+            rm $CTK_COMPONENT_COMPONENT_FILENAME
+          }
+
+          # Get headers and shared libraries in place
+          for item in $(echo $CTK_CACHE_COMPONENTS | tr ',' ' '); do
+              populate_cuda_path "$item"
+          done
+        fi
         # TODO: check Windows
         if [[ "${{ inputs.host-platform }}" == linux* && -d "${CACHE_TMP_DIR}/lib" ]]; then
           mv $CACHE_TMP_DIR/lib $CACHE_TMP_DIR/lib64
