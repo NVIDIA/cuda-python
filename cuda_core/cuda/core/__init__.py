@@ -5,8 +5,11 @@
 from cuda.core._version import __version__
 
 
+# TODO: remove this function altogether after wheel-variants become mainstream
 def _import_versioned_module() -> None:
     import importlib
+    import pathlib
+    import sys
 
     from cuda import bindings
 
@@ -15,13 +18,13 @@ def _import_versioned_module() -> None:
         raise ImportError("cuda.bindings 12.x or 13.x must be installed")
 
     subdir = f"cu{cuda_major}"
-    try:
-        versioned_mod = importlib.import_module(f".{subdir}", __package__)
-        # Import all symbols from the module
-        globals().update(versioned_mod.__dict__)
-    except ImportError:
-        # This is not a wheel build, but a conda or local build, do nothing
-        pass
+    versioned_path = pathlib.Path(__file__).parent / subdir
+    # This is a wheel build with relevant modules in cuda/core/cu<cuda_major>
+    # directory. Let's add it to module path so imports work as expected.
+    # cuda.core.cu<cuda_major> is not meant to behave as a module itself, and
+    # does not belong in sys.modules
+    if versioned_path.is_dir():
+        __path__.append(str(versioned_path))
 
 
 _import_versioned_module()
