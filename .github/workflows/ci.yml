@@ -103,6 +103,7 @@ jobs:
       test_bindings: ${{ steps.compose.outputs.test_bindings }}
       test_core: ${{ steps.compose.outputs.test_core }}
       test_pathfinder: ${{ steps.compose.outputs.test_pathfinder }}
+      pr_merge_base: ${{ steps.filter.outputs.merge_base }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -156,6 +157,7 @@ jobs:
             echo "python_meta=$(has_match '^cuda_python/')"
             echo "test_helpers=$(has_match '^cuda_python_test_helpers/')"
             echo "shared=$(has_match '^(\.github/|ci/|scripts/|toolshed/|conftest\.py$|pyproject\.toml$|pixi\.(toml|lock)$|pytest\.ini$|ruff\.toml$)')"
+            echo "merge_base=${base}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Compose gating outputs
@@ -227,6 +229,81 @@ jobs:
             echo "test_core=${test_core}"
             echo "test_pathfinder=${test_pathfinder}"
           } >> "$GITHUB_OUTPUT"
+
+  api-check-core-vs-release:
+    name: API check (cuda_core vs. latest release)
+    if: >-
+      ${{ !fromJSON(needs.should-skip.outputs.skip) &&
+          fromJSON(needs.detect-changes.outputs.core) }}
+    runs-on: ubuntu-latest
+    needs:
+      - should-skip
+      - detect-changes
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 1
+          filter: blob:none
+
+      - name: Find latest release tag
+        id: latest-tag
+        shell: bash --noprofile --norc -euo pipefail {0}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(gh api "repos/$GITHUB_REPOSITORY/tags" \
+            --jq '[.[] | select(.name | startswith("cuda-core-v"))] | first | .name')"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch release tag
+        shell: bash --noprofile --norc -euo pipefail {0}
+        run: |
+          git fetch --depth=1 --filter=blob:none origin \
+            "refs/tags/${{ steps.latest-tag.outputs.tag }}:refs/tags/${{ steps.latest-tag.outputs.tag }}"
+
+      - name: Check cuda_core public API
+        id: griffe
+        uses: ./.github/actions/griffe-api-check
+        with:
+          package-name: cuda.core
+          package-dir: cuda_core
+          merge-base: ${{ steps.latest-tag.outputs.tag }}
+
+  api-check-core-vs-base:
+    name: API check (cuda_core vs. merge base)
+    if: >-
+      ${{ startsWith(github.ref_name, 'pull-request/') &&
+          !fromJSON(needs.should-skip.outputs.skip) &&
+          fromJSON(needs.detect-changes.outputs.core) }}
+    runs-on: ubuntu-latest
+    needs:
+      - should-skip
+      - detect-changes
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 1
+          filter: blob:none
+
+      - name: Fetch merge base commit
+        shell: bash --noprofile --norc -euo pipefail {0}
+        run: |
+          git fetch --depth=1 --filter=blob:none origin \
+            "${{ needs.detect-changes.outputs.pr_merge_base }}"
+
+      - name: Check cuda_core public API
+        id: griffe
+        uses: ./.github/actions/griffe-api-check
+        with:
+          package-name: cuda.core
+          package-dir: cuda_core
+          merge-base: ${{ needs.detect-changes.outputs.pr_merge_base }}
 
   # NOTE: Build jobs are intentionally split by platform rather than using a single
   # matrix. This allows each test job to depend only on its corresponding build,
