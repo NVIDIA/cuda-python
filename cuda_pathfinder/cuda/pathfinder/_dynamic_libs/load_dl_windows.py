@@ -7,6 +7,7 @@ import ctypes
 import ctypes.wintypes
 import os
 import struct
+import sys
 import warnings
 from typing import TYPE_CHECKING
 
@@ -84,7 +85,8 @@ def add_dll_directory(dll_abs_path: str) -> None:
     # the directory must stay on the search path for the process lifetime, and
     # the handle has no finalizer, so dropping it does not remove the directory.
     try:
-        os.add_dll_directory(dirpath)
+        if sys.platform == "win32":
+            os.add_dll_directory(dirpath)
     except OSError as e:
         # Warn instead of failing silently; the PATH update below is a weaker
         # fallback that newer loaders may ignore.
