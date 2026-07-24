@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2b62a3b56226f5cf6953f578057af792369a100b7775328c5aa66d81d780d2ac
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a7205ec1f1749acd8f9e32e85660d77d8ccb60a0d038bb63fb4b015496f23d07
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -1254,6 +1254,20 @@ cdef extern from 'library_types.h':
         CUDA_EMULATION_STRATEGY_EAGER
     ctypedef cudaEmulationStrategy_t cudaEmulationStrategy
 
+cdef extern from 'library_types.h':
+    cdef enum cudaEmulationMantissaControl_t:
+        CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC
+        CUDA_EMULATION_MANTISSA_CONTROL_FIXED
+    ctypedef cudaEmulationMantissaControl_t cudaEmulationMantissaControl
+
+cdef extern from 'library_types.h':
+    cdef enum cudaEmulationSpecialValuesSupport_t:
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN
+    ctypedef cudaEmulationSpecialValuesSupport_t cudaEmulationSpecialValuesSupport
+
 cdef extern from 'driver_types.h':
     cdef enum cudaDevSmResourceGroup_flags:
         cudaDevSmResourceGroupDefault
@@ -1275,20 +1289,6 @@ cdef extern from 'driver_types.h':
     cdef enum cudaDevWorkqueueConfigScope:
         cudaDevWorkqueueConfigScopeDeviceCtx
         cudaDevWorkqueueConfigScopeGreenCtxBalanced
-
-cdef extern from 'library_types.h':
-    cdef enum cudaEmulationMantissaControl_t:
-        CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC
-        CUDA_EMULATION_MANTISSA_CONTROL_FIXED
-    ctypedef cudaEmulationMantissaControl_t cudaEmulationMantissaControl
-
-cdef extern from 'library_types.h':
-    cdef enum cudaEmulationSpecialValuesSupport_t:
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN
-    ctypedef cudaEmulationSpecialValuesSupport_t cudaEmulationSpecialValuesSupport
 
 cdef extern from 'driver_types.h':
     cdef enum cudaHostTaskSyncMode:

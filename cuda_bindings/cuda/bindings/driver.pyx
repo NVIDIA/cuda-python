@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4a70be46627269cff03a2b89504463158d6e50d738cfde91e8c3ed1bf88fd9e0
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6cc0baa1c711f87e25f49626d1d5ab66c770b0f81b21ae45da420e2632024565
 from typing import Any, Optional
 import cython
 import ctypes
@@ -10810,6 +10810,7 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
         return [CUstreamBatchMemOpParams(_ptr=arr) for arr in arrs]
     @paramArray.setter
     def paramArray(self, val):
+        cdef cydriver.CUstreamBatchMemOpParams* _paramArray_new
         if len(val) == 0:
             free(self._paramArray)
             self._paramArray = NULL
@@ -10817,14 +10818,22 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
             self._pvt_ptr[0].paramArray = NULL
         else:
             if self._paramArray_length != <size_t>len(val):
-                free(self._paramArray)
-                self._paramArray = <cydriver.CUstreamBatchMemOpParams*> calloc(len(val), sizeof(cydriver.CUstreamBatchMemOpParams))
-                if self._paramArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramArray_new = <cydriver.CUstreamBatchMemOpParams*> calloc(len(val), sizeof(cydriver.CUstreamBatchMemOpParams))
+                if _paramArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUstreamBatchMemOpParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramArray_new[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
+                free(self._paramArray)
+                self._paramArray = _paramArray_new
                 self._paramArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramArray = self._paramArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramArray[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
+                self._pvt_ptr[0].paramArray = _paramArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramArray[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
 
 
 
@@ -10945,6 +10954,7 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
         return [CUstreamBatchMemOpParams(_ptr=arr) for arr in arrs]
     @paramArray.setter
     def paramArray(self, val):
+        cdef cydriver.CUstreamBatchMemOpParams* _paramArray_new
         if len(val) == 0:
             free(self._paramArray)
             self._paramArray = NULL
@@ -10952,14 +10962,22 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
             self._pvt_ptr[0].paramArray = NULL
         else:
             if self._paramArray_length != <size_t>len(val):
-                free(self._paramArray)
-                self._paramArray = <cydriver.CUstreamBatchMemOpParams*> calloc(len(val), sizeof(cydriver.CUstreamBatchMemOpParams))
-                if self._paramArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramArray_new = <cydriver.CUstreamBatchMemOpParams*> calloc(len(val), sizeof(cydriver.CUstreamBatchMemOpParams))
+                if _paramArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUstreamBatchMemOpParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramArray_new[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
+                free(self._paramArray)
+                self._paramArray = _paramArray_new
                 self._paramArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramArray = self._paramArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramArray[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
+                self._pvt_ptr[0].paramArray = _paramArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramArray[idx], (<CUstreamBatchMemOpParams>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamBatchMemOpParams))
 
 
 
@@ -14390,6 +14408,7 @@ cdef class CUlaunchConfig_st:
         return [CUlaunchAttribute(_ptr=arr) for arr in arrs]
     @attrs.setter
     def attrs(self, val):
+        cdef cydriver.CUlaunchAttribute* _attrs_new
         if len(val) == 0:
             free(self._attrs)
             self._attrs = NULL
@@ -14397,14 +14416,22 @@ cdef class CUlaunchConfig_st:
             self._pvt_ptr[0].attrs = NULL
         else:
             if self._attrs_length != <size_t>len(val):
-                free(self._attrs)
-                self._attrs = <cydriver.CUlaunchAttribute*> calloc(len(val), sizeof(cydriver.CUlaunchAttribute))
-                if self._attrs is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _attrs_new = <cydriver.CUlaunchAttribute*> calloc(len(val), sizeof(cydriver.CUlaunchAttribute))
+                if _attrs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUlaunchAttribute)))
+                for idx in range(len(val)):
+                    string.memcpy(&_attrs_new[idx], (<CUlaunchAttribute>val[idx])._pvt_ptr, sizeof(cydriver.CUlaunchAttribute))
+                free(self._attrs)
+                self._attrs = _attrs_new
                 self._attrs_length = <size_t>len(val)
-                self._pvt_ptr[0].attrs = self._attrs
-            for idx in range(len(val)):
-                string.memcpy(&self._attrs[idx], (<CUlaunchAttribute>val[idx])._pvt_ptr, sizeof(cydriver.CUlaunchAttribute))
+                self._pvt_ptr[0].attrs = _attrs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._attrs[idx], (<CUlaunchAttribute>val[idx])._pvt_ptr, sizeof(cydriver.CUlaunchAttribute))
 
 
 
@@ -14733,6 +14760,7 @@ cdef class CUctxCreateParams_st:
         return [CUexecAffinityParam(_ptr=arr) for arr in arrs]
     @execAffinityParams.setter
     def execAffinityParams(self, val):
+        cdef cydriver.CUexecAffinityParam* _execAffinityParams_new
         if len(val) == 0:
             free(self._execAffinityParams)
             self._execAffinityParams = NULL
@@ -14740,14 +14768,22 @@ cdef class CUctxCreateParams_st:
             self._pvt_ptr[0].execAffinityParams = NULL
         else:
             if self._execAffinityParams_length != <size_t>len(val):
-                free(self._execAffinityParams)
-                self._execAffinityParams = <cydriver.CUexecAffinityParam*> calloc(len(val), sizeof(cydriver.CUexecAffinityParam))
-                if self._execAffinityParams is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _execAffinityParams_new = <cydriver.CUexecAffinityParam*> calloc(len(val), sizeof(cydriver.CUexecAffinityParam))
+                if _execAffinityParams_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUexecAffinityParam)))
+                for idx in range(len(val)):
+                    string.memcpy(&_execAffinityParams_new[idx], (<CUexecAffinityParam>val[idx])._pvt_ptr, sizeof(cydriver.CUexecAffinityParam))
+                free(self._execAffinityParams)
+                self._execAffinityParams = _execAffinityParams_new
                 self._execAffinityParams_length = <size_t>len(val)
-                self._pvt_ptr[0].execAffinityParams = self._execAffinityParams
-            for idx in range(len(val)):
-                string.memcpy(&self._execAffinityParams[idx], (<CUexecAffinityParam>val[idx])._pvt_ptr, sizeof(cydriver.CUexecAffinityParam))
+                self._pvt_ptr[0].execAffinityParams = _execAffinityParams_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._execAffinityParams[idx], (<CUexecAffinityParam>val[idx])._pvt_ptr, sizeof(cydriver.CUexecAffinityParam))
 
 
 
@@ -14765,6 +14801,7 @@ cdef class CUctxCreateParams_st:
         return [CUctxCigParam(_ptr=arr) for arr in arrs]
     @cigParams.setter
     def cigParams(self, val):
+        cdef cydriver.CUctxCigParam* _cigParams_new
         if len(val) == 0:
             free(self._cigParams)
             self._cigParams = NULL
@@ -14772,14 +14809,22 @@ cdef class CUctxCreateParams_st:
             self._pvt_ptr[0].cigParams = NULL
         else:
             if self._cigParams_length != <size_t>len(val):
-                free(self._cigParams)
-                self._cigParams = <cydriver.CUctxCigParam*> calloc(len(val), sizeof(cydriver.CUctxCigParam))
-                if self._cigParams is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _cigParams_new = <cydriver.CUctxCigParam*> calloc(len(val), sizeof(cydriver.CUctxCigParam))
+                if _cigParams_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUctxCigParam)))
+                for idx in range(len(val)):
+                    string.memcpy(&_cigParams_new[idx], (<CUctxCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUctxCigParam))
+                free(self._cigParams)
+                self._cigParams = _cigParams_new
                 self._cigParams_length = <size_t>len(val)
-                self._pvt_ptr[0].cigParams = self._cigParams
-            for idx in range(len(val)):
-                string.memcpy(&self._cigParams[idx], (<CUctxCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUctxCigParam))
+                self._pvt_ptr[0].cigParams = _cigParams_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._cigParams[idx], (<CUctxCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUctxCigParam))
 
 
 
@@ -14904,6 +14949,7 @@ cdef class CUstreamCigCaptureParams_st:
         return [CUstreamCigParam(_ptr=arr) for arr in arrs]
     @streamCigParams.setter
     def streamCigParams(self, val):
+        cdef cydriver.CUstreamCigParam* _streamCigParams_new
         if len(val) == 0:
             free(self._streamCigParams)
             self._streamCigParams = NULL
@@ -14911,14 +14957,22 @@ cdef class CUstreamCigCaptureParams_st:
             self._pvt_ptr[0].streamCigParams = NULL
         else:
             if self._streamCigParams_length != <size_t>len(val):
-                free(self._streamCigParams)
-                self._streamCigParams = <cydriver.CUstreamCigParam*> calloc(len(val), sizeof(cydriver.CUstreamCigParam))
-                if self._streamCigParams is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _streamCigParams_new = <cydriver.CUstreamCigParam*> calloc(len(val), sizeof(cydriver.CUstreamCigParam))
+                if _streamCigParams_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUstreamCigParam)))
+                for idx in range(len(val)):
+                    string.memcpy(&_streamCigParams_new[idx], (<CUstreamCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamCigParam))
+                free(self._streamCigParams)
+                self._streamCigParams = _streamCigParams_new
                 self._streamCigParams_length = <size_t>len(val)
-                self._pvt_ptr[0].streamCigParams = self._streamCigParams
-            for idx in range(len(val)):
-                string.memcpy(&self._streamCigParams[idx], (<CUstreamCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamCigParam))
+                self._pvt_ptr[0].streamCigParams = _streamCigParams_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._streamCigParams[idx], (<CUstreamCigParam>val[idx])._pvt_ptr, sizeof(cydriver.CUstreamCigParam))
 
 
 
@@ -20078,6 +20132,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
         return [CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -20085,14 +20140,22 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
 
 
 
@@ -20205,6 +20268,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
         return [CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -20212,14 +20276,22 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS))
 
 
 
@@ -20332,6 +20404,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
         return [CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -20339,14 +20412,22 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
 
 
 
@@ -20459,6 +20540,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
         return [CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -20466,14 +20548,22 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*> calloc(len(val), sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS))
 
 
 
@@ -22840,6 +22930,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
         return [CUmemAccessDesc(_ptr=arr) for arr in arrs]
     @accessDescs.setter
     def accessDescs(self, val):
+        cdef cydriver.CUmemAccessDesc* _accessDescs_new
         if len(val) == 0:
             free(self._accessDescs)
             self._accessDescs = NULL
@@ -22847,14 +22938,22 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                free(self._accessDescs)
-                self._accessDescs = <cydriver.CUmemAccessDesc*> calloc(len(val), sizeof(cydriver.CUmemAccessDesc))
-                if self._accessDescs is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _accessDescs_new = <cydriver.CUmemAccessDesc*> calloc(len(val), sizeof(cydriver.CUmemAccessDesc))
+                if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUmemAccessDesc)))
+                for idx in range(len(val)):
+                    string.memcpy(&_accessDescs_new[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
+                free(self._accessDescs)
+                self._accessDescs = _accessDescs_new
                 self._accessDescs_length = <size_t>len(val)
-                self._pvt_ptr[0].accessDescs = self._accessDescs
-            for idx in range(len(val)):
-                string.memcpy(&self._accessDescs[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
+                self._pvt_ptr[0].accessDescs = _accessDescs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._accessDescs[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
 
 
 
@@ -23001,6 +23100,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
         return [CUmemAccessDesc(_ptr=arr) for arr in arrs]
     @accessDescs.setter
     def accessDescs(self, val):
+        cdef cydriver.CUmemAccessDesc* _accessDescs_new
         if len(val) == 0:
             free(self._accessDescs)
             self._accessDescs = NULL
@@ -23008,14 +23108,22 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                free(self._accessDescs)
-                self._accessDescs = <cydriver.CUmemAccessDesc*> calloc(len(val), sizeof(cydriver.CUmemAccessDesc))
-                if self._accessDescs is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _accessDescs_new = <cydriver.CUmemAccessDesc*> calloc(len(val), sizeof(cydriver.CUmemAccessDesc))
+                if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUmemAccessDesc)))
+                for idx in range(len(val)):
+                    string.memcpy(&_accessDescs_new[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
+                free(self._accessDescs)
+                self._accessDescs = _accessDescs_new
                 self._accessDescs_length = <size_t>len(val)
-                self._pvt_ptr[0].accessDescs = self._accessDescs
-            for idx in range(len(val)):
-                string.memcpy(&self._accessDescs[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
+                self._pvt_ptr[0].accessDescs = _accessDescs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._accessDescs[idx], (<CUmemAccessDesc>val[idx])._pvt_ptr, sizeof(cydriver.CUmemAccessDesc))
 
 
 
@@ -24005,6 +24113,7 @@ cdef class CUcheckpointRestoreArgs_st:
         return [CUcheckpointGpuPair(_ptr=arr) for arr in arrs]
     @gpuPairs.setter
     def gpuPairs(self, val):
+        cdef cydriver.CUcheckpointGpuPair* _gpuPairs_new
         if len(val) == 0:
             free(self._gpuPairs)
             self._gpuPairs = NULL
@@ -24012,14 +24121,22 @@ cdef class CUcheckpointRestoreArgs_st:
             self._pvt_ptr[0].gpuPairs = NULL
         else:
             if self._gpuPairs_length != <size_t>len(val):
-                free(self._gpuPairs)
-                self._gpuPairs = <cydriver.CUcheckpointGpuPair*> calloc(len(val), sizeof(cydriver.CUcheckpointGpuPair))
-                if self._gpuPairs is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _gpuPairs_new = <cydriver.CUcheckpointGpuPair*> calloc(len(val), sizeof(cydriver.CUcheckpointGpuPair))
+                if _gpuPairs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUcheckpointGpuPair)))
+                for idx in range(len(val)):
+                    string.memcpy(&_gpuPairs_new[idx], (<CUcheckpointGpuPair>val[idx])._pvt_ptr, sizeof(cydriver.CUcheckpointGpuPair))
+                free(self._gpuPairs)
+                self._gpuPairs = _gpuPairs_new
                 self._gpuPairs_length = <size_t>len(val)
-                self._pvt_ptr[0].gpuPairs = self._gpuPairs
-            for idx in range(len(val)):
-                string.memcpy(&self._gpuPairs[idx], (<CUcheckpointGpuPair>val[idx])._pvt_ptr, sizeof(cydriver.CUcheckpointGpuPair))
+                self._pvt_ptr[0].gpuPairs = _gpuPairs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._gpuPairs[idx], (<CUcheckpointGpuPair>val[idx])._pvt_ptr, sizeof(cydriver.CUcheckpointGpuPair))
 
 
 
@@ -25121,6 +25238,7 @@ cdef class CUdevResource_st:
         return [CUdevResource_st(_ptr=arr) for arr in arrs]
     @nextResource.setter
     def nextResource(self, val):
+        cdef cydriver.CUdevResource_st* _nextResource_new
         if len(val) == 0:
             free(self._nextResource)
             self._nextResource = NULL
@@ -25128,14 +25246,22 @@ cdef class CUdevResource_st:
             self._pvt_ptr[0].nextResource = NULL
         else:
             if self._nextResource_length != <size_t>len(val):
-                free(self._nextResource)
-                self._nextResource = <cydriver.CUdevResource_st*> calloc(len(val), sizeof(cydriver.CUdevResource_st))
-                if self._nextResource is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _nextResource_new = <cydriver.CUdevResource_st*> calloc(len(val), sizeof(cydriver.CUdevResource_st))
+                if _nextResource_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUdevResource_st)))
+                for idx in range(len(val)):
+                    string.memcpy(&_nextResource_new[idx], (<CUdevResource_st>val[idx])._pvt_ptr, sizeof(cydriver.CUdevResource_st))
+                free(self._nextResource)
+                self._nextResource = _nextResource_new
                 self._nextResource_length = <size_t>len(val)
-                self._pvt_ptr[0].nextResource = self._nextResource
-            for idx in range(len(val)):
-                string.memcpy(&self._nextResource[idx], (<CUdevResource_st>val[idx])._pvt_ptr, sizeof(cydriver.CUdevResource_st))
+                self._pvt_ptr[0].nextResource = _nextResource_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._nextResource[idx], (<CUdevResource_st>val[idx])._pvt_ptr, sizeof(cydriver.CUdevResource_st))
 
 
 
@@ -35463,7 +35589,7 @@ def cuMemSetAccess(ptr, size_t size, desc : Optional[tuple[CUmemAccessDesc] | li
 
     See Also
     --------
-    :py:obj:`~.cuMemSetAccess`, :py:obj:`~.cuMemCreate`, :py:obj:`~.py`:obj:`~.cuMemMap`
+    :py:obj:`~.cuMemSetAccess`, :py:obj:`~.cuMemCreate`, :py:obj:`~.cuMemMap`
     """
     desc = [] if desc is None else desc
     if not all(isinstance(_x, (CUmemAccessDesc,)) for _x in desc):
@@ -36718,11 +36844,11 @@ def cuMulticastCreate(prop : Optional[CUmulticastObjectProp]):
     :py:obj:`~.cuMulticastBindAddr`, or :py:obj:`~.cuMulticastBindAddr_v2`.
     and can be unbound via :py:obj:`~.cuMulticastUnbind`. The total amount
     of memory that can be bound per device is specified by
-    :py:obj:`~.py`:obj:`~.CUmulticastObjectProp.size`. This size must be a
-    multiple of the value returned by :py:obj:`~.cuMulticastGetGranularity`
-    with the flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`. For best
-    performance however, the size should be aligned to the value returned
-    by :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CUmulticastObjectProp.size`. This size must be a multiple of
+    the value returned by :py:obj:`~.cuMulticastGetGranularity` with the
+    flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`. For best performance
+    however, the size should be aligned to the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
     :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`.
 
     After all participating devices have been added, multicast objects can
@@ -38081,13 +38207,12 @@ def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
       :py:obj:`~.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS`.
 
     - `ptr` must be a pointer to memory obtained from
-      :py:obj:`~.py`:obj:`~.cuMemAlloc()`. Note that p2pToken and
-      vaSpaceToken are only valid for the lifetime of the source
-      allocation. A subsequent allocation at the same address may return
-      completely different tokens. Querying this attribute has a side
-      effect of setting the attribute
-      :py:obj:`~.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS` for the region of memory
-      that `ptr` points to.
+      :py:obj:`~.cuMemAlloc()`. Note that p2pToken and vaSpaceToken are
+      only valid for the lifetime of the source allocation. A subsequent
+      allocation at the same address may return completely different
+      tokens. Querying this attribute has a side effect of setting the
+      attribute :py:obj:`~.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS` for the region
+      of memory that `ptr` points to.
 
     - :py:obj:`~.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS`:
 

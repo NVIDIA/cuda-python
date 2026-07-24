@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0f2431380680008795336b7acb5ccd83dba7a6e05d0c81c2b5f825bc95576ccd
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ea44514ba11796759754ddfb1ae93c9b7e1d510a09f7349a82a2201dd0c0c159
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -4023,12 +4023,12 @@ cdef class cudaLaunchAttributeValue:
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
     launchCompletionEvent : anon_struct20
@@ -4830,12 +4830,12 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
     launchCompletionEvent : anon_struct20
@@ -4959,12 +4959,12 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
     launchCompletionEvent : anon_struct20

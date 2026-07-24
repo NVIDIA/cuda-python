@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e47a16bd9956de14a991ded5d1aef667cdd26a141e27db5b2015b91be6918d3c
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6dc4cfe2b034290ebc642bf79eea9ec031190b3a02615d5a2c8c0e6c26100bbb
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -840,7 +840,7 @@ class GpmMetricId(_cyb_FastEnum):
     GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
     GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. 0.0 - 100.0 *\u200d/.')
+    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0 */`.')
     GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
     GPM_METRIC_FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
     GPM_METRIC_FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
@@ -25091,7 +25091,7 @@ cpdef int device_get_virtualization_mode(intptr_t device) except? -1:
         device (intptr_t): Identifier of the target device.
 
     Returns:
-        int: Reference to virtualization mode. One of NVML_GPU_VIRTUALIZATION_?.
+        int: Reference to virtualization mode. One of ``NVML_GPU_VIRTUALIZATION_?``.
 
     .. seealso:: `nvmlDeviceGetVirtualizationMode`
     """
@@ -25125,7 +25125,7 @@ cpdef device_set_virtualization_mode(intptr_t device, int virtual_mode):
 
     Args:
         device (intptr_t): Identifier of the target device.
-        virtual_mode (GpuVirtualizationMode): virtualization mode. One of NVML_GPU_VIRTUALIZATION_?.
+        virtual_mode (GpuVirtualizationMode): virtualization mode. One of ``NVML_GPU_VIRTUALIZATION_?``.
 
     .. seealso:: `nvmlDeviceSetVirtualizationMode`
     """
@@ -28464,10 +28464,4 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
         __status__ = nvmlVgpuTypeGetName(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_name, <unsigned int*>size)
     check_status(__status__)
     return cpython.PyUnicode_FromStringAndSize(vgpu_type_name, size[0])
-
-
-# Cleanup some docstrings that don't parse as rst.
-device_get_virtualization_mode.__doc__ = device_get_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
-device_set_virtualization_mode.__doc__ = device_set_virtualization_mode.__doc__.replace("NVML_GPU_VIRTUALIZATION_?", "``NVML_GPU_VIRTUALIZATION_?``")
-GpmMetricId.GPM_METRIC_DRAM_BW_UTIL.__doc__ = "Percentage of DRAM bw used vs theoretical maximum. ``0.0 - 100.0 *\u200d/``."
 del _cyb_FastEnum

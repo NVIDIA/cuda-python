@@ -1355,3 +1355,56 @@ def test_dealloc_clears_array_field_in_external_struct():
         f"external struct still holds a dangling pointer ({attrs_after:#x}) "
         "where attrs was, after the aliasing wrapper was destroyed"
     )
+
+
+def test_array_setter_preserves_state_on_failed_resize():
+    # Regression test for an OOM state-desync in the generated array-member
+    # setters (Glasswing V1.1 / NVBUG 6268871). On a length-changing assignment
+    # the setter freed the old buffer, then allocated the new one; if the
+    # allocation failed it raised *before* updating the cached length and the
+    # C-struct pointer, leaving the wrapper with a freed buffer but a stale
+    # length. A later same-length assignment then took the "no resize" path and
+    # memcpy'd through the NULL/freed buffer -> near-NULL segfault.
+    #
+    # The fix builds and fills the new buffer first and only frees/swaps the old
+    # one once the resize is known to succeed, so a failed (over)allocation
+    # leaves the object completely unchanged (strong exception guarantee).
+    #
+    # CUlaunchConfig.attrs is exercised as one representative of the many
+    # affected setters. calloc failure is forced without real host OOM by
+    # assigning an object whose __len__ reports a huge length, so
+    # calloc(len, sizeof) overflows size_t and returns NULL. The reproducer runs
+    # in a subprocess so a segfault surfaces as a non-zero return code instead
+    # of tearing down the pytest process.
+    code = textwrap.dedent(
+        """
+        import cuda.bindings.driver as cuda
+
+        class HugeLen:
+            # __len__ only: the setter raises on the overflowing calloc before
+            # it ever indexes this object.
+            def __len__(self):
+                return 2**62
+
+        params = cuda.CUlaunchConfig()
+        # Establish a live 4-element buffer and cached length.
+        params.attrs = [cuda.CUlaunchAttribute() for _ in range(4)]
+
+        # Force a failed resize (calloc overflow -> NULL -> MemoryError).
+        try:
+            params.attrs = HugeLen()
+        except MemoryError:
+            pass
+        else:
+            raise SystemExit("expected MemoryError on overflowing resize")
+
+        # Same-length reassignment. Pre-fix this took the no-resize path and
+        # wrote through the freed/NULL buffer -> segfault. Post-fix the object
+        # was left intact, so this succeeds.
+        params.attrs = [cuda.CUlaunchAttribute() for _ in range(4)]
+        """
+    )
+    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, cwd=os.path.dirname(__file__))  # noqa: S603
+    assert proc.returncode == 0, (
+        f"reproducer subprocess exited with code {proc.returncode}; stderr: {proc.stderr.decode(errors='replace')}"
+    )

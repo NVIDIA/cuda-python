@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=783d27cfa66fa4f5818edcf88141aeb96dcc0e27e73a77a36571f82f30f3bb47
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c251080d776c07c133fb4c06e4aa5cb7567642467a5fd4260405524c18edf1e8
 from typing import Any, Optional
 import cython
 import ctypes
@@ -1748,8 +1748,8 @@ class cudaLaunchAttributeID(_FastEnum):
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ' :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can\n'
-        'only be set to 0 or 1. Setting the field to 1 indicates that the\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
+        'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
         ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode`\n'
@@ -6590,8 +6590,8 @@ class cudaStreamAttrID(_FastEnum):
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ' :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can\n'
-        'only be set to 0 or 1. Setting the field to 1 indicates that the\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
+        'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
         ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode`\n'
@@ -6835,8 +6835,8 @@ class cudaKernelNodeAttrID(_FastEnum):
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ' :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can\n'
-        'only be set to 0 or 1. Setting the field to 1 indicates that the\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
+        'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
         ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode`\n'
@@ -11338,6 +11338,7 @@ cdef class cudaMemAllocNodeParams:
         return [cudaMemAccessDesc(_ptr=arr) for arr in arrs]
     @accessDescs.setter
     def accessDescs(self, val):
+        cdef cyruntime.cudaMemAccessDesc* _accessDescs_new
         if len(val) == 0:
             free(self._accessDescs)
             self._accessDescs = NULL
@@ -11345,14 +11346,22 @@ cdef class cudaMemAllocNodeParams:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                free(self._accessDescs)
-                self._accessDescs = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
-                if self._accessDescs is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _accessDescs_new = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
+                if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaMemAccessDesc)))
+                for idx in range(len(val)):
+                    string.memcpy(&_accessDescs_new[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
+                free(self._accessDescs)
+                self._accessDescs = _accessDescs_new
                 self._accessDescs_length = <size_t>len(val)
-                self._pvt_ptr[0].accessDescs = self._accessDescs
-            for idx in range(len(val)):
-                string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
+                self._pvt_ptr[0].accessDescs = _accessDescs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
 
 
 
@@ -11487,6 +11496,7 @@ cdef class cudaMemAllocNodeParamsV2:
         return [cudaMemAccessDesc(_ptr=arr) for arr in arrs]
     @accessDescs.setter
     def accessDescs(self, val):
+        cdef cyruntime.cudaMemAccessDesc* _accessDescs_new
         if len(val) == 0:
             free(self._accessDescs)
             self._accessDescs = NULL
@@ -11494,14 +11504,22 @@ cdef class cudaMemAllocNodeParamsV2:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                free(self._accessDescs)
-                self._accessDescs = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
-                if self._accessDescs is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _accessDescs_new = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
+                if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaMemAccessDesc)))
+                for idx in range(len(val)):
+                    string.memcpy(&_accessDescs_new[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
+                free(self._accessDescs)
+                self._accessDescs = _accessDescs_new
                 self._accessDescs_length = <size_t>len(val)
-                self._pvt_ptr[0].accessDescs = self._accessDescs
-            for idx in range(len(val)):
-                string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
+                self._pvt_ptr[0].accessDescs = _accessDescs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
 
 
 
@@ -16237,6 +16255,7 @@ cdef class cudaDevResource_st:
         return [cudaDevResource_st(_ptr=arr) for arr in arrs]
     @nextResource.setter
     def nextResource(self, val):
+        cdef cyruntime.cudaDevResource_st* _nextResource_new
         if len(val) == 0:
             free(self._nextResource)
             self._nextResource = NULL
@@ -16244,14 +16263,22 @@ cdef class cudaDevResource_st:
             self._pvt_ptr[0].nextResource = NULL
         else:
             if self._nextResource_length != <size_t>len(val):
-                free(self._nextResource)
-                self._nextResource = <cyruntime.cudaDevResource_st*> calloc(len(val), sizeof(cyruntime.cudaDevResource_st))
-                if self._nextResource is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _nextResource_new = <cyruntime.cudaDevResource_st*> calloc(len(val), sizeof(cyruntime.cudaDevResource_st))
+                if _nextResource_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaDevResource_st)))
+                for idx in range(len(val)):
+                    string.memcpy(&_nextResource_new[idx], (<cudaDevResource_st>val[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource_st))
+                free(self._nextResource)
+                self._nextResource = _nextResource_new
                 self._nextResource_length = <size_t>len(val)
-                self._pvt_ptr[0].nextResource = self._nextResource
-            for idx in range(len(val)):
-                string.memcpy(&self._nextResource[idx], (<cudaDevResource_st>val[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource_st))
+                self._pvt_ptr[0].nextResource = _nextResource_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._nextResource[idx], (<cudaDevResource_st>val[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource_st))
 
 
 
@@ -16861,6 +16888,7 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
         return [cudaExternalSemaphoreSignalParams(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cyruntime.cudaExternalSemaphoreSignalParams* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -16868,14 +16896,22 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreSignalParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
 
 
 
@@ -16988,6 +17024,7 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         return [cudaExternalSemaphoreSignalParams(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cyruntime.cudaExternalSemaphoreSignalParams* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -16995,14 +17032,22 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreSignalParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
 
 
 
@@ -17115,6 +17160,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
         return [cudaExternalSemaphoreWaitParams(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cyruntime.cudaExternalSemaphoreWaitParams* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -17122,14 +17168,22 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreWaitParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
 
 
 
@@ -17242,6 +17296,7 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         return [cudaExternalSemaphoreWaitParams(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cyruntime.cudaExternalSemaphoreWaitParams* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -17249,14 +17304,22 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreWaitParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
 
 
 
@@ -19167,12 +19230,12 @@ cdef class cudaLaunchAttributeValue:
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
     launchCompletionEvent : anon_struct20
