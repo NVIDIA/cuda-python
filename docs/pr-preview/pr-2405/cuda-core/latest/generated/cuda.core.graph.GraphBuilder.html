@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f0f1a79c"></script>
+    <script src="../_static/documentation_options.js?v=943e77d8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev25';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev35';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -820,6 +820,10 @@ for the lifetime of the graph.</p></li>
 <p class="admonition-title">Warning</p>
 <p>Callbacks must not call CUDA API functions. Doing so may
 deadlock or corrupt driver state.</p>
+<p>Use caution when a Python callback retains an object that owns a
+graph. Any reference cycle involving the callback and a graph that
+retains it cannot be broken by Python’s cyclic garbage collector.
+Use a weak reference to break such cycles.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
