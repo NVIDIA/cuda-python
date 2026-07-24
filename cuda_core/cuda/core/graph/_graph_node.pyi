@@ -94,6 +94,13 @@ class GraphNode:
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
 
+        .. warning::
+
+            Use caution when a retained kernel argument directly or indirectly
+            owns a graph. Any reference cycle involving the argument and a
+            graph that retains it cannot be broken by Python's cyclic garbage
+            collector. Use a weak reference to break such cycles.
+
         Parameters
         ----------
         config : LaunchConfig
@@ -182,6 +189,13 @@ class GraphNode:
     def memset(self, dst: Buffer | int, value, width: int, height: int=1, pitch: int=0, *, dst_owner=None) -> MemsetNode:
         """Add a memset node depending on this node.
 
+        .. warning::
+
+            Use caution when a retained operand owner directly or indirectly
+            owns a graph. Any reference cycle involving the owner and a graph
+            that retains it cannot be broken by Python's cyclic garbage
+            collector. Use a weak reference to break such cycles.
+
         Parameters
         ----------
         dst : Buffer or int
@@ -220,6 +234,13 @@ class GraphNode:
         Copies ``size`` bytes from ``src`` to ``dst``. Memory types are
         auto-detected via the driver, so both device and pinned host
         pointers are supported.
+
+        .. warning::
+
+            Use caution when a retained operand owner directly or indirectly
+            owns a graph. Any reference cycle involving the owner and a graph
+            that retains it cannot be broken by Python's cyclic garbage
+            collector. Use a weak reference to break such cycles.
 
         Parameters
         ----------
@@ -318,6 +339,11 @@ class GraphNode:
 
             Callbacks must not call CUDA API functions. Doing so may
             deadlock or corrupt driver state.
+
+            Use caution when a Python callback retains an object that owns a
+            graph. Any reference cycle involving the callback and a graph that
+            retains it cannot be broken by Python's cyclic garbage collector.
+            Use a weak reference to break such cycles.
 
         Parameters
         ----------
