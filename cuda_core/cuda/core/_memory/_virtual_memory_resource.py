@@ -265,7 +265,7 @@ class VirtualMemoryResource(MemoryResource):
             0,
         )
 
-        if res != driver.CUresult.CUDA_SUCCESS or new_ptr != (int(buf.handle) + aligned_prev_size):
+        if res != driver.CUresult.CUDA_SUCCESS or int(new_ptr) != (int(buf.handle) + aligned_prev_size):
             # Check for specific errors that are not recoverable with the slow path
             if res in (
                 driver.CUresult.CUDA_ERROR_INVALID_VALUE,

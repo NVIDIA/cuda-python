@@ -1035,6 +1035,53 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert ("set_access", new_ptr, aligned_additional, 1) in calls
 
 
+@pytest.mark.agent_authored(model="claude-opus-4-8")
+def test_vmm_allocator_grow_dispatches_to_fast_path(init_cuda, monkeypatch):
+    """A contiguous reservation must dispatch to the fast path, not the slow path.
+
+    `test_vmm_allocator_grow_allocation_fast_path` covers the fast path itself by
+    calling it directly, so it stays green whether or not `modify_allocation` can
+    reach it. This covers the dispatch decision instead.
+    """
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+    try:
+        buffer = vmm_mr.allocate(2 * 1024 * 1024)
+    except NotImplementedError:
+        pytest.skip("handle_type not implemented on this platform")
+
+    # Grant the reservation at exactly the address the caller asked for, which is
+    # the contiguous-extension case the fast path exists to serve.
+    def fake_addr_reserve(size, alignment, addr, flags):
+        return (driver.CUresult.CUDA_SUCCESS, driver.CUdeviceptr(addr))
+
+    chosen = []
+
+    def record_fast(*_args, **_kwargs):
+        chosen.append("fast")
+        return buffer
+
+    def record_slow(*_args, **_kwargs):
+        chosen.append("slow")
+        return buffer
+
+    monkeypatch.setattr(driver, "cuMemAddressReserve", fake_addr_reserve)
+    monkeypatch.setattr(vmm_mr, "_grow_allocation_fast_path", record_fast)
+    monkeypatch.setattr(vmm_mr, "_grow_allocation_slow_path", record_slow)
+
+    try:
+        vmm_mr.modify_allocation(buffer, 4 * 1024 * 1024)
+        assert chosen == ["fast"]
+    finally:
+        buffer.close()
+
+
 def test_vmm_allocator_rdma_unsupported_exception():
     """Test that VirtualMemoryResource throws an exception when RDMA is requested but device doesn't support it.
 
