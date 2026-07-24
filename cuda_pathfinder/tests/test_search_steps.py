@@ -11,7 +11,7 @@ import pytest
 
 from cuda.pathfinder import UnsupportedArchError
 from cuda.pathfinder._dynamic_libs import search_platform as search_platform_mod
-from cuda.pathfinder._dynamic_libs.descriptor_catalog import WindowsSearchDir, WindowsSearchDirs
+from cuda.pathfinder._dynamic_libs.descriptor_catalog import WindowsSearchDirs
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_platform import LinuxSearchPlatform, WindowsSearchPlatform
@@ -44,7 +44,10 @@ def _make_desc(name: str = "cudart", **overrides) -> LibDescriptor:
         "linux_sonames": ("libcudart.so",),
         "windows_dlls": ("cudart64_12.dll",),
         "site_packages_linux": (os.path.join("nvidia", "cuda_runtime", "lib"),),
-        "site_packages_windows": WindowsSearchDirs.common(os.path.join("nvidia", "cuda_runtime", "bin")),
+        "site_packages_windows": WindowsSearchDirs(
+            x64=(os.path.join("nvidia", "cuda_runtime", "bin"),),
+            arm64=(os.path.join("nvidia", "cuda_runtime", "bin"),),
+        ),
     }
     defaults.update(overrides)
     return LibDescriptor(**defaults)
@@ -176,7 +179,10 @@ class TestFindInSitePackages:
 
         desc = _make_desc(
             name="cudart",
-            site_packages_windows=WindowsSearchDirs.common(os.path.join("nvidia", "cuda_runtime", "bin")),
+            site_packages_windows=WindowsSearchDirs(
+                x64=(os.path.join("nvidia", "cuda_runtime", "bin"),),
+                arm64=(os.path.join("nvidia", "cuda_runtime", "bin"),),
+            ),
         )
         result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
@@ -544,6 +550,11 @@ class TestStepTuples:
 class TestAnchorRelDirs:
     """Verify that descriptor anchor paths drive directory resolution."""
 
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_windows_search_dirs_arch_only_constructors(self):
+        assert WindowsSearchDirs.x64_only("first", "second") == WindowsSearchDirs(x64=("first", "second"))
+        assert WindowsSearchDirs.arm64_only("first", "second") == WindowsSearchDirs(arm64=("first", "second"))
+
     def test_nvvm_has_custom_linux_paths(self):
         desc = LIB_DESCRIPTORS["nvvm"]
         assert desc.anchor_rel_dirs_linux == ("nvvm/lib64",)
@@ -570,10 +581,8 @@ class TestAnchorRelDirs:
     def test_windows_anchor_dirs_select_arm64(self):
         desc = _make_desc(
             anchor_rel_dirs_windows=WindowsSearchDirs(
-                paths=(
-                    WindowsSearchDir(x64="bin/x64", arm64="bin/arm64"),
-                    WindowsSearchDir.common("bin"),
-                )
+                x64=("bin/x64", "bin"),
+                arm64=("bin/arm64", "bin"),
             )
         )
         assert WindowsSearchPlatform(target_arch="arm64").anchor_rel_dirs(desc) == ("bin/arm64", "bin")
@@ -581,10 +590,8 @@ class TestAnchorRelDirs:
     def test_windows_anchor_dirs_select_x64(self):
         desc = _make_desc(
             anchor_rel_dirs_windows=WindowsSearchDirs(
-                paths=(
-                    WindowsSearchDir(x64="bin/x64", arm64="bin/arm64"),
-                    WindowsSearchDir.common("bin"),
-                )
+                x64=("bin/x64", "bin"),
+                arm64=("bin/arm64", "bin"),
             )
         )
         assert WindowsSearchPlatform(target_arch="x64").anchor_rel_dirs(desc) == ("bin/x64", "bin")
@@ -603,10 +610,8 @@ class TestAnchorRelDirs:
         desc = _make_desc(
             name="nvvm",
             anchor_rel_dirs_windows=WindowsSearchDirs(
-                paths=(
-                    WindowsSearchDir(x64="nvvm/bin/x64", arm64="nvvm/bin/arm64"),
-                    WindowsSearchDir.common("nvvm/bin"),
-                )
+                x64=("nvvm/bin/x64", "nvvm/bin"),
+                arm64=("nvvm/bin/arm64", "nvvm/bin"),
             ),
         )
         result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="x64"), str(tmp_path))
@@ -620,10 +625,8 @@ class TestAnchorRelDirs:
         desc = _make_desc(
             name="nvvm",
             anchor_rel_dirs_windows=WindowsSearchDirs(
-                paths=(
-                    WindowsSearchDir(x64="nvvm/bin/x64", arm64="nvvm/bin/arm64"),
-                    WindowsSearchDir.common("nvvm/bin"),
-                )
+                x64=("nvvm/bin/x64", "nvvm/bin"),
+                arm64=("nvvm/bin/arm64", "nvvm/bin"),
             ),
         )
         result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="arm64"), str(tmp_path))

@@ -13,7 +13,7 @@ import re
 
 import pytest
 
-from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG, DescriptorSpec
+from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG, DescriptorSpec, WindowsSearchDirs
 
 _VALID_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _VALID_PACKAGED_WITH_VALUES = {"ctk", "other", "driver"}
@@ -59,7 +59,7 @@ def test_no_self_dependency(spec: DescriptorSpec):
 def test_driver_libs_have_no_site_packages(spec: DescriptorSpec):
     """Driver libs are system-search-only; site-packages paths would be unused."""
     assert not spec.site_packages_linux, f"driver lib {spec.name} has site_packages_linux"
-    assert not spec.site_packages_windows.paths, f"driver lib {spec.name} has site_packages_windows"
+    assert spec.site_packages_windows == WindowsSearchDirs(), f"driver lib {spec.name} has site_packages_windows"
 
 
 @pytest.mark.parametrize(

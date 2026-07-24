@@ -13,6 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import os
 import re
 import sys
@@ -85,6 +86,12 @@ def main() -> None:
     )
     ap.add_argument("platform", choices=["linux", "windows"])
     ap.add_argument("path", help="Text file with one library path per line")
+    ap.add_argument(
+        "--windows-arch",
+        choices=["x64", "arm64"],
+        default="x64",
+        help="Windows collection architecture (default: x64)",
+    )
     args = ap.parse_args()
 
     with open(args.path, encoding="utf-8") as f:
@@ -98,12 +105,18 @@ def main() -> None:
         field = "site_packages_windows"
 
     catalog = load_catalog()
-    catalog_names = {spec.name for spec in catalog}
+    catalog_by_name = {spec.name: spec for spec in catalog}
 
     updates: dict[str, dict[str, object]] = {}
     for name, dirs in parsed.items():
-        if name in catalog_names:
-            updates[name] = {field: tuple(sorted(dirs))}
+        if name not in catalog_by_name:
+            continue
+        paths = tuple(sorted(dirs))
+        if args.platform == "windows":
+            windows_dirs = catalog_by_name[name].site_packages_windows
+            updates[name] = {field: dataclasses.replace(windows_dirs, **{args.windows_arch: paths})}
+        else:
+            updates[name] = {field: paths}
 
     if updates:
         write_catalog(update_specs(catalog, updates))
@@ -112,7 +125,7 @@ def main() -> None:
     else:
         print("No matching libraries found.")
 
-    unmatched = set(parsed.keys()) - catalog_names
+    unmatched = set(parsed) - set(catalog_by_name)
     if unmatched:
         print(f"\nLibraries not in catalog ({len(unmatched)}):")
         for name in sorted(unmatched):

@@ -15,25 +15,21 @@ PackagedWith = Literal["ctk", "other", "driver"]
 
 
 @dataclass(frozen=True, slots=True)
-class WindowsSearchDir:
-    """One Windows search location, or ``None`` where an architecture is unsupported."""
+class WindowsSearchDirs:
+    """Ordered Windows search locations grouped by process architecture."""
 
-    x64: str | None
-    arm64: str | None
-
-    @classmethod
-    def common(cls, path: str) -> WindowsSearchDir:
-        return cls(x64=path, arm64=path)
+    x64: tuple[str, ...] = ()
+    arm64: tuple[str, ...] = ()
 
     @classmethod
-    def x64_only(cls, path: str) -> WindowsSearchDir:
-        return cls(x64=path, arm64=None)
+    def x64_only(cls, *paths: str) -> WindowsSearchDirs:
+        return cls(x64=paths)
 
     @classmethod
-    def arm64_only(cls, path: str) -> WindowsSearchDir:
-        return cls(x64=None, arm64=path)
+    def arm64_only(cls, *paths: str) -> WindowsSearchDirs:
+        return cls(arm64=paths)
 
-    def for_arch(self, target_arch: str) -> str | None:
+    def for_arch(self, target_arch: str) -> tuple[str, ...]:
         if target_arch == "x64":
             return self.x64
         if target_arch == "arm64":
@@ -41,30 +37,9 @@ class WindowsSearchDir:
         raise ValueError(f"Unsupported Windows target architecture: {target_arch!r}")
 
 
-@dataclass(frozen=True, slots=True)
-class WindowsSearchDirs:
-    """Ordered Windows search locations selected for one architecture."""
-
-    paths: tuple[WindowsSearchDir, ...] = ()
-
-    @classmethod
-    def common(cls, *paths: str) -> WindowsSearchDirs:
-        return cls(tuple(WindowsSearchDir.common(path) for path in paths))
-
-    def for_arch(self, target_arch: str) -> tuple[str, ...]:
-        selected_paths: list[str] = []
-        for path in self.paths:
-            selected_path = path.for_arch(target_arch)
-            if selected_path is not None:
-                selected_paths.append(selected_path)
-        return tuple(selected_paths)
-
-
 DEFAULT_WINDOWS_CTK_ANCHOR_DIRS = WindowsSearchDirs(
-    paths=(
-        WindowsSearchDir(x64="bin/x64", arm64="bin/arm64"),
-        WindowsSearchDir.common("bin"),
-    )
+    x64=("bin/x64", "bin"),
+    arm64=("bin/arm64", "bin"),
 )
 
 
@@ -72,13 +47,8 @@ def _ctk_windows_wheel_dirs(cuda13_bin_dir: str, cuda12_dir: str) -> WindowsSear
     """Search CUDA 13 first, with the x64-only CUDA 12 wheel as an x64 fallback."""
     cuda13_bin_path = PurePosixPath(cuda13_bin_dir)
     return WindowsSearchDirs(
-        paths=(
-            WindowsSearchDir(
-                x64=(cuda13_bin_path / "x86_64").as_posix(),
-                arm64=(cuda13_bin_path / "arm64").as_posix(),
-            ),
-            WindowsSearchDir.x64_only(cuda12_dir),
-        )
+        x64=((cuda13_bin_path / "x86_64").as_posix(), cuda12_dir),
+        arm64=((cuda13_bin_path / "arm64").as_posix(),),
     )
 
 
@@ -144,10 +114,8 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_nvcc/nvvm/bin"),
         anchor_rel_dirs_linux=("nvvm/lib64",),
         anchor_rel_dirs_windows=WindowsSearchDirs(
-            paths=(
-                WindowsSearchDir(x64="nvvm/bin/x64", arm64="nvvm/bin/arm64"),
-                WindowsSearchDir.common("nvvm/bin"),
-            )
+            x64=("nvvm/bin/x64", "nvvm/bin"),
+            arm64=("nvvm/bin/arm64", "nvvm/bin"),
         ),
         ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
     ),
@@ -368,11 +336,8 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_cupti/bin"),
         anchor_rel_dirs_linux=("extras/CUPTI/lib64", "lib"),
         anchor_rel_dirs_windows=WindowsSearchDirs(
-            paths=(
-                WindowsSearchDir.common("extras/CUPTI/lib64"),
-                WindowsSearchDir(x64="bin/x64", arm64="bin/arm64"),
-                WindowsSearchDir.common("bin"),
-            )
+            x64=("extras/CUPTI/lib64", "bin/x64", "bin"),
+            arm64=("extras/CUPTI/lib64", "bin/arm64", "bin"),
         ),
         ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
     ),
@@ -384,7 +349,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_linux=("nvidia/cu13/lib",),
         # No Windows pip wheel ships cudla.dll today; it is loaded from the local
         # CUDA Toolkit only, so site_packages_windows is intentionally left empty.
-        anchor_rel_dirs_windows=WindowsSearchDirs(paths=(WindowsSearchDir.arm64_only("bin/arm64"),)),
+        anchor_rel_dirs_windows=WindowsSearchDirs.arm64_only("bin/arm64"),
     ),
     # -----------------------------------------------------------------------
     # Third-party / separately packaged libraries
@@ -417,7 +382,10 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libmathdx.so.0",),
         windows_dlls=("mathdx64_0.dll",),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cu12/lib"),
-        site_packages_windows=WindowsSearchDirs.common("nvidia/cu13/bin", "nvidia/cu12/bin"),
+        site_packages_windows=WindowsSearchDirs(
+            x64=("nvidia/cu13/bin", "nvidia/cu12/bin"),
+            arm64=("nvidia/cu13/bin", "nvidia/cu12/bin"),
+        ),
         dependencies=("nvrtc",),
     ),
     DescriptorSpec(
@@ -426,7 +394,10 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcudss.so.0",),
         windows_dlls=("cudss64_0.dll",),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cu12/lib"),
-        site_packages_windows=WindowsSearchDirs.common("nvidia/cu13/bin", "nvidia/cu12/bin"),
+        site_packages_windows=WindowsSearchDirs(
+            x64=("nvidia/cu13/bin", "nvidia/cu12/bin"),
+            arm64=("nvidia/cu13/bin", "nvidia/cu12/bin"),
+        ),
         dependencies=("cublas", "cublasLt"),
     ),
     DescriptorSpec(
@@ -435,7 +406,10 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcusparseLt.so.0",),
         windows_dlls=("cusparseLt.dll",),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cusparselt/lib"),
-        site_packages_windows=WindowsSearchDirs.common("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
+        site_packages_windows=WindowsSearchDirs(
+            x64=("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
+            arm64=("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
+        ),
     ),
     DescriptorSpec(
         name="cutensor",
@@ -443,7 +417,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcutensor.so.2",),
         windows_dlls=("cutensor.dll",),
         site_packages_linux=("cutensor/lib",),
-        site_packages_windows=WindowsSearchDirs.common("cutensor/bin"),
+        site_packages_windows=WindowsSearchDirs(x64=("cutensor/bin",), arm64=("cutensor/bin",)),
         dependencies=("cublasLt",),
     ),
     DescriptorSpec(
@@ -452,7 +426,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcutensorMg.so.2",),
         windows_dlls=("cutensorMg.dll",),
         site_packages_linux=("cutensor/lib",),
-        site_packages_windows=WindowsSearchDirs.common("cutensor/bin"),
+        site_packages_windows=WindowsSearchDirs(x64=("cutensor/bin",), arm64=("cutensor/bin",)),
         dependencies=("cutensor", "cublasLt"),
     ),
     DescriptorSpec(
