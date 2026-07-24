@@ -163,6 +163,12 @@ methods: :class:`~graph.KernelNode`, :class:`~graph.MemcpyNode`,
 instantiations; executable graphs that were already instantiated continue
 using their previous parameters and retained resources. Omitted optional
 arguments preserve their current values where supported.
+On CUDA 12.2 through 13.1, the intended CUDA context must be current when
+updating memcpy or memset nodes. CUDA driver and ``cuda.bindings`` versions
+13.2 and newer preserve the recorded context automatically.
+Multidimensional or array-backed memcpy nodes and clustered or cooperative
+kernel nodes cannot currently be updated. Clustered and cooperative kernel
+nodes also cannot currently be constructed explicitly.
 
 .. autosummary::
    :toctree: generated/

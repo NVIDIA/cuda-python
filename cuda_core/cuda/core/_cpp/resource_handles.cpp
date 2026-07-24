@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <iterator>
 #include <list>
 #include <map>
 #include <mutex>
@@ -1596,12 +1595,7 @@ GraphHandle create_child_graph_handle(
         child_graph, hierarchy, parent, owner_node);
 
     GraphHandle h_child(h_parent, &child.resource);
-    try {
-        graph_registry.register_handle(child_graph, h_child);
-    } catch (...) {
-        hierarchy->graphs.pop_back();
-        throw;
-    }
+    graph_registry.register_handle(child_graph, h_child);
     return h_child;
 }
 
@@ -1654,16 +1648,6 @@ CUresult graph_prepare_child_graph_update(
     return CUDA_SUCCESS;
 }
 
-void keep_replacement_root_only(
-        PreparedChildGraphUpdateState& state) {
-    state.staged.front().clone->attachments.clear();
-    state.staged.resize(1);
-    state.handles.resize(1);
-    auto descendant = std::next(state.replacement.begin());
-    state.replacement.erase(
-        descendant, state.replacement.end());
-}
-
 void publish_child_graph_update(
         PreparedChildGraphUpdateState& state,
         GraphHandle* out_child) {
@@ -1707,13 +1691,9 @@ CUresult graph_commit_child_graph_update(
         state.h_parent, state.owner_node);
 
     if (status != CUDA_SUCCESS) {
-        if (!cloned_root) {
-            prepared.reset();
-            return status;
-        }
-        // Preserve access to CUDA's replacement root after a nested metadata
-        // mapping failure; its descendants can be reconstructed on demand.
-        keep_replacement_root_only(state);
+        prepared.reset();
+        throw std::runtime_error(
+            "failed to update graph metadata after child graph replacement");
     }
 
     publish_child_graph_update(state, out_child);

@@ -12,7 +12,7 @@ import pytest
 from helpers.graph_kernels import compile_common_kernels
 
 from cuda.core import LaunchConfig, LegacyPinnedMemoryResource
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import driver_version
 from cuda.core.graph import GraphDefinition, HostCallbackNode
 
@@ -170,7 +170,7 @@ def _host_callback_case(device):
         assert_exec_uses=assert_exec_uses,
         invalid_update=lambda: node.update(replacement, user_data=b"not valid for a Python callback"),
         invalid_exception=ValueError,
-        invalid_argument_update=None,
+        invalid_argument_update=lambda: node.update(object()),
         cleanup=_noop,
     )
 
@@ -598,6 +598,93 @@ def definition_update_case(request, init_cuda):
     case = request.param(init_cuda)
     yield case
     case.cleanup()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_memcpy_update_rejects_unsupported_descriptor(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(8)
+    dst = memory_resource.allocate(8)
+    graph_def = GraphDefinition()
+    node = graph_def.memcpy(dst, src, 4)
+
+    # cuda.core cannot construct this descriptor, but imported graphs can
+    # contain one; use cuda.bindings to exercise that rejection path.
+    params = driver.CUDA_MEMCPY3D()
+    params.srcXInBytes = 1
+    params.srcMemoryType = driver.CUmemorytype.CU_MEMORYTYPE_HOST
+    params.srcHost = int(src.handle)
+    params.srcPitch = 4
+    params.srcHeight = 2
+    params.dstMemoryType = driver.CUmemorytype.CU_MEMORYTYPE_HOST
+    params.dstHost = int(dst.handle)
+    params.dstPitch = 4
+    params.dstHeight = 2
+    params.WidthInBytes = 2
+    params.Height = 2
+    params.Depth = 1
+    handle_return(driver.cuGraphMemcpyNodeSetParams(node.handle, params))
+
+    with pytest.raises(NotImplementedError, match="multidimensional"):
+        node.update(size=3)
+
+    unchanged = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
+    assert unchanged.srcXInBytes == 1
+    assert unchanged.WidthInBytes == 2
+    assert unchanged.Height == 2
+
+    node.destroy()
+    src.close()
+    dst.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_kernel_update_rejects_unsupported_config(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    graph_def = GraphDefinition()
+    node = graph_def.launch(LaunchConfig(grid=1, block=1), kernel)
+
+    clustered = LaunchConfig(grid=1, block=1)
+    clustered.cluster = (1, 1, 1)
+    with pytest.raises(NotImplementedError, match="clustered or cooperative"):
+        node.update(config=clustered)
+    with pytest.raises(NotImplementedError, match="clustered or cooperative"):
+        graph_def.launch(clustered, kernel)
+
+    cooperative = LaunchConfig(grid=1, block=1)
+    cooperative.is_cooperative = True
+    with pytest.raises(NotImplementedError, match="clustered or cooperative"):
+        node.update(config=cooperative)
+    with pytest.raises(NotImplementedError, match="clustered or cooperative"):
+        graph_def.launch(cooperative, kernel)
+
+    node.destroy()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_partial_memory_updates_are_keyword_only(init_cuda):
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(4)
+    dst = memory_resource.allocate(4)
+    graph_def = GraphDefinition()
+    memset_node = graph_def.memset(dst, 0, 4)
+    memcpy_node = graph_def.memcpy(dst, src, 4)
+
+    with pytest.raises(TypeError):
+        memset_node.update(dst)
+    with pytest.raises(TypeError):
+        memcpy_node.update(dst)
+
+    memset_node.destroy()
+    memcpy_node.destroy()
+    src.close()
+    dst.close()
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

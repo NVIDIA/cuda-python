@@ -43,6 +43,7 @@ class KernelNode(GraphNode):
 
         Omitted parameters preserve their current values. Changing ``kernel``
         requires ``args``, including ``args=()`` for a no-argument kernel.
+        Clustered and cooperative kernel nodes are not supported.
 
         .. warning::
 
@@ -160,6 +161,10 @@ class MemsetNode(GraphNode):
         Omitted parameters preserve their current values. ``dst_owner`` may
         only accompany a raw-address ``dst``.
 
+        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
+        current when this method is called. CUDA driver and ``cuda.bindings``
+        versions 13.2 and newer preserve the recorded context automatically.
+
         .. warning::
 
             Use caution when a retained operand owner directly or indirectly
@@ -213,6 +218,12 @@ class MemcpyNode(GraphNode):
 
         Omitted parameters preserve their current values. ``dst_owner`` and
         ``src_owner`` may only accompany their corresponding raw addresses.
+        Multidimensional, pitched, offset, and array-backed memcpy nodes are
+        not supported.
+
+        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
+        current when this method is called. CUDA driver and ``cuda.bindings``
+        versions 13.2 and newer preserve the recorded context automatically.
 
         .. warning::
 

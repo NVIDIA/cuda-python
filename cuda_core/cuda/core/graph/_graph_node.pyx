@@ -209,6 +209,9 @@ cdef class GraphNode:
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
 
+        Clustered and cooperative launch configurations are not currently
+        supported for graph kernel nodes.
+
         .. warning::
 
             Use caution when a retained kernel argument directly or indirectly
@@ -722,6 +725,10 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     cdef OpaqueHandle kernel_owner, args_owner
     cdef PreparedAttachment prepared
 
+    if conf.cluster is not None or conf.is_cooperative:
+        raise NotImplementedError(
+            "clustered or cooperative graph kernel nodes are not supported")
+
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -970,29 +977,27 @@ cdef inline MemsetNode GN_memset(
         val, elem_size, width, height, pitch))
 
 
+cdef cydriver.CUmemorytype _get_memcpy_memory_type(
+        cydriver.CUdeviceptr ptr) except *:
+    cdef unsigned int memory_type = cydriver.CU_MEMORYTYPE_DEVICE
+    cdef cydriver.CUresult ret
+    with nogil:
+        ret = cydriver.cuPointerGetAttribute(
+            &memory_type,
+            cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+            ptr)
+    if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
+        HANDLE_RETURN(ret)
+    return <cydriver.CUmemorytype>memory_type
+
+
 cdef void _init_memcpy_params(
         cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
         cydriver.CUDA_MEMCPY3D* params, cydriver.CUmemorytype* dst_type,
         cydriver.CUmemorytype* src_type) except *:
-    cdef unsigned int dst_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
-    cdef unsigned int src_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
-    cdef cydriver.CUresult ret
-    with nogil:
-        ret = cydriver.cuPointerGetAttribute(
-            &dst_mem_type,
-            cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-            dst)
-        if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
-            HANDLE_RETURN(ret)
-        ret = cydriver.cuPointerGetAttribute(
-            &src_mem_type,
-            cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-            src)
-        if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
-            HANDLE_RETURN(ret)
+    dst_type[0] = _get_memcpy_memory_type(dst)
+    src_type[0] = _get_memcpy_memory_type(src)
 
-    dst_type[0] = <cydriver.CUmemorytype>dst_mem_type
-    src_type[0] = <cydriver.CUmemorytype>src_mem_type
     c_memset(params, 0, sizeof(params[0]))
     params.srcMemoryType = src_type[0]
     params.dstMemoryType = dst_type[0]

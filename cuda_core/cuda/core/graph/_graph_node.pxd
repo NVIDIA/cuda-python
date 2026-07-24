@@ -20,6 +20,9 @@ cdef class GraphNode:
 cdef OpaqueHandle _resolve_memcpy_operand(
     object operand, object owner, str side, cydriver.CUdeviceptr* out_ptr) except *
 
+cdef cydriver.CUmemorytype _get_memcpy_memory_type(
+    cydriver.CUdeviceptr ptr) except *
+
 cdef void _init_memcpy_params(
     cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
     cydriver.CUDA_MEMCPY3D* params, cydriver.CUmemorytype* dst_type,

@@ -20,7 +20,7 @@ from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
 from cuda.core.graph._graph_node cimport (
     GraphNode,
-    _init_memcpy_params,
+    _get_memcpy_memory_type,
     _resolve_memcpy_operand,
 )
 from cuda.core._resource_handles cimport (
@@ -97,17 +97,31 @@ cdef void _set_definition_node_params(
         const GraphNodeHandle& h_node,
         cydriver.CUgraphNodeParams* params,
         OpaqueHandle owner0,
-        OpaqueHandle owner1=OpaqueHandle()) except *:
+        OpaqueHandle owner1=OpaqueHandle(),
+        cydriver.CUcontext update_ctx=NULL) except *:
     _require_graph_node_update_support()
 
     cdef GraphHandle h_graph = graph_node_get_graph(h_node)
     cdef cydriver.CUgraphNode node = as_cu(h_node)
+    cdef cydriver.CUcontext previous_ctx = NULL
+    cdef bint restore_ctx = False
     cdef PreparedAttachment prepared
 
     HANDLE_RETURN(graph_prepare_attachment(
         h_graph, owner0, owner1, &prepared))
-    with nogil:
-        HANDLE_RETURN(cydriver.cuGraphNodeSetParams(node, params))
+    if update_ctx != NULL:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&previous_ctx))
+            if previous_ctx != update_ctx:
+                HANDLE_RETURN(cydriver.cuCtxSetCurrent(update_ctx))
+                restore_ctx = True
+    try:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphNodeSetParams(node, params))
+    finally:
+        if restore_ctx:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuCtxSetCurrent(previous_ctx))
     HANDLE_RETURN(graph_commit_attachment(prepared, node))
 
 
@@ -120,6 +134,54 @@ cdef bint _check_node_get_params():
         )
         _version_checked = True
     return _has_cuGraphNodeGetParams
+
+
+cdef void _reject_unsupported_kernel_node(
+        cydriver.CUgraphNode node) except *:
+    cdef cydriver.CUkernelNodeAttrValue cluster
+    cdef cydriver.CUkernelNodeAttrValue cooperative
+
+    c_memset(&cluster, 0, sizeof(cluster))
+    c_memset(&cooperative, 0, sizeof(cooperative))
+    with nogil:
+        HANDLE_RETURN(cydriver.cuGraphKernelNodeGetAttribute(
+            node, <cydriver.CUkernelNodeAttrID>(
+                cydriver.CU_KERNEL_NODE_ATTRIBUTE_CLUSTER_DIMENSION),
+            &cluster))
+        HANDLE_RETURN(cydriver.cuGraphKernelNodeGetAttribute(
+            node, <cydriver.CUkernelNodeAttrID>(
+                cydriver.CU_KERNEL_NODE_ATTRIBUTE_COOPERATIVE),
+            &cooperative))
+    if (cluster.clusterDim.x != 0 or cluster.clusterDim.y != 0 or
+            cluster.clusterDim.z != 0 or cooperative.cooperative != 0):
+        raise NotImplementedError(
+            "updating clustered or cooperative kernel nodes is not supported")
+
+
+cdef bint _is_supported_memcpy_descriptor(
+        cydriver.CUDA_MEMCPY3D* params) noexcept nogil:
+    return (
+        (params.srcMemoryType == cydriver.CU_MEMORYTYPE_HOST or
+         params.srcMemoryType == cydriver.CU_MEMORYTYPE_DEVICE)
+        and (params.dstMemoryType == cydriver.CU_MEMORYTYPE_HOST or
+             params.dstMemoryType == cydriver.CU_MEMORYTYPE_DEVICE)
+        and params.srcXInBytes == 0
+        and params.srcY == 0
+        and params.srcZ == 0
+        and params.srcLOD == 0
+        and params.srcPitch == 0
+        and params.srcHeight == 0
+        and params.dstXInBytes == 0
+        and params.dstY == 0
+        and params.dstZ == 0
+        and params.dstLOD == 0
+        and params.dstPitch == 0
+        and params.dstHeight == 0
+        and params.Height == 1
+        and params.Depth == 1
+        and params.reserved0 == NULL
+        and params.reserved1 == NULL
+    )
 
 
 cdef class EmptyNode(GraphNode):
@@ -195,6 +257,7 @@ cdef class KernelNode(GraphNode):
 
         Omitted parameters preserve their current values. Changing ``kernel``
         requires ``args``, including ``args=()`` for a no-argument kernel.
+        Clustered and cooperative kernel nodes are not supported.
 
         .. warning::
 
@@ -216,6 +279,13 @@ cdef class KernelNode(GraphNode):
 
         if config is not None:
             c_config = config
+            if (c_config.cluster is not None or
+                    c_config.is_cooperative):
+                raise NotImplementedError(
+                    "updating clustered or cooperative kernel nodes is not "
+                    "supported")
+        _require_graph_node_update_support()
+        _reject_unsupported_kernel_node(node)
         if kernel is not None:
             if args is None:
                 raise ValueError("changing kernel requires args")
@@ -494,6 +564,10 @@ cdef class MemsetNode(GraphNode):
         Omitted parameters preserve their current values. ``dst_owner`` may
         only accompany a raw-address ``dst``.
 
+        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
+        current when this method is called. CUDA driver and ``cuda.bindings``
+        versions 13.2 and newer preserve the recorded context automatically.
+
         .. warning::
 
             Use caution when a retained operand owner directly or indirectly
@@ -501,22 +575,55 @@ cdef class MemsetNode(GraphNode):
             that retains it cannot be broken by Python's cyclic garbage
             collector. Use a weak reference to break such cycles.
         """
-        cdef cydriver.CUdeviceptr c_dst = self._dptr
-        cdef unsigned int c_value = self._value
-        cdef unsigned int c_element_size = self._element_size
-        cdef size_t c_width = self._width
-        cdef size_t c_height = self._height
-        cdef size_t c_pitch = self._pitch
+        cdef cydriver.CUdeviceptr c_dst
+        cdef unsigned int c_value
+        cdef unsigned int c_element_size
+        cdef size_t c_width
+        cdef size_t c_height
+        cdef size_t c_pitch
         cdef OpaqueHandle dst_attachment_owner
         cdef GraphHandle h_graph
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
+        cdef cydriver.CUcontext ctx = NULL
+        cdef cydriver.CUDA_MEMSET_NODE_PARAMS current
         cdef cydriver.CUgraphNodeParams params
 
+        if dst is None and dst_owner is not None:
+            raise ValueError("dst_owner requires dst")
+        if (dst is None and value is None and width is None and
+                height is None and pitch is None):
+            return
+
+        c_memset(&params, 0, sizeof(params))
+        params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMSET
+        if _check_node_get_params():
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphNodeGetParams(
+                    node, &params))
+        else:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphMemsetNodeGetParams(
+                    node, &current))
+                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+            params.memset.dst = current.dst
+            params.memset.value = current.value
+            params.memset.elementSize = current.elementSize
+            params.memset.width = current.width
+            params.memset.height = current.height
+            params.memset.pitch = current.pitch
+            params.memset.ctx = ctx
+
+        c_dst = params.memset.dst
+        c_value = params.memset.value
+        c_element_size = params.memset.elementSize
+        c_width = params.memset.width
+        c_height = params.memset.height
+        c_pitch = params.memset.pitch
+
         if dst is None:
-            if dst_owner is not None:
-                raise ValueError("dst_owner requires dst")
             h_graph = graph_node_get_graph(self._h_node)
             HANDLE_RETURN(graph_get_attachment(
-                h_graph, as_cu(self._h_node),
+                h_graph, node,
                 &dst_attachment_owner, NULL))
         else:
             dst_attachment_owner = _resolve_memcpy_operand(
@@ -531,18 +638,16 @@ cdef class MemsetNode(GraphNode):
         if pitch is not None:
             c_pitch = pitch
 
-        c_memset(&params, 0, sizeof(params))
-        params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMSET
         params.memset.dst = c_dst
         params.memset.value = c_value
         params.memset.elementSize = c_element_size
         params.memset.width = c_width
         params.memset.height = c_height
         params.memset.pitch = c_pitch
-        params.memset.ctx = NULL
 
         _set_definition_node_params(
-            self._h_node, &params, dst_attachment_owner)
+            self._h_node, &params, dst_attachment_owner,
+            OpaqueHandle(), params.memset.ctx)
         self._dptr = c_dst
         self._value = c_value
         self._element_size = c_element_size
@@ -651,6 +756,12 @@ cdef class MemcpyNode(GraphNode):
 
         Omitted parameters preserve their current values. ``dst_owner`` and
         ``src_owner`` may only accompany their corresponding raw addresses.
+        Multidimensional, pitched, offset, and array-backed memcpy nodes are
+        not supported.
+
+        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
+        current when this method is called. CUDA driver and ``cuda.bindings``
+        versions 13.2 and newer preserve the recorded context automatically.
 
         .. warning::
 
@@ -661,48 +772,92 @@ cdef class MemcpyNode(GraphNode):
         """
         cdef cydriver.CUdeviceptr c_dst = self._dst
         cdef cydriver.CUdeviceptr c_src = self._src
-        cdef size_t c_size = self._size
         cdef OpaqueHandle dst_attachment_owner
         cdef OpaqueHandle src_attachment_owner
         cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         cdef cydriver.CUcontext ctx = NULL
         cdef cydriver.CUgraphNodeParams params
         cdef cydriver.CUmemorytype c_dst_type
         cdef cydriver.CUmemorytype c_src_type
 
-        HANDLE_RETURN(graph_get_attachment(
-            h_graph, as_cu(self._h_node),
-            &dst_attachment_owner, &src_attachment_owner))
-        if dst is None:
-            if dst_owner is not None:
-                raise ValueError("dst_owner requires dst")
-        else:
-            dst_attachment_owner = _resolve_memcpy_operand(
-                dst, dst_owner, "dst", &c_dst)
-        if src is None:
-            if src_owner is not None:
-                raise ValueError("src_owner requires src")
-        else:
-            src_attachment_owner = _resolve_memcpy_operand(
-                src, src_owner, "src", &c_src)
-        if size is not None:
-            c_size = size
+        if dst is None and dst_owner is not None:
+            raise ValueError("dst_owner requires dst")
+        if src is None and src_owner is not None:
+            raise ValueError("src_owner requires src")
+        if dst is None and src is None and size is None:
+            return
 
         c_memset(&params, 0, sizeof(params))
         params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMCPY
-        _init_memcpy_params(
-            c_dst, c_src, c_size, &params.memcpy.copyParams,
-            &c_dst_type, &c_src_type)
-        with nogil:
-            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-        params.memcpy.copyCtx = ctx
+        if _check_node_get_params():
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphNodeGetParams(
+                    node, &params))
+        else:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(
+                    node, &params.memcpy.copyParams))
+                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+            params.memcpy.copyCtx = ctx
+
+        if not _is_supported_memcpy_descriptor(&params.memcpy.copyParams):
+            raise NotImplementedError(
+                "updating multidimensional, pitched, offset, or array-backed "
+                "memcpy nodes is not supported")
+
+        c_dst_type = params.memcpy.copyParams.dstMemoryType
+        c_src_type = params.memcpy.copyParams.srcMemoryType
+        if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
+            c_dst = <cydriver.CUdeviceptr><uintptr_t>(
+                params.memcpy.copyParams.dstHost)
+        elif c_dst_type != cydriver.CU_MEMORYTYPE_ARRAY:
+            c_dst = params.memcpy.copyParams.dstDevice
+        if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
+            c_src = <cydriver.CUdeviceptr><uintptr_t>(
+                params.memcpy.copyParams.srcHost)
+        elif c_src_type != cydriver.CU_MEMORYTYPE_ARRAY:
+            c_src = params.memcpy.copyParams.srcDevice
+
+        HANDLE_RETURN(graph_get_attachment(
+            h_graph, node,
+            &dst_attachment_owner, &src_attachment_owner))
+        if dst is not None:
+            dst_attachment_owner = _resolve_memcpy_operand(
+                dst, dst_owner, "dst", &c_dst)
+            c_dst_type = _get_memcpy_memory_type(c_dst)
+            params.memcpy.copyParams.dstMemoryType = c_dst_type
+            params.memcpy.copyParams.dstHost = NULL
+            params.memcpy.copyParams.dstDevice = 0
+            params.memcpy.copyParams.dstArray = NULL
+            params.memcpy.copyParams.reserved1 = NULL
+            if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
+                params.memcpy.copyParams.dstHost = <void*><uintptr_t>c_dst
+            else:
+                params.memcpy.copyParams.dstDevice = c_dst
+        if src is not None:
+            src_attachment_owner = _resolve_memcpy_operand(
+                src, src_owner, "src", &c_src)
+            c_src_type = _get_memcpy_memory_type(c_src)
+            params.memcpy.copyParams.srcMemoryType = c_src_type
+            params.memcpy.copyParams.srcHost = NULL
+            params.memcpy.copyParams.srcDevice = 0
+            params.memcpy.copyParams.srcArray = NULL
+            params.memcpy.copyParams.reserved0 = NULL
+            if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
+                params.memcpy.copyParams.srcHost = <void*><uintptr_t>c_src
+            else:
+                params.memcpy.copyParams.srcDevice = c_src
+        if size is not None:
+            params.memcpy.copyParams.WidthInBytes = size
 
         _set_definition_node_params(
             self._h_node, &params,
-            dst_attachment_owner, src_attachment_owner)
+            dst_attachment_owner, src_attachment_owner,
+            params.memcpy.copyCtx)
         self._dst = c_dst
         self._src = c_src
-        self._size = c_size
+        self._size = params.memcpy.copyParams.WidthInBytes
         self._dst_type = c_dst_type
         self._src_type = c_src_type
 
