@@ -587,6 +587,7 @@ cdef class MemsetNode(GraphNode):
         cdef cydriver.CUcontext ctx = NULL
         cdef cydriver.CUDA_MEMSET_NODE_PARAMS current
         cdef cydriver.CUgraphNodeParams params
+        cdef object queried
 
         if dst is None and dst_owner is not None:
             raise ValueError("dst_owner requires dst")
@@ -596,22 +597,23 @@ cdef class MemsetNode(GraphNode):
 
         c_memset(&params, 0, sizeof(params))
         params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMSET
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphMemsetNodeGetParams(
+                node, &current))
         if _check_node_get_params():
-            with nogil:
-                HANDLE_RETURN(cydriver.cuGraphNodeGetParams(
-                    node, &params))
+            queried = handle_return(driver.cuGraphNodeGetParams(
+                <uintptr_t>node))
+            ctx = <cydriver.CUcontext><uintptr_t>int(queried.memset.ctx)
         else:
             with nogil:
-                HANDLE_RETURN(cydriver.cuGraphMemsetNodeGetParams(
-                    node, &current))
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-            params.memset.dst = current.dst
-            params.memset.value = current.value
-            params.memset.elementSize = current.elementSize
-            params.memset.width = current.width
-            params.memset.height = current.height
-            params.memset.pitch = current.pitch
-            params.memset.ctx = ctx
+        params.memset.dst = current.dst
+        params.memset.value = current.value
+        params.memset.elementSize = current.elementSize
+        params.memset.width = current.width
+        params.memset.height = current.height
+        params.memset.pitch = current.pitch
+        params.memset.ctx = ctx
 
         c_dst = params.memset.dst
         c_value = params.memset.value
@@ -780,6 +782,7 @@ cdef class MemcpyNode(GraphNode):
         cdef cydriver.CUgraphNodeParams params
         cdef cydriver.CUmemorytype c_dst_type
         cdef cydriver.CUmemorytype c_src_type
+        cdef object queried
 
         if dst is None and dst_owner is not None:
             raise ValueError("dst_owner requires dst")
@@ -790,16 +793,18 @@ cdef class MemcpyNode(GraphNode):
 
         c_memset(&params, 0, sizeof(params))
         params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMCPY
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(
+                node, &params.memcpy.copyParams))
         if _check_node_get_params():
-            with nogil:
-                HANDLE_RETURN(cydriver.cuGraphNodeGetParams(
-                    node, &params))
+            queried = handle_return(driver.cuGraphNodeGetParams(
+                <uintptr_t>node))
+            ctx = <cydriver.CUcontext><uintptr_t>int(
+                queried.memcpy.copyCtx)
         else:
             with nogil:
-                HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(
-                    node, &params.memcpy.copyParams))
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-            params.memcpy.copyCtx = ctx
+        params.memcpy.copyCtx = ctx
 
         if not _is_supported_memcpy_descriptor(&params.memcpy.copyParams):
             raise NotImplementedError(
