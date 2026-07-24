@@ -560,6 +560,13 @@ class TestAnchorRelDirs:
         assert desc.anchor_rel_dirs_windows.for_arch("x64") == ("bin/x64", "bin")
         assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("bin/arm64", "bin")
 
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudla_uses_arm64_only_windows_anchor(self):
+        desc = LIB_DESCRIPTORS["cudla"]
+
+        assert desc.anchor_rel_dirs_windows.for_arch("x64") == ()
+        assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("bin/arm64",)
+
     def test_windows_anchor_dirs_select_arm64(self):
         desc = _make_desc(
             anchor_rel_dirs_windows=WindowsSearchDirs(

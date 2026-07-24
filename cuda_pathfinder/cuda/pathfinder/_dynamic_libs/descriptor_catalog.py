@@ -29,6 +29,10 @@ class WindowsSearchDir:
     def x64_only(cls, path: str) -> WindowsSearchDir:
         return cls(x64=path, arm64=None)
 
+    @classmethod
+    def arm64_only(cls, path: str) -> WindowsSearchDir:
+        return cls(x64=None, arm64=path)
+
     def for_arch(self, target_arch: str) -> str | None:
         if target_arch == "x64":
             return self.x64
@@ -380,6 +384,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_linux=("nvidia/cu13/lib",),
         # No Windows pip wheel ships cudla.dll today; it is loaded from the local
         # CUDA Toolkit only, so site_packages_windows is intentionally left empty.
+        anchor_rel_dirs_windows=WindowsSearchDirs(paths=(WindowsSearchDir.arm64_only("bin/arm64"),)),
     ),
     # -----------------------------------------------------------------------
     # Third-party / separately packaged libraries
