@@ -84,7 +84,7 @@ def add_dll_directory(dll_abs_path: str) -> None:
     # the directory must stay on the search path for the process lifetime, and
     # the handle has no finalizer, so dropping it does not remove the directory.
     try:
-        os.add_dll_directory(dirpath)  # type: ignore[attr-defined]
+        os.add_dll_directory(dirpath)
     except OSError as e:
         # Warn instead of failing silently; the PATH update below is a weaker
         # fallback that newer loaders may ignore.
