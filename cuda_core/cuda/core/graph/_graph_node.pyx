@@ -889,7 +889,8 @@ cdef inline OpaqueHandle _buffer_attachment_owner(Buffer buf, str label):
 
 
 cdef inline OpaqueHandle _resolve_memcpy_operand(
-        object operand, object owner, str side, cydriver.CUdeviceptr* out_ptr):
+        object operand, object owner, str side,
+        cydriver.CUdeviceptr* out_ptr) except *:
     """Resolve an operand to a pointer and optional attachment owner.
 
     ``operand`` is a :class:`Buffer` or a raw integer address; its device
@@ -969,9 +970,10 @@ cdef inline MemsetNode GN_memset(
         val, elem_size, width, height, pitch))
 
 
-cdef inline MemcpyNode GN_memcpy(
-        GraphNode self, cydriver.CUdeviceptr c_dst, OpaqueHandle dst_owner,
-        cydriver.CUdeviceptr c_src, OpaqueHandle src_owner, size_t size):
+cdef void _init_memcpy_params(
+        cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
+        cydriver.CUDA_MEMCPY3D* params, cydriver.CUmemorytype* dst_type,
+        cydriver.CUmemorytype* src_type) except *:
     cdef unsigned int dst_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
     cdef unsigned int src_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
     cdef cydriver.CUresult ret
@@ -979,35 +981,42 @@ cdef inline MemcpyNode GN_memcpy(
         ret = cydriver.cuPointerGetAttribute(
             &dst_mem_type,
             cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-            c_dst)
+            dst)
         if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
             HANDLE_RETURN(ret)
         ret = cydriver.cuPointerGetAttribute(
             &src_mem_type,
             cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-            c_src)
+            src)
         if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
             HANDLE_RETURN(ret)
 
-    cdef cydriver.CUmemorytype c_dst_type = <cydriver.CUmemorytype>dst_mem_type
-    cdef cydriver.CUmemorytype c_src_type = <cydriver.CUmemorytype>src_mem_type
-
-    cdef cydriver.CUDA_MEMCPY3D params
-    c_memset(&params, 0, sizeof(params))
-
-    params.srcMemoryType = c_src_type
-    params.dstMemoryType = c_dst_type
-    if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
-        params.srcHost = <const void*><uintptr_t>c_src
+    dst_type[0] = <cydriver.CUmemorytype>dst_mem_type
+    src_type[0] = <cydriver.CUmemorytype>src_mem_type
+    c_memset(params, 0, sizeof(params[0]))
+    params.srcMemoryType = src_type[0]
+    params.dstMemoryType = dst_type[0]
+    if src_type[0] == cydriver.CU_MEMORYTYPE_HOST:
+        params.srcHost = <const void*><uintptr_t>src
     else:
-        params.srcDevice = c_src
-    if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
-        params.dstHost = <void*><uintptr_t>c_dst
+        params.srcDevice = src
+    if dst_type[0] == cydriver.CU_MEMORYTYPE_HOST:
+        params.dstHost = <void*><uintptr_t>dst
     else:
-        params.dstDevice = c_dst
+        params.dstDevice = dst
     params.WidthInBytes = size
     params.Height = 1
     params.Depth = 1
+
+
+cdef inline MemcpyNode GN_memcpy(
+        GraphNode self, cydriver.CUdeviceptr c_dst, OpaqueHandle dst_owner,
+        cydriver.CUdeviceptr c_src, OpaqueHandle src_owner, size_t size):
+    cdef cydriver.CUDA_MEMCPY3D params
+    cdef cydriver.CUmemorytype c_dst_type
+    cdef cydriver.CUmemorytype c_src_type
+    _init_memcpy_params(
+        c_dst, c_src, size, &params, &c_dst_type, &c_src_type)
 
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)

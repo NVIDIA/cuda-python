@@ -27,3 +27,4 @@ TexObjectHandle = shared_ptr
 SurfObjectHandle = shared_ptr
 OpaqueHandle = shared_ptr
 PreparedAttachment = unique_ptr
+PreparedChildGraphUpdate = shared_ptr

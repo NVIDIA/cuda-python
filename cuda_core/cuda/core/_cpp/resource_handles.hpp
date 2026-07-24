@@ -516,6 +516,12 @@ struct PreparedAttachmentDeleter {
 using PreparedAttachment =
     std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
 
+struct PreparedChildGraphUpdateState;
+// Opaque unpublished hierarchy transaction; releasing it discards staged
+// metadata unless graph_commit_child_graph_update publishes the replacement.
+using PreparedChildGraphUpdate =
+    std::shared_ptr<PreparedChildGraphUpdateState>;
+
 // Copy requested owners from node's current attachment. Pass nullptr to ignore
 // either owner; a missing attachment produces empty handles.
 CUresult graph_get_attachment(
@@ -542,6 +548,21 @@ CUresult graph_commit_attachment(
 CUresult graph_clone_attachments(
     const GraphHandle& h_clone,
     const GraphHandle& h_source);
+
+// Stage a complete metadata replacement before CUDA replaces an embedded
+// graph. Dropping the prepared state leaves the current hierarchy unchanged.
+CUresult graph_prepare_child_graph_update(
+    const GraphHandle& h_parent,
+    const GraphHandle& h_old_child,
+    CUgraphNode owner_node,
+    const GraphHandle& h_source,
+    PreparedChildGraphUpdate* out_prepared);
+
+// Rekey staged metadata to CUDA's replacement clone, retire the old embedded
+// hierarchy, and publish the replacement handle.
+CUresult graph_commit_child_graph_update(
+    PreparedChildGraphUpdate& prepared,
+    GraphHandle* out_child);
 
 // Invalidate cuda.core state for child graphs CUDA destroyed with owner_node.
 void invalidate_child_graph_state(
