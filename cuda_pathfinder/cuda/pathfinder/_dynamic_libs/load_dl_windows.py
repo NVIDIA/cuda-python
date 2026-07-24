@@ -7,6 +7,7 @@ import ctypes
 import ctypes.wintypes
 import os
 import struct
+import warnings
 from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
@@ -43,10 +44,6 @@ kernel32.GetModuleFileNameW.argtypes = [
 ]
 kernel32.GetModuleFileNameW.restype = ctypes.wintypes.DWORD
 
-# AddDllDirectory (Windows 7+)
-kernel32.AddDllDirectory.argtypes = [ctypes.wintypes.LPCWSTR]
-kernel32.AddDllDirectory.restype = ctypes.c_void_p  # DLL_DIRECTORY_COOKIE
-
 
 def ctypes_handle_to_unsigned_int(handle: ctypes.wintypes.HMODULE) -> int:
     """Convert ctypes HMODULE to unsigned int."""
@@ -69,10 +66,23 @@ def add_dll_directory(dll_abs_path: str) -> None:
     dirpath = os.path.dirname(dll_abs_path)
     assert os.path.isdir(dirpath), dll_abs_path
 
-    # Add the DLL directory to the native search path. AddDllDirectory only
-    # affects the LOAD_LIBRARY_SEARCH_USER_DIRS search; PATH is updated
-    # unconditionally below to also cover legacy dependent-DLL resolution.
-    kernel32.AddDllDirectory(dirpath)
+    # Add the DLL directory to the native search path via the stdlib wrapper
+    # around AddDllDirectory. This only affects the LOAD_LIBRARY_SEARCH_USER_DIRS
+    # search; PATH is updated unconditionally below to also cover legacy
+    # dependent-DLL resolution. The returned handle is intentionally discarded:
+    # the directory must stay on the search path for the process lifetime, and
+    # the handle has no finalizer, so dropping it does not remove the directory.
+    try:
+        os.add_dll_directory(dirpath)  # type: ignore[attr-defined]
+    except OSError as e:
+        # Warn instead of failing silently; the PATH update below is a weaker
+        # fallback that newer loaders may ignore.
+        warnings.warn(
+            f"os.add_dll_directory({dirpath!r}) failed ({e}); "
+            "falling back to process-global PATH mutation for dependent-DLL resolution.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
     # Update PATH as a fallback for dependent DLL resolution
     curr_path = os.environ.get("PATH")

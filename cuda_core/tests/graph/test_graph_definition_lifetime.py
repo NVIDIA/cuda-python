@@ -611,48 +611,97 @@ def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_pending_call_queue_saturation_preserves_cleanup(init_cuda):
+def test_pending_call_queue_saturation_preserves_cleanup(tmp_path):
     """A full CPython queue neither strands nor mis-threads cleanup."""
-    pending_callback_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
-    add_pending_call = ctypes.pythonapi.Py_AddPendingCall
-    add_pending_call.argtypes = [pending_callback_type, ctypes.c_void_p]
-    add_pending_call.restype = ctypes.c_int
+    code = f"timeout = {_FINALIZE_TIMEOUT!r}\n" + textwrap.dedent(
+        """
+        import ctypes
+        import gc
+        import threading
+        import time
 
-    @pending_callback_type
-    def noop_pending_call(_):
-        return 0
+        from cuda.core import Device
+        from cuda.core.graph import GraphDefinition
 
-    finalized_threads = []
-    main_thread = threading.get_ident()
-    first_callback = _ThreadRecordingCallback(finalized_threads)
-    first_graph = GraphDefinition()
-    first_graph.callback(first_callback)
-    graph_holder = [first_graph]
-    worker_done = threading.Event()
-    queue_was_full = []
+        class ThreadRecordingCallback:
+            def __init__(self, finalized_threads):
+                self.finalized_threads = finalized_threads
 
-    del first_callback, first_graph
+            def __call__(self):
+                pass
 
-    def fill_queue_and_destroy():
-        while add_pending_call(noop_pending_call, None) == 0:
-            pass
-        queue_was_full.append(True)
-        graph_holder.clear()
-        worker_done.set()
+            def __del__(self):
+                self.finalized_threads.append(threading.get_ident())
 
-    worker = threading.Thread(target=fill_queue_and_destroy)
-    worker.start()
-    assert worker_done.wait(timeout=5)
-    worker.join()
-    assert queue_was_full == [True]
+        def wait_until(predicate):
+            deadline = time.monotonic() + timeout
+            while True:
+                gc.collect()
+                if predicate():
+                    return
+                if time.monotonic() >= deadline:
+                    break
+                time.sleep(0)
+                time.sleep(0.02)
+            raise AssertionError(f"condition not satisfied within {timeout}s")
 
-    # A later safe cuda-core close retries after the main thread has had an
-    # opportunity to drain the foreign pending calls.
-    retry_builder = Device().create_graph_builder()
-    retry_builder.close()
+        Device(0).set_current()
 
-    _wait_until(lambda: len(finalized_threads) == 1)
-    assert set(finalized_threads) == {main_thread}
+        pending_callback_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+        add_pending_call = ctypes.pythonapi.Py_AddPendingCall
+        add_pending_call.argtypes = [pending_callback_type, ctypes.c_void_p]
+        add_pending_call.restype = ctypes.c_int
+        make_pending_calls = ctypes.pythonapi.Py_MakePendingCalls
+        make_pending_calls.argtypes = []
+        make_pending_calls.restype = ctypes.c_int
+
+        @pending_callback_type
+        def noop_pending_call(_):
+            return 0
+
+        finalized_threads = []
+        main_thread = threading.get_ident()
+        first_callback = ThreadRecordingCallback(finalized_threads)
+        first_graph = GraphDefinition()
+        first_graph.callback(first_callback)
+        graph_holder = [first_graph]
+        worker_done = threading.Event()
+        queue_was_full = []
+
+        del first_callback, first_graph
+
+        def fill_queue_and_destroy():
+            while add_pending_call(noop_pending_call, None) == 0:
+                pass
+            queue_was_full.append(True)
+            graph_holder.clear()
+            worker_done.set()
+
+        worker = threading.Thread(target=fill_queue_and_destroy)
+        worker.start()
+        assert worker_done.wait(timeout=5)
+        worker.join()
+        assert queue_was_full == [True]
+
+        # Free space before the cuda-core entry that retries cleanup scheduling.
+        assert make_pending_calls() == 0
+
+        retry_builder = Device().create_graph_builder()
+        retry_builder.close()
+
+        wait_until(lambda: len(finalized_threads) == 1)
+        assert set(finalized_threads) == {main_thread}
+        """
+    )
+    result = subprocess.run(  # noqa: S603 - controlled interpreter probe
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        # Isolate the process-global pending-call queue from parallel tests.
+        cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

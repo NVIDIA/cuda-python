@@ -5,7 +5,6 @@
 import time
 
 import pytest
-from helpers import IS_WINDOWS, IS_WSL
 from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
@@ -35,9 +34,9 @@ def test_latchkernel():
     target.copy_from(ones, stream=stream)
     log("going to sleep")
     time.sleep(1)
-    if not IS_WINDOWS and not IS_WSL:
-        # On any sort of Windows system, checking the memory before stream
-        # sync results in a page error.
+    if device.properties.concurrent_managed_access:
+        # Host access to managed memory while a kernel is active is unsafe on
+        # devices without concurrent managed access.
         log("checking target == 0")
         assert compare_equal_buffers(target, zeros)
     log("releasing latch and syncing")
