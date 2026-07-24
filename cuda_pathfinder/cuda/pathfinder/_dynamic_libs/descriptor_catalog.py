@@ -16,16 +16,20 @@ PackagedWith = Literal["ctk", "other", "driver"]
 
 @dataclass(frozen=True, slots=True)
 class WindowsSearchDir:
-    """One Windows search location with architecture-specific spellings."""
+    """One Windows search location, or ``None`` where an architecture is unsupported."""
 
-    x64: str
-    arm64: str
+    x64: str | None
+    arm64: str | None
 
     @classmethod
     def common(cls, path: str) -> WindowsSearchDir:
         return cls(x64=path, arm64=path)
 
-    def for_arch(self, target_arch: str) -> str:
+    @classmethod
+    def x64_only(cls, path: str) -> WindowsSearchDir:
+        return cls(x64=path, arm64=None)
+
+    def for_arch(self, target_arch: str) -> str | None:
         if target_arch == "x64":
             return self.x64
         if target_arch == "arm64":
@@ -44,7 +48,12 @@ class WindowsSearchDirs:
         return cls(tuple(WindowsSearchDir.common(path) for path in paths))
 
     def for_arch(self, target_arch: str) -> tuple[str, ...]:
-        return tuple(path.for_arch(target_arch) for path in self.paths)
+        selected_paths: list[str] = []
+        for path in self.paths:
+            selected_path = path.for_arch(target_arch)
+            if selected_path is not None:
+                selected_paths.append(selected_path)
+        return tuple(selected_paths)
 
 
 DEFAULT_WINDOWS_CTK_ANCHOR_DIRS = WindowsSearchDirs(
@@ -56,7 +65,7 @@ DEFAULT_WINDOWS_CTK_ANCHOR_DIRS = WindowsSearchDirs(
 
 
 def _ctk_windows_wheel_dirs(cuda13_bin_dir: str, cuda12_dir: str) -> WindowsSearchDirs:
-    """Search the CUDA 13 aggregate wheel before its CUDA 12 component wheel."""
+    """Search CUDA 13 first, with the x64-only CUDA 12 wheel as an x64 fallback."""
     cuda13_bin_path = PurePosixPath(cuda13_bin_dir)
     return WindowsSearchDirs(
         paths=(
@@ -64,7 +73,7 @@ def _ctk_windows_wheel_dirs(cuda13_bin_dir: str, cuda12_dir: str) -> WindowsSear
                 x64=(cuda13_bin_path / "x86_64").as_posix(),
                 arm64=(cuda13_bin_path / "arm64").as_posix(),
             ),
-            WindowsSearchDir.common(cuda12_dir),
+            WindowsSearchDir.x64_only(cuda12_dir),
         )
     )
 

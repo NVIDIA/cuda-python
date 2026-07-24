@@ -225,9 +225,8 @@ class TestFindInSitePackages:
         assert result.abs_path == str(x86_64_dll)
         assert result.found_via == "site-packages"
 
-    @pytest.mark.parametrize("target_arch", ["x64", "arm64"])
     @pytest.mark.agent_authored(model="gpt-5")
-    def test_found_windows_uses_cuda12_when_cuda13_is_absent(self, mocker, tmp_path, target_arch):
+    def test_found_windows_x64_uses_cuda12_when_cuda13_is_absent(self, mocker, tmp_path):
         cuda12_dir = tmp_path / "nvidia" / "cuda_runtime" / "bin"
         cuda12_dir.mkdir(parents=True)
         cuda12_dll = cuda12_dir / "cudart64_12.dll"
@@ -237,10 +236,27 @@ class TestFindInSitePackages:
         mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudart"]
-        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch=target_arch)))
+        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
         assert result.abs_path == str(cuda12_dll)
         assert result.found_via == "site-packages"
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_found_windows_arm64_skips_cuda12_when_cuda13_is_absent(self, mocker, tmp_path):
+        cuda12_dir = tmp_path / "nvidia" / "cuda_runtime" / "bin"
+        cuda12_dir.mkdir(parents=True)
+        (cuda12_dir / "cudart64_12.dll").touch()
+
+        _patch_site_packages_search(mocker, tmp_path)
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        desc = LIB_DESCRIPTORS["cudart"]
+        platform = WindowsSearchPlatform(target_arch="arm64")
+        assert platform.site_packages_rel_dirs(desc) == ("nvidia/cu13/bin/arm64",)
+
+        result = find_in_site_packages(_ctx(desc, platform=platform))
+
+        assert result is None
 
     def test_not_found_appends_error(self, mocker, tmp_path):
         empty_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
