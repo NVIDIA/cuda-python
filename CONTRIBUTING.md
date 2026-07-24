@@ -82,7 +82,7 @@ when running `pre-commit run --all-files`.  This problem does not occur if you
 install the pre-commit hook and run it automatically as part of your `git
 commit` workflow.  To resolve this, you can either:
 
-1. Run `pre-commit` it in Git Bash, rather directly in PowerShell or cmd
+1. Run `pre-commit` in Git Bash, rather directly in PowerShell or cmd
 
 2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
    be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
