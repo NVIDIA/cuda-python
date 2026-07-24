@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3ee237ed16e651bae93e2bc6d4d63dcf99b309ad7a74cb3e2bd5b9e540e714f4
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=070eb43e310d26121650152783aebdc78bf465a29554fe5b911301c9d9ba2c28
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -10,11 +10,6 @@
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 from cython cimport view as _cyb_view
-from libc.stdlib cimport (
-    calloc as _cyb_calloc,
-    free as _cyb_free,
-    malloc as _cyb_malloc,
-)
 from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
@@ -99,25 +94,15 @@ cdef class ExternalMemoryHandleDesc:
     .. seealso:: `cudlaExternalMemoryHandleDesc_t`
     """
     cdef:
+        cudlaExternalMemoryHandleDesc_t _data
         cudlaExternalMemoryHandleDesc_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaExternalMemoryHandleDesc_t *>_cyb_calloc(1, sizeof(cudlaExternalMemoryHandleDesc_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ExternalMemoryHandleDesc")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef cudlaExternalMemoryHandleDesc_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ExternalMemoryHandleDesc object at {hex(id(self))}>"
@@ -148,12 +133,9 @@ cdef class ExternalMemoryHandleDesc:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaExternalMemoryHandleDesc_t *>_cyb_malloc(sizeof(cudlaExternalMemoryHandleDesc_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ExternalMemoryHandleDesc")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaExternalMemoryHandleDesc_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(cudlaExternalMemoryHandleDesc_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -207,16 +189,12 @@ cdef class ExternalMemoryHandleDesc:
             raise ValueError("ptr must not be null (0)")
         cdef ExternalMemoryHandleDesc obj = ExternalMemoryHandleDesc.__new__(ExternalMemoryHandleDesc)
         if owner is None:
-            obj._ptr = <cudlaExternalMemoryHandleDesc_t *>_cyb_malloc(sizeof(cudlaExternalMemoryHandleDesc_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ExternalMemoryHandleDesc")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaExternalMemoryHandleDesc_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(cudlaExternalMemoryHandleDesc_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cudlaExternalMemoryHandleDesc_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -241,25 +219,15 @@ cdef class ExternalSemaphoreHandleDesc:
     .. seealso:: `cudlaExternalSemaphoreHandleDesc_t`
     """
     cdef:
+        cudlaExternalSemaphoreHandleDesc_t _data
         cudlaExternalSemaphoreHandleDesc_t *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaExternalSemaphoreHandleDesc_t *>_cyb_calloc(1, sizeof(cudlaExternalSemaphoreHandleDesc_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ExternalSemaphoreHandleDesc")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef cudlaExternalSemaphoreHandleDesc_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ExternalSemaphoreHandleDesc object at {hex(id(self))}>"
@@ -290,12 +258,9 @@ cdef class ExternalSemaphoreHandleDesc:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaExternalSemaphoreHandleDesc_t *>_cyb_malloc(sizeof(cudlaExternalSemaphoreHandleDesc_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ExternalSemaphoreHandleDesc")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaExternalSemaphoreHandleDesc_t))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(cudlaExternalSemaphoreHandleDesc_t))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -338,16 +303,12 @@ cdef class ExternalSemaphoreHandleDesc:
             raise ValueError("ptr must not be null (0)")
         cdef ExternalSemaphoreHandleDesc obj = ExternalSemaphoreHandleDesc.__new__(ExternalSemaphoreHandleDesc)
         if owner is None:
-            obj._ptr = <cudlaExternalSemaphoreHandleDesc_t *>_cyb_malloc(sizeof(cudlaExternalSemaphoreHandleDesc_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ExternalSemaphoreHandleDesc")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaExternalSemaphoreHandleDesc_t))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(cudlaExternalSemaphoreHandleDesc_t))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cudlaExternalSemaphoreHandleDesc_t *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -383,25 +344,15 @@ cdef class ModuleTensorDescriptor:
     .. seealso:: `cudlaModuleTensorDescriptor`
     """
     cdef:
+        cudlaModuleTensorDescriptor _data
         cudlaModuleTensorDescriptor *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaModuleTensorDescriptor *>_cyb_calloc(1, sizeof(cudlaModuleTensorDescriptor))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ModuleTensorDescriptor")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef cudlaModuleTensorDescriptor *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ModuleTensorDescriptor object at {hex(id(self))}>"
@@ -432,12 +383,9 @@ cdef class ModuleTensorDescriptor:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaModuleTensorDescriptor *>_cyb_malloc(sizeof(cudlaModuleTensorDescriptor))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ModuleTensorDescriptor")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaModuleTensorDescriptor))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(cudlaModuleTensorDescriptor))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -611,16 +559,12 @@ cdef class ModuleTensorDescriptor:
             raise ValueError("ptr must not be null (0)")
         cdef ModuleTensorDescriptor obj = ModuleTensorDescriptor.__new__(ModuleTensorDescriptor)
         if owner is None:
-            obj._ptr = <cudlaModuleTensorDescriptor *>_cyb_malloc(sizeof(cudlaModuleTensorDescriptor))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ModuleTensorDescriptor")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaModuleTensorDescriptor))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(cudlaModuleTensorDescriptor))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cudlaModuleTensorDescriptor *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -646,25 +590,15 @@ cdef class Fence:
     .. seealso:: `CudlaFence`
     """
     cdef:
+        CudlaFence _data
         CudlaFence *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <CudlaFence *>_cyb_calloc(1, sizeof(CudlaFence))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating Fence")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef CudlaFence *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Fence object at {hex(id(self))}>"
@@ -695,12 +629,9 @@ cdef class Fence:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <CudlaFence *>_cyb_malloc(sizeof(CudlaFence))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating Fence")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CudlaFence))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(CudlaFence))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -754,16 +685,12 @@ cdef class Fence:
             raise ValueError("ptr must not be null (0)")
         cdef Fence obj = Fence.__new__(Fence)
         if owner is None:
-            obj._ptr = <CudlaFence *>_cyb_malloc(sizeof(CudlaFence))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating Fence")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CudlaFence))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(CudlaFence))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <CudlaFence *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -783,25 +710,15 @@ cdef class DevAttribute:
     .. seealso:: `cudlaDevAttribute`
     """
     cdef:
+        cudlaDevAttribute _data
         cudlaDevAttribute *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaDevAttribute *>_cyb_calloc(1, sizeof(cudlaDevAttribute))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating DevAttribute")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef cudlaDevAttribute *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.DevAttribute object at {hex(id(self))}>"
@@ -832,12 +749,9 @@ cdef class DevAttribute:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaDevAttribute *>_cyb_malloc(sizeof(cudlaDevAttribute))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating DevAttribute")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaDevAttribute))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(cudlaDevAttribute))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -891,16 +805,12 @@ cdef class DevAttribute:
             raise ValueError("ptr must not be null (0)")
         cdef DevAttribute obj = DevAttribute.__new__(DevAttribute)
         if owner is None:
-            obj._ptr = <cudlaDevAttribute *>_cyb_malloc(sizeof(cudlaDevAttribute))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating DevAttribute")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaDevAttribute))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(cudlaDevAttribute))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cudlaDevAttribute *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -922,25 +832,15 @@ cdef class ModuleAttribute:
     .. seealso:: `cudlaModuleAttribute`
     """
     cdef:
+        cudlaModuleAttribute _data
         cudlaModuleAttribute *_ptr
         object _owner
-        bint _owned
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cudlaModuleAttribute *>_cyb_calloc(1, sizeof(cudlaModuleAttribute))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating ModuleAttribute")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
-
-    def __dealloc__(self):
-        cdef cudlaModuleAttribute *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.ModuleAttribute object at {hex(id(self))}>"
@@ -971,12 +871,9 @@ cdef class ModuleAttribute:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaModuleAttribute *>_cyb_malloc(sizeof(cudlaModuleAttribute))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating ModuleAttribute")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaModuleAttribute))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(cudlaModuleAttribute))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -1052,16 +949,12 @@ cdef class ModuleAttribute:
             raise ValueError("ptr must not be null (0)")
         cdef ModuleAttribute obj = ModuleAttribute.__new__(ModuleAttribute)
         if owner is None:
-            obj._ptr = <cudlaModuleAttribute *>_cyb_malloc(sizeof(cudlaModuleAttribute))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating ModuleAttribute")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaModuleAttribute))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(cudlaModuleAttribute))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cudlaModuleAttribute *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -1087,27 +980,17 @@ cdef class WaitEvents:
     .. seealso:: `cudlaWaitEvents`
     """
     cdef:
+        cudlaWaitEvents _data
         cudlaWaitEvents *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <cudlaWaitEvents *>_cyb_calloc(1, sizeof(cudlaWaitEvents))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating WaitEvents")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef cudlaWaitEvents *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.WaitEvents object at {hex(id(self))}>"
@@ -1138,12 +1021,9 @@ cdef class WaitEvents:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaWaitEvents *>_cyb_malloc(sizeof(cudlaWaitEvents))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating WaitEvents")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaWaitEvents))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(cudlaWaitEvents))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -1191,16 +1071,12 @@ cdef class WaitEvents:
             raise ValueError("ptr must not be null (0)")
         cdef WaitEvents obj = WaitEvents.__new__(WaitEvents)
         if owner is None:
-            obj._ptr = <cudlaWaitEvents *>_cyb_malloc(sizeof(cudlaWaitEvents))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating WaitEvents")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaWaitEvents))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(cudlaWaitEvents))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cudlaWaitEvents *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -1228,27 +1104,17 @@ cdef class SignalEvents:
     .. seealso:: `cudlaSignalEvents`
     """
     cdef:
+        cudlaSignalEvents _data
         cudlaSignalEvents *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <cudlaSignalEvents *>_cyb_calloc(1, sizeof(cudlaSignalEvents))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating SignalEvents")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef cudlaSignalEvents *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.SignalEvents object at {hex(id(self))}>"
@@ -1279,12 +1145,9 @@ cdef class SignalEvents:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaSignalEvents *>_cyb_malloc(sizeof(cudlaSignalEvents))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating SignalEvents")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaSignalEvents))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(cudlaSignalEvents))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -1357,16 +1220,12 @@ cdef class SignalEvents:
             raise ValueError("ptr must not be null (0)")
         cdef SignalEvents obj = SignalEvents.__new__(SignalEvents)
         if owner is None:
-            obj._ptr = <cudlaSignalEvents *>_cyb_malloc(sizeof(cudlaSignalEvents))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating SignalEvents")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaSignalEvents))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(cudlaSignalEvents))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cudlaSignalEvents *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
@@ -1398,27 +1257,17 @@ cdef class Task:
     .. seealso:: `cudlaTask`
     """
     cdef:
+        cudlaTask _data
         cudlaTask *_ptr
         object _owner
-        bint _owned
         bint _readonly
         dict _refs
 
     def __init__(self):
-        self._ptr = <cudlaTask *>_cyb_calloc(1, sizeof(cudlaTask))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating Task")
+        self._ptr = &self._data
         self._owner = None
-        self._owned = True
         self._readonly = False
         self._refs = {}
-
-    def __dealloc__(self):
-        cdef cudlaTask *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.Task object at {hex(id(self))}>"
@@ -1449,12 +1298,9 @@ cdef class Task:
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cudlaTask *>_cyb_malloc(sizeof(cudlaTask))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating Task")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cudlaTask))
+            _cyb_memcpy(<void*>&self._data, <void*><intptr_t>val.ctypes.data, sizeof(cudlaTask))
+            self._ptr = &self._data
             self._owner = None
-            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -1569,16 +1415,12 @@ cdef class Task:
             raise ValueError("ptr must not be null (0)")
         cdef Task obj = Task.__new__(Task)
         if owner is None:
-            obj._ptr = <cudlaTask *>_cyb_malloc(sizeof(cudlaTask))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating Task")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cudlaTask))
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(cudlaTask))
+            obj._ptr = &obj._data
             obj._owner = None
-            obj._owned = True
         else:
             obj._ptr = <cudlaTask *>ptr
             obj._owner = owner
-            obj._owned = False
         obj._readonly = readonly
         obj._refs = {}
         return obj
