@@ -458,6 +458,20 @@ class ObjectCode:
 
         """
 
+    def get_module(self) -> object:
+        """Return a context-dependent :obj:`~driver.CUmodule` for legacy interop.
+
+        Bridges the native :obj:`~driver.CUlibrary` (see :attr:`handle`) to a
+        ``CUmodule`` via ``cuLibraryGetModule``, for use with legacy driver APIs
+        that only accept ``CUmodule``.
+
+        Returns
+        -------
+        :obj:`~driver.CUmodule`
+            Module handle for the current CUDA context, suitable for legacy
+            driver APIs that accept ``CUmodule``.
+        """
+
     @property
     def code(self) -> CodeTypeT:
         """Return the underlying code object."""
@@ -476,7 +490,10 @@ class ObjectCode:
 
     @property
     def handle(self) -> object:
-        """Return the underlying handle object.
+        """Return the native, context-independent :obj:`~driver.CUlibrary` handle.
+
+        Used by ``cuda.core`` and newer driver library APIs. For legacy APIs
+        that only accept a ``CUmodule``, use :meth:`get_module` instead.
 
         .. caution::
 
