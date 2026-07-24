@@ -318,8 +318,13 @@ void enqueue_cleanup(void* item) noexcept {
 
 }  // namespace
 
-// Module initialization calls this once with the GIL held, which serializes
-// the check, allocation, and publication below.
+// Invoked exactly once, at import, from _resource_handles.pyx as a bare
+// module-level statement (verified single call site) -- so this runs
+// single-threaded before any concurrent access is possible. The check-then-act
+// below is therefore not a race: it is a cheap idempotency guard, not a
+// concurrent-init CAS. If this were ever reachable concurrently it would need a
+// compare-exchange (with the loser deleting its queue and skipping Py_AtExit);
+// keep it single-init instead.
 void initialize_deferred_cleanup() {
     if (deferred_cleanup_queue.load(std::memory_order_acquire)) {
         return;
@@ -1051,10 +1056,16 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
 // MemoryResource-owned Device Pointer Handles
 // ============================================================================
 
-static MRDeallocCallback mr_dealloc_cb = nullptr;
+// Registered exactly once at import from _buffer.pyx (module-level statement,
+// runs single-threaded before any MR-backed device pointer exists), so a plain
+// pointer would already be safe. Made atomic as free-threading hardening: it is
+// read/called from shared_ptr deleters on arbitrary threads, and the
+// acquire/release pair gives a well-formed happens-before between the import
+// registration and every later deleter read.
+static std::atomic<MRDeallocCallback> mr_dealloc_cb{nullptr};
 
 void register_mr_dealloc_callback(MRDeallocCallback cb) {
-    mr_dealloc_cb = cb;
+    mr_dealloc_cb.store(cb, std::memory_order_release);
 }
 
 DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr) {
@@ -1072,8 +1083,9 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
         [mr, size](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
-                if (mr_dealloc_cb) {
-                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                if (MRDeallocCallback cb =
+                        mr_dealloc_cb.load(std::memory_order_acquire)) {
+                    cb(mr, b->resource, size, b->h_stream);
                 }
                 Py_DECREF(mr);
             }
@@ -1375,6 +1387,16 @@ GraphBox* get_box(const GraphHandle& h) noexcept {
         static_cast<const GraphBox*>(value));
 }
 
+struct GraphBox {
+    CUgraph resource;
+    GraphHandle h_parent;                  // Keeps parent alive for child/branch graphs
+    // Lazily created; owned by the graph's user object. The lazy creation is
+    // reached only from graph_set_slot() (a graph *mutation*), never from a
+    // read-only accessor, so two concurrent *reads* of the same graph cannot
+    // race on it -- concurrent mutation of one graph is the user's
+    // responsibility per docs/source/concurrency.rst. No guard needed.
+    mutable GraphSlotTable* slot_table = nullptr;
+};
 // Rekey a staged attachment map from source nodes to their cloned nodes.
 // The caller must release the GIL before calling this function.
 CUresult rekey_attachments(

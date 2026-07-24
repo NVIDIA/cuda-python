@@ -11,6 +11,11 @@ import ctypes as _ctypes
 cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings._lib.param_packer as param_packer
 
+# Initialize the param_packer feeder table + ctypes pointers once, at import,
+# while single-threaded, so param_packer.feed() is a lock-free read-only lookup
+# on the kernel-launch hot path under free-threading. See param_packer.h.
+param_packer.init_param_packer()
+
 cdef void* _callocWrapper(length, size):
     cdef void* out = calloc(length, size)
     if out is NULL:
