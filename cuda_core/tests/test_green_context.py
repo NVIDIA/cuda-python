@@ -22,6 +22,7 @@ from cuda.core import (
     launch,
 )
 from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.version import binding_version, driver_version
 from cuda.core.typing import WorkqueueSharingScopeType
 
 # ---------------------------------------------------------------------------
@@ -337,11 +338,23 @@ class TestSMResourceSplit:
         assert len(groups) == 1
         assert groups[0].sm_count >= sm_resource.min_partition_size
 
-    def test_discovery_respects_alignment(self, sm_resource):
-        groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    def test_discovery_respects_explicit_coscheduled_sm_count(self, sm_resource):
+        """Constrain discovery explicitly because unconstrained discovery may use all SMs."""
+        if binding_version() < (13, 1, 0) or driver_version() < (13, 1, 0):
+            pytest.skip("explicit co-scheduled SM discovery requires CUDA 13.1+")
 
-        if sm_resource.coscheduled_alignment > 0:
-            assert groups[0].sm_count % sm_resource.coscheduled_alignment == 0
+        alignment = sm_resource.coscheduled_alignment
+        if alignment <= 0:
+            pytest.skip("device does not report a co-scheduled SM alignment")
+
+        groups, _ = sm_resource.split(
+            SMResourceOptions(
+                count=None,
+                coscheduled_sm_count=alignment,
+            )
+        )
+
+        assert groups[0].sm_count % alignment == 0
 
     def test_two_groups(self, sm_resource):
         """Two-group split succeeds for a supported explicit request."""
