@@ -17,7 +17,6 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, Set
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _catalog_writer import load_catalog, update_specs, write_catalog
@@ -31,8 +30,8 @@ def _strip_site_packages_prefix(p: str) -> str:
     return _SITE_PACKAGES_RE.sub("", p)
 
 
-def _parse_lines_linux(lines: list[str]) -> Dict[str, Set[str]]:
-    d: Dict[str, Set[str]] = {}
+def _parse_lines_linux(lines: list[str]) -> dict[str, set[str]]:
+    d: dict[str, set[str]] = {}
     for raw in lines:
         line = raw.strip()
         if not line or line.startswith("#"):
@@ -63,9 +62,9 @@ def _extract_libname_from_dll(fname: str) -> str | None:
     return name or None
 
 
-def _parse_lines_windows(lines: list[str]) -> Dict[str, Set[str]]:
+def _parse_lines_windows(lines: list[str]) -> dict[str, set[str]]:
     """Collect {libname: set(dirnames)} with deduped directories."""
-    m: Dict[str, Set[str]] = {}
+    m: dict[str, set[str]] = {}
     for raw in lines:
         line = raw.strip()
         if not line or line.startswith("#"):
