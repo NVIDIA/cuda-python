@@ -280,7 +280,7 @@ class VirtualMemoryResource(MemoryResource):
                 buf, new_size, prop, aligned_additional_size, total_aligned_size, addr_align
             )
 
-        if new_ptr != expected_ptr:
+        if int(new_ptr) != expected_ptr:
             (res2,) = driver.cuMemAddressFree(new_ptr, aligned_additional_size)
             raise_if_driver_error(res2)
             # Fallback: couldn't extend contiguously, need full remapping
