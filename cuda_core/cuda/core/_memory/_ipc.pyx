@@ -29,7 +29,7 @@ import platform
 import uuid
 import weakref
 
-__all__ = ['IPCBufferDescriptor', 'IPCAllocationHandle']
+__all__ = []
 
 
 cdef object registry = weakref.WeakValueDictionary()

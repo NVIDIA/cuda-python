@@ -61,6 +61,8 @@ _tls = threading.local()
 _lock = threading.Lock()
 cdef bint _is_cuInit = False
 
+__all__ = ['Device']
+
 
 cdef class DeviceProperties:
     """

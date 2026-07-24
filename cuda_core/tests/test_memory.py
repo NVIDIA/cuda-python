@@ -42,7 +42,7 @@ from cuda.core import (
     system as ccx_system,
 )
 from cuda.core._dlpack import DLDeviceType
-from cuda.core._memory import IPCBufferDescriptor
+from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.typing import (
     ManagedMemoryLocationType,
@@ -136,8 +136,6 @@ def test_package_contents():
         "DeviceMemoryResource",
         "DeviceMemoryResourceOptions",
         "GraphMemoryResource",
-        "IPCAllocationHandle",
-        "IPCBufferDescriptor",
         "LegacyPinnedMemoryResource",
         "ManagedBuffer",
         "ManagedMemoryResource",

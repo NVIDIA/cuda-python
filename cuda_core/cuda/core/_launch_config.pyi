@@ -66,6 +66,7 @@ class LaunchConfig:
     def __hash__(self) -> int:
         ...
 _LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative')
+__all__ = ['LaunchConfig']
 
 def _to_native_launch_config(config: LaunchConfig) -> object:
     """Convert LaunchConfig to native driver CUlaunchConfig.
