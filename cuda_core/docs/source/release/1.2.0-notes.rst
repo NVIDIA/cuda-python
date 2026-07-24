@@ -18,6 +18,15 @@ Fixes and enhancements
   (`#2357 <https://github.com/NVIDIA/cuda-python/pull/2357>`__,
   `#2371 <https://github.com/NVIDIA/cuda-python/pull/2371>`__)
 
+- :meth:`Linker.which_backend` and constructing a :class:`Linker` no longer
+  raise ``FunctionNotFoundError`` when an nvJitLink older than 12.3
+  (12.0–12.2) is installed. These versions do not export the unversioned
+  ``nvJitLinkVersion`` symbol, so probing the version crashed instead of
+  falling back. ``cuda.core`` now warns and falls back to the driver
+  (``cuLink``) backend, restoring the pre-0.7.0 behavior.
+  (`#2409 <https://github.com/NVIDIA/cuda-python/pull/2409>`__,
+  closes `#2408 <https://github.com/NVIDIA/cuda-python/issues/2408>`__)
+
 Deprecation Notices
 -------------------
 
