@@ -10,6 +10,10 @@ across platforms. Line-ending normalization is handled by .gitattributes.
 
 This also forces stubgen-pyx to write files with UTF-8 encoding, which is not
 the default on Windows.
+
+This wrapper can be removed once these stubgen-pyx issues are resolved:
+    https://github.com/jon-edward/stubgen-pyx/issues/41
+    https://github.com/jon-edward/stubgen-pyx/issues/42
 """
 
 from __future__ import annotations
