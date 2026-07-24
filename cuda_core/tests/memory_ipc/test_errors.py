@@ -9,7 +9,7 @@ import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
-from cuda.core._memory import IPCBufferDescriptor
+from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()

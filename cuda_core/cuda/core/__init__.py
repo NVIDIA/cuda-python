@@ -98,22 +98,22 @@ from cuda.core._stream import __all__ as _stream_all
 from cuda.core._tensor_map import *
 from cuda.core._tensor_map import __all__ as _tensor_map_all
 
-__all__ = (
-    _context_all
-    + _device_all
-    + _device_resources_all
-    + _event_all
-    + _graphics_all
-    + _host_all
-    + _launch_config_all
-    + _launcher_all
-    + _linker_all
-    + _memory_all
-    + _module_all
-    + _program_all
-    + _stream_all
-    + _tensor_map_all
-)
+__all__ = [
+    *_context_all,
+    *_device_all,
+    *_device_resources_all,
+    *_event_all,
+    *_graphics_all,
+    *_host_all,
+    *_launch_config_all,
+    *_launcher_all,
+    *_linker_all,
+    *_memory_all,
+    *_module_all,
+    *_program_all,
+    *_stream_all,
+    *_tensor_map_all,
+]
 
 # isort: split
 # Texture/surface types live under the cuda.core.texture namespace (not the

@@ -21,14 +21,14 @@ from ._pinned_memory_resource import __all__ as _pinned_memory_resource_all
 from ._virtual_memory_resource import *
 from ._virtual_memory_resource import __all__ as _virtual_memory_resource_all
 
-__all__ = (
-    _buffer_all
-    + _device_memory_resource_all
-    + _graph_memory_resource_all
-    + _ipc_all
-    + _legacy_all
-    + _managed_buffer_all
-    + _managed_memory_resource_all
-    + _pinned_memory_resource_all
-    + _virtual_memory_resource_all
-)
+__all__ = [
+    *_buffer_all,
+    *_device_memory_resource_all,
+    *_graph_memory_resource_all,
+    *_ipc_all,
+    *_legacy_all,
+    *_managed_buffer_all,
+    *_managed_memory_resource_all,
+    *_pinned_memory_resource_all,
+    *_virtual_memory_resource_all,
+]
