@@ -150,12 +150,12 @@ jobs:
           }
 
           {
-            echo "bindings=$(has_match '^cuda_bindings/')"
-            echo "core=$(has_match '^cuda_core/')"
+            echo "bindings=$(has_match '^(cuda_bindings/|samples/cuda_bindings/)')"
+            echo "core=$(has_match '^(cuda_core/|samples/cuda_core/)')"
             echo "pathfinder=$(has_match '^cuda_pathfinder/')"
             echo "python_meta=$(has_match '^cuda_python/')"
             echo "test_helpers=$(has_match '^cuda_python_test_helpers/')"
-            echo "shared=$(has_match '^(\.github/|ci/|scripts/|toolshed/|conftest\.py$|pyproject\.toml$|pixi\.(toml|lock)$|pytest\.ini$|ruff\.toml$)')"
+            echo "shared=$(has_match '^(\.github/|ci/|scripts/|toolshed/|samples/README\.md$|conftest\.py$|pyproject\.toml$|pixi\.(toml|lock)$|pytest\.ini$|ruff\.toml$)')"
           } >> "$GITHUB_OUTPUT"
 
       - name: Compose gating outputs

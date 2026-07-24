@@ -20,6 +20,9 @@ pytest-randomly = "*"
 pytest-repeat = "*"
 pyglet = ">=2.1.9"
 numpy = "*"
+packaging = "*"
+tomli = "*"
+matplotlib = "*"
 
 # Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
 [feature.docs.dependencies]
@@ -87,7 +90,7 @@ nvidia-sphinx-theme = "*"
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-bindings"
-version = "13.2.0"
+version = "13.3.1"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
@@ -176,3 +179,14 @@ cmd = [
     "norecursedirs=examples", # include cython tests (ignore by default config)
 ]
 depends-on = [{ task = "build-cython-tests" }]
+
+[tasks.test-samples]
+cmd = [
+    "pytest",
+    "-rxXs",
+    "-v",
+    "--confcutdir",
+    "$PIXI_PROJECT_ROOT/tests/example_tests",
+    "$PIXI_PROJECT_ROOT/tests/example_tests",
+]
+default-environment = "cu13"

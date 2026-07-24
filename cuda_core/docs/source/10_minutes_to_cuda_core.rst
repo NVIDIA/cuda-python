@@ -310,7 +310,7 @@ operations into the *builder* instead of the stream, then complete the graph.
    graph.launch(stream)     # replay the whole graph in one shot
    stream.sync()
 
-See :cuda-core-example:`cuda_graphs.py <cuda_graphs.py>`
+See :sample-file:`cudaGraphs.py <cudaGraphs/cudaGraphs.py>`
 for a complete capture-and-replay example with a measured speedup.
 
 Beyond the stream capture shown here, ``cuda.core`` also provides an explicit

@@ -122,11 +122,23 @@ copybutton_exclude = ".linenos, .gp"
 
 extlinks = {
     "cuda-bindings-example": (
-        f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/cuda_bindings/examples/%s",
+        f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/samples/cuda_bindings/%s",
         "%s",
     ),
     "cuda-bindings-examples": (
-        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/cuda_bindings/examples%s",
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_bindings%s",
+        "%s",
+    ),
+    "sample": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_bindings/%s",
+        "%s",
+    ),
+    "samples": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_bindings%s",
+        "%s",
+    ),
+    "cuda-core-sample": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/samples/cuda_core/%s",
         "%s",
     ),
 }

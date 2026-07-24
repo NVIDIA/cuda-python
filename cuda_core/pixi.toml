@@ -23,32 +23,86 @@ pytest-rerunfailures = "*"
 cloudpickle = "*"
 psutil = "*"
 pyglet = "*"
-
-[feature.examples.dependencies]
-cuda-core = { path = "." }
-cffi = "*"
-pyglet = "*"
-
-[feature.examples.system-requirements]
-cuda = "13"
+packaging = "*"
+tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
 
 [feature.local-deps.dependencies]
 cuda-bindings = { path = "../cuda_bindings" }
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 
-[feature.examples.target.linux.dependencies]
+[feature.samples.dependencies]
+cuda-core = { path = "." }
+# Common / cross-platform sample deps.
+cffi = "*"
+pyglet = "*"
+pytest = "*"
+packaging = "*"
+tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
+# numpy pinned <2.5 so `numba` (transitive dep of `numba-cuda` in
+# samples/cuda_core/simplePrint) can install; numba currently requires numpy<2.5.
+numpy = ">=2.2.5,<2.5"
+setuptools = "*"                    # samples/cuda_core/stridedMemoryViewCpu (cffi JIT build)
+
+[feature.samples.system-requirements]
+cuda = "13"
+
+[feature.samples.pypi-dependencies]
+# cuda.compute (CCCL Python module) is required by 5 samples: binarySearch,
+# cudaComputeLambdas, matrixMulSharedMem, parallelReduction, prefixSum.
+# The conda-forge `cuda-cccl` package only installs C++ headers; the PyPI
+# wheel is the one that exposes `cuda.cccl` to Python.
+cuda-cccl = { version = "*", extras = ["minimal-sysctk13"] }
+# nvtx: samples/cuda_core/kernelNsysProfile
+nvtx = "*"
+# numba-cuda: samples/cuda_core/simplePrint (pin >=0.29 to match the sample's
+# PEP 723 declaration; older 0.0.x releases resolve otherwise).
+numba-cuda = ">=0.29.0"
+# nvmath-python: samples/cuda_core/matrixMulSharedMem
+nvmath-python = { version = "*", extras = ["sysctk13"] }
+# nvidia-nvjitlink: samples/cuda_core/simplePrint (was nvidia-nvjitlink-cu13, now deprecated)
+nvidia-nvjitlink = "*"
+
+# These packages are provided by the local Conda path builds in `local-deps`.
+# Ignore copies requested through PyPI dependency closures so they cannot
+# overwrite the branch-under-test packages in site-packages.
+[feature.samples.pypi-options.dependency-overrides]
+cuda-bindings = { version = "*", env-markers = "python_version < '0'" }
+cuda-core = { version = "*", env-markers = "python_version < '0'" }
+cuda-pathfinder = { version = "*", env-markers = "python_version < '0'" }
+
+[feature.samples.target.linux.dependencies]
 cupy = "*"
 pytorch-gpu = "*"
 libgl-devel = "*"
 gxx = "*"
+pillow = "*"
+# mpi4py + openmpi: samples/cuda_core/multiGPUGradientAverage
+mpi4py = "*"
+openmpi = "*"
+# NOTE: two sample deps are intentionally NOT installed here:
+#
+#   * `tensorflow` (samples/cuda_core/customTensorFlowKernel) --
+#     conda-forge tensorflow ships an object whose shared library requires
+#     an executable stack, which fails to load on hardened kernels
+#     (`cannot enable executable stack as shared object requires`). The
+#     sample self-waives when TensorFlow is missing / broken; users who
+#     want to run it should `pip install tensorflow` into a separate env.
+#
+#   * `cudf-cu13`, `cugraph-cu13`, `dask-cuda` (samples/cuda_core/pageRank) --
+#     the RAPIDS stack is not on the conda-forge channel used here; it
+#     lives on the `rapidsai` channel and pulls in ~2 GB of dependencies.
+#     Left out to keep the samples env solvable. Users who want to run
+#     samples/cuda_core/pageRank can install those wheels via
+#     `pip install -r samples/cuda_core/pageRank/requirements.txt` into a dedicated
+#     environment.
 
-[feature.examples.target.linux-64.activation.env]
+[feature.samples.target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
 
-[feature.examples.target.linux-aarch64.activation.env]
+[feature.samples.target.linux-aarch64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
 
-[feature.examples.target.win-64.activation.env]
+[feature.samples.target.win-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/Library"
 
 [feature.cython-tests.dependencies]
@@ -115,7 +169,7 @@ nvidia-sphinx-theme = "*"
 make = "*"
 
 # Dedicated environment for the MLIR numba-cuda example
-# (examples/gl_interop_fluid_numba_cuda_mlir.py). numba-cuda-mlir pulls
+# (samples/cuda_core/glInteropFluidNumbaCudaMlir). numba-cuda-mlir pulls
 # *published* cuda-core / cuda-bindings through its pypi closure, which would
 # shadow (overwrite in site-packages) the editable dev path builds used
 # everywhere else -- so it MUST live in its own environment, isolated from the
@@ -162,7 +216,7 @@ numba-cuda = { version = "*", extras = ["cu13"] }
 numba-cuda = { version = "*", extras = ["cu13"] }
 
 # We keep both cu12 and cu13 because cuda.core works with either major version.
-# The local sibling checkouts are wired into the default/cu13/examples workflows;
+# The local sibling checkouts are wired into the default/cu13/samples workflows;
 # cu12 intentionally solves against published packages instead.
 [environments]
 default = { features = [
@@ -172,7 +226,7 @@ default = { features = [
 ], solve-group = "default" }
 cu13 = { features = ["cu13", "test", "cython-tests", "local-deps"], solve-group = "cu13" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
-examples = { features = ["cu13", "examples", "local-deps"], solve-group = "examples" }
+samples = { features = ["cu13", "samples", "local-deps"], solve-group = "samples" }
 docs = { features = ["cu13", "docs", "local-deps"], solve-group = "docs" }
 # Isolated: uses published cuda-core via numba-cuda-mlir's pypi closure, NOT the
 # local-deps path builds (which it would otherwise shadow).
@@ -182,7 +236,7 @@ numba-classic = { features = ["numba-classic"] }
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-core"
-version = "0.7.0"
+version = "1.1.0"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
@@ -278,3 +332,14 @@ cmd = [
     "norecursedirs=\"\"",  # include cython tests (ignore by default config)
 ]
 depends-on = [{ task = "build-cython-tests" }]
+
+[tasks.test-samples]
+cmd = [
+    "pytest",
+    "-rxXs",
+    "-v",
+    "--confcutdir",
+    "$PIXI_PROJECT_ROOT/tests/example_tests",
+    "$PIXI_PROJECT_ROOT/tests/example_tests",
+]
+default-environment = "samples"
