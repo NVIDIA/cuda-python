@@ -136,8 +136,6 @@ def test_package_contents():
         "DeviceMemoryResource",
         "DeviceMemoryResourceOptions",
         "GraphMemoryResource",
-        "IPCAllocationHandle",
-        "IPCBufferDescriptor",
         "LegacyPinnedMemoryResource",
         "ManagedBuffer",
         "ManagedMemoryResource",
