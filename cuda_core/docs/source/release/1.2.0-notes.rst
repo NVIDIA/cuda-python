@@ -18,6 +18,12 @@ Fixes and enhancements
   (`#2357 <https://github.com/NVIDIA/cuda-python/pull/2357>`__,
   `#2371 <https://github.com/NVIDIA/cuda-python/pull/2371>`__)
 
+- Growing a :class:`VirtualMemoryResource` allocation now preserves the buffer's
+  base pointer when the driver can extend the reservation contiguously.
+  Previously an address comparison never matched, so every grow re-reserved and
+  remapped the entire range.
+  (`#2237 <https://github.com/NVIDIA/cuda-python/pull/2237>`__)
+
 Deprecation Notices
 -------------------
 
