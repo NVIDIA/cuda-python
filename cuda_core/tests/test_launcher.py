@@ -536,25 +536,52 @@ def test_kernel_arg_ctypes_subclass_isinstance_fallback():
     assert holder.ptr != 0
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 @pytest.mark.parametrize(
-    ("scalar_kind", "np_dtype", "cpp_type", "raw_value"),
+    ("base_type", "np_dtype", "cpp_type", "raw_value"),
     [
-        ("ctypes", np.int32, "signed int", -123456),
-        ("numpy", np.float32, "float", 3.14),
+        # ctypes scalar subclasses — one per prepare_ctypes_arg isinstance-fallback
+        # branch. Values are chosen to expose a wrong width/sign: unsigned values
+        # exceed the same-width signed max, and c_uint64 exceeds uint32 max so a
+        # uint64 branch misrouted to prepare_arg[uint32_t] truncates 0x1_0000_0001
+        # to 1 and fails the readback.
+        (ctypes.c_bool, np.bool_, "bool", True),
+        (ctypes.c_int8, np.int8, "signed char", -42),
+        (ctypes.c_int16, np.int16, "signed short", -1234),
+        (ctypes.c_int32, np.int32, "signed int", -123456),
+        (ctypes.c_int64, np.int64, "signed long long", -123456789),
+        (ctypes.c_uint8, np.uint8, "unsigned char", 200),
+        (ctypes.c_uint16, np.uint16, "unsigned short", 60000),
+        (ctypes.c_uint32, np.uint32, "unsigned int", 4000000000),
+        (ctypes.c_uint64, np.uint64, "unsigned long long", 0x1_0000_0001),
+        (ctypes.c_float, np.float32, "float", 3.14),
+        (ctypes.c_double, np.float64, "double", 2.718281828),
+        # numpy scalar subclass — prepare_numpy_arg fallback
+        (np.float32, np.float32, "float", 3.14),
     ],
-    ids=["ctypes_subclass", "numpy_subclass"],
+    ids=[
+        "ctypes_bool",
+        "ctypes_int8",
+        "ctypes_int16",
+        "ctypes_int32",
+        "ctypes_int64",
+        "ctypes_uint8",
+        "ctypes_uint16",
+        "ctypes_uint32",
+        "ctypes_uint64",
+        "ctypes_float",
+        "ctypes_double",
+        "numpy_float32",
+    ],
 )
-def test_launch_scalar_argument_subclass_fallback(scalar_kind, np_dtype, cpp_type, raw_value):
-    """Subclassed scalar arguments survive fallback handling and reach the kernel."""
-    if scalar_kind == "ctypes":
+def test_launch_scalar_argument_subclass_fallback(base_type, np_dtype, cpp_type, raw_value):
+    """Subclassed scalar arguments survive fallback handling and reach the kernel
+    with the correct width/sign. The readback value (not just ptr != 0) guards each
+    fallback branch against marshalling the wrong C type, e.g. uint64 -> uint32_t."""
 
-        class Subclassed(ctypes.c_int32):
-            pass
-    else:
-
-        class Subclassed(np.float32):
-            pass
+    class Subclassed(base_type):
+        pass
 
     scalar = Subclassed(raw_value)
     expected = np_dtype(raw_value)
