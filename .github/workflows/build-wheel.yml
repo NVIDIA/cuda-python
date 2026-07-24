@@ -11,9 +11,17 @@ on:
       cuda-version:
         required: true
         type: string
+      cuda-channel:
+        required: false
+        type: string
+        default: stable
       prev-cuda-version:
         required: true
         type: string
+      python-versions:
+        required: false
+        type: string
+        default: '["3.10", "3.11", "3.12", "3.13", "3.14", "3.14t", "3.15", "3.15t"]'
 
 defaults:
   run:
@@ -27,15 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
-          - "3.14t"
-          - "3.15"
-          - "3.15t"
+        python-version: ${{ fromJSON(inputs.python-versions) }}
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
@@ -164,6 +164,7 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
+          cuda-channel: ${{ inputs.cuda-channel }}
 
       - name: Build cuda.bindings wheel
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
