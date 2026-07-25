@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=783d27cfa66fa4f5818edcf88141aeb96dcc0e27e73a77a36571f82f30f3bb47
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=aa972ab50217de282b9b3e566c903bc336a711bbef8cfe33c22d9dc6dc3f49d3
 from typing import Any, Optional
 import cython
 import ctypes
@@ -1748,8 +1748,8 @@ class cudaLaunchAttributeID(_FastEnum):
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ' :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can\n'
-        'only be set to 0 or 1. Setting the field to 1 indicates that the\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
+        'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
         ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode`\n'
@@ -6590,8 +6590,8 @@ class cudaStreamAttrID(_FastEnum):
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ' :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can\n'
-        'only be set to 0 or 1. Setting the field to 1 indicates that the\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
+        'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
         ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode`\n'
@@ -6835,8 +6835,8 @@ class cudaKernelNodeAttrID(_FastEnum):
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ' :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can\n'
-        'only be set to 0 or 1. Setting the field to 1 indicates that the\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
+        'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
         ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode`\n'
@@ -7919,10 +7919,6 @@ cdef class cudaArraySparseProperties:
         Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -7969,12 +7965,6 @@ cdef class cudaArraySparseProperties:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -8011,14 +8001,6 @@ cdef class cudaArraySparseProperties:
         self._pvt_ptr[0].flags = flags
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class cudaArrayMemoryRequirements:
     """
     CUDA array and CUDA mipmapped array memory requirements
@@ -8032,10 +8014,6 @@ cdef class cudaArrayMemoryRequirements:
 
     alignment : size_t
         Alignment necessary for mapping the array.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -8069,12 +8047,6 @@ cdef class cudaArrayMemoryRequirements:
             except ValueError:
                 str_list += ['alignment : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -8093,14 +8065,6 @@ cdef class cudaArrayMemoryRequirements:
     @alignment.setter
     def alignment(self, size_t alignment):
         self._pvt_ptr[0].alignment = alignment
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaPitchedPtr:
@@ -8599,10 +8563,6 @@ cdef class cudaMemcpyNodeParams:
         Must be zero
 
 
-    reserved : int
-        Must be zero
-
-
     ctx : cudaExecutionContext_t
         Context in which to run the memcpy. If NULL will try to use the
         current context.
@@ -8645,12 +8605,6 @@ cdef class cudaMemcpyNodeParams:
 
 
             try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
-
-            try:
                 str_list += ['ctx : ' + str(self.ctx)]
             except ValueError:
                 str_list += ['ctx : <ValueError>']
@@ -8671,14 +8625,6 @@ cdef class cudaMemcpyNodeParams:
     @flags.setter
     def flags(self, int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, int reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
     @property
@@ -9872,13 +9818,6 @@ cdef class anon_struct4:
 
 cdef class anon_struct5:
     """
-    Attributes
-    ----------
-
-    reserved : list[int]
-
-
-
     Methods
     -------
     getPtr()
@@ -9897,22 +9836,9 @@ cdef class anon_struct5:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].res.reserved.reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].res.reserved.reserved = reserved
-
 
 cdef class anon_union0:
     """
@@ -9932,10 +9858,6 @@ cdef class anon_union0:
 
 
     pitch2D : anon_struct4
-
-
-
-    reserved : anon_struct5
 
 
 
@@ -9960,9 +9882,6 @@ cdef class anon_union0:
 
 
         self._pitch2D = anon_struct4(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._reserved = anon_struct5(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -9994,12 +9913,6 @@ cdef class anon_union0:
                 str_list += ['pitch2D :\n' + '\n'.join(['    ' + line for line in str(self.pitch2D).splitlines()])]
             except ValueError:
                 str_list += ['pitch2D : <ValueError>']
-
-
-            try:
-                str_list += ['reserved :\n' + '\n'.join(['    ' + line for line in str(self.reserved).splitlines()])]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -10035,14 +9948,6 @@ cdef class anon_union0:
     @pitch2D.setter
     def pitch2D(self, pitch2D not None : anon_struct4):
         string.memcpy(&self._pvt_ptr[0].res.pitch2D, <void*><void_ptr>pitch2D.getPtr(), sizeof(self._pvt_ptr[0].res.pitch2D))
-
-
-    @property
-    def reserved(self):
-        return self._reserved
-    @reserved.setter
-    def reserved(self, reserved not None : anon_struct5):
-        string.memcpy(&self._pvt_ptr[0].res.reserved, <void*><void_ptr>reserved.getPtr(), sizeof(self._pvt_ptr[0].res.reserved))
 
 
 cdef class cudaResourceDesc:
@@ -10173,10 +10078,6 @@ cdef class cudaResourceViewDesc:
         Last layer index
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
@@ -10243,12 +10144,6 @@ cdef class cudaResourceViewDesc:
                 str_list += ['lastLayer : ' + str(self.lastLayer)]
             except ValueError:
                 str_list += ['lastLayer : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -10318,14 +10213,6 @@ cdef class cudaResourceViewDesc:
         self._pvt_ptr[0].lastLayer = lastLayer
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class cudaPointerAttributes:
     """
     CUDA pointer attributes
@@ -10358,10 +10245,6 @@ cdef class cudaPointerAttributes:
         memory or NULL if no such address exists.  CUDA doesn't check if
         unregistered memory is allocated so this field may contain invalid
         pointer if an invalid pointer has been passed to CUDA.
-
-
-    reserved : list[long]
-        Must be zero
 
 
     Methods
@@ -10407,12 +10290,6 @@ cdef class cudaPointerAttributes:
             except ValueError:
                 str_list += ['hostPointer : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -10449,14 +10326,6 @@ cdef class cudaPointerAttributes:
     def hostPointer(self, hostPointer):
         self._cyhostPointer = _HelperInputVoidPtr(hostPointer)
         self._pvt_ptr[0].hostPointer = <void*><void_ptr>self._cyhostPointer.cptr
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaFuncAttributes:
@@ -10571,14 +10440,6 @@ cdef class cudaFuncAttributes:
         Whether the function can be updated on device. 1 means device node
         update is supported, 0 is unsupported or driver is too old to check
         the value.
-
-
-    reserved1 : int
-
-
-
-    reserved : list[int]
-        Reserved for future use.
 
 
     Methods
@@ -10701,18 +10562,6 @@ cdef class cudaFuncAttributes:
                 str_list += ['deviceNodeUpdateStatus : ' + str(self.deviceNodeUpdateStatus)]
             except ValueError:
                 str_list += ['deviceNodeUpdateStatus : <ValueError>']
-
-
-            try:
-                str_list += ['reserved1 : ' + str(self.reserved1)]
-            except ValueError:
-                str_list += ['reserved1 : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -10852,22 +10701,6 @@ cdef class cudaFuncAttributes:
     @deviceNodeUpdateStatus.setter
     def deviceNodeUpdateStatus(self, int deviceNodeUpdateStatus):
         self._pvt_ptr[0].deviceNodeUpdateStatus = deviceNodeUpdateStatus
-
-
-    @property
-    def reserved1(self):
-        return self._pvt_ptr[0].reserved1
-    @reserved1.setter
-    def reserved1(self, int reserved1):
-        self._pvt_ptr[0].reserved1 = reserved1
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaMemLocation:
@@ -11049,10 +10882,6 @@ cdef class cudaMemPoolProps:
         Bitmask indicating intended usage for the pool.
 
 
-    reserved : bytes
-        reserved for future use, must be 0
-
-
     Methods
     -------
     getPtr()
@@ -11111,12 +10940,6 @@ cdef class cudaMemPoolProps:
             except ValueError:
                 str_list += ['usage : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -11170,27 +10993,9 @@ cdef class cudaMemPoolProps:
         self._pvt_ptr[0].usage = usage
 
 
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 54)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 54:
-            raise ValueError("reserved length must be 54, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
-
-
 cdef class cudaMemPoolPtrExportData:
     """
     Opaque data for exporting a pool allocation
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -11212,25 +11017,9 @@ cdef class cudaMemPoolPtrExportData:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
-
 
 cdef class cudaMemAllocNodeParams:
     """
@@ -12663,10 +12452,6 @@ cdef class cudaDeviceProp:
         multi-node system.
 
 
-    reserved : list[int]
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -13240,12 +13025,6 @@ cdef class cudaDeviceProp:
                 str_list += ['hostNumaMultinodeIpcSupported : ' + str(self.hostNumaMultinodeIpcSupported)]
             except ValueError:
                 str_list += ['hostNumaMultinodeIpcSupported : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -13999,24 +13778,9 @@ cdef class cudaDeviceProp:
         self._pvt_ptr[0].hostNumaMultinodeIpcSupported = hostNumaMultinodeIpcSupported
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class cudaIpcEventHandle_st:
     """
     CUDA IPC event handle
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -14038,44 +13802,13 @@ cdef class cudaIpcEventHandle_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
 
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        if CHAR_MIN == 0:
-            for i, b in enumerate(reserved):
-                if b < 0 and b > -129:
-                    b = b + 256
-                self._pvt_ptr[0].reserved[i] = b
-        else:
-            for i, b in enumerate(reserved):
-                if b > 127 and b < 256:
-                    b = b - 256
-                self._pvt_ptr[0].reserved[i] = b
-
-
 cdef class cudaIpcMemHandle_st:
     """
     CUDA IPC memory handle
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -14097,43 +13830,12 @@ cdef class cudaIpcMemHandle_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
 
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        if CHAR_MIN == 0:
-            for i, b in enumerate(reserved):
-                if b < 0 and b > -129:
-                    b = b + 256
-                self._pvt_ptr[0].reserved[i] = b
-        else:
-            for i, b in enumerate(reserved):
-                if b > 127 and b < 256:
-                    b = b - 256
-                self._pvt_ptr[0].reserved[i] = b
-
-
 cdef class cudaMemFabricHandle_st:
     """
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -14154,33 +13856,9 @@ cdef class cudaMemFabricHandle_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        if CHAR_MIN == 0:
-            for i, b in enumerate(reserved):
-                if b < 0 and b > -129:
-                    b = b + 256
-                self._pvt_ptr[0].reserved[i] = b
-        else:
-            for i, b in enumerate(reserved):
-                if b > 127 and b < 256:
-                    b = b - 256
-                self._pvt_ptr[0].reserved[i] = b
-
 
 cdef class anon_struct8:
     """
@@ -14353,10 +14031,6 @@ cdef class cudaExternalMemoryHandleDesc:
         Flags must either be zero or cudaExternalMemoryDedicated
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
@@ -14405,12 +14079,6 @@ cdef class cudaExternalMemoryHandleDesc:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -14447,14 +14115,6 @@ cdef class cudaExternalMemoryHandleDesc:
         self._pvt_ptr[0].flags = flags
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class cudaExternalMemoryBufferDesc:
     """
     External memory buffer descriptor
@@ -14472,10 +14132,6 @@ cdef class cudaExternalMemoryBufferDesc:
 
     flags : unsigned int
         Flags reserved for future use. Must be zero.
-
-
-    reserved : list[unsigned int]
-        Must be zero
 
 
     Methods
@@ -14515,12 +14171,6 @@ cdef class cudaExternalMemoryBufferDesc:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -14547,14 +14197,6 @@ cdef class cudaExternalMemoryBufferDesc:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaExternalMemoryMipmappedArrayDesc:
@@ -14584,10 +14226,6 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
 
     numLevels : unsigned int
         Total number of levels in the mipmap chain
-
-
-    reserved : list[unsigned int]
-        Must be zero
 
 
     Methods
@@ -14645,12 +14283,6 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
             except ValueError:
                 str_list += ['numLevels : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -14693,14 +14325,6 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
     @numLevels.setter
     def numLevels(self, unsigned int numLevels):
         self._pvt_ptr[0].numLevels = numLevels
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct9:
@@ -14870,10 +14494,6 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Flags reserved for the future. Must be zero.
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
@@ -14916,12 +14536,6 @@ cdef class cudaExternalSemaphoreHandleDesc:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -14948,14 +14562,6 @@ cdef class cudaExternalSemaphoreHandleDesc:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct10:
@@ -15011,10 +14617,6 @@ cdef class anon_union5:
 
 
 
-    reserved : unsigned long long
-
-
-
     Methods
     -------
     getPtr()
@@ -15038,12 +14640,6 @@ cdef class anon_union5:
             except ValueError:
                 str_list += ['fence : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15055,14 +14651,6 @@ cdef class anon_union5:
     def fence(self, fence):
         self._cyfence = _HelperInputVoidPtr(fence)
         self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.nvSciSync.reserved
-    @reserved.setter
-    def reserved(self, unsigned long long reserved):
-        self._pvt_ptr[0].params.nvSciSync.reserved = reserved
 
 
 cdef class anon_struct11:
@@ -15126,10 +14714,6 @@ cdef class anon_struct12:
 
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -15174,12 +14758,6 @@ cdef class anon_struct12:
             except ValueError:
                 str_list += ['keyedMutex : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15208,14 +14786,6 @@ cdef class anon_struct12:
         string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].params.reserved = reserved
-
-
 cdef class cudaExternalSemaphoreSignalParams:
     """
     External semaphore signal parameters, compatible with driver type
@@ -15236,10 +14806,6 @@ cdef class cudaExternalSemaphoreSignalParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -15276,12 +14842,6 @@ cdef class cudaExternalSemaphoreSignalParams:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15300,14 +14860,6 @@ cdef class cudaExternalSemaphoreSignalParams:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct13:
@@ -15363,10 +14915,6 @@ cdef class anon_union6:
 
 
 
-    reserved : unsigned long long
-
-
-
     Methods
     -------
     getPtr()
@@ -15390,12 +14938,6 @@ cdef class anon_union6:
             except ValueError:
                 str_list += ['fence : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15407,14 +14949,6 @@ cdef class anon_union6:
     def fence(self, fence):
         self._cyfence = _HelperInputVoidPtr(fence)
         self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.nvSciSync.reserved
-    @reserved.setter
-    def reserved(self, unsigned long long reserved):
-        self._pvt_ptr[0].params.nvSciSync.reserved = reserved
 
 
 cdef class anon_struct14:
@@ -15496,10 +15030,6 @@ cdef class anon_struct15:
 
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -15544,12 +15074,6 @@ cdef class anon_struct15:
             except ValueError:
                 str_list += ['keyedMutex : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15578,14 +15102,6 @@ cdef class anon_struct15:
         string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].params.reserved = reserved
-
-
 cdef class cudaExternalSemaphoreWaitParams:
     """
     External semaphore wait parameters, compatible with driver type
@@ -15606,10 +15122,6 @@ cdef class cudaExternalSemaphoreWaitParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -15646,12 +15158,6 @@ cdef class cudaExternalSemaphoreWaitParams:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15670,14 +15176,6 @@ cdef class cudaExternalSemaphoreWaitParams:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaDevSmResource:
@@ -15876,13 +15374,6 @@ cdef class cudaDevWorkqueueResource:
     """
     Handle to a pre-existing workqueue related resource
 
-    Attributes
-    ----------
-
-    reserved : bytes
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -15903,25 +15394,9 @@ cdef class cudaDevWorkqueueResource:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 40)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 40:
-            raise ValueError("reserved length must be 40, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
-
 
 cdef class cudaDevSmResourceGroupParams_st:
     """
@@ -15947,10 +15422,6 @@ cdef class cudaDevSmResourceGroupParams_st:
     flags : unsigned int
         Combination of `cudaDevSmResourceGroup_flags` values to indicate
         this this group is created.
-
-
-    reserved : list[unsigned int]
-        Reserved for future use - ensure this is zero initialized.
 
 
     Methods
@@ -15996,12 +15467,6 @@ cdef class cudaDevSmResourceGroupParams_st:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -16036,14 +15501,6 @@ cdef class cudaDevSmResourceGroupParams_st:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaDevResource_st:
@@ -17642,14 +17099,6 @@ cdef class cudaGraphNodeParams:
         Type of the node
 
 
-    reserved0 : list[int]
-        Reserved. Must be zero.
-
-
-    reserved1 : list[long long]
-        Padding. Unused bytes must be zero.
-
-
     kernel : cudaKernelNodeParamsV2
         Kernel node parameters.
 
@@ -17696,10 +17145,6 @@ cdef class cudaGraphNodeParams:
 
     conditional : cudaConditionalNodeParams
         Conditional node parameters.
-
-
-    reserved2 : long long
-        Reserved bytes. Must be zero.
 
 
     Methods
@@ -17764,18 +17209,6 @@ cdef class cudaGraphNodeParams:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-
-
-            try:
-                str_list += ['reserved0 : ' + str(self.reserved0)]
-            except ValueError:
-                str_list += ['reserved0 : <ValueError>']
-
-
-            try:
-                str_list += ['reserved1 : ' + str(self.reserved1)]
-            except ValueError:
-                str_list += ['reserved1 : <ValueError>']
 
 
             try:
@@ -17849,12 +17282,6 @@ cdef class cudaGraphNodeParams:
             except ValueError:
                 str_list += ['conditional : <ValueError>']
 
-
-            try:
-                str_list += ['reserved2 : ' + str(self.reserved2)]
-            except ValueError:
-                str_list += ['reserved2 : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -17865,22 +17292,6 @@ cdef class cudaGraphNodeParams:
     @type.setter
     def type(self, type not None : cudaGraphNodeType):
         self._pvt_ptr[0].type = <cyruntime.cudaGraphNodeType><int>int(type)
-
-
-    @property
-    def reserved0(self):
-        return self._pvt_ptr[0].reserved0
-    @reserved0.setter
-    def reserved0(self, reserved0):
-        self._pvt_ptr[0].reserved0 = reserved0
-
-
-    @property
-    def reserved1(self):
-        return self._pvt_ptr[0].reserved1
-    @reserved1.setter
-    def reserved1(self, reserved1):
-        self._pvt_ptr[0].reserved1 = reserved1
 
 
     @property
@@ -17979,14 +17390,6 @@ cdef class cudaGraphNodeParams:
         string.memcpy(&self._pvt_ptr[0].conditional, <void*><void_ptr>conditional.getPtr(), sizeof(self._pvt_ptr[0].conditional))
 
 
-    @property
-    def reserved2(self):
-        return self._pvt_ptr[0].reserved2
-    @reserved2.setter
-    def reserved2(self, long long reserved2):
-        self._pvt_ptr[0].reserved2 = reserved2
-
-
 cdef class cudaGraphEdgeData_st:
     """
     Optional annotation for edges in a CUDA graph. Note, all edges
@@ -18022,11 +17425,6 @@ cdef class cudaGraphEdgeData_st:
         This should be populated with a value from cudaGraphDependencyType.
         (It is typed as char due to compiler-specific layout of bitfields.)
         See cudaGraphDependencyType.
-
-
-    reserved : bytes
-        These bytes are unused and must be zeroed. This ensures
-        compatibility if additional fields are added in the future.
 
 
     Methods
@@ -18066,12 +17464,6 @@ cdef class cudaGraphEdgeData_st:
             except ValueError:
                 str_list += ['type : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -18098,17 +17490,6 @@ cdef class cudaGraphEdgeData_st:
     @type.setter
     def type(self, unsigned char type):
         self._pvt_ptr[0].type = type
-
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 5)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 5:
-            raise ValueError("reserved length must be 5, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
 
 
 cdef class cudaGraphInstantiateParams_st:
@@ -19167,12 +18548,12 @@ cdef class cudaLaunchAttributeValue:
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
     launchCompletionEvent : anon_struct20
@@ -20127,10 +19508,6 @@ cdef class cudaEglPlaneDesc_st:
         Channel Format Descriptor
 
 
-    reserved : list[unsigned int]
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -20189,12 +19566,6 @@ cdef class cudaEglPlaneDesc_st:
             except ValueError:
                 str_list += ['channelDesc : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -20245,14 +19616,6 @@ cdef class cudaEglPlaneDesc_st:
     @channelDesc.setter
     def channelDesc(self, channelDesc not None : cudaChannelFormatDesc):
         string.memcpy(&self._pvt_ptr[0].channelDesc, <void*><void_ptr>channelDesc.getPtr(), sizeof(self._pvt_ptr[0].channelDesc))
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_union12:
