@@ -41,6 +41,11 @@ Internal maintenance
   Consumers should select the projection matching the current process
   architecture and must not combine the two.
 
+* Record supported Windows architectures explicitly in each dynamic-library
+  descriptor. ``SUPPORTED_NVIDIA_LIBNAMES`` now selects the CTK library names
+  supported by the current Windows interpreter architecture; the legacy
+  ``SUPPORTED_LIBNAMES_WINDOWS`` table remains an x64 compatibility alias.
+
 * Clean up dead and misleading error-handling code in the Linux and Windows
   dynamic-library loaders; runtime behavior is unchanged.
   (`PR #2239 <https://github.com/NVIDIA/cuda-python/pull/2239>`_)

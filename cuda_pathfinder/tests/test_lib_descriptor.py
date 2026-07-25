@@ -20,9 +20,14 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_X64,
     SITE_PACKAGES_LIBDIRS_WINDOWS_X64,
     SUPPORTED_LIBNAMES,
+    SUPPORTED_LIBNAMES_LINUX,
+    SUPPORTED_LIBNAMES_WINDOWS,
+    SUPPORTED_LIBNAMES_WINDOWS_ARM64,
+    SUPPORTED_LIBNAMES_WINDOWS_X64,
     SUPPORTED_LINUX_SONAMES,
     SUPPORTED_WINDOWS_DLLS,
 )
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, IS_WINDOWS_ARM64, IS_WINDOWS_X64
 
 # ---------------------------------------------------------------------------
 # Registry completeness
@@ -80,6 +85,31 @@ def test_legacy_site_packages_windows_tables_are_x64_aliases():
     assert SITE_PACKAGES_LIBDIRS_WINDOWS_CTK is SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64
     assert SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER is SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_X64
     assert SITE_PACKAGES_LIBDIRS_WINDOWS is SITE_PACKAGES_LIBDIRS_WINDOWS_X64
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_legacy_supported_libnames_windows_is_x64_alias():
+    assert SUPPORTED_LIBNAMES_WINDOWS is SUPPORTED_LIBNAMES_WINDOWS_X64
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_supported_libnames_selects_current_platform_and_arch():
+    if not IS_WINDOWS:
+        expected = SUPPORTED_LIBNAMES_LINUX
+    elif IS_WINDOWS_X64:
+        expected = SUPPORTED_LIBNAMES_WINDOWS_X64
+    else:
+        assert IS_WINDOWS_ARM64
+        expected = SUPPORTED_LIBNAMES_WINDOWS_ARM64
+    assert SUPPORTED_LIBNAMES is expected
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_arch_specific_ctk_libname_projections():
+    assert "cudla" not in SUPPORTED_LIBNAMES_WINDOWS_X64
+    assert "cudla" in SUPPORTED_LIBNAMES_WINDOWS_ARM64
+    assert "nvjpeg" in SUPPORTED_LIBNAMES_WINDOWS_X64
+    assert "nvjpeg" in SUPPORTED_LIBNAMES_WINDOWS_ARM64
 
 
 @pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))

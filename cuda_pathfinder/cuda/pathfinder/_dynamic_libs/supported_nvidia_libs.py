@@ -7,16 +7,17 @@ The canonical data entry point is :mod:`descriptor_catalog`. This module keeps
 historical constant names for backward compatibility by deriving them from the
 catalog.
 
-The unsuffixed ``SITE_PACKAGES_LIBDIRS_WINDOWS*`` constants retain their
-historical x64 meaning for compatibility, but are not recommended for new code.
-Use the explicit ``*_X64`` or ``*_ARM64`` projection instead. Never combine the
-two architecture projections.
+The unsuffixed ``SUPPORTED_LIBNAMES_WINDOWS`` and
+``SITE_PACKAGES_LIBDIRS_WINDOWS*`` constants retain their historical x64
+meaning for compatibility, but are not recommended for new code. Use the
+explicit ``*_X64`` or ``*_ARM64`` projection instead. Never combine the two
+architecture projections.
 """
 
 from __future__ import annotations
 
 from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, IS_WINDOWS_ARM64, IS_WINDOWS_X64
 
 _CTK_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_with == "ctk")
 _OTHER_DESCRIPTORS = tuple(desc for desc in DESCRIPTOR_CATALOG if desc.packaged_with == "other")
@@ -32,9 +33,20 @@ SUPPORTED_LIBNAMES_WINDOWS_ONLY = tuple(
 )
 
 SUPPORTED_LIBNAMES_LINUX = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ONLY
-SUPPORTED_LIBNAMES_WINDOWS = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_WINDOWS_ONLY
+SUPPORTED_LIBNAMES_WINDOWS_X64 = tuple(desc.name for desc in _CTK_DESCRIPTORS if "x64" in desc.supported_windows_arch)
+SUPPORTED_LIBNAMES_WINDOWS_ARM64 = tuple(
+    desc.name for desc in _CTK_DESCRIPTORS if "arm64" in desc.supported_windows_arch
+)
+# Backward-compatible alias preserves the historical x64 meaning.
+SUPPORTED_LIBNAMES_WINDOWS = SUPPORTED_LIBNAMES_WINDOWS_X64
 SUPPORTED_LIBNAMES_ALL = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ONLY + SUPPORTED_LIBNAMES_WINDOWS_ONLY
-SUPPORTED_LIBNAMES = SUPPORTED_LIBNAMES_WINDOWS if IS_WINDOWS else SUPPORTED_LIBNAMES_LINUX
+if not IS_WINDOWS:
+    SUPPORTED_LIBNAMES = SUPPORTED_LIBNAMES_LINUX
+elif IS_WINDOWS_X64:
+    SUPPORTED_LIBNAMES = SUPPORTED_LIBNAMES_WINDOWS_X64
+else:
+    assert IS_WINDOWS_ARM64
+    SUPPORTED_LIBNAMES = SUPPORTED_LIBNAMES_WINDOWS_ARM64
 
 DIRECT_DEPENDENCIES_CTK = {desc.name: desc.dependencies for desc in _CTK_DESCRIPTORS if desc.dependencies}
 DIRECT_DEPENDENCIES = {desc.name: desc.dependencies for desc in DESCRIPTOR_CATALOG if desc.dependencies}

@@ -17,6 +17,7 @@ from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG,
 
 _VALID_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _VALID_PACKAGED_WITH_VALUES = {"ctk", "other", "driver"}
+_VALID_WINDOWS_ARCHES = ("x64", "arm64")
 _CATALOG_BY_NAME = {spec.name: spec for spec in DESCRIPTOR_CATALOG}
 
 
@@ -83,6 +84,25 @@ def test_linux_sonames_look_like_sonames(spec: DescriptorSpec):
 def test_windows_dlls_look_like_dlls(spec: DescriptorSpec):
     for dll in spec.windows_dlls:
         assert dll.endswith(".dll"), f"Unexpected Windows DLL format: {dll}"
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_supported_windows_arch_is_explicit_and_canonical(spec: DescriptorSpec):
+    expected = tuple(arch for arch in _VALID_WINDOWS_ARCHES if arch in spec.supported_windows_arch)
+    assert spec.supported_windows_arch == expected
+    assert bool(spec.supported_windows_arch) == bool(spec.windows_dlls)
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_windows_search_dirs_do_not_include_unsupported_arches(spec: DescriptorSpec):
+    if not spec.windows_dlls:
+        return
+    for arch in _VALID_WINDOWS_ARCHES:
+        if arch not in spec.supported_windows_arch:
+            assert not spec.site_packages_windows.for_arch(arch)
+            assert not spec.anchor_rel_dirs_windows.for_arch(arch)
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)

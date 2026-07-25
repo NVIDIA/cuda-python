@@ -13,7 +13,7 @@ from toolshed._catalog_writer import render_catalog
 
 
 @pytest.mark.agent_authored(model="gpt-5")
-def test_catalog_writer_round_trips_windows_search_dirs(tmp_path):
+def test_catalog_writer_round_trips_descriptor_metadata(tmp_path):
     generated_catalog = tmp_path / "descriptor_catalog.py"
     generated_catalog.write_text(render_catalog(DESCRIPTOR_CATALOG), encoding="utf-8")
 

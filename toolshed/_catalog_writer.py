@@ -84,6 +84,7 @@ def _render_spec(spec: DescriptorSpec) -> str:
     tuple_fields = [
         "linux_sonames",
         "windows_dlls",
+        "supported_windows_arch",
         "site_packages_linux",
         "dependencies",
         "anchor_rel_dirs_linux",
@@ -134,6 +135,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 PackagedWith = Literal["ctk", "other", "driver"]
+WindowsArch = Literal["x64", "arm64"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -171,6 +173,7 @@ class DescriptorSpec:
     packaged_with: PackagedWith
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
+    supported_windows_arch: tuple[WindowsArch, ...] = ()
     site_packages_linux: tuple[str, ...] = ()
     site_packages_windows: WindowsSearchDirs = WindowsSearchDirs()
     dependencies: tuple[str, ...] = ()
