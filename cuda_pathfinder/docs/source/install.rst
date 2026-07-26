@@ -59,7 +59,7 @@ Installing from Source
 
 .. code-block:: console
 
-   $ git clone --filter=blob:none https://github.com/NVIDIA/cuda-python.git
+   $ git clone https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_pathfinder
    $ pip install .
 

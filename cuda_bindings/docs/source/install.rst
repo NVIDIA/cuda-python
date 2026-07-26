@@ -126,7 +126,7 @@ Requirements
 
 [^2]: The CUDA Runtime static library (``libcudart_static.a`` on Linux, ``cudart_static.lib`` on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the ``cuda-cudart-static`` package.
 
-[^3]: The version is derived from git tags via ``setuptools-scm``, so the clone must include tags reaching back to at least the latest ``v*`` tag. Clone with ``git clone --filter=blob:none https://github.com/NVIDIA/cuda-python.git``; do not use ``--depth`` or ``--no-tags``, since a shallow clone builds without error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See `Cloning the repository <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_ for details and recovery steps.
+[^3]: The version is derived from git tags via ``setuptools-scm``, so the clone must include tags reaching back to at least the latest ``v*`` tag. Clone with ``git clone https://github.com/NVIDIA/cuda-python.git``; do not use ``--depth`` or ``--no-tags``, since a shallow clone builds without error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See `Cloning the repository <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_ for details and recovery steps.
 
 Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the ``CUDA_PATH`` (or ``CUDA_HOME``) environment variable to specify the location of your headers. If both are set, ``CUDA_PATH`` takes precedence. For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_PATH`` with:
 

@@ -65,34 +65,15 @@ working build therefore needs all of the following:
    package you are building. `git describe` needs to find that tag; the history
    between it and your checkout must be present too.
 
-Each package is tagged on its own cadence, so the distance from `main` back to
-the relevant tag differs per package and grows as commits land between releases.
-There is no `--depth` value that is safe for all four packages, and any value
-that works today will silently stop working later.
-
-This makes a partial `--depth` actively dangerous, because it can succeed for one
-package while quietly failing for the others. A `--depth 20` clone taken while
-the nearest `cuda-pathfinder-v*` tag was 10 commits back gives:
-
-```text
-cuda_pathfinder    -> 1.6.1.dev10+g0d22cb4     # correct
-cuda_core          -> 0.1.dev20+g0d22cb444     # wrong, no error
-cuda_bindings      -> 0.1.dev20+g0d22cb444     # wrong, no error
-```
-
 ### Recommended clone
 
+The default `git clone` gives you everything you need:
+
 ```console
-$ git clone --filter=blob:none https://github.com/NVIDIA/cuda-python.git
+$ git clone https://github.com/NVIDIA/cuda-python.git
 ```
 
-This is a *treeless* clone: it fetches the complete commit graph and all tags
-(which is what `setuptools-scm` needs) while skipping historical file contents
-(which it does not). It is substantially faster than a plain clone and is
-exactly what CI uses — see the `fetch-depth: 0` plus `filter: blob:none`
-checkout settings in `.github/workflows/build-wheel.yml`.
 
-Do **not** use `--depth`, `--shallow-since`, or `--no-tags`.
 
 ### Fixing an existing clone
 

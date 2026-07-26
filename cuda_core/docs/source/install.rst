@@ -110,7 +110,7 @@ Development with uv
 
 .. code-block:: console
 
-   $ git clone --filter=blob:none https://github.com/NVIDIA/cuda-python.git
+   $ git clone https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ uv venv
    $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
@@ -132,7 +132,7 @@ From the repository root:
 
 .. code-block:: console
 
-   $ git clone --filter=blob:none https://github.com/NVIDIA/cuda-python.git
+   $ git clone https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python
    $ pixi run -e cu13 test-core
 
@@ -151,7 +151,7 @@ Installing from Source
 
 .. code-block:: console
 
-   $ git clone --filter=blob:none https://github.com/NVIDIA/cuda-python.git
+   $ git clone https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ pip install .
 
