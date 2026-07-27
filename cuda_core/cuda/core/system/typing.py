@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cuda.bindings import nvml
 from cuda.core._utils.pycompat import StrEnum
 
 __all__ = [
@@ -96,8 +97,9 @@ class ClocksEventReasons(StrEnum):
     HW_THERMAL_SLOWDOWN = "hw_thermal_slowdown"
     HW_POWER_BRAKE_SLOWDOWN = "hw_power_brake_slowdown"
     DISPLAY_CLOCK_SETTING = "display_clock_setting"
-    BOARD_LIMIT = "board_limit"
-    RELIABILITY = "reliability"
+    if hasattr(nvml.ClocksEventReasons, "EVENT_REASON_BOARD_LIMIT"):
+        BOARD_LIMIT = "board_limit"
+        RELIABILITY = "reliability"
 
 
 class ClockType(StrEnum):
