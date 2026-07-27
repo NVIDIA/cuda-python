@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_pcie\_link\_max\_speed
+======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_pcie_link_max_speed
