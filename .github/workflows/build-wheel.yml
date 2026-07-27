@@ -11,6 +11,10 @@ on:
       cuda-version:
         required: true
         type: string
+      cuda-channel:
+        required: false
+        type: string
+        default: stable
       prev-cuda-version:
         required: true
         type: string
@@ -164,6 +168,7 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
+          cuda-channel: ${{ inputs.cuda-channel }}
 
       - name: Build cuda.bindings wheel
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
