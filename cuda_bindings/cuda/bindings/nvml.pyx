@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=645f3ed3fb371720ef15142aac81fa3371c1111f88d740aa12c05b51c383fd4f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e1efd4a7eaeb85432068bc48ccbc3671b476110733a941dbc30760f41500d477
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -17151,7 +17151,12 @@ cdef class ProcessDetailList_v1:
         """int: Process array."""
         if self._ptr[0].procArray == NULL or self._ptr[0].numProcArrayEntries == 0:
             return []
-        return ProcessDetail_v1.from_ptr(<intptr_t>(self._ptr[0].procArray), self._ptr[0].numProcArrayEntries)
+        return ProcessDetail_v1.from_ptr(
+            <intptr_t>(self._ptr[0].procArray),
+            self._ptr[0].numProcArrayEntries,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @proc_array.setter
     def proc_array(self, val):
@@ -18708,7 +18713,12 @@ cdef class ProcessesUtilizationInfo_v1:
         """int: The array (allocated by caller) of the utilization of GPU SM, framebuffer, video encoder, video decoder, JPEG, and OFA."""
         if self._ptr[0].procUtilArray == NULL or self._ptr[0].processSamplesCount == 0:
             return []
-        return ProcessUtilizationInfo_v1.from_ptr(<intptr_t>(self._ptr[0].procUtilArray), self._ptr[0].processSamplesCount)
+        return ProcessUtilizationInfo_v1.from_ptr(
+            <intptr_t>(self._ptr[0].procUtilArray),
+            self._ptr[0].processSamplesCount,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @proc_util_array.setter
     def proc_util_array(self, val):
@@ -19023,7 +19033,12 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         """int: The array (allocated by caller) in which utilization of processes running on vGPU instances are returned."""
         if self._ptr[0].vgpuProcUtilArray == NULL or self._ptr[0].vgpuProcessCount == 0:
             return []
-        return VgpuProcessUtilizationInfo_v1.from_ptr(<intptr_t>(self._ptr[0].vgpuProcUtilArray), self._ptr[0].vgpuProcessCount)
+        return VgpuProcessUtilizationInfo_v1.from_ptr(
+            <intptr_t>(self._ptr[0].vgpuProcUtilArray),
+            self._ptr[0].vgpuProcessCount,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @vgpu_proc_util_array.setter
     def vgpu_proc_util_array(self, val):
@@ -20554,7 +20569,12 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
         """int: pointer to caller-supplied buffer to return the SRAM unique uncorrected ECC error count entries"""
         if self._ptr[0].entries == NULL or self._ptr[0].entryCount == 0:
             return []
-        return EccSramUniqueUncorrectedErrorEntry_v1.from_ptr(<intptr_t>(self._ptr[0].entries), self._ptr[0].entryCount)
+        return EccSramUniqueUncorrectedErrorEntry_v1.from_ptr(
+            <intptr_t>(self._ptr[0].entries),
+            self._ptr[0].entryCount,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @entries.setter
     def entries(self, val):
@@ -21240,7 +21260,12 @@ cdef class VgpuInstancesUtilizationInfo_v1:
         """int: The array (allocated by caller) in which vGPU utilization are returned."""
         if self._ptr[0].vgpuUtilArray == NULL or self._ptr[0].vgpuInstanceCount == 0:
             return []
-        return VgpuInstanceUtilizationInfo_v1.from_ptr(<intptr_t>(self._ptr[0].vgpuUtilArray), self._ptr[0].vgpuInstanceCount)
+        return VgpuInstanceUtilizationInfo_v1.from_ptr(
+            <intptr_t>(self._ptr[0].vgpuUtilArray),
+            self._ptr[0].vgpuInstanceCount,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @vgpu_util_array.setter
     def vgpu_util_array(self, val):

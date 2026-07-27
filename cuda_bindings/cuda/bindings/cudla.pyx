@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3ee237ed16e651bae93e2bc6d4d63dcf99b309ad7a74cb3e2bd5b9e540e714f4
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=18ae10fdb71fd37f22c5e7460cae265bc28ced81f77ffa0550d61a02b9a0363b
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1153,7 +1153,12 @@ cdef class WaitEvents:
         """int: """
         if self._ptr[0].preFences == NULL or self._ptr[0].numEvents == 0:
             return []
-        return Fence.from_ptr(<intptr_t>(self._ptr[0].preFences), self._ptr[0].numEvents)
+        return Fence.from_ptr(
+            <intptr_t>(self._ptr[0].preFences),
+            self._ptr[0].numEvents,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @pre_fences.setter
     def pre_fences(self, val):
@@ -1319,7 +1324,12 @@ cdef class SignalEvents:
         """int: """
         if self._ptr[0].eofFences == NULL or self._ptr[0].numEvents == 0:
             return []
-        return Fence.from_ptr(<intptr_t>(self._ptr[0].eofFences), self._ptr[0].numEvents)
+        return Fence.from_ptr(
+            <intptr_t>(self._ptr[0].eofFences),
+            self._ptr[0].numEvents,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @eof_fences.setter
     def eof_fences(self, val):
