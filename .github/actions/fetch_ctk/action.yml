@@ -56,7 +56,8 @@ runs:
               "$(python "$CTK_REDIST_TOOL" preview-installer \
                 --host-platform "${{ inputs.host-platform }}" \
                 --cuda-version "${{ inputs.cuda-version }}")"
-            CTK_CACHE_COMPONENTS="${CTK_PREVIEW_INSTALLER_URL}:${CTK_PREVIEW_INSTALLER_SHA256}:${CTK_CACHE_COMPONENTS}"
+            # layout-v2: preserve lib/<arch>/ (Windows builds link against lib/x64 or lib/arm64)
+            CTK_CACHE_COMPONENTS="${CTK_PREVIEW_INSTALLER_URL}:${CTK_PREVIEW_INSTALLER_SHA256}:layout-v2:${CTK_CACHE_COMPONENTS}"
           else
             echo "CUDA prerelease packages are not supported for host-platform ${{ inputs.host-platform }}" >&2
             exit 1

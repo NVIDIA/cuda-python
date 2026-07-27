@@ -262,9 +262,11 @@ def merge_windows_preview_ctk(
         if not component_root.exists():
             raise ValueError(f"CUDA prerelease installer did not provide {component_root}")
 
+        lib_dir = destination / "lib" / arch
+
         if component == "cuda_nvrtc":
             _merge_tree(component_root / "nvrtc_dev/include", destination / "include")
-            _merge_tree(component_root / "nvrtc_dev/lib" / arch, destination / "lib")
+            _merge_tree(component_root / "nvrtc_dev/lib" / arch, lib_dir)
             _merge_tree(component_root / "nvrtc/bin" / arch, destination / "bin")
             continue
 
@@ -284,7 +286,7 @@ def merge_windows_preview_ctk(
             _merge_tree(component_root / "bin", destination / "bin")
         arch_lib = component_root / "lib" / arch
         if arch_lib.exists():
-            _merge_tree(arch_lib, destination / "lib")
+            _merge_tree(arch_lib, lib_dir)
 
     if not (destination / "include").is_dir() or not (destination / "bin/nvcc.exe").is_file():
         raise ValueError("CUDA prerelease installer did not provide the expected toolkit layout")
