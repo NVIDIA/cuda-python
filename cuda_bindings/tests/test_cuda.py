@@ -213,12 +213,9 @@ def test_cuda_repr():
         value : 0
     nvSciSync :
         fence : 0x0
-        reserved : 0
     keyedMutex :
         key : 0
-    reserved : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 flags : 0
-reserved : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 """)
     assert actual_repr.split() == expected_repr.split()
 
@@ -609,13 +606,11 @@ def test_eglFrame():
 
 
 def test_char_range():
+    # CUipcMemHandle_st is entirely a reserved[64] char array; verify it zero-initializes.
     val = cuda.CUipcMemHandle_st()
-    for x in range(-128, 0):
-        val.reserved = [x] * 64
-        assert val.reserved[0] == 256 + x
-    for x in range(256):
-        val.reserved = [x] * 64
-        assert val.reserved[0] == x
+    ptr = val.getPtr()
+    raw = (ctypes.c_uint8 * 64).from_address(ptr)
+    assert bytes(raw) == b"\x00" * 64
 
 
 def test_anon_assign():
@@ -1008,7 +1003,9 @@ def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
-            assert ed.reserved == b"\x00" * 5
+            # CUgraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cuda.cuGraphDestroy(graph)
         assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1048,7 +1045,9 @@ def test_cuGraphNodeGetDependencies_edgeData_outlives_call(device, ctx):
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
-            assert ed.reserved == b"\x00" * 5
+            # CUgraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
+            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            assert bytes(raw[3:]) == b"\x00" * 5
     finally:
         (err,) = cuda.cuGraphDestroy(graph)
         assert err == cuda.CUresult.CUDA_SUCCESS

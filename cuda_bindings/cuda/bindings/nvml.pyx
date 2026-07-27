@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d1ffbac2395592e44a6f4cbdbdddac5ebeab85ab5557a5d9ca4efa822227ae38
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c10e35b54aee286bcc171eb2c06ff17ee2c7b0cea46a242e8259e9a2a56f3da5
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1607,7 +1607,7 @@ class FieldId(_FastEnum):
     PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_TAR_WIN_MULT = (287, "Current primary floor target window multiplier value for admin override")
     PWR_SMOOTHING_ADMIN_OVERRIDE_PRIMARY_FLOOR_ACT_OFFSET = (288, "Current primary floor activation offset value in Watts for admin override")
 
-    MAX = 289
+
 
 NVLINK_MAX_LINKS = 18
 
@@ -3263,6 +3263,7 @@ cdef class ProcessInfo:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=process_info_dtype)
@@ -3392,13 +3393,15 @@ cdef class ProcessInfo:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an ProcessInfo instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -3408,6 +3411,7 @@ cdef class ProcessInfo:
             <char*>ptr, sizeof(nvmlProcessInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=process_info_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -3441,6 +3445,7 @@ cdef class ProcessDetail_v1:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=process_detail_v1_dtype)
@@ -3581,13 +3586,15 @@ cdef class ProcessDetail_v1:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an ProcessDetail_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -3597,6 +3604,7 @@ cdef class ProcessDetail_v1:
             <char*>ptr, sizeof(nvmlProcessDetail_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=process_detail_v1_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -4164,6 +4172,7 @@ cdef class BridgeChipInfo:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=bridge_chip_info_dtype)
@@ -4271,13 +4280,15 @@ cdef class BridgeChipInfo:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an BridgeChipInfo instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -4287,6 +4298,7 @@ cdef class BridgeChipInfo:
             <char*>ptr, sizeof(nvmlBridgeChipInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=bridge_chip_info_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -4860,6 +4872,7 @@ cdef class ClkMonFaultInfo:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=clk_mon_fault_info_dtype)
@@ -4967,13 +4980,15 @@ cdef class ClkMonFaultInfo:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an ClkMonFaultInfo instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -4983,6 +4998,7 @@ cdef class ClkMonFaultInfo:
             <char*>ptr, sizeof(nvmlClkMonFaultInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=clk_mon_fault_info_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -5208,6 +5224,7 @@ cdef class ProcessUtilizationSample:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=process_utilization_sample_dtype)
@@ -5359,13 +5376,15 @@ cdef class ProcessUtilizationSample:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an ProcessUtilizationSample instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -5375,6 +5394,7 @@ cdef class ProcessUtilizationSample:
             <char*>ptr, sizeof(nvmlProcessUtilizationSample_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=process_utilization_sample_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -5411,6 +5431,7 @@ cdef class ProcessUtilizationInfo_v1:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=process_utilization_info_v1_dtype)
@@ -5584,13 +5605,15 @@ cdef class ProcessUtilizationInfo_v1:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an ProcessUtilizationInfo_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -5600,6 +5623,7 @@ cdef class ProcessUtilizationInfo_v1:
             <char*>ptr, sizeof(nvmlProcessUtilizationInfo_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=process_utilization_info_v1_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -6856,6 +6880,7 @@ cdef class VgpuProcessUtilizationInfo_v1:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=vgpu_process_utilization_info_v1_dtype)
@@ -7049,13 +7074,15 @@ cdef class VgpuProcessUtilizationInfo_v1:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an VgpuProcessUtilizationInfo_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -7065,6 +7092,7 @@ cdef class VgpuProcessUtilizationInfo_v1:
             <char*>ptr, sizeof(nvmlVgpuProcessUtilizationInfo_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_info_v1_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -7373,6 +7401,7 @@ cdef class VgpuSchedulerLogEntry:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_dtype)
@@ -7524,13 +7553,15 @@ cdef class VgpuSchedulerLogEntry:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an VgpuSchedulerLogEntry instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -7540,6 +7571,7 @@ cdef class VgpuSchedulerLogEntry:
             <char*>ptr, sizeof(nvmlVgpuSchedulerLogEntry_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -8960,6 +8992,7 @@ cdef class HwbcEntry:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=hwbc_entry_dtype)
@@ -9065,13 +9098,15 @@ cdef class HwbcEntry:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an HwbcEntry instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -9081,6 +9116,7 @@ cdef class HwbcEntry:
             <char*>ptr, sizeof(nvmlHwbcEntry_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=hwbc_entry_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -9612,6 +9648,7 @@ cdef class UnitFanInfo:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=unit_fan_info_dtype)
@@ -9719,13 +9756,15 @@ cdef class UnitFanInfo:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an UnitFanInfo instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -9735,6 +9774,7 @@ cdef class UnitFanInfo:
             <char*>ptr, sizeof(nvmlUnitFanInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=unit_fan_info_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -9944,6 +9984,7 @@ cdef class SystemEventData_v1:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=system_event_data_v1_dtype)
@@ -10051,13 +10092,15 @@ cdef class SystemEventData_v1:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an SystemEventData_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -10067,6 +10110,7 @@ cdef class SystemEventData_v1:
             <char*>ptr, sizeof(nvmlSystemEventData_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=system_event_data_v1_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -10295,6 +10339,7 @@ cdef class EncoderSessionInfo:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=encoder_session_info_dtype)
@@ -10468,13 +10513,15 @@ cdef class EncoderSessionInfo:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an EncoderSessionInfo instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -10484,6 +10531,7 @@ cdef class EncoderSessionInfo:
             <char*>ptr, sizeof(nvmlEncoderSessionInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=encoder_session_info_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -10679,6 +10727,7 @@ cdef class FBCSessionInfo:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=fbc_session_info_dtype)
@@ -10896,13 +10945,15 @@ cdef class FBCSessionInfo:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an FBCSessionInfo instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -10912,6 +10963,7 @@ cdef class FBCSessionInfo:
             <char*>ptr, sizeof(nvmlFBCSessionInfo_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=fbc_session_info_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -13114,6 +13166,7 @@ cdef class GpuInstancePlacement:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=gpu_instance_placement_dtype)
@@ -13221,13 +13274,15 @@ cdef class GpuInstancePlacement:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an GpuInstancePlacement instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -13237,6 +13292,7 @@ cdef class GpuInstancePlacement:
             <char*>ptr, sizeof(nvmlGpuInstancePlacement_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=gpu_instance_placement_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -13546,6 +13602,7 @@ cdef class ComputeInstancePlacement:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=compute_instance_placement_dtype)
@@ -13653,13 +13710,15 @@ cdef class ComputeInstancePlacement:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an ComputeInstancePlacement instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -13669,6 +13728,7 @@ cdef class ComputeInstancePlacement:
             <char*>ptr, sizeof(nvmlComputeInstancePlacement_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=compute_instance_placement_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -14679,6 +14739,7 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
@@ -14841,13 +14902,15 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an EccSramUniqueUncorrectedErrorEntry_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -14857,6 +14920,7 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
             <char*>ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -15709,6 +15773,7 @@ cdef class VgpuSchedulerLogEntry_v2:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
@@ -15871,13 +15936,15 @@ cdef class VgpuSchedulerLogEntry_v2:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an VgpuSchedulerLogEntry_v2 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -15887,6 +15954,7 @@ cdef class VgpuSchedulerLogEntry_v2:
             <char*>ptr, sizeof(nvmlVgpuSchedulerLogEntry_v2_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_v2_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -16861,7 +16929,11 @@ cdef class ExcludedDeviceInfo:
     @property
     def pci_info(self):
         """PciInfo: """
-        return PciInfo.from_ptr(<intptr_t>&(self._ptr[0].pciInfo), self._readonly, self)
+        return PciInfo.from_ptr(
+            <intptr_t>&(self._ptr[0].pciInfo),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @pci_info.setter
     def pci_info(self, val):
@@ -17173,7 +17245,12 @@ cdef class BridgeChipHierarchy:
     @property
     def bridge_chip_info(self):
         """BridgeChipInfo: """
-        return BridgeChipInfo.from_ptr(<intptr_t>&(self._ptr[0].bridgeChipInfo), self._ptr[0].bridgeCount, self._readonly)
+        return BridgeChipInfo.from_ptr(
+            <intptr_t>&(self._ptr[0].bridgeChipInfo),
+            self._ptr[0].bridgeCount,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @bridge_chip_info.setter
     def bridge_chip_info(self, val):
@@ -17254,6 +17331,7 @@ cdef class Sample:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=sample_dtype)
@@ -17359,13 +17437,15 @@ cdef class Sample:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an Sample instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -17375,6 +17455,7 @@ cdef class Sample:
             <char*>ptr, sizeof(nvmlSample_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=sample_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -17409,6 +17490,7 @@ cdef class VgpuInstanceUtilizationSample:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=vgpu_instance_utilization_sample_dtype)
@@ -17552,13 +17634,15 @@ cdef class VgpuInstanceUtilizationSample:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an VgpuInstanceUtilizationSample instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -17568,6 +17652,7 @@ cdef class VgpuInstanceUtilizationSample:
             <char*>ptr, sizeof(nvmlVgpuInstanceUtilizationSample_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_sample_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -17604,6 +17689,7 @@ cdef class VgpuInstanceUtilizationInfo_v1:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=vgpu_instance_utilization_info_v1_dtype)
@@ -17765,13 +17851,15 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an VgpuInstanceUtilizationInfo_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -17781,6 +17869,7 @@ cdef class VgpuInstanceUtilizationInfo_v1:
             <char*>ptr, sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_info_v1_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -17816,6 +17905,7 @@ cdef class FieldValue:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=field_value_dtype)
@@ -17976,13 +18066,15 @@ cdef class FieldValue:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an FieldValue instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -17992,6 +18084,7 @@ cdef class FieldValue:
             <char*>ptr, sizeof(nvmlFieldValue_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=field_value_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -18080,7 +18173,11 @@ cdef class PRMCounterValue_v1:
     @property
     def output_value(self):
         """Value: Output value."""
-        return Value.from_ptr(<intptr_t>&(self._ptr[0].outputValue), self._readonly, self)
+        return Value.from_ptr(
+            <intptr_t>&(self._ptr[0].outputValue),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @output_value.setter
     def output_value(self, val):
@@ -18235,7 +18332,12 @@ cdef class GpuThermalSettings:
     @property
     def sensor(self):
         """_py_anon_pod0: """
-        return _py_anon_pod0.from_ptr(<intptr_t>&(self._ptr[0].sensor), 3, self._readonly)
+        return _py_anon_pod0.from_ptr(
+            <intptr_t>&(self._ptr[0].sensor),
+            3,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @sensor.setter
     def sensor(self, val):
@@ -18382,7 +18484,12 @@ cdef class ClkMonStatus:
     @property
     def clk_mon_list(self):
         """ClkMonFaultInfo: """
-        return ClkMonFaultInfo.from_ptr(<intptr_t>&(self._ptr[0].clkMonList), self._ptr[0].clkMonListSize, self._readonly)
+        return ClkMonFaultInfo.from_ptr(
+            <intptr_t>&(self._ptr[0].clkMonList),
+            self._ptr[0].clkMonListSize,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @clk_mon_list.setter
     def clk_mon_list(self, val):
@@ -18695,7 +18802,12 @@ cdef class GpuDynamicPstatesInfo:
     @property
     def utilization(self):
         """_py_anon_pod1: """
-        return _py_anon_pod1.from_ptr(<intptr_t>&(self._ptr[0].utilization), 8, self._readonly)
+        return _py_anon_pod1.from_ptr(
+            <intptr_t>&(self._ptr[0].utilization),
+            8,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @utilization.setter
     def utilization(self, val):
@@ -18999,7 +19111,11 @@ cdef class VgpuSchedulerParams:
     @property
     def vgpu_sched_data_with_arr(self):
         """_py_anon_pod2: """
-        return _py_anon_pod2.from_ptr(<intptr_t>&(self._ptr[0].vgpuSchedDataWithARR), self._readonly, self)
+        return _py_anon_pod2.from_ptr(
+            <intptr_t>&(self._ptr[0].vgpuSchedDataWithARR),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @vgpu_sched_data_with_arr.setter
     def vgpu_sched_data_with_arr(self, val):
@@ -19011,7 +19127,11 @@ cdef class VgpuSchedulerParams:
     @property
     def vgpu_sched_data(self):
         """_py_anon_pod3: """
-        return _py_anon_pod3.from_ptr(<intptr_t>&(self._ptr[0].vgpuSchedData), self._readonly, self)
+        return _py_anon_pod3.from_ptr(
+            <intptr_t>&(self._ptr[0].vgpuSchedData),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @vgpu_sched_data.setter
     def vgpu_sched_data(self, val):
@@ -19138,7 +19258,11 @@ cdef class VgpuSchedulerSetParams:
     @property
     def vgpu_sched_data_with_arr(self):
         """_py_anon_pod4: """
-        return _py_anon_pod4.from_ptr(<intptr_t>&(self._ptr[0].vgpuSchedDataWithARR), self._readonly, self)
+        return _py_anon_pod4.from_ptr(
+            <intptr_t>&(self._ptr[0].vgpuSchedDataWithARR),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @vgpu_sched_data_with_arr.setter
     def vgpu_sched_data_with_arr(self, val):
@@ -19150,7 +19274,11 @@ cdef class VgpuSchedulerSetParams:
     @property
     def vgpu_sched_data(self):
         """_py_anon_pod5: """
-        return _py_anon_pod5.from_ptr(<intptr_t>&(self._ptr[0].vgpuSchedData), self._readonly, self)
+        return _py_anon_pod5.from_ptr(
+            <intptr_t>&(self._ptr[0].vgpuSchedData),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @vgpu_sched_data.setter
     def vgpu_sched_data(self, val):
@@ -19284,7 +19412,11 @@ cdef class VgpuLicenseInfo:
     @property
     def license_expiry(self):
         """VgpuLicenseExpiry: """
-        return VgpuLicenseExpiry.from_ptr(<intptr_t>&(self._ptr[0].licenseExpiry), self._readonly, self)
+        return VgpuLicenseExpiry.from_ptr(
+            <intptr_t>&(self._ptr[0].licenseExpiry),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @license_expiry.setter
     def license_expiry(self, val):
@@ -19386,6 +19518,7 @@ cdef class GridLicensableFeature:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=grid_licensable_feature_dtype)
@@ -19531,13 +19664,15 @@ cdef class GridLicensableFeature:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an GridLicensableFeature instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -19547,6 +19682,7 @@ cdef class GridLicensableFeature:
             <char*>ptr, sizeof(nvmlGridLicensableFeature_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=grid_licensable_feature_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -19634,7 +19770,12 @@ cdef class UnitFanSpeeds:
     @property
     def fans(self):
         """UnitFanInfo: """
-        return UnitFanInfo.from_ptr(<intptr_t>&(self._ptr[0].fans), 24, self._readonly)
+        return UnitFanInfo.from_ptr(
+            <intptr_t>&(self._ptr[0].fans),
+            24,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @fans.setter
     def fans(self, val):
@@ -19786,7 +19927,11 @@ cdef class VgpuPgpuMetadata:
     @property
     def host_supported_vgpu_range(self):
         """VgpuVersion: """
-        return VgpuVersion.from_ptr(<intptr_t>&(self._ptr[0].hostSupportedVgpuRange), self._readonly, self)
+        return VgpuVersion.from_ptr(
+            <intptr_t>&(self._ptr[0].hostSupportedVgpuRange),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @host_supported_vgpu_range.setter
     def host_supported_vgpu_range(self, val):
@@ -19995,7 +20140,11 @@ cdef class GpuInstanceInfo:
     @property
     def placement(self):
         """GpuInstancePlacement: """
-        return GpuInstancePlacement.from_ptr(<intptr_t>&(self._ptr[0].placement), self._readonly, self)
+        return GpuInstancePlacement.from_ptr(
+            <intptr_t>&(self._ptr[0].placement),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @placement.setter
     def placement(self, val):
@@ -20164,7 +20313,11 @@ cdef class ComputeInstanceInfo:
     @property
     def placement(self):
         """ComputeInstancePlacement: """
-        return ComputeInstancePlacement.from_ptr(<intptr_t>&(self._ptr[0].placement), self._readonly, self)
+        return ComputeInstancePlacement.from_ptr(
+            <intptr_t>&(self._ptr[0].placement),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @placement.setter
     def placement(self, val):
@@ -20493,7 +20646,12 @@ cdef class NvlinkFirmwareInfo:
     @property
     def firmware_version(self):
         """NvlinkFirmwareVersion: OUT - NVLINK firmware version."""
-        return NvlinkFirmwareVersion.from_ptr(<intptr_t>&(self._ptr[0].firmwareVersion), 100, self._readonly)
+        return NvlinkFirmwareVersion.from_ptr(
+            <intptr_t>&(self._ptr[0].firmwareVersion),
+            100,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @firmware_version.setter
     def firmware_version(self, val):
@@ -20643,7 +20801,12 @@ cdef class VgpuSchedulerLogInfo_v2:
     @property
     def log_entries(self):
         """VgpuSchedulerLogEntry_v2: OUT: Structure to store the state and logs of a software runlist."""
-        return VgpuSchedulerLogEntry_v2.from_ptr(<intptr_t>&(self._ptr[0].logEntries), 200, self._readonly)
+        return VgpuSchedulerLogEntry_v2.from_ptr(
+            <intptr_t>&(self._ptr[0].logEntries),
+            200,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @log_entries.setter
     def log_entries(self, val):
@@ -20834,7 +20997,11 @@ cdef class GetCPER_v1:
     @property
     def cursor(self):
         """CPERCursor_v1: [IN/OUT] Query parameters and cursor. See `nvmlCPERCursor_v1_t`"""
-        return CPERCursor_v1.from_ptr(<intptr_t>&(self._ptr[0].cursor), self._readonly, self)
+        return CPERCursor_v1.from_ptr(
+            <intptr_t>&(self._ptr[0].cursor),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @cursor.setter
     def cursor(self, val):
@@ -21109,6 +21276,7 @@ cdef class PRMCounter_v1:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=prm_counter_v1_dtype)
@@ -21223,13 +21391,15 @@ cdef class PRMCounter_v1:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an PRMCounter_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -21239,6 +21409,7 @@ cdef class PRMCounter_v1:
             <char*>ptr, sizeof(nvmlPRMCounter_v1_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=prm_counter_v1_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -21330,7 +21501,11 @@ cdef class VgpuSchedulerLog:
     @property
     def scheduler_params(self):
         """VgpuSchedulerParams: """
-        return VgpuSchedulerParams.from_ptr(<intptr_t>&(self._ptr[0].schedulerParams), self._readonly, self)
+        return VgpuSchedulerParams.from_ptr(
+            <intptr_t>&(self._ptr[0].schedulerParams),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @scheduler_params.setter
     def scheduler_params(self, val):
@@ -21342,7 +21517,12 @@ cdef class VgpuSchedulerLog:
     @property
     def log_entries(self):
         """VgpuSchedulerLogEntry: """
-        return VgpuSchedulerLogEntry.from_ptr(<intptr_t>&(self._ptr[0].logEntries), 200, self._readonly)
+        return VgpuSchedulerLogEntry.from_ptr(
+            <intptr_t>&(self._ptr[0].logEntries),
+            200,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @log_entries.setter
     def log_entries(self, val):
@@ -21522,7 +21702,11 @@ cdef class VgpuSchedulerGetState:
     @property
     def scheduler_params(self):
         """VgpuSchedulerParams: """
-        return VgpuSchedulerParams.from_ptr(<intptr_t>&(self._ptr[0].schedulerParams), self._readonly, self)
+        return VgpuSchedulerParams.from_ptr(
+            <intptr_t>&(self._ptr[0].schedulerParams),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @scheduler_params.setter
     def scheduler_params(self, val):
@@ -21680,7 +21864,11 @@ cdef class VgpuSchedulerStateInfo_v1:
     @property
     def scheduler_params(self):
         """VgpuSchedulerParams: OUT: vGPU Scheduler Parameters."""
-        return VgpuSchedulerParams.from_ptr(<intptr_t>&(self._ptr[0].schedulerParams), self._readonly, self)
+        return VgpuSchedulerParams.from_ptr(
+            <intptr_t>&(self._ptr[0].schedulerParams),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @scheduler_params.setter
     def scheduler_params(self, val):
@@ -21862,7 +22050,11 @@ cdef class VgpuSchedulerLogInfo_v1:
     @property
     def scheduler_params(self):
         """VgpuSchedulerParams: OUT: vGPU Scheduler Parameters."""
-        return VgpuSchedulerParams.from_ptr(<intptr_t>&(self._ptr[0].schedulerParams), self._readonly, self)
+        return VgpuSchedulerParams.from_ptr(
+            <intptr_t>&(self._ptr[0].schedulerParams),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @scheduler_params.setter
     def scheduler_params(self, val):
@@ -21874,7 +22066,12 @@ cdef class VgpuSchedulerLogInfo_v1:
     @property
     def log_entries(self):
         """VgpuSchedulerLogEntry: OUT: Structure to store the state and logs of a software runlist."""
-        return VgpuSchedulerLogEntry.from_ptr(<intptr_t>&(self._ptr[0].logEntries), 200, self._readonly)
+        return VgpuSchedulerLogEntry.from_ptr(
+            <intptr_t>&(self._ptr[0].logEntries),
+            200,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @log_entries.setter
     def log_entries(self, val):
@@ -22067,7 +22264,11 @@ cdef class VgpuSchedulerState_v1:
     @property
     def scheduler_params(self):
         """VgpuSchedulerSetParams: IN: vGPU Scheduler Parameters."""
-        return VgpuSchedulerSetParams.from_ptr(<intptr_t>&(self._ptr[0].schedulerParams), self._readonly, self)
+        return VgpuSchedulerSetParams.from_ptr(
+            <intptr_t>&(self._ptr[0].schedulerParams),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @scheduler_params.setter
     def scheduler_params(self, val):
@@ -22245,7 +22446,12 @@ cdef class GridLicensableFeatures:
     @property
     def grid_licensable_features(self):
         """GridLicensableFeature: """
-        return GridLicensableFeature.from_ptr(<intptr_t>&(self._ptr[0].gridLicensableFeatures), self._ptr[0].licensableFeaturesCount, self._readonly)
+        return GridLicensableFeature.from_ptr(
+            <intptr_t>&(self._ptr[0].gridLicensableFeatures),
+            self._ptr[0].licensableFeaturesCount,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @grid_licensable_features.setter
     def grid_licensable_features(self, val):
@@ -22395,7 +22601,11 @@ cdef class NvLinkInfo_v2:
     @property
     def firmware_info(self):
         """NvlinkFirmwareInfo: OUT - NVLINK Firmware info."""
-        return NvlinkFirmwareInfo.from_ptr(<intptr_t>&(self._ptr[0].firmwareInfo), self._readonly, self)
+        return NvlinkFirmwareInfo.from_ptr(
+            <intptr_t>&(self._ptr[0].firmwareInfo),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @firmware_info.setter
     def firmware_info(self, val):
@@ -29704,7 +29914,6 @@ cpdef str vgpu_type_get_name(unsigned int vgpu_type_id):
         __status__ = nvmlVgpuTypeGetName(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_name, <unsigned int*>size)
     check_status(__status__)
     return cpython.PyUnicode_FromStringAndSize(vgpu_type_name, size[0])
-
 
 
 del _cyb_FastEnum

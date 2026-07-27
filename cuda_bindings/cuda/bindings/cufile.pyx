@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9d2dd7c2d58ea1571aa5e0c4b88a498247727395a9d6864e66abef567efa41ff
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4cb713c4f9de168ab3c1140e0aef9c44d247c7ca43ae5cea0f8d428058c5bd98
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -411,6 +411,7 @@ cdef class IOEvents:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=io_events_dtype)
@@ -529,13 +530,15 @@ cdef class IOEvents:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an IOEvents instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -545,6 +548,7 @@ cdef class IOEvents:
             <char*>ptr, sizeof(CUfileIOEvents_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=io_events_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -746,6 +750,7 @@ cdef class PerGpuStats:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=per_gpu_stats_dtype)
@@ -1159,13 +1164,15 @@ cdef class PerGpuStats:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an PerGpuStats instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -1175,6 +1182,7 @@ cdef class PerGpuStats:
             <char*>ptr, sizeof(CUfilePerGpuStats_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=per_gpu_stats_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -1206,6 +1214,7 @@ cdef class Descr:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=descr_dtype)
@@ -1322,13 +1331,15 @@ cdef class Descr:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an Descr instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -1338,6 +1349,7 @@ cdef class Descr:
             <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -1418,7 +1430,11 @@ cdef class _py_anon_pod2:
     @property
     def batch(self):
         """_py_anon_pod3: """
-        return _py_anon_pod3.from_ptr(<intptr_t>&(self._ptr[0].batch), self._readonly, self)
+        return _py_anon_pod3.from_ptr(
+            <intptr_t>&(self._ptr[0].batch),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch.setter
     def batch(self, val):
@@ -1592,7 +1608,11 @@ cdef class StatsLevel1:
     @property
     def read_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].read_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].read_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @read_ops.setter
     def read_ops(self, val):
@@ -1604,7 +1624,11 @@ cdef class StatsLevel1:
     @property
     def write_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].write_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].write_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @write_ops.setter
     def write_ops(self, val):
@@ -1616,7 +1640,11 @@ cdef class StatsLevel1:
     @property
     def hdl_register_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].hdl_register_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].hdl_register_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @hdl_register_ops.setter
     def hdl_register_ops(self, val):
@@ -1628,7 +1656,11 @@ cdef class StatsLevel1:
     @property
     def hdl_deregister_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].hdl_deregister_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].hdl_deregister_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @hdl_deregister_ops.setter
     def hdl_deregister_ops(self, val):
@@ -1640,7 +1672,11 @@ cdef class StatsLevel1:
     @property
     def buf_register_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].buf_register_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].buf_register_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @buf_register_ops.setter
     def buf_register_ops(self, val):
@@ -1652,7 +1688,11 @@ cdef class StatsLevel1:
     @property
     def buf_deregister_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].buf_deregister_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].buf_deregister_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @buf_deregister_ops.setter
     def buf_deregister_ops(self, val):
@@ -1664,7 +1704,11 @@ cdef class StatsLevel1:
     @property
     def batch_submit_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_submit_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_submit_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_submit_ops.setter
     def batch_submit_ops(self, val):
@@ -1676,7 +1720,11 @@ cdef class StatsLevel1:
     @property
     def batch_complete_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_complete_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_complete_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_complete_ops.setter
     def batch_complete_ops(self, val):
@@ -1688,7 +1736,11 @@ cdef class StatsLevel1:
     @property
     def batch_setup_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_setup_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_setup_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_setup_ops.setter
     def batch_setup_ops(self, val):
@@ -1700,7 +1752,11 @@ cdef class StatsLevel1:
     @property
     def batch_cancel_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_cancel_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_cancel_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_cancel_ops.setter
     def batch_cancel_ops(self, val):
@@ -1712,7 +1768,11 @@ cdef class StatsLevel1:
     @property
     def batch_destroy_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_destroy_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_destroy_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_destroy_ops.setter
     def batch_destroy_ops(self, val):
@@ -1724,7 +1784,11 @@ cdef class StatsLevel1:
     @property
     def batch_enqueued_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_enqueued_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_enqueued_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_enqueued_ops.setter
     def batch_enqueued_ops(self, val):
@@ -1736,7 +1800,11 @@ cdef class StatsLevel1:
     @property
     def batch_posix_enqueued_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_posix_enqueued_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_posix_enqueued_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_posix_enqueued_ops.setter
     def batch_posix_enqueued_ops(self, val):
@@ -1748,7 +1816,11 @@ cdef class StatsLevel1:
     @property
     def batch_processed_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_processed_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_processed_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_processed_ops.setter
     def batch_processed_ops(self, val):
@@ -1760,7 +1832,11 @@ cdef class StatsLevel1:
     @property
     def batch_posix_processed_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_posix_processed_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_posix_processed_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_posix_processed_ops.setter
     def batch_posix_processed_ops(self, val):
@@ -1772,7 +1848,11 @@ cdef class StatsLevel1:
     @property
     def batch_nvfs_submit_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_nvfs_submit_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_nvfs_submit_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_nvfs_submit_ops.setter
     def batch_nvfs_submit_ops(self, val):
@@ -1784,7 +1864,11 @@ cdef class StatsLevel1:
     @property
     def batch_p2p_submit_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_p2p_submit_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_p2p_submit_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_p2p_submit_ops.setter
     def batch_p2p_submit_ops(self, val):
@@ -1796,7 +1880,11 @@ cdef class StatsLevel1:
     @property
     def batch_aio_submit_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_aio_submit_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_aio_submit_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_aio_submit_ops.setter
     def batch_aio_submit_ops(self, val):
@@ -1808,7 +1896,11 @@ cdef class StatsLevel1:
     @property
     def batch_iouring_submit_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_iouring_submit_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_iouring_submit_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_iouring_submit_ops.setter
     def batch_iouring_submit_ops(self, val):
@@ -1820,7 +1912,11 @@ cdef class StatsLevel1:
     @property
     def batch_mixed_io_submit_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_mixed_io_submit_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_mixed_io_submit_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_mixed_io_submit_ops.setter
     def batch_mixed_io_submit_ops(self, val):
@@ -1832,7 +1928,11 @@ cdef class StatsLevel1:
     @property
     def batch_total_submit_ops(self):
         """OpCounter: """
-        return OpCounter.from_ptr(<intptr_t>&(self._ptr[0].batch_total_submit_ops), self._readonly, self)
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].batch_total_submit_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @batch_total_submit_ops.setter
     def batch_total_submit_ops(self, val):
@@ -2153,6 +2253,7 @@ cdef class IOParams:
     """
     cdef:
         readonly object _data
+        object _owner
 
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=io_params_dtype)
@@ -2291,13 +2392,15 @@ cdef class IOParams:
         return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an IOParams instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
             size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
@@ -2307,6 +2410,7 @@ cdef class IOParams:
             <char*>ptr, sizeof(CUfileIOParams_t) * size, flag)
         data = _numpy.ndarray(size, buffer=buf, dtype=io_params_dtype)
         obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
 
         return obj
 
@@ -2395,7 +2499,11 @@ cdef class StatsLevel2:
     @property
     def basic(self):
         """StatsLevel1: """
-        return StatsLevel1.from_ptr(<intptr_t>&(self._ptr[0].basic), self._readonly, self)
+        return StatsLevel1.from_ptr(
+            <intptr_t>&(self._ptr[0].basic),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @basic.setter
     def basic(self, val):
@@ -2563,7 +2671,11 @@ cdef class StatsLevel3:
     @property
     def detailed(self):
         """StatsLevel2: """
-        return StatsLevel2.from_ptr(<intptr_t>&(self._ptr[0].detailed), self._readonly, self)
+        return StatsLevel2.from_ptr(
+            <intptr_t>&(self._ptr[0].detailed),
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @detailed.setter
     def detailed(self, val):
@@ -2575,7 +2687,12 @@ cdef class StatsLevel3:
     @property
     def per_gpu_stats(self):
         """PerGpuStats: """
-        return PerGpuStats.from_ptr(<intptr_t>&(self._ptr[0].per_gpu_stats), 16, self._readonly)
+        return PerGpuStats.from_ptr(
+            <intptr_t>&(self._ptr[0].per_gpu_stats),
+            16,
+            readonly=self._readonly,
+            owner=self,
+        )
 
     @per_gpu_stats.setter
     def per_gpu_stats(self, val):
