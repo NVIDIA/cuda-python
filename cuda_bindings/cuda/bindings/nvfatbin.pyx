@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.4.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2c253072e9abca50e08d91ed56d24752528cc5533bf1ec089bbea4e709f1e4fa
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a9f06b8372f6c9da9bd1056df4fe0095a6e4a2b85496da6cca9a5496b641a909
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -118,7 +118,8 @@ cpdef intptr_t create(options, size_t options_count) except -1:
     """nvFatbinCreate creates a new handle.
 
     Args:
-        options (object): An array of strings, each containing a single option. It can be:
+        options (object): An array of strings, each containing a
+            single option. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
@@ -148,8 +149,10 @@ cpdef add_ptx(intptr_t handle, code, size_t size, arch, identifier, options_cmd_
         handle (intptr_t): nvFatbin handle.
         code (bytes): The PTX code.
         size (size_t): The size of the PTX code.
-        arch (str): The numerical architecture that this PTX is for (the XX of any sm_XX, lto_XX, or compute_XX).
-        identifier (str): Name of the PTX, useful when extracting the fatbin with tools like cuobjdump.
+        arch (str): The numerical architecture that this PTX is for
+            (the XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the PTX, useful when extracting the
+            fatbin with tools like cuobjdump.
         options_cmd_line (str): Options used during JIT compilation.
 
     .. seealso:: `nvFatbinAddPTX`
@@ -179,8 +182,10 @@ cpdef add_cubin(intptr_t handle, code, size_t size, arch, identifier):
         handle (intptr_t): nvFatbin handle.
         code (bytes): The cubin.
         size (size_t): The size of the cubin.
-        arch (str): The numerical architecture that this cubin is for (the XX of any sm_XX, lto_XX, or compute_XX).
-        identifier (str): Name of the cubin, useful when extracting the fatbin with tools like cuobjdump.
+        arch (str): The numerical architecture that this cubin is for
+            (the XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the cubin, useful when extracting
+            the fatbin with tools like cuobjdump.
 
     .. seealso:: `nvFatbinAddCubin`
     """
@@ -205,8 +210,10 @@ cpdef add_ltoir(intptr_t handle, code, size_t size, arch, identifier, options_cm
         handle (intptr_t): nvFatbin handle.
         code (bytes): The LTOIR code.
         size (size_t): The size of the LTOIR code.
-        arch (str): The numerical architecture that this LTOIR is for (the XX of any sm_XX, lto_XX, or compute_XX).
-        identifier (str): Name of the LTOIR, useful when extracting the fatbin with tools like cuobjdump.
+        arch (str): The numerical architecture that this LTOIR is for
+            (the XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the LTOIR, useful when extracting
+            the fatbin with tools like cuobjdump.
         options_cmd_line (str): Options used during JIT compilation.
 
     .. seealso:: `nvFatbinAddLTOIR`
@@ -315,7 +322,8 @@ cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_li
         handle (intptr_t): nvFatbin handle.
         code (bytes): The Tile IR.
         size (size_t): The size of the Tile IR.
-        identifier (str): Name of the Tile IR, useful when extracting the fatbin with tools like cuobjdump.
+        identifier (str): Name of the Tile IR, useful when extracting
+            the fatbin with tools like cuobjdump.
         options_cmd_line (str): Options used during JIT compilation.
 
     .. seealso:: `nvFatbinAddTileIR`

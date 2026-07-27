@@ -7,6 +7,28 @@
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <climits>
+#include <cstdint>
+
+// PyLong_AsInt entered the public/stable CPython API in 3.13. cuda.bindings
+// supports Python 3.10+, so provide a file-local backport for older builds.
+// This is a copy of the CPython implementation; it is `static` (unlike the
+// original) because this header is compiled into every extension module that
+// includes it, mirroring the other helpers below.
+#if PY_VERSION_HEX < 0x030D0000
+static int
+PyLong_AsInt(PyObject *obj)
+{
+    int overflow;
+    long result = PyLong_AsLongAndOverflow(obj, &overflow);
+    if (overflow || result > INT_MAX || result < INT_MIN) {
+        PyErr_SetString(PyExc_OverflowError,
+                        "Python int too large to convert to C int");
+        return -1;
+    }
+    return (int)result;
+}
+#endif
 
 static PyObject* ctypes_module = nullptr;
 
@@ -69,7 +91,13 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
-                *((int*)ptr) = (int)PyLong_AsLong(value);
+                // PyLong_AsInt range-checks against the 32-bit int slot and raises
+                // OverflowError itself, so an out-of-range value is rejected rather
+                // than silently truncated.
+                int v = PyLong_AsInt(value);
+                if (v == -1 && PyErr_Occurred())
+                    return -1;
+                *((int*)ptr) = v;
                 return sizeof(int);
             };
             return;
@@ -89,7 +117,23 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
         {
             m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
             {
-                *((int8_t*)ptr) = (int8_t)PyLong_AsLong(value);
+                // c_byte is an 8-bit slot with no dedicated CPython converter, so
+                // range-check explicitly against INT8_MIN/INT8_MAX. AsLongAndOverflow's
+                // `overflow` only flags values outside `long` (64-bit on LP64), so a
+                // value in that range would be silently truncated by (int8_t)v without
+                // the explicit bounds check. When overflow!=0, v is the -1 sentinel
+                // (not the real value), so that case must be caught before trusting v.
+                int overflow = 0;
+                long v = PyLong_AsLongAndOverflow(value, &overflow);
+                if (overflow == 0 && v == -1 && PyErr_Occurred())
+                    return -1;  // non-overflow conversion error; exception already set
+                if (overflow != 0 || v < INT8_MIN || v > INT8_MAX)
+                {
+                    PyErr_SetString(PyExc_OverflowError,
+                        "Python int is out of range for a c_byte (8-bit) kernel argument");
+                    return -1;
+                }
+                *((int8_t*)ptr) = (int8_t)v;
                 return sizeof(int8_t);
             };
             return;

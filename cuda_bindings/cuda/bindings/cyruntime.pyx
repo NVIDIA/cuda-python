@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8185b22e9884c7988bc68f323fff3e100324f5b1717f46297e39747d7a7fd285
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=688a31f40f86e60ac9bab47ed3c6c11f0762c60016d8167d3a57f3b3dc61c7cf
 from ._internal cimport runtime as _runtime
 
 cdef cudaError_t cudaDeviceReset() except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -1362,6 +1362,10 @@ cdef cudaError_t cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodeParam
 
 cdef cudaError_t cudaStreamBeginRecaptureToGraph(cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) except ?cudaErrorCallRequiresNewerDriver nogil:
     return _runtime._cudaStreamBeginRecaptureToGraph(stream, mode, graph, callbackData)
+
+
+cdef cudaError_t cudaMemGetLocationInfo(void* devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, cudaMemLocation* location_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _runtime._cudaMemGetLocationInfo(devPtr, size, summaryGranularity, samplingGranularity, location_out)
 
 
 ###############################################################################

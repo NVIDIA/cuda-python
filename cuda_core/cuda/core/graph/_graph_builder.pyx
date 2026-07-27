@@ -10,12 +10,18 @@ from libc.stdint cimport intptr_t
 from cuda.bindings cimport cydriver
 
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
-from cuda.core.graph._host_callback cimport _attach_host_callback_owners, _resolve_host_callback
+from cuda.core.graph._host_callback cimport _resolve_host_callback
 from cuda.core._resource_handles cimport (
     GraphHandle,
     OpaqueHandle,
+    PreparedAttachment,
     as_cu, as_py,
-    create_graph_exec_handle, create_graph_handle, create_graph_handle_ref,
+    create_child_graph_handle, create_graph_exec_handle, create_graph_handle,
+    graph_clone_attachments,
+    graph_commit_attachment,
+    graph_prepare_attachment,
+    invalidate_child_graph_state,
+    retry_deferred_cleanup,
 )
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -282,6 +288,7 @@ cdef class GraphBuilder:
         GB_end_capture_if_needed(self, True)
         self._h_graph.reset()
         self._h_stream.reset()
+        retry_deferred_cleanup()
         self._state = CLOSED
         self._stream = None
 
@@ -782,16 +789,36 @@ cdef class GraphBuilder:
 
         # See https://github.com/NVIDIA/cuda-python/pull/879#issuecomment-3211054159
         # for rationale
-        deps_info_trimmed = deps_info_out[:num_dependencies_out]
-        deps_info_update = [
-            [
-                handle_return(
-                    driver.cuGraphAddChildGraphNode(
-                        graph_out, *deps_info_trimmed, num_dependencies_out, as_py(child._h_graph)
-                    )
-                )
-            ]
-        ] + [None] * (len(deps_info_out) - 1)
+        dependencies_out = deps_info_out[0]
+        new_node = handle_return(
+            driver.cuGraphAddChildGraphNode(
+                graph_out, dependencies_out,
+                num_dependencies_out, as_py(child._h_graph)
+            )
+        )
+        cdef cydriver.CUgraphNode c_new_node = (
+            <cydriver.CUgraphNode><intptr_t>int(new_node)
+        )
+        cdef cydriver.CUgraph embedded_graph = NULL
+        cdef cydriver.CUresult rollback_status
+        cdef GraphHandle h_embedded
+        try:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(
+                    c_new_node, &embedded_graph))
+            h_embedded = create_child_graph_handle(
+                embedded_graph, self._h_graph, c_new_node)
+            HANDLE_RETURN(graph_clone_attachments(
+                h_embedded, child._h_graph))
+        except:
+            with nogil:
+                rollback_status = cydriver.cuGraphDestroyNode(c_new_node)
+            if rollback_status == cydriver.CUDA_SUCCESS:
+                invalidate_child_graph_state(
+                    self._h_graph, c_new_node)
+            raise
+
+        deps_info_update = [[new_node]] + [None] * (len(deps_info_out) - 1)
         handle_return(
             driver.cuStreamUpdateCaptureDependencies(
                 stream_handle,
@@ -820,6 +847,11 @@ cdef class GraphBuilder:
             Callbacks must not call CUDA API functions. Doing so may
             deadlock or corrupt driver state.
 
+            Use caution when a Python callback retains an object that owns a
+            graph. Any reference cycle involving the callback and a graph that
+            retains it cannot be broken by Python's cyclic garbage collector.
+            Use a weak reference to break such cycles.
+
         Parameters
         ----------
         fn : callable or ctypes function pointer
@@ -829,30 +861,56 @@ cdef class GraphBuilder:
             pointer (caller manages lifetime). If bytes-like, the data is
             copied and its lifetime is tied to the graph.
         """
-        GB_check_open(self)
-        cdef Stream stream = self._stream
-        cdef cydriver.CUstream c_stream = as_cu(stream._h_stream)
-        cdef cydriver.CUstreamCaptureStatus capture_status
+        GB_callback(self, fn, user_data, False)
 
-        with nogil:
-            _get_capture_info(c_stream, &capture_status, NULL)
 
-        if capture_status != cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
-            raise RuntimeError("Cannot add callback when graph is not being built")
+cdef inline void GB_callback(
+        GraphBuilder gb, object fn, object user_data,
+        bint fail_tail_discovery_for_testing) except *:
+    GB_check_open(gb)
+    cdef Stream stream = gb._stream
+    cdef cydriver.CUstream c_stream = as_cu(stream._h_stream)
+    cdef cydriver.CUstreamCaptureStatus capture_status
 
-        cdef cydriver.CUhostFn c_fn
-        cdef void* c_user_data = NULL
-        cdef OpaqueHandle fn_owner, data_owner
-        _resolve_host_callback(fn, user_data, &c_fn, &c_user_data, &fn_owner, &data_owner)
+    with nogil:
+        _get_capture_info(c_stream, &capture_status, NULL)
 
-        with nogil:
-            HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
+    if capture_status != cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
+        raise RuntimeError("Cannot add callback when graph is not being built")
 
-        # Capturing the host function added a node to the graph; it is now the
-        # stream's sole capture dependency. Key the callback's owners to it so
-        # they live in the graph's slot table like any explicitly-added node.
-        cdef cydriver.CUgraphNode host_node = _capture_tail_node(c_stream)
-        _attach_host_callback_owners(self._h_graph, host_node, fn_owner, data_owner)
+    cdef cydriver.CUhostFn c_fn
+    cdef void* c_user_data = NULL
+    cdef OpaqueHandle fn_owner, data_owner
+    cdef PreparedAttachment prepared
+    _resolve_host_callback(
+        fn, user_data, &c_fn, &c_user_data, &fn_owner, &data_owner)
+    HANDLE_RETURN(graph_prepare_attachment(
+        gb._h_graph, fn_owner, data_owner, &prepared))
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
+
+    # Capturing the host function added a node to the graph; it is now the
+    # stream's sole capture dependency. Attach the callback's owners to it.
+    cdef cydriver.CUgraphNode host_node
+    cdef cydriver.CUresult commit_status
+    try:
+        if fail_tail_discovery_for_testing:
+            raise RuntimeError("forced capture tail discovery failure")
+        host_node = _capture_tail_node(c_stream)
+    except:
+        # CUDA added the callback, but its node cannot be identified.
+        # Retain its owners anonymously to prevent dangling pointers.
+        commit_status = graph_commit_attachment(prepared, NULL)
+        HANDLE_RETURN(commit_status)
+        raise
+    HANDLE_RETURN(graph_commit_attachment(prepared, host_node))
+
+
+def _capture_callback_with_tail_failure_for_testing(
+        GraphBuilder gb, fn, *, user_data=None):
+    """Exercise anonymous attachment retention after node discovery fails."""
+    GB_callback(gb, fn, user_data, True)
 
 
 cdef inline int GB_check_open(GraphBuilder gb) except -1:
@@ -893,9 +951,7 @@ cdef inline int GB_end_capture_if_needed(GraphBuilder gb, bint check_status) exc
 cdef inline GraphBuilder GB_init_forked(Stream stream, GraphHandle h_primary_graph):
     cdef GraphBuilder gb = GraphBuilder.__new__(GraphBuilder)
     # A FORKED builder captures into the primary's CUgraph. It holds the
-    # primary's GraphHandle so conditional bodies created on it (via
-    # GB_init_conditional -> create_graph_handle_ref(cond_graph, parent._h_graph))
-    # have a valid parent handle to pin.
+    # primary's GraphHandle so conditional bodies share its graph hierarchy.
     gb._h_graph = h_primary_graph
     gb._h_stream = stream._h_stream
     gb._kind = FORKED
@@ -904,9 +960,12 @@ cdef inline GraphBuilder GB_init_forked(Stream stream, GraphHandle h_primary_gra
     return gb
 
 
-cdef inline GraphBuilder GB_init_conditional(Stream stream, cydriver.CUgraph cond_graph, GraphBuilder parent):
+cdef inline GraphBuilder GB_init_conditional(
+        Stream stream, cydriver.CUgraph cond_graph,
+        GraphBuilder parent, cydriver.CUgraphNode owner_node):
     cdef GraphBuilder gb = GraphBuilder.__new__(GraphBuilder)
-    gb._h_graph = create_graph_handle_ref(cond_graph, parent._h_graph)
+    gb._h_graph = create_child_graph_handle(
+        cond_graph, parent._h_graph, owner_node)
     gb._h_stream = stream._h_stream
     gb._kind = CONDITIONAL_BODY
     gb._state = CAPTURE_NOT_STARTED
@@ -962,9 +1021,9 @@ cdef inline tuple GB_cond_with_params(GraphBuilder gb, node_params):
     if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
         raise RuntimeError("Cannot add conditional node when not actively capturing")
 
-    deps_info_update = [
-        [handle_return(driver.cuGraphAddNode(graph, *deps_info, num_dependencies, node_params))]
-    ] + [None] * (len(deps_info) - 1)
+    new_node = handle_return(
+        driver.cuGraphAddNode(graph, *deps_info, num_dependencies, node_params))
+    deps_info_update = [[new_node]] + [None] * (len(deps_info) - 1)
 
     handle_return(
         driver.cuStreamUpdateCaptureDependencies(
@@ -980,6 +1039,7 @@ cdef inline tuple GB_cond_with_params(GraphBuilder gb, node_params):
             gb._stream.device.create_stream(),
             <cydriver.CUgraph><intptr_t>int(node_params.conditional.phGraph_out[i]),
             gb,
+            <cydriver.CUgraphNode><intptr_t>int(new_node),
         )
         for i in range(node_params.conditional.size)
     )
@@ -1008,6 +1068,7 @@ cdef class Graph:
     def close(self) -> None:
         """Destroy the graph."""
         self._h_graph_exec.reset()
+        retry_deferred_cleanup()
 
     @property
     def handle(self) -> driver.CUgraphExec:

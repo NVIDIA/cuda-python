@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=089f0a637f614045b046c540821addb0b6706f9282fda33689677d9a0cf2df71
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7961eb9a31b8ad5274ddd2a6357f2f75c1004c44ee4a5edeadf22674f1833d3e
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
 from libcpp cimport bool as cpp_bool
@@ -454,3 +454,5 @@ cdef CUfileError_t cuFileGetStatsL3(CUfileStatsLevel3_t* stats) except?<CUfileEr
 cdef CUfileError_t cuFileGetBARSizeInKB(int gpuIndex, size_t* barSize) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileSetParameterPosixPoolSlabArray(const size_t* size_values, const size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef ssize_t cuFileReadv(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil
+cdef ssize_t cuFileWritev(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil

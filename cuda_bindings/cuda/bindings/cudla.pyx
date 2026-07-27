@@ -3,7 +3,7 @@
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4ec05b17d1d15e3ad65d82c602f089f317f40ac787c831afbd03592fd496a6a2
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6d1cb5ada09a9eb93d5b6a1a5a4cc9f9e0abe9cc6cca69c9906d92a57bed8cb9
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1154,7 +1154,12 @@ cdef class WaitEvents:
         """int: """
         if self._ptr[0].preFences == NULL or self._ptr[0].numEvents == 0:
             return []
-        return Fence.from_ptr(<intptr_t>(self._ptr[0].preFences), self._ptr[0].numEvents)
+        return Fence.from_ptr(
+            <intptr_t>(self._ptr[0].preFences),
+            self._ptr[0].numEvents,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @pre_fences.setter
     def pre_fences(self, val):
@@ -1320,7 +1325,12 @@ cdef class SignalEvents:
         """int: """
         if self._ptr[0].eofFences == NULL or self._ptr[0].numEvents == 0:
             return []
-        return Fence.from_ptr(<intptr_t>(self._ptr[0].eofFences), self._ptr[0].numEvents)
+        return Fence.from_ptr(
+            <intptr_t>(self._ptr[0].eofFences),
+            self._ptr[0].numEvents,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @eof_fences.setter
     def eof_fences(self, val):

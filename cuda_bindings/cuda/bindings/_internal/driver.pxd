@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=744ec2351e5d24e74f5e54d554c5478c51dc9ce1cc2a542cc497fe26903b3b13
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d0aeaada84c702fe1713aefa6074c6d8154cfe31f48f0371403d941c41205d6b
 from ..cydriver cimport *
 
 
@@ -530,3 +530,10 @@ cdef CUresult _cuLogicalEndpointImport(CUlogicalEndpointId leId, const void* han
 cdef CUresult _cuLogicalEndpointGetLimits(cuuint64_t* bindAlignment, cuuint64_t* maxSize, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count, int* queryStatus) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuDeviceGetFabricClusterUuid(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuDeviceGetCliqueCount(size_t* count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuDeviceGetCliqueInfo(CUcliqueInfo* cliqueInfo, size_t* count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuMemGetLocationInfo(CUdeviceptr ptr, size_t size, size_t summaryGranularity, size_t samplingGranularity, CUmemLocation* location_out) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuGraphAddNode_v3(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuGraphNodeSetParams_v2(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuCheckpointOperationComplete(CUcheckpointOperationHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil

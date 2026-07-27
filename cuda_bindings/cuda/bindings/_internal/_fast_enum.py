@@ -2,8 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3501c40c589fbd2f4152daa41007fb6f16f1a562980ffc83bc241fcb82158ce1
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=581469c1fadb5f72c43b478d73f2b905562136c8723a25e2f4240b5b681e2894
 """
 This is a replacement for the stdlib enum.IntEnum.
 

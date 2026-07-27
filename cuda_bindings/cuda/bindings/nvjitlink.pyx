@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1c5c263bf2380597f449a8aa59f381f170d101db78e19c50cf91cda95f5b7b62
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f722861e068fe62c47806f8fc7757afc24a313435cc14026e1b4f59d1b7f2be7
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -118,7 +118,8 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
 
     Args:
         num_options (uint32_t): Number of options passed.
-        options (object): Array of size ``num_options`` of option strings. It can be:
+        options (object): Array of size ``num_options`` of option
+            strings. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address

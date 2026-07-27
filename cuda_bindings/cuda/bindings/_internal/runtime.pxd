@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9abd8818adade1fef4704f713c86d38c1682e621aaba4af1172a4ff5b17db8b9
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cd46e65c8b1ec45ff0541a157eeb974a3258f0540645a5616759d23b17e1bc10
 from ..cyruntime cimport *
 
 # EGL/GL/VDPAU helper declarations (implementations included in runtime_linux/windows.pyx)
@@ -338,3 +338,4 @@ cdef cudaError_t _cudaMemcpyWithAttributesAsync(void* dst, const void* src, size
 cdef cudaError_t _cudaMemcpy3DWithAttributesAsync(cudaMemcpy3DBatchOp* op, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t _cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t _cudaStreamBeginRecaptureToGraph(cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t _cudaMemGetLocationInfo(void* devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, cudaMemLocation* location_out) except ?cudaErrorCallRequiresNewerDriver nogil

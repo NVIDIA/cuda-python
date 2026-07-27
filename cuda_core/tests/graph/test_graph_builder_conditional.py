@@ -17,7 +17,7 @@ from cuda.core.graph import GraphBuilder
 @pytest.mark.parametrize(
     "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
 )
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_conditional_if(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -81,7 +81,7 @@ def test_graph_conditional_if(init_cuda, condition_value):
 @pytest.mark.parametrize(
     "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
 )
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_conditional_if_else(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -153,7 +153,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
 
 
 @pytest.mark.parametrize("condition_value", [0, 1, 2, 3])
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_conditional_switch(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
@@ -244,7 +244,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
 
 
 @pytest.mark.parametrize("condition_value", [True, False, 1, 0])
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_graph_conditional_while(init_cuda, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")

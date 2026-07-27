@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0b0a36676dbfc837a7f95af3ecfce94b803beaf5095b95d696d75da75efad28b
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=833f9a47fd72d2c4d0b0b88e49283e323464e1cfb40f424ab9915beb9d24502a
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -1266,6 +1266,20 @@ cdef extern from 'library_types.h':
         CUDA_EMULATION_STRATEGY_EAGER
     ctypedef cudaEmulationStrategy_t cudaEmulationStrategy
 
+cdef extern from 'library_types.h':
+    cdef enum cudaEmulationMantissaControl_t:
+        CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC
+        CUDA_EMULATION_MANTISSA_CONTROL_FIXED
+    ctypedef cudaEmulationMantissaControl_t cudaEmulationMantissaControl
+
+cdef extern from 'library_types.h':
+    cdef enum cudaEmulationSpecialValuesSupport_t:
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN
+    ctypedef cudaEmulationSpecialValuesSupport_t cudaEmulationSpecialValuesSupport
+
 cdef extern from 'driver_types.h':
     cdef enum cudaDevSmResourceGroup_flags:
         cudaDevSmResourceGroupDefault
@@ -1288,20 +1302,6 @@ cdef extern from 'driver_types.h':
     cdef enum cudaDevWorkqueueConfigScope:
         cudaDevWorkqueueConfigScopeDeviceCtx
         cudaDevWorkqueueConfigScopeGreenCtxBalanced
-
-cdef extern from 'library_types.h':
-    cdef enum cudaEmulationMantissaControl_t:
-        CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC
-        CUDA_EMULATION_MANTISSA_CONTROL_FIXED
-    ctypedef cudaEmulationMantissaControl_t cudaEmulationMantissaControl
-
-cdef extern from 'library_types.h':
-    cdef enum cudaEmulationSpecialValuesSupport_t:
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY
-        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN
-    ctypedef cudaEmulationSpecialValuesSupport_t cudaEmulationSpecialValuesSupport
 
 cdef extern from 'driver_types.h':
     cdef enum cudaHostTaskSyncMode:
@@ -2557,6 +2557,7 @@ cdef cudaError_t cudaMemcpyWithAttributesAsync(void* dst, const void* src, size_
 cdef cudaError_t cudaMemcpy3DWithAttributesAsync(cudaMemcpy3DBatchOp* op, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaGraphNodeGetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t cudaStreamBeginRecaptureToGraph(cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) except ?cudaErrorCallRequiresNewerDriver nogil
+cdef cudaError_t cudaMemGetLocationInfo(void* devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, cudaMemLocation* location_out) except ?cudaErrorCallRequiresNewerDriver nogil
 
 # C #define integer constants from driver_types.h required for ABI compat with lowpp layer
 cdef extern from 'driver_types.h':

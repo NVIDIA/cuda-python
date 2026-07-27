@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9dc53514a8c7ac0dace691845d39c5d776b64333138faf3793d7554052c08fc7
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9e145065ec8a0e7780c0d8e38d0cec7a9b4bf2512e8a745f32593531bbb64676
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -2877,7 +2877,7 @@ cdef extern from 'cuda.h':
 cdef extern from 'cuda.h':
     cdef struct CUcheckpointCheckpointArgs_st:
         CUcheckpointCustomStorageInfo** customStorageInfo_out
-        char reserved[(64 - 8)]
+        char reserved[56]
     ctypedef CUcheckpointCheckpointArgs_st CUcheckpointCheckpointArgs
 
 cdef extern from 'cuda.h':
@@ -2886,7 +2886,7 @@ cdef extern from 'cuda.h':
         unsigned int gpuPairsCount
         unsigned int padding0
         CUcheckpointCustomStorageInfo** customStorageInfo_out
-        char reserved[(((64 - 8) - (2 * 4)) - 8)]
+        char reserved[40]
     ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
 
 cdef extern from 'cuda.h':
@@ -3708,6 +3708,13 @@ cdef CUresult cuLogicalEndpointImport(CUlogicalEndpointId leId, const void* hand
 cdef CUresult cuLogicalEndpointGetLimits(cuuint64_t* bindAlignment, cuuint64_t* maxSize, const CUlogicalEndpointProp* prop) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count, int* queryStatus) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuDeviceGetFabricClusterUuid(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuDeviceGetCliqueCount(size_t* count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuDeviceGetCliqueInfo(CUcliqueInfo* cliqueInfo, size_t* count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuMemGetLocationInfo(CUdeviceptr ptr, size_t size, size_t summaryGranularity, size_t samplingGranularity, CUmemLocation* location_out) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuGraphAddNode_v3(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuGraphNodeSetParams_v2(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuCheckpointOperationComplete(CUcheckpointOperationHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil
 
 
 # TODO: Extract these defines somehow?

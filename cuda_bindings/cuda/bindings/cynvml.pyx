@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2e3302cf9049dcc226c007b84dcafadf76ca6b3f86d57ae284aafe2d1737bde2
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6e58c0a1dea8d28245b8973729ec297208af8e787d1360ce35c3c63cf88579fe
 from ._internal cimport nvml as _nvml
 
 
@@ -1415,3 +1415,75 @@ cdef nvmlReturn_t nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVg
 
 cdef nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlGpuInstanceSetVgpuSchedulerState_v2(gpuInstance, pSchedulerState)
+
+
+cdef nvmlReturn_t nvmlSystemGetCPER_v1(nvmlGetCPER_v1_t* cper) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlSystemGetCPER_v1(cper)
+
+
+cdef nvmlReturn_t nvmlDeviceGetBBXTimeData_v1(nvmlDevice_t device, nvmlBBXTimeData_v1_t* timeData) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetBBXTimeData_v1(device, timeData)
+
+
+cdef nvmlReturn_t nvmlDeviceGetAccountingStats_v2(nvmlDevice_t device, nvmlAccountingStats_v2_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetAccountingStats_v2(device, stats)
+
+
+cdef nvmlReturn_t nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappedRowsInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetRemappedRows_v2(device, info)
+
+
+cdef nvmlReturn_t nvmlDeviceSetAdaptiveTgpMode_v1(nvmlDevice_t device, nvmlEnableState_t mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceSetAdaptiveTgpMode_v1(device, mode)
+
+
+cdef nvmlReturn_t nvmlDeviceGetAdaptiveTgpModeInfo_v1(nvmlDevice_t device, nvmlAdaptiveTgpModeInfo_v1_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetAdaptiveTgpModeInfo_v1(device, info)
+
+
+cdef nvmlReturn_t nvmlDeviceSetMemoryLimits_v1(nvmlDevice_t device, nvmlSetMemoryLimits_v1_t* limits) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceSetMemoryLimits_v1(device, limits)
+
+
+cdef nvmlReturn_t nvmlDeviceGetMemoryLimits_v1(nvmlDevice_t device, nvmlGetMemoryLimits_v1_t* limits) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetMemoryLimits_v1(device, limits)
+
+
+cdef nvmlReturn_t nvmlDeviceGetGpuFabricInfo_v4(nvmlDevice_t device, nvmlGpuFabricInfo_v4_t* gpuFabricInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetGpuFabricInfo_v4(device, gpuFabricInfo)
+
+
+cdef nvmlReturn_t nvmlDevicePerfMetricsGetSamples_v1(nvmlDevice_t device, nvmlPerfMetricsSamples_v1_t* samples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDevicePerfMetricsGetSamples_v1(device, samples)
+
+
+cdef nvmlReturn_t nvmlDeviceSetNvlinkBwModeAsync_v1(nvmlDevice_t device, nvmlNvlinkSetBwModeAsync_v1_t* setBwModeAsync) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceSetNvlinkBwModeAsync_v1(device, setBwModeAsync)
+
+
+cdef nvmlReturn_t nvmlDeviceGetNvLinkTelemetrySamples_v1(nvmlDevice_t device, nvmlNvlinkTelemetrySamples_v1_t* samples) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetNvLinkTelemetrySamples_v1(device, samples)
+
+
+cdef nvmlReturn_t nvmlEventSetRegisterGpuOperationalEvents_v1(nvmlEventSet_t eventSet, const nvmlGpuOperationalEventConfig_v1_t* config) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlEventSetRegisterGpuOperationalEvents_v1(eventSet, config)
+
+
+cdef nvmlReturn_t nvmlEventSetWait_v3(nvmlEventSet_t set, nvmlEventData_v2_t* data, unsigned int timeoutms) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlEventSetWait_v3(set, data, timeoutms)
+
+
+cdef nvmlReturn_t nvmlEventSetGetContextCount_v1(nvmlEventSet_t set, unsigned int* count) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlEventSetGetContextCount_v1(set, count)
+
+
+cdef nvmlReturn_t nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, unsigned int index, nvmlOperationalEventContextInfo_v1_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlEventSetGetContextInfo_v1(set, index, info)
+
+
+cdef nvmlReturn_t nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, unsigned int index, nvmlGpuOperationalEventContextLegacyXid_v1_t* xid) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(set, index, xid)
+
+
+cdef nvmlReturn_t nvmlDeviceGetBankRemapperStatus_v1(nvmlDevice_t device, nvmlEccBankRemapperStatus_v1_t* pBankRemapperStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetBankRemapperStatus_v1(device, pBankRemapperStatus)

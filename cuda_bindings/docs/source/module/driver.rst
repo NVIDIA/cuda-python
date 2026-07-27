@@ -2,7 +2,7 @@
 .. SPDX-License-Identifier: Apache-2.0
 
 .. !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0d61068e351974520aa130702eff1076b7697e74ce23e272f1fad3530050465c
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=97724cda94bae86a54d6cf1205fbed172482bf03a3231089ab976da3c0b7299d
 ------
 driver
 ------
@@ -3726,7 +3726,7 @@ Data types used by CUDA driver
 
          Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock. 
 
-         A launch completion event is nominally similar to a programmatic event with ``triggerAtBlockStart`` set except that it is not visible to cudaGridDependencySynchronize() and can be used with compute capability less than 9.0. 
+         A launch completion event is nominally similar to a programmatic event with ``triggerAtBlockStart`` set except that it is not visible to ``cudaGridDependencySynchronize()`` and can be used with compute capability less than 9.0. 
 
          The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the :py:obj:`~.CU_EVENT_DISABLE_TIMING` flag set).
 

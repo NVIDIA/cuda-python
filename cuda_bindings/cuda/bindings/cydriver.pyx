@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=26b59f275a9fd06531cdc33373d721d7de38a12dc392628cd0b63f25a900670d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=66aba9b58abd5c5ae210ca5ca8ac01676cb64b9f4059c17623b68146e30381ac
 from ._internal cimport driver as _driver
 
 cdef CUresult cuGetErrorString(CUresult error, const char** pStr) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -2074,3 +2074,31 @@ cdef CUresult cuLogicalEndpointQuery(CUlogicalEndpointId leId, cuuint32_t count,
 
 cdef CUresult cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMode mode, CUgraph hGraph, CUgraphRecaptureCallback callbackFunc, void* userData) except ?CUDA_ERROR_NOT_FOUND nogil:
     return _driver._cuStreamBeginRecaptureToGraph(hStream, mode, hGraph, callbackFunc, userData)
+
+
+cdef CUresult cuDeviceGetFabricClusterUuid(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuDeviceGetFabricClusterUuid(uuid, dev)
+
+
+cdef CUresult cuDeviceGetCliqueCount(size_t* count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuDeviceGetCliqueCount(count, dev)
+
+
+cdef CUresult cuDeviceGetCliqueInfo(CUcliqueInfo* cliqueInfo, size_t* count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuDeviceGetCliqueInfo(cliqueInfo, count, dev)
+
+
+cdef CUresult cuMemGetLocationInfo(CUdeviceptr ptr, size_t size, size_t summaryGranularity, size_t samplingGranularity, CUmemLocation* location_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuMemGetLocationInfo(ptr, size, summaryGranularity, samplingGranularity, location_out)
+
+
+cdef CUresult cuGraphAddNode_v3(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuGraphAddNode_v3(phGraphNode, hGraph, dependencies, dependencyData, numDependencies, nodeParams)
+
+
+cdef CUresult cuGraphNodeSetParams_v2(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuGraphNodeSetParams_v2(hNode, nodeParams)
+
+
+cdef CUresult cuCheckpointOperationComplete(CUcheckpointOperationHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuCheckpointOperationComplete(handle)

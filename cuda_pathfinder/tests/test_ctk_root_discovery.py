@@ -17,6 +17,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
     _resolve_system_loaded_abs_path_in_subprocess,
     _try_ctk_root_canary,
+    resolve_ctk_root_via_canary,
 )
 from cuda.pathfinder._dynamic_libs.search_steps import (
     SearchContext,
@@ -367,6 +368,35 @@ def test_canary_returns_none_when_nvvm_not_in_ctk_root(tmp_path, mocker):
 def test_canary_skips_when_abs_path_none(mocker):
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
     assert _try_ctk_root_canary(_ctx("nvvm")) is None
+
+
+# ---------------------------------------------------------------------------
+# resolve_ctk_root_via_canary (shared by lib and binary discovery)
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_ctk_root_via_canary_returns_root(tmp_path, mocker):
+    ctk_root = tmp_path / "cuda-13"
+    _create_cudart_in_ctk(ctk_root)
+    probe = mocker.patch(
+        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        return_value=_fake_canary_path(ctk_root),
+    )
+    assert resolve_ctk_root_via_canary("cudart") == str(ctk_root)
+    probe.assert_called_once_with("cudart")
+
+
+def test_resolve_ctk_root_via_canary_none_when_probe_fails(mocker):
+    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
+    assert resolve_ctk_root_via_canary("cudart") is None
+
+
+def test_resolve_ctk_root_via_canary_none_when_unrecognized(mocker):
+    mocker.patch(
+        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        return_value=os.path.join(os.sep, "weird", "path", "libcudart.so.13"),
+    )
+    assert resolve_ctk_root_via_canary("cudart") is None
 
 
 # ---------------------------------------------------------------------------

@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c73bf77961a16976203c41b73f9dce27b5505a95b4b7ad925650d1b9a2642814
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1d85ffab055c92f1ea96fc186f7ede91090e0d65388d2a03591d374f74937209
 from libc.stdint cimport intptr_t
 
 from .cycufile cimport *
@@ -20,7 +20,6 @@ ctypedef CUfileBatchHandle_t BatchHandle
 ctypedef CUfileError_t Error
 ctypedef cufileRDMAInfo_t RDMAInfo
 ctypedef CUfileFSOps_t FSOps
-ctypedef CUfileIOVec_t IOVec
 ctypedef CUfileDrvProps_t DrvProps
 
 

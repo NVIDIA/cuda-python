@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=72cfc364adf8bceb20b6540243e0466cd4990e38864ef3accee813c263cefc53
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d79a5d03d39a62dc16cf1331026d013d6f07b8af4e80bc5444c40d22829eeeda
 from libc.stdint cimport intptr_t
 
 from .cynvml cimport *
@@ -54,30 +54,15 @@ ctypedef nvmlMask255_t Mask255
 ctypedef nvmlHostname_v1_t Hostname_v1
 ctypedef nvmlUnrepairableMemoryStatus_v1_t UnrepairableMemoryStatus_v1
 ctypedef nvmlRusdSettings_v1_t RusdSettings_v1
-ctypedef nvmlBBXTimeData_v1_t BBXTimeData_v1
-ctypedef nvmlRemappedRowsInfo_v2_t RemappedRowsInfo_v2
-ctypedef nvmlAccountingStats_v2_t AccountingStats_v2
-ctypedef nvmlSetMemoryLimits_v1_t SetMemoryLimits_v1
-ctypedef nvmlGetMemoryLimits_v1_t GetMemoryLimits_v1
 ctypedef nvmlPmgrPwrTuple_t PmgrPwrTuple
 ctypedef nvmlRailMetrics_t RailMetrics
 ctypedef nvmlPwrModelMetricsDlppm1xPerf_t PwrModelMetricsDlppm1xPerf
 ctypedef nvmlPwrModelMetricsSamplePfpp1x_t PwrModelMetricsSamplePfpp1x
 ctypedef nvmlPwrModelOperatingPointPfpp1x_t PwrModelOperatingPointPfpp1x
-ctypedef nvmlAdaptiveTgpModeInfo_v1_t AdaptiveTgpModeInfo_v1
-ctypedef nvmlOperationalEventContextInfo_v1_t OperationalEventContextInfo_v1
-ctypedef nvmlGpuOperationalEventContextLegacyXid_v1_t GpuOperationalEventContextLegacyXid_v1
-ctypedef nvmlGpuFabricClique_v1_t GpuFabricClique_v1
-ctypedef nvmlGpuOperationalEventConfig_v1_t GpuOperationalEventConfig_v1
-ctypedef nvmlEventData_v2_t EventData_v2
-ctypedef nvmlNvlinkSetBwModeAsync_v1_t NvlinkSetBwModeAsync_v1
-ctypedef nvmlNvlinkTelemetrySample_v1_t NvlinkTelemetrySample_v1
-ctypedef nvmlEccBankRemapperHistogram_v1_t EccBankRemapperHistogram_v1
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuTypeMaxInstance_v1_t VgpuTypeMaxInstance_v1
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
 ctypedef nvmlGpuFabricInfo_t GpuFabricInfo
-ctypedef nvmlCPERCursor_v1_t CPERCursor_v1
 ctypedef nvmlSystemEventSetCreateRequest_v1_t SystemEventSetCreateRequest_v1
 ctypedef nvmlSystemEventSetFreeRequest_v1_t SystemEventSetFreeRequest_v1
 ctypedef nvmlSystemRegisterEventRequest_v1_t SystemRegisterEventRequest_v1
@@ -91,10 +76,6 @@ ctypedef nvmlWorkloadPowerProfileUpdateProfiles_v1_t WorkloadPowerProfileUpdateP
 ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
 ctypedef nvmlCoreRailMetrics_t CoreRailMetrics
 ctypedef nvmlPwrModelMetricsPfpp1x_t PwrModelMetricsPfpp1x
-ctypedef nvmlGpuFabricInfo_v4_t GpuFabricInfo_v4
-ctypedef nvmlNvlinkTelemetrySamples_v1_t NvlinkTelemetrySamples_v1
-ctypedef nvmlEccBankRemapperStatus_v1_t EccBankRemapperStatus_v1
-ctypedef nvmlGetCPER_v1_t GetCPER_v1
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
 ctypedef nvmlPwrModelMetricsDlppm1x_t PwrModelMetricsDlppm1x
@@ -104,9 +85,6 @@ ctypedef nvmlWorkloadPowerProfileProfilesInfo_v1_t WorkloadPowerProfileProfilesI
 ctypedef nvmlPwrModelMetricsDlppm1xDramclkEstimates_t PwrModelMetricsDlppm1xDramclkEstimates
 ctypedef nvmlObservedMetrics_t ObservedMetrics
 ctypedef nvmlPerfMetricsDlppc2xSample_t PerfMetricsDlppc2xSample
-ctypedef nvmlPerfMetricControllerSample_t PerfMetricControllerSample
-ctypedef nvmlPerfMetricsSample_t PerfMetricsSample
-ctypedef nvmlPerfMetricsSamples_v1_t PerfMetricsSamples_v1
 
 
 ###############################################################################
@@ -467,3 +445,21 @@ cpdef object device_get_vgpu_scheduler_log_v2(intptr_t device)
 cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance)
 cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_state)
 cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p_scheduler_state)
+cpdef object system_get_cper_v1()
+cpdef object device_get_bbx_time_data_v1(intptr_t device)
+cpdef object device_get_accounting_stats_v2(intptr_t device)
+cpdef object device_get_remapped_rows_v2(intptr_t device)
+cpdef device_set_adaptive_tgp_mode_v1(intptr_t device, int mode)
+cpdef object device_get_adaptive_tgp_mode_info_v1(intptr_t device)
+cpdef device_set_memory_limits_v1(intptr_t device, intptr_t limits)
+cpdef object device_get_memory_limits_v1(intptr_t device)
+cpdef object device_get_gpu_fabric_info_v4(intptr_t device)
+cpdef object device_perf_metrics_get_samples_v1(intptr_t device)
+cpdef object device_set_nvlink_bw_mode_async_v1(intptr_t device)
+cpdef object device_get_nv_link_telemetry_samples_v1(intptr_t device)
+cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, intptr_t config)
+cpdef object event_set_wait_v3(intptr_t set, unsigned int timeoutms)
+cpdef unsigned int event_set_get_context_count_v1(intptr_t set) except? 0
+cpdef object event_set_get_context_info_v1(intptr_t set, unsigned int index)
+cpdef object event_set_get_gpu_operational_event_context_legacy_xid_v1(intptr_t set, unsigned int index)
+cpdef object device_get_bank_remapper_status_v1(intptr_t device)

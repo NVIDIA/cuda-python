@@ -4,10 +4,42 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=dd1403b8efcf72b094ba9a55a3c5c477626936facef94c71f3147832969ca1a8
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=56597b55df27ab42b4557879c383d53e0cff68853d1802c993db0e9eb8a449c7
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
+
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
 
 cdef extern from "<windows.h>":
     ctypedef void* HMODULE
@@ -20,7 +52,7 @@ import threading as _cyb_threading
 
 ctypedef int (*_cyb_cuGetProcAddress_v2_T)(const char *, void **, int, cuuint64_t, CUdriverProcAddressQueryResult *)except?CUDA_ERROR_NOT_FOUND nogil
 
-cdef bint _cyb___py_driver_init = False
+cdef int _cyb___py_driver_init = 0
 cdef dict _cyb_func_ptrs = None
 cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
@@ -554,6 +586,13 @@ cdef void* __cuLogicalEndpointImport = NULL
 cdef void* __cuLogicalEndpointGetLimits = NULL
 cdef void* __cuLogicalEndpointQuery = NULL
 cdef void* __cuStreamBeginRecaptureToGraph = NULL
+cdef void* __cuDeviceGetFabricClusterUuid = NULL
+cdef void* __cuDeviceGetCliqueCount = NULL
+cdef void* __cuDeviceGetCliqueInfo = NULL
+cdef void* __cuMemGetLocationInfo = NULL
+cdef void* __cuGraphAddNode_v3 = NULL
+cdef void* __cuGraphNodeSetParams_v2 = NULL
+cdef void* __cuCheckpointOperationComplete = NULL
 
 cdef int _init_driver() except -1 nogil:
     global _cyb___py_driver_init
@@ -2127,11 +2166,32 @@ cdef int _init_driver() except -1 nogil:
         global __cuStreamBeginRecaptureToGraph
         cuGetProcAddress_v2('cuStreamBeginRecaptureToGraph', <void **>&__cuStreamBeginRecaptureToGraph, 13030, ptds_mode, NULL)
 
-        _cyb___py_driver_init = True
+        global __cuDeviceGetFabricClusterUuid
+        cuGetProcAddress_v2('cuDeviceGetFabricClusterUuid', <void **>&__cuDeviceGetFabricClusterUuid, 13040, ptds_mode, NULL)
+
+        global __cuDeviceGetCliqueCount
+        cuGetProcAddress_v2('cuDeviceGetCliqueCount', <void **>&__cuDeviceGetCliqueCount, 13040, ptds_mode, NULL)
+
+        global __cuDeviceGetCliqueInfo
+        cuGetProcAddress_v2('cuDeviceGetCliqueInfo', <void **>&__cuDeviceGetCliqueInfo, 13040, ptds_mode, NULL)
+
+        global __cuMemGetLocationInfo
+        cuGetProcAddress_v2('cuMemGetLocationInfo', <void **>&__cuMemGetLocationInfo, 13040, ptds_mode, NULL)
+
+        global __cuGraphAddNode_v3
+        cuGetProcAddress_v2('cuGraphAddNode', <void **>&__cuGraphAddNode_v3, 13040, ptds_mode, NULL)
+
+        global __cuGraphNodeSetParams_v2
+        cuGetProcAddress_v2('cuGraphNodeSetParams', <void **>&__cuGraphNodeSetParams_v2, 13040, ptds_mode, NULL)
+
+        global __cuCheckpointOperationComplete
+        cuGetProcAddress_v2('cuCheckpointOperationComplete', <void **>&__cuCheckpointOperationComplete, 13040, ptds_mode, NULL)
+
+        _cyb_atomic_int_store(<int *>&_cyb___py_driver_init, 1)
         return 0
 
 cdef inline int _check_or_init_driver() except -1 nogil:
-    if _cyb___py_driver_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_driver_init):
         return 0
 
     return _init_driver()
@@ -3694,6 +3754,27 @@ cpdef dict _inspect_function_pointers():
 
     global __cuStreamBeginRecaptureToGraph
     data["__cuStreamBeginRecaptureToGraph"] = <_cyb_intptr_t>__cuStreamBeginRecaptureToGraph
+
+    global __cuDeviceGetFabricClusterUuid
+    data["__cuDeviceGetFabricClusterUuid"] = <_cyb_intptr_t>__cuDeviceGetFabricClusterUuid
+
+    global __cuDeviceGetCliqueCount
+    data["__cuDeviceGetCliqueCount"] = <_cyb_intptr_t>__cuDeviceGetCliqueCount
+
+    global __cuDeviceGetCliqueInfo
+    data["__cuDeviceGetCliqueInfo"] = <_cyb_intptr_t>__cuDeviceGetCliqueInfo
+
+    global __cuMemGetLocationInfo
+    data["__cuMemGetLocationInfo"] = <_cyb_intptr_t>__cuMemGetLocationInfo
+
+    global __cuGraphAddNode_v3
+    data["__cuGraphAddNode_v3"] = <_cyb_intptr_t>__cuGraphAddNode_v3
+
+    global __cuGraphNodeSetParams_v2
+    data["__cuGraphNodeSetParams_v2"] = <_cyb_intptr_t>__cuGraphNodeSetParams_v2
+
+    global __cuCheckpointOperationComplete
+    data["__cuCheckpointOperationComplete"] = <_cyb_intptr_t>__cuCheckpointOperationComplete
     _cyb_func_ptrs = data
     return data
 
@@ -8884,3 +8965,73 @@ cdef CUresult _cuStreamBeginRecaptureToGraph(CUstream hStream, CUstreamCaptureMo
             raise FunctionNotFoundError("function cuStreamBeginRecaptureToGraph is not found")
     return (<CUresult (*)(CUstream, CUstreamCaptureMode, CUgraph, CUgraphRecaptureCallback, void*) noexcept nogil>__cuStreamBeginRecaptureToGraph)(
         hStream, mode, hGraph, callbackFunc, userData)
+
+
+cdef CUresult _cuDeviceGetFabricClusterUuid(CUuuid* uuid, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuDeviceGetFabricClusterUuid
+    _check_or_init_driver()
+    if __cuDeviceGetFabricClusterUuid == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuDeviceGetFabricClusterUuid is not found")
+    return (<CUresult (*)(CUuuid*, CUdevice) noexcept nogil>__cuDeviceGetFabricClusterUuid)(
+        uuid, dev)
+
+
+cdef CUresult _cuDeviceGetCliqueCount(size_t* count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuDeviceGetCliqueCount
+    _check_or_init_driver()
+    if __cuDeviceGetCliqueCount == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuDeviceGetCliqueCount is not found")
+    return (<CUresult (*)(size_t*, CUdevice) noexcept nogil>__cuDeviceGetCliqueCount)(
+        count, dev)
+
+
+cdef CUresult _cuDeviceGetCliqueInfo(CUcliqueInfo* cliqueInfo, size_t* count, CUdevice dev) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuDeviceGetCliqueInfo
+    _check_or_init_driver()
+    if __cuDeviceGetCliqueInfo == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuDeviceGetCliqueInfo is not found")
+    return (<CUresult (*)(CUcliqueInfo*, size_t*, CUdevice) noexcept nogil>__cuDeviceGetCliqueInfo)(
+        cliqueInfo, count, dev)
+
+
+cdef CUresult _cuMemGetLocationInfo(CUdeviceptr ptr, size_t size, size_t summaryGranularity, size_t samplingGranularity, CUmemLocation* location_out) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMemGetLocationInfo
+    _check_or_init_driver()
+    if __cuMemGetLocationInfo == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuMemGetLocationInfo is not found")
+    return (<CUresult (*)(CUdeviceptr, size_t, size_t, size_t, CUmemLocation*) noexcept nogil>__cuMemGetLocationInfo)(
+        ptr, size, summaryGranularity, samplingGranularity, location_out)
+
+
+cdef CUresult _cuGraphAddNode_v3(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphAddNode_v3
+    _check_or_init_driver()
+    if __cuGraphAddNode_v3 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuGraphAddNode_v3 is not found")
+    return (<CUresult (*)(CUgraphNode*, CUgraph, const CUgraphNode*, const CUgraphEdgeData*, size_t, CUgraphNodeParams*) noexcept nogil>__cuGraphAddNode_v3)(
+        phGraphNode, hGraph, dependencies, dependencyData, numDependencies, nodeParams)
+
+
+cdef CUresult _cuGraphNodeSetParams_v2(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphNodeSetParams_v2
+    _check_or_init_driver()
+    if __cuGraphNodeSetParams_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuGraphNodeSetParams_v2 is not found")
+    return (<CUresult (*)(CUgraphNode, CUgraphNodeParams*) noexcept nogil>__cuGraphNodeSetParams_v2)(
+        hNode, nodeParams)
+
+
+cdef CUresult _cuCheckpointOperationComplete(CUcheckpointOperationHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCheckpointOperationComplete
+    _check_or_init_driver()
+    if __cuCheckpointOperationComplete == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuCheckpointOperationComplete is not found")
+    return (<CUresult (*)(CUcheckpointOperationHandle) noexcept nogil>__cuCheckpointOperationComplete)(
+        handle)

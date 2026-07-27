@@ -56,6 +56,12 @@ class GraphDefinition:
     A GraphDefinition is used to construct a graph explicitly by adding nodes
     and specifying dependencies. Once construction is complete, call
     instantiate() to obtain an executable Graph.
+
+    Notes
+    -----
+    Definitions that view the same root, child, or conditional graph hierarchy
+    share underlying graph state. Mutations anywhere in that hierarchy must be
+    externally synchronized.
     """
 
     def __init__(self):

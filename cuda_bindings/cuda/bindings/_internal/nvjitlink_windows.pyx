@@ -4,10 +4,42 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=63acb33de2273b78de55abc098f8bd9f20671b03faf0adf0d5435518e2e4135a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d90e50b8ffd6f1d66aa26e5a0d38b9e3a3c7a801114de8feabe626d622d50f81
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
+
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
 
 cdef extern from "<windows.h>":
     ctypedef void* HMODULE
@@ -17,7 +49,7 @@ from libc.stdint cimport intptr_t as _cyb_intptr_t
 
 import threading as _cyb_threading
 
-cdef bint _cyb___py_nvjitlink_init = False
+cdef int _cyb___py_nvjitlink_init = 0
 cdef dict _cyb_func_ptrs = None
 cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
@@ -104,11 +136,11 @@ cdef int _init_nvjitlink() except -1 nogil:
         global __nvJitLinkGetLinkedLTOIR
         __nvJitLinkGetLinkedLTOIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvJitLinkGetLinkedLTOIR')
 
-        _cyb___py_nvjitlink_init = True
+        _cyb_atomic_int_store(<int *>&_cyb___py_nvjitlink_init, 1)
         return 0
 
 cdef inline int _check_or_init_nvjitlink() except -1 nogil:
-    if _cyb___py_nvjitlink_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_nvjitlink_init):
         return 0
 
     return _init_nvjitlink()

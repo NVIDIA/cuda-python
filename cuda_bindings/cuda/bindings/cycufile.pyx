@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cefc9ceb8cfb650a6cc69be555f2e0c6515fc221fe3f98f63523cf29ca24e852
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f665ca316ab6166959a5f3338c901e698617b31146000a9d99422dcf9849d3fc
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -194,3 +194,11 @@ cdef CUfileError_t cuFileSetParameterPosixPoolSlabArray(const size_t* size_value
 
 cdef CUfileError_t cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileGetParameterPosixPoolSlabArray(size_values, count_values, len)
+
+
+cdef ssize_t cuFileReadv(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil:
+    return _cufile._cuFileReadv(fh, iov, iovcnt, file_offset, flags)
+
+
+cdef ssize_t cuFileWritev(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil:
+    return _cufile._cuFileWritev(fh, iov, iovcnt, file_offset, flags)

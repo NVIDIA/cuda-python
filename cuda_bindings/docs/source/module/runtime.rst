@@ -2,7 +2,7 @@
 .. SPDX-License-Identifier: Apache-2.0
 
 .. !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c94ee8e0b5b4d126f473643cfcdfb2450bb297a683006a6a962ffb22cdd77bde
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=aeabf4d9caf54446607e921c2143746c4bdc69ab464e319ee0091fdce702280f
 -------
 runtime
 -------
@@ -4261,7 +4261,7 @@ Data types used by CUDA Runtime
 
         Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error. 
 
-         :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
+         :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable` can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
 
          Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cudaGraphExecUpdate`. 
 
@@ -5725,6 +5725,7 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.bindings.runtime.cudaMemPrefetchBatchAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemDiscardBatchAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemDiscardAndPrefetchBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemGetLocationInfo
 .. autofunction:: cuda.bindings.runtime.cudaMemAdvise
 .. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttribute
 .. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttributes

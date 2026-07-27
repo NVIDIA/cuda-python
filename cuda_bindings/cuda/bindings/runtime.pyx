@@ -3,7 +3,7 @@
 
 # This code was automatically generated with version 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=43dde68fba89324c0b492c4070d15ce730103ed6f971a9466c603f739ba13248
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=632a03657f085ae740d8137492ed61dac76e32eec0571a3bb73a2471da87bf08
 from typing import Any, Optional
 import cython
 import ctypes
@@ -1779,8 +1779,8 @@ class cudaLaunchAttributeID(_FastEnum):
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ' :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can\n'
-        'only be set to 0 or 1. Setting the field to 1 indicates that the\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
+        'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
         ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode`\n'
@@ -6685,8 +6685,8 @@ class cudaStreamAttrID(_FastEnum):
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ' :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can\n'
-        'only be set to 0 or 1. Setting the field to 1 indicates that the\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
+        'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
         ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode`\n'
@@ -6930,8 +6930,8 @@ class cudaKernelNodeAttrID(_FastEnum):
         cyruntime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode,
         'Valid for graph nodes, launches. This attribute is graphs-only, and passing\n'
         'it to a launch in a non-capturing stream will result in an error.\n'
-        ' :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can\n'
-        'only be set to 0 or 1. Setting the field to 1 indicates that the\n'
+        ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`\n'
+        'can only be set to 0 or 1. Setting the field to 1 indicates that the\n'
         'corresponding kernel node should be device-updatable. On success, a handle\n'
         'will be returned via\n'
         ':py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode`\n'
@@ -8014,10 +8014,6 @@ cdef class cudaArraySparseProperties:
         Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -8064,12 +8060,6 @@ cdef class cudaArraySparseProperties:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -8106,14 +8096,6 @@ cdef class cudaArraySparseProperties:
         self._pvt_ptr[0].flags = flags
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class cudaArrayMemoryRequirements:
     """
     CUDA array and CUDA mipmapped array memory requirements
@@ -8127,10 +8109,6 @@ cdef class cudaArrayMemoryRequirements:
 
     alignment : size_t
         Alignment necessary for mapping the array.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -8164,12 +8142,6 @@ cdef class cudaArrayMemoryRequirements:
             except ValueError:
                 str_list += ['alignment : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -8188,14 +8160,6 @@ cdef class cudaArrayMemoryRequirements:
     @alignment.setter
     def alignment(self, size_t alignment):
         self._pvt_ptr[0].alignment = alignment
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaPitchedPtr:
@@ -8694,10 +8658,6 @@ cdef class cudaMemcpyNodeParams:
         Must be zero
 
 
-    reserved : int
-        Must be zero
-
-
     ctx : cudaExecutionContext_t
         Context in which to run the memcpy. If NULL will try to use the
         current context.
@@ -8740,12 +8700,6 @@ cdef class cudaMemcpyNodeParams:
 
 
             try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
-
-            try:
                 str_list += ['ctx : ' + str(self.ctx)]
             except ValueError:
                 str_list += ['ctx : <ValueError>']
@@ -8766,14 +8720,6 @@ cdef class cudaMemcpyNodeParams:
     @flags.setter
     def flags(self, int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, int reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
     @property
@@ -9997,13 +9943,6 @@ cdef class anon_struct4:
 
 cdef class anon_struct5:
     """
-    Attributes
-    ----------
-
-    reserved : list[int]
-
-
-
     Methods
     -------
     getPtr()
@@ -10022,22 +9961,9 @@ cdef class anon_struct5:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].res.reserved.reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].res.reserved.reserved = reserved
-
 
 cdef class anon_union0:
     """
@@ -10057,10 +9983,6 @@ cdef class anon_union0:
 
 
     pitch2D : anon_struct4
-
-
-
-    reserved : anon_struct5
 
 
 
@@ -10085,9 +10007,6 @@ cdef class anon_union0:
 
 
         self._pitch2D = anon_struct4(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._reserved = anon_struct5(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -10119,12 +10038,6 @@ cdef class anon_union0:
                 str_list += ['pitch2D :\n' + '\n'.join(['    ' + line for line in str(self.pitch2D).splitlines()])]
             except ValueError:
                 str_list += ['pitch2D : <ValueError>']
-
-
-            try:
-                str_list += ['reserved :\n' + '\n'.join(['    ' + line for line in str(self.reserved).splitlines()])]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -10160,14 +10073,6 @@ cdef class anon_union0:
     @pitch2D.setter
     def pitch2D(self, pitch2D not None : anon_struct4):
         string.memcpy(&self._pvt_ptr[0].res.pitch2D, <void*><void_ptr>pitch2D.getPtr(), sizeof(self._pvt_ptr[0].res.pitch2D))
-
-
-    @property
-    def reserved(self):
-        return self._reserved
-    @reserved.setter
-    def reserved(self, reserved not None : anon_struct5):
-        string.memcpy(&self._pvt_ptr[0].res.reserved, <void*><void_ptr>reserved.getPtr(), sizeof(self._pvt_ptr[0].res.reserved))
 
 
 cdef class cudaResourceDesc:
@@ -10298,10 +10203,6 @@ cdef class cudaResourceViewDesc:
         Last layer index
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
@@ -10368,12 +10269,6 @@ cdef class cudaResourceViewDesc:
                 str_list += ['lastLayer : ' + str(self.lastLayer)]
             except ValueError:
                 str_list += ['lastLayer : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -10443,14 +10338,6 @@ cdef class cudaResourceViewDesc:
         self._pvt_ptr[0].lastLayer = lastLayer
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class cudaPointerAttributes:
     """
     CUDA pointer attributes
@@ -10487,14 +10374,6 @@ cdef class cudaPointerAttributes:
 
     localityDomainOrdinal : int
 
-
-
-    unused : long
-
-
-
-    reserved : list[long]
-        Must be zero
 
 
     Methods
@@ -10548,18 +10427,6 @@ cdef class cudaPointerAttributes:
             except ValueError:
                 str_list += ['localityDomainOrdinal : <ValueError>']
 
-
-            try:
-                str_list += ['unused : ' + str(self.unused)]
-            except ValueError:
-                str_list += ['unused : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -10604,22 +10471,6 @@ cdef class cudaPointerAttributes:
     @localityDomainOrdinal.setter
     def localityDomainOrdinal(self, int localityDomainOrdinal):
         self._pvt_ptr[0].localityDomainOrdinal = localityDomainOrdinal
-
-
-    @property
-    def unused(self):
-        return self._pvt_ptr[0].unused
-    @unused.setter
-    def unused(self, long unused):
-        self._pvt_ptr[0].unused = unused
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaFuncAttributes:
@@ -10744,10 +10595,6 @@ cdef class cudaFuncAttributes:
     sharedMemoryMode : cudaSharedMemoryMode
         This controls a kernel's use of non-portable or oversized shared
         memory configurations.  See cudaFuncSetAttribute
-
-
-    reserved : list[int]
-        Reserved for future use.
 
 
     Methods
@@ -10876,12 +10723,6 @@ cdef class cudaFuncAttributes:
                 str_list += ['sharedMemoryMode : ' + str(self.sharedMemoryMode)]
             except ValueError:
                 str_list += ['sharedMemoryMode : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -11029,14 +10870,6 @@ cdef class cudaFuncAttributes:
     @sharedMemoryMode.setter
     def sharedMemoryMode(self, sharedMemoryMode not None : cudaSharedMemoryMode):
         self._pvt_ptr[0].sharedMemoryMode = <cyruntime.cudaSharedMemoryMode><int>int(sharedMemoryMode)
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct6:
@@ -11302,10 +11135,6 @@ cdef class cudaMemPoolProps:
         Bitmask indicating intended usage for the pool.
 
 
-    reserved : bytes
-        reserved for future use, must be 0
-
-
     Methods
     -------
     getPtr()
@@ -11364,12 +11193,6 @@ cdef class cudaMemPoolProps:
             except ValueError:
                 str_list += ['usage : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -11423,27 +11246,9 @@ cdef class cudaMemPoolProps:
         self._pvt_ptr[0].usage = usage
 
 
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 54)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 54:
-            raise ValueError("reserved length must be 54, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
-
-
 cdef class cudaMemPoolPtrExportData:
     """
     Opaque data for exporting a pool allocation
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -11465,25 +11270,9 @@ cdef class cudaMemPoolPtrExportData:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
-
 
 cdef class cudaMemAllocNodeParams:
     """
@@ -11591,6 +11380,7 @@ cdef class cudaMemAllocNodeParams:
         return [cudaMemAccessDesc(_ptr=arr) for arr in arrs]
     @accessDescs.setter
     def accessDescs(self, val):
+        cdef cyruntime.cudaMemAccessDesc* _accessDescs_new
         if len(val) == 0:
             free(self._accessDescs)
             self._accessDescs = NULL
@@ -11598,14 +11388,22 @@ cdef class cudaMemAllocNodeParams:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                free(self._accessDescs)
-                self._accessDescs = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
-                if self._accessDescs is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _accessDescs_new = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
+                if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaMemAccessDesc)))
+                for idx in range(len(val)):
+                    string.memcpy(&_accessDescs_new[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
+                free(self._accessDescs)
+                self._accessDescs = _accessDescs_new
                 self._accessDescs_length = <size_t>len(val)
-                self._pvt_ptr[0].accessDescs = self._accessDescs
-            for idx in range(len(val)):
-                string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
+                self._pvt_ptr[0].accessDescs = _accessDescs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
 
 
 
@@ -11740,6 +11538,7 @@ cdef class cudaMemAllocNodeParamsV2:
         return [cudaMemAccessDesc(_ptr=arr) for arr in arrs]
     @accessDescs.setter
     def accessDescs(self, val):
+        cdef cyruntime.cudaMemAccessDesc* _accessDescs_new
         if len(val) == 0:
             free(self._accessDescs)
             self._accessDescs = NULL
@@ -11747,14 +11546,22 @@ cdef class cudaMemAllocNodeParamsV2:
             self._pvt_ptr[0].accessDescs = NULL
         else:
             if self._accessDescs_length != <size_t>len(val):
-                free(self._accessDescs)
-                self._accessDescs = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
-                if self._accessDescs is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _accessDescs_new = <cyruntime.cudaMemAccessDesc*> calloc(len(val), sizeof(cyruntime.cudaMemAccessDesc))
+                if _accessDescs_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaMemAccessDesc)))
+                for idx in range(len(val)):
+                    string.memcpy(&_accessDescs_new[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
+                free(self._accessDescs)
+                self._accessDescs = _accessDescs_new
                 self._accessDescs_length = <size_t>len(val)
-                self._pvt_ptr[0].accessDescs = self._accessDescs
-            for idx in range(len(val)):
-                string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
+                self._pvt_ptr[0].accessDescs = _accessDescs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._accessDescs[idx], (<cudaMemAccessDesc>val[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
 
 
 
@@ -12916,10 +12723,6 @@ cdef class cudaDeviceProp:
         multi-node system.
 
 
-    reserved : list[int]
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -13493,12 +13296,6 @@ cdef class cudaDeviceProp:
                 str_list += ['hostNumaMultinodeIpcSupported : ' + str(self.hostNumaMultinodeIpcSupported)]
             except ValueError:
                 str_list += ['hostNumaMultinodeIpcSupported : <ValueError>']
-
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -14252,24 +14049,9 @@ cdef class cudaDeviceProp:
         self._pvt_ptr[0].hostNumaMultinodeIpcSupported = hostNumaMultinodeIpcSupported
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class cudaIpcEventHandle_st:
     """
     CUDA IPC event handle
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -14291,44 +14073,13 @@ cdef class cudaIpcEventHandle_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
 
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        if CHAR_MIN == 0:
-            for i, b in enumerate(reserved):
-                if b < 0 and b > -129:
-                    b = b + 256
-                self._pvt_ptr[0].reserved[i] = b
-        else:
-            for i, b in enumerate(reserved):
-                if b > 127 and b < 256:
-                    b = b - 256
-                self._pvt_ptr[0].reserved[i] = b
-
-
 cdef class cudaIpcMemHandle_st:
     """
     CUDA IPC memory handle
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -14350,43 +14101,12 @@ cdef class cudaIpcMemHandle_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
 
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        if CHAR_MIN == 0:
-            for i, b in enumerate(reserved):
-                if b < 0 and b > -129:
-                    b = b + 256
-                self._pvt_ptr[0].reserved[i] = b
-        else:
-            for i, b in enumerate(reserved):
-                if b > 127 and b < 256:
-                    b = b - 256
-                self._pvt_ptr[0].reserved[i] = b
-
-
 cdef class cudaMemFabricHandle_st:
     """
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -14407,33 +14127,9 @@ cdef class cudaMemFabricHandle_st:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 64)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 64:
-            raise ValueError("reserved length must be 64, is " + str(len(reserved)))
-        if CHAR_MIN == 0:
-            for i, b in enumerate(reserved):
-                if b < 0 and b > -129:
-                    b = b + 256
-                self._pvt_ptr[0].reserved[i] = b
-        else:
-            for i, b in enumerate(reserved):
-                if b > 127 and b < 256:
-                    b = b - 256
-                self._pvt_ptr[0].reserved[i] = b
-
 
 cdef class anon_struct9:
     """
@@ -14606,10 +14302,6 @@ cdef class cudaExternalMemoryHandleDesc:
         Flags must either be zero or cudaExternalMemoryDedicated
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
@@ -14658,12 +14350,6 @@ cdef class cudaExternalMemoryHandleDesc:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -14700,14 +14386,6 @@ cdef class cudaExternalMemoryHandleDesc:
         self._pvt_ptr[0].flags = flags
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
-
-
 cdef class cudaExternalMemoryBufferDesc:
     """
     External memory buffer descriptor
@@ -14725,10 +14403,6 @@ cdef class cudaExternalMemoryBufferDesc:
 
     flags : unsigned int
         Flags reserved for future use. Must be zero.
-
-
-    reserved : list[unsigned int]
-        Must be zero
 
 
     Methods
@@ -14768,12 +14442,6 @@ cdef class cudaExternalMemoryBufferDesc:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -14800,14 +14468,6 @@ cdef class cudaExternalMemoryBufferDesc:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaExternalMemoryMipmappedArrayDesc:
@@ -14837,10 +14497,6 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
 
     numLevels : unsigned int
         Total number of levels in the mipmap chain
-
-
-    reserved : list[unsigned int]
-        Must be zero
 
 
     Methods
@@ -14898,12 +14554,6 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
             except ValueError:
                 str_list += ['numLevels : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -14946,14 +14596,6 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
     @numLevels.setter
     def numLevels(self, unsigned int numLevels):
         self._pvt_ptr[0].numLevels = numLevels
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct10:
@@ -15123,10 +14765,6 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Flags reserved for the future. Must be zero.
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
@@ -15169,12 +14807,6 @@ cdef class cudaExternalSemaphoreHandleDesc:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15201,14 +14833,6 @@ cdef class cudaExternalSemaphoreHandleDesc:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct11:
@@ -15264,10 +14888,6 @@ cdef class anon_union6:
 
 
 
-    reserved : unsigned long long
-
-
-
     Methods
     -------
     getPtr()
@@ -15291,12 +14911,6 @@ cdef class anon_union6:
             except ValueError:
                 str_list += ['fence : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15308,14 +14922,6 @@ cdef class anon_union6:
     def fence(self, fence):
         self._cyfence = _HelperInputVoidPtr(fence)
         self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.nvSciSync.reserved
-    @reserved.setter
-    def reserved(self, unsigned long long reserved):
-        self._pvt_ptr[0].params.nvSciSync.reserved = reserved
 
 
 cdef class anon_struct12:
@@ -15379,10 +14985,6 @@ cdef class anon_struct13:
 
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -15427,12 +15029,6 @@ cdef class anon_struct13:
             except ValueError:
                 str_list += ['keyedMutex : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15461,14 +15057,6 @@ cdef class anon_struct13:
         string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].params.reserved = reserved
-
-
 cdef class cudaExternalSemaphoreSignalParams:
     """
     External semaphore signal parameters, compatible with driver type
@@ -15489,10 +15077,6 @@ cdef class cudaExternalSemaphoreSignalParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -15529,12 +15113,6 @@ cdef class cudaExternalSemaphoreSignalParams:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15553,14 +15131,6 @@ cdef class cudaExternalSemaphoreSignalParams:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_struct14:
@@ -15616,10 +15186,6 @@ cdef class anon_union7:
 
 
 
-    reserved : unsigned long long
-
-
-
     Methods
     -------
     getPtr()
@@ -15643,12 +15209,6 @@ cdef class anon_union7:
             except ValueError:
                 str_list += ['fence : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15660,14 +15220,6 @@ cdef class anon_union7:
     def fence(self, fence):
         self._cyfence = _HelperInputVoidPtr(fence)
         self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.nvSciSync.reserved
-    @reserved.setter
-    def reserved(self, unsigned long long reserved):
-        self._pvt_ptr[0].params.nvSciSync.reserved = reserved
 
 
 cdef class anon_struct15:
@@ -15749,10 +15301,6 @@ cdef class anon_struct16:
 
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -15797,12 +15345,6 @@ cdef class anon_struct16:
             except ValueError:
                 str_list += ['keyedMutex : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15831,14 +15373,6 @@ cdef class anon_struct16:
         string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
 
 
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].params.reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].params.reserved = reserved
-
-
 cdef class cudaExternalSemaphoreWaitParams:
     """
     External semaphore wait parameters, compatible with driver type
@@ -15859,10 +15393,6 @@ cdef class cudaExternalSemaphoreWaitParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -15899,12 +15429,6 @@ cdef class cudaExternalSemaphoreWaitParams:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -15923,14 +15447,6 @@ cdef class cudaExternalSemaphoreWaitParams:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaDevSmResource:
@@ -16148,13 +15664,6 @@ cdef class cudaDevWorkqueueResource:
     """
     Handle to a pre-existing workqueue related resource
 
-    Attributes
-    ----------
-
-    reserved : bytes
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -16175,25 +15684,9 @@ cdef class cudaDevWorkqueueResource:
         if self._pvt_ptr is not NULL:
             str_list = []
 
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 40)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 40:
-            raise ValueError("reserved length must be 40, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
-
 
 cdef class cudaDevSmResourceGroupParams_st:
     """
@@ -16224,10 +15717,6 @@ cdef class cudaDevSmResourceGroupParams_st:
     localityDomainId : unsigned int
         Locality domain that the SM must be located on. Only valid if
         cudaDevSmResourceGroupLocalityDomainId is set in flags
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -16279,12 +15768,6 @@ cdef class cudaDevSmResourceGroupParams_st:
             except ValueError:
                 str_list += ['localityDomainId : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -16327,14 +15810,6 @@ cdef class cudaDevSmResourceGroupParams_st:
     @localityDomainId.setter
     def localityDomainId(self, unsigned int localityDomainId):
         self._pvt_ptr[0].localityDomainId = localityDomainId
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class cudaDevResource_st:
@@ -16528,6 +16003,7 @@ cdef class cudaDevResource_st:
         return [cudaDevResource_st(_ptr=arr) for arr in arrs]
     @nextResource.setter
     def nextResource(self, val):
+        cdef cyruntime.cudaDevResource_st* _nextResource_new
         if len(val) == 0:
             free(self._nextResource)
             self._nextResource = NULL
@@ -16535,14 +16011,22 @@ cdef class cudaDevResource_st:
             self._pvt_ptr[0].nextResource = NULL
         else:
             if self._nextResource_length != <size_t>len(val):
-                free(self._nextResource)
-                self._nextResource = <cyruntime.cudaDevResource_st*> calloc(len(val), sizeof(cyruntime.cudaDevResource_st))
-                if self._nextResource is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _nextResource_new = <cyruntime.cudaDevResource_st*> calloc(len(val), sizeof(cyruntime.cudaDevResource_st))
+                if _nextResource_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaDevResource_st)))
+                for idx in range(len(val)):
+                    string.memcpy(&_nextResource_new[idx], (<cudaDevResource_st>val[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource_st))
+                free(self._nextResource)
+                self._nextResource = _nextResource_new
                 self._nextResource_length = <size_t>len(val)
-                self._pvt_ptr[0].nextResource = self._nextResource
-            for idx in range(len(val)):
-                string.memcpy(&self._nextResource[idx], (<cudaDevResource_st>val[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource_st))
+                self._pvt_ptr[0].nextResource = _nextResource_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._nextResource[idx], (<cudaDevResource_st>val[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource_st))
 
 
 
@@ -17152,6 +16636,7 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
         return [cudaExternalSemaphoreSignalParams(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cyruntime.cudaExternalSemaphoreSignalParams* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -17159,14 +16644,22 @@ cdef class cudaExternalSemaphoreSignalNodeParams:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreSignalParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
 
 
 
@@ -17292,6 +16785,7 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         return [cudaExternalSemaphoreSignalParams(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cyruntime.cudaExternalSemaphoreSignalParams* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -17299,14 +16793,22 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cyruntime.cudaExternalSemaphoreSignalParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreSignalParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreSignalParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreSignalParams))
 
 
 
@@ -17436,6 +16938,7 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
         return [cudaExternalSemaphoreWaitParams(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cyruntime.cudaExternalSemaphoreWaitParams* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -17443,14 +16946,22 @@ cdef class cudaExternalSemaphoreWaitNodeParams:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreWaitParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
 
 
 
@@ -17576,6 +17087,7 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         return [cudaExternalSemaphoreWaitParams(_ptr=arr) for arr in arrs]
     @paramsArray.setter
     def paramsArray(self, val):
+        cdef cyruntime.cudaExternalSemaphoreWaitParams* _paramsArray_new
         if len(val) == 0:
             free(self._paramsArray)
             self._paramsArray = NULL
@@ -17583,14 +17095,22 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
             self._pvt_ptr[0].paramsArray = NULL
         else:
             if self._paramsArray_length != <size_t>len(val):
-                free(self._paramsArray)
-                self._paramsArray = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
-                if self._paramsArray is NULL:
+                # Allocate and fill a new buffer before touching the
+                # live state so a failure leaves this object unchanged
+                # (strong exception guarantee); the old buffer is only
+                # freed once the resize is known to succeed.
+                _paramsArray_new = <cyruntime.cudaExternalSemaphoreWaitParams*> calloc(len(val), sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                if _paramsArray_new is NULL:
                     raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaExternalSemaphoreWaitParams)))
+                for idx in range(len(val)):
+                    string.memcpy(&_paramsArray_new[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                free(self._paramsArray)
+                self._paramsArray = _paramsArray_new
                 self._paramsArray_length = <size_t>len(val)
-                self._pvt_ptr[0].paramsArray = self._paramsArray
-            for idx in range(len(val)):
-                string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
+                self._pvt_ptr[0].paramsArray = _paramsArray_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._paramsArray[idx], (<cudaExternalSemaphoreWaitParams>val[idx])._pvt_ptr, sizeof(cyruntime.cudaExternalSemaphoreWaitParams))
 
 
 
@@ -18023,14 +17543,6 @@ cdef class cudaGraphNodeParams:
         Type of the node
 
 
-    reserved0 : list[int]
-        Reserved. Must be zero.
-
-
-    reserved1 : list[long long]
-        Padding. Unused bytes must be zero.
-
-
     kernel : cudaKernelNodeParamsV2
         Kernel node parameters.
 
@@ -18077,10 +17589,6 @@ cdef class cudaGraphNodeParams:
 
     conditional : cudaConditionalNodeParams
         Conditional node parameters.
-
-
-    reserved2 : long long
-        Reserved bytes. Must be zero.
 
 
     Methods
@@ -18145,18 +17653,6 @@ cdef class cudaGraphNodeParams:
                 str_list += ['type : ' + str(self.type)]
             except ValueError:
                 str_list += ['type : <ValueError>']
-
-
-            try:
-                str_list += ['reserved0 : ' + str(self.reserved0)]
-            except ValueError:
-                str_list += ['reserved0 : <ValueError>']
-
-
-            try:
-                str_list += ['reserved1 : ' + str(self.reserved1)]
-            except ValueError:
-                str_list += ['reserved1 : <ValueError>']
 
 
             try:
@@ -18230,12 +17726,6 @@ cdef class cudaGraphNodeParams:
             except ValueError:
                 str_list += ['conditional : <ValueError>']
 
-
-            try:
-                str_list += ['reserved2 : ' + str(self.reserved2)]
-            except ValueError:
-                str_list += ['reserved2 : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -18246,22 +17736,6 @@ cdef class cudaGraphNodeParams:
     @type.setter
     def type(self, type not None : cudaGraphNodeType):
         self._pvt_ptr[0].type = <cyruntime.cudaGraphNodeType><int>int(type)
-
-
-    @property
-    def reserved0(self):
-        return self._pvt_ptr[0].reserved0
-    @reserved0.setter
-    def reserved0(self, reserved0):
-        self._pvt_ptr[0].reserved0 = reserved0
-
-
-    @property
-    def reserved1(self):
-        return self._pvt_ptr[0].reserved1
-    @reserved1.setter
-    def reserved1(self, reserved1):
-        self._pvt_ptr[0].reserved1 = reserved1
 
 
     @property
@@ -18360,14 +17834,6 @@ cdef class cudaGraphNodeParams:
         string.memcpy(&self._pvt_ptr[0].conditional, <void*><void_ptr>conditional.getPtr(), sizeof(self._pvt_ptr[0].conditional))
 
 
-    @property
-    def reserved2(self):
-        return self._pvt_ptr[0].reserved2
-    @reserved2.setter
-    def reserved2(self, long long reserved2):
-        self._pvt_ptr[0].reserved2 = reserved2
-
-
 cdef class cudaGraphEdgeData_st:
     """
     Optional annotation for edges in a CUDA graph. Note, all edges
@@ -18403,11 +17869,6 @@ cdef class cudaGraphEdgeData_st:
         This should be populated with a value from cudaGraphDependencyType.
         (It is typed as char due to compiler-specific layout of bitfields.)
         See cudaGraphDependencyType.
-
-
-    reserved : bytes
-        These bytes are unused and must be zeroed. This ensures
-        compatibility if additional fields are added in the future.
 
 
     Methods
@@ -18447,12 +17908,6 @@ cdef class cudaGraphEdgeData_st:
             except ValueError:
                 str_list += ['type : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -18479,17 +17934,6 @@ cdef class cudaGraphEdgeData_st:
     @type.setter
     def type(self, unsigned char type):
         self._pvt_ptr[0].type = type
-
-
-    @property
-    def reserved(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 5)
-    @reserved.setter
-    def reserved(self, reserved):
-        if len(reserved) != 5:
-            raise ValueError("reserved length must be 5, is " + str(len(reserved)))
-        for i, b in enumerate(reserved):
-            self._pvt_ptr[0].reserved[i] = b
 
 
 cdef class cudaGraphInstantiateParams_st:
@@ -19548,12 +18992,12 @@ cdef class cudaLaunchAttributeValue:
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
     launchCompletionEvent : anon_struct21
@@ -20508,10 +19952,6 @@ cdef class cudaEglPlaneDesc_st:
         Channel Format Descriptor
 
 
-    reserved : list[unsigned int]
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -20570,12 +20010,6 @@ cdef class cudaEglPlaneDesc_st:
             except ValueError:
                 str_list += ['channelDesc : <ValueError>']
 
-
-            try:
-                str_list += ['reserved : ' + str(self.reserved)]
-            except ValueError:
-                str_list += ['reserved : <ValueError>']
-
             return '\n'.join(str_list)
         else:
             return ''
@@ -20626,14 +20060,6 @@ cdef class cudaEglPlaneDesc_st:
     @channelDesc.setter
     def channelDesc(self, channelDesc not None : cudaChannelFormatDesc):
         string.memcpy(&self._pvt_ptr[0].channelDesc, <void*><void_ptr>channelDesc.getPtr(), sizeof(self._pvt_ptr[0].channelDesc))
-
-
-    @property
-    def reserved(self):
-        return self._pvt_ptr[0].reserved
-    @reserved.setter
-    def reserved(self, reserved):
-        self._pvt_ptr[0].reserved = reserved
 
 
 cdef class anon_union13:
@@ -29716,6 +29142,80 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]]
         err = cyruntime.cudaMemDiscardAndPrefetchBatchAsync(cydptrs_ptr, cysizes.data(), count, cyprefetchLocs, cyprefetchLocIdxs.data(), numPrefetchLocs, flags, cystream)
     if len(prefetchLocs) > 1 and cyprefetchLocs is not NULL:
         free(cyprefetchLocs)
+    return (_cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaMemGetLocationInfo(devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, location_out : Optional[cudaMemLocation]):
+    """ Gets location information for a memory address range.
+
+    Retrieves memory location information for the specified address range
+    starting at `ptr` with size `size`. The API determines the most common
+    location by sampling memory at intervals defined by
+    `samplingGranularity` within the whole interval.
+
+    The location information is returned in the `location_out` array, with
+    one entry per summary region. The total number of locations returned
+    will be ceil(size/summaryGranularity). The user is expected to allocate
+    the `location_out` array with sufficient memory.
+
+    For example, with an address range of 1GB, a `summaryGranularity` of
+    128MB, and a `samplingGranularity` of 2MB, the function will:
+
+    - Divide the 1GB range into 8 summary regions of 128MB each
+
+    - Within each 128MB region, sample every 2MB to determine the most
+      common location. If there is a tie a random winner is chosen.
+
+    - Populate the `location_out` array with 8 entries, one for each 128MB
+      region `summaryGranularity` should be less than or equal to `size`
+      and greater than 0. `samplingGranularity` should be less than or
+      equal to `summaryGranularity`. If the `samplingGranularity` is set to
+      0 it is set to a system dependent default value. In all other cases,
+      the call returns :py:obj:`~.cudaErrorInvalidValue`.
+
+    When the memory is not resident on any processor, the call returns
+    :py:obj:`~.cudaSuccess` and the returned location type for that
+    interval is :py:obj:`~.cudaMemLocationTypeNone`.
+
+    The memory range must refer to one of the following:
+
+    - Managed memory allocated via :py:obj:`~.cudaMallocManaged`, via
+      :py:obj:`~.cudaMallocFromPoolAsync` from a managed memory pool or
+      declared via managed variables.
+
+    - System-allocated pageable memory that is not registered via
+      :py:obj:`~.cudaHostRegister`. If the memory range does not refer to
+      one of the above, the call returns :py:obj:`~.cudaErrorInvalidValue`.
+
+    All devices on the system must have non-zero value for the device
+    attribute :py:obj:`~.cudaDevAttrConcurrentManagedAccess`. If not, this
+    call returns :py:obj:`~.cudaErrorNotSupported`.
+
+    Parameters
+    ----------
+    ptr : Any
+        Starting address of the memory range to query
+    size : size_t
+        Size in bytes of the memory range to query
+    summaryGranularity : size_t
+        Granularity in bytes at which to summarize location information
+    samplingGranularity : size_t
+        Granularity in bytes at which to sample memory within each summary
+        region
+    location_out : :py:obj:`~.cudaMemLocation`
+        Array to store location information, one entry per summary region
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`
+    """
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
+    cdef cyruntime.cudaMemLocation* cylocation_out_ptr = <cyruntime.cudaMemLocation*>location_out._pvt_ptr if location_out is not None else NULL
+    with nogil:
+        err = cyruntime.cudaMemGetLocationInfo(cydevPtr, size, summaryGranularity, samplingGranularity, cylocation_out_ptr)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
 
 @cython.embedsignature(True)
