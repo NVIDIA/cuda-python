@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Resolve mini-CTK components from NVIDIA redistrib metadata."""
+"""Resolve mini-CTK components and prerelease installers."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,7 @@ HOST_PLATFORM_TO_SUBDIR: dict[str, str] = {
     "linux-64": "linux-x86_64",
     "linux-aarch64": "linux-sbsa",
     "win-64": "windows-x86_64",
+    "win-arm64": "windows-arm64",
 }
 
 # CTK 13.3.0 renamed the redistrib key from cuda_cccl to cccl.
@@ -41,6 +43,25 @@ PREVIEW_COMPONENT_PACKAGES: dict[str, str] = {
     "libnvfatbin": "libnvfatbin-dev",
     "libnvjitlink": "libnvjitlink-dev",
     "libnvvm": "libnvvm",
+}
+
+
+@dataclass(frozen=True)
+class PreviewInstaller:
+    url: str
+    sha256: str
+
+
+# Source: https://packages.nvidia.com/prerelease/cuda/13.4.0/local_installers/sha256sum.txt
+PREVIEW_WINDOWS_INSTALLERS: dict[tuple[str, str], PreviewInstaller] = {
+    ("13.4.0", "win-64"): PreviewInstaller(
+        url=("https://packages.nvidia.com/prerelease/cuda/13.4.0/local_installers/cuda_13.4.0_windows_x86_64.exe"),
+        sha256="b743a3323116bf33404953ef58a9b9a3319368241f6352e933e9461409e9a759",
+    ),
+    ("13.4.0", "win-arm64"): PreviewInstaller(
+        url=("https://packages.nvidia.com/prerelease/cuda/13.4.0/local_installers/cuda_13.4.0_windows_arm64.exe"),
+        sha256="a1f68c81160b16d519c4087788b9c07de41306c3f1b872471ceee0996621374d",
+    ),
 }
 
 
@@ -148,6 +169,16 @@ def get_preview_packages(*, host_platform: str, cuda_version: str, components: s
     return packages, skipped
 
 
+def get_preview_installer(*, host_platform: str, cuda_version: str) -> PreviewInstaller:
+    try:
+        return PREVIEW_WINDOWS_INSTALLERS[(cuda_version, host_platform)]
+    except KeyError as exc:
+        raise ValueError(
+            f"CUDA prerelease installer is not supported for "
+            f"cuda-version {cuda_version!r}, host-platform {host_platform!r}"
+        ) from exc
+
+
 def get_component_relative_path(metadata: dict[str, Any], *, host_platform: str, component: str) -> str:
     ctk_subdir = host_platform_to_subdir(host_platform)
     component = resolve_component_name(metadata, component)
@@ -187,6 +218,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     preview_parser.add_argument("--cuda-version", required=True)
     preview_parser.add_argument("--components", required=True)
 
+    preview_installer_parser = subparsers.add_parser("preview-installer")
+    preview_installer_parser.add_argument("--host-platform", required=True)
+    preview_installer_parser.add_argument("--cuda-version", required=True)
+
     return parser.parse_args(argv)
 
 
@@ -207,6 +242,14 @@ def main(argv: list[str] | None = None) -> int:
                     file=sys.stderr,
                 )
             print(",".join(packages))
+            return 0
+
+        if args.command == "preview-installer":
+            installer = get_preview_installer(
+                host_platform=args.host_platform,
+                cuda_version=args.cuda_version,
+            )
+            print(f"{installer.url}\t{installer.sha256}")
             return 0
 
         metadata = load_metadata(metadata_path=args.metadata_path, metadata_url=args.metadata_url)
