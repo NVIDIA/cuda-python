@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
+      CUDA_BUILD_CHANNEL: ${{ steps.get-vars.outputs.cuda_build_channel }}
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
     steps:
       - name: Checkout repository
@@ -42,6 +43,9 @@ jobs:
         run: |
           cuda_build_ver=$(yq '.cuda.build.version' ci/versions.yml)
           echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
+
+          cuda_build_channel=$(yq '.cuda.build.channel // "stable"' ci/versions.yml)
+          echo "cuda_build_channel=$cuda_build_channel" >> $GITHUB_OUTPUT
 
           cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
@@ -250,6 +254,7 @@ jobs:
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      cuda-channel: ${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
   # See build-linux-64 for why build jobs are split by platform.
@@ -269,6 +274,7 @@ jobs:
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      cuda-channel: ${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
   # See build-linux-64 for why build jobs are split by platform.
@@ -282,12 +288,13 @@ jobs:
         host-platform:
           - win-64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) && needs.ci-vars.outputs.CUDA_BUILD_CHANNEL != 'prerelease' }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      cuda-channel: ${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
@@ -307,6 +314,7 @@ jobs:
     with:
       host-platform: linux-64
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      cuda-channel: ${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}
 
   # See test-sdist-linux for why sdist test jobs are split by platform.
   test-sdist-windows:
@@ -314,7 +322,7 @@ jobs:
       - ci-vars
       - should-skip
     name: Test sdist win-64
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) && needs.ci-vars.outputs.CUDA_BUILD_CHANNEL != 'prerelease' }}
     secrets: inherit
     uses: ./.github/workflows/test-sdist-windows.yml
     with:
@@ -383,7 +391,7 @@ jobs:
         host-platform:
           - win-64
     name: Test ${{ matrix.host-platform }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) && needs.ci-vars.outputs.CUDA_BUILD_CHANNEL != 'prerelease' }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
@@ -421,6 +429,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     needs:
+      - ci-vars
       - should-skip
       - detect-changes
       - test-sdist-linux
@@ -447,6 +456,7 @@ jobs:
           fi
 
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
+          cuda_build_channel="${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}"
           status="success"
           check_result() {
             name=$1; expected=$2; result=$3
@@ -458,16 +468,28 @@ jobs:
           }
 
           # always expected to succeed (even in [doc-only] mode)
+          check_result "ci-vars"        "success" "${{ needs.ci-vars.result }}"
           check_result "should-skip"    "success" "${{ needs.should-skip.result }}"
           check_result "detect-changes" "success" "${{ needs.detect-changes.result }}"
           check_result "doc"            "success" "${{ needs.doc.result }}"
 
-          # [doc-only] flips these from 'success' to 'skipped'
-          if [[ "$doc_only" == "true" ]]; then expected="skipped"; else expected="success"; fi
-          check_result "test-sdist-linux"   "$expected" "${{ needs.test-sdist-linux.result }}"
-          check_result "test-sdist-windows" "$expected" "${{ needs.test-sdist-windows.result }}"
-          check_result "test-linux-64"      "$expected" "${{ needs.test-linux-64.result }}"
-          check_result "test-linux-aarch64" "$expected" "${{ needs.test-linux-aarch64.result }}"
-          check_result "test-windows"       "$expected" "${{ needs.test-windows.result }}"
+          # [doc-only] skips all tests. Prerelease CUDA packages currently support
+          # Linux only, so Windows tests are also skipped for that channel.
+          if [[ "$doc_only" == "true" ]]; then
+            linux_expected="skipped"
+            windows_expected="skipped"
+          else
+            linux_expected="success"
+            if [[ "$cuda_build_channel" == "prerelease" ]]; then
+              windows_expected="skipped"
+            else
+              windows_expected="success"
+            fi
+          fi
+          check_result "test-sdist-linux"   "$linux_expected" "${{ needs.test-sdist-linux.result }}"
+          check_result "test-sdist-windows" "$windows_expected" "${{ needs.test-sdist-windows.result }}"
+          check_result "test-linux-64"      "$linux_expected" "${{ needs.test-linux-64.result }}"
+          check_result "test-linux-aarch64" "$linux_expected" "${{ needs.test-linux-aarch64.result }}"
+          check_result "test-windows"       "$windows_expected" "${{ needs.test-windows.result }}"
 
           [[ "$status" == "success" ]]
