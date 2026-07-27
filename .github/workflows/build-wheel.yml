@@ -74,6 +74,8 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
 
       - name: Install latest rapidsai/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}

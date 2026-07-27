@@ -21,6 +21,15 @@ updates:
         patterns: ["*"]
         update-types: ["major", "minor", "patch"]
 
+  # CCCL submodule on main.
+  - package-ecosystem: gitsubmodule
+    directory: /
+    schedule:
+      interval: "monthly"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 1
+
   # GitHub Actions updates targeting the 12.9.x branch
   - package-ecosystem: github-actions
     directory: /

@@ -58,24 +58,25 @@ version is read from the *repository root* rather than the package directory. A
 working build therefore needs all of the following:
 
 1. **A real git clone.** Source zips and GitHub "Download ZIP" archives have no
-   git metadata and the build fails outright. (Tarballs produced by
-   `git archive` do work, thanks to the `.git_archival.txt` substitutions
-   configured in `.gitattributes`.)
+   git metadata and the build fails outright. Tarballs produced by
+   `git archive` still resolve a version via the `.git_archival.txt`
+   substitutions in `.gitattributes`, but they do not include submodule
+   contents, so they cannot compile `cuda.core`.
 2. **The full repository**, not just the package subdirectory, because the
    version lookup walks up to the repository root.
 3. **Tags, reaching back at least as far as the most recent tag** matching the
    package you are building. `git describe` needs to find that tag; the history
    between it and your checkout must be present too.
+4. **The CCCL submodule** when building `cuda.core`. That package compiles
+   against the headers pinned in `cuda_core/third_party/cccl`.
 
 ### Recommended clone
 
-The default `git clone` gives you everything you need:
+The default `git clone` plus the submodules gives you everything you need:
 
 ```console
-$ git clone https://github.com/NVIDIA/cuda-python.git
+$ git clone --recurse-submodules https://github.com/NVIDIA/cuda-python.git
 ```
-
-
 
 ### Fixing an existing clone
 
@@ -83,6 +84,12 @@ If you already have a shallow clone:
 
 ```console
 $ git fetch --unshallow --tags
+```
+
+If you cloned without submodules:
+
+```console
+$ git submodule update --init cuda_core/third_party/cccl
 ```
 
 If you are working from a personal fork, your fork's tags stop tracking upstream
