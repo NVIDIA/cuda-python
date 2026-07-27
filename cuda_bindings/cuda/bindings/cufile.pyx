@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4cb713c4f9de168ab3c1140e0aef9c44d247c7ca43ae5cea0f8d428058c5bd98
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f107413ea0012a1a854cd3de77d57f649bebd0f586901d4e6384f37288ac5421
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -80,13 +80,19 @@ from cuda.bindings.driver import CUresult as pyCUresult
 # POD
 ###############################################################################
 
-_py_anon_pod1_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof((<CUfileDescr_t*>NULL).handle))),
-    {
-        "fd": (_numpy.int32, 0),
-        "handle": (_numpy.intp, 0),
-    }
-    ))
+cdef _get__py_anon_pod1_dtype_offsets():
+    cdef cuda_bindings_cufile__anon_pod1 pod
+    return _numpy.dtype({
+        'names': ['fd', 'handle'],
+        'formats': [_numpy.int32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.fd)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof((<CUfileDescr_t*>NULL).handle),
+    })
+
+_py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
 
 cdef class _py_anon_pod1:
     """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod1`.
@@ -1354,12 +1360,18 @@ cdef class Descr:
         return obj
 
 
-_py_anon_pod2_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof((<CUfileIOParams_t*>NULL).u))),
-    {
-        "batch": (_py_anon_pod3_dtype, 0),
-    }
-    ))
+cdef _get__py_anon_pod2_dtype_offsets():
+    cdef cuda_bindings_cufile__anon_pod2 pod
+    return _numpy.dtype({
+        'names': ['batch'],
+        'formats': [_py_anon_pod3_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.batch)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof((<CUfileIOParams_t*>NULL).u),
+    })
+
+_py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
 
 cdef class _py_anon_pod2:
     """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod2`.

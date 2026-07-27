@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e1efd4a7eaeb85432068bc48ccbc3671b476110733a941dbc30760f41500d477
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fa68fb618fdd8ebcac22c2bf0cee505ebcdacbc51c0ce60bd703b69a34a880cb
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -4303,18 +4303,24 @@ cdef class BridgeChipInfo:
         return obj
 
 
-value_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(nvmlValue_t))),
-    {
-        "d_val": (_numpy.float64, 0),
-        "si_val": (_numpy.int32, 0),
-        "ui_val": (_numpy.uint32, 0),
-        "ul_val": (_numpy.uint32, 0),
-        "ull_val": (_numpy.uint64, 0),
-        "sll_val": (_numpy.int64, 0),
-        "us_val": (_numpy.uint16, 0),
-    }
-    ))
+cdef _get_value_dtype_offsets():
+    cdef nvmlValue_t pod
+    return _numpy.dtype({
+        'names': ['d_val', 'si_val', 'ui_val', 'ul_val', 'ull_val', 'sll_val', 'us_val'],
+        'formats': [_numpy.float64, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.int64, _numpy.uint16],
+        'offsets': [
+            (<intptr_t>&(pod.dVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.siVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.uiVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ulVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ullVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sllVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.usVal)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlValue_t),
+    })
+
+value_dtype = _get_value_dtype_offsets()
 
 cdef class Value:
     """Empty-initialize an instance of `nvmlValue_t`.
@@ -19091,13 +19097,19 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         return obj
 
 
-vgpu_scheduler_params_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(nvmlVgpuSchedulerParams_t))),
-    {
-        "vgpu_sched_data_with_arr": (_py_anon_pod2_dtype, 0),
-        "vgpu_sched_data": (_py_anon_pod3_dtype, 0),
-    }
-    ))
+cdef _get_vgpu_scheduler_params_dtype_offsets():
+    cdef nvmlVgpuSchedulerParams_t pod
+    return _numpy.dtype({
+        'names': ['vgpu_sched_data_with_arr', 'vgpu_sched_data'],
+        'formats': [_py_anon_pod2_dtype, _py_anon_pod3_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.vgpuSchedDataWithARR)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuSchedData)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerParams_t),
+    })
+
+vgpu_scheduler_params_dtype = _get_vgpu_scheduler_params_dtype_offsets()
 
 cdef class VgpuSchedulerParams:
     """Empty-initialize an instance of `nvmlVgpuSchedulerParams_t`.
@@ -19238,13 +19250,19 @@ cdef class VgpuSchedulerParams:
         return obj
 
 
-vgpu_scheduler_set_params_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(nvmlVgpuSchedulerSetParams_t))),
-    {
-        "vgpu_sched_data_with_arr": (_py_anon_pod4_dtype, 0),
-        "vgpu_sched_data": (_py_anon_pod5_dtype, 0),
-    }
-    ))
+cdef _get_vgpu_scheduler_set_params_dtype_offsets():
+    cdef nvmlVgpuSchedulerSetParams_t pod
+    return _numpy.dtype({
+        'names': ['vgpu_sched_data_with_arr', 'vgpu_sched_data'],
+        'formats': [_py_anon_pod4_dtype, _py_anon_pod5_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.vgpuSchedDataWithARR)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuSchedData)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerSetParams_t),
+    })
+
+vgpu_scheduler_set_params_dtype = _get_vgpu_scheduler_set_params_dtype_offsets()
 
 cdef class VgpuSchedulerSetParams:
     """Empty-initialize an instance of `nvmlVgpuSchedulerSetParams_t`.
