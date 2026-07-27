@@ -104,6 +104,7 @@ runs:
         CACHE_TMP_DIR="./cache_tmp_dir"
         rm -rf $CACHE_TMP_DIR
         mkdir $CACHE_TMP_DIR
+        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
 
         if [[ "${{ inputs.cuda-channel }}" == "prerelease" ]]; then
           if [[ "${{ inputs.host-platform }}" == linux* ]]; then
@@ -146,6 +147,7 @@ runs:
           elif [[ "${{ inputs.host-platform }}" == win* ]]; then
             INSTALLER_PATH="$CACHE_TMP_DIR/$(basename "$CTK_PREVIEW_INSTALLER_URL")"
             EXTRACT_ROOT="$CACHE_TMP_DIR/installer-root"
+            MERGE_ROOT="$CACHE_TMP_DIR/merged-ctk"
             curl -fLSs "$CTK_PREVIEW_INSTALLER_URL" -o "$INSTALLER_PATH"
             echo "$CTK_PREVIEW_INSTALLER_SHA256  $INSTALLER_PATH" | sha256sum --check --strict -
 
@@ -158,32 +160,26 @@ runs:
               exit 1
             fi
 
+            IFS=, read -ra PREVIEW_WINDOWS_ARCHIVES <<< \
+              "$(python "$CTK_REDIST_TOOL" preview-windows-archives \
+                --host-platform "${{ inputs.host-platform }}" \
+                --cuda-version "${{ inputs.cuda-version }}" \
+                --components "${{ inputs.cuda-components }}")"
+
             mkdir -p "$EXTRACT_ROOT"
-            "$SEVEN_ZIP" x -y -r "$INSTALLER_PATH" \
-              "CUDAToolkit/include/*" \
-              "CUDAToolkit/bin/*" \
-              "CUDAToolkit/lib/*" \
-              "CUDAToolkit/nvvm/*" \
-              "CUDAToolkit/extras/CUPTI/*" \
-              "-o$EXTRACT_ROOT"
+            for archive_dir in "${PREVIEW_WINDOWS_ARCHIVES[@]}"; do
+              "$SEVEN_ZIP" x -y "$INSTALLER_PATH" "${archive_dir}/*" "-o$EXTRACT_ROOT"
+            done
 
-            CUDA_PACKAGE_ROOT="$EXTRACT_ROOT/CUDAToolkit"
-            if [[ ! -d "$CUDA_PACKAGE_ROOT/include" || ! -f "$CUDA_PACKAGE_ROOT/bin/nvcc.exe" ]]; then
-              echo "CUDA prerelease installer did not provide the expected toolkit layout" >&2
-              exit 1
-            fi
-            if [[ "${{ inputs.host-platform }}" == "win-arm64" ]]; then
-              CUDA_LIBRARY_DIR="$CUDA_PACKAGE_ROOT/lib/arm64"
-            else
-              CUDA_LIBRARY_DIR="$CUDA_PACKAGE_ROOT/lib/x64"
-            fi
-            if [[ ! -d "$CUDA_LIBRARY_DIR" ]]; then
-              echo "CUDA prerelease installer did not provide $CUDA_LIBRARY_DIR" >&2
-              exit 1
-            fi
+            python "$CTK_REDIST_TOOL" merge-windows-preview \
+              --host-platform "${{ inputs.host-platform }}" \
+              --cuda-version "${{ inputs.cuda-version }}" \
+              --components "${{ inputs.cuda-components }}" \
+              --extract-root "$EXTRACT_ROOT" \
+              --destination "$MERGE_ROOT"
 
-            cp -a "$CUDA_PACKAGE_ROOT/." "$CACHE_TMP_DIR/"
-            rm -rf "$EXTRACT_ROOT" "$INSTALLER_PATH"
+            cp -a "$MERGE_ROOT/." "$CACHE_TMP_DIR/"
+            rm -rf "$EXTRACT_ROOT" "$MERGE_ROOT" "$INSTALLER_PATH"
           else
             echo "CUDA prerelease extraction is not supported for host-platform ${{ inputs.host-platform }}" >&2
             exit 1
@@ -191,7 +187,6 @@ runs:
         else
           # The binary archives (redist) are guaranteed to be updated as part of the release posting.
           # Use the runtime workspace mount so this also works inside container jobs.
-          CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
           CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
           CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
           CTK_JSON_FILE="$CACHE_TMP_DIR/redistrib.json"

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 import urllib.error
 import urllib.parse
@@ -43,6 +44,34 @@ PREVIEW_COMPONENT_PACKAGES: dict[str, str] = {
     "libnvfatbin": "libnvfatbin-dev",
     "libnvjitlink": "libnvjitlink-dev",
     "libnvvm": "libnvvm",
+}
+
+# Top-level directories inside the Windows local installer archive.
+PREVIEW_WINDOWS_ARCHIVE_DIRS: dict[str, str] = {
+    "cuda_cccl": "cccl",
+    "cuda_crt": "cuda_crt",
+    "cuda_cudart": "cuda_cudart",
+    "cuda_cupti": "cuda_cupti",
+    "cuda_nvcc": "cuda_nvcc",
+    "cuda_nvrtc": "cuda_nvrtc",
+    "cuda_profiler_api": "cuda_profiler_api",
+    "libnvfatbin": "libnvfatbin",
+    "libnvjitlink": "libnvjitlink",
+    "libnvvm": "libnvvm",
+}
+
+# Paths inside the extracted installer tree for each component.
+PREVIEW_WINDOWS_COMPONENT_ROOTS: dict[str, str] = {
+    "cuda_cccl": "cccl/cccl",
+    "cuda_crt": "cuda_crt/crt",
+    "cuda_cudart": "cuda_cudart/cudart",
+    "cuda_cupti": "cuda_cupti/cupti",
+    "cuda_nvcc": "cuda_nvcc/nvcc",
+    "cuda_nvrtc": "cuda_nvrtc",
+    "cuda_profiler_api": "cuda_profiler_api/cuda_profiler_api",
+    "libnvfatbin": "libnvfatbin/nvfatbin",
+    "libnvjitlink": "libnvjitlink/nvjitlink",
+    "libnvvm": "libnvvm/nvvm/nvvm",
 }
 
 
@@ -169,6 +198,98 @@ def get_preview_packages(*, host_platform: str, cuda_version: str, components: s
     return packages, skipped
 
 
+def windows_arch_for_host_platform(host_platform: str) -> str:
+    if host_platform == "win-arm64":
+        return "arm64"
+    if host_platform == "win-64":
+        return "x64"
+    raise ValueError(f"unsupported Windows host-platform: {host_platform!r}")
+
+
+def get_preview_windows_archive_dirs(
+    *, host_platform: str, cuda_version: str, components: str
+) -> tuple[list[str], list[str]]:
+    if not host_platform.startswith("win-"):
+        raise ValueError(f"CUDA prerelease Windows installer is not supported for host-platform {host_platform!r}")
+
+    archive_dirs: list[str] = []
+    skipped: list[str] = []
+    for component in filter_static_components(split_components(components), host_platform, cuda_version):
+        if component == "libcudla":
+            skipped.append(component)
+            continue
+        try:
+            archive_dir = PREVIEW_WINDOWS_ARCHIVE_DIRS[component]
+        except KeyError as exc:
+            raise ValueError(f"unsupported CUDA prerelease component: {component!r}") from exc
+        if archive_dir not in archive_dirs:
+            archive_dirs.append(archive_dir)
+    return archive_dirs, skipped
+
+
+def _merge_tree(source: Path, destination: Path) -> None:
+    if not source.exists():
+        return
+    destination.mkdir(parents=True, exist_ok=True)
+    for item in source.iterdir():
+        target = destination / item.name
+        if item.is_dir():
+            _merge_tree(item, target)
+        elif target.exists():
+            target.unlink()
+            shutil.copy2(item, target)
+        else:
+            shutil.copy2(item, target)
+
+
+def merge_windows_preview_ctk(
+    *,
+    extract_root: Path,
+    destination: Path,
+    host_platform: str,
+    cuda_version: str,
+    components: str,
+) -> None:
+    arch = windows_arch_for_host_platform(host_platform)
+    if destination.exists():
+        shutil.rmtree(destination)
+    destination.mkdir(parents=True)
+
+    for component in filter_static_components(split_components(components), host_platform, cuda_version):
+        if component not in PREVIEW_WINDOWS_COMPONENT_ROOTS:
+            continue
+        component_root = extract_root / PREVIEW_WINDOWS_COMPONENT_ROOTS[component]
+        if not component_root.exists():
+            raise ValueError(f"CUDA prerelease installer did not provide {component_root}")
+
+        if component == "cuda_nvrtc":
+            _merge_tree(component_root / "nvrtc_dev/include", destination / "include")
+            _merge_tree(component_root / "nvrtc_dev/lib" / arch, destination / "lib")
+            _merge_tree(component_root / "nvrtc/bin" / arch, destination / "bin")
+            continue
+
+        if component == "cuda_cupti":
+            _merge_tree(component_root / "extras/CUPTI", destination / "extras/CUPTI")
+            continue
+
+        if component == "libnvvm":
+            _merge_tree(component_root, destination / "nvvm")
+            continue
+
+        _merge_tree(component_root / "include", destination / "include")
+        arch_bin = component_root / "bin" / arch
+        if arch_bin.exists():
+            _merge_tree(arch_bin, destination / "bin")
+        elif (component_root / "bin").exists():
+            _merge_tree(component_root / "bin", destination / "bin")
+        arch_lib = component_root / "lib" / arch
+        if arch_lib.exists():
+            _merge_tree(arch_lib, destination / "lib")
+
+    if not (destination / "include").is_dir() or not (destination / "bin/nvcc.exe").is_file():
+        raise ValueError("CUDA prerelease installer did not provide the expected toolkit layout")
+
+
 def get_preview_installer(*, host_platform: str, cuda_version: str) -> PreviewInstaller:
     try:
         return PREVIEW_WINDOWS_INSTALLERS[(cuda_version, host_platform)]
@@ -222,6 +343,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     preview_installer_parser.add_argument("--host-platform", required=True)
     preview_installer_parser.add_argument("--cuda-version", required=True)
 
+    preview_windows_archives_parser = subparsers.add_parser("preview-windows-archives")
+    preview_windows_archives_parser.add_argument("--host-platform", required=True)
+    preview_windows_archives_parser.add_argument("--cuda-version", required=True)
+    preview_windows_archives_parser.add_argument("--components", required=True)
+
+    merge_windows_preview_parser = subparsers.add_parser("merge-windows-preview")
+    merge_windows_preview_parser.add_argument("--host-platform", required=True)
+    merge_windows_preview_parser.add_argument("--cuda-version", required=True)
+    merge_windows_preview_parser.add_argument("--components", required=True)
+    merge_windows_preview_parser.add_argument("--extract-root", required=True)
+    merge_windows_preview_parser.add_argument("--destination", required=True)
+
     return parser.parse_args(argv)
 
 
@@ -250,6 +383,31 @@ def main(argv: list[str] | None = None) -> int:
                 cuda_version=args.cuda_version,
             )
             print(f"{installer.url}\t{installer.sha256}")
+            return 0
+
+        if args.command == "preview-windows-archives":
+            archive_dirs, skipped = get_preview_windows_archive_dirs(
+                host_platform=args.host_platform,
+                cuda_version=args.cuda_version,
+                components=args.components,
+            )
+            for component in skipped:
+                print(
+                    f"Skipping unsupported CUDA prerelease component {component!r} "
+                    f"for host-platform {args.host_platform!r}",
+                    file=sys.stderr,
+                )
+            print(",".join(archive_dirs))
+            return 0
+
+        if args.command == "merge-windows-preview":
+            merge_windows_preview_ctk(
+                extract_root=Path(args.extract_root),
+                destination=Path(args.destination),
+                host_platform=args.host_platform,
+                cuda_version=args.cuda_version,
+                components=args.components,
+            )
             return 0
 
         metadata = load_metadata(metadata_path=args.metadata_path, metadata_url=args.metadata_url)
