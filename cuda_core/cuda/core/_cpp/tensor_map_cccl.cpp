@@ -6,31 +6,27 @@
 
 #include <string.h>
 
-#include <algorithm>
 #include <exception>
 
-#if defined(__has_include)
-// Older CTK releases do not ship <cuda/tma>. When it is unavailable we keep
-// the CCCL helper compiled out and fall back to the direct driver path.
-#  if __has_include(<cuda/tma>)
-#    include <cuda/tma>
-#    define CUDA_CORE_HAS_CUDA_TMA 1
+// Ahead of <cuda/tma>: CCCL pulls DLPack in itself, and the copy included first
+// wins for the whole file.
+#include "dlpack.h"
+
+// <cuda/tma> arrived in CCCL 3.2; older CTKs use the driver path below. CCCL
+// declares the make_tma_descriptor overloads we call only when it found DLPack
+// for itself, so ask it rather than inferring.
+#if defined(__has_include) && __has_include(<cuda/tma>)
+#  include <cuda/tma>
+#  if defined(_CCCL_HAS_DLPACK) && _CCCL_HAS_DLPACK()
+#    define CUDA_CORE_HAS_CCCL_TMA 1
 #  else
-#    define CUDA_CORE_HAS_CUDA_TMA 0
-#  endif
-#  if __has_include("dlpack.h")
-#    include "dlpack.h"
-#    define CUDA_CORE_HAS_DLPACK_H 1
-#  elif __has_include(<dlpack/dlpack.h>)
-#    include <dlpack/dlpack.h>
-#    define CUDA_CORE_HAS_DLPACK_H 1
-#  else
-#    define CUDA_CORE_HAS_DLPACK_H 0
+#    define CUDA_CORE_HAS_CCCL_TMA 0
 #  endif
 #else
-#  define CUDA_CORE_HAS_CUDA_TMA 0
-#  define CUDA_CORE_HAS_DLPACK_H 0
+#  define CUDA_CORE_HAS_CCCL_TMA 0
 #endif
+
+#if CUDA_CORE_HAS_CCCL_TMA
 
 static inline void cuda_core_write_err(char* err, size_t cap, const char* msg) noexcept
 {
@@ -48,7 +44,7 @@ static inline void cuda_core_write_err(char* err, size_t cap, const char* msg) n
   err[n] = '\0';
 }
 
-int cuda_core_cccl_make_tma_descriptor_tiled(
+static int cuda_core_cccl_make_tma_descriptor_tiled_impl(
   void* out_tensor_map,
   void* data,
   int device_type,
@@ -68,26 +64,6 @@ int cuda_core_cccl_make_tma_descriptor_tiled(
   char* err,
   size_t err_cap) noexcept
 {
-#if !(CUDA_CORE_HAS_CUDA_TMA && CUDA_CORE_HAS_DLPACK_H)
-  (void)out_tensor_map;
-  (void)data;
-  (void)device_type;
-  (void)device_id;
-  (void)ndim;
-  (void)shape;
-  (void)strides;
-  (void)dtype_code;
-  (void)dtype_bits;
-  (void)dtype_lanes;
-  (void)box_sizes;
-  (void)elem_strides;
-  (void)interleave_layout;
-  (void)swizzle;
-  (void)l2_fetch_size;
-  (void)oob_fill;
-  cuda_core_write_err(err, err_cap, "CCCL <cuda/tma> and/or <dlpack/dlpack.h> not available at build time");
-  return 1;
-#else
   try
   {
     if (!out_tensor_map)
@@ -140,6 +116,8 @@ int cuda_core_cccl_make_tma_descriptor_tiled(
     cuda_core_write_err(err, err_cap, nullptr);
     return 0;
   }
+  // cuda::cuda_error derives from std::runtime_error, so this covers both CCCL's
+  // argument validation and failures of the driver calls it makes.
   catch (const std::exception& e)
   {
     cuda_core_write_err(err, err_cap, e.what());
@@ -150,5 +128,13 @@ int cuda_core_cccl_make_tma_descriptor_tiled(
     cuda_core_write_err(err, err_cap, "unknown error while building TMA descriptor");
     return 1;
   }
-#endif
 }
+
+cuda_core_cccl_make_tma_descriptor_tiled_fn cuda_core_cccl_make_tma_descriptor_tiled =
+  cuda_core_cccl_make_tma_descriptor_tiled_impl;
+
+#else
+
+cuda_core_cccl_make_tma_descriptor_tiled_fn cuda_core_cccl_make_tma_descriptor_tiled = nullptr;
+
+#endif
