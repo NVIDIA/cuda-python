@@ -268,6 +268,15 @@ jobs:
       ARCH: "amd64"
       CUDA_PYTHON_COVERAGE: "1"
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
+      # Diagnostics for the recurring exit-139 crash in the cuda.core step.
+      # faulthandler names the Windows exception (access violation vs stack
+      # overflow) and dumps every thread's Python stack; unlike pytest's
+      # built-in faulthandler plugin, the env var is inherited by tests that
+      # spawn their own `python -c` children, which crash too.  Unbuffered
+      # stdio keeps the last lines before a hard crash from dying in the
+      # block buffer of a non-tty pipe.
+      PYTHONFAULTHANDLER: "1"
+      PYTHONUNBUFFERED: "1"
     defaults:
       run:
         shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -365,14 +374,35 @@ jobs:
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_bindings/tests"
 
+      # Only this step crashes.  cuda.bindings runs the same wrapper, the same
+      # 8 MB thread and the same coverage wheel, and finishes normally, so the
+      # extra diagnostics are scoped to cuda.core alone.
       - name: Run cuda.core tests (with 8MB stack)
         continue-on-error: true
+        env:
+          PYTEST_CRASHLOG: ${{ github.workspace }}/crashlog-core.txt
         run: |
           "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
+            --isolate \
             --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_core/tests"
+
+      # The step above has been exiting 139 on every run, and Git Bash reports
+      # that as a bare "Segmentation fault".  The crash log's final line says
+      # how far the session actually got.
+      - name: Report how far the cuda.core session got
+        if: always()
+        continue-on-error: true
+        run: |
+          log="$GITHUB_WORKSPACE/crashlog-core.txt"
+          if [ -f "$log" ]; then
+            echo "=== $(wc -l < "$log") lines, last 20 ==="
+            tail -n 20 "$log"
+          else
+            echo "No crash log: died before pytest started."
+          fi
 
       - name: Copy Windows coverage file to workspace
         run: |
