@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c10e35b54aee286bcc171eb2c06ff17ee2c7b0cea46a242e8259e9a2a56f3da5
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=645f3ed3fb371720ef15142aac81fa3371c1111f88d740aa12c05b51c383fd4f
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -4518,164 +4518,178 @@ cdef _get__py_anon_pod0_dtype_offsets():
 _py_anon_pod0_dtype = _get__py_anon_pod0_dtype_offsets()
 
 cdef class _py_anon_pod0:
-    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod0`.
+    """Empty-initialize an array of `cuda_bindings_nvml__anon_pod0`.
+    The resulting object is of length `size` and of dtype `_py_anon_pod0_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `cuda_bindings_nvml__anon_pod0`
     """
     cdef:
-        cuda_bindings_nvml__anon_pod0 *_ptr
+        readonly object _data
         object _owner
-        bint _owned
-        bint _readonly
 
-    def __init__(self):
-        self._ptr = <cuda_bindings_nvml__anon_pod0 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod0))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating _py_anon_pod0")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef cuda_bindings_nvml__anon_pod0 *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=_py_anon_pod0_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod0), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod0) }"
 
     def __repr__(self):
-        return f"<{__name__}._py_anon_pod0 object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}._py_anon_pod0_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}._py_anon_pod0 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef _py_anon_pod0 other_
-        if not isinstance(other, _py_anon_pod0):
+        cdef object self_data = self._data
+        if (not isinstance(other, _py_anon_pod0)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod0)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod0), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_nvml__anon_pod0 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod0))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating _py_anon_pod0")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod0))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def controller(self):
-        """int: """
-        return <int>(self._ptr[0].controller)
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.controller[0])
+        return self._data.controller
 
     @controller.setter
     def controller(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod0 instance is read-only")
-        self._ptr[0].controller = <nvmlThermalController_t><int>val
+        self._data.controller = val
 
     @property
     def default_min_temp(self):
-        """int: """
-        return self._ptr[0].defaultMinTemp
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.default_min_temp[0])
+        return self._data.default_min_temp
 
     @default_min_temp.setter
     def default_min_temp(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod0 instance is read-only")
-        self._ptr[0].defaultMinTemp = val
+        self._data.default_min_temp = val
 
     @property
     def default_max_temp(self):
-        """int: """
-        return self._ptr[0].defaultMaxTemp
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.default_max_temp[0])
+        return self._data.default_max_temp
 
     @default_max_temp.setter
     def default_max_temp(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod0 instance is read-only")
-        self._ptr[0].defaultMaxTemp = val
+        self._data.default_max_temp = val
 
     @property
     def current_temp(self):
-        """int: """
-        return self._ptr[0].currentTemp
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.current_temp[0])
+        return self._data.current_temp
 
     @current_temp.setter
     def current_temp(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod0 instance is read-only")
-        self._ptr[0].currentTemp = val
+        self._data.current_temp = val
 
     @property
     def target(self):
-        """int: """
-        return <int>(self._ptr[0].target)
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data.target[0])
+        return self._data.target
 
     @target.setter
     def target(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod0 instance is read-only")
-        self._ptr[0].target = <nvmlThermalTarget_t><int>val
+        self._data.target = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return _py_anon_pod0.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == _py_anon_pod0_dtype:
+            return _py_anon_pod0.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod0 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod0), _py_anon_pod0)
+        return _py_anon_pod0.from_data(_numpy.frombuffer(buffer, dtype=_py_anon_pod0_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an _py_anon_pod0 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod0_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `_py_anon_pod0_dtype` holding the data.
         """
-        return _cyb_from_data(data, "_py_anon_pod0_dtype", _py_anon_pod0_dtype, _py_anon_pod0)
+        cdef _py_anon_pod0 obj = _py_anon_pod0.__new__(_py_anon_pod0)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != _py_anon_pod0_dtype:
+            raise ValueError("data array must be of dtype _py_anon_pod0_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an _py_anon_pod0 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod0 obj = _py_anon_pod0.__new__(_py_anon_pod0)
-        if owner is None:
-            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod0))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating _py_anon_pod0")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod0))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <cuda_bindings_nvml__anon_pod0 *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(cuda_bindings_nvml__anon_pod0) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=_py_anon_pod0_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
         return obj
 
 
@@ -6374,153 +6388,167 @@ cdef _get__py_anon_pod1_dtype_offsets():
 _py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
 
 cdef class _py_anon_pod1:
-    """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod1`.
+    """Empty-initialize an array of `cuda_bindings_nvml__anon_pod1`.
+    The resulting object is of length `size` and of dtype `_py_anon_pod1_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `cuda_bindings_nvml__anon_pod1`
     """
     cdef:
-        cuda_bindings_nvml__anon_pod1 *_ptr
+        readonly object _data
         object _owner
-        bint _owned
-        bint _readonly
 
-    def __init__(self):
-        self._ptr = <cuda_bindings_nvml__anon_pod1 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod1))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating _py_anon_pod1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef cuda_bindings_nvml__anon_pod1 *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=_py_anon_pod1_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod1), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod1) }"
 
     def __repr__(self):
-        return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}._py_anon_pod1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef _py_anon_pod1 other_
-        if not isinstance(other, _py_anon_pod1):
+        cdef object self_data = self._data
+        if (not isinstance(other, _py_anon_pod1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_nvml__anon_pod1)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_nvml__anon_pod1), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_nvml__anon_pod1 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod1))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating _py_anon_pod1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_nvml__anon_pod1))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def b_is_present(self):
-        """int: """
-        return self._ptr[0].bIsPresent
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.b_is_present[0])
+        return self._data.b_is_present
 
     @b_is_present.setter
     def b_is_present(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod1 instance is read-only")
-        self._ptr[0].bIsPresent = val
+        self._data.b_is_present = val
 
     @property
     def percentage(self):
-        """int: """
-        return self._ptr[0].percentage
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.percentage[0])
+        return self._data.percentage
 
     @percentage.setter
     def percentage(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod1 instance is read-only")
-        self._ptr[0].percentage = val
+        self._data.percentage = val
 
     @property
     def inc_threshold(self):
-        """int: """
-        return self._ptr[0].incThreshold
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.inc_threshold[0])
+        return self._data.inc_threshold
 
     @inc_threshold.setter
     def inc_threshold(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod1 instance is read-only")
-        self._ptr[0].incThreshold = val
+        self._data.inc_threshold = val
 
     @property
     def dec_threshold(self):
-        """int: """
-        return self._ptr[0].decThreshold
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.dec_threshold[0])
+        return self._data.dec_threshold
 
     @dec_threshold.setter
     def dec_threshold(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod1 instance is read-only")
-        self._ptr[0].decThreshold = val
+        self._data.dec_threshold = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return _py_anon_pod1.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == _py_anon_pod1_dtype:
+            return _py_anon_pod1.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_nvml__anon_pod1), _py_anon_pod1)
+        return _py_anon_pod1.from_data(_numpy.frombuffer(buffer, dtype=_py_anon_pod1_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an _py_anon_pod1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod1_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `_py_anon_pod1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
+        cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != _py_anon_pod1_dtype:
+            raise ValueError("data array must be of dtype _py_anon_pod1_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an _py_anon_pod1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
-        if owner is None:
-            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>_cyb_malloc(sizeof(cuda_bindings_nvml__anon_pod1))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating _py_anon_pod1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod1))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <cuda_bindings_nvml__anon_pod1 *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(cuda_bindings_nvml__anon_pod1) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=_py_anon_pod1_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
         return obj
 
 
@@ -15294,153 +15322,167 @@ cdef _get_nvlink_firmware_version_dtype_offsets():
 nvlink_firmware_version_dtype = _get_nvlink_firmware_version_dtype_offsets()
 
 cdef class NvlinkFirmwareVersion:
-    """Empty-initialize an instance of `nvmlNvlinkFirmwareVersion_t`.
+    """Empty-initialize an array of `nvmlNvlinkFirmwareVersion_t`.
+    The resulting object is of length `size` and of dtype `nvlink_firmware_version_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `nvmlNvlinkFirmwareVersion_t`
     """
     cdef:
-        nvmlNvlinkFirmwareVersion_t *_ptr
+        readonly object _data
         object _owner
-        bint _owned
-        bint _readonly
 
-    def __init__(self):
-        self._ptr = <nvmlNvlinkFirmwareVersion_t *>_cyb_calloc(1, sizeof(nvmlNvlinkFirmwareVersion_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating NvlinkFirmwareVersion")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlNvlinkFirmwareVersion_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=nvlink_firmware_version_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlNvlinkFirmwareVersion_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlNvlinkFirmwareVersion_t) }"
 
     def __repr__(self):
-        return f"<{__name__}.NvlinkFirmwareVersion object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.NvlinkFirmwareVersion_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.NvlinkFirmwareVersion object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef NvlinkFirmwareVersion other_
-        if not isinstance(other, NvlinkFirmwareVersion):
+        cdef object self_data = self._data
+        if (not isinstance(other, NvlinkFirmwareVersion)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkFirmwareVersion_t)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkFirmwareVersion_t), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlNvlinkFirmwareVersion_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating NvlinkFirmwareVersion")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkFirmwareVersion_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def ucode_type(self):
-        """int: """
-        return self._ptr[0].ucodeType
+        """Union[~_numpy.uint8, int]: """
+        if self._data.size == 1:
+            return int(self._data.ucode_type[0])
+        return self._data.ucode_type
 
     @ucode_type.setter
     def ucode_type(self, val):
-        if self._readonly:
-            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
-        self._ptr[0].ucodeType = val
+        self._data.ucode_type = val
 
     @property
     def major(self):
-        """int: """
-        return self._ptr[0].major
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.major[0])
+        return self._data.major
 
     @major.setter
     def major(self, val):
-        if self._readonly:
-            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
-        self._ptr[0].major = val
+        self._data.major = val
 
     @property
     def minor(self):
-        """int: """
-        return self._ptr[0].minor
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.minor[0])
+        return self._data.minor
 
     @minor.setter
     def minor(self, val):
-        if self._readonly:
-            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
-        self._ptr[0].minor = val
+        self._data.minor = val
 
     @property
     def sub_minor(self):
-        """int: """
-        return self._ptr[0].subMinor
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.sub_minor[0])
+        return self._data.sub_minor
 
     @sub_minor.setter
     def sub_minor(self, val):
-        if self._readonly:
-            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
-        self._ptr[0].subMinor = val
+        self._data.sub_minor = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return NvlinkFirmwareVersion.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == nvlink_firmware_version_dtype:
+            return NvlinkFirmwareVersion.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an NvlinkFirmwareVersion instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkFirmwareVersion_t), NvlinkFirmwareVersion)
+        return NvlinkFirmwareVersion.from_data(_numpy.frombuffer(buffer, dtype=nvlink_firmware_version_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an NvlinkFirmwareVersion instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `nvlink_firmware_version_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `nvlink_firmware_version_dtype` holding the data.
         """
-        return _cyb_from_data(data, "nvlink_firmware_version_dtype", nvlink_firmware_version_dtype, NvlinkFirmwareVersion)
+        cdef NvlinkFirmwareVersion obj = NvlinkFirmwareVersion.__new__(NvlinkFirmwareVersion)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != nvlink_firmware_version_dtype:
+            raise ValueError("data array must be of dtype nvlink_firmware_version_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an NvlinkFirmwareVersion instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef NvlinkFirmwareVersion obj = NvlinkFirmwareVersion.__new__(NvlinkFirmwareVersion)
-        if owner is None:
-            obj._ptr = <nvmlNvlinkFirmwareVersion_t *>_cyb_malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating NvlinkFirmwareVersion")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareVersion_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlNvlinkFirmwareVersion_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlNvlinkFirmwareVersion_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=nvlink_firmware_version_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
         return obj
 
 
@@ -20142,6 +20184,7 @@ cdef class GpuInstanceInfo:
         """GpuInstancePlacement: """
         return GpuInstancePlacement.from_ptr(
             <intptr_t>&(self._ptr[0].placement),
+            1,
             readonly=self._readonly,
             owner=self,
         )
@@ -20315,6 +20358,7 @@ cdef class ComputeInstanceInfo:
         """ComputeInstancePlacement: """
         return ComputeInstancePlacement.from_ptr(
             <intptr_t>&(self._ptr[0].placement),
+            1,
             readonly=self._readonly,
             owner=self,
         )
