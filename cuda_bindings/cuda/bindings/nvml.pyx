@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cbbdc13dbf82b8564ce9f491177e27ac28eda9a375da5726336880e801d3673a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=413ec1e3911fc55f3ad428c6808ff707f45967f979b39e6b3790ea5dc1c26fd6
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -17479,6 +17479,765 @@ cdef class GetMemoryLimits_v1:
         return obj
 
 
+cdef _get_pmgr_pwr_tuple_dtype_offsets():
+    cdef nvmlPmgrPwrTuple_t pod
+    return _numpy.dtype({
+        'names': ['pwrm_w'],
+        'formats': [_numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.pwrmW)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPmgrPwrTuple_t),
+    })
+
+pmgr_pwr_tuple_dtype = _get_pmgr_pwr_tuple_dtype_offsets()
+
+cdef class PmgrPwrTuple:
+    """Empty-initialize an array of `nvmlPmgrPwrTuple_t`.
+    The resulting object is of length `size` and of dtype `pmgr_pwr_tuple_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlPmgrPwrTuple_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=pmgr_pwr_tuple_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPmgrPwrTuple_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPmgrPwrTuple_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PmgrPwrTuple_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PmgrPwrTuple object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, PmgrPwrTuple)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def pwrm_w(self):
+        """Union[~_numpy.uint32, int]: Power consumption in milliwatts."""
+        if self._data.size == 1:
+            return int(self._data.pwrm_w[0])
+        return self._data.pwrm_w
+
+    @pwrm_w.setter
+    def pwrm_w(self, val):
+        self._data.pwrm_w = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PmgrPwrTuple.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == pmgr_pwr_tuple_dtype:
+            return PmgrPwrTuple.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PmgrPwrTuple instance with the memory from the given buffer."""
+        return PmgrPwrTuple.from_data(_numpy.frombuffer(buffer, dtype=pmgr_pwr_tuple_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an PmgrPwrTuple instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `pmgr_pwr_tuple_dtype` holding the data.
+        """
+        cdef PmgrPwrTuple obj = PmgrPwrTuple.__new__(PmgrPwrTuple)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != pmgr_pwr_tuple_dtype:
+            raise ValueError("data array must be of dtype pmgr_pwr_tuple_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an PmgrPwrTuple instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PmgrPwrTuple obj = PmgrPwrTuple.__new__(PmgrPwrTuple)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPmgrPwrTuple_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=pmgr_pwr_tuple_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get_rail_metrics_dtype_offsets():
+    cdef nvmlRailMetrics_t pod
+    return _numpy.dtype({
+        'names': ['freqk_hz', 'util_pct'],
+        'formats': [_numpy.uint32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.freqkHz)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.utilPct)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlRailMetrics_t),
+    })
+
+rail_metrics_dtype = _get_rail_metrics_dtype_offsets()
+
+cdef class RailMetrics:
+    """Empty-initialize an array of `nvmlRailMetrics_t`.
+    The resulting object is of length `size` and of dtype `rail_metrics_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlRailMetrics_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=rail_metrics_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlRailMetrics_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlRailMetrics_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.RailMetrics_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.RailMetrics object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, RailMetrics)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def freqk_hz(self):
+        """Union[~_numpy.uint32, int]: Frequency in kilohertz."""
+        if self._data.size == 1:
+            return int(self._data.freqk_hz[0])
+        return self._data.freqk_hz
+
+    @freqk_hz.setter
+    def freqk_hz(self, val):
+        self._data.freqk_hz = val
+
+    @property
+    def util_pct(self):
+        """Union[~_numpy.uint64, int]: Utilization percentage (fixed-point)."""
+        if self._data.size == 1:
+            return int(self._data.util_pct[0])
+        return self._data.util_pct
+
+    @util_pct.setter
+    def util_pct(self, val):
+        self._data.util_pct = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return RailMetrics.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == rail_metrics_dtype:
+            return RailMetrics.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an RailMetrics instance with the memory from the given buffer."""
+        return RailMetrics.from_data(_numpy.frombuffer(buffer, dtype=rail_metrics_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an RailMetrics instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `rail_metrics_dtype` holding the data.
+        """
+        cdef RailMetrics obj = RailMetrics.__new__(RailMetrics)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != rail_metrics_dtype:
+            raise ValueError("data array must be of dtype rail_metrics_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an RailMetrics instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef RailMetrics obj = RailMetrics.__new__(RailMetrics)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlRailMetrics_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=rail_metrics_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get_pwr_model_metrics_dlppm1x_perf_dtype_offsets():
+    cdef nvmlPwrModelMetricsDlppm1xPerf_t pod
+    return _numpy.dtype({
+        'names': ['perfms'],
+        'formats': [_numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.perfms)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPwrModelMetricsDlppm1xPerf_t),
+    })
+
+pwr_model_metrics_dlppm1x_perf_dtype = _get_pwr_model_metrics_dlppm1x_perf_dtype_offsets()
+
+cdef class PwrModelMetricsDlppm1xPerf:
+    """Empty-initialize an array of `nvmlPwrModelMetricsDlppm1xPerf_t`.
+    The resulting object is of length `size` and of dtype `pwr_model_metrics_dlppm1x_perf_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlPwrModelMetricsDlppm1xPerf_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_perf_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1xPerf_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1xPerf_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PwrModelMetricsDlppm1xPerf_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PwrModelMetricsDlppm1xPerf object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, PwrModelMetricsDlppm1xPerf)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def perfms(self):
+        """Union[~_numpy.uint32, int]: Performance metric in milliseconds."""
+        if self._data.size == 1:
+            return int(self._data.perfms[0])
+        return self._data.perfms
+
+    @perfms.setter
+    def perfms(self, val):
+        self._data.perfms = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PwrModelMetricsDlppm1xPerf.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_dlppm1x_perf_dtype:
+            return PwrModelMetricsDlppm1xPerf.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PwrModelMetricsDlppm1xPerf instance with the memory from the given buffer."""
+        return PwrModelMetricsDlppm1xPerf.from_data(_numpy.frombuffer(buffer, dtype=pwr_model_metrics_dlppm1x_perf_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an PwrModelMetricsDlppm1xPerf instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `pwr_model_metrics_dlppm1x_perf_dtype` holding the data.
+        """
+        cdef PwrModelMetricsDlppm1xPerf obj = PwrModelMetricsDlppm1xPerf.__new__(PwrModelMetricsDlppm1xPerf)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != pwr_model_metrics_dlppm1x_perf_dtype:
+            raise ValueError("data array must be of dtype pwr_model_metrics_dlppm1x_perf_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an PwrModelMetricsDlppm1xPerf instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PwrModelMetricsDlppm1xPerf obj = PwrModelMetricsDlppm1xPerf.__new__(PwrModelMetricsDlppm1xPerf)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPwrModelMetricsDlppm1xPerf_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_dlppm1x_perf_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get_pwr_model_metrics_sample_pfpp1x_dtype_offsets():
+    cdef nvmlPwrModelMetricsSamplePfpp1x_t pod
+    return _numpy.dtype({
+        'names': ['freqk_hz', 'est_tgp_pwrm_w'],
+        'formats': [(_numpy.uint32, 16), _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.freqkHz)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.estTgpPwrmW)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPwrModelMetricsSamplePfpp1x_t),
+    })
+
+pwr_model_metrics_sample_pfpp1x_dtype = _get_pwr_model_metrics_sample_pfpp1x_dtype_offsets()
+
+cdef class PwrModelMetricsSamplePfpp1x:
+    """Empty-initialize an array of `nvmlPwrModelMetricsSamplePfpp1x_t`.
+    The resulting object is of length `size` and of dtype `pwr_model_metrics_sample_pfpp1x_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlPwrModelMetricsSamplePfpp1x_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=pwr_model_metrics_sample_pfpp1x_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPwrModelMetricsSamplePfpp1x_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsSamplePfpp1x_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PwrModelMetricsSamplePfpp1x_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PwrModelMetricsSamplePfpp1x object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, PwrModelMetricsSamplePfpp1x)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def freqk_hz(self):
+        """~_numpy.uint32: (array of length 16).Array of input frequencies in kilohertz for each domain."""
+        return self._data.freqk_hz
+
+    @freqk_hz.setter
+    def freqk_hz(self, val):
+        self._data.freqk_hz = val
+
+    @property
+    def est_tgp_pwrm_w(self):
+        """Union[~_numpy.uint32, int]: Estimated Total Graphics Power in milliwatts."""
+        if self._data.size == 1:
+            return int(self._data.est_tgp_pwrm_w[0])
+        return self._data.est_tgp_pwrm_w
+
+    @est_tgp_pwrm_w.setter
+    def est_tgp_pwrm_w(self, val):
+        self._data.est_tgp_pwrm_w = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PwrModelMetricsSamplePfpp1x.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_sample_pfpp1x_dtype:
+            return PwrModelMetricsSamplePfpp1x.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PwrModelMetricsSamplePfpp1x instance with the memory from the given buffer."""
+        return PwrModelMetricsSamplePfpp1x.from_data(_numpy.frombuffer(buffer, dtype=pwr_model_metrics_sample_pfpp1x_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an PwrModelMetricsSamplePfpp1x instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `pwr_model_metrics_sample_pfpp1x_dtype` holding the data.
+        """
+        cdef PwrModelMetricsSamplePfpp1x obj = PwrModelMetricsSamplePfpp1x.__new__(PwrModelMetricsSamplePfpp1x)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != pwr_model_metrics_sample_pfpp1x_dtype:
+            raise ValueError("data array must be of dtype pwr_model_metrics_sample_pfpp1x_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an PwrModelMetricsSamplePfpp1x instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PwrModelMetricsSamplePfpp1x obj = PwrModelMetricsSamplePfpp1x.__new__(PwrModelMetricsSamplePfpp1x)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPwrModelMetricsSamplePfpp1x_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_sample_pfpp1x_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get_pwr_model_operating_point_pfpp1x_dtype_offsets():
+    cdef nvmlPwrModelOperatingPointPfpp1x_t pod
+    return _numpy.dtype({
+        'names': ['freqk_hz', 'pwrm_w'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.freqkHz)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pwrmW)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPwrModelOperatingPointPfpp1x_t),
+    })
+
+pwr_model_operating_point_pfpp1x_dtype = _get_pwr_model_operating_point_pfpp1x_dtype_offsets()
+
+cdef class PwrModelOperatingPointPfpp1x:
+    """Empty-initialize an array of `nvmlPwrModelOperatingPointPfpp1x_t`.
+    The resulting object is of length `size` and of dtype `pwr_model_operating_point_pfpp1x_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlPwrModelOperatingPointPfpp1x_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=pwr_model_operating_point_pfpp1x_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPwrModelOperatingPointPfpp1x_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelOperatingPointPfpp1x_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PwrModelOperatingPointPfpp1x_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PwrModelOperatingPointPfpp1x object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, PwrModelOperatingPointPfpp1x)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def freqk_hz(self):
+        """Union[~_numpy.uint32, int]: Operating frequency in kilohertz."""
+        if self._data.size == 1:
+            return int(self._data.freqk_hz[0])
+        return self._data.freqk_hz
+
+    @freqk_hz.setter
+    def freqk_hz(self, val):
+        self._data.freqk_hz = val
+
+    @property
+    def pwrm_w(self):
+        """Union[~_numpy.uint32, int]: Power consumption at this frequency in milliwatts."""
+        if self._data.size == 1:
+            return int(self._data.pwrm_w[0])
+        return self._data.pwrm_w
+
+    @pwrm_w.setter
+    def pwrm_w(self, val):
+        self._data.pwrm_w = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PwrModelOperatingPointPfpp1x.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_operating_point_pfpp1x_dtype:
+            return PwrModelOperatingPointPfpp1x.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PwrModelOperatingPointPfpp1x instance with the memory from the given buffer."""
+        return PwrModelOperatingPointPfpp1x.from_data(_numpy.frombuffer(buffer, dtype=pwr_model_operating_point_pfpp1x_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an PwrModelOperatingPointPfpp1x instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `pwr_model_operating_point_pfpp1x_dtype` holding the data.
+        """
+        cdef PwrModelOperatingPointPfpp1x obj = PwrModelOperatingPointPfpp1x.__new__(PwrModelOperatingPointPfpp1x)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != pwr_model_operating_point_pfpp1x_dtype:
+            raise ValueError("data array must be of dtype pwr_model_operating_point_pfpp1x_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an PwrModelOperatingPointPfpp1x instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PwrModelOperatingPointPfpp1x obj = PwrModelOperatingPointPfpp1x.__new__(PwrModelOperatingPointPfpp1x)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPwrModelOperatingPointPfpp1x_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_operating_point_pfpp1x_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
 cdef _get_adaptive_tgp_mode_info_v1_dtype_offsets():
     cdef nvmlAdaptiveTgpModeInfo_v1_t pod
     return _numpy.dtype({
@@ -23413,6 +24172,350 @@ cdef class GetCPER_v1:
         return obj
 
 
+cdef _get_core_rail_metrics_dtype_offsets():
+    cdef nvmlCoreRailMetrics_t pod
+    return _numpy.dtype({
+        'names': ['rails'],
+        'formats': [(rail_metrics_dtype, 2)],
+        'offsets': [
+            (<intptr_t>&(pod.rails)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlCoreRailMetrics_t),
+    })
+
+core_rail_metrics_dtype = _get_core_rail_metrics_dtype_offsets()
+
+cdef class CoreRailMetrics:
+    """Empty-initialize an array of `nvmlCoreRailMetrics_t`.
+    The resulting object is of length `size` and of dtype `core_rail_metrics_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlCoreRailMetrics_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=core_rail_metrics_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlCoreRailMetrics_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlCoreRailMetrics_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.CoreRailMetrics_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.CoreRailMetrics object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, CoreRailMetrics)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def rails(self):
+        """rail_metrics_dtype: (array of length 2).Array of core rail metrics."""
+        return self._data.rails
+
+    @rails.setter
+    def rails(self, val):
+        self._data.rails = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return CoreRailMetrics.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == core_rail_metrics_dtype:
+            return CoreRailMetrics.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an CoreRailMetrics instance with the memory from the given buffer."""
+        return CoreRailMetrics.from_data(_numpy.frombuffer(buffer, dtype=core_rail_metrics_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an CoreRailMetrics instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `core_rail_metrics_dtype` holding the data.
+        """
+        cdef CoreRailMetrics obj = CoreRailMetrics.__new__(CoreRailMetrics)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != core_rail_metrics_dtype:
+            raise ValueError("data array must be of dtype core_rail_metrics_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an CoreRailMetrics instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef CoreRailMetrics obj = CoreRailMetrics.__new__(CoreRailMetrics)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlCoreRailMetrics_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=core_rail_metrics_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get_pwr_model_metrics_pfpp1x_dtype_offsets():
+    cdef nvmlPwrModelMetricsPfpp1x_t pod
+    return _numpy.dtype({
+        'names': ['num_vf_points', 'estimated_metrics', 'b_valid', 'max_perf_per_watt_point', 'fmax_at_vmax_point', 'tgp_headroomm_w'],
+        'formats': [_numpy.uint8, (pwr_model_metrics_sample_pfpp1x_dtype, 32), _numpy.uint8, pwr_model_operating_point_pfpp1x_dtype, pwr_model_operating_point_pfpp1x_dtype, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.numVfPoints)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.estimatedMetrics)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bValid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.maxPerfPerWattPoint)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fmaxAtVmaxPoint)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.tgpHeadroommW)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPwrModelMetricsPfpp1x_t),
+    })
+
+pwr_model_metrics_pfpp1x_dtype = _get_pwr_model_metrics_pfpp1x_dtype_offsets()
+
+cdef class PwrModelMetricsPfpp1x:
+    """Empty-initialize an array of `nvmlPwrModelMetricsPfpp1x_t`.
+    The resulting object is of length `size` and of dtype `pwr_model_metrics_pfpp1x_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlPwrModelMetricsPfpp1x_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+        readonly tuple _estimated_metrics
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=pwr_model_metrics_pfpp1x_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPwrModelMetricsPfpp1x_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsPfpp1x_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PwrModelMetricsPfpp1x_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PwrModelMetricsPfpp1x object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, PwrModelMetricsPfpp1x)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def estimated_metrics(self):
+        """PwrModelMetricsSamplePfpp1x: Array of estimated metrics for different operating points."""
+        if self._data.size == 1:
+            return self._estimated_metrics[0]
+        return self._estimated_metrics
+
+    @property
+    def b_valid(self):
+        """Union[~_numpy.uint8, int]: Validity flag: non-zero if metrics are valid."""
+        if self._data.size == 1:
+            return int(self._data.b_valid[0])
+        return self._data.b_valid
+
+    @b_valid.setter
+    def b_valid(self, val):
+        self._data.b_valid = val
+
+    @property
+    def max_perf_per_watt_point(self):
+        """pwr_model_operating_point_pfpp1x_dtype: Operating point with maximum performance per watt."""
+        return self._data.max_perf_per_watt_point
+
+    @max_perf_per_watt_point.setter
+    def max_perf_per_watt_point(self, val):
+        self._data.max_perf_per_watt_point = val
+
+    @property
+    def fmax_at_vmax_point(self):
+        """pwr_model_operating_point_pfpp1x_dtype: Operating point at maximum frequency and voltage."""
+        return self._data.fmax_at_vmax_point
+
+    @fmax_at_vmax_point.setter
+    def fmax_at_vmax_point(self, val):
+        self._data.fmax_at_vmax_point = val
+
+    @property
+    def tgp_headroomm_w(self):
+        """Union[~_numpy.uint32, int]: TGP headroom in milliwatts."""
+        if self._data.size == 1:
+            return int(self._data.tgp_headroomm_w[0])
+        return self._data.tgp_headroomm_w
+
+    @tgp_headroomm_w.setter
+    def tgp_headroomm_w(self, val):
+        self._data.tgp_headroomm_w = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PwrModelMetricsPfpp1x.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_pfpp1x_dtype:
+            return PwrModelMetricsPfpp1x.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PwrModelMetricsPfpp1x instance with the memory from the given buffer."""
+        return PwrModelMetricsPfpp1x.from_data(_numpy.frombuffer(buffer, dtype=pwr_model_metrics_pfpp1x_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an PwrModelMetricsPfpp1x instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `pwr_model_metrics_pfpp1x_dtype` holding the data.
+        """
+        cdef PwrModelMetricsPfpp1x obj = PwrModelMetricsPfpp1x.__new__(PwrModelMetricsPfpp1x)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != pwr_model_metrics_pfpp1x_dtype:
+            raise ValueError("data array must be of dtype pwr_model_metrics_pfpp1x_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        estimatedMetrics_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            n = int(obj._data.num_vf_points[i])
+            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            estimatedMetrics_list.append(estimatedMetrics_obj)
+        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an PwrModelMetricsPfpp1x instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PwrModelMetricsPfpp1x obj = PwrModelMetricsPfpp1x.__new__(PwrModelMetricsPfpp1x)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPwrModelMetricsPfpp1x_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_pfpp1x_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        estimatedMetrics_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            n = int(obj._data.num_vf_points[i])
+            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            estimatedMetrics_list.append(estimatedMetrics_obj)
+        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+        return obj
+
+
 cdef _get_gpu_fabric_info_v4_dtype_offsets():
     cdef nvmlGpuFabricInfo_v4_t pod
     return _numpy.dtype({
@@ -25555,6 +26658,829 @@ cdef class NvLinkInfo_v2:
         return obj
 
 
+cdef _get_pwr_model_metrics_dlppm1x_dtype_offsets():
+    cdef nvmlPwrModelMetricsDlppm1x_t pod
+    return _numpy.dtype({
+        'names': ['b_valid', 'core_rail', 'fb_rail', 'tgp_pwr_tuple', 'perf_metrics'],
+        'formats': [_numpy.uint8, core_rail_metrics_dtype, rail_metrics_dtype, pmgr_pwr_tuple_dtype, pwr_model_metrics_dlppm1x_perf_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.bValid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.coreRail)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fbRail)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.tgpPwrTuple)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.perfMetrics)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPwrModelMetricsDlppm1x_t),
+    })
+
+pwr_model_metrics_dlppm1x_dtype = _get_pwr_model_metrics_dlppm1x_dtype_offsets()
+
+cdef class PwrModelMetricsDlppm1x:
+    """Empty-initialize an array of `nvmlPwrModelMetricsDlppm1x_t`.
+    The resulting object is of length `size` and of dtype `pwr_model_metrics_dlppm1x_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlPwrModelMetricsDlppm1x_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1x_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1x_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PwrModelMetricsDlppm1x_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PwrModelMetricsDlppm1x object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, PwrModelMetricsDlppm1x)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def b_valid(self):
+        """Union[~_numpy.uint8, int]: Validity flag: non-zero if metrics are valid."""
+        if self._data.size == 1:
+            return int(self._data.b_valid[0])
+        return self._data.b_valid
+
+    @b_valid.setter
+    def b_valid(self, val):
+        self._data.b_valid = val
+
+    @property
+    def core_rail(self):
+        """core_rail_metrics_dtype: Core rail metrics."""
+        return self._data.core_rail
+
+    @core_rail.setter
+    def core_rail(self, val):
+        self._data.core_rail = val
+
+    @property
+    def fb_rail(self):
+        """rail_metrics_dtype: Fb rail metrics."""
+        return self._data.fb_rail
+
+    @fb_rail.setter
+    def fb_rail(self, val):
+        self._data.fb_rail = val
+
+    @property
+    def tgp_pwr_tuple(self):
+        """pmgr_pwr_tuple_dtype: Total Graphics Power (TGP) in milliwatts."""
+        return self._data.tgp_pwr_tuple
+
+    @tgp_pwr_tuple.setter
+    def tgp_pwr_tuple(self, val):
+        self._data.tgp_pwr_tuple = val
+
+    @property
+    def perf_metrics(self):
+        """pwr_model_metrics_dlppm1x_perf_dtype: Performance metrics."""
+        return self._data.perf_metrics
+
+    @perf_metrics.setter
+    def perf_metrics(self, val):
+        self._data.perf_metrics = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PwrModelMetricsDlppm1x.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_dlppm1x_dtype:
+            return PwrModelMetricsDlppm1x.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PwrModelMetricsDlppm1x instance with the memory from the given buffer."""
+        return PwrModelMetricsDlppm1x.from_data(_numpy.frombuffer(buffer, dtype=pwr_model_metrics_dlppm1x_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an PwrModelMetricsDlppm1x instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `pwr_model_metrics_dlppm1x_dtype` holding the data.
+        """
+        cdef PwrModelMetricsDlppm1x obj = PwrModelMetricsDlppm1x.__new__(PwrModelMetricsDlppm1x)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != pwr_model_metrics_dlppm1x_dtype:
+            raise ValueError("data array must be of dtype pwr_model_metrics_dlppm1x_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an PwrModelMetricsDlppm1x instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PwrModelMetricsDlppm1x obj = PwrModelMetricsDlppm1x.__new__(PwrModelMetricsDlppm1x)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPwrModelMetricsDlppm1x_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_dlppm1x_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get_perf_metrics_pfpp1x_sample_dtype_offsets():
+    cdef nvmlPerfMetricsPfpp1xSample_t pod
+    return _numpy.dtype({
+        'names': ['estimated_metrics'],
+        'formats': [pwr_model_metrics_pfpp1x_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.estimatedMetrics)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPerfMetricsPfpp1xSample_t),
+    })
+
+perf_metrics_pfpp1x_sample_dtype = _get_perf_metrics_pfpp1x_sample_dtype_offsets()
+
+cdef class PerfMetricsPfpp1xSample:
+    """Empty-initialize an array of `nvmlPerfMetricsPfpp1xSample_t`.
+    The resulting object is of length `size` and of dtype `perf_metrics_pfpp1x_sample_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlPerfMetricsPfpp1xSample_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=perf_metrics_pfpp1x_sample_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPerfMetricsPfpp1xSample_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsPfpp1xSample_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PerfMetricsPfpp1xSample_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PerfMetricsPfpp1xSample object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, PerfMetricsPfpp1xSample)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def estimated_metrics(self):
+        """pwr_model_metrics_pfpp1x_dtype: Estimated metrics from the PFPP 1x controller."""
+        return self._data.estimated_metrics
+
+    @estimated_metrics.setter
+    def estimated_metrics(self, val):
+        self._data.estimated_metrics = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PerfMetricsPfpp1xSample.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == perf_metrics_pfpp1x_sample_dtype:
+            return PerfMetricsPfpp1xSample.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PerfMetricsPfpp1xSample instance with the memory from the given buffer."""
+        return PerfMetricsPfpp1xSample.from_data(_numpy.frombuffer(buffer, dtype=perf_metrics_pfpp1x_sample_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an PerfMetricsPfpp1xSample instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `perf_metrics_pfpp1x_sample_dtype` holding the data.
+        """
+        cdef PerfMetricsPfpp1xSample obj = PerfMetricsPfpp1xSample.__new__(PerfMetricsPfpp1xSample)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != perf_metrics_pfpp1x_sample_dtype:
+            raise ValueError("data array must be of dtype perf_metrics_pfpp1x_sample_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an PerfMetricsPfpp1xSample instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PerfMetricsPfpp1xSample obj = PerfMetricsPfpp1xSample.__new__(PerfMetricsPfpp1xSample)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPerfMetricsPfpp1xSample_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=perf_metrics_pfpp1x_sample_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get_pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_offsets():
+    cdef nvmlPwrModelMetricsDlppm1xDramclkEstimates_t pod
+    return _numpy.dtype({
+        'names': ['estimated_metrics', 'num_estimated_metrics'],
+        'formats': [(pwr_model_metrics_dlppm1x_dtype, 8), _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.estimatedMetrics)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.numEstimatedMetrics)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t),
+    })
+
+pwr_model_metrics_dlppm1x_dramclk_estimates_dtype = _get_pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_offsets()
+
+cdef class PwrModelMetricsDlppm1xDramclkEstimates:
+    """Empty-initialize an array of `nvmlPwrModelMetricsDlppm1xDramclkEstimates_t`.
+    The resulting object is of length `size` and of dtype `pwr_model_metrics_dlppm1x_dramclk_estimates_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlPwrModelMetricsDlppm1xDramclkEstimates_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+        readonly tuple _estimated_metrics
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PwrModelMetricsDlppm1xDramclkEstimates_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PwrModelMetricsDlppm1xDramclkEstimates object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, PwrModelMetricsDlppm1xDramclkEstimates)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def estimated_metrics(self):
+        """PwrModelMetricsDlppm1x: Array of estimated metrics for each inference loop."""
+        if self._data.size == 1:
+            return self._estimated_metrics[0]
+        return self._estimated_metrics
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PwrModelMetricsDlppm1xDramclkEstimates.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_dlppm1x_dramclk_estimates_dtype:
+            return PwrModelMetricsDlppm1xDramclkEstimates.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PwrModelMetricsDlppm1xDramclkEstimates instance with the memory from the given buffer."""
+        return PwrModelMetricsDlppm1xDramclkEstimates.from_data(_numpy.frombuffer(buffer, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an PwrModelMetricsDlppm1xDramclkEstimates instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `pwr_model_metrics_dlppm1x_dramclk_estimates_dtype` holding the data.
+        """
+        cdef PwrModelMetricsDlppm1xDramclkEstimates obj = PwrModelMetricsDlppm1xDramclkEstimates.__new__(PwrModelMetricsDlppm1xDramclkEstimates)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != pwr_model_metrics_dlppm1x_dramclk_estimates_dtype:
+            raise ValueError("data array must be of dtype pwr_model_metrics_dlppm1x_dramclk_estimates_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        estimatedMetrics_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            n = int(obj._data.num_estimated_metrics[i])
+            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            estimatedMetrics_list.append(estimatedMetrics_obj)
+        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an PwrModelMetricsDlppm1xDramclkEstimates instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PwrModelMetricsDlppm1xDramclkEstimates obj = PwrModelMetricsDlppm1xDramclkEstimates.__new__(PwrModelMetricsDlppm1xDramclkEstimates)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        estimatedMetrics_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
+            n = int(obj._data.num_estimated_metrics[i])
+            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            estimatedMetrics_list.append(estimatedMetrics_obj)
+        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+        return obj
+
+
+cdef _get_observed_metrics_dtype_offsets():
+    cdef nvmlObservedMetrics_t pod
+    return _numpy.dtype({
+        'names': ['initial_dramclk_est', 'b_valid', 'core_rail', 'fb_rail', 'tgp_pwr_tuple', 'perf_metrics'],
+        'formats': [(pwr_model_metrics_dlppm1x_dramclk_estimates_dtype, 3), _numpy.uint8, core_rail_metrics_dtype, rail_metrics_dtype, pmgr_pwr_tuple_dtype, pwr_model_metrics_dlppm1x_perf_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.initialDramclkEst)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bValid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.coreRail)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fbRail)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.tgpPwrTuple)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.perfMetrics)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlObservedMetrics_t),
+    })
+
+observed_metrics_dtype = _get_observed_metrics_dtype_offsets()
+
+cdef class ObservedMetrics:
+    """Empty-initialize an array of `nvmlObservedMetrics_t`.
+    The resulting object is of length `size` and of dtype `observed_metrics_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlObservedMetrics_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=observed_metrics_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlObservedMetrics_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlObservedMetrics_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.ObservedMetrics_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.ObservedMetrics object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, ObservedMetrics)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def initial_dramclk_est(self):
+        """pwr_model_metrics_dlppm1x_dramclk_estimates_dtype: (array of length 3).Initial DRAMCLK estimates for different scenarios."""
+        return self._data.initial_dramclk_est
+
+    @initial_dramclk_est.setter
+    def initial_dramclk_est(self, val):
+        self._data.initial_dramclk_est = val
+
+    @property
+    def b_valid(self):
+        """Union[~_numpy.uint8, int]: Validity flag: non-zero if observed metrics are valid."""
+        if self._data.size == 1:
+            return int(self._data.b_valid[0])
+        return self._data.b_valid
+
+    @b_valid.setter
+    def b_valid(self, val):
+        self._data.b_valid = val
+
+    @property
+    def core_rail(self):
+        """core_rail_metrics_dtype: Observed core rail metrics."""
+        return self._data.core_rail
+
+    @core_rail.setter
+    def core_rail(self, val):
+        self._data.core_rail = val
+
+    @property
+    def fb_rail(self):
+        """rail_metrics_dtype: Observed fb rail metrics."""
+        return self._data.fb_rail
+
+    @fb_rail.setter
+    def fb_rail(self, val):
+        self._data.fb_rail = val
+
+    @property
+    def tgp_pwr_tuple(self):
+        """pmgr_pwr_tuple_dtype: Observed Total Graphics Power (TGP) in milliwatts."""
+        return self._data.tgp_pwr_tuple
+
+    @tgp_pwr_tuple.setter
+    def tgp_pwr_tuple(self, val):
+        self._data.tgp_pwr_tuple = val
+
+    @property
+    def perf_metrics(self):
+        """pwr_model_metrics_dlppm1x_perf_dtype: Observed performance metrics."""
+        return self._data.perf_metrics
+
+    @perf_metrics.setter
+    def perf_metrics(self, val):
+        self._data.perf_metrics = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return ObservedMetrics.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == observed_metrics_dtype:
+            return ObservedMetrics.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an ObservedMetrics instance with the memory from the given buffer."""
+        return ObservedMetrics.from_data(_numpy.frombuffer(buffer, dtype=observed_metrics_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an ObservedMetrics instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `observed_metrics_dtype` holding the data.
+        """
+        cdef ObservedMetrics obj = ObservedMetrics.__new__(ObservedMetrics)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != observed_metrics_dtype:
+            raise ValueError("data array must be of dtype observed_metrics_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an ObservedMetrics instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef ObservedMetrics obj = ObservedMetrics.__new__(ObservedMetrics)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlObservedMetrics_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=observed_metrics_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
+cdef _get_perf_metrics_dlppc2x_sample_dtype_offsets():
+    cdef nvmlPerfMetricsDlppc2xSample_t pod
+    return _numpy.dtype({
+        'names': ['observed_metrics'],
+        'formats': [observed_metrics_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.observedMetrics)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPerfMetricsDlppc2xSample_t),
+    })
+
+perf_metrics_dlppc2x_sample_dtype = _get_perf_metrics_dlppc2x_sample_dtype_offsets()
+
+cdef class PerfMetricsDlppc2xSample:
+    """Empty-initialize an array of `nvmlPerfMetricsDlppc2xSample_t`.
+    The resulting object is of length `size` and of dtype `perf_metrics_dlppc2x_sample_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlPerfMetricsDlppc2xSample_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=perf_metrics_dlppc2x_sample_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlPerfMetricsDlppc2xSample_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsDlppc2xSample_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PerfMetricsDlppc2xSample_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PerfMetricsDlppc2xSample object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, PerfMetricsDlppc2xSample)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def observed_metrics(self):
+        """observed_metrics_dtype: Observed metrics from the DLPPC 2x controller."""
+        return self._data.observed_metrics
+
+    @observed_metrics.setter
+    def observed_metrics(self, val):
+        self._data.observed_metrics = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PerfMetricsDlppc2xSample.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == perf_metrics_dlppc2x_sample_dtype:
+            return PerfMetricsDlppc2xSample.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an PerfMetricsDlppc2xSample instance with the memory from the given buffer."""
+        return PerfMetricsDlppc2xSample.from_data(_numpy.frombuffer(buffer, dtype=perf_metrics_dlppc2x_sample_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an PerfMetricsDlppc2xSample instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `perf_metrics_dlppc2x_sample_dtype` holding the data.
+        """
+        cdef PerfMetricsDlppc2xSample obj = PerfMetricsDlppc2xSample.__new__(PerfMetricsDlppc2xSample)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != perf_metrics_dlppc2x_sample_dtype:
+            raise ValueError("data array must be of dtype perf_metrics_dlppc2x_sample_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an PerfMetricsDlppc2xSample instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PerfMetricsDlppc2xSample obj = PerfMetricsDlppc2xSample.__new__(PerfMetricsDlppc2xSample)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlPerfMetricsDlppc2xSample_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=perf_metrics_dlppc2x_sample_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
 _py_anon_pod8_dtype = _numpy.dtype((
     _numpy.dtype((_numpy.void, sizeof(cuda_bindings_nvml__anon_pod8))),
     {
@@ -25634,6 +27560,7 @@ cdef class _py_anon_pod8:
         """PerfMetricsDlppc2xSample: """
         return PerfMetricsDlppc2xSample.from_ptr(
             <intptr_t>&(self._ptr[0].dlppc2x),
+            1,
             readonly=self._readonly,
             owner=self,
         )
@@ -25650,6 +27577,7 @@ cdef class _py_anon_pod8:
         """PerfMetricsPfpp1xSample: """
         return PerfMetricsPfpp1xSample.from_ptr(
             <intptr_t>&(self._ptr[0].pfpp1x),
+            1,
             readonly=self._readonly,
             owner=self,
         )

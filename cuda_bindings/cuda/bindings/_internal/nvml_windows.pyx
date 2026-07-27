@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1512889252eb3ebbbccd0a70ecad1f69022537eaa4260bdbf657deebabf82ea7
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=10e6cb1d192514ece92e863cbebdde5c60b94cdc58d27a8c2e4cf9af1a27c968
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -429,6 +429,7 @@ cdef void* __nvmlEventSetRegisterGpuOperationalEvents_v1 = NULL
 cdef void* __nvmlEventSetWait_v3 = NULL
 cdef void* __nvmlEventSetGetContextCount_v1 = NULL
 cdef void* __nvmlEventSetGetContextInfo_v1 = NULL
+cdef void* __nvmlEventSetGetContextData_v1 = NULL
 cdef void* __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 = NULL
 cdef void* __nvmlDeviceGetBankRemapperStatus_v1 = NULL
 
@@ -1541,6 +1542,9 @@ cdef int _init_nvml() except -1 nogil:
 
         global __nvmlEventSetGetContextInfo_v1
         __nvmlEventSetGetContextInfo_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetContextInfo_v1')
+
+        global __nvmlEventSetGetContextData_v1
+        __nvmlEventSetGetContextData_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetContextData_v1')
 
         global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
         __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1')
@@ -2665,6 +2669,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlEventSetGetContextInfo_v1
     data["__nvmlEventSetGetContextInfo_v1"] = <_cyb_intptr_t>__nvmlEventSetGetContextInfo_v1
+
+    global __nvmlEventSetGetContextData_v1
+    data["__nvmlEventSetGetContextData_v1"] = <_cyb_intptr_t>__nvmlEventSetGetContextData_v1
 
     global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
     data["__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1"] = <_cyb_intptr_t>__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
@@ -6360,6 +6367,16 @@ cdef nvmlReturn_t _nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, unsigned in
             raise FunctionNotFoundError("function nvmlEventSetGetContextInfo_v1 is not found")
     return (<nvmlReturn_t (*)(nvmlEventSet_t, unsigned int, nvmlOperationalEventContextInfo_v1_t*) noexcept nogil>__nvmlEventSetGetContextInfo_v1)(
         set, index, info)
+
+
+cdef nvmlReturn_t _nvmlEventSetGetContextData_v1(nvmlEventSet_t set, unsigned int index, void* data, unsigned int* dataSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlEventSetGetContextData_v1
+    _check_or_init_nvml()
+    if __nvmlEventSetGetContextData_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlEventSetGetContextData_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlEventSet_t, unsigned int, void*, unsigned int*) noexcept nogil>__nvmlEventSetGetContextData_v1)(
+        set, index, data, dataSize)
 
 
 cdef nvmlReturn_t _nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, unsigned int index, nvmlGpuOperationalEventContextLegacyXid_v1_t* xid) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:

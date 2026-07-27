@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=90bf2c5cef616d3c473e853d58b6cbb99870bb576868328f47fff862b8ec1fc0
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fa03efc8f6599468a5c0a35968d8fb6328fc129b4433310c1c960d134cece9eb
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -3797,7 +3797,7 @@ cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, 
     return status
 
 
-cpdef readv(intptr_t fh, IOVec iov, off_t file_offset, *, unsigned flags=0):
+cpdef readv(intptr_t fh, IOVec iov, off_t file_offset, unsigned int flags=0):
     """Read data from a registered file handle into a scatter list of device or host buffers.
 
     Args:
@@ -3820,7 +3820,7 @@ cpdef readv(intptr_t fh, IOVec iov, off_t file_offset, *, unsigned flags=0):
     return status
 
 
-cpdef writev(intptr_t fh, IOVec iov, off_t file_offset, *, unsigned flags=0):
+cpdef writev(intptr_t fh, IOVec iov, off_t file_offset, unsigned int flags=0):
     """Write data to a registered file handle from a gather list of device or host buffers.
 
     Args:

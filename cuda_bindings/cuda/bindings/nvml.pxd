@@ -5,7 +5,7 @@
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d79a5d03d39a62dc16cf1331026d013d6f07b8af4e80bc5444c40d22829eeeda
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f699a98280e825837b6ddf7fb083deca9f51318e2406acefd67481a68b43a165
 from libc.stdint cimport intptr_t
 
 from .cynvml cimport *
@@ -54,11 +54,6 @@ ctypedef nvmlMask255_t Mask255
 ctypedef nvmlHostname_v1_t Hostname_v1
 ctypedef nvmlUnrepairableMemoryStatus_v1_t UnrepairableMemoryStatus_v1
 ctypedef nvmlRusdSettings_v1_t RusdSettings_v1
-ctypedef nvmlPmgrPwrTuple_t PmgrPwrTuple
-ctypedef nvmlRailMetrics_t RailMetrics
-ctypedef nvmlPwrModelMetricsDlppm1xPerf_t PwrModelMetricsDlppm1xPerf
-ctypedef nvmlPwrModelMetricsSamplePfpp1x_t PwrModelMetricsSamplePfpp1x
-ctypedef nvmlPwrModelOperatingPointPfpp1x_t PwrModelOperatingPointPfpp1x
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuTypeMaxInstance_v1_t VgpuTypeMaxInstance_v1
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
@@ -74,17 +69,10 @@ ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t WorkloadPowerProfileCurren
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t WorkloadPowerProfileRequestedProfiles_v1
 ctypedef nvmlWorkloadPowerProfileUpdateProfiles_v1_t WorkloadPowerProfileUpdateProfiles_v1
 ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
-ctypedef nvmlCoreRailMetrics_t CoreRailMetrics
-ctypedef nvmlPwrModelMetricsPfpp1x_t PwrModelMetricsPfpp1x
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
-ctypedef nvmlPwrModelMetricsDlppm1x_t PwrModelMetricsDlppm1x
-ctypedef nvmlPerfMetricsPfpp1xSample_t PerfMetricsPfpp1xSample
 ctypedef nvmlPRMCounterList_v1_t PRMCounterList_v1
 ctypedef nvmlWorkloadPowerProfileProfilesInfo_v1_t WorkloadPowerProfileProfilesInfo_v1
-ctypedef nvmlPwrModelMetricsDlppm1xDramclkEstimates_t PwrModelMetricsDlppm1xDramclkEstimates
-ctypedef nvmlObservedMetrics_t ObservedMetrics
-ctypedef nvmlPerfMetricsDlppc2xSample_t PerfMetricsDlppc2xSample
 
 
 ###############################################################################

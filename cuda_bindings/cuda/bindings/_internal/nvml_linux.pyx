@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0f92c93b996d8635ae4adf62907fcebf04fd9f0d14d2f5a0ab3dbff25569a406
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=735d5128e04ed65d3517e4315b5c05f9f1731c2f4dd00460925bb30f7090f6f5
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -432,6 +432,7 @@ cdef void* __nvmlEventSetRegisterGpuOperationalEvents_v1 = NULL
 cdef void* __nvmlEventSetWait_v3 = NULL
 cdef void* __nvmlEventSetGetContextCount_v1 = NULL
 cdef void* __nvmlEventSetGetContextInfo_v1 = NULL
+cdef void* __nvmlEventSetGetContextData_v1 = NULL
 cdef void* __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 = NULL
 cdef void* __nvmlDeviceGetBankRemapperStatus_v1 = NULL
 
@@ -3010,6 +3011,13 @@ cdef int _init_nvml() except -1 nogil:
                 handle = load_library()
             __nvmlEventSetGetContextInfo_v1 = _cyb_dlsym(handle, 'nvmlEventSetGetContextInfo_v1')
 
+        global __nvmlEventSetGetContextData_v1
+        __nvmlEventSetGetContextData_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlEventSetGetContextData_v1')
+        if __nvmlEventSetGetContextData_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlEventSetGetContextData_v1 = _cyb_dlsym(handle, 'nvmlEventSetGetContextData_v1')
+
         global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
         __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1')
         if __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 == NULL:
@@ -4141,6 +4149,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlEventSetGetContextInfo_v1
     data["__nvmlEventSetGetContextInfo_v1"] = <_cyb_intptr_t>__nvmlEventSetGetContextInfo_v1
+
+    global __nvmlEventSetGetContextData_v1
+    data["__nvmlEventSetGetContextData_v1"] = <_cyb_intptr_t>__nvmlEventSetGetContextData_v1
 
     global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
     data["__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1"] = <_cyb_intptr_t>__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
@@ -7837,6 +7848,16 @@ cdef nvmlReturn_t _nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, unsigned in
             raise FunctionNotFoundError("function nvmlEventSetGetContextInfo_v1 is not found")
     return (<nvmlReturn_t (*)(nvmlEventSet_t, unsigned int, nvmlOperationalEventContextInfo_v1_t*) noexcept nogil>__nvmlEventSetGetContextInfo_v1)(
         set, index, info)
+
+
+cdef nvmlReturn_t _nvmlEventSetGetContextData_v1(nvmlEventSet_t set, unsigned int index, void* data, unsigned int* dataSize) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlEventSetGetContextData_v1
+    _check_or_init_nvml()
+    if __nvmlEventSetGetContextData_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlEventSetGetContextData_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlEventSet_t, unsigned int, void*, unsigned int*) noexcept nogil>__nvmlEventSetGetContextData_v1)(
+        set, index, data, dataSize)
 
 
 cdef nvmlReturn_t _nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, unsigned int index, nvmlGpuOperationalEventContextLegacyXid_v1_t* xid) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
