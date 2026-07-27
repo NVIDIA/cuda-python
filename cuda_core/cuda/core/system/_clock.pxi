@@ -9,18 +9,6 @@ _CLOCK_ID_MAPPING = {
 }
 
 
-_CLOCK_EVENT_REASON_BOARD_LIMIT = getattr(
-    nvml.ClocksEventReasons,
-    "EVENT_REASON_BOARD_LIMIT",
-    0x0000000000000200,
-)
-_CLOCK_EVENT_REASON_RELIABILITY = getattr(
-    nvml.ClocksEventReasons,
-    "EVENT_REASON_RELIABILITY",
-    0x0000000000000400,
-)
-
-
 _CLOCKS_EVENT_REASONS_MAPPING = {
     nvml.ClocksEventReasons.EVENT_REASON_NONE: ClocksEventReasons.NONE,
     nvml.ClocksEventReasons.EVENT_REASON_GPU_IDLE: ClocksEventReasons.GPU_IDLE,
@@ -32,9 +20,14 @@ _CLOCKS_EVENT_REASONS_MAPPING = {
     nvml.ClocksEventReasons.THROTTLE_REASON_HW_THERMAL_SLOWDOWN: ClocksEventReasons.HW_THERMAL_SLOWDOWN,
     nvml.ClocksEventReasons.THROTTLE_REASON_HW_POWER_BRAKE_SLOWDOWN: ClocksEventReasons.HW_POWER_BRAKE_SLOWDOWN,
     nvml.ClocksEventReasons.EVENT_REASON_DISPLAY_CLOCK_SETTING: ClocksEventReasons.DISPLAY_CLOCK_SETTING,
-    _CLOCK_EVENT_REASON_BOARD_LIMIT: ClocksEventReasons.BOARD_LIMIT,
-    _CLOCK_EVENT_REASON_RELIABILITY: ClocksEventReasons.RELIABILITY,
 }
+
+
+if hasattr(nvml.ClocksEventReasons, "EVENT_REASON_BOARD_LIMIT"):
+    _CLOCKS_EVENT_REASONS_MAPPING.update({
+        nvml.ClocksEventReasons.EVENT_REASON_BOARD_LIMIT: ClocksEventReasons.BOARD_LIMIT,
+        nvml.ClocksEventReasons.EVENT_REASON_RELIABILITY: ClocksEventReasons.RELIABILITY,
+    })
 
 
 _CLOCK_TYPE_MAPPING = {
