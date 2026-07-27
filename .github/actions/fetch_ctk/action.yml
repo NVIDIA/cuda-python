@@ -102,7 +102,8 @@ runs:
         # Everything under this folder is packed and stored in the GitHub Cache space,
         # and unpacked after retrieving from the cache.
         CACHE_TMP_DIR="./cache_tmp_dir"
-        rm -rf $CACHE_TMP_DIR
+        WORK_TMP_DIR="./cache_work_dir"
+        rm -rf $CACHE_TMP_DIR $WORK_TMP_DIR
         mkdir $CACHE_TMP_DIR
         CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
 
@@ -145,9 +146,10 @@ runs:
             cp -a "$CUDA_PACKAGE_ROOT/." "$CACHE_TMP_DIR/"
             rm -rf "$DEB_DIR" "$DEB_ROOT" "$KEYRING_DEB"
           elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            INSTALLER_PATH="$CACHE_TMP_DIR/$(basename "$CTK_PREVIEW_INSTALLER_URL")"
-            EXTRACT_ROOT="$CACHE_TMP_DIR/installer-root"
-            MERGE_ROOT="$CACHE_TMP_DIR/merged-ctk"
+            WORK_TMP_DIR="./cache_work_dir"
+            INSTALLER_PATH="$WORK_TMP_DIR/$(basename "$CTK_PREVIEW_INSTALLER_URL")"
+            EXTRACT_ROOT="$WORK_TMP_DIR/installer-root"
+            mkdir -p "$WORK_TMP_DIR"
             curl -fLSs "$CTK_PREVIEW_INSTALLER_URL" -o "$INSTALLER_PATH"
             echo "$CTK_PREVIEW_INSTALLER_SHA256  $INSTALLER_PATH" | sha256sum --check --strict -
 
@@ -166,20 +168,22 @@ runs:
                 --cuda-version "${{ inputs.cuda-version }}" \
                 --components "${{ inputs.cuda-components }}")"
 
-            mkdir -p "$EXTRACT_ROOT"
+            PREVIEW_WINDOWS_ARCHIVE_PATTERNS=()
             for archive_dir in "${PREVIEW_WINDOWS_ARCHIVES[@]}"; do
-              "$SEVEN_ZIP" x -y "$INSTALLER_PATH" "${archive_dir}/*" "-o$EXTRACT_ROOT"
+              PREVIEW_WINDOWS_ARCHIVE_PATTERNS+=("${archive_dir}/*")
             done
+
+            mkdir -p "$EXTRACT_ROOT"
+            "$SEVEN_ZIP" x -y "$INSTALLER_PATH" "${PREVIEW_WINDOWS_ARCHIVE_PATTERNS[@]}" "-o$EXTRACT_ROOT"
 
             python "$CTK_REDIST_TOOL" merge-windows-preview \
               --host-platform "${{ inputs.host-platform }}" \
               --cuda-version "${{ inputs.cuda-version }}" \
               --components "${{ inputs.cuda-components }}" \
               --extract-root "$EXTRACT_ROOT" \
-              --destination "$MERGE_ROOT"
+              --destination "$CACHE_TMP_DIR"
 
-            cp -a "$MERGE_ROOT/." "$CACHE_TMP_DIR/"
-            rm -rf "$EXTRACT_ROOT" "$MERGE_ROOT" "$INSTALLER_PATH"
+            rm -rf "$WORK_TMP_DIR"
           else
             echo "CUDA prerelease extraction is not supported for host-platform ${{ inputs.host-platform }}" >&2
             exit 1
