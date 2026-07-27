@@ -3,7 +3,7 @@
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6d1cb5ada09a9eb93d5b6a1a5a4cc9f9e0abe9cc6cca69c9906d92a57bed8cb9
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=37c4218155319e18c12093c50fd40d05d05035b9625c2aaf8c111b0ab26d3c8c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -769,13 +769,19 @@ cdef class Fence:
         return obj
 
 
-dev_attribute_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(cudlaDevAttribute))),
-    {
-        "unified_addressing_supported": (_numpy.uint8, 0),
-        "device_version": (_numpy.uint32, 0),
-    }
-    ))
+cdef _get_dev_attribute_dtype_offsets():
+    cdef cudlaDevAttribute pod
+    return _numpy.dtype({
+        'names': ['unified_addressing_supported', 'device_version'],
+        'formats': [_numpy.uint8, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.unifiedAddressingSupported)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.deviceVersion)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(cudlaDevAttribute),
+    })
+
+dev_attribute_dtype = _get_dev_attribute_dtype_offsets()
 
 cdef class DevAttribute:
     """Empty-initialize an instance of `cudlaDevAttribute`.
@@ -906,15 +912,21 @@ cdef class DevAttribute:
         return obj
 
 
-module_attribute_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(cudlaModuleAttribute))),
-    {
-        "num_input_tensors": (_numpy.uint32, 0),
-        "num_output_tensors": (_numpy.uint32, 0),
-        "input_tensor_desc": (_numpy.intp, 0),
-        "output_tensor_desc": (_numpy.intp, 0),
-    }
-    ))
+cdef _get_module_attribute_dtype_offsets():
+    cdef cudlaModuleAttribute pod
+    return _numpy.dtype({
+        'names': ['num_input_tensors', 'num_output_tensors', 'input_tensor_desc', 'output_tensor_desc'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.numInputTensors)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.numOutputTensors)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.inputTensorDesc)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.outputTensorDesc)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(cudlaModuleAttribute),
+    })
+
+module_attribute_dtype = _get_module_attribute_dtype_offsets()
 
 cdef class ModuleAttribute:
     """Empty-initialize an instance of `cudlaModuleAttribute`.

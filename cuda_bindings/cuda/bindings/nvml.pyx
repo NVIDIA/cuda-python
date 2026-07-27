@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=413ec1e3911fc55f3ad428c6808ff707f45967f979b39e6b3790ea5dc1c26fd6
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=31a6d5cce1fd1ed7edcffdecc800121cd731148850cb8dfed1134d02f3b4a002
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -4554,18 +4554,24 @@ cdef class BridgeChipInfo:
         return obj
 
 
-value_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(nvmlValue_t))),
-    {
-        "d_val": (_numpy.float64, 0),
-        "si_val": (_numpy.int32, 0),
-        "ui_val": (_numpy.uint32, 0),
-        "ul_val": (_numpy.uint32, 0),
-        "ull_val": (_numpy.uint64, 0),
-        "sll_val": (_numpy.int64, 0),
-        "us_val": (_numpy.uint16, 0),
-    }
-    ))
+cdef _get_value_dtype_offsets():
+    cdef nvmlValue_t pod
+    return _numpy.dtype({
+        'names': ['d_val', 'si_val', 'ui_val', 'ul_val', 'ull_val', 'sll_val', 'us_val'],
+        'formats': [_numpy.float64, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.int64, _numpy.uint16],
+        'offsets': [
+            (<intptr_t>&(pod.dVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.siVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.uiVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ulVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ullVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sllVal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.usVal)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlValue_t),
+    })
+
+value_dtype = _get_value_dtype_offsets()
 
 cdef class Value:
     """Empty-initialize an instance of `nvmlValue_t`.
@@ -22126,13 +22132,19 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         return obj
 
 
-vgpu_scheduler_params_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(nvmlVgpuSchedulerParams_t))),
-    {
-        "vgpu_sched_data_with_arr": (_py_anon_pod2_dtype, 0),
-        "vgpu_sched_data": (_py_anon_pod3_dtype, 0),
-    }
-    ))
+cdef _get_vgpu_scheduler_params_dtype_offsets():
+    cdef nvmlVgpuSchedulerParams_t pod
+    return _numpy.dtype({
+        'names': ['vgpu_sched_data_with_arr', 'vgpu_sched_data'],
+        'formats': [_py_anon_pod2_dtype, _py_anon_pod3_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.vgpuSchedDataWithARR)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuSchedData)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerParams_t),
+    })
+
+vgpu_scheduler_params_dtype = _get_vgpu_scheduler_params_dtype_offsets()
 
 cdef class VgpuSchedulerParams:
     """Empty-initialize an instance of `nvmlVgpuSchedulerParams_t`.
@@ -22273,13 +22285,19 @@ cdef class VgpuSchedulerParams:
         return obj
 
 
-vgpu_scheduler_set_params_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(nvmlVgpuSchedulerSetParams_t))),
-    {
-        "vgpu_sched_data_with_arr": (_py_anon_pod4_dtype, 0),
-        "vgpu_sched_data": (_py_anon_pod5_dtype, 0),
-    }
-    ))
+cdef _get_vgpu_scheduler_set_params_dtype_offsets():
+    cdef nvmlVgpuSchedulerSetParams_t pod
+    return _numpy.dtype({
+        'names': ['vgpu_sched_data_with_arr', 'vgpu_sched_data'],
+        'formats': [_py_anon_pod4_dtype, _py_anon_pod5_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.vgpuSchedDataWithARR)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuSchedData)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerSetParams_t),
+    })
+
+vgpu_scheduler_set_params_dtype = _get_vgpu_scheduler_set_params_dtype_offsets()
 
 cdef class VgpuSchedulerSetParams:
     """Empty-initialize an instance of `nvmlVgpuSchedulerSetParams_t`.
@@ -27481,13 +27499,19 @@ cdef class PerfMetricsDlppc2xSample:
         return obj
 
 
-_py_anon_pod8_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(cuda_bindings_nvml__anon_pod8))),
-    {
-        "dlppc2x": (perf_metrics_dlppc2x_sample_dtype, 0),
-        "pfpp1x": (perf_metrics_pfpp1x_sample_dtype, 0),
-    }
-    ))
+cdef _get__py_anon_pod8_dtype_offsets():
+    cdef cuda_bindings_nvml__anon_pod8 pod
+    return _numpy.dtype({
+        'names': ['dlppc2x', 'pfpp1x'],
+        'formats': [perf_metrics_dlppc2x_sample_dtype, perf_metrics_pfpp1x_sample_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.dlppc2x)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pfpp1x)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(cuda_bindings_nvml__anon_pod8),
+    })
+
+_py_anon_pod8_dtype = _get__py_anon_pod8_dtype_offsets()
 
 cdef class _py_anon_pod8:
     """Empty-initialize an instance of `cuda_bindings_nvml__anon_pod8`.
