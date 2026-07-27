@@ -28,3 +28,10 @@ Source: https://github.com/pytorch/pytorch
 Vendored at: cuda/core/_include/aoti_shim.h, and the accompanying
 cuda/core/_include/aoti_shim.def, which declares the same AOT Inductor
 stable C ABI symbol names for the MSVC linker on Windows.
+
+CCCL (libcu++)
+Copyright (c) NVIDIA CORPORATION & AFFILIATES.
+Licensed under the Apache License, Version 2.0 with LLVM Exceptions.
+Source: https://github.com/NVIDIA/cccl
+Pinned as the ``cuda_core/third_party/cccl`` git submodule. The libcu++
+headers are used at build time and are not installed into the wheel.
