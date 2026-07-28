@@ -575,12 +575,6 @@ cdef class MemsetNode(GraphNode):
             that retains it cannot be broken by Python's cyclic garbage
             collector. Use a weak reference to break such cycles.
         """
-        cdef cydriver.CUdeviceptr c_dst
-        cdef unsigned int c_value
-        cdef unsigned int c_element_size
-        cdef size_t c_width
-        cdef size_t c_height
-        cdef size_t c_pitch
         cdef OpaqueHandle dst_attachment_owner
         cdef GraphHandle h_graph
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
@@ -607,20 +601,13 @@ cdef class MemsetNode(GraphNode):
         else:
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-        params.memset.dst = current.dst
-        params.memset.value = current.value
-        params.memset.elementSize = current.elementSize
-        params.memset.width = current.width
-        params.memset.height = current.height
-        params.memset.pitch = current.pitch
-        params.memset.ctx = ctx
 
-        c_dst = params.memset.dst
-        c_value = params.memset.value
-        c_element_size = params.memset.elementSize
-        c_width = params.memset.width
-        c_height = params.memset.height
-        c_pitch = params.memset.pitch
+        cdef cydriver.CUdeviceptr c_dst = current.dst
+        cdef unsigned int c_value = current.value
+        cdef unsigned int c_element_size = current.elementSize
+        cdef size_t c_width = current.width
+        cdef size_t c_height = current.height
+        cdef size_t c_pitch = current.pitch
 
         if dst is None:
             h_graph = graph_node_get_graph(self._h_node)
@@ -646,6 +633,7 @@ cdef class MemsetNode(GraphNode):
         params.memset.width = c_width
         params.memset.height = c_height
         params.memset.pitch = c_pitch
+        params.memset.ctx = ctx
 
         _set_definition_node_params(
             self._h_node, &params, dst_attachment_owner,
@@ -816,13 +804,19 @@ cdef class MemcpyNode(GraphNode):
         if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
             c_dst = <cydriver.CUdeviceptr><uintptr_t>(
                 params.memcpy.copyParams.dstHost)
-        elif c_dst_type != cydriver.CU_MEMORYTYPE_ARRAY:
+        elif c_dst_type == cydriver.CU_MEMORYTYPE_DEVICE:
             c_dst = params.memcpy.copyParams.dstDevice
+        else:
+            raise NotImplementedError(
+                f"unsupported destination memory type: {int(c_dst_type)}")
         if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
             c_src = <cydriver.CUdeviceptr><uintptr_t>(
                 params.memcpy.copyParams.srcHost)
-        elif c_src_type != cydriver.CU_MEMORYTYPE_ARRAY:
+        elif c_src_type == cydriver.CU_MEMORYTYPE_DEVICE:
             c_src = params.memcpy.copyParams.srcDevice
+        else:
+            raise NotImplementedError(
+                f"unsupported source memory type: {int(c_src_type)}")
 
         HANDLE_RETURN(graph_get_attachment(
             h_graph, node,

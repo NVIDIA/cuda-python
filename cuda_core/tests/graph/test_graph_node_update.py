@@ -29,15 +29,10 @@ class _DefinitionUpdateCase:
     invalid_update: Callable[[], None] | None
     invalid_exception: type[BaseException] | None
     invalid_argument_update: Callable[[], None] | None
-    cleanup: Callable[[], None]
 
 
 def _assert_equal(actual, expected):
     assert actual == expected
-
-
-def _noop():
-    pass
 
 
 def _event_record_case(device):
@@ -83,7 +78,6 @@ def _event_record_case(device):
         invalid_update=lambda: node.update(invalid_replacement),
         invalid_exception=CUDAError,
         invalid_argument_update=lambda: node.update(object()),
-        cleanup=_noop,
     )
 
 
@@ -136,7 +130,6 @@ def _event_wait_case(device):
         invalid_update=lambda: node.update(invalid_replacement),
         invalid_exception=CUDAError,
         invalid_argument_update=lambda: node.update(object()),
-        cleanup=_noop,
     )
 
 
@@ -171,7 +164,6 @@ def _host_callback_case(device):
         invalid_update=lambda: node.update(replacement, user_data=b"not valid for a Python callback"),
         invalid_exception=ValueError,
         invalid_argument_update=lambda: node.update(object()),
-        cleanup=_noop,
     )
 
 
@@ -221,7 +213,6 @@ def _host_callback_ctypes_case(device):
         invalid_update=invalid_update,
         invalid_exception=ValueError,
         invalid_argument_update=None,
-        cleanup=_noop,
     )
 
 
@@ -278,12 +269,6 @@ def _memset_case(device, *, replace_dst):
             unexpected = replacement_buffer if expected["dst"] is original_buffer else original_buffer
             assert list(as_bytes(unexpected)) == [0] * 4
 
-    def cleanup():
-        node.destroy()
-        original_buffer.close()
-        if replacement_buffer is not original_buffer:
-            replacement_buffer.close()
-
     return _DefinitionUpdateCase(
         graph_def=graph_def,
         node=node,
@@ -295,7 +280,6 @@ def _memset_case(device, *, replace_dst):
         invalid_update=lambda: node.update(value=256),
         invalid_exception=OverflowError,
         invalid_argument_update=lambda: node.update(dst=object()),
-        cleanup=cleanup,
     )
 
 
@@ -365,15 +349,6 @@ def _memcpy_case(device, *, replace_operand):
             unexpected_dst = replacement_dst if expected["dst"] is original_dst else original_dst
             assert list(as_bytes(unexpected_dst)) == [0] * 4
 
-    def cleanup():
-        node.destroy()
-        original_src.close()
-        original_dst.close()
-        if replacement_src is not original_src:
-            replacement_src.close()
-        if replacement_dst is not original_dst:
-            replacement_dst.close()
-
     return _DefinitionUpdateCase(
         graph_def=graph_def,
         node=node,
@@ -385,7 +360,6 @@ def _memcpy_case(device, *, replace_operand):
         invalid_update=lambda: node.update(size=-1),
         invalid_exception=OverflowError,
         invalid_argument_update=lambda: node.update(src=object()),
-        cleanup=cleanup,
     )
 
 
@@ -481,12 +455,6 @@ def _kernel_case(device, *, replace):
 
     invalid_exception = ValueError if replace == "kernel" else TypeError
 
-    def cleanup():
-        node.destroy()
-        original_buffer.close()
-        if replacement_buffer is not original_buffer:
-            replacement_buffer.close()
-
     return _DefinitionUpdateCase(
         graph_def=graph_def,
         node=node,
@@ -498,7 +466,6 @@ def _kernel_case(device, *, replace):
         invalid_update=invalid_update,
         invalid_exception=invalid_exception,
         invalid_argument_update=lambda: node.update(config=object()),
-        cleanup=cleanup,
     )
 
 
@@ -571,7 +538,6 @@ def _child_graph_case(device):
         invalid_update=lambda: node.update(invalid_child),
         invalid_exception=CUDAError,
         invalid_argument_update=lambda: node.update(object()),
-        cleanup=node.destroy,
     )
 
 
@@ -595,9 +561,7 @@ def _child_graph_case(device):
 def definition_update_case(request, init_cuda):
     if driver_version() < (12, 2, 0):
         pytest.skip("individual graph node updates require CUDA 12.2+")
-    case = request.param(init_cuda)
-    yield case
-    case.cleanup()
+    return request.param(init_cuda)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -636,10 +600,6 @@ def test_memcpy_update_rejects_unsupported_descriptor(init_cuda):
     assert unchanged.WidthInBytes == 2
     assert unchanged.Height == 2
 
-    node.destroy()
-    src.close()
-    dst.close()
-
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_kernel_update_rejects_unsupported_config(init_cuda):
@@ -664,8 +624,6 @@ def test_kernel_update_rejects_unsupported_config(init_cuda):
     with pytest.raises(NotImplementedError, match="clustered or cooperative"):
         graph_def.launch(cooperative, kernel)
 
-    node.destroy()
-
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_partial_memory_updates_are_keyword_only(init_cuda):
@@ -681,10 +639,48 @@ def test_partial_memory_updates_are_keyword_only(init_cuda):
     with pytest.raises(TypeError):
         memcpy_node.update(dst)
 
-    memset_node.destroy()
-    memcpy_node.destroy()
-    src.close()
-    dst.close()
+
+@pytest.mark.parametrize(
+    "device_operand",
+    [
+        pytest.param("src", id="device-to-host"),
+        pytest.param("dst", id="host-to-device"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_memcpy_update_between_host_and_device(init_cuda, device_operand):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    memory_resource = LegacyPinnedMemoryResource()
+    host_src = memory_resource.allocate(4)
+    host_dst = memory_resource.allocate(4)
+    host_src_bytes = (ctypes.c_uint8 * 4).from_address(int(host_src.handle))
+    host_dst_bytes = (ctypes.c_uint8 * 4).from_address(int(host_dst.handle))
+    host_src_bytes[:] = [0x5A] * 4
+    host_dst_bytes[:] = [0] * 4
+
+    stream = init_cuda.create_stream()
+    device_buffer = init_cuda.memory_resource.allocate(4, stream=stream)
+    device_buffer.fill(0, stream=stream)
+    if device_operand == "src":
+        device_buffer.copy_from(host_src, stream=stream)
+    stream.sync()
+
+    graph_def = GraphDefinition()
+    node = graph_def.memcpy(host_dst, host_src, 4)
+    if device_operand == "src":
+        node.update(src=device_buffer)
+    else:
+        node.update(dst=device_buffer)
+
+    graph = graph_def.instantiate()
+    graph.launch(stream)
+    if device_operand == "dst":
+        device_buffer.copy_to(host_dst, stream=stream)
+    stream.sync()
+
+    assert list(host_dst_bytes) == [0x5A] * 4
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -692,12 +688,14 @@ def test_definition_node_update_changes_future_instantiations(
     definition_update_case,
 ):
     case = definition_update_case
+    assert case.original != case.replacement
     old_graph = case.graph_def.instantiate()
 
     case.update(case.replacement)
     case.assert_current(case.replacement)
 
     new_graph = case.graph_def.instantiate()
+    assert old_graph != new_graph
     case.assert_exec_uses(old_graph, case.original)
     case.assert_exec_uses(new_graph, case.replacement)
 
