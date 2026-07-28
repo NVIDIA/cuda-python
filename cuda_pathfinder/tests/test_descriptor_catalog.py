@@ -105,6 +105,16 @@ def test_windows_search_dirs_do_not_include_unsupported_arches(spec: DescriptorS
             assert not spec.anchor_rel_dirs_windows.for_arch(arch)
 
 
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cusparselt_windows_metadata_matches_wheel_layouts():
+    spec = _CATALOG_BY_NAME["cusparseLt"]
+    assert spec.supported_windows_arch == ("x64", "arm64")
+    assert spec.site_packages_windows == WindowsSearchDirs(
+        x64=("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
+        arm64=("nvidia/cu13/bin/arm64",),
+    )
+
+
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 def test_ctk_root_canary_anchors_reference_known_ctk_libs(spec: DescriptorSpec):
     for anchor in spec.ctk_root_canary_anchor_libnames:

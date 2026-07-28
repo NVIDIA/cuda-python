@@ -50,6 +50,10 @@ Internal maintenance
   supported by the current Windows interpreter architecture; the legacy
   ``SUPPORTED_LIBNAMES_WINDOWS`` table remains an x64 compatibility alias.
 
+* Correct the cuSPARSELt Windows wheel metadata to use
+  ``nvidia/cu13/bin/x64`` and ``nvidia/cu13/bin/arm64`` for CUDA 13. Retain
+  ``nvidia/cusparselt/bin`` as the x64-only CUDA 12 fallback.
+
 * Clean up dead and misleading error-handling code in the Linux and Windows
   dynamic-library loaders; runtime behavior is unchanged.
   (`PR #2239 <https://github.com/NVIDIA/cuda-python/pull/2239>`_)

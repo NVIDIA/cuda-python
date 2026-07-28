@@ -441,7 +441,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cusparselt/lib"),
         site_packages_windows=WindowsSearchDirs(
             x64=("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
-            arm64=("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
+            arm64=("nvidia/cu13/bin/arm64",),
         ),
     ),
     DescriptorSpec(

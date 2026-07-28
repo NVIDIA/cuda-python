@@ -15,6 +15,7 @@ from cuda.pathfinder import DynamicLibUnknownError, windows_supported_arches
         ("cudla", ("arm64",)),
         ("cufile", ()),
         ("cuda", ("x64", "arm64")),
+        ("cusparseLt", ("x64", "arm64")),
     ],
 )
 @pytest.mark.agent_authored(model="gpt-5")
