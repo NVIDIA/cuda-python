@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.CCSystemMultiGpu
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: CCSystemMultiGpu
