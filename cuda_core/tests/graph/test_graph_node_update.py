@@ -701,6 +701,21 @@ def test_definition_node_update_changes_future_instantiations(
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroyed_definition_node_rejects_update(
+    definition_update_case,
+):
+    case = definition_update_case
+    case.node.destroy()
+
+    assert not case.node.is_valid
+    assert case.node not in case.graph_def.nodes()
+    with pytest.raises(CUDAError):
+        case.update(case.replacement)
+    assert not case.node.is_valid
+    assert case.node not in case.graph_def.nodes()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_failed_definition_node_update_preserves_state(
     definition_update_case,
 ):
