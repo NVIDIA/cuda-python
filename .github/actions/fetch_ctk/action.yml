@@ -277,7 +277,12 @@ runs:
         cp -r $CACHE_TMP_DIR/* $CUDA_PATH
         rm -rf $CACHE_TMP_DIR $CTK_CACHE_FILENAME
         ls -l $CUDA_PATH
-        if [ ! -d "$CUDA_PATH/include" ]; then
+        # redistrib.json is present for stable-channel installs; include/ is
+        # present for prerelease installs (enforced at cache-creation time).
+        # Components that don't ship headers (e.g. cuda_sanitizer_api) have
+        # neither, so checking only for include/ incorrectly rejects them.
+        if [[ ! -e "$CUDA_PATH/redistrib.json" && ! -d "$CUDA_PATH/include" ]]; then
+          echo "CTK restore appears incomplete: neither redistrib.json nor include/ found in $CUDA_PATH" >&2
           exit 1
         fi
 
