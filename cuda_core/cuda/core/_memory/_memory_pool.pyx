@@ -275,10 +275,9 @@ cdef int MP_init_current_pool(
     Requires CUDA 13+.
     """
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        cdef cydriver.CUmemLocation loc
         cdef cydriver.CUmemoryPool pool
-        loc.id = loc_id
-        loc.type = loc_type
+        cdef cydriver.CUmemLocation loc = cydriver.CUmemLocation(
+            type=loc_type, id=loc_id)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemGetMemPool(&pool, &loc, alloc_type))
         self._h_pool = create_mempool_handle_ref(pool)

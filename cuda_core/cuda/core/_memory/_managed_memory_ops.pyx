@@ -80,7 +80,6 @@ cdef tuple _coerce_batch_buffers(object buffers, str what):
 
 
 cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, str what):
-    cdef object coerced
     if isinstance(location, Sequence):
         if len(location) != n:
             raise ValueError(
@@ -88,28 +87,30 @@ cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, 
                 f"targets length {n}"
             )
         return tuple(_coerce_location(loc, allow_none=allow_none) for loc in location)
-    coerced = _coerce_location(location, allow_none=allow_none)
+    cdef object coerced = _coerce_location(location, allow_none=allow_none)
     return tuple([coerced] * n)
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     # Convert a _LocSpec dataclass to a cydriver.CUmemLocation struct.
     cdef inline cydriver.CUmemLocation _to_cumemlocation(object loc):
-        cdef cydriver.CUmemLocation out
         cdef str kind = loc.kind
         if kind == "device":
-            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-            out.id = <int>loc.id
+            return cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
+                id=<int>loc.id)
         elif kind == "host":
-            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-            out.id = 0
+            return cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
+                id=0)
         elif kind == "host_numa":
-            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
-            out.id = <int>loc.id
+            return cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA,
+                id=<int>loc.id)
         else:  # host_numa_current
-            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT
-            out.id = 0
-        return out
+            return cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
+                id=0)
 ELSE:
     # CUDA 12 cuMemPrefetchAsync takes a device ordinal (-1 = host).
     cdef inline int _to_legacy_device(object loc) except? -2:
@@ -223,8 +224,9 @@ cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint al
             # Driver ignores location for read_mostly / unset_preferred_location
             # advice values but still validates the CUmemLocation; pass a
             # host placeholder.
-            cu_loc.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-            cu_loc.id = 0
+            cu_loc = cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
+                id=0)
         else:
             cu_loc = _to_cumemlocation(loc)
         with nogil:

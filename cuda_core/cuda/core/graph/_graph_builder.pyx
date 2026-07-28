@@ -162,7 +162,6 @@ class GraphCompleteOptions:
 
 
 def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> Graph:
-    cdef cydriver.CUgraphExec c_exec
     params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
     if options:
         flags = 0
@@ -201,7 +200,7 @@ def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> 
     elif params.result_out != driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS:
         raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
 
-    c_exec = <cydriver.CUgraphExec><intptr_t>int(py_exec)
+    cdef cydriver.CUgraphExec c_exec = <cydriver.CUgraphExec><intptr_t>int(py_exec)
     return Graph._init(c_exec)
 
 
