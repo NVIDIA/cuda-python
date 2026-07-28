@@ -161,9 +161,11 @@ class WindowsSearchDirs:
         raise ValueError(f"Unsupported Windows target architecture: {target_arch!r}")
 
 
+# Windows CTK before 13.4 was x64-only and used the common bin directory.
+# Native ARM64 support starts with the architecture-qualified 13.4 layout.
 DEFAULT_WINDOWS_CTK_ANCHOR_DIRS = WindowsSearchDirs(
     x64=("bin/x64", "bin"),
-    arm64=("bin/arm64", "bin"),
+    arm64=("bin/arm64",),
 )
 
 

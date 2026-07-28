@@ -562,14 +562,24 @@ class TestAnchorRelDirs:
     def test_nvvm_has_custom_windows_paths(self):
         desc = LIB_DESCRIPTORS["nvvm"]
         assert desc.anchor_rel_dirs_windows.for_arch("x64") == ("nvvm/bin/x64", "nvvm/bin")
-        assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("nvvm/bin/arm64", "nvvm/bin")
+        assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("nvvm/bin",)
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cupti_has_custom_windows_paths(self):
+        desc = LIB_DESCRIPTORS["cupti"]
+        assert desc.anchor_rel_dirs_windows.for_arch("x64") == (
+            "extras/CUPTI/lib/x64",
+            "extras/CUPTI/lib64",
+            "bin",
+        )
+        assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("extras/CUPTI/lib/arm64",)
 
     @pytest.mark.parametrize("libname", ["cudart", "cublas", "nvrtc"])
     def test_regular_ctk_libs_use_defaults(self, libname):
         desc = LIB_DESCRIPTORS[libname]
         assert desc.anchor_rel_dirs_linux == ("lib64", "lib")
         assert desc.anchor_rel_dirs_windows.for_arch("x64") == ("bin/x64", "bin")
-        assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("bin/arm64", "bin")
+        assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("bin/arm64",)
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_cudla_uses_arm64_only_windows_anchor(self):
@@ -619,19 +629,19 @@ class TestAnchorRelDirs:
         assert result.endswith(os.path.join("nvvm", "bin"))
 
     def test_find_lib_dir_windows_arm64_uses_arm64_anchor(self, tmp_path):
-        (tmp_path / "nvvm" / "bin" / "x64").mkdir(parents=True)
-        (tmp_path / "nvvm" / "bin" / "arm64").mkdir(parents=True)
+        (tmp_path / "bin" / "x64").mkdir(parents=True)
+        (tmp_path / "bin" / "arm64").mkdir(parents=True)
 
         desc = _make_desc(
-            name="nvvm",
+            name="cudart",
             anchor_rel_dirs_windows=WindowsSearchDirs(
-                x64=("nvvm/bin/x64", "nvvm/bin"),
-                arm64=("nvvm/bin/arm64", "nvvm/bin"),
+                x64=("bin/x64", "bin"),
+                arm64=("bin/arm64",),
             ),
         )
         result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="arm64"), str(tmp_path))
         assert result is not None
-        assert result.endswith(os.path.join("nvvm", "bin", "arm64"))
+        assert result.endswith(os.path.join("bin", "arm64"))
 
     def test_find_lib_dir_returns_none_when_no_match(self, tmp_path):
         desc = _make_desc(anchor_rel_dirs_linux=("nonexistent",))

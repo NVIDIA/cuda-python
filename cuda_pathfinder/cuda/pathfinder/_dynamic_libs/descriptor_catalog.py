@@ -38,9 +38,11 @@ class WindowsSearchDirs:
         raise ValueError(f"Unsupported Windows target architecture: {target_arch!r}")
 
 
+# Windows CTK before 13.4 was x64-only and used the common bin directory.
+# Native ARM64 support starts with the architecture-qualified 13.4 layout.
 DEFAULT_WINDOWS_CTK_ANCHOR_DIRS = WindowsSearchDirs(
     x64=("bin/x64", "bin"),
-    arm64=("bin/arm64", "bin"),
+    arm64=("bin/arm64",),
 )
 
 
@@ -120,9 +122,11 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
         site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_nvcc/nvvm/bin"),
         anchor_rel_dirs_linux=("nvvm/lib64",),
+        # CTK 13.4 installs the ARM64 DLL directly in nvvm/bin, while x64
+        # uses nvvm/bin/x64. Older x64 toolkits also used nvvm/bin.
         anchor_rel_dirs_windows=WindowsSearchDirs(
             x64=("nvvm/bin/x64", "nvvm/bin"),
-            arm64=("nvvm/bin/arm64", "nvvm/bin"),
+            arm64=("nvvm/bin",),
         ),
         ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
     ),
@@ -364,9 +368,11 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_cupti/lib"),
         site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_cupti/bin"),
         anchor_rel_dirs_linux=("extras/CUPTI/lib64", "lib"),
+        # CTK 13.4 uses architecture-qualified CUPTI directories. Older
+        # Windows CUPTI toolkits were x64-only and used extras/CUPTI/lib64.
         anchor_rel_dirs_windows=WindowsSearchDirs(
-            x64=("extras/CUPTI/lib64", "bin/x64", "bin"),
-            arm64=("extras/CUPTI/lib64", "bin/arm64", "bin"),
+            x64=("extras/CUPTI/lib/x64", "extras/CUPTI/lib64", "bin"),
+            arm64=("extras/CUPTI/lib/arm64",),
         ),
         ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
     ),
