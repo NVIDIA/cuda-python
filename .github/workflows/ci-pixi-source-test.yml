@@ -52,7 +52,11 @@ defaults:
     shell: bash --noprofile --norc -xeuo pipefail {0}
 
 env:
-  PIXI_VERSION: "v0.66.0" # keep in sync with the version developers run locally
+  # keep in sync with the version developers run locally. Must be >=0.71.0:
+  # older pixi re-ran the editable source build on every `pixi run`, recompiling
+  # all Cython extensions (#2138). The fix (content-addressed source-build cache,
+  # prefix-dev/pixi#6285 + #6123) also bumps the pixi.lock format to v7.
+  PIXI_VERSION: "v0.73.0"
 
 jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
