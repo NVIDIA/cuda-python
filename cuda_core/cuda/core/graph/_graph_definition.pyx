@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from libc.stddef cimport size_t
+from libc.stdint cimport uintptr_t
 
 from libcpp.vector cimport vector
 
@@ -105,6 +106,12 @@ cdef class GraphDefinition:
     A GraphDefinition is used to construct a graph explicitly by adding nodes
     and specifying dependencies. Once construction is complete, call
     instantiate() to obtain an executable Graph.
+
+    Notes
+    -----
+    Definitions that view the same root, child, or conditional graph hierarchy
+    share underlying graph state. Mutations anywhere in that hierarchy must be
+    externally synchronized.
     """
 
     def __init__(self):
@@ -127,10 +134,13 @@ cdef class GraphDefinition:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GraphDefinition):
             return NotImplemented
-        return as_intptr(self._h_graph) == as_intptr((<GraphDefinition>other)._h_graph)
+        return (
+            <uintptr_t>self._h_graph.get()
+            == <uintptr_t>(<GraphDefinition>other)._h_graph.get()
+        )
 
     def __hash__(self) -> int:
-        return hash(as_intptr(self._h_graph))
+        return hash(<uintptr_t>self._h_graph.get())
 
     @property
     def _entry(self) -> GraphNode:
