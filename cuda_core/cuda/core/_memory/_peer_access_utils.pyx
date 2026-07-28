@@ -92,7 +92,7 @@ cdef inline tuple _query_peer_access_ids(DeviceMemoryResource mr):
     cdef cydriver.CUmemLocation location
     cdef cydriver.CUmemoryPool h_pool = as_cu(mr._h_pool)
     cdef vector[int] peers
-    cdef size_t i, n
+    cdef size_t i
 
     location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
 
@@ -106,17 +106,17 @@ cdef inline tuple _query_peer_access_ids(DeviceMemoryResource mr):
             if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
                 peers.push_back(dev_id)
 
-    n = peers.size()
+    cdef size_t n = peers.size()
     return tuple(peers[i] for i in range(n))
 
 
 cdef inline bint _peer_access_includes(DeviceMemoryResource mr, int dev_id):
     """Return True if peer access from ``dev_id`` is currently granted."""
     cdef cydriver.CUmemAccess_flags flags
-    cdef cydriver.CUmemLocation location
-
-    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    location.id = dev_id
+    cdef cydriver.CUmemLocation location = cydriver.CUmemLocation(
+        type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
+        id=dev_id,
+    )
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(mr._h_pool), &location))
     return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE

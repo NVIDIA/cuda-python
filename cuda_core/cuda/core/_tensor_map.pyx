@@ -485,7 +485,6 @@ cdef class TensorMapDescriptor:
     cdef int _check_context_compat(self) except -1:
         cdef cydriver.CUcontext current_ctx
         cdef cydriver.CUdevice current_dev
-        cdef int current_dev_id
         if self._context == 0 and self._device_id < 0:
             return 0
         with nogil:
@@ -497,7 +496,7 @@ cdef class TensorMapDescriptor:
                 "TensorMapDescriptor was created in a different CUDA context")
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetDevice(&current_dev))
-        current_dev_id = <int>current_dev
+        cdef int current_dev_id = <int>current_dev
         if self._device_id >= 0 and current_dev_id != self._device_id:
             raise RuntimeError(
                 f"TensorMapDescriptor belongs to device {self._device_id}, "
