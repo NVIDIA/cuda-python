@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=73d6889e33bb56f1e0e63be7a0ba1f176c5c09e6e1adf9c4360d23335e131260
+# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=84741b6deffabec746bbb6a7efa6a638e72579f8eae7731380ae3c1718f1854b
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -109,6 +110,8 @@ cdef void* __cuFileGetStatsL3 = NULL
 cdef void* __cuFileGetBARSizeInKB = NULL
 cdef void* __cuFileSetParameterPosixPoolSlabArray = NULL
 cdef void* __cuFileGetParameterPosixPoolSlabArray = NULL
+cdef void* __cuFileReadv = NULL
+cdef void* __cuFileWritev = NULL
 
 cdef int _init_cufile() except -1 nogil:
     global _cyb___py_cufile_init
@@ -417,6 +420,20 @@ cdef int _init_cufile() except -1 nogil:
                 handle = load_library()
             __cuFileGetParameterPosixPoolSlabArray = _cyb_dlsym(handle, 'cuFileGetParameterPosixPoolSlabArray')
 
+        global __cuFileReadv
+        __cuFileReadv = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileReadv')
+        if __cuFileReadv == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileReadv = _cyb_dlsym(handle, 'cuFileReadv')
+
+        global __cuFileWritev
+        __cuFileWritev = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileWritev')
+        if __cuFileWritev == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileWritev = _cyb_dlsym(handle, 'cuFileWritev')
+
         _cyb_atomic_int_store(<int *>&_cyb___py_cufile_init, 1)
         return 0
 
@@ -562,6 +579,12 @@ cpdef dict _inspect_function_pointers():
 
     global __cuFileGetParameterPosixPoolSlabArray
     data["__cuFileGetParameterPosixPoolSlabArray"] = <_cyb_intptr_t>__cuFileGetParameterPosixPoolSlabArray
+
+    global __cuFileReadv
+    data["__cuFileReadv"] = <_cyb_intptr_t>__cuFileReadv
+
+    global __cuFileWritev
+    data["__cuFileWritev"] = <_cyb_intptr_t>__cuFileWritev
     _cyb_func_ptrs = data
     return data
 
@@ -1013,3 +1036,23 @@ cdef CUfileError_t _cuFileGetParameterPosixPoolSlabArray(size_t* size_values, si
             raise FunctionNotFoundError("function cuFileGetParameterPosixPoolSlabArray is not found")
     return (<CUfileError_t (*)(size_t*, size_t*, int) noexcept nogil>__cuFileGetParameterPosixPoolSlabArray)(
         size_values, count_values, len)
+
+
+cdef ssize_t _cuFileReadv(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil:
+    global __cuFileReadv
+    _check_or_init_cufile()
+    if __cuFileReadv == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileReadv is not found")
+    return (<ssize_t (*)(CUfileHandle_t, const CUfileIOVec_t*, size_t, off_t, unsigned) noexcept nogil>__cuFileReadv)(
+        fh, iov, iovcnt, file_offset, flags)
+
+
+cdef ssize_t _cuFileWritev(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil:
+    global __cuFileWritev
+    _check_or_init_cufile()
+    if __cuFileWritev == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileWritev is not found")
+    return (<ssize_t (*)(CUfileHandle_t, const CUfileIOVec_t*, size_t, off_t, unsigned) noexcept nogil>__cuFileWritev)(
+        fh, iov, iovcnt, file_offset, flags)

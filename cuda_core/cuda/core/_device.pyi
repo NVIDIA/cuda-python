@@ -655,6 +655,10 @@ class Device:
             A tuple containing instances of available devices.
         """
 
+    @classmethod
+    def _get_all_devices_from_cuda_driver(cls):
+        ...
+
     def to_system_device(self) -> 'cuda.core.system.Device':
         """
         Get the corresponding :class:`cuda.core.system.Device` (which is used

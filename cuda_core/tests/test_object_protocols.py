@@ -26,7 +26,6 @@ from cuda.core import (
     LaunchConfig,
     Program,
     Stream,
-    system,
 )
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core.graph import GraphDefinition
@@ -169,7 +168,7 @@ def sample_program_nvvm(init_cuda):
 @pytest.fixture
 def sample_device_alt(init_cuda):
     """An alternate Device object (requires multi-GPU)."""
-    if system.get_num_devices() < 2:
+    if len(Device.get_all_devices()) < 2:
         pytest.skip("requires multi-GPU")
     device_alt = Device(1)
     device_alt.set_current()

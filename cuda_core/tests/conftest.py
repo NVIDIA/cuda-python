@@ -449,17 +449,15 @@ def memory_resource_factory(request, init_cuda):
 
 # Please keep in sync with the copy in the top-level conftest.py.
 def _cuda_headers_available() -> bool:
-    """Return True if CUDA headers are available, False if no CUDA path is set.
+    """Return True if CUDA headers are available, False otherwise.
 
-    Raises AssertionError if a CUDA path is set but has no include/ subdirectory.
+    Returns False if no CUDA path is set or if the CUDA path has no
+    include/ subdirectory (e.g. a sanitizer-only mini-CTK install).
     """
     cuda_path = get_cuda_path_or_home()
     if cuda_path is None:
         return False
-    assert os.path.isdir(os.path.join(cuda_path, "include")), (
-        f"CUDA path {cuda_path} does not contain an 'include' subdirectory"
-    )
-    return True
+    return os.path.isdir(os.path.join(cuda_path, "include"))
 
 
 skipif_need_cuda_headers = pytest.mark.skipif(

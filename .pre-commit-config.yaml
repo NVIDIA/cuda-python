@@ -80,6 +80,7 @@ repos:
           - --max-retries=3
           - --no-progress
         files: '\.(md|rst)$'
+        exclude: ^qa/
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks

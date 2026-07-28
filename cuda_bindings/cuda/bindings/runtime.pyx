@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=979e766bb067947f8d255ab5e8d2439b946aed85f2d19a209eb4136a1ceda20b
+# This code was automatically generated with version 13.4.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=632a03657f085ae740d8137492ed61dac76e32eec0571a3bb73a2471da87bf08
 from typing import Any, Optional
 import cython
 import ctypes
@@ -925,6 +926,12 @@ class cudaError_t(_FastEnum):
     )
 
 
+    cudaErrorInsufficientLoaderVersion = (
+        cyruntime.cudaError.cudaErrorInsufficientLoaderVersion,
+        'This indicates that loader version is insufficient for Fatbin\n'
+    )
+
+
     cudaErrorInvalidSource = (
         cyruntime.cudaError.cudaErrorInvalidSource,
         'This indicates that the device kernel source is invalid.\n'
@@ -1421,6 +1428,15 @@ class cudaError_t(_FastEnum):
     )
 
 
+    cudaErrorFabricNotReady = (
+        cyruntime.cudaError.cudaErrorFabricNotReady,
+        'This error indicates GPU fabric is not ready within the bounded wait while\n'
+        'the fabric manager probe is still in progress. Applications may retry after\n'
+        'a delay; for the initialization wait budget, see environment variables such\n'
+        'as CUDA_FABRIC_INIT_TIMEOUT_MS.\n'
+    )
+
+
     cudaErrorUnknown = (
         cyruntime.cudaError.cudaErrorUnknown,
         'This indicates that an unknown internal error has occurred.\n'
@@ -1454,6 +1470,21 @@ class cudaSharedMemoryMode(_FastEnum):
         cyruntime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowNonPortable,
         'Specifies that the shared memory size requested may be a non-portable size\n'
         'up to :py:obj:`~.cudaDevAttrMaxSharedMemoryPerBlockOptin`\n'
+    )
+
+
+    cudaSharedMemoryModeAllowOversizedSharedMemory = (
+        cyruntime.cudaSharedMemoryMode.cudaSharedMemoryModeAllowOversizedSharedMemory,
+        'Specifies that oversized shared memory configurations may be used (with the\n'
+        'limitation of only 8kB L1 cache)\n'
+    )
+
+
+    cudaSharedMemoryModePreferOversizedSharedMemory = (
+        cyruntime.cudaSharedMemoryMode.cudaSharedMemoryModePreferOversizedSharedMemory,
+        'Specifies that oversized shared memory configurations may be used (with the\n'
+        'limitation of only 8kB L1 cache), and prefer an oversized shared memory\n'
+        'configuration\n'
     )
 
 class cudaGraphDependencyType(_FastEnum):
@@ -1921,6 +1952,8 @@ class cudaDataType(_FastEnum):
     CUDA_R_6F_E3M2 = cyruntime.cudaDataType_t.CUDA_R_6F_E3M2
 
     CUDA_R_4F_E2M1 = cyruntime.cudaDataType_t.CUDA_R_4F_E2M1
+
+    CUDA_R_8F_UE5M3 = cyruntime.cudaDataType_t.CUDA_R_8F_UE5M3
 
 class cudaEmulationStrategy(_FastEnum):
     """
@@ -3292,6 +3325,8 @@ class cudaClusterSchedulingPolicy(_FastEnum):
         'allow the hardware to load-balance the blocks in a cluster to the SMs\n'
     )
 
+    cudaClusterSchedulingPolicyRubinDsmemLocality = cyruntime.cudaClusterSchedulingPolicy.cudaClusterSchedulingPolicyRubinDsmemLocality
+
 class cudaStreamUpdateCaptureDependenciesFlags(_FastEnum):
     """
     Flags for :py:obj:`~.cudaStreamUpdateCaptureDependencies`
@@ -3737,6 +3772,13 @@ class cudaFuncAttribute(_FastEnum):
         'Required cluster scheduling policy preference\n'
     )
 
+
+    cudaFuncAttributeSharedMemoryMode = (
+        cyruntime.cudaFuncAttribute.cudaFuncAttributeSharedMemoryMode,
+        "Setting that controls a kernel's use of non-portable or oversized shared\n"
+        'memory configurations\n'
+    )
+
     cudaFuncAttributeMax = cyruntime.cudaFuncAttribute.cudaFuncAttributeMax
 
 class cudaFuncCache(_FastEnum):
@@ -3882,6 +3924,12 @@ class cudaLimit(_FastEnum):
     cudaLimitPersistingL2CacheSize = (
         cyruntime.cudaLimit.cudaLimitPersistingL2CacheSize,
         'A size in bytes for L2 persisting lines cache size\n'
+    )
+
+
+    cudaLimitPerBlockMemorySize = (
+        cyruntime.cudaLimit.cudaLimitPerBlockMemorySize,
+        'Per-block memory size\n'
     )
 
 class cudaMemoryAdvise(_FastEnum):
@@ -4860,9 +4908,28 @@ class cudaDeviceAttr(_FastEnum):
     )
 
 
+    cudaDevAttrLocalityDomainCount = (
+        cyruntime.cudaDeviceAttr.cudaDevAttrLocalityDomainCount,
+        'Number of locality domains\n'
+    )
+
+
+    cudaDevAttrOversizedSharedMemoryPerBlock = (
+        cyruntime.cudaDeviceAttr.cudaDevAttrOversizedSharedMemoryPerBlock,
+        'The maximum oversized shared memory per block. This value may vary by chip.\n'
+        'See :py:obj:`~.cudaFuncSetAttribute`\n'
+    )
+
+
     cudaDevAttrCigStreamsSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrCigStreamsSupported,
         'Device supports CIG streams\n'
+    )
+
+
+    cudaDevAttrLocalityDomainMultiprocessorCount = (
+        cyruntime.cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount,
+        'Number of multiprocessors on each locality domain\n'
     )
 
     cudaDevAttrMax = cyruntime.cudaDeviceAttr.cudaDevAttrMax
@@ -4986,6 +5053,14 @@ class cudaMemPoolAttr(_FastEnum):
         'enabled\n'
     )
 
+
+    cudaMemPoolAttrLocalityDomainId = (
+        cyruntime.cudaMemPoolAttr.cudaMemPoolAttrLocalityDomainId,
+        '(value type = int) The locality domain id for the mempool, if the mempool\n'
+        'is localized to a locality domain. A value of -1 indicates that the mempool\n'
+        'is not localized to a locality domain.\n'
+    )
+
 class cudaMemLocationType(_FastEnum):
     """
     Specifies the type of location
@@ -5030,6 +5105,12 @@ class cudaMemLocationType(_FastEnum):
         cyruntime.cudaMemLocationType.cudaMemLocationTypeInvisible,
         'Location is not visible but device is accessible, id is always\n'
         'cudaInvalidDeviceId\n'
+    )
+
+
+    cudaMemLocationTypeDeviceLocalityDomain = (
+        cyruntime.cudaMemLocationType.cudaMemLocationTypeDeviceLocalityDomain,
+        'Location is a portion of device memory, specified by the locality domain ID\n'
     )
 
 class cudaMemAccessFlags(_FastEnum):
@@ -5439,8 +5520,22 @@ class cudaDevSmResourceGroup_flags(_FastEnum):
 
     cudaDevSmResourceGroupBackfill = (
         cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill,
-        'Lets smCount be a non-multiple of minCoscheduledCount, filling the\n'
-        'difference with other SMs.\n'
+        'Treats constraints as a hint, ignoring them if necessary to reach the\n'
+        'requested smCount. Lets smCount be a non-multiple of coscheduledSmCount,\n'
+        'filling the difference between SM count and already assigned co-scheduled\n'
+        'groupings with other SMs. When used with\n'
+        'cudaDevSmResourceGroupLocalityDomainId, backfill fills up to the requested\n'
+        'smCount using the target locality domain first, then SMs not attributed to\n'
+        'any locality domain, then SMs from other locality domains. If no SMs can be\n'
+        'found in the requested locality domain,\n'
+        'cudaErrorInvalidResourceConfiguration is returned.\n'
+    )
+
+
+    cudaDevSmResourceGroupLocalityDomainId = (
+        cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId,
+        'The SMs must be located on a specific locality domain, specified by\n'
+        'localityDomainId\n'
     )
 
 class cudaDevSmResourceSplitByCount_flags(_FastEnum):
@@ -9422,6 +9517,10 @@ cdef class cudaHostNodeParamsV2:
         The synchronization mode to use for the host task
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
@@ -9436,6 +9535,9 @@ cdef class cudaHostNodeParamsV2:
         pass
 
         self._fn = cudaHostFn_t(_ptr=<void_ptr>&self._pvt_ptr[0].fn)
+
+
+        self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
 
     def __dealloc__(self):
         pass
@@ -9461,6 +9563,12 @@ cdef class cudaHostNodeParamsV2:
                 str_list += ['syncMode : ' + str(self.syncMode)]
             except ValueError:
                 str_list += ['syncMode : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -9498,6 +9606,23 @@ cdef class cudaHostNodeParamsV2:
     @syncMode.setter
     def syncMode(self, unsigned int syncMode):
         self._pvt_ptr[0].syncMode = syncMode
+
+
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cyruntime.cudaExecutionContext_t cyctx
+        if ctx is None:
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>0
+        elif isinstance(ctx, (cudaExecutionContext_t,)):
+            pctx = int(ctx)
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        else:
+            pctx = int(cudaExecutionContext_t(ctx))
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
 
 
 cdef class anon_struct1:
@@ -10247,6 +10372,10 @@ cdef class cudaPointerAttributes:
         pointer if an invalid pointer has been passed to CUDA.
 
 
+    localityDomainOrdinal : int
+
+
+
     Methods
     -------
     getPtr()
@@ -10254,13 +10383,15 @@ cdef class cudaPointerAttributes:
     """
     def __cinit__(self, void_ptr _ptr = 0):
         if _ptr == 0:
-            self._pvt_ptr = &self._pvt_val
+            self._val_ptr = <cyruntime.cudaPointerAttributes *>calloc(1, sizeof(cyruntime.cudaPointerAttributes))
+            self._pvt_ptr = self._val_ptr
         else:
             self._pvt_ptr = <cyruntime.cudaPointerAttributes *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
     def __dealloc__(self):
-        pass
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -10289,6 +10420,12 @@ cdef class cudaPointerAttributes:
                 str_list += ['hostPointer : ' + hex(self.hostPointer)]
             except ValueError:
                 str_list += ['hostPointer : <ValueError>']
+
+
+            try:
+                str_list += ['localityDomainOrdinal : ' + str(self.localityDomainOrdinal)]
+            except ValueError:
+                str_list += ['localityDomainOrdinal : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -10326,6 +10463,14 @@ cdef class cudaPointerAttributes:
     def hostPointer(self, hostPointer):
         self._cyhostPointer = _HelperInputVoidPtr(hostPointer)
         self._pvt_ptr[0].hostPointer = <void*><void_ptr>self._cyhostPointer.cptr
+
+
+    @property
+    def localityDomainOrdinal(self):
+        return self._pvt_ptr[0].localityDomainOrdinal
+    @localityDomainOrdinal.setter
+    def localityDomainOrdinal(self, int localityDomainOrdinal):
+        self._pvt_ptr[0].localityDomainOrdinal = localityDomainOrdinal
 
 
 cdef class cudaFuncAttributes:
@@ -10382,7 +10527,11 @@ cdef class cudaFuncAttributes:
     maxDynamicSharedSizeBytes : int
         The maximum size in bytes of dynamic shared memory per block for
         this function. Any launch must have a dynamic shared memory size
-        smaller than this value.
+        smaller than this value.  This attribute is ignored if the
+        sharedMemoryMode function or launch attribute is set.  This
+        attribute cannot be used to access oversized shared memory.
+        Oversized shared memory can only be accessed by setting the shared
+        memory mode.  See cudaFuncSetAttribute
 
 
     preferredShmemCarveout : int
@@ -10391,7 +10540,7 @@ cdef class cudaFuncAttributes:
         preference, in percent of the maximum shared memory. Refer to
         cudaDevAttrMaxSharedMemoryPerMultiprocessor. This is only a hint,
         and the driver can choose a different ratio if required to execute
-        the function. See cudaFuncSetAttribute
+        the function.  See cudaFuncSetAttribute
 
 
     clusterDimMustBeSet : int
@@ -10404,7 +10553,7 @@ cdef class cudaFuncAttributes:
         either all be 0 or all be positive. The validity of the cluster
         dimensions is otherwise checked at launch time.  If the value is
         set during compile time, it cannot be set at runtime. Setting it at
-        runtime should return cudaErrorNotPermitted. See
+        runtime should return cudaErrorNotPermitted.  See
         cudaFuncSetAttribute
 
 
@@ -10417,7 +10566,8 @@ cdef class cudaFuncAttributes:
 
 
     clusterSchedulingPolicyPreference : int
-        The block scheduling policy of a function. See cudaFuncSetAttribute
+        The block scheduling policy of a function.  See
+        cudaFuncSetAttribute
 
 
     nonPortableClusterSizeAllowed : int
@@ -10432,7 +10582,7 @@ cdef class cudaFuncAttributes:
         than the target compute capability. The portable cluster size for
         sm_90 is 8 blocks per cluster. This value may increase for future
         compute capabilities.  The specific hardware unit may support
-        higher cluster sizes that’s not guaranteed to be portable. See
+        higher cluster sizes that’s not guaranteed to be portable.  See
         cudaFuncSetAttribute
 
 
@@ -10440,6 +10590,11 @@ cdef class cudaFuncAttributes:
         Whether the function can be updated on device. 1 means device node
         update is supported, 0 is unsupported or driver is too old to check
         the value.
+
+
+    sharedMemoryMode : cudaSharedMemoryMode
+        This controls a kernel's use of non-portable or oversized shared
+        memory configurations.  See cudaFuncSetAttribute
 
 
     Methods
@@ -10562,6 +10717,12 @@ cdef class cudaFuncAttributes:
                 str_list += ['deviceNodeUpdateStatus : ' + str(self.deviceNodeUpdateStatus)]
             except ValueError:
                 str_list += ['deviceNodeUpdateStatus : <ValueError>']
+
+
+            try:
+                str_list += ['sharedMemoryMode : ' + str(self.sharedMemoryMode)]
+            except ValueError:
+                str_list += ['sharedMemoryMode : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -10703,6 +10864,76 @@ cdef class cudaFuncAttributes:
         self._pvt_ptr[0].deviceNodeUpdateStatus = deviceNodeUpdateStatus
 
 
+    @property
+    def sharedMemoryMode(self):
+        return cudaSharedMemoryMode(self._pvt_ptr[0].sharedMemoryMode)
+    @sharedMemoryMode.setter
+    def sharedMemoryMode(self, sharedMemoryMode not None : cudaSharedMemoryMode):
+        self._pvt_ptr[0].sharedMemoryMode = <cyruntime.cudaSharedMemoryMode><int>int(sharedMemoryMode)
+
+
+cdef class anon_struct6:
+    """
+    Attributes
+    ----------
+
+    deviceId : bytes
+
+
+
+    localityDomainId : bytes
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cyruntime.cudaMemLocation *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].localized
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['deviceId : ' + str(self.deviceId)]
+            except ValueError:
+                str_list += ['deviceId : <ValueError>']
+
+
+            try:
+                str_list += ['localityDomainId : ' + str(self.localityDomainId)]
+            except ValueError:
+                str_list += ['localityDomainId : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def deviceId(self):
+        return self._pvt_ptr[0].localized.deviceId
+    @deviceId.setter
+    def deviceId(self, unsigned char deviceId):
+        self._pvt_ptr[0].localized.deviceId = deviceId
+
+
+    @property
+    def localityDomainId(self):
+        return self._pvt_ptr[0].localized.localityDomainId
+    @localityDomainId.setter
+    def localityDomainId(self, unsigned char localityDomainId):
+        self._pvt_ptr[0].localized.localityDomainId = localityDomainId
+
+
 cdef class cudaMemLocation:
     """
     Specifies a memory location.  To specify a gpu, set type =
@@ -10723,6 +10954,11 @@ cdef class cudaMemLocation:
         cudaMemLocationType::cudaMemLocationTypeHostNuma.
 
 
+    localized : anon_struct6
+        Identifier for
+        cudaMemLocationType::cudaMemLocationTypeDeviceLocalityDomain.
+
+
     Methods
     -------
     getPtr()
@@ -10736,6 +10972,9 @@ cdef class cudaMemLocation:
             self._pvt_ptr = <cyruntime.cudaMemLocation *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
+
+        self._localized = anon_struct6(_ptr=<void_ptr>self._pvt_ptr)
+
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
@@ -10756,6 +10995,12 @@ cdef class cudaMemLocation:
             except ValueError:
                 str_list += ['id : <ValueError>']
 
+
+            try:
+                str_list += ['localized :\n' + '\n'.join(['    ' + line for line in str(self.localized).splitlines()])]
+            except ValueError:
+                str_list += ['localized : <ValueError>']
+
             return '\n'.join(str_list)
         else:
             return ''
@@ -10774,6 +11019,14 @@ cdef class cudaMemLocation:
     @id.setter
     def id(self, int id):
         self._pvt_ptr[0].id = id
+
+
+    @property
+    def localized(self):
+        return self._localized
+    @localized.setter
+    def localized(self, localized not None : anon_struct6):
+        string.memcpy(&self._pvt_ptr[0].localized, <void*><void_ptr>localized.getPtr(), sizeof(self._pvt_ptr[0].localized))
 
 
 cdef class cudaMemAccessDesc:
@@ -11583,7 +11836,7 @@ cdef class cudaOffset3D:
         self._pvt_ptr[0].z = z
 
 
-cdef class anon_struct6:
+cdef class anon_struct7:
     """
     Attributes
     ----------
@@ -11685,7 +11938,7 @@ cdef class anon_struct6:
         string.memcpy(&self._pvt_ptr[0].op.ptr.locHint, <void*><void_ptr>locHint.getPtr(), sizeof(self._pvt_ptr[0].op.ptr.locHint))
 
 
-cdef class anon_struct7:
+cdef class anon_struct8:
     """
     Attributes
     ----------
@@ -11762,16 +12015,16 @@ cdef class anon_struct7:
         string.memcpy(&self._pvt_ptr[0].op.array.offset, <void*><void_ptr>offset.getPtr(), sizeof(self._pvt_ptr[0].op.array.offset))
 
 
-cdef class anon_union2:
+cdef class anon_union3:
     """
     Attributes
     ----------
 
-    ptr : anon_struct6
+    ptr : anon_struct7
 
 
 
-    array : anon_struct7
+    array : anon_struct8
 
 
 
@@ -11786,10 +12039,10 @@ cdef class anon_union2:
     def __init__(self, void_ptr _ptr):
         pass
 
-        self._ptr = anon_struct6(_ptr=<void_ptr>self._pvt_ptr)
+        self._ptr = anon_struct7(_ptr=<void_ptr>self._pvt_ptr)
 
 
-        self._array = anon_struct7(_ptr=<void_ptr>self._pvt_ptr)
+        self._array = anon_struct8(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -11818,7 +12071,7 @@ cdef class anon_union2:
     def ptr(self):
         return self._ptr
     @ptr.setter
-    def ptr(self, ptr not None : anon_struct6):
+    def ptr(self, ptr not None : anon_struct7):
         string.memcpy(&self._pvt_ptr[0].op.ptr, <void*><void_ptr>ptr.getPtr(), sizeof(self._pvt_ptr[0].op.ptr))
 
 
@@ -11826,7 +12079,7 @@ cdef class anon_union2:
     def array(self):
         return self._array
     @array.setter
-    def array(self, array not None : anon_struct7):
+    def array(self, array not None : anon_struct8):
         string.memcpy(&self._pvt_ptr[0].op.array, <void*><void_ptr>array.getPtr(), sizeof(self._pvt_ptr[0].op.array))
 
 
@@ -11841,7 +12094,7 @@ cdef class cudaMemcpy3DOperand:
 
 
 
-    op : anon_union2
+    op : anon_union3
 
 
 
@@ -11859,7 +12112,7 @@ cdef class cudaMemcpy3DOperand:
     def __init__(self, void_ptr _ptr = 0):
         pass
 
-        self._op = anon_union2(_ptr=<void_ptr>self._pvt_ptr)
+        self._op = anon_union3(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -11897,7 +12150,7 @@ cdef class cudaMemcpy3DOperand:
     def op(self):
         return self._op
     @op.setter
-    def op(self, op not None : anon_union2):
+    def op(self, op not None : anon_union3):
         string.memcpy(&self._pvt_ptr[0].op, <void*><void_ptr>op.getPtr(), sizeof(self._pvt_ptr[0].op))
 
 
@@ -13878,7 +14131,7 @@ cdef class cudaMemFabricHandle_st:
         else:
             return ''
 
-cdef class anon_struct8:
+cdef class anon_struct9:
     """
     Attributes
     ----------
@@ -13942,7 +14195,7 @@ cdef class anon_struct8:
         self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>self._cyname.cptr
 
 
-cdef class anon_union3:
+cdef class anon_union4:
     """
     Attributes
     ----------
@@ -13951,7 +14204,7 @@ cdef class anon_union3:
 
 
 
-    win32 : anon_struct8
+    win32 : anon_struct9
 
 
 
@@ -13970,7 +14223,7 @@ cdef class anon_union3:
     def __init__(self, void_ptr _ptr):
         pass
 
-        self._win32 = anon_struct8(_ptr=<void_ptr>self._pvt_ptr)
+        self._win32 = anon_struct9(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -14013,7 +14266,7 @@ cdef class anon_union3:
     def win32(self):
         return self._win32
     @win32.setter
-    def win32(self, win32 not None : anon_struct8):
+    def win32(self, win32 not None : anon_struct9):
         string.memcpy(&self._pvt_ptr[0].handle.win32, <void*><void_ptr>win32.getPtr(), sizeof(self._pvt_ptr[0].handle.win32))
 
 
@@ -14037,7 +14290,7 @@ cdef class cudaExternalMemoryHandleDesc:
         Type of the handle
 
 
-    handle : anon_union3
+    handle : anon_union4
 
 
 
@@ -14063,7 +14316,7 @@ cdef class cudaExternalMemoryHandleDesc:
     def __init__(self, void_ptr _ptr = 0):
         pass
 
-        self._handle = anon_union3(_ptr=<void_ptr>self._pvt_ptr)
+        self._handle = anon_union4(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -14113,7 +14366,7 @@ cdef class cudaExternalMemoryHandleDesc:
     def handle(self):
         return self._handle
     @handle.setter
-    def handle(self, handle not None : anon_union3):
+    def handle(self, handle not None : anon_union4):
         string.memcpy(&self._pvt_ptr[0].handle, <void*><void_ptr>handle.getPtr(), sizeof(self._pvt_ptr[0].handle))
 
 
@@ -14345,7 +14598,7 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
         self._pvt_ptr[0].numLevels = numLevels
 
 
-cdef class anon_struct9:
+cdef class anon_struct10:
     """
     Attributes
     ----------
@@ -14409,7 +14662,7 @@ cdef class anon_struct9:
         self._pvt_ptr[0].handle.win32.name = <void*><void_ptr>self._cyname.cptr
 
 
-cdef class anon_union4:
+cdef class anon_union5:
     """
     Attributes
     ----------
@@ -14418,7 +14671,7 @@ cdef class anon_union4:
 
 
 
-    win32 : anon_struct9
+    win32 : anon_struct10
 
 
 
@@ -14437,7 +14690,7 @@ cdef class anon_union4:
     def __init__(self, void_ptr _ptr):
         pass
 
-        self._win32 = anon_struct9(_ptr=<void_ptr>self._pvt_ptr)
+        self._win32 = anon_struct10(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -14480,7 +14733,7 @@ cdef class anon_union4:
     def win32(self):
         return self._win32
     @win32.setter
-    def win32(self, win32 not None : anon_struct9):
+    def win32(self, win32 not None : anon_struct10):
         string.memcpy(&self._pvt_ptr[0].handle.win32, <void*><void_ptr>win32.getPtr(), sizeof(self._pvt_ptr[0].handle.win32))
 
 
@@ -14504,7 +14757,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Type of the handle
 
 
-    handle : anon_union4
+    handle : anon_union5
 
 
 
@@ -14526,7 +14779,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
     def __init__(self, void_ptr _ptr = 0):
         pass
 
-        self._handle = anon_union4(_ptr=<void_ptr>self._pvt_ptr)
+        self._handle = anon_union5(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -14570,7 +14823,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
     def handle(self):
         return self._handle
     @handle.setter
-    def handle(self, handle not None : anon_union4):
+    def handle(self, handle not None : anon_union5):
         string.memcpy(&self._pvt_ptr[0].handle, <void*><void_ptr>handle.getPtr(), sizeof(self._pvt_ptr[0].handle))
 
 
@@ -14582,309 +14835,11 @@ cdef class cudaExternalSemaphoreHandleDesc:
         self._pvt_ptr[0].flags = flags
 
 
-cdef class anon_struct10:
-    """
-    Attributes
-    ----------
-
-    value : unsigned long long
-
-
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    def __cinit__(self, void_ptr _ptr):
-        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
-
-    def __init__(self, void_ptr _ptr):
-        pass
-    def __dealloc__(self):
-        pass
-    def getPtr(self):
-        return <void_ptr>&self._pvt_ptr[0].params.fence
-    def __repr__(self):
-        if self._pvt_ptr is not NULL:
-            str_list = []
-
-            try:
-                str_list += ['value : ' + str(self.value)]
-            except ValueError:
-                str_list += ['value : <ValueError>']
-
-            return '\n'.join(str_list)
-        else:
-            return ''
-
-    @property
-    def value(self):
-        return self._pvt_ptr[0].params.fence.value
-    @value.setter
-    def value(self, unsigned long long value):
-        self._pvt_ptr[0].params.fence.value = value
-
-
-cdef class anon_union5:
-    """
-    Attributes
-    ----------
-
-    fence : Any
-
-
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    def __cinit__(self, void_ptr _ptr):
-        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
-
-    def __init__(self, void_ptr _ptr):
-        pass
-    def __dealloc__(self):
-        pass
-    def getPtr(self):
-        return <void_ptr>&self._pvt_ptr[0].params.nvSciSync
-    def __repr__(self):
-        if self._pvt_ptr is not NULL:
-            str_list = []
-
-            try:
-                str_list += ['fence : ' + hex(self.fence)]
-            except ValueError:
-                str_list += ['fence : <ValueError>']
-
-            return '\n'.join(str_list)
-        else:
-            return ''
-
-    @property
-    def fence(self):
-        return <void_ptr>self._pvt_ptr[0].params.nvSciSync.fence
-    @fence.setter
-    def fence(self, fence):
-        self._cyfence = _HelperInputVoidPtr(fence)
-        self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
-
-
 cdef class anon_struct11:
     """
     Attributes
     ----------
 
-    key : unsigned long long
-
-
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    def __cinit__(self, void_ptr _ptr):
-        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
-
-    def __init__(self, void_ptr _ptr):
-        pass
-    def __dealloc__(self):
-        pass
-    def getPtr(self):
-        return <void_ptr>&self._pvt_ptr[0].params.keyedMutex
-    def __repr__(self):
-        if self._pvt_ptr is not NULL:
-            str_list = []
-
-            try:
-                str_list += ['key : ' + str(self.key)]
-            except ValueError:
-                str_list += ['key : <ValueError>']
-
-            return '\n'.join(str_list)
-        else:
-            return ''
-
-    @property
-    def key(self):
-        return self._pvt_ptr[0].params.keyedMutex.key
-    @key.setter
-    def key(self, unsigned long long key):
-        self._pvt_ptr[0].params.keyedMutex.key = key
-
-
-cdef class anon_struct12:
-    """
-    Attributes
-    ----------
-
-    fence : anon_struct10
-
-
-
-    nvSciSync : anon_union5
-
-
-
-    keyedMutex : anon_struct11
-
-
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    def __cinit__(self, void_ptr _ptr):
-        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
-
-    def __init__(self, void_ptr _ptr):
-        pass
-
-        self._fence = anon_struct10(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._nvSciSync = anon_union5(_ptr=<void_ptr>self._pvt_ptr)
-
-
-        self._keyedMutex = anon_struct11(_ptr=<void_ptr>self._pvt_ptr)
-
-    def __dealloc__(self):
-        pass
-    def getPtr(self):
-        return <void_ptr>&self._pvt_ptr[0].params
-    def __repr__(self):
-        if self._pvt_ptr is not NULL:
-            str_list = []
-
-            try:
-                str_list += ['fence :\n' + '\n'.join(['    ' + line for line in str(self.fence).splitlines()])]
-            except ValueError:
-                str_list += ['fence : <ValueError>']
-
-
-            try:
-                str_list += ['nvSciSync :\n' + '\n'.join(['    ' + line for line in str(self.nvSciSync).splitlines()])]
-            except ValueError:
-                str_list += ['nvSciSync : <ValueError>']
-
-
-            try:
-                str_list += ['keyedMutex :\n' + '\n'.join(['    ' + line for line in str(self.keyedMutex).splitlines()])]
-            except ValueError:
-                str_list += ['keyedMutex : <ValueError>']
-
-            return '\n'.join(str_list)
-        else:
-            return ''
-
-    @property
-    def fence(self):
-        return self._fence
-    @fence.setter
-    def fence(self, fence not None : anon_struct10):
-        string.memcpy(&self._pvt_ptr[0].params.fence, <void*><void_ptr>fence.getPtr(), sizeof(self._pvt_ptr[0].params.fence))
-
-
-    @property
-    def nvSciSync(self):
-        return self._nvSciSync
-    @nvSciSync.setter
-    def nvSciSync(self, nvSciSync not None : anon_union5):
-        string.memcpy(&self._pvt_ptr[0].params.nvSciSync, <void*><void_ptr>nvSciSync.getPtr(), sizeof(self._pvt_ptr[0].params.nvSciSync))
-
-
-    @property
-    def keyedMutex(self):
-        return self._keyedMutex
-    @keyedMutex.setter
-    def keyedMutex(self, keyedMutex not None : anon_struct11):
-        string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
-
-
-cdef class cudaExternalSemaphoreSignalParams:
-    """
-    External semaphore signal parameters, compatible with driver type
-
-    Attributes
-    ----------
-
-    params : anon_struct12
-
-
-
-    flags : unsigned int
-        Only when cudaExternalSemaphoreSignalParams is used to signal a
-        cudaExternalSemaphore_t of type
-        cudaExternalSemaphoreHandleTypeNvSciSync, the valid flag is
-        cudaExternalSemaphoreSignalSkipNvSciBufMemSync: which indicates
-        that while signaling the cudaExternalSemaphore_t, no memory
-        synchronization operations should be performed for any external
-        memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
-        all other types of cudaExternalSemaphore_t, flags must be zero.
-
-
-    Methods
-    -------
-    getPtr()
-        Get memory address of class instance
-    """
-    def __cinit__(self, void_ptr _ptr = 0):
-        if _ptr == 0:
-            self._pvt_ptr = &self._pvt_val
-        else:
-            self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
-    def __init__(self, void_ptr _ptr = 0):
-        pass
-
-        self._params = anon_struct12(_ptr=<void_ptr>self._pvt_ptr)
-
-    def __dealloc__(self):
-        pass
-    def getPtr(self):
-        return <void_ptr>self._pvt_ptr
-    def __repr__(self):
-        if self._pvt_ptr is not NULL:
-            str_list = []
-
-            try:
-                str_list += ['params :\n' + '\n'.join(['    ' + line for line in str(self.params).splitlines()])]
-            except ValueError:
-                str_list += ['params : <ValueError>']
-
-
-            try:
-                str_list += ['flags : ' + str(self.flags)]
-            except ValueError:
-                str_list += ['flags : <ValueError>']
-
-            return '\n'.join(str_list)
-        else:
-            return ''
-
-    @property
-    def params(self):
-        return self._params
-    @params.setter
-    def params(self, params not None : anon_struct12):
-        string.memcpy(&self._pvt_ptr[0].params, <void*><void_ptr>params.getPtr(), sizeof(self._pvt_ptr[0].params))
-
-
-    @property
-    def flags(self):
-        return self._pvt_ptr[0].flags
-    @flags.setter
-    def flags(self, unsigned int flags):
-        self._pvt_ptr[0].flags = flags
-
-
-cdef class anon_struct13:
-    """
-    Attributes
-    ----------
-
     value : unsigned long long
 
 
@@ -14895,7 +14850,7 @@ cdef class anon_struct13:
         Get memory address of class instance
     """
     def __cinit__(self, void_ptr _ptr):
-        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreWaitParams *>_ptr
+        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
 
     def __init__(self, void_ptr _ptr):
         pass
@@ -14939,6 +14894,304 @@ cdef class anon_union6:
         Get memory address of class instance
     """
     def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].params.nvSciSync
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['fence : ' + hex(self.fence)]
+            except ValueError:
+                str_list += ['fence : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def fence(self):
+        return <void_ptr>self._pvt_ptr[0].params.nvSciSync.fence
+    @fence.setter
+    def fence(self, fence):
+        self._cyfence = _HelperInputVoidPtr(fence)
+        self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
+
+
+cdef class anon_struct12:
+    """
+    Attributes
+    ----------
+
+    key : unsigned long long
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].params.keyedMutex
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['key : ' + str(self.key)]
+            except ValueError:
+                str_list += ['key : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def key(self):
+        return self._pvt_ptr[0].params.keyedMutex.key
+    @key.setter
+    def key(self, unsigned long long key):
+        self._pvt_ptr[0].params.keyedMutex.key = key
+
+
+cdef class anon_struct13:
+    """
+    Attributes
+    ----------
+
+    fence : anon_struct11
+
+
+
+    nvSciSync : anon_union6
+
+
+
+    keyedMutex : anon_struct12
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        pass
+
+        self._fence = anon_struct11(_ptr=<void_ptr>self._pvt_ptr)
+
+
+        self._nvSciSync = anon_union6(_ptr=<void_ptr>self._pvt_ptr)
+
+
+        self._keyedMutex = anon_struct12(_ptr=<void_ptr>self._pvt_ptr)
+
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].params
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['fence :\n' + '\n'.join(['    ' + line for line in str(self.fence).splitlines()])]
+            except ValueError:
+                str_list += ['fence : <ValueError>']
+
+
+            try:
+                str_list += ['nvSciSync :\n' + '\n'.join(['    ' + line for line in str(self.nvSciSync).splitlines()])]
+            except ValueError:
+                str_list += ['nvSciSync : <ValueError>']
+
+
+            try:
+                str_list += ['keyedMutex :\n' + '\n'.join(['    ' + line for line in str(self.keyedMutex).splitlines()])]
+            except ValueError:
+                str_list += ['keyedMutex : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def fence(self):
+        return self._fence
+    @fence.setter
+    def fence(self, fence not None : anon_struct11):
+        string.memcpy(&self._pvt_ptr[0].params.fence, <void*><void_ptr>fence.getPtr(), sizeof(self._pvt_ptr[0].params.fence))
+
+
+    @property
+    def nvSciSync(self):
+        return self._nvSciSync
+    @nvSciSync.setter
+    def nvSciSync(self, nvSciSync not None : anon_union6):
+        string.memcpy(&self._pvt_ptr[0].params.nvSciSync, <void*><void_ptr>nvSciSync.getPtr(), sizeof(self._pvt_ptr[0].params.nvSciSync))
+
+
+    @property
+    def keyedMutex(self):
+        return self._keyedMutex
+    @keyedMutex.setter
+    def keyedMutex(self, keyedMutex not None : anon_struct12):
+        string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
+
+
+cdef class cudaExternalSemaphoreSignalParams:
+    """
+    External semaphore signal parameters, compatible with driver type
+
+    Attributes
+    ----------
+
+    params : anon_struct13
+
+
+
+    flags : unsigned int
+        Only when cudaExternalSemaphoreSignalParams is used to signal a
+        cudaExternalSemaphore_t of type
+        cudaExternalSemaphoreHandleTypeNvSciSync, the valid flag is
+        cudaExternalSemaphoreSignalSkipNvSciBufMemSync: which indicates
+        that while signaling the cudaExternalSemaphore_t, no memory
+        synchronization operations should be performed for any external
+        memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
+        all other types of cudaExternalSemaphore_t, flags must be zero.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalParams *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+
+        self._params = anon_struct13(_ptr=<void_ptr>self._pvt_ptr)
+
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['params :\n' + '\n'.join(['    ' + line for line in str(self.params).splitlines()])]
+            except ValueError:
+                str_list += ['params : <ValueError>']
+
+
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def params(self):
+        return self._params
+    @params.setter
+    def params(self, params not None : anon_struct13):
+        string.memcpy(&self._pvt_ptr[0].params, <void*><void_ptr>params.getPtr(), sizeof(self._pvt_ptr[0].params))
+
+
+    @property
+    def flags(self):
+        return self._pvt_ptr[0].flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        self._pvt_ptr[0].flags = flags
+
+
+cdef class anon_struct14:
+    """
+    Attributes
+    ----------
+
+    value : unsigned long long
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cyruntime.cudaExternalSemaphoreWaitParams *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].params.fence
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['value : ' + str(self.value)]
+            except ValueError:
+                str_list += ['value : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def value(self):
+        return self._pvt_ptr[0].params.fence.value
+    @value.setter
+    def value(self, unsigned long long value):
+        self._pvt_ptr[0].params.fence.value = value
+
+
+cdef class anon_union7:
+    """
+    Attributes
+    ----------
+
+    fence : Any
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
         self._pvt_ptr = <cyruntime.cudaExternalSemaphoreWaitParams *>_ptr
 
     def __init__(self, void_ptr _ptr):
@@ -14969,7 +15222,7 @@ cdef class anon_union6:
         self._pvt_ptr[0].params.nvSciSync.fence = <void*><void_ptr>self._cyfence.cptr
 
 
-cdef class anon_struct14:
+cdef class anon_struct15:
     """
     Attributes
     ----------
@@ -15031,20 +15284,20 @@ cdef class anon_struct14:
         self._pvt_ptr[0].params.keyedMutex.timeoutMs = timeoutMs
 
 
-cdef class anon_struct15:
+cdef class anon_struct16:
     """
     Attributes
     ----------
 
-    fence : anon_struct13
+    fence : anon_struct14
 
 
 
-    nvSciSync : anon_union6
+    nvSciSync : anon_union7
 
 
 
-    keyedMutex : anon_struct14
+    keyedMutex : anon_struct15
 
 
 
@@ -15059,13 +15312,13 @@ cdef class anon_struct15:
     def __init__(self, void_ptr _ptr):
         pass
 
-        self._fence = anon_struct13(_ptr=<void_ptr>self._pvt_ptr)
+        self._fence = anon_struct14(_ptr=<void_ptr>self._pvt_ptr)
 
 
-        self._nvSciSync = anon_union6(_ptr=<void_ptr>self._pvt_ptr)
+        self._nvSciSync = anon_union7(_ptr=<void_ptr>self._pvt_ptr)
 
 
-        self._keyedMutex = anon_struct14(_ptr=<void_ptr>self._pvt_ptr)
+        self._keyedMutex = anon_struct15(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -15100,7 +15353,7 @@ cdef class anon_struct15:
     def fence(self):
         return self._fence
     @fence.setter
-    def fence(self, fence not None : anon_struct13):
+    def fence(self, fence not None : anon_struct14):
         string.memcpy(&self._pvt_ptr[0].params.fence, <void*><void_ptr>fence.getPtr(), sizeof(self._pvt_ptr[0].params.fence))
 
 
@@ -15108,7 +15361,7 @@ cdef class anon_struct15:
     def nvSciSync(self):
         return self._nvSciSync
     @nvSciSync.setter
-    def nvSciSync(self, nvSciSync not None : anon_union6):
+    def nvSciSync(self, nvSciSync not None : anon_union7):
         string.memcpy(&self._pvt_ptr[0].params.nvSciSync, <void*><void_ptr>nvSciSync.getPtr(), sizeof(self._pvt_ptr[0].params.nvSciSync))
 
 
@@ -15116,7 +15369,7 @@ cdef class anon_struct15:
     def keyedMutex(self):
         return self._keyedMutex
     @keyedMutex.setter
-    def keyedMutex(self, keyedMutex not None : anon_struct14):
+    def keyedMutex(self, keyedMutex not None : anon_struct15):
         string.memcpy(&self._pvt_ptr[0].params.keyedMutex, <void*><void_ptr>keyedMutex.getPtr(), sizeof(self._pvt_ptr[0].params.keyedMutex))
 
 
@@ -15127,7 +15380,7 @@ cdef class cudaExternalSemaphoreWaitParams:
     Attributes
     ----------
 
-    params : anon_struct15
+    params : anon_struct16
 
 
 
@@ -15155,7 +15408,7 @@ cdef class cudaExternalSemaphoreWaitParams:
     def __init__(self, void_ptr _ptr = 0):
         pass
 
-        self._params = anon_struct15(_ptr=<void_ptr>self._pvt_ptr)
+        self._params = anon_struct16(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -15184,7 +15437,7 @@ cdef class cudaExternalSemaphoreWaitParams:
     def params(self):
         return self._params
     @params.setter
-    def params(self, params not None : anon_struct15):
+    def params(self, params not None : anon_struct16):
         string.memcpy(&self._pvt_ptr[0].params, <void*><void_ptr>params.getPtr(), sizeof(self._pvt_ptr[0].params))
 
 
@@ -15223,6 +15476,11 @@ cdef class cudaDevSmResource:
     flags : unsigned int
         The flags set on this SM resource. For available flags see
         cudaDevSmResourceGroup_flags.
+
+
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        cudaDevSmResourceConstraintTypeLocalityDomainId is set in flags
 
 
     Methods
@@ -15268,6 +15526,12 @@ cdef class cudaDevSmResource:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
+
+            try:
+                str_list += ['localityDomainId : ' + str(self.localityDomainId)]
+            except ValueError:
+                str_list += ['localityDomainId : <ValueError>']
+
             return '\n'.join(str_list)
         else:
             return ''
@@ -15302,6 +15566,14 @@ cdef class cudaDevSmResource:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
+
+
+    @property
+    def localityDomainId(self):
+        return self._pvt_ptr[0].localityDomainId
+    @localityDomainId.setter
+    def localityDomainId(self, unsigned int localityDomainId):
+        self._pvt_ptr[0].localityDomainId = localityDomainId
 
 
 cdef class cudaDevWorkqueueConfigResource:
@@ -15442,6 +15714,11 @@ cdef class cudaDevSmResourceGroupParams_st:
         this this group is created.
 
 
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        cudaDevSmResourceGroupLocalityDomainId is set in flags
+
+
     Methods
     -------
     getPtr()
@@ -15485,6 +15762,12 @@ cdef class cudaDevSmResourceGroupParams_st:
             except ValueError:
                 str_list += ['flags : <ValueError>']
 
+
+            try:
+                str_list += ['localityDomainId : ' + str(self.localityDomainId)]
+            except ValueError:
+                str_list += ['localityDomainId : <ValueError>']
+
             return '\n'.join(str_list)
         else:
             return ''
@@ -15519,6 +15802,14 @@ cdef class cudaDevSmResourceGroupParams_st:
     @flags.setter
     def flags(self, unsigned int flags):
         self._pvt_ptr[0].flags = flags
+
+
+    @property
+    def localityDomainId(self):
+        return self._pvt_ptr[0].localityDomainId
+    @localityDomainId.setter
+    def localityDomainId(self, unsigned int localityDomainId):
+        self._pvt_ptr[0].localityDomainId = localityDomainId
 
 
 cdef class cudaDevResource_st:
@@ -16400,6 +16691,10 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         paramsArray.
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
@@ -16412,6 +16707,9 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreSignalNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
+
+        self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+
     def __dealloc__(self):
         pass
 
@@ -16446,6 +16744,12 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
                 str_list += ['numExtSems : ' + str(self.numExtSems)]
             except ValueError:
                 str_list += ['numExtSems : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -16514,6 +16818,23 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
     @numExtSems.setter
     def numExtSems(self, unsigned int numExtSems):
         self._pvt_ptr[0].numExtSems = numExtSems
+
+
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cyruntime.cudaExecutionContext_t cyctx
+        if ctx is None:
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>0
+        elif isinstance(ctx, (cudaExecutionContext_t,)):
+            pctx = int(ctx)
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        else:
+            pctx = int(cudaExecutionContext_t(ctx))
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
 
 
 cdef class cudaExternalSemaphoreWaitNodeParams:
@@ -16672,6 +16993,10 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         paramsArray.
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
@@ -16684,6 +17009,9 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
             self._pvt_ptr = <cyruntime.cudaExternalSemaphoreWaitNodeParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
+
+        self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+
     def __dealloc__(self):
         pass
 
@@ -16718,6 +17046,12 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
                 str_list += ['numExtSems : ' + str(self.numExtSems)]
             except ValueError:
                 str_list += ['numExtSems : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -16788,6 +17122,23 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         self._pvt_ptr[0].numExtSems = numExtSems
 
 
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cyruntime.cudaExecutionContext_t cyctx
+        if ctx is None:
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>0
+        elif isinstance(ctx, (cudaExecutionContext_t,)):
+            pctx = int(ctx)
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        else:
+            pctx = int(cudaExecutionContext_t(ctx))
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
+
+
 cdef class cudaConditionalNodeParams:
     """
     CUDA conditional node parameters
@@ -16818,7 +17169,7 @@ cdef class cudaConditionalNodeParams:
         empty nodes, child graphs, memsets, memcopies, and conditionals.
         This applies recursively to child graphs and conditional bodies.
         - All kernels, including kernels in nested conditionals or child
-        graphs at any level, must belong to the same CUDA context.
+        graphs at any level, must belong to the same device context.
         These graphs may be populated using graph node creation APIs or
         cudaStreamBeginCaptureToGraph. cudaGraphCondTypeIf: phGraph_out[0]
         is executed when the condition is non-zero. If `size` == 2,
@@ -17042,6 +17393,10 @@ cdef class cudaEventRecordNodeParams:
         The event to record when the node executes
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
@@ -17057,6 +17412,9 @@ cdef class cudaEventRecordNodeParams:
 
         self._event = cudaEvent_t(_ptr=<void_ptr>&self._pvt_ptr[0].event)
 
+
+        self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -17069,6 +17427,12 @@ cdef class cudaEventRecordNodeParams:
                 str_list += ['event : ' + str(self.event)]
             except ValueError:
                 str_list += ['event : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
 
             return '\n'.join(str_list)
         else:
@@ -17089,6 +17453,23 @@ cdef class cudaEventRecordNodeParams:
             pevent = int(cudaEvent_t(event))
             cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
         self._event._pvt_ptr[0] = cyevent
+
+
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cyruntime.cudaExecutionContext_t cyctx
+        if ctx is None:
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>0
+        elif isinstance(ctx, (cudaExecutionContext_t,)):
+            pctx = int(ctx)
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        else:
+            pctx = int(cudaExecutionContext_t(ctx))
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
 
 
 cdef class cudaEventWaitNodeParams:
@@ -17792,7 +18173,7 @@ cdef class cudaGraphExecUpdateResultInfo_st:
         self._errorFromNode._pvt_ptr[0] = cyerrorFromNode
 
 
-cdef class anon_struct16:
+cdef class anon_struct17:
     """
     Attributes
     ----------
@@ -17873,7 +18254,7 @@ cdef class anon_struct16:
         self._pvt_ptr[0].updateData.param.size = size
 
 
-cdef class anon_union10:
+cdef class anon_union11:
     """
     Attributes
     ----------
@@ -17882,7 +18263,7 @@ cdef class anon_union10:
 
 
 
-    param : anon_struct16
+    param : anon_struct17
 
 
 
@@ -17904,7 +18285,7 @@ cdef class anon_union10:
         self._gridDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].updateData.gridDim)
 
 
-        self._param = anon_struct16(_ptr=<void_ptr>self._pvt_ptr)
+        self._param = anon_struct17(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -17947,7 +18328,7 @@ cdef class anon_union10:
     def param(self):
         return self._param
     @param.setter
-    def param(self, param not None : anon_struct16):
+    def param(self, param not None : anon_struct17):
         string.memcpy(&self._pvt_ptr[0].updateData.param, <void*><void_ptr>param.getPtr(), sizeof(self._pvt_ptr[0].updateData.param))
 
 
@@ -17976,7 +18357,7 @@ cdef class cudaGraphKernelNodeUpdate:
         interpreted
 
 
-    updateData : anon_union10
+    updateData : anon_union11
         Update data to apply. Which field is used depends on field's value
 
 
@@ -17997,7 +18378,7 @@ cdef class cudaGraphKernelNodeUpdate:
         self._node = cudaGraphDeviceNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].node)
 
 
-        self._updateData = anon_union10(_ptr=<void_ptr>self._pvt_ptr)
+        self._updateData = anon_union11(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -18058,7 +18439,7 @@ cdef class cudaGraphKernelNodeUpdate:
     def updateData(self):
         return self._updateData
     @updateData.setter
-    def updateData(self, updateData not None : anon_union10):
+    def updateData(self, updateData not None : anon_union11):
         string.memcpy(&self._pvt_ptr[0].updateData, <void*><void_ptr>updateData.getPtr(), sizeof(self._pvt_ptr[0].updateData))
 
 
@@ -18134,7 +18515,7 @@ cdef class cudaLaunchMemSyncDomainMap_st:
         self._pvt_ptr[0].remote = remote
 
 
-cdef class anon_struct17:
+cdef class anon_struct18:
     """
     Attributes
     ----------
@@ -18214,7 +18595,7 @@ cdef class anon_struct17:
         self._pvt_ptr[0].clusterDim.z = z
 
 
-cdef class anon_struct18:
+cdef class anon_struct19:
     """
     Attributes
     ----------
@@ -18306,7 +18687,7 @@ cdef class anon_struct18:
         self._pvt_ptr[0].programmaticEvent.triggerAtBlockStart = triggerAtBlockStart
 
 
-cdef class anon_struct19:
+cdef class anon_struct20:
     """
     Attributes
     ----------
@@ -18386,7 +18767,7 @@ cdef class anon_struct19:
         self._pvt_ptr[0].preferredClusterDim.z = z
 
 
-cdef class anon_struct20:
+cdef class anon_struct21:
     """
     Attributes
     ----------
@@ -18460,7 +18841,7 @@ cdef class anon_struct20:
         self._pvt_ptr[0].launchCompletionEvent.flags = flags
 
 
-cdef class anon_struct21:
+cdef class anon_struct22:
     """
     Attributes
     ----------
@@ -18559,7 +18940,7 @@ cdef class cudaLaunchAttributeValue:
         cudaSynchronizationPolicy for work queued up in this stream.
 
 
-    clusterDim : anon_struct17
+    clusterDim : anon_struct18
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -18580,7 +18961,7 @@ cdef class cudaLaunchAttributeValue:
         cudaLaunchAttributeProgrammaticStreamSerialization.
 
 
-    programmaticEvent : anon_struct18
+    programmaticEvent : anon_struct19
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
@@ -18604,7 +18985,7 @@ cdef class cudaLaunchAttributeValue:
         cudaLaunchMemSyncDomain.
 
 
-    preferredClusterDim : anon_struct19
+    preferredClusterDim : anon_struct20
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
@@ -18619,7 +19000,7 @@ cdef class cudaLaunchAttributeValue:
         cudaLaunchAttributeValue::clusterDim.
 
 
-    launchCompletionEvent : anon_struct20
+    launchCompletionEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
@@ -18627,7 +19008,7 @@ cdef class cudaLaunchAttributeValue:
         cudaEventRecordExternal.
 
 
-    deviceUpdatableKernelNode : anon_struct21
+    deviceUpdatableKernelNode : anon_struct22
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
@@ -18672,22 +19053,22 @@ cdef class cudaLaunchAttributeValue:
         self._accessPolicyWindow = cudaAccessPolicyWindow(_ptr=<void_ptr>&self._pvt_ptr[0].accessPolicyWindow)
 
 
-        self._clusterDim = anon_struct17(_ptr=<void_ptr>self._pvt_ptr)
+        self._clusterDim = anon_struct18(_ptr=<void_ptr>self._pvt_ptr)
 
 
-        self._programmaticEvent = anon_struct18(_ptr=<void_ptr>self._pvt_ptr)
+        self._programmaticEvent = anon_struct19(_ptr=<void_ptr>self._pvt_ptr)
 
 
         self._memSyncDomainMap = cudaLaunchMemSyncDomainMap(_ptr=<void_ptr>&self._pvt_ptr[0].memSyncDomainMap)
 
 
-        self._preferredClusterDim = anon_struct19(_ptr=<void_ptr>self._pvt_ptr)
+        self._preferredClusterDim = anon_struct20(_ptr=<void_ptr>self._pvt_ptr)
 
 
-        self._launchCompletionEvent = anon_struct20(_ptr=<void_ptr>self._pvt_ptr)
+        self._launchCompletionEvent = anon_struct21(_ptr=<void_ptr>self._pvt_ptr)
 
 
-        self._deviceUpdatableKernelNode = anon_struct21(_ptr=<void_ptr>self._pvt_ptr)
+        self._deviceUpdatableKernelNode = anon_struct22(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -18855,7 +19236,7 @@ cdef class cudaLaunchAttributeValue:
     def clusterDim(self):
         return self._clusterDim
     @clusterDim.setter
-    def clusterDim(self, clusterDim not None : anon_struct17):
+    def clusterDim(self, clusterDim not None : anon_struct18):
         string.memcpy(&self._pvt_ptr[0].clusterDim, <void*><void_ptr>clusterDim.getPtr(), sizeof(self._pvt_ptr[0].clusterDim))
 
 
@@ -18879,7 +19260,7 @@ cdef class cudaLaunchAttributeValue:
     def programmaticEvent(self):
         return self._programmaticEvent
     @programmaticEvent.setter
-    def programmaticEvent(self, programmaticEvent not None : anon_struct18):
+    def programmaticEvent(self, programmaticEvent not None : anon_struct19):
         string.memcpy(&self._pvt_ptr[0].programmaticEvent, <void*><void_ptr>programmaticEvent.getPtr(), sizeof(self._pvt_ptr[0].programmaticEvent))
 
 
@@ -18911,7 +19292,7 @@ cdef class cudaLaunchAttributeValue:
     def preferredClusterDim(self):
         return self._preferredClusterDim
     @preferredClusterDim.setter
-    def preferredClusterDim(self, preferredClusterDim not None : anon_struct19):
+    def preferredClusterDim(self, preferredClusterDim not None : anon_struct20):
         string.memcpy(&self._pvt_ptr[0].preferredClusterDim, <void*><void_ptr>preferredClusterDim.getPtr(), sizeof(self._pvt_ptr[0].preferredClusterDim))
 
 
@@ -18919,7 +19300,7 @@ cdef class cudaLaunchAttributeValue:
     def launchCompletionEvent(self):
         return self._launchCompletionEvent
     @launchCompletionEvent.setter
-    def launchCompletionEvent(self, launchCompletionEvent not None : anon_struct20):
+    def launchCompletionEvent(self, launchCompletionEvent not None : anon_struct21):
         string.memcpy(&self._pvt_ptr[0].launchCompletionEvent, <void*><void_ptr>launchCompletionEvent.getPtr(), sizeof(self._pvt_ptr[0].launchCompletionEvent))
 
 
@@ -18927,7 +19308,7 @@ cdef class cudaLaunchAttributeValue:
     def deviceUpdatableKernelNode(self):
         return self._deviceUpdatableKernelNode
     @deviceUpdatableKernelNode.setter
-    def deviceUpdatableKernelNode(self, deviceUpdatableKernelNode not None : anon_struct21):
+    def deviceUpdatableKernelNode(self, deviceUpdatableKernelNode not None : anon_struct22):
         string.memcpy(&self._pvt_ptr[0].deviceUpdatableKernelNode, <void*><void_ptr>deviceUpdatableKernelNode.getPtr(), sizeof(self._pvt_ptr[0].deviceUpdatableKernelNode))
 
 
@@ -19032,7 +19413,7 @@ cdef class cudaLaunchAttribute_st:
         string.memcpy(&self._pvt_ptr[0].val, <void*><void_ptr>val.getPtr(), sizeof(self._pvt_ptr[0].val))
 
 
-cdef class anon_struct22:
+cdef class anon_struct23:
     """
     Attributes
     ----------
@@ -19076,12 +19457,12 @@ cdef class anon_struct22:
         self._pvt_ptr[0].info.overBudget.bytesOverBudget = bytesOverBudget
 
 
-cdef class anon_union11:
+cdef class anon_union12:
     """
     Attributes
     ----------
 
-    overBudget : anon_struct22
+    overBudget : anon_struct23
 
 
 
@@ -19096,7 +19477,7 @@ cdef class anon_union11:
     def __init__(self, void_ptr _ptr):
         pass
 
-        self._overBudget = anon_struct22(_ptr=<void_ptr>self._pvt_ptr)
+        self._overBudget = anon_struct23(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         pass
@@ -19119,7 +19500,7 @@ cdef class anon_union11:
     def overBudget(self):
         return self._overBudget
     @overBudget.setter
-    def overBudget(self, overBudget not None : anon_struct22):
+    def overBudget(self, overBudget not None : anon_struct23):
         string.memcpy(&self._pvt_ptr[0].info.overBudget, <void*><void_ptr>overBudget.getPtr(), sizeof(self._pvt_ptr[0].info.overBudget))
 
 
@@ -19134,7 +19515,7 @@ cdef class cudaAsyncNotificationInfo:
         The type of notification being sent
 
 
-    info : anon_union11
+    info : anon_union12
         Information about the notification. `typename` must be checked in
         order to interpret this field.
 
@@ -19153,7 +19534,7 @@ cdef class cudaAsyncNotificationInfo:
     def __init__(self, void_ptr _ptr = 0):
         pass
 
-        self._info = anon_union11(_ptr=<void_ptr>self._pvt_ptr)
+        self._info = anon_union12(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -19191,7 +19572,7 @@ cdef class cudaAsyncNotificationInfo:
     def info(self):
         return self._info
     @info.setter
-    def info(self, info not None : anon_union11):
+    def info(self, info not None : anon_union12):
         string.memcpy(&self._pvt_ptr[0].info, <void*><void_ptr>info.getPtr(), sizeof(self._pvt_ptr[0].info))
 
 
@@ -19681,7 +20062,7 @@ cdef class cudaEglPlaneDesc_st:
         string.memcpy(&self._pvt_ptr[0].channelDesc, <void*><void_ptr>channelDesc.getPtr(), sizeof(self._pvt_ptr[0].channelDesc))
 
 
-cdef class anon_union12:
+cdef class anon_union13:
     """
     Attributes
     ----------
@@ -19769,7 +20150,7 @@ cdef class cudaEglFrame_st:
     Attributes
     ----------
 
-    frame : anon_union12
+    frame : anon_union13
 
 
 
@@ -19803,7 +20184,7 @@ cdef class cudaEglFrame_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
 
-        self._frame = anon_union12(_ptr=<void_ptr>self._pvt_ptr)
+        self._frame = anon_union13(_ptr=<void_ptr>self._pvt_ptr)
 
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -19851,7 +20232,7 @@ cdef class cudaEglFrame_st:
     def frame(self):
         return self._frame
     @frame.setter
-    def frame(self, frame not None : anon_union12):
+    def frame(self, frame not None : anon_union13):
         string.memcpy(&self._pvt_ptr[0].frame, <void*><void_ptr>frame.getPtr(), sizeof(self._pvt_ptr[0].frame))
 
 
@@ -24878,7 +25259,7 @@ def cudaLaunchHostFunc(stream, fn, userData):
 
     Parameters
     ----------
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         Stream to enqueue function call in
     fn : :py:obj:`~.cudaHostFn_t`
         The function to call once preceding stream operations are complete
@@ -24974,7 +25355,7 @@ def cudaLaunchHostFunc_v2(stream, fn, userData, unsigned int syncMode):
 
     Parameters
     ----------
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         Stream to enqueue function call in
     fn : :py:obj:`~.cudaHostFn_t`
         The function to call once preceding stream operations are complete
@@ -27516,7 +27897,7 @@ def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optiona
         attrsIdxs[numAttrs-1] through count - 1.
     numAttrs : size_t
         Size of `attrs` and `attrsIdxs` arrays.
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         The stream to enqueue the operations in. Must not be legacy NULL
         stream.
 
@@ -27661,7 +28042,7 @@ def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[cudaMemcpy3DBa
         Array of size `numOps` containing the actual memcpy operations.
     flags : unsigned long long
         Flags for future use, must be zero now.
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         The stream to enqueue the operations in. Must not be default NULL
         stream.
 
@@ -27707,7 +28088,7 @@ def cudaMemcpyWithAttributesAsync(dst, src, size_t size, attr : Optional[cudaMem
     Performs asynchronous memory copy operation where `dst` and `src` are
     the destination and source pointers respectively. `size` specifies the
     number of bytes to copy. `attr` specifies the attributes for the copy
-    and `hStream` specifies the stream to enqueue the operation in.
+    and `stream` specifies the stream to enqueue the operation in.
 
     For more information regarding the attributes, please refer to
     :py:obj:`~.cudaMemcpyAttributes` and it's usage desciption
@@ -27723,7 +28104,7 @@ def cudaMemcpyWithAttributesAsync(dst, src, size_t size, attr : Optional[cudaMem
         Number of bytes to copy
     attr : :py:obj:`~.cudaMemcpyAttributes`
         Attributes for the copy
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         Stream to enqueue the operation in
 
     Returns
@@ -27761,7 +28142,7 @@ def cudaMemcpy3DWithAttributesAsync(op : Optional[cudaMemcpy3DBatchOp], unsigned
     Performs 3D asynchronous memory copy with the specified attributes.
 
     Performs the copy operation specified in `op`. `flags` specifies the
-    flags for the copy and `hStream` specifies the stream to enqueue the
+    flags for the copy and `stream` specifies the stream to enqueue the
     operation in.
 
     For more information regarding the operation, please refer to
@@ -27774,7 +28155,7 @@ def cudaMemcpy3DWithAttributesAsync(op : Optional[cudaMemcpy3DBatchOp], unsigned
         Operation to perform
     flags : unsigned long long
         Flags for the copy, must be zero now.
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         Stream to enqueue the operation in
 
     Returns
@@ -28387,7 +28768,9 @@ def cudaMemPrefetchAsync(devPtr, size_t count, location not None : cudaMemLocati
     :py:obj:`~.cudaMemLocation.type` is etiher
     :py:obj:`~.cudaMemLocationTypeHost` OR
     :py:obj:`~.cudaMemLocationTypeHostNumaCurrent`,
-    :py:obj:`~.cudaMemLocation.id` will be ignored.
+    :py:obj:`~.cudaMemLocation.id` will be ignored. Prefetching to
+    :py:obj:`~.cudaMemLocationTypeDeviceLocalityDomain` locations is not
+    supported.
 
     The start address and end address of the memory range will be rounded
     down and rounded up respectively to be aligned to CPU page size before
@@ -28449,7 +28832,7 @@ def cudaMemPrefetchAsync(devPtr, size_t count, location not None : cudaMemLocati
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorNotSupported`
 
     See Also
     --------
@@ -28527,7 +28910,7 @@ def cudaMemPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : 
         Size of `prefetchLocs` and `prefetchLocIdxs` arrays.
     flags : unsigned long long
         Flags reserved for future use. Must be zero.
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         The stream to enqueue the operations in. Must not be legacy NULL
         stream.
 
@@ -28617,7 +29000,7 @@ def cudaMemDiscardBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : t
         Size of `dptrs` and `sizes` arrays.
     flags : unsigned long long
         Flags reserved for future use. Must be zero.
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         The stream to enqueue the operations in. Must not be legacy NULL
         stream.
 
@@ -28712,7 +29095,7 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]]
         Size of `prefetchLocs` and `prefetchLocIdxs` arrays.
     flags : unsigned long long
         Flags reserved for future use. Must be zero.
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         The stream to enqueue the operations in. Must not be legacy NULL
         stream.
 
@@ -28759,6 +29142,80 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]]
         err = cyruntime.cudaMemDiscardAndPrefetchBatchAsync(cydptrs_ptr, cysizes.data(), count, cyprefetchLocs, cyprefetchLocIdxs.data(), numPrefetchLocs, flags, cystream)
     if len(prefetchLocs) > 1 and cyprefetchLocs is not NULL:
         free(cyprefetchLocs)
+    return (_cudaError_t(err),)
+
+@cython.embedsignature(True)
+def cudaMemGetLocationInfo(devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, location_out : Optional[cudaMemLocation]):
+    """ Gets location information for a memory address range.
+
+    Retrieves memory location information for the specified address range
+    starting at `ptr` with size `size`. The API determines the most common
+    location by sampling memory at intervals defined by
+    `samplingGranularity` within the whole interval.
+
+    The location information is returned in the `location_out` array, with
+    one entry per summary region. The total number of locations returned
+    will be ceil(size/summaryGranularity). The user is expected to allocate
+    the `location_out` array with sufficient memory.
+
+    For example, with an address range of 1GB, a `summaryGranularity` of
+    128MB, and a `samplingGranularity` of 2MB, the function will:
+
+    - Divide the 1GB range into 8 summary regions of 128MB each
+
+    - Within each 128MB region, sample every 2MB to determine the most
+      common location. If there is a tie a random winner is chosen.
+
+    - Populate the `location_out` array with 8 entries, one for each 128MB
+      region `summaryGranularity` should be less than or equal to `size`
+      and greater than 0. `samplingGranularity` should be less than or
+      equal to `summaryGranularity`. If the `samplingGranularity` is set to
+      0 it is set to a system dependent default value. In all other cases,
+      the call returns :py:obj:`~.cudaErrorInvalidValue`.
+
+    When the memory is not resident on any processor, the call returns
+    :py:obj:`~.cudaSuccess` and the returned location type for that
+    interval is :py:obj:`~.cudaMemLocationTypeNone`.
+
+    The memory range must refer to one of the following:
+
+    - Managed memory allocated via :py:obj:`~.cudaMallocManaged`, via
+      :py:obj:`~.cudaMallocFromPoolAsync` from a managed memory pool or
+      declared via managed variables.
+
+    - System-allocated pageable memory that is not registered via
+      :py:obj:`~.cudaHostRegister`. If the memory range does not refer to
+      one of the above, the call returns :py:obj:`~.cudaErrorInvalidValue`.
+
+    All devices on the system must have non-zero value for the device
+    attribute :py:obj:`~.cudaDevAttrConcurrentManagedAccess`. If not, this
+    call returns :py:obj:`~.cudaErrorNotSupported`.
+
+    Parameters
+    ----------
+    ptr : Any
+        Starting address of the memory range to query
+    size : size_t
+        Size in bytes of the memory range to query
+    summaryGranularity : size_t
+        Granularity in bytes at which to summarize location information
+    samplingGranularity : size_t
+        Granularity in bytes at which to sample memory within each summary
+        region
+    location_out : :py:obj:`~.cudaMemLocation`
+        Array to store location information, one entry per summary region
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`
+    """
+    cdef _HelperInputVoidPtrStruct cydevPtrHelper
+    cdef void* cydevPtr = _helper_input_void_ptr(devPtr, &cydevPtrHelper)
+    cdef cyruntime.cudaMemLocation* cylocation_out_ptr = <cyruntime.cudaMemLocation*>location_out._pvt_ptr if location_out is not None else NULL
+    with nogil:
+        err = cyruntime.cudaMemGetLocationInfo(cydevPtr, size, summaryGranularity, samplingGranularity, cylocation_out_ptr)
+    _helper_input_void_ptr_free(&cydevPtrHelper)
     return (_cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -28942,7 +29399,7 @@ def cudaMemAdvise(devPtr, size_t count, advice not None : cudaMemoryAdvise, loca
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorNotSupported`
 
     See Also
     --------
@@ -29795,6 +30252,11 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
       the importing process or pools imported via fabric handles across
       nodes this will be cudaMemlocataionTypeInvisible.
 
+    - :py:obj:`~.cudaMemPoolAttrLocalityDomainId`: (value type = int) The
+      locality domain id for the mempool, if the mempool is localized to a
+      locality domain. A value of -1 indicates that the mempool is not
+      localized to a locality domain.
+
     - :py:obj:`~.cudaMemPoolAttrMaxPoolSize`: (value type = cuuint64_t)
       Maximum size of the pool in bytes, this value may be higher than what
       was initially passed to cuMemPoolCreate due to alignment
@@ -29857,7 +30319,7 @@ def cudaMemPoolSetAccess(memPool, descList : Optional[tuple[cudaMemAccessDesc] |
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`
 
     See Also
     --------
@@ -29955,9 +30417,19 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     ID of the host memory node. Specifying
     :py:obj:`~.cudaMemLocationTypeHostNumaCurrent` as the
     :py:obj:`~.cudaMemPoolProps.cudaMemLocation.type` will result in
-    :py:obj:`~.cudaErrorInvalidValue`. By default, the pool's memory will
-    be accessible from the device it is allocated on. In the case of pools
-    created with :py:obj:`~.cudaMemLocationTypeHostNuma` or
+    :py:obj:`~.cudaErrorInvalidValue`. To create a memory pool targeting a
+    specific device locality domain, applications must set
+    :py:obj:`~.cudaMemPoolProps.cudaMemLocation.type` to
+    :py:obj:`~.cudaMemLocationTypeDeviceLocalityDomain`,
+    :py:obj:`~.cudaMemPoolProps.cudaMemLocation.localized`.deviceId must
+    specify the device ID, and
+    :py:obj:`~.cudaMemPoolProps.cudaMemLocation.localized`.localityDomainId
+    must specify the locality domain ID. The locality domain ID must be a
+    valid locality domain ID for the specified device. See also
+    :py:obj:`~.cudaDeviceGetAttribute` with the attribute
+    :py:obj:`~.cudaDevAttrLocalityDomainCount`. By default, the pool's
+    memory will be accessible from the device it is allocated on. In the
+    case of pools created with :py:obj:`~.cudaMemLocationTypeHostNuma` or
     :py:obj:`~.cudaMemLocationTypeHost`, their default accessibility will
     be from the host CPU. Applications can control the maximum size of the
     pool by specifying a non-zero value for
@@ -30077,14 +30549,17 @@ def cudaMemGetDefaultMemPool(location : Optional[cudaMemLocation], typename not 
 
     The memory location can be of one of
     :py:obj:`~.cudaMemLocationTypeDevice`,
-    :py:obj:`~.cudaMemLocationTypeHost`, or
-    :py:obj:`~.cudaMemLocationTypeHostNuma`. The allocation type can be one
-    of :py:obj:`~.cudaMemAllocationTypePinned` or
+    :py:obj:`~.cudaMemLocationTypeHost`,
+    :py:obj:`~.cudaMemLocationTypeHostNuma`, or
+    :py:obj:`~.cudaMemLocationTypeDeviceLocalityDomain`. The allocation
+    type can be one of :py:obj:`~.cudaMemAllocationTypePinned` or
     :py:obj:`~.cudaMemAllocationTypeManaged`. When the allocation type is
     :py:obj:`~.cudaMemAllocationTypeManaged`, the location type can also be
     :py:obj:`~.cudaMemLocationTypeNone` to indicate no preferred location
-    for the managed memory pool. In all other cases, the call return
-    :py:obj:`~.cudaErrorInvalidValue`
+    for the managed memory pool. :py:obj:`~.cudaMemAllocationTypeManaged`
+    can not be used with
+    :py:obj:`~.cudaMemLocationTypeDeviceLocalityDomain`. In all other
+    cases, the call return :py:obj:`~.cudaErrorInvalidValue`
 
     Parameters
     ----------
@@ -30119,14 +30594,17 @@ def cudaMemGetMemPool(location : Optional[cudaMemLocation], typename not None : 
 
     The memory location can be of one of
     :py:obj:`~.cudaMemLocationTypeDevice`,
-    :py:obj:`~.cudaMemLocationTypeHost`, or
-    :py:obj:`~.cudaMemLocationTypeHostNuma`. The allocation type can be one
-    of :py:obj:`~.cudaMemAllocationTypePinned` or
+    :py:obj:`~.cudaMemLocationTypeHost`,
+    :py:obj:`~.cudaMemLocationTypeHostNuma`, or
+    :py:obj:`~.cudaMemLocationTypeDeviceLocalityDomain`. The allocation
+    type can be one of :py:obj:`~.cudaMemAllocationTypePinned` or
     :py:obj:`~.cudaMemAllocationTypeManaged`. When the allocation type is
     :py:obj:`~.cudaMemAllocationTypeManaged`, the location type can also be
     :py:obj:`~.cudaMemLocationTypeNone` to indicate no preferred location
-    for the managed memory pool. In all other cases, the call return
-    :py:obj:`~.cudaErrorInvalidValue`
+    for the managed memory pool. :py:obj:`~.cudaMemAllocationTypeManaged`
+    can not be used with
+    :py:obj:`~.cudaMemLocationTypeDeviceLocalityDomain`. In all other
+    cases, the call return :py:obj:`~.cudaErrorInvalidValue`
 
     Returns the last pool provided to :py:obj:`~.cudaMemSetMemPool` or
     :py:obj:`~.cudaDeviceSetMemPool` for this location and allocation type
@@ -30147,7 +30625,7 @@ def cudaMemGetMemPool(location : Optional[cudaMemLocation], typename not None : 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`
     memPool : :py:obj:`~.cudaMemPool_t`
         None
 
@@ -30170,14 +30648,17 @@ def cudaMemSetMemPool(location : Optional[cudaMemLocation], typename not None : 
 
     The memory location can be of one of
     :py:obj:`~.cudaMemLocationTypeDevice`,
-    :py:obj:`~.cudaMemLocationTypeHost` or
-    :py:obj:`~.cudaMemLocationTypeHostNuma`. The allocation type can be one
-    of :py:obj:`~.cudaMemAllocationTypePinned` or
+    :py:obj:`~.cudaMemLocationTypeHost`
+    :py:obj:`~.cudaMemLocationTypeHostNuma`, or
+    :py:obj:`~.cudaMemLocationTypeDeviceLocalityDomain`. The allocation
+    type can be one of :py:obj:`~.cudaMemAllocationTypePinned` or
     :py:obj:`~.cudaMemAllocationTypeManaged`. When the allocation type is
     :py:obj:`~.cudaMemAllocationTypeManaged`, the location type can also be
     :py:obj:`~.cudaMemLocationTypeNone` to indicate no preferred location
-    for the managed memory pool. In all other cases, the call return
-    :py:obj:`~.cudaErrorInvalidValue`
+    for the managed memory pool. :py:obj:`~.cudaMemAllocationTypeManaged`
+    can not be used with
+    :py:obj:`~.cudaMemLocationTypeDeviceLocalityDomain`. In all other
+    cases, the call return :py:obj:`~.cudaErrorInvalidValue`
 
     When a memory pool is set as the current memory pool, the location
     parameter should be the same as the location of the pool. If the
@@ -30204,7 +30685,7 @@ def cudaMemSetMemPool(location : Optional[cudaMemLocation], typename not None : 
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`
 
     See Also
     --------
@@ -30232,7 +30713,7 @@ def cudaMemSetMemPool(location : Optional[cudaMemLocation], typename not None : 
 def cudaMallocFromPoolAsync(size_t size, memPool, stream):
     """ Allocates memory from a specified pool with stream ordered semantics.
 
-    Inserts an allocation operation into `hStream`. A pointer to the
+    Inserts an allocation operation into `stream`. A pointer to the
     allocated memory is returned immediately in *dptr. The allocation must
     not be accessed until the the allocation operation completes. The
     allocation comes from the specified memory pool.
@@ -30504,6 +30985,10 @@ def cudaPointerGetAttributes(ptr):
       memory referred to by `ptr` may be accessed on the host. If the
       memory referred to by `ptr` cannot be accessed directly by the host
       then this is NULL.
+
+    - :py:obj:`~.localityDomainOrdinal` is the locality domain ordinal for
+      device allocations localized to a locality domain, or -1 when the
+      allocation is not localized to a locality domain.
 
     Parameters
     ----------
@@ -31611,6 +32096,11 @@ def cudaRuntimeGetVersion():
     As of CUDA 12.0, this function no longer initializes CUDA. The purpose
     of this API is solely to return a compile-time constant stating the
     CUDA Toolkit version in the above format.
+
+    As of CUDA 13.0, on Windows, the `runtimeVersion` may not be the same
+    as the CUDA Toolkit version the app was built with. Windows will use
+    the CUDA Runtime packaged with the display driver, and that version
+    will be reported.
 
     This function automatically returns :py:obj:`~.cudaErrorInvalidValue`
     if the `runtimeVersion` argument is NULL.
@@ -36155,17 +36645,17 @@ def cudaGraphExecUpdate(hGraphExec, hGraph):
 def cudaGraphUpload(graphExec, stream):
     """ Uploads an executable graph in a stream.
 
-    Uploads `hGraphExec` to the device in `hStream` without executing it.
-    Uploads of the same `hGraphExec` will be serialized. Each upload is
-    ordered behind both any previous work in `hStream` and any previous
-    launches of `hGraphExec`. Uses memory cached by `stream` to back the
+    Uploads `graphExec` to the device in `stream` without executing it.
+    Uploads of the same `graphExec` will be serialized. Each upload is
+    ordered behind both any previous work in `stream` and any previous
+    launches of `graphExec`. Uses memory cached by `stream` to back the
     allocations owned by `graphExec`.
 
     Parameters
     ----------
-    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+    graphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
         Executable graph to upload
-    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+    stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         Stream in which to upload the graph
 
     Returns
@@ -37973,10 +38463,17 @@ def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResou
 
       - `flags:`
 
-    - `cudaDevSmResourceGroupBackfill:` lets `smCount` be a non-multiple of
-    `coscheduledSmCount`, filling the difference between SM count and
-    already assigned co-scheduled groupings with other SMs. This lets any
-    resulting group behave similar to the `remainder` group for example.
+    - `cudaDevSmResourceGroupBackfill:` Treats constraints as a hint,
+    ignoring them if necessary to reach the requested `smCount`. Lets
+    `smCount` be a non-multiple of `coscheduledSmCount`, filling the
+    difference between SM count and already assigned co-scheduled groupings
+    with other SMs. This lets any resulting group behave similar to the
+    `remainder` group for example. When used with
+    `cudaDevSmResourceGroupLocalityDomainId`, backfill fills up to the
+    requested `smCount` using the target locality domain first, then SMs
+    not attributed to any locality domain, then SMs from other locality
+    domains. If no SMs can be found in the requested locality domain,
+    :py:obj:`~.cudaErrorInvalidResourceConfiguration` is returned.
 
     Example params and their effect:
 

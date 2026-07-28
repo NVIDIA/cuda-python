@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e1a348c4ffb12f72492093f32df3f186c11630337d891a567e92c266ecb80e88
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f699a98280e825837b6ddf7fb083deca9f51318e2406acefd67481a68b43a165
 from libc.stdint cimport intptr_t
 
 from .cynvml cimport *
@@ -140,6 +141,11 @@ ctypedef nvmlPRMCounterId_t _PRMCounterId
 ctypedef nvmlPowerProfileOperation_t _PowerProfileOperation
 ctypedef nvmlProcessMode_t _ProcessMode
 ctypedef nvmlCPERType_t _CPERType
+ctypedef nvmlGpuOperationalEventLogLevel_t _GpuOperationalEventLogLevel
+ctypedef nvmlOperationalEventSeverity_t _OperationalEventSeverity
+ctypedef nvmlEventDataType_t _EventDataType
+ctypedef nvmlGpuOperationalEventContextType_t _GpuOperationalEventContextType
+ctypedef nvmlNvlinkTelemetrySampleType_t _NvlinkTelemetrySampleType
 
 
 ###############################################################################
@@ -431,3 +437,17 @@ cpdef object system_get_cper_v1()
 cpdef object device_get_bbx_time_data_v1(intptr_t device)
 cpdef object device_get_accounting_stats_v2(intptr_t device)
 cpdef object device_get_remapped_rows_v2(intptr_t device)
+cpdef device_set_adaptive_tgp_mode_v1(intptr_t device, int mode)
+cpdef object device_get_adaptive_tgp_mode_info_v1(intptr_t device)
+cpdef device_set_memory_limits_v1(intptr_t device, intptr_t limits)
+cpdef object device_get_memory_limits_v1(intptr_t device)
+cpdef object device_get_gpu_fabric_info_v4(intptr_t device)
+cpdef object device_perf_metrics_get_samples_v1(intptr_t device)
+cpdef object device_set_nvlink_bw_mode_async_v1(intptr_t device)
+cpdef object device_get_nv_link_telemetry_samples_v1(intptr_t device)
+cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, intptr_t config)
+cpdef object event_set_wait_v3(intptr_t set, unsigned int timeoutms)
+cpdef unsigned int event_set_get_context_count_v1(intptr_t set) except? 0
+cpdef object event_set_get_context_info_v1(intptr_t set, unsigned int index)
+cpdef object event_set_get_gpu_operational_event_context_legacy_xid_v1(intptr_t set, unsigned int index)
+cpdef object device_get_bank_remapper_status_v1(intptr_t device)

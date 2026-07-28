@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=033835aa1fcce7bcd75db8c655b92a6415a74fe0734819cda666ebf038bc1bce
+# This code was automatically generated with version 13.4.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5aa83c59fe0efd6b7e04554fe5342e91b15f6bd7d06bc3c3a1b9edd772ae8765
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -891,6 +892,10 @@ cdef class cudaHostNodeParamsV2:
         The synchronization mode to use for the host task
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
@@ -903,6 +908,9 @@ cdef class cudaHostNodeParamsV2:
 
 
     cdef _HelperInputVoidPtr _cyuserData
+
+
+    cdef cudaExecutionContext_t _ctx
 
 
 cdef class anon_struct1:
@@ -1171,12 +1179,16 @@ cdef class cudaPointerAttributes:
         pointer if an invalid pointer has been passed to CUDA.
 
 
+    localityDomainOrdinal : int
+
+
+
     Methods
     -------
     getPtr()
         Get memory address of class instance
     """
-    cdef cyruntime.cudaPointerAttributes _pvt_val
+    cdef cyruntime.cudaPointerAttributes* _val_ptr
     cdef cyruntime.cudaPointerAttributes* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cydevicePointer
@@ -1239,7 +1251,11 @@ cdef class cudaFuncAttributes:
     maxDynamicSharedSizeBytes : int
         The maximum size in bytes of dynamic shared memory per block for
         this function. Any launch must have a dynamic shared memory size
-        smaller than this value.
+        smaller than this value.  This attribute is ignored if the
+        sharedMemoryMode function or launch attribute is set.  This
+        attribute cannot be used to access oversized shared memory.
+        Oversized shared memory can only be accessed by setting the shared
+        memory mode.  See cudaFuncSetAttribute
 
 
     preferredShmemCarveout : int
@@ -1248,7 +1264,7 @@ cdef class cudaFuncAttributes:
         preference, in percent of the maximum shared memory. Refer to
         cudaDevAttrMaxSharedMemoryPerMultiprocessor. This is only a hint,
         and the driver can choose a different ratio if required to execute
-        the function. See cudaFuncSetAttribute
+        the function.  See cudaFuncSetAttribute
 
 
     clusterDimMustBeSet : int
@@ -1261,7 +1277,7 @@ cdef class cudaFuncAttributes:
         either all be 0 or all be positive. The validity of the cluster
         dimensions is otherwise checked at launch time.  If the value is
         set during compile time, it cannot be set at runtime. Setting it at
-        runtime should return cudaErrorNotPermitted. See
+        runtime should return cudaErrorNotPermitted.  See
         cudaFuncSetAttribute
 
 
@@ -1274,7 +1290,8 @@ cdef class cudaFuncAttributes:
 
 
     clusterSchedulingPolicyPreference : int
-        The block scheduling policy of a function. See cudaFuncSetAttribute
+        The block scheduling policy of a function.  See
+        cudaFuncSetAttribute
 
 
     nonPortableClusterSizeAllowed : int
@@ -1289,7 +1306,7 @@ cdef class cudaFuncAttributes:
         than the target compute capability. The portable cluster size for
         sm_90 is 8 blocks per cluster. This value may increase for future
         compute capabilities.  The specific hardware unit may support
-        higher cluster sizes that’s not guaranteed to be portable. See
+        higher cluster sizes that’s not guaranteed to be portable.  See
         cudaFuncSetAttribute
 
 
@@ -1299,6 +1316,11 @@ cdef class cudaFuncAttributes:
         the value.
 
 
+    sharedMemoryMode : cudaSharedMemoryMode
+        This controls a kernel's use of non-portable or oversized shared
+        memory configurations.  See cudaFuncSetAttribute
+
+
     Methods
     -------
     getPtr()
@@ -1306,6 +1328,26 @@ cdef class cudaFuncAttributes:
     """
     cdef cyruntime.cudaFuncAttributes _pvt_val
     cdef cyruntime.cudaFuncAttributes* _pvt_ptr
+
+cdef class anon_struct6:
+    """
+    Attributes
+    ----------
+
+    deviceId : bytes
+
+
+
+    localityDomainId : bytes
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cyruntime.cudaMemLocation* _pvt_ptr
 
 cdef class cudaMemLocation:
     """
@@ -1327,6 +1369,11 @@ cdef class cudaMemLocation:
         cudaMemLocationType::cudaMemLocationTypeHostNuma.
 
 
+    localized : anon_struct6
+        Identifier for
+        cudaMemLocationType::cudaMemLocationTypeDeviceLocalityDomain.
+
+
     Methods
     -------
     getPtr()
@@ -1334,6 +1381,9 @@ cdef class cudaMemLocation:
     """
     cdef cyruntime.cudaMemLocation* _val_ptr
     cdef cyruntime.cudaMemLocation* _pvt_ptr
+
+    cdef anon_struct6 _localized
+
 
 cdef class cudaMemAccessDesc:
     """
@@ -1613,7 +1663,7 @@ cdef class cudaOffset3D:
     cdef cyruntime.cudaOffset3D _pvt_val
     cdef cyruntime.cudaOffset3D* _pvt_ptr
 
-cdef class anon_struct6:
+cdef class anon_struct7:
     """
     Attributes
     ----------
@@ -1647,7 +1697,7 @@ cdef class anon_struct6:
     cdef cudaMemLocation _locHint
 
 
-cdef class anon_struct7:
+cdef class anon_struct8:
     """
     Attributes
     ----------
@@ -1673,16 +1723,16 @@ cdef class anon_struct7:
     cdef cudaOffset3D _offset
 
 
-cdef class anon_union2:
+cdef class anon_union3:
     """
     Attributes
     ----------
 
-    ptr : anon_struct6
+    ptr : anon_struct7
 
 
 
-    array : anon_struct7
+    array : anon_struct8
 
 
 
@@ -1693,10 +1743,10 @@ cdef class anon_union2:
     """
     cdef cyruntime.cudaMemcpy3DOperand* _pvt_ptr
 
-    cdef anon_struct6 _ptr
+    cdef anon_struct7 _ptr
 
 
-    cdef anon_struct7 _array
+    cdef anon_struct8 _array
 
 
 cdef class cudaMemcpy3DOperand:
@@ -1710,7 +1760,7 @@ cdef class cudaMemcpy3DOperand:
 
 
 
-    op : anon_union2
+    op : anon_union3
 
 
 
@@ -1722,7 +1772,7 @@ cdef class cudaMemcpy3DOperand:
     cdef cyruntime.cudaMemcpy3DOperand* _val_ptr
     cdef cyruntime.cudaMemcpy3DOperand* _pvt_ptr
 
-    cdef anon_union2 _op
+    cdef anon_union3 _op
 
 
 cdef class cudaMemcpy3DBatchOp:
@@ -2228,7 +2278,7 @@ cdef class cudaMemFabricHandle_st:
     cdef cyruntime.cudaMemFabricHandle_st _pvt_val
     cdef cyruntime.cudaMemFabricHandle_st* _pvt_ptr
 
-cdef class anon_struct8:
+cdef class anon_struct9:
     """
     Attributes
     ----------
@@ -2254,7 +2304,7 @@ cdef class anon_struct8:
     cdef _HelperInputVoidPtr _cyname
 
 
-cdef class anon_union3:
+cdef class anon_union4:
     """
     Attributes
     ----------
@@ -2263,7 +2313,7 @@ cdef class anon_union3:
 
 
 
-    win32 : anon_struct8
+    win32 : anon_struct9
 
 
 
@@ -2278,7 +2328,7 @@ cdef class anon_union3:
     """
     cdef cyruntime.cudaExternalMemoryHandleDesc* _pvt_ptr
 
-    cdef anon_struct8 _win32
+    cdef anon_struct9 _win32
 
 
     cdef _HelperInputVoidPtr _cynvSciBufObject
@@ -2295,7 +2345,7 @@ cdef class cudaExternalMemoryHandleDesc:
         Type of the handle
 
 
-    handle : anon_union3
+    handle : anon_union4
 
 
 
@@ -2315,7 +2365,7 @@ cdef class cudaExternalMemoryHandleDesc:
     cdef cyruntime.cudaExternalMemoryHandleDesc* _val_ptr
     cdef cyruntime.cudaExternalMemoryHandleDesc* _pvt_ptr
 
-    cdef anon_union3 _handle
+    cdef anon_union4 _handle
 
 
 cdef class cudaExternalMemoryBufferDesc:
@@ -2388,7 +2438,7 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
     cdef cudaExtent _extent
 
 
-cdef class anon_struct9:
+cdef class anon_struct10:
     """
     Attributes
     ----------
@@ -2414,7 +2464,7 @@ cdef class anon_struct9:
     cdef _HelperInputVoidPtr _cyname
 
 
-cdef class anon_union4:
+cdef class anon_union5:
     """
     Attributes
     ----------
@@ -2423,7 +2473,7 @@ cdef class anon_union4:
 
 
 
-    win32 : anon_struct9
+    win32 : anon_struct10
 
 
 
@@ -2438,7 +2488,7 @@ cdef class anon_union4:
     """
     cdef cyruntime.cudaExternalSemaphoreHandleDesc* _pvt_ptr
 
-    cdef anon_struct9 _win32
+    cdef anon_struct10 _win32
 
 
     cdef _HelperInputVoidPtr _cynvSciSyncObj
@@ -2455,7 +2505,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Type of the handle
 
 
-    handle : anon_union4
+    handle : anon_union5
 
 
 
@@ -2471,10 +2521,10 @@ cdef class cudaExternalSemaphoreHandleDesc:
     cdef cyruntime.cudaExternalSemaphoreHandleDesc* _val_ptr
     cdef cyruntime.cudaExternalSemaphoreHandleDesc* _pvt_ptr
 
-    cdef anon_union4 _handle
+    cdef anon_union5 _handle
 
 
-cdef class anon_struct10:
+cdef class anon_struct11:
     """
     Attributes
     ----------
@@ -2490,7 +2540,7 @@ cdef class anon_struct10:
     """
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
 
-cdef class anon_union5:
+cdef class anon_union6:
     """
     Attributes
     ----------
@@ -2509,7 +2559,7 @@ cdef class anon_union5:
     cdef _HelperInputVoidPtr _cyfence
 
 
-cdef class anon_struct11:
+cdef class anon_struct12:
     """
     Attributes
     ----------
@@ -2525,20 +2575,20 @@ cdef class anon_struct11:
     """
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
 
-cdef class anon_struct12:
+cdef class anon_struct13:
     """
     Attributes
     ----------
 
-    fence : anon_struct10
+    fence : anon_struct11
 
 
 
-    nvSciSync : anon_union5
+    nvSciSync : anon_union6
 
 
 
-    keyedMutex : anon_struct11
+    keyedMutex : anon_struct12
 
 
 
@@ -2549,13 +2599,13 @@ cdef class anon_struct12:
     """
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
 
-    cdef anon_struct10 _fence
+    cdef anon_struct11 _fence
 
 
-    cdef anon_union5 _nvSciSync
+    cdef anon_union6 _nvSciSync
 
 
-    cdef anon_struct11 _keyedMutex
+    cdef anon_struct12 _keyedMutex
 
 
 cdef class cudaExternalSemaphoreSignalParams:
@@ -2565,7 +2615,7 @@ cdef class cudaExternalSemaphoreSignalParams:
     Attributes
     ----------
 
-    params : anon_struct12
+    params : anon_struct13
 
 
 
@@ -2588,10 +2638,10 @@ cdef class cudaExternalSemaphoreSignalParams:
     cdef cyruntime.cudaExternalSemaphoreSignalParams _pvt_val
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _pvt_ptr
 
-    cdef anon_struct12 _params
+    cdef anon_struct13 _params
 
 
-cdef class anon_struct13:
+cdef class anon_struct14:
     """
     Attributes
     ----------
@@ -2607,7 +2657,7 @@ cdef class anon_struct13:
     """
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
 
-cdef class anon_union6:
+cdef class anon_union7:
     """
     Attributes
     ----------
@@ -2626,7 +2676,7 @@ cdef class anon_union6:
     cdef _HelperInputVoidPtr _cyfence
 
 
-cdef class anon_struct14:
+cdef class anon_struct15:
     """
     Attributes
     ----------
@@ -2646,20 +2696,20 @@ cdef class anon_struct14:
     """
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
 
-cdef class anon_struct15:
+cdef class anon_struct16:
     """
     Attributes
     ----------
 
-    fence : anon_struct13
+    fence : anon_struct14
 
 
 
-    nvSciSync : anon_union6
+    nvSciSync : anon_union7
 
 
 
-    keyedMutex : anon_struct14
+    keyedMutex : anon_struct15
 
 
 
@@ -2670,13 +2720,13 @@ cdef class anon_struct15:
     """
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
 
-    cdef anon_struct13 _fence
+    cdef anon_struct14 _fence
 
 
-    cdef anon_union6 _nvSciSync
+    cdef anon_union7 _nvSciSync
 
 
-    cdef anon_struct14 _keyedMutex
+    cdef anon_struct15 _keyedMutex
 
 
 cdef class cudaExternalSemaphoreWaitParams:
@@ -2686,7 +2736,7 @@ cdef class cudaExternalSemaphoreWaitParams:
     Attributes
     ----------
 
-    params : anon_struct15
+    params : anon_struct16
 
 
 
@@ -2709,7 +2759,7 @@ cdef class cudaExternalSemaphoreWaitParams:
     cdef cyruntime.cudaExternalSemaphoreWaitParams _pvt_val
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _pvt_ptr
 
-    cdef anon_struct15 _params
+    cdef anon_struct16 _params
 
 
 cdef class cudaDevSmResource:
@@ -2739,6 +2789,11 @@ cdef class cudaDevSmResource:
     flags : unsigned int
         The flags set on this SM resource. For available flags see
         cudaDevSmResourceGroup_flags.
+
+
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        cudaDevSmResourceConstraintTypeLocalityDomainId is set in flags
 
 
     Methods
@@ -2812,6 +2867,11 @@ cdef class cudaDevSmResourceGroupParams_st:
     flags : unsigned int
         Combination of `cudaDevSmResourceGroup_flags` values to indicate
         this this group is created.
+
+
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        cudaDevSmResourceGroupLocalityDomainId is set in flags
 
 
     Methods
@@ -3112,6 +3172,10 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
         paramsArray.
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
@@ -3126,6 +3190,9 @@ cdef class cudaExternalSemaphoreSignalNodeParamsV2:
 
     cdef size_t _paramsArray_length
     cdef cyruntime.cudaExternalSemaphoreSignalParams* _paramsArray
+
+
+    cdef cudaExecutionContext_t _ctx
 
 
 cdef class cudaExternalSemaphoreWaitNodeParams:
@@ -3184,6 +3251,10 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
         paramsArray.
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
@@ -3198,6 +3269,9 @@ cdef class cudaExternalSemaphoreWaitNodeParamsV2:
 
     cdef size_t _paramsArray_length
     cdef cyruntime.cudaExternalSemaphoreWaitParams* _paramsArray
+
+
+    cdef cudaExecutionContext_t _ctx
 
 
 cdef class cudaConditionalNodeParams:
@@ -3230,7 +3304,7 @@ cdef class cudaConditionalNodeParams:
         empty nodes, child graphs, memsets, memcopies, and conditionals.
         This applies recursively to child graphs and conditional bodies.
         - All kernels, including kernels in nested conditionals or child
-        graphs at any level, must belong to the same CUDA context.
+        graphs at any level, must belong to the same device context.
         These graphs may be populated using graph node creation APIs or
         cudaStreamBeginCaptureToGraph. cudaGraphCondTypeIf: phGraph_out[0]
         is executed when the condition is non-zero. If `size` == 2,
@@ -3304,6 +3378,10 @@ cdef class cudaEventRecordNodeParams:
         The event to record when the node executes
 
 
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+
+
     Methods
     -------
     getPtr()
@@ -3313,6 +3391,9 @@ cdef class cudaEventRecordNodeParams:
     cdef cyruntime.cudaEventRecordNodeParams* _pvt_ptr
 
     cdef cudaEvent_t _event
+
+
+    cdef cudaExecutionContext_t _ctx
 
 
 cdef class cudaEventWaitNodeParams:
@@ -3558,7 +3639,7 @@ cdef class cudaGraphExecUpdateResultInfo_st:
     cdef cudaGraphNode_t _errorFromNode
 
 
-cdef class anon_struct16:
+cdef class anon_struct17:
     """
     Attributes
     ----------
@@ -3585,7 +3666,7 @@ cdef class anon_struct16:
     cdef _HelperInputVoidPtr _cypValue
 
 
-cdef class anon_union10:
+cdef class anon_union11:
     """
     Attributes
     ----------
@@ -3594,7 +3675,7 @@ cdef class anon_union10:
 
 
 
-    param : anon_struct16
+    param : anon_struct17
 
 
 
@@ -3612,7 +3693,7 @@ cdef class anon_union10:
     cdef dim3 _gridDim
 
 
-    cdef anon_struct16 _param
+    cdef anon_struct17 _param
 
 
 cdef class cudaGraphKernelNodeUpdate:
@@ -3632,7 +3713,7 @@ cdef class cudaGraphKernelNodeUpdate:
         interpreted
 
 
-    updateData : anon_union10
+    updateData : anon_union11
         Update data to apply. Which field is used depends on field's value
 
 
@@ -3647,7 +3728,7 @@ cdef class cudaGraphKernelNodeUpdate:
     cdef cudaGraphDeviceNode_t _node
 
 
-    cdef anon_union10 _updateData
+    cdef anon_union11 _updateData
 
 
 cdef class cudaLaunchMemSyncDomainMap_st:
@@ -3679,7 +3760,7 @@ cdef class cudaLaunchMemSyncDomainMap_st:
     cdef cyruntime.cudaLaunchMemSyncDomainMap_st _pvt_val
     cdef cyruntime.cudaLaunchMemSyncDomainMap_st* _pvt_ptr
 
-cdef class anon_struct17:
+cdef class anon_struct18:
     """
     Attributes
     ----------
@@ -3703,7 +3784,7 @@ cdef class anon_struct17:
     """
     cdef cyruntime.cudaLaunchAttributeValue* _pvt_ptr
 
-cdef class anon_struct18:
+cdef class anon_struct19:
     """
     Attributes
     ----------
@@ -3730,7 +3811,7 @@ cdef class anon_struct18:
     cdef cudaEvent_t _event
 
 
-cdef class anon_struct19:
+cdef class anon_struct20:
     """
     Attributes
     ----------
@@ -3754,7 +3835,7 @@ cdef class anon_struct19:
     """
     cdef cyruntime.cudaLaunchAttributeValue* _pvt_ptr
 
-cdef class anon_struct20:
+cdef class anon_struct21:
     """
     Attributes
     ----------
@@ -3777,7 +3858,7 @@ cdef class anon_struct20:
     cdef cudaEvent_t _event
 
 
-cdef class anon_struct21:
+cdef class anon_struct22:
     """
     Attributes
     ----------
@@ -3825,7 +3906,7 @@ cdef class cudaLaunchAttributeValue:
         cudaSynchronizationPolicy for work queued up in this stream.
 
 
-    clusterDim : anon_struct17
+    clusterDim : anon_struct18
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -3846,7 +3927,7 @@ cdef class cudaLaunchAttributeValue:
         cudaLaunchAttributeProgrammaticStreamSerialization.
 
 
-    programmaticEvent : anon_struct18
+    programmaticEvent : anon_struct19
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
@@ -3870,7 +3951,7 @@ cdef class cudaLaunchAttributeValue:
         cudaLaunchMemSyncDomain.
 
 
-    preferredClusterDim : anon_struct19
+    preferredClusterDim : anon_struct20
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
@@ -3885,7 +3966,7 @@ cdef class cudaLaunchAttributeValue:
         cudaLaunchAttributeValue::clusterDim.
 
 
-    launchCompletionEvent : anon_struct20
+    launchCompletionEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
@@ -3893,7 +3974,7 @@ cdef class cudaLaunchAttributeValue:
         cudaEventRecordExternal.
 
 
-    deviceUpdatableKernelNode : anon_struct21
+    deviceUpdatableKernelNode : anon_struct22
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
@@ -3933,22 +4014,22 @@ cdef class cudaLaunchAttributeValue:
     cdef cudaAccessPolicyWindow _accessPolicyWindow
 
 
-    cdef anon_struct17 _clusterDim
+    cdef anon_struct18 _clusterDim
 
 
-    cdef anon_struct18 _programmaticEvent
+    cdef anon_struct19 _programmaticEvent
 
 
     cdef cudaLaunchMemSyncDomainMap _memSyncDomainMap
 
 
-    cdef anon_struct19 _preferredClusterDim
+    cdef anon_struct20 _preferredClusterDim
 
 
-    cdef anon_struct20 _launchCompletionEvent
+    cdef anon_struct21 _launchCompletionEvent
 
 
-    cdef anon_struct21 _deviceUpdatableKernelNode
+    cdef anon_struct22 _deviceUpdatableKernelNode
 
 
 cdef class cudaLaunchAttribute_st:
@@ -3977,7 +4058,7 @@ cdef class cudaLaunchAttribute_st:
     cdef cudaLaunchAttributeValue _val
 
 
-cdef class anon_struct22:
+cdef class anon_struct23:
     """
     Attributes
     ----------
@@ -3993,12 +4074,12 @@ cdef class anon_struct22:
     """
     cdef cyruntime.cudaAsyncNotificationInfo* _pvt_ptr
 
-cdef class anon_union11:
+cdef class anon_union12:
     """
     Attributes
     ----------
 
-    overBudget : anon_struct22
+    overBudget : anon_struct23
 
 
 
@@ -4009,7 +4090,7 @@ cdef class anon_union11:
     """
     cdef cyruntime.cudaAsyncNotificationInfo* _pvt_ptr
 
-    cdef anon_struct22 _overBudget
+    cdef anon_struct23 _overBudget
 
 
 cdef class cudaAsyncNotificationInfo:
@@ -4023,7 +4104,7 @@ cdef class cudaAsyncNotificationInfo:
         The type of notification being sent
 
 
-    info : anon_union11
+    info : anon_union12
         Information about the notification. `typename` must be checked in
         order to interpret this field.
 
@@ -4036,7 +4117,7 @@ cdef class cudaAsyncNotificationInfo:
     cdef cyruntime.cudaAsyncNotificationInfo* _val_ptr
     cdef cyruntime.cudaAsyncNotificationInfo* _pvt_ptr
 
-    cdef anon_union11 _info
+    cdef anon_union12 _info
 
 
 cdef class cudaTextureDesc:
@@ -4179,7 +4260,7 @@ cdef class cudaEglPlaneDesc_st:
     cdef cudaChannelFormatDesc _channelDesc
 
 
-cdef class anon_union12:
+cdef class anon_union13:
     """
     Attributes
     ----------
@@ -4213,7 +4294,7 @@ cdef class cudaEglFrame_st:
     Attributes
     ----------
 
-    frame : anon_union12
+    frame : anon_union13
 
 
 
@@ -4241,7 +4322,7 @@ cdef class cudaEglFrame_st:
     cdef cyruntime.cudaEglFrame_st* _val_ptr
     cdef cyruntime.cudaEglFrame_st* _pvt_ptr
 
-    cdef anon_union12 _frame
+    cdef anon_union13 _frame
 
 
 cdef class CUuuid(CUuuid_st):
@@ -4331,6 +4412,11 @@ cdef class cudaDevSmResourceGroupParams(cudaDevSmResourceGroupParams_st):
     flags : unsigned int
         Combination of `cudaDevSmResourceGroup_flags` values to indicate
         this this group is created.
+
+
+    localityDomainId : unsigned int
+        Locality domain that the SM must be located on. Only valid if
+        cudaDevSmResourceGroupLocalityDomainId is set in flags
 
 
     Methods
@@ -4561,7 +4647,7 @@ cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
         The type of notification being sent
 
 
-    info : anon_union11
+    info : anon_union12
         Information about the notification. `typename` must be checked in
         order to interpret this field.
 
@@ -4598,7 +4684,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaSynchronizationPolicy for work queued up in this stream.
 
 
-    clusterDim : anon_struct17
+    clusterDim : anon_struct18
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -4619,7 +4705,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaLaunchAttributeProgrammaticStreamSerialization.
 
 
-    programmaticEvent : anon_struct18
+    programmaticEvent : anon_struct19
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
@@ -4643,7 +4729,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaLaunchMemSyncDomain.
 
 
-    preferredClusterDim : anon_struct19
+    preferredClusterDim : anon_struct20
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
@@ -4658,7 +4744,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaLaunchAttributeValue::clusterDim.
 
 
-    launchCompletionEvent : anon_struct20
+    launchCompletionEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
@@ -4666,7 +4752,7 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         cudaEventRecordExternal.
 
 
-    deviceUpdatableKernelNode : anon_struct21
+    deviceUpdatableKernelNode : anon_struct22
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
@@ -4727,7 +4813,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaSynchronizationPolicy for work queued up in this stream.
 
 
-    clusterDim : anon_struct17
+    clusterDim : anon_struct18
         Value of launch attribute cudaLaunchAttributeClusterDimension that
         represents the desired cluster dimensions for the kernel. Opaque
         type with the following fields: - `x` - The X dimension of the
@@ -4748,7 +4834,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaLaunchAttributeProgrammaticStreamSerialization.
 
 
-    programmaticEvent : anon_struct18
+    programmaticEvent : anon_struct19
         Value of launch attribute cudaLaunchAttributeProgrammaticEvent with
         the following fields: - `cudaEvent_t` event - Event to fire when
         all blocks trigger it.    - `int` flags; - Event record flags, see
@@ -4772,7 +4858,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaLaunchMemSyncDomain.
 
 
-    preferredClusterDim : anon_struct19
+    preferredClusterDim : anon_struct20
         Value of launch attribute
         cudaLaunchAttributePreferredClusterDimension that represents the
         desired preferred cluster dimensions for the kernel. Opaque type
@@ -4787,7 +4873,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaLaunchAttributeValue::clusterDim.
 
 
-    launchCompletionEvent : anon_struct20
+    launchCompletionEvent : anon_struct21
         Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
         with the following fields: - `cudaEvent_t` event - Event to fire
         when the last block launches.    - `int` flags - Event record
@@ -4795,7 +4881,7 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         cudaEventRecordExternal.
 
 
-    deviceUpdatableKernelNode : anon_struct21
+    deviceUpdatableKernelNode : anon_struct22
         Value of launch attribute
         cudaLaunchAttributeDeviceUpdatableKernelNode with the following
         fields: - `int` deviceUpdatable - Whether or not the resulting
@@ -4884,7 +4970,7 @@ cdef class cudaEglFrame(cudaEglFrame_st):
     Attributes
     ----------
 
-    frame : anon_union12
+    frame : anon_union13
 
 
 

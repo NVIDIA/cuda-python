@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f840820f160e36eebe6e052b5a5d3a35b55704060301ee2ab7d5cd7a7d580418
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7961eb9a31b8ad5274ddd2a6357f2f75c1004c44ee4a5edeadf22674f1833d3e
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
 from libcpp cimport bool as cpp_bool
@@ -107,6 +108,7 @@ cdef extern from 'cufile.h':
     ctypedef enum CUfileDriverControlFlags_t:
         CU_FILE_USE_POLL_MODE
         CU_FILE_ALLOW_COMPAT_MODE
+        CU_FILE_VANILLA_POSIX_IO_MODE
         CU_FILE_POSIX_IO_MODE
         CU_FILE_FALLBACK_IO_MODE
 
@@ -172,12 +174,15 @@ cdef extern from 'cufile.h':
         CUFILE_PARAM_FORCE_ODIRECT_MODE
         CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
         CUFILE_PARAM_STREAM_MEMOPS_BYPASS
+        CUFILE_PARAM_PROPERTIES_POSIX_IO_MODE
+        CUFILE_PARAM_GDS_FALLBACK_IO
 
 cdef extern from 'cufile.h':
     ctypedef enum CUFileStringConfigParameter_t:
         CUFILE_PARAM_LOGGING_LEVEL
         CUFILE_PARAM_ENV_LOGFILE_PATH
         CUFILE_PARAM_LOG_DIR
+        CUFILE_PARAM_RDMA_TRANSPORT
 
 cdef extern from 'cufile.h':
     ctypedef enum CUFileArrayConfigParameter_t:
@@ -286,6 +291,11 @@ cdef extern from 'cufile.h':
         uint64_t reg_bytes
 
 cdef extern from 'cufile.h':
+    ctypedef struct CUfileIOVec_t 'CUfileIOVec_t':
+        void* base
+        size_t len
+
+cdef extern from 'cufile.h':
     ctypedef struct CUfileDrvProps_t 'CUfileDrvProps_t':
         cuda_bindings_cufile__anon_pod0 nvfs
         unsigned int fflags
@@ -349,6 +359,18 @@ cdef extern from 'cufile.h':
         uint64_t batch_completion_lat_sum_us
         uint64_t last_batch_read_bytes
         uint64_t last_batch_write_bytes
+        CUfileOpCounter_t readv_ops
+        CUfileOpCounter_t writev_ops
+        uint64_t readv_bytes
+        uint64_t writev_bytes
+        uint64_t readv_bw_bytes_per_sec
+        uint64_t writev_bw_bytes_per_sec
+        uint64_t readv_lat_avg_us
+        uint64_t writev_lat_avg_us
+        uint64_t readv_ops_per_sec
+        uint64_t writev_ops_per_sec
+        uint64_t readv_lat_sum_us
+        uint64_t writev_lat_sum_us
 
 cdef extern from 'cufile.h':
     ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':
@@ -432,3 +454,5 @@ cdef CUfileError_t cuFileGetStatsL3(CUfileStatsLevel3_t* stats) except?<CUfileEr
 cdef CUfileError_t cuFileGetBARSizeInKB(int gpuIndex, size_t* barSize) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileSetParameterPosixPoolSlabArray(const size_t* size_values, const size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
+cdef ssize_t cuFileReadv(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil
+cdef ssize_t cuFileWritev(CUfileHandle_t fh, const CUfileIOVec_t* iov, size_t iovcnt, off_t file_offset, unsigned flags) except* nogil

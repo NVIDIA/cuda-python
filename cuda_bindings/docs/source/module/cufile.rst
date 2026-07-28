@@ -25,7 +25,9 @@ Functions
    buf_register
    buf_deregister
    read
+   readv
    write
+   writev
    driver_open
    use_count
    driver_get_properties
@@ -60,6 +62,7 @@ Types
    :toctree: generated/
 
    IOEvents
+   IOVec
    Descr
    IOParams
    OpError

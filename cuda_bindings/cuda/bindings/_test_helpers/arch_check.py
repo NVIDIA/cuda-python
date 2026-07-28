@@ -54,10 +54,11 @@ def unsupported_before(device: int, expected_device_arch: nvml.DeviceArch | str 
             # The API call raised NotSupportedError, NVML status FunctionNotFoundError,
             # or NvmlSymbolNotFoundError (symbol absent from the loaded NVML DLL), so we
             # skip the test but don't fail it
-            pytest.skip(
-                f"Unsupported call for device architecture {nvml.DeviceArch(device_arch).name} "
-                f"on device '{nvml.device_get_name(device)}'"
-            )
+            try:
+                name = nvml.DeviceArch(device_arch).name
+            except ValueError:
+                name = f"UNKNOWN({device_arch})"
+            pytest.skip(f"Unsupported call for device architecture {name} on device '{nvml.device_get_name(device)}'")
         # If the API call worked, just continue
     elif int(device_arch) < expected_device_arch_int:
         # In this case, we /know/ if will fail, and we want to assert that it does.

@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f107413ea0012a1a854cd3de77d57f649bebd0f586901d4e6384f37288ac5421
+# This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9bb12d58d34130a4d23007783ff3b16344fd90af5d0977196234ced1b9e6574d
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1193,6 +1194,163 @@ cdef class PerGpuStats:
         return obj
 
 
+cdef _get_io_vec_dtype_offsets():
+    cdef CUfileIOVec_t pod
+    return _numpy.dtype({
+        'names': ['base_', 'len'],
+        'formats': [_numpy.intp, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.base)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.len)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileIOVec_t),
+    })
+
+io_vec_dtype = _get_io_vec_dtype_offsets()
+
+cdef class IOVec:
+    """Empty-initialize an array of `CUfileIOVec_t`.
+    The resulting object is of length `size` and of dtype `io_vec_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `CUfileIOVec_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=io_vec_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileIOVec_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOVec_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.IOVec_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.IOVec object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, IOVec)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def base_(self):
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data.base_[0])
+        return self._data.base_
+
+    @base_.setter
+    def base_(self, val):
+        self._data.base_ = val
+
+    @property
+    def len(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.len[0])
+        return self._data.len
+
+    @len.setter
+    def len(self, val):
+        self._data.len = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return IOVec.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == io_vec_dtype:
+            return IOVec.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an IOVec instance with the memory from the given buffer."""
+        return IOVec.from_data(_numpy.frombuffer(buffer, dtype=io_vec_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an IOVec instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `io_vec_dtype` holding the data.
+        """
+        cdef IOVec obj = IOVec.__new__(IOVec)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != io_vec_dtype:
+            raise ValueError("data array must be of dtype io_vec_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an IOVec instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef IOVec obj = IOVec.__new__(IOVec)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileIOVec_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=io_vec_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
 cdef _get_descr_dtype_offsets():
     cdef CUfileDescr_t pod
     return _numpy.dtype({
@@ -1499,8 +1657,8 @@ cdef class _py_anon_pod2:
 cdef _get_stats_level1_dtype_offsets():
     cdef CUfileStatsLevel1_t pod
     return _numpy.dtype({
-        'names': ['read_ops', 'write_ops', 'hdl_register_ops', 'hdl_deregister_ops', 'buf_register_ops', 'buf_deregister_ops', 'read_bytes', 'write_bytes', 'read_bw_bytes_per_sec', 'write_bw_bytes_per_sec', 'read_lat_avg_us', 'write_lat_avg_us', 'read_ops_per_sec', 'write_ops_per_sec', 'read_lat_sum_us', 'write_lat_sum_us', 'batch_submit_ops', 'batch_complete_ops', 'batch_setup_ops', 'batch_cancel_ops', 'batch_destroy_ops', 'batch_enqueued_ops', 'batch_posix_enqueued_ops', 'batch_processed_ops', 'batch_posix_processed_ops', 'batch_nvfs_submit_ops', 'batch_p2p_submit_ops', 'batch_aio_submit_ops', 'batch_iouring_submit_ops', 'batch_mixed_io_submit_ops', 'batch_total_submit_ops', 'batch_read_bytes', 'batch_write_bytes', 'batch_read_bw_bytes', 'batch_write_bw_bytes', 'batch_submit_lat_avg_us', 'batch_completion_lat_avg_us', 'batch_submit_ops_per_sec', 'batch_complete_ops_per_sec', 'batch_submit_lat_sum_us', 'batch_completion_lat_sum_us', 'last_batch_read_bytes', 'last_batch_write_bytes'],
-        'formats': [op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+        'names': ['read_ops', 'write_ops', 'hdl_register_ops', 'hdl_deregister_ops', 'buf_register_ops', 'buf_deregister_ops', 'read_bytes', 'write_bytes', 'read_bw_bytes_per_sec', 'write_bw_bytes_per_sec', 'read_lat_avg_us', 'write_lat_avg_us', 'read_ops_per_sec', 'write_ops_per_sec', 'read_lat_sum_us', 'write_lat_sum_us', 'batch_submit_ops', 'batch_complete_ops', 'batch_setup_ops', 'batch_cancel_ops', 'batch_destroy_ops', 'batch_enqueued_ops', 'batch_posix_enqueued_ops', 'batch_processed_ops', 'batch_posix_processed_ops', 'batch_nvfs_submit_ops', 'batch_p2p_submit_ops', 'batch_aio_submit_ops', 'batch_iouring_submit_ops', 'batch_mixed_io_submit_ops', 'batch_total_submit_ops', 'batch_read_bytes', 'batch_write_bytes', 'batch_read_bw_bytes', 'batch_write_bw_bytes', 'batch_submit_lat_avg_us', 'batch_completion_lat_avg_us', 'batch_submit_ops_per_sec', 'batch_complete_ops_per_sec', 'batch_submit_lat_sum_us', 'batch_completion_lat_sum_us', 'last_batch_read_bytes', 'last_batch_write_bytes', 'readv_ops', 'writev_ops', 'readv_bytes', 'writev_bytes', 'readv_bw_bytes_per_sec', 'writev_bw_bytes_per_sec', 'readv_lat_avg_us', 'writev_lat_avg_us', 'readv_ops_per_sec', 'writev_ops_per_sec', 'readv_lat_sum_us', 'writev_lat_sum_us'],
+        'formats': [op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
         'offsets': [
             (<intptr_t>&(pod.read_ops)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.write_ops)) - (<intptr_t>&pod),
@@ -1545,6 +1703,18 @@ cdef _get_stats_level1_dtype_offsets():
             (<intptr_t>&(pod.batch_completion_lat_sum_us)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.last_batch_read_bytes)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.last_batch_write_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_bw_bytes_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_bw_bytes_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_lat_avg_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_lat_avg_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_ops_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_ops_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.readv_lat_sum_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writev_lat_sum_us)) - (<intptr_t>&pod),
         ],
         'itemsize': sizeof(CUfileStatsLevel1_t),
     })
@@ -1954,6 +2124,38 @@ cdef class StatsLevel1:
         _cyb_memcpy(<void *>&(self._ptr[0].batch_total_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
+    def readv_ops(self):
+        """OpCounter: """
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].readv_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @readv_ops.setter
+    def readv_ops(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        cdef OpCounter val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].readv_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+
+    @property
+    def writev_ops(self):
+        """OpCounter: """
+        return OpCounter.from_ptr(
+            <intptr_t>&(self._ptr[0].writev_ops),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @writev_ops.setter
+    def writev_ops(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        cdef OpCounter val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].writev_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
+
+    @property
     def read_bytes(self):
         """int: """
         return self._ptr[0].read_bytes
@@ -2194,6 +2396,116 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         self._ptr[0].last_batch_write_bytes = val
+
+    @property
+    def readv_bytes(self):
+        """int: """
+        return self._ptr[0].readv_bytes
+
+    @readv_bytes.setter
+    def readv_bytes(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_bytes = val
+
+    @property
+    def writev_bytes(self):
+        """int: """
+        return self._ptr[0].writev_bytes
+
+    @writev_bytes.setter
+    def writev_bytes(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_bytes = val
+
+    @property
+    def readv_bw_bytes_per_sec(self):
+        """int: """
+        return self._ptr[0].readv_bw_bytes_per_sec
+
+    @readv_bw_bytes_per_sec.setter
+    def readv_bw_bytes_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_bw_bytes_per_sec = val
+
+    @property
+    def writev_bw_bytes_per_sec(self):
+        """int: """
+        return self._ptr[0].writev_bw_bytes_per_sec
+
+    @writev_bw_bytes_per_sec.setter
+    def writev_bw_bytes_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_bw_bytes_per_sec = val
+
+    @property
+    def readv_lat_avg_us(self):
+        """int: """
+        return self._ptr[0].readv_lat_avg_us
+
+    @readv_lat_avg_us.setter
+    def readv_lat_avg_us(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_lat_avg_us = val
+
+    @property
+    def writev_lat_avg_us(self):
+        """int: """
+        return self._ptr[0].writev_lat_avg_us
+
+    @writev_lat_avg_us.setter
+    def writev_lat_avg_us(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_lat_avg_us = val
+
+    @property
+    def readv_ops_per_sec(self):
+        """int: """
+        return self._ptr[0].readv_ops_per_sec
+
+    @readv_ops_per_sec.setter
+    def readv_ops_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_ops_per_sec = val
+
+    @property
+    def writev_ops_per_sec(self):
+        """int: """
+        return self._ptr[0].writev_ops_per_sec
+
+    @writev_ops_per_sec.setter
+    def writev_ops_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_ops_per_sec = val
+
+    @property
+    def readv_lat_sum_us(self):
+        """int: """
+        return self._ptr[0].readv_lat_sum_us
+
+    @readv_lat_sum_us.setter
+    def readv_lat_sum_us(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].readv_lat_sum_us = val
+
+    @property
+    def writev_lat_sum_us(self):
+        """int: """
+        return self._ptr[0].writev_lat_sum_us
+
+    @writev_lat_sum_us.setter
+    def writev_lat_sum_us(self, val):
+        if self._readonly:
+            raise ValueError("This StatsLevel1 instance is read-only")
+        self._ptr[0].writev_lat_sum_us = val
 
     @staticmethod
     def from_buffer(buffer):
@@ -2850,7 +3162,8 @@ class DriverControlFlags(_cyb_FastEnum):
     """
     USE_POLL_MODE = (CU_FILE_USE_POLL_MODE, 'use POLL mode. properties.use_poll_mode')
     ALLOW_COMPAT_MODE = (CU_FILE_ALLOW_COMPAT_MODE, 'allow COMPATIBILITY mode. properties.allow_compat_mode')
-    POSIX_IO_MODE = (CU_FILE_POSIX_IO_MODE, 'Vanilla posix io mode. properties.posix_io_mode')
+    VANILLA_POSIX_IO_MODE = (CU_FILE_VANILLA_POSIX_IO_MODE, 'Vanilla posix io mode. properties.vanilla_posix_io_mode')
+    POSIX_IO_MODE = (CU_FILE_POSIX_IO_MODE, 'alias for backward compatibility')
     FALLBACK_IO_MODE = (CU_FILE_FALLBACK_IO_MODE, 'Fallback io mode. properties.gds_fallback_io')
 
 class FeatureFlags(_cyb_FastEnum):
@@ -2929,6 +3242,8 @@ class BoolConfigParameter(_cyb_FastEnum):
     FORCE_ODIRECT_MODE = CUFILE_PARAM_FORCE_ODIRECT_MODE
     SKIP_TOPOLOGY_DETECTION = CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
     STREAM_MEMOPS_BYPASS = CUFILE_PARAM_STREAM_MEMOPS_BYPASS
+    PROPERTIES_POSIX_IO_MODE = CUFILE_PARAM_PROPERTIES_POSIX_IO_MODE
+    GDS_FALLBACK_IO = CUFILE_PARAM_GDS_FALLBACK_IO
 
 class StringConfigParameter(_cyb_FastEnum):
     """
@@ -2937,6 +3252,7 @@ class StringConfigParameter(_cyb_FastEnum):
     LOGGING_LEVEL = CUFILE_PARAM_LOGGING_LEVEL
     ENV_LOGFILE_PATH = CUFILE_PARAM_ENV_LOGFILE_PATH
     LOG_DIR = CUFILE_PARAM_LOG_DIR
+    RDMA_TRANSPORT = CUFILE_PARAM_RDMA_TRANSPORT
 
 class ArrayConfigParameter(_cyb_FastEnum):
     """
@@ -3429,6 +3745,8 @@ cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_v
     check_status(__status__)
 
 
+
+
 cpdef str op_status_error(int status):
     """cufileop status string.
 
@@ -3491,4 +3809,48 @@ cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, 
     return status
 
 
+cpdef readv(intptr_t fh, IOVec iov, off_t file_offset, unsigned int flags=0):
+    """Read data from a registered file handle into a scatter list of device or host buffers.
+
+    Args:
+        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
+        iov (IOVec): scatter/gather descriptor array; each element specifies a
+            base pointer (device or host) and a byte length.
+        file_offset (off_t): file offset from the beginning of the file.
+        flags (unsigned int): reserved; must be 0.
+
+    Returns:
+        ssize_t: number of bytes read on success.
+
+    .. seealso:: `cuFileReadv`
+    """
+    cdef intptr_t iov_ptr = (<IOVec>iov)._get_ptr()
+    cdef size_t iovcnt = len(iov)
+    with nogil:
+        status = cuFileReadv(<Handle>fh, <const CUfileIOVec_t*>iov_ptr, iovcnt, file_offset, flags)
+    check_status(status)
+    return status
+
+
+cpdef writev(intptr_t fh, IOVec iov, off_t file_offset, unsigned int flags=0):
+    """Write data to a registered file handle from a gather list of device or host buffers.
+
+    Args:
+        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
+        iov (IOVec): scatter/gather descriptor array; each element specifies a
+            base pointer (device or host) and a byte length.
+        file_offset (off_t): file offset from the beginning of the file.
+        flags (unsigned int): reserved; must be 0.
+
+    Returns:
+        ssize_t: number of bytes written on success.
+
+    .. seealso:: `cuFileWritev`
+    """
+    cdef intptr_t iov_ptr = (<IOVec>iov)._get_ptr()
+    cdef size_t iovcnt = len(iov)
+    with nogil:
+        status = cuFileWritev(<Handle>fh, <const CUfileIOVec_t*>iov_ptr, iovcnt, file_offset, flags)
+    check_status(status)
+    return status
 del _cyb_FastEnum

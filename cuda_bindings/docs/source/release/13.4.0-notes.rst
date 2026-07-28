@@ -6,6 +6,52 @@
 ``cuda-bindings`` 13.4.0 Release notes
 ======================================
 
+New APIs
+--------
+
+New APIs from CUDA Toolkit 13.4 are now available in ``cuda-bindings``.
+
+New driver API functions:
+
+* :func:`driver.cuDeviceGetFabricClusterUuid`
+* :func:`driver.cuDeviceGetCliqueCount`
+* :func:`driver.cuDeviceGetCliqueInfo`
+* :func:`driver.cuMemGetLocationInfo`
+* :func:`driver.cuGraphAddNode_v3`
+* :func:`driver.cuGraphNodeSetParams_v2`
+* :func:`driver.cuCheckpointOperationComplete`
+
+New runtime API functions:
+
+* :func:`runtime.cudaMemGetLocationInfo`
+
+New cuFile API functions:
+
+* :func:`cufile.readv`
+* :func:`cufile.writev`
+
+New NVML API functions:
+
+* :func:`nvml.system_get_cper_v1`
+* :func:`nvml.device_get_bbx_time_data_v1`
+* :func:`nvml.device_get_accounting_stats_v2`
+* :func:`nvml.device_get_remapped_rows_v2`
+* :func:`nvml.device_set_adaptive_tgp_mode_v1`
+* :func:`nvml.device_get_adaptive_tgp_mode_info_v1`
+* :func:`nvml.device_set_memory_limits_v1`
+* :func:`nvml.device_get_memory_limits_v1`
+* :func:`nvml.device_get_gpu_fabric_info_v4`
+* :func:`nvml.device_perf_metrics_get_samples_v1`
+* :func:`nvml.device_set_nvlink_bw_mode_async_v1`
+* :func:`nvml.device_get_nv_link_telemetry_samples_v1`
+* :func:`nvml.event_set_register_gpu_operational_events_v1`
+* :func:`nvml.event_set_wait_v3`
+* :func:`nvml.event_set_get_context_count_v1`
+* :func:`nvml.event_set_get_context_info_v1`
+* :func:`nvml.event_set_get_gpu_operational_event_context_legacy_xid_v1`
+* :func:`nvml.device_get_bank_remapper_status_v1`
+* :func:`nvml.event_set_get_context_data_v1`
+
 Deprecation Notices
 -------------------
 

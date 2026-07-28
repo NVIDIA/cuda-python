@@ -59,55 +59,6 @@ env:
   PIXI_VERSION: "v0.73.0"
 
 jobs:
-  # ── PR guard: CPU-only build + import + placement smoke ──
-  build-smoke:
-    name: "build smoke (cu13, linux-64, CPU)"
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          # Full history + tags so setuptools-scm derives the real (13.x)
-          # package version; a shallow checkout yields 0.1.dev1, which trips
-          # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
-          fetch-depth: 0
-
-      - name: Setup pixi
-        # Pinned to a commit SHA; install logic lives in the action and is
-        # auditable/pinned (vs. a curl|bash of an unverified installer).
-        uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
-        with:
-          pixi-version: ${{ env.PIXI_VERSION }}
-          run-install: false
-
-      - name: Source-build + import + cython-placement smoke
-        env:
-          CUDA_ENV: ${{ inputs.cuda-env || 'cu13' }}
-        run: |
-          # pathfinder: pure-Python, no GPU.
-          pixi run -e "${CUDA_ENV}" test-pathfinder
-
-          # bindings + core: force the source build (catches nvrtc/driver
-          # compile errors like #2182) and import them (catches ABI mismatches).
-          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" \
-            python -c "import cuda.bindings.driver, cuda.bindings.nvrtc, cuda.bindings.runtime; print('bindings import OK')"
-          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" \
-            python -c "import cuda.core; print('core import OK')"
-
-          # cython test extensions: build them and confirm each .so landed next
-          # to its .pyx in tests/cython (catches the placement regression #2180).
-          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" build-cython-tests
-          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" build-cython-tests
-          for d in cuda_bindings/tests/cython cuda_core/tests/cython; do
-            if ! compgen -G "${d}/*.cpython-*.so" > /dev/null; then
-              echo "::error::no compiled cython test .so in ${d} (placement regression)"
-              exit 1
-            fi
-          done
-          echo "cython test extensions placed correctly"
-
   # ── Nightly: full `pixi run test` on a GPU runner ──
   full-test:
     name: "pixi run test (${{ inputs.cuda-env || 'cu13' }}, linux-64, GPU)"

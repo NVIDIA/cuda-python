@@ -125,6 +125,19 @@ def test_name():
     assert device.name == name.decode()
 
 
+def test_get_all_devices_uses_cuda_driver_count():
+    expected = handle_return(driver.cuDeviceGetCount())
+    devices = Device.get_all_devices()
+    assert len(devices) == expected
+    assert [device.device_id for device in devices] == list(range(expected))
+
+
+def test_get_all_devices_does_not_create_context(deinit_cuda):
+    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    Device.get_all_devices()
+    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+
+
 def test_compute_capability():
     device = Device()
     major = handle_return(

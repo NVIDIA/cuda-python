@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ac1af34ecd1468ac91074ce7f18423af19fbc7727653cdfc1cd9b6f33f6cec72
+# This code was automatically generated with version 13.4.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9dcd9e24a5962a3fa156378497290ef95c84fb433d2c31c6e2a5da5528391fe8
 from typing import Any, Optional
 import cython
 import ctypes

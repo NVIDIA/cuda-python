@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5f0e930fd8c13f49036a66fc40729a3270cc44d8b16234b1387b93e51f0e0a0f
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=bbe09320a5e5a688b4b633aa016d3326deb51e3e02ed380b34b94556bc22b421
 import os
 
 from libc.stdint cimport uintptr_t
@@ -1030,6 +1031,9 @@ cdef extern from 'cuda_runtime_api.h' nogil:
 
 cdef extern from 'cuda_runtime_api.h' nogil:
     cudaError_t _static_cudaStreamBeginRecaptureToGraph "cudaStreamBeginRecaptureToGraph" (cudaStream_t stream, cudaStreamCaptureMode mode, cudaGraph_t graph, cudaGraphRecaptureCallbackData* callbackData) noexcept
+
+cdef extern from 'cuda_runtime_api.h' nogil:
+    cudaError_t _static_cudaMemGetLocationInfo "cudaMemGetLocationInfo" (void* devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, cudaMemLocation* location_out) noexcept
 
 
 ###############################################################################
@@ -3274,3 +3278,10 @@ cdef cudaError_t _cudaStreamBeginRecaptureToGraph(cudaStream_t stream, cudaStrea
     if usePTDS:
         return ptds._cudaStreamBeginRecaptureToGraph(stream, mode, graph, callbackData)
     return _static_cudaStreamBeginRecaptureToGraph(stream, mode, graph, callbackData)
+
+
+cdef cudaError_t _cudaMemGetLocationInfo(void* devPtr, size_t size, size_t summaryGranularity, size_t samplingGranularity, cudaMemLocation* location_out) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef bint usePTDS = cudaPythonInit()
+    if usePTDS:
+        return ptds._cudaMemGetLocationInfo(devPtr, size, summaryGranularity, samplingGranularity, location_out)
+    return _static_cudaMemGetLocationInfo(devPtr, size, summaryGranularity, samplingGranularity, location_out)
