@@ -102,6 +102,12 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     # Constrain cuda-toolkit to the requested CTK version to avoid
     # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
     pip install "${CORE_WHL[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
+    # Optional deps needed by some cuda.core samples exercised in this suite.
+    # CuPy already comes from the
+    # test-cuXX group; install the rest best-effort so those samples run
+    # instead of being waived. Samples with heavier/unavailable deps stay waived.
+    echo "Installing optional sample deps (nvtx, pillow)"
+    pip install nvtx pillow || echo "Warning: optional sample deps install failed; affected samples will be waived"
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"

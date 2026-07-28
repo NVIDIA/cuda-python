@@ -54,6 +54,8 @@ test = [
     "pytest-repeat==0.9.4",
     "pytest-randomly==4.1.0",
     "pyglet==2.1.14",
+    "packaging>=24",
+    "tomli>=2; python_version < '3.11'",
 ]
 
 [project.urls]
@@ -94,6 +96,8 @@ xfail_strict = true
 # Keep this authorship marker registry in sync across all pytest config roots.
 # Search for "agent_authored(model)" before editing.
 markers = [
+    "samples: tests for cuda.bindings standalone samples",
+    "parallel_threads_limit: maximum threads for pytest-run-parallel",
     "agent_authored(model): agent-authored test not yet materially human-reviewed",
     "human_reviewed: agent-authored test materially reviewed or rewritten by a human",
     "human_authored: test authored primarily by a human",

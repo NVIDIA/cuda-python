@@ -4,56 +4,112 @@
 Examples
 ========
 
-This page links to the ``cuda.core`` examples shipped in the
-:cuda-core-examples:`cuda-python repository </>`.
-Use it as a quick index when you want a runnable starting point for a specific
-workflow.
+The canonical, runnable examples for ``cuda.core`` live under
+:samples:`samples/cuda_core/ </>` in the cuda-python repository. Each sample is
+a self-contained directory with its own ``README.md``, ``requirements.txt``,
+and PEP 723 dependency block, and every sample is exercised as part of the
+``cuda.core`` test suite.
 
-Compilation and kernel launch
+Getting started
+---------------
+
+- :sample:`vectorAdd <vectorAdd/>`
+  compiles and launches a templated vector-add kernel and demonstrates
+  ``Device.allocate()`` and ``name_expressions``.
+- :sample:`deviceQuery <deviceQuery/>`
+  enumerates every CUDA device with an ``nvidia-smi``-style summary and an
+  optional ``--verbose`` mode for the long-tail property list.
+- :sample:`systemInfo <systemInfo/>`
+  reports system-wide CUDA information (driver / runtime / NVML).
+
+Kernels and launch configuration
+--------------------------------
+
+- :sample:`launchConfigTuning <launchConfigTuning/>`
+  explores how launch-configuration choices affect kernel performance.
+- :sample:`threadBlockCluster <threadBlockCluster/>`
+  demonstrates ``LaunchConfig(cluster=...)`` on Hopper-class GPUs.
+- :sample:`tmaTensorMap <tmaTensorMap/>`
+  uses Tensor Memory Accelerator descriptors for bulk data movement.
+- :sample:`greenContext <greenContext/>`
+  partitions SMs across kernels with green contexts.
+- :sample:`kernelNsysProfile <kernelNsysProfile/>`
+  annotates kernel launches with NVTX markers for Nsight Systems.
+
+Memory management and interop
 -----------------------------
 
-- :cuda-core-example:`vector_add.py <vector_add.py>`
-  compiles and launches a simple vector-add kernel with CuPy arrays.
-- :cuda-core-example:`saxpy.py <saxpy.py>`
-  JIT-compiles a templated SAXPY kernel and launches both float and double
-  instantiations.
-- :cuda-core-example:`pytorch_example.py <pytorch_example.py>`
-  launches a CUDA kernel with PyTorch tensors and a wrapped PyTorch stream.
+- :sample:`memoryResources <memoryResources/>`
+  covers ``DeviceMemoryResource``, ``PinnedMemoryResource``,
+  ``ManagedMemoryResource``, and ``GraphMemoryResource``, plus configurable
+  resource options.
+- :sample:`copyImageArraytoGPU <copyImageArraytoGPU/>`
+  stages host-to-device copies through ``PinnedMemoryResource``.
+- :sample:`blurImageUnifiedMemory <blurImageUnifiedMemory/>`
+  applies a stencil kernel over unified memory.
+- :sample:`stridedMemoryViewConstructors <stridedMemoryViewConstructors/>`
+  walks through the four ``StridedMemoryView.from_*`` constructors.
+- :sample:`stridedMemoryViewCpu <stridedMemoryViewCpu/>`
+  dispatches to a JIT-compiled CPU function via ``cffi``.
+- :sample:`stridedMemoryViewGpu <stridedMemoryViewGpu/>`
+  dispatches to an NVRTC-compiled GPU kernel through the same decorator.
+- :sample:`ipcMemoryPool <ipcMemoryPool/>`
+  shares an IPC-enabled ``DeviceMemoryResource`` across processes.
 
-Multi-device and advanced launch configuration
-----------------------------------------------
+CUDA graphs and linking
+-----------------------
 
-- :cuda-core-example:`simple_multi_gpu_example.py <simple_multi_gpu_example.py>`
-  compiles and launches kernels across multiple GPUs.
-- :cuda-core-example:`thread_block_cluster.py <thread_block_cluster.py>`
-  demonstrates thread block cluster launch configuration on Hopper-class GPUs.
-- :cuda-core-example:`tma_tensor_map.py <tma_tensor_map.py>`
-  demonstrates Tensor Memory Accelerator descriptors and TMA-based bulk copies.
+- :sample:`cudaGraphs <cudaGraphs/>`
+  captures and replays a multi-kernel graph, then reuses it via ``Graph.update()``.
+- :sample:`jitLtoLinking <jitLtoLinking/>`
+  links two device modules with PTX vs LTO and swaps in a runtime plug-in.
 
-Linking and graphs
-------------------
+Framework interop and compute algorithms
+----------------------------------------
 
-- :cuda-core-example:`jit_lto_fractal.py <jit_lto_fractal.py>`
-  uses JIT link-time optimization to link user-provided device code into a
-  fractal workflow at runtime.
-- :cuda-core-example:`cuda_graphs.py <cuda_graphs.py>`
-  captures and replays a multi-kernel CUDA graph to reduce launch overhead.
+- :sample:`customPyTorchKernel <customPyTorchKernel/>`
+  launches a cuda.core kernel from a PyTorch autograd function.
+- :sample:`customTensorFlowKernel <customTensorFlowKernel/>`
+  wires a cuda.core kernel into a TensorFlow custom op.
+- :sample:`numpyVsCupy <numpyVsCupy/>`
+  compares NumPy and CuPy execution paths side-by-side.
+- :sample:`fftSignalAnalysis <fftSignalAnalysis/>`
+  runs a CuPy FFT-based signal analysis pipeline.
+- :sample:`binarySearch <binarySearch/>`,
+  :sample:`prefixSum <prefixSum/>`,
+  :sample:`reduction <reduction/>`,
+  :sample:`parallelReduction <parallelReduction/>`,
+  :sample:`reductionMultiBlockCG <reductionMultiBlockCG/>`,
+  :sample:`parallelHistogram <parallelHistogram/>`,
+  :sample:`blockwiseSum <blockwiseSum/>`,
+  :sample:`matrixMulSharedMem <matrixMulSharedMem/>`,
+  :sample:`cudaComputeLambdas <cudaComputeLambdas/>`,
+  :sample:`pageRank <pageRank/>` -- classic parallel-algorithm building blocks.
 
-Interoperability and memory access
-----------------------------------
+Multi-GPU and streams
+---------------------
 
-- :cuda-core-example:`memory_ops.py <memory_ops.py>`
-  covers memory resources, pinned memory, device transfers, and DLPack interop.
-- :cuda-core-example:`strided_memory_view_cpu.py <strided_memory_view_cpu.py>`
-  uses ``StridedMemoryView`` with JIT-compiled CPU code via ``cffi``.
-- :cuda-core-example:`strided_memory_view_gpu.py <strided_memory_view_gpu.py>`
-  uses ``StridedMemoryView`` with JIT-compiled GPU code and foreign GPU buffers.
-- :cuda-core-example:`gl_interop_plasma.py <gl_interop_plasma.py>`
-  renders a CUDA-generated plasma effect through OpenGL interop without CPU
-  copies.
+- :sample:`simpleMultiGpu <simpleMultiGpu/>`
+  runs independent kernels on two GPUs in the same process.
+- :sample:`simpleP2P <simpleP2P/>`
+  demonstrates peer-to-peer memory access between GPUs.
+- :sample:`multiGPUGradientAverage <multiGPUGradientAverage/>`
+  averages gradients across GPUs with MPI.
+- :sample:`streamingCopyComputeOverlap <streamingCopyComputeOverlap/>`
+  overlaps copies and compute across multiple streams.
+- :sample:`simpleZeroCopy <simpleZeroCopy/>`
+  runs kernels against zero-copy mapped host memory.
+- :sample:`processCheckpoint <processCheckpoint/>`
+  checkpoints and restores CUDA process state.
 
-System inspection
------------------
+Graphics interop
+----------------
 
-- :cuda-core-example:`show_device_properties.py <show_device_properties.py>`
-  prints a detailed report of the CUDA devices available on the system.
+- :sample:`glInteropPlasma <glInteropPlasma/>`
+  writes CUDA-generated pixels into an OpenGL PBO with zero CPU round-trip.
+
+Simple utilities
+----------------
+
+- :sample:`simplePrint <simplePrint/>`
+  minimal kernel that prints from the device.

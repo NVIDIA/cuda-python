@@ -70,11 +70,11 @@ a few iterations to ensure correctness.
 for extracting the metadata (such as pointer address, shape, strides, and
 dtype) from any Python objects supporting either CAI or DLPack and returning a
 :class:`~utils.StridedMemoryView` object. See the
-:cuda-core-example:`strided_memory_view_constructors.py <strided_memory_view_constructors.py>`
+:sample-file:`stridedMemoryViewConstructors.py <stridedMemoryViewConstructors/stridedMemoryViewConstructors.py>`
 example for the explicit constructors, or
-:cuda-core-example:`strided_memory_view_cpu.py <strided_memory_view_cpu.py>`
+:sample-file:`stridedMemoryViewCpu.py <stridedMemoryViewCpu/stridedMemoryViewCpu.py>`
 and
-:cuda-core-example:`strided_memory_view_gpu.py <strided_memory_view_gpu.py>`
+:sample-file:`stridedMemoryViewGpu.py <stridedMemoryViewGpu/stridedMemoryViewGpu.py>`
 for decorator-based workflows. This provides a *concrete implementation* to
 both protocols that is **array-library-agnostic**, so that all Python projects
 can just rely on this without either re-implementing (the consumer-side of)

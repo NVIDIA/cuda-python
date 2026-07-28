@@ -1,0 +1,6 @@
+# glInteropFluidNumbaCudaMlir Sample Requirements
+# Install with: pip install -r requirements.txt
+
+numba-cuda-mlir
+pyglet>=2.0
+numpy>=1.24
