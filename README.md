@@ -5,7 +5,6 @@ CUDA Python is the home for accessing NVIDIA’s CUDA platform from Python. It c
 * [cuda.core](https://nvidia.github.io/cuda-python/cuda-core/latest): Pythonic access to CUDA Runtime and other core functionality
 * [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest): Low-level Python bindings to CUDA C APIs
 * [cuda.pathfinder](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest): Utilities for locating CUDA components installed in the user's Python environment
-* [cuda.coop](https://nvidia.github.io/cccl/unstable/python/coop.html): A Python module providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
 * [cuda.compute](https://nvidia.github.io/cccl/unstable/python/compute/index.html): A Python module for easy access to CCCL's highly efficient and customizable parallel algorithms, like `sort`, `scan`, `reduce`, `transform`, etc. that are callable on the *host*
 * [numba-cuda-mlir](https://nvidia.github.io/numba-cuda-mlir/): An evolution of Numba CUDA that improves upon its technical foundation and performance to provide the future of CUDA Python JIT compilation. It currently supports developing CUDA **SIMT** kernels in Python, providing Python bindings for accelerated device libraries, and serving as a compiler for user-defined functions in accelerated libraries.
 * [numba.cuda](https://nvidia.github.io/numba-cuda/): A Python DSL that exposes CUDA **SIMT** programming model and compiles a restricted subset of Python code into CUDA kernels and device functions
