@@ -32,6 +32,10 @@ Highlights
   architecture-specific ``bin`` directories.
   (`PR #2274 <https://github.com/NVIDIA/cuda-python/pull/2274>`_)
 
+* Add :func:`windows_supported_arches` to query the explicitly authored Windows
+  target architectures for any known NVIDIA dynamic-library descriptor,
+  independent of the current host and Python interpreter architectures.
+
 Internal maintenance
 --------------------
 
