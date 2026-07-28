@@ -47,15 +47,15 @@ class Buffer:
         is provided, the owner is kept alive but no deallocation is performed.
         """
 
-    @staticmethod
-    def _reduce_helper(mr, ipc_descriptor):
+    @classmethod
+    def _reduce_helper(cls, mr, ipc_descriptor):
         ...
 
     def __reduce__(self) -> tuple[object, ...]:
         ...
 
-    @staticmethod
-    def from_handle(ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, owner: object | None=None) -> Buffer:
+    @classmethod
+    def from_handle(cls, ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, owner: object | None=None) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
         Parameters
