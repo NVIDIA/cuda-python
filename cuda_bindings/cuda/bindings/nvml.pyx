@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=31a6d5cce1fd1ed7edcffdecc800121cd731148850cb8dfed1134d02f3b4a002
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1e395a10038778dd6f706137392c0bdf3ca8298e806338fda6f4557dd3ddf550
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -24498,7 +24498,7 @@ cdef class PwrModelMetricsPfpp1x:
         for i in range(obj._data.size):
             addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_vf_points[i])
-            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=False)
             estimatedMetrics_list.append(estimatedMetrics_obj)
         obj._estimatedMetrics = tuple(estimatedMetrics_list)
         return obj
@@ -24528,7 +24528,7 @@ cdef class PwrModelMetricsPfpp1x:
         for i in range(obj._data.size):
             addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_vf_points[i])
-            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=readonly)
             estimatedMetrics_list.append(estimatedMetrics_obj)
         obj._estimatedMetrics = tuple(estimatedMetrics_list)
         return obj
@@ -27125,7 +27125,7 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
         for i in range(obj._data.size):
             addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_estimated_metrics[i])
-            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=False)
             estimatedMetrics_list.append(estimatedMetrics_obj)
         obj._estimatedMetrics = tuple(estimatedMetrics_list)
         return obj
@@ -27155,7 +27155,7 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
         for i in range(obj._data.size):
             addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
             n = int(obj._data.num_estimated_metrics[i])
-            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=readonly)
             estimatedMetrics_list.append(estimatedMetrics_obj)
         obj._estimatedMetrics = tuple(estimatedMetrics_list)
         return obj
@@ -27930,7 +27930,7 @@ cdef class PerfMetricsSample:
         for i in range(obj._data.size):
             addr = obj._data.controllerData[i].__array_interface__['data'][0]
             n = int(obj._data.num_controller_data[i])
-            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=False)
             controllerData_list.append(controllerData_obj)
         obj._controllerData = tuple(controllerData_list)
         return obj
@@ -27960,7 +27960,7 @@ cdef class PerfMetricsSample:
         for i in range(obj._data.size):
             addr = obj._data.controllerData[i].__array_interface__['data'][0]
             n = int(obj._data.num_controller_data[i])
-            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=self._readonly)
+            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=readonly)
             controllerData_list.append(controllerData_obj)
         obj._controllerData = tuple(controllerData_list)
         return obj
