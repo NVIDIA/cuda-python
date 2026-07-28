@@ -209,10 +209,9 @@ cdef class GraphicsResource:
         return self
 
     def _get_mapped_buffer(self) -> object:
-        cdef Buffer buf
         if self._mapped_buffer is None:
             return None
-        buf = <Buffer>self._mapped_buffer
+        cdef Buffer buf = <Buffer>self._mapped_buffer
         if not buf._h_ptr:
             self._mapped_buffer = None
             return None
@@ -250,20 +249,16 @@ cdef class GraphicsResource:
         CUDAError
             If the mapping fails.
         """
-        cdef Stream s_obj
-        cdef cydriver.CUgraphicsResource raw
-        cdef cydriver.CUstream cy_stream
         cdef cydriver.CUdeviceptr dev_ptr = 0
         cdef size_t size = 0
-        cdef Buffer buf
         if not self._handle:
             raise RuntimeError("GraphicsResource has been closed")
         if self._get_mapped_buffer() is not None:
             raise RuntimeError("GraphicsResource is already mapped")
 
-        s_obj = Stream_accept(stream)
-        raw = as_cu(self._handle)
-        cy_stream = as_cu(s_obj._h_stream)
+        cdef Stream s_obj = Stream_accept(stream)
+        cdef cydriver.CUgraphicsResource raw = as_cu(self._handle)
+        cdef cydriver.CUstream cy_stream = as_cu(s_obj._h_stream)
         with nogil:
             HANDLE_RETURN(
                 cydriver.cuGraphicsMapResources(1, &raw, cy_stream)
@@ -271,7 +266,7 @@ cdef class GraphicsResource:
             HANDLE_RETURN(
                 cydriver.cuGraphicsResourceGetMappedPointer(&dev_ptr, &size, raw)
             )
-        buf = Buffer_from_deviceptr_handle(
+        cdef Buffer buf = Buffer_from_deviceptr_handle(
             deviceptr_create_mapped_graphics(dev_ptr, self._handle, s_obj._h_stream),
             size,
             None,
@@ -299,14 +294,12 @@ cdef class GraphicsResource:
         CUDAError
             If the unmapping fails.
         """
-        cdef object buf_obj
-        cdef Buffer buf
         if not self._handle:
             raise RuntimeError("GraphicsResource has been closed")
-        buf_obj = self._get_mapped_buffer()
+        cdef object buf_obj = self._get_mapped_buffer()
         if buf_obj is None:
             raise RuntimeError("GraphicsResource is not mapped")
-        buf = <Buffer>buf_obj
+        cdef Buffer buf = <Buffer>buf_obj
         buf.close(stream=stream)
         self._mapped_buffer = None
 
@@ -332,11 +325,10 @@ cdef class GraphicsResource:
             Optional override for the stream used to close the currently
             mapped buffer, if one exists.
         """
-        cdef object buf_obj
         cdef Buffer buf
         if not self._handle:
             return
-        buf_obj = self._get_mapped_buffer()
+        cdef object buf_obj = self._get_mapped_buffer()
         if buf_obj is not None:
             buf = <Buffer>buf_obj
             buf.close(stream=stream)

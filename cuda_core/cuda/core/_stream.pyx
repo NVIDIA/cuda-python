@@ -125,7 +125,6 @@ cdef class Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
-        cdef Stream self
 
         # Extract context handle if provided
         if ctx is not None:
@@ -185,7 +184,7 @@ cdef class Stream:
                 )
             else:
                 HANDLE_RETURN(res_code)
-        self = Stream._from_handle(cls, h_stream)
+        cdef Stream self = Stream._from_handle(cls, h_stream)
         self._nonblocking = int(nonblocking)
         self._priority = prio
         if device_id is not None:
