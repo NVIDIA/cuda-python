@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_vgpu\_capabilities
+==================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_vgpu_capabilities
