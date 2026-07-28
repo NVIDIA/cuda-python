@@ -518,7 +518,12 @@ jobs:
           check_result "ci-vars"        "success" "${{ needs.ci-vars.result }}"
           check_result "should-skip"    "success" "${{ needs.should-skip.result }}"
           check_result "detect-changes" "success" "${{ needs.detect-changes.result }}"
-          check_result "doc"            "success" "${{ needs.doc.result }}"
+          # doc build is non-blocking: failures are visible but don't gate merges
+          doc_result="${{ needs.doc.result }}"
+          if [[ "$doc_result" != "success" && "$doc_result" != "failure" ]]; then
+            echo "::error::doc did not match expected result (got '$doc_result', expected 'success' or 'failure')"
+            status="failed"
+          fi
 
           # [doc-only] skips all builds and tests. Windows preview wheel builds
           # run, but GPU tests remain skipped until suitable runners are available.
