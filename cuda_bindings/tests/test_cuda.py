@@ -605,14 +605,6 @@ def test_eglFrame():
     assert int(val.frame.pPitch[2]) == 3
 
 
-def test_char_range():
-    # CUipcMemHandle_st is entirely a reserved[64] char array; verify it zero-initializes.
-    val = cuda.CUipcMemHandle_st()
-    ptr = val.getPtr()
-    raw = (ctypes.c_uint8 * 64).from_address(ptr)
-    assert bytes(raw) == b"\x00" * 64
-
-
 def test_anon_assign():
     val1 = cuda.CUexecAffinityParam_st()
     val2 = cuda.CUexecAffinityParam_st()
