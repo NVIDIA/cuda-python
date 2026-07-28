@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.VgpuVmCompatibility
+======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: VgpuVmCompatibility
