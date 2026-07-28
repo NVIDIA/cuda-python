@@ -8,7 +8,7 @@ from pathlib import Path
 import yaml
 
 _GENERATED_MARKER = "CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE:"
-_VERSION_RE = re.compile(r"generated across versions from \S+ to (\d+\.\d+)")
+_VERSION_RE = re.compile(r"(?:generated across versions from \S+ to|generated with version) (?P<ver>\d+\.\d+)")
 
 
 def major_minor(version_str):
@@ -26,12 +26,15 @@ def main(argv):
         if _GENERATED_MARKER not in content:
             continue
         m = _VERSION_RE.search(content)
-        if m and major_minor(m.group(1)) > latest_mm:
+        if m and major_minor(m.group("ver")) > latest_mm:
             print(
-                f"ERROR: {path}: generated up to CTK {m.group(1)}, which exceeds "
+                f"ERROR: {path}: generated up to CTK {m.group('ver')}, which exceeds "
                 f"ci/versions.yml cuda.build.version {'.'.join(str(x) for x in latest_mm)}. "
                 f"Update ci/versions.yml if a new CTK release is intended."
             )
+            failed = True
+        elif not m:
+            print(f"ERROR: {path}: could not find CTK version in generated file.")
             failed = True
 
     return int(failed)
