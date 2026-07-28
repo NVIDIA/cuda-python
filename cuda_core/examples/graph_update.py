@@ -10,7 +10,7 @@
 # ################################################################################
 
 # /// script
-# dependencies = ["cuda_bindings", "cuda_core", "nvidia-cuda-nvrtc", "numpy>=2.1"]
+# dependencies = ["cuda_bindings", "cuda_core", "nvidia-cuda-nvrtc", "numpy>=2.2.5"]
 # ///
 
 import sys
@@ -44,8 +44,11 @@ def build_increment_graph(device, kernel, target_ptr):
 
 
 def main():
-    if np.lib.NumpyVersion(np.__version__) < "2.1.0":
-        print("This example requires NumPy 2.1.0 or later", file=sys.stderr)
+    # Writing into the pinned host array imported via DLPack requires NumPy
+    # 2.2.5+ (np.from_dlpack returns a read-only array on earlier versions;
+    # see numpy GH #28632).
+    if np.lib.NumpyVersion(np.__version__) < "2.2.5":
+        print("This example requires NumPy 2.2.5 or later", file=sys.stderr)
         sys.exit(1)
 
     device = Device()

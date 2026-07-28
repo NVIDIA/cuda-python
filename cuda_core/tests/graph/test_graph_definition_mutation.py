@@ -3,6 +3,9 @@
 
 """Tests for mutating a graph definition (edge changes, node removal)."""
 
+import gc
+import weakref
+
 import numpy as np
 import pytest
 from helpers.collection_interface_testers import assert_mutable_set_interface
@@ -139,7 +142,7 @@ class YRig:
         self._buf.close()
 
 
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 class TestMutateYRig:
     """Tests that mutate the Y-shaped graph built by YRig."""
 
@@ -307,6 +310,42 @@ def test_destroyed_node(init_cuda):
     assert not b.is_valid
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_failed_destroy_preserves_node_and_attachments(init_cuda):
+    """A graph-memory restriction must not invalidate a failed node deletion."""
+    if not Device(0).properties.memory_pools_supported:
+        pytest.skip("graph memory nodes require memory pool support")
+
+    called = [False]
+
+    def callback():
+        called[0] = True
+
+    callback_weak = weakref.ref(callback)
+    graph_def = GraphDefinition()
+    alloc = graph_def.allocate(4)
+    node = alloc.callback(callback)
+    edge = (alloc, node)
+
+    del callback
+    gc.collect()
+    assert callback_weak() is not None
+
+    with pytest.raises(CUDAError):
+        node.destroy()
+
+    assert node.is_valid
+    assert node in graph_def.nodes()
+    assert edge in graph_def.edges()
+    assert callback_weak() is not None
+
+    graph = graph_def.instantiate()
+    stream = Device().create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called[0]
+
+
 def test_add_wrong_type(init_cuda):
     """Adding a non-GraphNode raises TypeError."""
     g = GraphDefinition()
@@ -335,7 +374,7 @@ def test_self_edge(init_cuda):
         node.succ.add(node)
 
 
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_convert_linear_to_fan_in(init_cuda):
     """Chain four computations sequentially, then rewire so all pairs run in
     parallel feeding into a reduce node.

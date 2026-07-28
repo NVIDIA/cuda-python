@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Currently these installations are only manually tested:
@@ -42,10 +42,15 @@ STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS
 assert STRICTNESS in ("see_what_works", "all_must_work")
 
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
+    "cudensitymat": r"^cudensitymat-.*$",
+    "cupauliprop": r"^cupauliprop-.*$",
     "cusolverMp": r"^nvidia-cusolvermp-.*$",
     "cusparseLt": r"^nvidia-cusparselt-.*$",
     "cute": r"^nvidia-cutlass$",
     "cutensor": r"^cutensor-.*$",
+    "cutensornet": r"^cutensornet-.*$",
+    "custabilizer": r"^custabilizer-.*$",
+    "custatevec": r"^custatevec-.*$",
     "cutlass": r"^nvidia-cutlass$",
     "mathdx": r"^nvidia-libmathdx-.*$",
     "nvshmem": r"^nvidia-nvshmem-.*$",

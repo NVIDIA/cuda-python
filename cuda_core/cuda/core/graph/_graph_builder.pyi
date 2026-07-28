@@ -417,6 +417,11 @@ class GraphBuilder:
             Callbacks must not call CUDA API functions. Doing so may
             deadlock or corrupt driver state.
 
+            Use caution when a Python callback retains an object that owns a
+            graph. Any reference cycle involving the callback and a graph that
+            retains it cannot be broken by Python's cyclic garbage collector.
+            Use a weak reference to break such cycles.
+
         Parameters
         ----------
         fn : callable or ctypes function pointer
@@ -491,3 +496,6 @@ __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOpti
 
 def _instantiate_graph(h_graph, options: GraphCompleteOptions | None=None) -> Graph:
     ...
+
+def _capture_callback_with_tail_failure_for_testing(gb: GraphBuilder, fn, *, user_data=None):
+    """Exercise anonymous attachment retention after node discovery fails."""

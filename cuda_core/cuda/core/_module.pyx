@@ -6,6 +6,7 @@ from __future__ import annotations
 
 cimport cython
 from libc.stddef cimport size_t
+from libc.stdint cimport intptr_t
 
 from collections import namedtuple
 from os import fsencode, fspath, PathLike
@@ -796,6 +797,25 @@ cdef class ObjectCode:
             HANDLE_RETURN(get_last_error())
         return Kernel._from_handle(h_kernel)
 
+    def get_module(self) -> object:
+        """Return a context-dependent :obj:`~driver.CUmodule` for legacy interop.
+
+        Bridges the native :obj:`~driver.CUlibrary` (see :attr:`handle`) to a
+        ``CUmodule`` via ``cuLibraryGetModule``, for use with legacy driver APIs
+        that only accept ``CUmodule``.
+
+        Returns
+        -------
+        :obj:`~driver.CUmodule`
+            Module handle for the current CUDA context, suitable for legacy
+            driver APIs that accept ``CUmodule``.
+        """
+        self._lazy_load_module()
+        cdef cydriver.CUmodule mod
+        with nogil:
+            HANDLE_RETURN(cydriver.cuLibraryGetModule(&mod, as_cu(self._h_library)))
+        return driver.CUmodule(<intptr_t>mod)
+
     @property
     def code(self) -> CodeTypeT:
         """Return the underlying code object."""
@@ -818,7 +838,10 @@ cdef class ObjectCode:
 
     @property
     def handle(self) -> object:
-        """Return the underlying handle object.
+        """Return the native, context-independent :obj:`~driver.CUlibrary` handle.
+
+        Used by ``cuda.core`` and newer driver library APIs. For legacy APIs
+        that only accept a ``CUmodule``, use :meth:`get_module` instead.
 
         .. caution::
 

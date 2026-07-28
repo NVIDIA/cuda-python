@@ -3,10 +3,42 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=501497a3d88840c62eda1dfb0b72fe7494ff20a208230b1f45ad2f0c11bf47a5
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=86a420a34dae5d88ef57070872a942cba79608505c6d67a2a77366185afcf6c6
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
+
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
 
 cdef extern from "<windows.h>":
     ctypedef void* HMODULE
@@ -19,7 +51,7 @@ import threading as _cyb_threading
 
 ctypedef int (*_cyb_cuGetProcAddress_v2_T)(const char *, void **, int, cuuint64_t, CUdriverProcAddressQueryResult *)except?CUDA_ERROR_NOT_FOUND nogil
 
-cdef bint _cyb___py_driver_init = False
+cdef int _cyb___py_driver_init = 0
 cdef dict _cyb_func_ptrs = None
 cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
@@ -2126,11 +2158,11 @@ cdef int _init_driver() except -1 nogil:
         global __cuStreamBeginRecaptureToGraph
         cuGetProcAddress_v2('cuStreamBeginRecaptureToGraph', <void **>&__cuStreamBeginRecaptureToGraph, 13030, ptds_mode, NULL)
 
-        _cyb___py_driver_init = True
+        _cyb_atomic_int_store(<int *>&_cyb___py_driver_init, 1)
         return 0
 
 cdef inline int _check_or_init_driver() except -1 nogil:
-    if _cyb___py_driver_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_driver_init):
         return 0
 
     return _init_driver()
