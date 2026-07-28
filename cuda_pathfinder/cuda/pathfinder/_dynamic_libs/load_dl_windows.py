@@ -48,9 +48,6 @@ kernel32.GetModuleFileNameW.argtypes = [
 ]
 kernel32.GetModuleFileNameW.restype = ctypes.wintypes.DWORD
 
-# AddDllDirectory (Windows 7+)
-kernel32.AddDllDirectory.argtypes = [ctypes.wintypes.LPCWSTR]
-kernel32.AddDllDirectory.restype = ctypes.c_void_p  # DLL_DIRECTORY_COOKIE
 
 # GetLastError
 kernel32.GetLastError.argtypes = []
