@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# cuda_python is the metapackage: it ships no code of its own, but it owns the
+# top-level documentation (the landing page and the release notes index that
+# the per-package docs hang off of). Every other sub-package has a pixi.toml
+# with a `docs` environment; this one did not, so building these docs locally
+# meant hand-rolling a conda environment via toolshed/setup-docs-env.sh.
+#
+#   pixi run --manifest-path cuda_python -e docs build-docs
+#
+# or, from the workspace root, `pixi run docs`.
+
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+
+# Keep this dependency set aligned with cuda_python/docs/environment-docs.yml,
+# which is what the build-docs CI workflow installs.
+[feature.docs.dependencies]
+python = "3.12.*"
+cython = "*"
+enum_tools = "*"
+make = "*"
+myst-nb = "*"
+myst-parser = "*"
+numpy = "*"
+numpydoc = "*"
+pip = "*"
+pyclibrary = "*"
+pydata-sphinx-theme = "*"
+pytest = "*"
+scipy = "*"
+sphinx = "<8.2.0"
+sphinx-copybutton = "*"
+sphinx-toolbox = "*"
+# Needed by setup.py to derive the version that docs/build_docs.sh reads back
+# out of the installed metadata as SPHINX_CUDA_PYTHON_VER.
+packaging = "*"
+setuptools = ">=80"
+setuptools-scm = ">=8"
+
+[feature.docs.pypi-dependencies]
+nvidia-sphinx-theme = "*"
+
+[environments]
+docs = { features = ["docs"], solve-group = "docs" }
+
+# docs/build_docs.sh reads the version from the *installed* cuda-python
+# metadata. Install the metapackage for its metadata only: its runtime
+# requirements are the published cuda-bindings / cuda-core / cuda-pathfinder
+# wheels, which would shadow the sibling checkouts, so --no-deps is required
+# rather than merely an optimization. This mirrors the "Install all packages"
+# step of .github/workflows/build-docs.yml.
+[target.linux.tasks.install-metadata]
+cmd = ["pip", "install", "--no-deps", "--no-build-isolation", "-e", "$PIXI_PROJECT_ROOT"]
+
+[target.linux.tasks.build-docs]
+cmd = [
+    "bash",
+    "-lc",
+    "rm -rf \"$PIXI_PROJECT_ROOT/docs/build\" \"$PIXI_PROJECT_ROOT/docs/source/generated\" && cd \"$PIXI_PROJECT_ROOT/docs\" && ./build_docs.sh",
+]
+depends-on = [{ task = "install-metadata" }]
