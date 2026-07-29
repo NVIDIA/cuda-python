@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=82dc56ccc695031faa515d1971c9841131d5aadc60c6d6e6cc223580fc544d16
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=869e6761e7af952be9590fcd26675047c19ff23ee9c1521f64dd7e8f6842bced
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -162,9 +162,11 @@ cpdef add_module_to_program(intptr_t prog, buffer, size_t size, name):
 
     Args:
         prog (intptr_t): NVVM program.
-        buffer (bytes): NVVM IR module in the bitcode or text representation.
+        buffer (bytes): NVVM IR module in the bitcode or text
+            representation.
         size (size_t): Size of the NVVM IR module.
-        name (str): Name of the NVVM IR module. If NULL, "<unnamed>" is used as the name.
+        name (str): Name of the NVVM IR module. If NULL, "<unnamed>"
+            is used as the name.
 
     .. seealso:: `nvvmAddModuleToProgram`
     """
@@ -185,7 +187,8 @@ cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name):
         prog (intptr_t): NVVM program.
         buffer (bytes): NVVM IR module in the bitcode representation.
         size (size_t): Size of the NVVM IR module.
-        name (str): Name of the NVVM IR module. If NULL, "<unnamed>" is used as the name.
+        name (str): Name of the NVVM IR module. If NULL, "<unnamed>"
+            is used as the name.
 
     .. seealso:: `nvvmLazyAddModuleToProgram`
     """
@@ -205,7 +208,8 @@ cpdef compile_program(intptr_t prog, int num_options, options):
     Args:
         prog (intptr_t): NVVM program.
         num_options (int): Number of compiler ``options`` passed.
-        options (object): Compiler options in the form of C string array. It can be:
+        options (object): Compiler options in the form of C string
+            array. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
@@ -228,7 +232,8 @@ cpdef verify_program(intptr_t prog, int num_options, options):
     Args:
         prog (intptr_t): NVVM program.
         num_options (int): Number of compiler ``options`` passed.
-        options (object): Compiler options in the form of C string array. It can be:
+        options (object): Compiler options in the form of C string
+            array. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
@@ -252,7 +257,8 @@ cpdef size_t get_compiled_result_size(intptr_t prog) except? 0:
         prog (intptr_t): NVVM program.
 
     Returns:
-        size_t: Size of the compiled result (including the trailing NULL).
+        size_t: Size of the compiled result (including the trailing
+            NULL).
 
     .. seealso:: `nvvmGetCompiledResultSize`
     """
@@ -285,7 +291,8 @@ cpdef size_t get_program_log_size(intptr_t prog) except? 0:
         prog (intptr_t): NVVM program.
 
     Returns:
-        size_t: Size of the compilation/verification log (including the trailing NULL).
+        size_t: Size of the compilation/verification log (including
+            the trailing NULL).
 
     .. seealso:: `nvvmGetProgramLogSize`
     """

@@ -7,7 +7,7 @@ class ProcessInfo:
     """
     Information about running compute processes on the GPU.
     """
-    def __init__(self, device: "Device", process_info: nvml.ProcessInfo):
+    def __init__(self, device: Device, process_info: nvml.ProcessInfo):
         self._device = device
         self._process_info = process_info
 
