@@ -8,6 +8,17 @@ on:
   schedule:
     - cron: '0 0 * * *' # This runs the workflow every day at 12:00 AM UTC
   workflow_dispatch: {}
+  # TEMPORARY (do not merge): runs the Windows coverage job against a PR, via
+  # the copy-pr-bot mirror branch.  Same trigger as ci.yml.
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+
+# One coverage run per ref: the Windows leg holds an A100 runner for the whole
+# job, so superseded runs must not queue up behind each other.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
 
 env:
   PY_VER: "3.14"
@@ -32,6 +43,8 @@ jobs:
   coverage-linux:
     name: Coverage (Linux)
     needs: [coverage-vars]
+    # Only Windows crashes, so a PR run skips the Linux leg entirely.
+    if: ${{ !startsWith(github.ref, 'refs/heads/pull-request/') }}
     runs-on: "linux-amd64-gpu-a100-latest-1"
     permissions:
       id-token: write
@@ -423,7 +436,10 @@ jobs:
     name: Combine Coverage and Deploy
     needs: [coverage-linux, coverage-windows]
     runs-on: ubuntu-latest
-    if: always()
+    # always() alone would still run this after coverage-linux is skipped, and
+    # it would both fail on the missing .coverage.linux and publish a half
+    # report to gh-pages.
+    if: ${{ always() && !startsWith(github.ref, 'refs/heads/pull-request/') }}
     permissions:
       id-token: write
       contents: write
