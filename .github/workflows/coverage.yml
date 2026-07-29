@@ -387,6 +387,55 @@ jobs:
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_bindings/tests"
 
+      # Import tracing put the fault in cuda.core._event, reached through
+      # _stream from _context.  These probes strip everything that is not
+      # needed to see it: no pytest, no conftest, no tests -- one fresh
+      # interpreter per module, importing exactly one name under coverage,
+      # since the linetrace wheel and the ctracer are the two conditions
+      # `test-wheel-windows.yml` lacks on this same runner.
+      #
+      # The order runs leaf-first, so the first line that fails to print
+      # `PROBE OK` is the smallest unit that reproduces.  Importing _event
+      # directly also enters the _context/_stream/_event cimport cycle from
+      # the opposite side, which says whether the direction matters.
+      #
+      # Placed here rather than before the other suites because this is the
+      # machine state the crash is known to occur in; a clean-machine
+      # placement is the follow-up if these come back clean.
+      #
+      # COVERAGE_FILE keeps the probes out of the real .coverage, which
+      # `coverage run` would otherwise truncate.
+      - name: Probe which module import faults
+        if: always()
+        continue-on-error: true
+        env:
+          COVERAGE_FILE: ${{ github.workspace }}/.coverage.probe
+        run: |
+          cat > "$GITHUB_WORKSPACE/probe_import.py" <<'EOF'
+          import importlib
+          import sys
+
+          name = sys.argv[1]
+          importlib.import_module(name)
+          print(f"PROBE OK {name}", flush=True)
+          EOF
+
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          for mod in \
+            cuda.core._resource_handles \
+            cuda.core._device_resources \
+            cuda.core._event \
+            cuda.core._stream \
+            cuda.core._context \
+            cuda.core
+          do
+            rc=0
+            "$GITHUB_WORKSPACE/.venv/Scripts/python" -m coverage run \
+              --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
+              "$GITHUB_WORKSPACE/probe_import.py" "$mod" || rc=$?
+            echo "PROBE EXIT $mod rc=$rc"
+          done
+
       # Only this step crashes.  cuda.bindings runs the same wrapper, the same
       # 8 MB thread and the same coverage wheel, and finishes normally, so the
       # extra diagnostics are scoped to cuda.core alone.
