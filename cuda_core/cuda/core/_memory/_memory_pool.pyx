@@ -347,11 +347,8 @@ cdef inline void _MP_deallocate(
 ) noexcept nogil:
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
-    cdef cydriver.CUresult r
     with nogil:
-        r = cydriver.cuMemFreeAsync(devptr, s)
-        if r != cydriver.CUDA_ERROR_INVALID_CONTEXT:
-            HANDLE_RETURN(r)
+        HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 
 
 cdef inline _MP_close(_MemPool self):

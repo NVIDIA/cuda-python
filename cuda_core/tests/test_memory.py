@@ -495,6 +495,27 @@ def test_mr_deallocate_called_on_gc():
     assert len(mr.active) == 0
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize("replace_stream", [False, True])
+def test_from_handle_mr_deallocation_restores_no_current_context(init_cuda, capsys, replace_stream):
+    """MR teardown uses retained pointer or replacement-stream context."""
+    mr = TrackingMR()
+    buf = mr.allocate(1024)
+    stream = init_cuda.create_stream() if replace_stream else None
+    assert len(mr.active) == 1
+    capsys.readouterr()
+
+    previous = handle_return(driver.cuCtxPopCurrent())
+    assert int(previous) != 0
+    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+
+    buf.close(stream)
+
+    assert len(mr.active) == 0
+    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    assert "mr.deallocate() failed" not in capsys.readouterr().err
+
+
 def test_mr_deallocate_receives_stream():
     """Buffer.close(stream) forwards the stream to mr.deallocate() (issue #1619)."""
     device = Device()
@@ -561,6 +582,31 @@ def test_mr_dealloc_callback_falls_back_to_default_stream():
 
     assert "stream" in captured, "deallocate was not invoked (callback raised and leaked)"
     assert captured["stream"].handle == default_stream().handle
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_from_handle_pool_pointer_deallocates_without_current_context(mempool_device, capsys):
+    """A context-independent pool pointer uses its deallocation stream context."""
+    dev = mempool_device
+    stream = dev.create_stream()
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    size = 256
+    ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, mr.handle, stream.handle))
+    stream.sync()
+    used_after_alloc = mr.attributes.used_mem_current
+    buf = Buffer.from_handle(int(ptr), size, mr=mr)
+    capsys.readouterr()
+
+    previous = handle_return(driver.cuCtxPopCurrent())
+    assert int(previous) != 0
+    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+
+    buf.close(stream)
+    stream.sync()
+
+    assert mr.attributes.used_mem_current < used_after_alloc
+    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    assert "mr.deallocate() failed" not in capsys.readouterr().err
 
 
 def test_memory_resource_and_owner_disallowed():

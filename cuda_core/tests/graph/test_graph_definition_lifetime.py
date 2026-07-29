@@ -76,7 +76,14 @@ def _wait_until(predicate, timeout=None, interval=0.02):
     raise AssertionError(f"condition not satisfied within {timeout}s")
 
 
-from cuda.core import Device, DeviceMemoryResource, EventOptions, Kernel, LaunchConfig
+from cuda.core import (
+    Device,
+    DeviceMemoryResource,
+    EventOptions,
+    Kernel,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+)
 from cuda.core.graph import (
     ChildGraphNode,
     ConditionalNode,
@@ -608,6 +615,41 @@ def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
     del callback, graph, graphs
     _wait_until(lambda: len(finalized_threads) == 64)
     assert set(finalized_threads) == {main_thread}
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_deferred_buffer_cleanup_restores_no_current_context(init_cuda, capsys):
+    """Graph-deferred MR cleanup activates its retained allocation context."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    class TrackingPinnedMR(LegacyPinnedMemoryResource):
+        def __init__(self):
+            self.deallocations = []
+
+        def deallocate(self, ptr, size, *, stream=None):
+            super().deallocate(ptr, size, stream=stream)
+            self.deallocations.append((int(ptr), size))
+
+    mr = TrackingPinnedMR()
+    src = mr.allocate(4)
+    dst = mr.allocate(4)
+    graph_def = GraphDefinition()
+    graph_def.memcpy(dst, src, 4)
+
+    src.close()
+    dst.close()
+    assert mr.deallocations == []
+    capsys.readouterr()
+
+    previous = handle_return(driver.cuCtxPopCurrent())
+    assert int(previous) != 0
+    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+
+    del graph_def
+    _wait_until(lambda: len(mr.deallocations) == 2)
+
+    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    assert "mr.deallocate() failed" not in capsys.readouterr().err
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

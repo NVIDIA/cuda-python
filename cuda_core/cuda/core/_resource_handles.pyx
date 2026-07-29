@@ -275,6 +275,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuDevicePrimaryCtxRetain "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRetain)"
     void* p_cuDevicePrimaryCtxRelease "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRelease)"
     void* p_cuCtxGetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetCurrent)"
+    void* p_cuCtxSetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxSetCurrent)"
     void* p_cuGreenCtxCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxCreate)"
     void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
     void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
@@ -284,6 +285,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Stream
     void* p_cuStreamCreateWithPriority "reinterpret_cast<void*&>(cuda_core::p_cuStreamCreateWithPriority)"
     void* p_cuStreamDestroy "reinterpret_cast<void*&>(cuda_core::p_cuStreamDestroy)"
+    void* p_cuStreamGetCtx "reinterpret_cast<void*&>(cuda_core::p_cuStreamGetCtx)"
 
     # Event
     void* p_cuEventCreate "reinterpret_cast<void*&>(cuda_core::p_cuEventCreate)"
@@ -310,6 +312,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuMemFreeAsync "reinterpret_cast<void*&>(cuda_core::p_cuMemFreeAsync)"
     void* p_cuMemFree "reinterpret_cast<void*&>(cuda_core::p_cuMemFree)"
     void* p_cuMemFreeHost "reinterpret_cast<void*&>(cuda_core::p_cuMemFreeHost)"
+    void* p_cuPointerGetAttribute "reinterpret_cast<void*&>(cuda_core::p_cuPointerGetAttribute)"
 
     # IPC
     void* p_cuMemPoolImportPointer "reinterpret_cast<void*&>(cuda_core::p_cuMemPoolImportPointer)"
@@ -376,16 +379,18 @@ cdef void* _get_optional_driver_fn(str name):
 
 
 cdef void _init_driver_fn_pointers() noexcept:
-    global p_cuDevicePrimaryCtxRetain, p_cuDevicePrimaryCtxRelease, p_cuCtxGetCurrent
+    global p_cuDevicePrimaryCtxRetain, p_cuDevicePrimaryCtxRelease
+    global p_cuCtxGetCurrent, p_cuCtxSetCurrent
     global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
     global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
-    global p_cuStreamCreateWithPriority, p_cuStreamDestroy
+    global p_cuStreamCreateWithPriority, p_cuStreamDestroy, p_cuStreamGetCtx
     global p_cuEventCreate, p_cuEventDestroy, p_cuIpcOpenEventHandle
     global p_cuDeviceGetCount
     global p_cuMemPoolSetAccess, p_cuMemPoolDestroy, p_cuMemPoolCreate
     global p_cuDeviceGetMemPool, p_cuMemPoolImportFromShareableHandle
     global p_cuMemAllocFromPoolAsync, p_cuMemAllocAsync, p_cuMemAlloc, p_cuMemAllocHost
     global p_cuMemFreeAsync, p_cuMemFree, p_cuMemFreeHost
+    global p_cuPointerGetAttribute
     global p_cuMemPoolImportPointer
     global p_cuLibraryLoadFromFile, p_cuLibraryLoadData, p_cuLibraryUnload, p_cuLibraryGetKernel
     global p_cuGraphDestroy, p_cuGraphExecDestroy
@@ -404,6 +409,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
     p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
     p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
+    p_cuCtxSetCurrent = _get_driver_fn("cuCtxSetCurrent")
     p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
     p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
     p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")
@@ -413,6 +419,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     # Stream
     p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
     p_cuStreamDestroy = _get_driver_fn("cuStreamDestroy")
+    p_cuStreamGetCtx = _get_driver_fn("cuStreamGetCtx")
 
     # Event
     p_cuEventCreate = _get_driver_fn("cuEventCreate")
@@ -439,6 +446,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuMemFreeAsync = _get_driver_fn("cuMemFreeAsync")
     p_cuMemFree = _get_driver_fn("cuMemFree")
     p_cuMemFreeHost = _get_driver_fn("cuMemFreeHost")
+    p_cuPointerGetAttribute = _get_driver_fn("cuPointerGetAttribute")
 
     # IPC
     p_cuMemPoolImportPointer = _get_driver_fn("cuMemPoolImportPointer")

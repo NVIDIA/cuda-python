@@ -67,6 +67,7 @@ void clear_last_error() noexcept;
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
 extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
 extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
@@ -76,6 +77,7 @@ extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
+extern decltype(&cuStreamGetCtx) p_cuStreamGetCtx;
 
 extern decltype(&cuEventCreate) p_cuEventCreate;
 extern decltype(&cuEventDestroy) p_cuEventDestroy;
@@ -97,6 +99,7 @@ extern decltype(&cuMemAllocHost) p_cuMemAllocHost;
 extern decltype(&cuMemFreeAsync) p_cuMemFreeAsync;
 extern decltype(&cuMemFree) p_cuMemFree;
 extern decltype(&cuMemFreeHost) p_cuMemFreeHost;
+extern decltype(&cuPointerGetAttribute) p_cuPointerGetAttribute;
 
 extern decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer;
 
@@ -402,8 +405,9 @@ using MRDeallocCallback = void (*)(PyObject* mr, CUdeviceptr ptr,
 void register_mr_dealloc_callback(MRDeallocCallback cb);
 
 // Create a device pointer handle whose destructor calls mr.deallocate()
-// via the registered callback.  The mr's refcount is incremented and
-// decremented when the handle is released.
+// via the registered callback. The pointer's allocation context is retained
+// when discoverable and made current for the callback. The mr's refcount is
+// incremented and decremented when the handle is released.
 // If mr is nullptr, equivalent to deviceptr_create_ref.
 DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr);
 
