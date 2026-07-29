@@ -183,6 +183,26 @@ def test_to_native_launch_config_cooperative(monkeypatch):
     assert attr.value.cooperative == 1, f"Expected cooperative=1, got {attr.value.cooperative}"
 
 
+def test_to_native_launch_config_pdl():
+    """LaunchConfig(programmatic_stream_serialization=True) maps to the PDL launch attribute."""
+    from cuda.bindings import driver
+    from cuda.core._launch_config import _to_native_launch_config
+
+    config = LaunchConfig(grid=2, block=4, programmatic_stream_serialization=True)
+    native = _to_native_launch_config(config)
+    assert native.gridDimX == 2
+    assert native.blockDimX == 4
+    assert native.numAttrs == 1
+    attr = native.attrs[0]
+    assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION, (
+        f"Expected CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION, got {attr.id}"
+    )
+    assert attr.value.programmaticStreamSerializationAllowed == 1, (
+        f"Expected programmaticStreamSerializationAllowed=1, "
+        f"got {attr.value.programmaticStreamSerializationAllowed}"
+    )
+
+
 def test_launch_config_cluster_accepts_hopper_cc(monkeypatch):
     """LaunchConfig accepts ``cluster`` when the device reports compute
     capability >= 9.0. Device is mocked so the cluster-cast branch runs on any
