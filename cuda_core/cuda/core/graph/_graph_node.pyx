@@ -999,7 +999,7 @@ cdef inline MemcpyNode GN_memcpy(
     params.srcMemoryType = c_src_type
     params.dstMemoryType = c_dst_type
     if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
-        params.srcHost = <const void*><uintptr_t>c_src
+        params.srcHost = <void*><uintptr_t>c_src
     else:
         params.srcDevice = c_src
     if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
