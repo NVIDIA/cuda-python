@@ -33,6 +33,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     MODE_CANARY,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.windows_arch import windows_python_arch
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
 _STEPS_MODULE = "cuda.pathfinder._dynamic_libs.search_steps"
@@ -61,11 +62,18 @@ def _create_nvvm_in_ctk(ctk_root):
         nvvm_dir = ctk_root / "nvvm" / "bin"
         nvvm_dir.mkdir(parents=True)
         nvvm_lib = nvvm_dir / "nvvm64.dll"
+        machine = {"x64": 0x8664, "arm64": 0xAA64}[windows_python_arch()]
+        image = bytearray(0x86)
+        image[:2] = b"MZ"
+        image[0x3C:0x40] = (0x80).to_bytes(4, "little")
+        image[0x80:0x84] = b"PE\0\0"
+        image[0x84:0x86] = machine.to_bytes(2, "little")
+        nvvm_lib.write_bytes(image)
     else:
         nvvm_dir = ctk_root / "nvvm" / "lib64"
         nvvm_dir.mkdir(parents=True)
         nvvm_lib = nvvm_dir / "libnvvm.so"
-    nvvm_lib.write_bytes(b"fake")
+        nvvm_lib.write_bytes(b"fake")
     return nvvm_lib
 
 

@@ -97,6 +97,7 @@ def _render_spec(spec: DescriptorSpec) -> str:
     bool_fields = [
         "requires_add_dll_directory",
         "requires_rtld_deepbind",
+        "requires_windows_binary_arch_check",
     ]
 
     for field in tuple_fields:
@@ -184,6 +185,7 @@ class DescriptorSpec:
     ctk_root_canary_anchor_libnames: tuple[str, ...] = ()
     requires_add_dll_directory: bool = False
     requires_rtld_deepbind: bool = False
+    requires_windows_binary_arch_check: bool = False
 
 
 DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (

@@ -88,7 +88,7 @@ def _find_using_lib_dir(ctx: SearchContext, lib_dir: str | None) -> str | None:
         str | None,
         ctx.platform.find_in_lib_dir(
             lib_dir,
-            ctx.libname,
+            ctx.desc,
             ctx.lib_searched_for,
             ctx.error_messages,
             ctx.attachments,

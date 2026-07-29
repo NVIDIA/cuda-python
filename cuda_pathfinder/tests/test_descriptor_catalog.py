@@ -126,3 +126,10 @@ def test_ctk_root_canary_anchors_reference_known_ctk_libs(spec: DescriptorSpec):
 def test_only_ctk_libs_define_ctk_root_canary_anchors(spec: DescriptorSpec):
     if spec.ctk_root_canary_anchor_libnames:
         assert spec.packaged_with == "ctk", f"{spec.name} defines canary anchors but is not a CTK lib"
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_only_nvvm_requires_windows_binary_arch_check():
+    checked_libs = {spec.name for spec in DESCRIPTOR_CATALOG if spec.requires_windows_binary_arch_check}
+
+    assert checked_libs == {"nvvm"}

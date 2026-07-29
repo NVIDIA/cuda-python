@@ -21,7 +21,7 @@ from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dll_file
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
-from cuda.pathfinder._utils.windows_arch import windows_python_arch
+from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
 
 
 def _no_such_file_in_sub_dirs(
@@ -63,12 +63,15 @@ def _find_so_in_rel_dirs(
     return None
 
 
-def _find_dll_under_dir(dirpath: str, file_wild: str) -> str | None:
+def _find_dll_under_dir(dirpath: str, file_wild: str, target_arch: str | None = None) -> str | None:
     for path in sorted(glob.glob(os.path.join(dirpath, file_wild))):
         if not os.path.isfile(path):
             continue
-        if not is_suppressed_dll_file(os.path.basename(path)):
-            return path
+        if is_suppressed_dll_file(os.path.basename(path)):
+            continue
+        if target_arch is not None and not windows_pe_matches_arch(path, target_arch):
+            continue
+        return path
     return None
 
 
@@ -111,7 +114,7 @@ class SearchPlatform(Protocol):
     def find_in_lib_dir(
         self,
         lib_dir: str,
-        libname: str,
+        desc: LibDescriptor,
         lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
@@ -144,7 +147,7 @@ class LinuxSearchPlatform:
     def find_in_lib_dir(
         self,
         lib_dir: str,
-        _libname: str,
+        _desc: LibDescriptor,
         lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
@@ -201,16 +204,20 @@ class WindowsSearchPlatform:
     def find_in_lib_dir(
         self,
         lib_dir: str,
-        libname: str,
+        desc: LibDescriptor,
         _lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
     ) -> str | None:
-        file_wild = libname + "*.dll"
-        dll_name = _find_dll_under_dir(lib_dir, file_wild)
+        file_wild = desc.name + "*.dll"
+        target_arch = self.target_arch if desc.requires_windows_binary_arch_check else None
+        dll_name = _find_dll_under_dir(lib_dir, file_wild, target_arch)
         if dll_name is not None:
             return dll_name
-        error_messages.append(f"No such file: {file_wild}")
+        if target_arch is None:
+            error_messages.append(f"No such file: {file_wild}")
+        else:
+            error_messages.append(f"No {target_arch}-compatible PE file: {file_wild}")
         attachments.append(f'  listdir("{lib_dir}"):')
         if not os.path.isdir(lib_dir):
             attachments.append("    DIRECTORY DOES NOT EXIST")

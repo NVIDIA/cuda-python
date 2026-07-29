@@ -70,6 +70,7 @@ class DescriptorSpec:
     ctk_root_canary_anchor_libnames: tuple[str, ...] = ()
     requires_add_dll_directory: bool = False
     requires_rtld_deepbind: bool = False
+    requires_windows_binary_arch_check: bool = False
 
 
 DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
@@ -123,12 +124,14 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_nvcc/nvvm/bin"),
         anchor_rel_dirs_linux=("nvvm/lib64",),
         # CTK 13.4 installs the ARM64 DLL directly in nvvm/bin, while x64
-        # uses nvvm/bin/x64. Older x64 toolkits also used nvvm/bin.
+        # uses nvvm/bin/x64. Older x64 toolkits also used nvvm/bin, so the
+        # binary in the unqualified directory must be checked at runtime.
         anchor_rel_dirs_windows=WindowsSearchDirs(
             x64=("nvvm/bin/x64", "nvvm/bin"),
             arm64=("nvvm/bin",),
         ),
         ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
+        requires_windows_binary_arch_check=True,
     ),
     DescriptorSpec(
         name="cublas",

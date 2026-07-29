@@ -67,6 +67,15 @@ def _patch_site_packages_search(mocker, root):
     return mocker.patch(f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages", side_effect=_find_sub_dirs)
 
 
+def _write_pe(path, machine):
+    image = bytearray(0x86)
+    image[:2] = b"MZ"
+    image[0x3C:0x40] = (0x80).to_bytes(4, "little")
+    image[0x80:0x84] = b"PE\0\0"
+    image[0x84:0x86] = machine.to_bytes(2, "little")
+    path.write_bytes(image)
+
+
 # ---------------------------------------------------------------------------
 # SearchContext
 # ---------------------------------------------------------------------------
@@ -133,6 +142,31 @@ class TestWindowsPythonArch:
         ) as exc_info:
             windows_arch_mod.windows_python_arch()
         assert exc_info.value.platform_tag == "custom-win"
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+@pytest.mark.parametrize(
+    ("machine", "target_arch", "expected"),
+    (
+        (0x8664, "x64", True),
+        (0x8664, "arm64", False),
+        (0xAA64, "x64", False),
+        (0xAA64, "arm64", True),
+    ),
+)
+def test_windows_pe_matches_arch(tmp_path, machine, target_arch, expected):
+    dll = tmp_path / "test.dll"
+    _write_pe(dll, machine)
+
+    assert windows_arch_mod.windows_pe_matches_arch(str(dll), target_arch) is expected
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_windows_pe_matches_arch_rejects_malformed_file(tmp_path):
+    dll = tmp_path / "test.dll"
+    dll.write_bytes(b"not a PE file")
+
+    assert windows_arch_mod.windows_pe_matches_arch(str(dll), "x64") is False
 
 
 # ---------------------------------------------------------------------------
@@ -492,6 +526,35 @@ class TestFindInCudaHome:
         assert result is not None
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "CUDA_PATH"
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    @pytest.mark.parametrize(
+        ("target_arch", "machine", "expected_found"),
+        (
+            ("x64", 0x8664, True),
+            ("x64", 0xAA64, False),
+            ("arm64", 0x8664, False),
+            ("arm64", 0xAA64, True),
+        ),
+    )
+    def test_nvvm_windows_checks_binary_arch(self, mocker, tmp_path, target_arch, machine, expected_found):
+        nvvm_dir = tmp_path / "nvvm" / "bin"
+        nvvm_dir.mkdir(parents=True)
+        dll = nvvm_dir / "nvvm64_40_0.dll"
+        _write_pe(dll, machine)
+
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
+
+        ctx = _ctx(LIB_DESCRIPTORS["nvvm"], platform=WindowsSearchPlatform(target_arch=target_arch))
+        result = find_in_cuda_path(ctx)
+
+        assert (result is not None) is expected_found
+        if expected_found:
+            assert result is not None
+            assert result.abs_path == str(dll)
+            assert result.found_via == "CUDA_PATH"
+        else:
+            assert any(f"No {target_arch}-compatible PE file" in message for message in ctx.error_messages)
 
 
 # ---------------------------------------------------------------------------
