@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/texture/_array.pyx: 90.16%</title>
+    <title>Coverage for cuda/core/texture/_array.pyx: 90.12%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -77,7 +77,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>texture<span class="sep">/</span>_array.pyx</b>:
-            <span class="pc_cov">90.16%</span>
+            <span class="pc_cov">90.12%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -119,8 +119,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">244 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">220<span class="text"> run</span></button>
+            <span class="text">243 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">219<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">24<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
@@ -130,7 +130,7 @@
             <a id="nextFileLink" class="nav" href="z_fb411eceba5d49eb__mipmapped_array_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-19 01:12 +0000
+            created at 2026-07-29 01:38 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -669,21 +669,21 @@
     <p class="run"><span class="n"><a id="t522" href="#t522">522</a></span><span class="t"><span class="txt">    shape_t = opts.shape</span>&nbsp;</span><input type="checkbox" id="ctxs522"><span class="r"><label for="ctxs522" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
     <p class="pln"><span class="n"><a id="t523" href="#t523">523</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t524" href="#t524">524</a></span><span class="t"><span class="txt">    cdef cydriver.CUarray_format c_format = &lt;cydriver.CUarray_format>_ARRAYFORMAT_TO_CU[opts.format]</span>&nbsp;</span><input type="checkbox" id="ctxs524"><span class="r"><label for="ctxs524" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
-    <p class="pln"><span class="n"><a id="t525" href="#t525">525</a></span><span class="t"><span class="txt">    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t526" href="#t526">526</a></span><span class="t"><span class="txt">    cdef int rank = len(shape_t)</span>&nbsp;</span><input type="checkbox" id="ctxs526"><span class="r"><label for="ctxs526" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
-    <p class="pln"><span class="n"><a id="t527" href="#t527">527</a></span><span class="t"><span class="txt">    cdef unsigned int flags = (</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t528" href="#t528">528</a></span><span class="t"><span class="txt">        cydriver.CUDA_ARRAY3D_SURFACE_LDST if opts.is_surface_load_store else 0</span>&nbsp;</span><input type="checkbox" id="ctxs528"><span class="r"><label for="ctxs528" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
-    <p class="pln"><span class="n"><a id="t529" href="#t529">529</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t530" href="#t530">530</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t531" href="#t531">531</a></span><span class="t"><span class="txt">    # cuArray3DCreate handles 1D/2D/3D uniformly (Height/Depth 0 sentinels),</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t532" href="#t532">532</a></span><span class="t"><span class="txt">    # so a single descriptor + create_array_handle covers every shape.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t533" href="#t533">533</a></span><span class="t"><span class="txt">    memset(&amp;desc3d, 0, sizeof(desc3d))</span>&nbsp;</span><input type="checkbox" id="ctxs533"><span class="r"><label for="ctxs533" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
-    <p class="run"><span class="n"><a id="t534" href="#t534">534</a></span><span class="t"><span class="txt">    desc3d.Width = &lt;size_t>shape_t[0]</span>&nbsp;</span><input type="checkbox" id="ctxs534"><span class="r"><label for="ctxs534" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
-    <p class="run"><span class="n"><a id="t535" href="#t535">535</a></span><span class="t"><span class="txt">    desc3d.Height = &lt;size_t>(shape_t[1] if rank >= 2 else 0)</span>&nbsp;</span><input type="checkbox" id="ctxs535"><span class="r"><label for="ctxs535" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
-    <p class="run"><span class="n"><a id="t536" href="#t536">536</a></span><span class="t"><span class="txt">    desc3d.Depth = &lt;size_t>(shape_t[2] if rank >= 3 else 0)</span>&nbsp;</span><input type="checkbox" id="ctxs536"><span class="r"><label for="ctxs536" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
-    <p class="run"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t"><span class="txt">    desc3d.Format = c_format</span>&nbsp;</span><input type="checkbox" id="ctxs537"><span class="r"><label for="ctxs537" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
-    <p class="run"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t"><span class="txt">    desc3d.NumChannels = &lt;unsigned int>opts.num_channels</span>&nbsp;</span><input type="checkbox" id="ctxs538"><span class="r"><label for="ctxs538" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
-    <p class="run"><span class="n"><a id="t539" href="#t539">539</a></span><span class="t"><span class="txt">    desc3d.Flags = flags</span>&nbsp;</span><input type="checkbox" id="ctxs539"><span class="r"><label for="ctxs539" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
+    <p class="run"><span class="n"><a id="t525" href="#t525">525</a></span><span class="t"><span class="txt">    cdef int rank = len(shape_t)</span>&nbsp;</span><input type="checkbox" id="ctxs525"><span class="r"><label for="ctxs525" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
+    <p class="pln"><span class="n"><a id="t526" href="#t526">526</a></span><span class="t"><span class="txt">    cdef unsigned int flags = (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t527" href="#t527">527</a></span><span class="t"><span class="txt">        cydriver.CUDA_ARRAY3D_SURFACE_LDST if opts.is_surface_load_store else 0</span>&nbsp;</span><input type="checkbox" id="ctxs527"><span class="r"><label for="ctxs527" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
+    <p class="pln"><span class="n"><a id="t528" href="#t528">528</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t529" href="#t529">529</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t530" href="#t530">530</a></span><span class="t"><span class="txt">    # cuArray3DCreate handles 1D/2D/3D uniformly (Height/Depth 0 sentinels),</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t531" href="#t531">531</a></span><span class="t"><span class="txt">    # so a single descriptor + create_array_handle covers every shape.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t532" href="#t532">532</a></span><span class="t"><span class="txt">    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d = cydriver.CUDA_ARRAY3D_DESCRIPTOR(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t533" href="#t533">533</a></span><span class="t"><span class="txt">        Width=&lt;size_t>shape_t[0],</span>&nbsp;</span><input type="checkbox" id="ctxs533"><span class="r"><label for="ctxs533" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
+    <p class="run"><span class="n"><a id="t534" href="#t534">534</a></span><span class="t"><span class="txt">        Height=&lt;size_t>(shape_t[1] if rank >= 2 else 0),</span>&nbsp;</span><input type="checkbox" id="ctxs534"><span class="r"><label for="ctxs534" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
+    <p class="run"><span class="n"><a id="t535" href="#t535">535</a></span><span class="t"><span class="txt">        Depth=&lt;size_t>(shape_t[2] if rank >= 3 else 0),</span>&nbsp;</span><input type="checkbox" id="ctxs535"><span class="r"><label for="ctxs535" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
+    <p class="run"><span class="n"><a id="t536" href="#t536">536</a></span><span class="t"><span class="txt">        Format=c_format,</span>&nbsp;</span><input type="checkbox" id="ctxs536"><span class="r"><label for="ctxs536" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
+    <p class="run"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t"><span class="txt">        NumChannels=&lt;unsigned int>opts.num_channels,</span>&nbsp;</span><input type="checkbox" id="ctxs537"><span class="r"><label for="ctxs537" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
+    <p class="run"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t"><span class="txt">        Flags=flags,</span>&nbsp;</span><input type="checkbox" id="ctxs538"><span class="r"><label for="ctxs538" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
+    <p class="pln"><span class="n"><a id="t539" href="#t539">539</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t540" href="#t540">540</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t541" href="#t541">541</a></span><span class="t"><span class="txt">    cdef OpaqueArrayHandle h = create_array_handle(desc3d)</span>&nbsp;</span><input type="checkbox" id="ctxs541"><span class="r"><label for="ctxs541" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
     <p class="run"><span class="n"><a id="t542" href="#t542">542</a></span><span class="t"><span class="txt">    if not h:</span>&nbsp;</span><input type="checkbox" id="ctxs542"><span class="r"><label for="ctxs542" class="ctx">27 ctx</label></span><span class="ctxs">1stuvwgmijklnbofedaqxryCzABp</span></p>
@@ -706,7 +706,7 @@
             <a class="nav" href="z_fb411eceba5d49eb__mipmapped_array_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-19 01:12 +0000
+            created at 2026-07-29 01:38 +0000
         </p>
     </div>
 </footer>

@@ -75,7 +75,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__pinned_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-19 01:12 +0000
+            created at 2026-07-29 01:38 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -184,7 +184,7 @@
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemLocation location</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemoryPool h_pool = as_cu(mr._h_pool)</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">2 ctx</label></span><span class="ctxs">1ca</span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">    cdef vector[int] peers</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    cdef size_t i, n</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    cdef size_t i</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">2 ctx</label></span><span class="ctxs">1ca</span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -198,17 +198,17 @@
     <p class="mis show_mis"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">            if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">                peers.push_back(dev_id)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    n = peers.size()</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">2 ctx</label></span><span class="ctxs">1ca</span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    cdef size_t n = peers.size()</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">2 ctx</label></span><span class="ctxs">1ca</span></p>
     <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    return tuple(peers[i] for i in range(n))</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">2 ctx</label></span><span class="ctxs">1ca</span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">cdef inline bint _peer_access_includes(DeviceMemoryResource mr, int dev_id):</span>&nbsp;</span><span class="r"><label for="ctxs113" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    """Return True if peer access from ``dev_id`` is currently granted."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemAccess_flags flags</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemLocation location</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">    location.id = dev_id</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemLocation location = cydriver.CUmemLocation(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        id=dev_id,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&amp;flags, as_cu(mr._h_pool), &amp;location))</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">    return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE</span>&nbsp;</span><span class="r"></span></p>
@@ -505,7 +505,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__pinned_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-19 01:12 +0000
+            created at 2026-07-29 01:38 +0000
         </p>
     </div>
 </footer>
