@@ -1316,7 +1316,6 @@ class Device:
         cdef object res
         cdef SMResource sm_res
         cdef WorkqueueResource wq_res
-        cdef GreenCtxHandle h_green
 
         if options is None:
             raise ValueError(
@@ -1348,7 +1347,7 @@ class Device:
             else:
                 raise TypeError(f"Unsupported context resource type: {type(res)}")
 
-        h_green = create_green_ctx_handle(
+        cdef GreenCtxHandle h_green = create_green_ctx_handle(
             c_resources.data(),
             <unsigned int>(c_resources.size()),
             <cydriver.CUdevice>(self._device_id),

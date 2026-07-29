@@ -201,6 +201,56 @@ class _DLTensor(ctypes.Structure):
     ]
 
 
+class _DLManagedTensor(ctypes.Structure):
+    _fields_ = [
+        ("dl_tensor", _DLTensor),
+        ("manager_ctx", ctypes.c_void_p),
+        ("deleter", ctypes.c_void_p),
+    ]
+
+
+class _DLManagedTensorVersioned(ctypes.Structure):
+    _fields_ = [
+        ("version", _DLPackVersion),
+        ("manager_ctx", ctypes.c_void_p),
+        ("deleter", ctypes.c_void_p),
+        ("flags", ctypes.c_uint64),
+        ("dl_tensor", _DLTensor),
+    ]
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+@pytest.mark.parametrize(
+    "max_version, capsule_name, managed_cls",
+    [
+        pytest.param(None, b"dltensor", _DLManagedTensor, id="unversioned"),
+        pytest.param((1, 0), b"dltensor_versioned", _DLManagedTensorVersioned, id="versioned"),
+    ],
+)
+def test_from_dlpack_null_deleter_dealloc(max_version, capsule_name, managed_cls):
+    """``__dealloc__`` must tolerate a capsule whose deleter is NULL."""
+    src = np.arange(6, dtype=np.int32)
+    base = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    capsule = base.__dlpack__(max_version=max_version)
+    dlm = ctypes.cast(_PyCapsule_GetPointer(capsule, capsule_name), ctypes.POINTER(managed_cls))
+    # Steal the producer deleter so __dealloc__ sees NULL, then invoke it ourselves.
+    producer_deleter = ctypes.CFUNCTYPE(None, ctypes.POINTER(managed_cls))(dlm.contents.deleter)
+    dlm.contents.deleter = None
+
+    class _Export:
+        def __dlpack_device__(self):
+            return base.__dlpack_device__()
+
+        def __dlpack__(self, stream=None, max_version=None, **kwargs):
+            if capsule_name == b"dltensor" and max_version is not None:
+                raise TypeError("force unversioned")
+            return capsule
+
+    view = StridedMemoryView.from_dlpack(_Export(), stream_ptr=-1)
+    del view  # __dealloc__ must not call the NULL deleter
+    producer_deleter(dlm)
+
+
 _FN_FROM_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
 _FN_TO_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
 _FN_DLTENSOR_FROM_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)
