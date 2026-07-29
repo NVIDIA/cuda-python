@@ -14,10 +14,13 @@ from cuda.core._memory._pinned_memory_resource import PinnedMemoryResource
 from cuda.core._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core._memory cimport _ipc
 from cuda.core._resource_handles cimport (
+    ContextHandle,
     DevicePtrHandle,
     StreamHandle,
+    create_context_handle_ref,
     deviceptr_create_with_owner,
     deviceptr_create_with_mr,
+    get_stream_context,
     register_mr_dealloc_callback,
     as_intptr,
     as_cu,
@@ -75,6 +78,65 @@ register_mr_dealloc_callback(_mr_dealloc_callback)
 
 
 __all__ = ['Buffer', 'MemoryResource']
+
+
+# Context Resolution Helpers
+# --------------------------
+cdef ContextHandle _current_context_handle():
+    cdef ContextHandle h_context
+    cdef cydriver.CUcontext context = NULL
+    with nogil:
+        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&context))
+    if context != NULL:
+        h_context = create_context_handle_ref(context)
+    return h_context
+
+
+cdef ContextHandle _pointer_context_handle(cydriver.CUdeviceptr ptr):
+    """Return the pointer's context, or the current context for an async allocation."""
+    cdef ContextHandle h_context
+    cdef cydriver.CUcontext context = NULL
+    cdef cydriver.CUresult result
+    if ptr == 0:
+        return h_context
+
+    with nogil:
+        result = cydriver.cuPointerGetAttribute(
+            &context,
+            cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_CONTEXT,
+            ptr,
+        )
+    if result == cydriver.CUDA_SUCCESS:
+        if context != NULL:
+            return create_context_handle_ref(context)
+        # Stream-ordered allocations are context-independent. Retain the
+        # wrapping thread's current context for default-stream deallocation.
+        return _current_context_handle()
+    if result in (
+        cydriver.CUresult.CUDA_ERROR_INVALID_VALUE,
+        cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED,
+    ):
+        # A foreign host pointer has no CUDA context to retain.
+        return h_context
+    with nogil:
+        HANDLE_RETURN(result)
+    return h_context
+
+
+cdef ContextHandle _stream_context_handle(Stream stream):
+    cdef ContextHandle h_context = stream._h_context
+    cdef cydriver.CUcontext context = NULL
+    if h_context:
+        return h_context
+    h_context = get_stream_context(stream._h_stream)
+    if h_context:
+        return h_context
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuStreamGetCtx(as_cu(stream._h_stream), &context))
+    if context != NULL:
+        h_context = create_context_handle_ref(context)
+    return h_context
 
 
 # Memory Attribute Query Helpers
@@ -188,8 +250,11 @@ cdef class Buffer:
             raise ValueError("owner and memory resource cannot be both specified together")
         cdef Buffer self = Buffer.__new__(cls)
         cdef uintptr_t c_ptr = <uintptr_t>(int(ptr))
+        cdef ContextHandle h_context
         if mr is not None:
-            self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
+            h_context = _pointer_context_handle(c_ptr)
+            self._h_ptr = deviceptr_create_with_mr(
+                c_ptr, size, mr, h_context)
         else:
             self._h_ptr = deviceptr_create_with_owner(c_ptr, owner)
         self._size = size
@@ -619,12 +684,14 @@ cdef Buffer Buffer_from_deviceptr_handle(
 cdef inline void Buffer_close(Buffer self, object stream):
     """Close a buffer, freeing its memory."""
     cdef Stream s
+    cdef ContextHandle h_context
     if not self._h_ptr:
         return
     # Update deallocation stream if provided
     if stream is not None:
         s = Stream_accept(stream)
-        set_deallocation_stream(self._h_ptr, s._h_stream)
+        h_context = _stream_context_handle(s)
+        set_deallocation_stream(self._h_ptr, s._h_stream, h_context)
     # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
     self._h_ptr.reset()
     self._size = 0

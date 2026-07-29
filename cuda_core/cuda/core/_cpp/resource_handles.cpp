@@ -44,7 +44,6 @@ decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate = nullptr;
 
 decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority = nullptr;
 decltype(&cuStreamDestroy) p_cuStreamDestroy = nullptr;
-decltype(&cuStreamGetCtx) p_cuStreamGetCtx = nullptr;
 
 decltype(&cuEventCreate) p_cuEventCreate = nullptr;
 decltype(&cuEventDestroy) p_cuEventDestroy = nullptr;
@@ -66,7 +65,6 @@ decltype(&cuMemAllocHost) p_cuMemAllocHost = nullptr;
 decltype(&cuMemFreeAsync) p_cuMemFreeAsync = nullptr;
 decltype(&cuMemFree) p_cuMemFree = nullptr;
 decltype(&cuMemFreeHost) p_cuMemFreeHost = nullptr;
-decltype(&cuPointerGetAttribute) p_cuPointerGetAttribute = nullptr;
 
 decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer = nullptr;
 
@@ -198,7 +196,7 @@ public:
     explicit ScopedCurrentContext(ContextHandle h_context) noexcept
         : h_context_(std::move(h_context)) {
         CUcontext target = as_cu(h_context_);
-        if (!target || !p_cuCtxGetCurrent || !p_cuCtxSetCurrent) {
+        if (!target) {
             return;
         }
 
@@ -944,10 +942,8 @@ struct DevicePtrBox {
     // through a const DevicePtrHandle. The stream can be changed after
     // allocation (e.g., to synchronize deallocation with a different stream).
     mutable StreamHandle h_stream;
-    // Retain the allocation's context independently of the deallocation
-    // stream, whose context may change with Buffer.close(stream=...).
-    ContextHandle h_allocation_context;
-    mutable ContextHandle h_stream_context;
+    // Used by MR-backed pointer deleters; native deleters ignore it.
+    mutable ContextHandle h_context;
 };
 }  // namespace
 
@@ -967,88 +963,14 @@ StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
     return get_box(h)->h_stream;
 }
 
-namespace {
-
-ContextHandle context_handle_ref_best_effort(CUcontext ctx) noexcept {
-    if (!ctx) {
-        return {};
-    }
-    try {
-        return cuda_core::create_context_handle_ref(ctx);
-    } catch (...) {
-        return {};
-    }
-}
-
-ContextHandle current_context_best_effort() noexcept {
-    if (!p_cuCtxGetCurrent) {
-        return {};
-    }
-    CUcontext ctx = nullptr;
-    {
-        GILReleaseGuard gil;
-        if (p_cuCtxGetCurrent(&ctx) != CUDA_SUCCESS) {
-            return {};
-        }
-    }
-    return context_handle_ref_best_effort(ctx);
-}
-
-ContextHandle stream_context_best_effort(
-        const StreamHandle& h_stream) noexcept {
-    if (!h_stream) {
-        return {};
-    }
-    if (ContextHandle h_context = get_stream_context(h_stream)) {
-        return h_context;
-    }
-    if (!p_cuStreamGetCtx) {
-        return {};
-    }
-
-    CUcontext ctx = nullptr;
-    {
-        GILReleaseGuard gil;
-        if (p_cuStreamGetCtx(as_cu(h_stream), &ctx) != CUDA_SUCCESS) {
-            return {};
-        }
-    }
-    return context_handle_ref_best_effort(ctx);
-}
-
-ContextHandle allocation_context_best_effort(CUdeviceptr ptr) noexcept {
-    if (ptr && p_cuPointerGetAttribute) {
-        CUcontext ctx = nullptr;
-        CUresult status;
-        {
-            GILReleaseGuard gil;
-            status = p_cuPointerGetAttribute(
-                &ctx, CU_POINTER_ATTRIBUTE_CONTEXT, ptr);
-        }
-        if (status == CUDA_SUCCESS && ctx) {
-            return context_handle_ref_best_effort(ctx);
-        }
-    }
-    // Stream-ordered allocations are not context-associated. Retain the
-    // wrapping thread's current context as the operational fallback for a
-    // later default-stream deallocation.
-    return current_context_best_effort();
-}
-
-ContextHandle operation_context(const DevicePtrBox* box) noexcept {
-    return box->h_stream_context
-        ? box->h_stream_context
-        : box->h_allocation_context;
-}
-
-}  // namespace
-
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
+void set_deallocation_stream(
+        const DevicePtrHandle& h,
+        const StreamHandle& h_stream,
+        const ContextHandle& h_context) noexcept {
     DevicePtrBox* box = get_box(h);
     box->h_stream = h_stream;
-    box->h_stream_context = stream_context_best_effort(h_stream);
-    if (!box->h_stream_context) {
-        box->h_stream_context = current_context_best_effort();
+    if (!box->h_context) {
+        box->h_context = h_context;
     }
 }
 
@@ -1059,12 +981,9 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
         return {};
     }
 
-    ContextHandle h_context = current_context_best_effort();
-    ContextHandle h_stream_context = stream_context_best_effort(h_stream);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream, h_context, h_stream_context},
+        new DevicePtrBox{ptr, h_stream, {}},
         [h_pool](DevicePtrBox* b) {
-            ScopedCurrentContext context(operation_context(b));
             GILReleaseGuard gil;
             p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
             delete b;
@@ -1080,12 +999,9 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
         return {};
     }
 
-    ContextHandle h_context = current_context_best_effort();
-    ContextHandle h_stream_context = stream_context_best_effort(h_stream);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream, h_context, h_stream_context},
+        new DevicePtrBox{ptr, h_stream, {}},
         [](DevicePtrBox* b) {
-            ScopedCurrentContext context(operation_context(b));
             GILReleaseGuard gil;
             p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
             delete b;
@@ -1101,11 +1017,9 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
         return {};
     }
 
-    ContextHandle h_context = current_context_best_effort();
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, {}, h_context, {}},
+        new DevicePtrBox{ptr, {}, {}},
         [](DevicePtrBox* b) {
-            ScopedCurrentContext context(operation_context(b));
             GILReleaseGuard gil;
             p_cuMemFree(b->resource);
             delete b;
@@ -1121,12 +1035,9 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
         return {};
     }
 
-    ContextHandle h_context = current_context_best_effort();
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{
-            reinterpret_cast<CUdeviceptr>(ptr), {}, h_context, {}},
+        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), {}, {}},
         [](DevicePtrBox* b) {
-            ScopedCurrentContext context(operation_context(b));
             GILReleaseGuard gil;
             p_cuMemFreeHost(reinterpret_cast<void*>(b->resource));
             delete b;
@@ -1137,7 +1048,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
 
 DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
     auto box = std::make_shared<DevicePtrBox>(
-        DevicePtrBox{ptr, {}, {}, {}});
+        DevicePtrBox{ptr, {}, {}});
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -1153,7 +1064,7 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
     }
     Py_INCREF(owner);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, {}, {}, {}},
+        new DevicePtrBox{ptr, {}, {}},
         [owner](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
@@ -1170,12 +1081,9 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
     const GraphicsResourceHandle& h_resource,
     const StreamHandle& h_stream
 ) {
-    ContextHandle h_context = current_context_best_effort();
-    ContextHandle h_stream_context = stream_context_best_effort(h_stream);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream, h_context, h_stream_context},
+        new DevicePtrBox{ptr, h_stream, {}},
         [h_resource](DevicePtrBox* b) {
-            ScopedCurrentContext context(operation_context(b));
             GILReleaseGuard gil;
             CUgraphicsResource resource = as_cu(h_resource);
             p_cuGraphicsUnmapResources(1, &resource, as_cu(b->h_stream));
@@ -1195,7 +1103,11 @@ void register_mr_dealloc_callback(MRDeallocCallback cb) {
     mr_dealloc_cb = cb;
 }
 
-DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr) {
+DevicePtrHandle deviceptr_create_with_mr(
+        CUdeviceptr ptr,
+        size_t size,
+        PyObject* mr,
+        const ContextHandle& h_context) {
     if (!mr) {
         return deviceptr_create_ref(ptr);
     }
@@ -1205,11 +1117,10 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
         return deviceptr_create_ref(ptr);
     }
     Py_INCREF(mr);
-    ContextHandle h_context = allocation_context_best_effort(ptr);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, {}, h_context, {}},
+        new DevicePtrBox{ptr, {}, h_context},
         [mr, size](DevicePtrBox* b) {
-            ScopedCurrentContext context(operation_context(b));
+            ScopedCurrentContext context(b->h_context);
             GILAcquireGuard gil;
             if (gil.acquired()) {
                 if (mr_dealloc_cb) {
@@ -1301,15 +1212,10 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             return {};
         }
 
-        ContextHandle h_context = current_context_best_effort();
-        ContextHandle h_stream_context =
-            stream_context_best_effort(h_stream);
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{
-                ptr, h_stream, h_context, h_stream_context},
+            new DevicePtrBox{ptr, h_stream, {}},
             [h_pool, key](DevicePtrBox* b) {
                 ipc_ptr_cache.unregister_handle(key);
-                ScopedCurrentContext context(operation_context(b));
                 GILReleaseGuard gil;
                 p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
                 delete b;
@@ -1326,14 +1232,9 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             return {};
         }
 
-        ContextHandle h_context = current_context_best_effort();
-        ContextHandle h_stream_context =
-            stream_context_best_effort(h_stream);
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{
-                ptr, h_stream, h_context, h_stream_context},
+            new DevicePtrBox{ptr, h_stream, {}},
             [h_pool](DevicePtrBox* b) {
-                ScopedCurrentContext context(operation_context(b));
                 GILReleaseGuard gil;
                 p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
                 delete b;

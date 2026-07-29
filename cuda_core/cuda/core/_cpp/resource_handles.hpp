@@ -77,7 +77,6 @@ extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
-extern decltype(&cuStreamGetCtx) p_cuStreamGetCtx;
 
 extern decltype(&cuEventCreate) p_cuEventCreate;
 extern decltype(&cuEventDestroy) p_cuEventDestroy;
@@ -99,7 +98,6 @@ extern decltype(&cuMemAllocHost) p_cuMemAllocHost;
 extern decltype(&cuMemFreeAsync) p_cuMemFreeAsync;
 extern decltype(&cuMemFree) p_cuMemFree;
 extern decltype(&cuMemFreeHost) p_cuMemFreeHost;
-extern decltype(&cuPointerGetAttribute) p_cuPointerGetAttribute;
 
 extern decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer;
 
@@ -405,11 +403,15 @@ using MRDeallocCallback = void (*)(PyObject* mr, CUdeviceptr ptr,
 void register_mr_dealloc_callback(MRDeallocCallback cb);
 
 // Create a device pointer handle whose destructor calls mr.deallocate()
-// via the registered callback. The pointer's allocation context is retained
-// when discoverable and made current for the callback. The mr's refcount is
-// incremented and decremented when the handle is released.
+// via the registered callback. The supplied context is retained and made
+// current for the callback. The mr's refcount is incremented and decremented
+// when the handle is released.
 // If mr is nullptr, equivalent to deviceptr_create_ref.
-DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr);
+DevicePtrHandle deviceptr_create_with_mr(
+    CUdeviceptr ptr,
+    size_t size,
+    PyObject* mr,
+    const ContextHandle& h_context);
 
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
@@ -425,7 +427,11 @@ DevicePtrHandle deviceptr_import_ipc(
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
+// If the handle has no cleanup context, use the supplied stream context.
+void set_deallocation_stream(
+    const DevicePtrHandle& h,
+    const StreamHandle& h_stream,
+    const ContextHandle& h_context) noexcept;
 
 // ============================================================================
 // Library handle functions
