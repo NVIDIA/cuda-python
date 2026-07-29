@@ -64,6 +64,63 @@ def note(message):
         _log.write(f"{message}\n")
 
 
+class _ImportNoter:
+    """A meta path finder that records a name and then steps aside.
+
+    Returning None means "I cannot supply this module", so the real finders
+    run right after and behaviour is unchanged.  What it buys is a line in
+    the log for every import the interpreter begins, in the order it begins
+    them -- and because the log is line buffered, the innermost name is on
+    disk before the module it names starts executing.  A crash inside an
+    extension module's init therefore leaves that module as the last line.
+
+    This exists because PYTHONVERBOSE could not answer the same question:
+    its output goes through the interpreter's C-level stdio, which buffers
+    when redirected to a file, so a fault takes the last several hundred
+    lines with it.
+    """
+
+    @staticmethod
+    def find_spec(fullname, path=None, target=None):  # noqa: ARG004 - MetaPathFinder signature
+        note(f"IMPORT {fullname}")
+        return None
+
+
+def _note_unraisable(unraisable):
+    """Record what would otherwise scroll past as `Exception ignored in:`.
+
+    A Cython `cdef ... noexcept` function cannot propagate an exception, so
+    one raised inside it is printed and cleared, and whatever it was
+    computing is left at its default -- a NULL function pointer, in the case
+    of cuda.core's driver-pointer initialisers, which faults only later when
+    something calls through it.  Routing unraisables into this log puts them
+    in sequence with the IMPORT lines, so a swallowed error and the module
+    that swallowed it appear together.
+    """
+    exc_type = getattr(unraisable.exc_type, "__name__", unraisable.exc_type)
+    note(f"UNRAISABLE {exc_type}: {unraisable.exc_value!r} in {unraisable.object!r}")
+    if _prev_unraisablehook is not None:
+        _prev_unraisablehook(unraisable)
+
+
+_prev_unraisablehook = None
+_tracing = False
+
+
+def enable_tracing():
+    """Start recording imports and unraisable exceptions.  Idempotent."""
+    global _prev_unraisablehook, _tracing
+    if _tracing or _log is None:
+        return
+    _tracing = True
+    # First in the list, so the name is recorded before any real finder can
+    # start loading it.
+    sys.meta_path.insert(0, _ImportNoter)
+    _prev_unraisablehook = sys.unraisablehook
+    sys.unraisablehook = _note_unraisable
+    note("tracing enabled")
+
+
 def pytest_configure():
     # Covers direct `-p pytest_crashlog` use, where nothing called open_log().
     # By the time this runs the initial conftests have already been imported,

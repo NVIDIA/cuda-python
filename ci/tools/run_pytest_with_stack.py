@@ -125,6 +125,13 @@ def main():
         # would otherwise leave no file at all, indistinguishable from a crash
         # before pytest ever started.
         pytest_crashlog.open_log()
+        # The nightly's log has so far ended at "entering pytest.main", which
+        # says the fault is somewhere in the initial conftest import but not
+        # which module.  Tracing imports through the same line-buffered file
+        # answers that: the last IMPORT line names the module that was being
+        # loaded.  Enabled here so it also covers pytest's own startup, since
+        # the fault happens before pytest_configure would run.
+        pytest_crashlog.enable_tracing()
         pytest_crashlog.note("entering pytest.main")
         # Hand pytest the imported module rather than "-p pytest_crashlog":
         # naming it would make pytest import it a second time and warn that
