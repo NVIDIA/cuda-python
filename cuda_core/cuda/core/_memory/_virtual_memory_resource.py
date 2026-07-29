@@ -265,7 +265,8 @@ class VirtualMemoryResource(MemoryResource):
             0,
         )
 
-        if res != driver.CUresult.CUDA_SUCCESS or new_ptr != (int(buf.handle) + aligned_prev_size):
+        expected_ptr = int(buf.handle) + aligned_prev_size
+        if res != driver.CUresult.CUDA_SUCCESS:
             # Check for specific errors that are not recoverable with the slow path
             if res in (
                 driver.CUresult.CUDA_ERROR_INVALID_VALUE,
@@ -274,15 +275,21 @@ class VirtualMemoryResource(MemoryResource):
                 driver.CUresult.CUDA_ERROR_NOT_SUPPORTED,
             ):
                 raise_if_driver_error(res)
+            # Fallback: couldn't reserve contiguously, need full remapping
+            return self._grow_allocation_slow_path(
+                buf, new_size, prop, aligned_additional_size, total_aligned_size, addr_align
+            )
+
+        if int(new_ptr) != expected_ptr:
             (res2,) = driver.cuMemAddressFree(new_ptr, aligned_additional_size)
             raise_if_driver_error(res2)
             # Fallback: couldn't extend contiguously, need full remapping
             return self._grow_allocation_slow_path(
                 buf, new_size, prop, aligned_additional_size, total_aligned_size, addr_align
             )
-        else:
-            # Success! We can extend the VA range contiguously
-            return self._grow_allocation_fast_path(buf, new_size, prop, aligned_additional_size, new_ptr)
+
+        # Success! We can extend the VA range contiguously
+        return self._grow_allocation_fast_path(buf, new_size, prop, aligned_additional_size, new_ptr)
 
     def _grow_allocation_fast_path(
         self, buf: Buffer, new_size: int, prop: driver.CUmemAllocationProp, aligned_additional_size: int, new_ptr: int
