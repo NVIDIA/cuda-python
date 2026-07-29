@@ -343,7 +343,7 @@ jobs:
           retention-days: 3
 
       - name: Deploy or clean up doc preview
-        if: ${{ inputs.deploy-docs && !inputs.is-release }}
+        if: ${{ inputs.deploy-docs && !inputs.is-release && github.event_name != 'workflow_dispatch' && github.event_name != 'schedule' }}
         uses: ./.github/actions/doc_preview
         with:
           source-folder: ${{ (github.ref_name != 'main' && 'artifacts/docs') ||

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -10,12 +10,12 @@ runs:
   using: composite
   steps:
     - name: Get PR info (non-main, non-release branch)
-      if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+      if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && github.event_name != 'workflow_dispatch' && github.event_name != 'schedule' }}
       uses: nv-gha-runners/get-pr-info@main
       id: get-pr-info
 
     - name: Extract PR number (non-main, non-release branch)
-      if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
+      if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') && github.event_name != 'workflow_dispatch' && github.event_name != 'schedule' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         trap 'echo "Error at line $LINENO"; exit 1' ERR
@@ -28,7 +28,7 @@ runs:
         echo "BUILD_PREVIEW=1" >> $GITHUB_ENV
 
     - name: Get PR data (main or release/* branch)
-      if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'release/') }}
+      if: ${{ (github.ref_name == 'main' || startsWith(github.ref_name, 'release/')) && github.event_name != 'workflow_dispatch' && github.event_name != 'schedule' }}
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
       id: get-pr-data
       with:
@@ -45,7 +45,7 @@ runs:
           }
 
     - name: Extract PR number (main or release/* branch)
-      if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'release/') }}
+      if: ${{ (github.ref_name == 'main' || startsWith(github.ref_name, 'release/')) && github.event_name != 'workflow_dispatch' && github.event_name != 'schedule' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         trap 'echo "Error at line $LINENO"; exit 1' ERR
@@ -55,4 +55,10 @@ runs:
           exit 1
         fi
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+        echo "BUILD_LATEST=1" >> $GITHUB_ENV
+
+    - name: Set BUILD_LATEST for scheduled and manual runs
+      if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
         echo "BUILD_LATEST=1" >> $GITHUB_ENV
