@@ -1,0 +1,74 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 13.4.0 Release notes
+======================================
+
+New APIs
+--------
+
+New APIs from CUDA Toolkit 13.4 are now available in ``cuda-bindings``.
+
+New driver API functions:
+
+* :func:`driver.cuDeviceGetFabricClusterUuid`
+* :func:`driver.cuDeviceGetCliqueCount`
+* :func:`driver.cuDeviceGetCliqueInfo`
+* :func:`driver.cuMemGetLocationInfo`
+* :func:`driver.cuGraphAddNode_v3`
+* :func:`driver.cuGraphNodeSetParams_v2`
+* :func:`driver.cuCheckpointOperationComplete`
+
+New runtime API functions:
+
+* :func:`runtime.cudaMemGetLocationInfo`
+
+New cuFile API functions:
+
+* :func:`cufile.readv`
+* :func:`cufile.writev`
+
+New NVML API functions:
+
+* :func:`nvml.system_get_cper_v1`
+* :func:`nvml.device_get_bbx_time_data_v1`
+* :func:`nvml.device_get_accounting_stats_v2`
+* :func:`nvml.device_get_remapped_rows_v2`
+* :func:`nvml.device_set_adaptive_tgp_mode_v1`
+* :func:`nvml.device_get_adaptive_tgp_mode_info_v1`
+* :func:`nvml.device_set_memory_limits_v1`
+* :func:`nvml.device_get_memory_limits_v1`
+* :func:`nvml.device_get_gpu_fabric_info_v4`
+* :func:`nvml.device_perf_metrics_get_samples_v1`
+* :func:`nvml.device_set_nvlink_bw_mode_async_v1`
+* :func:`nvml.device_get_nv_link_telemetry_samples_v1`
+* :func:`nvml.event_set_register_gpu_operational_events_v1`
+* :func:`nvml.event_set_wait_v3`
+* :func:`nvml.event_set_get_context_count_v1`
+* :func:`nvml.event_set_get_context_info_v1`
+* :func:`nvml.event_set_get_gpu_operational_event_context_legacy_xid_v1`
+* :func:`nvml.device_get_bank_remapper_status_v1`
+* :func:`nvml.event_set_get_context_data_v1`
+
+Deprecation Notices
+-------------------
+
+* Support for using ``cuda-bindings`` with Python 3.10 is deprecated and will be
+  removed in a future version.  Python 3.10 reaches end of life in October 2026
+  per the `CPython support cycle <https://devguide.python.org/versions/>`_.
+
+Prerelease feature
+------------------
+
+A new version of the ``nvrtc`` API is available as ``cuda.bindings._v2.nvrtc``.  The
+primary improvements are: (1) raising exceptions rather than returning error
+codes, (2) uses PEP8-compliant naming, and (3) more performance.  This API is
+still experimental and subject to change.
+
+Known issues
+------------
+
+* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
+* ``nvml.system_get_process_name`` on WSL can return incorrect values.  To work around this, set the locale to "C" before calling ``nvml.device_get_compute_running_processes_v3`` (which sets the process names) and before calling ``nvml.system_get_process_name``. ``cuda_core`` does this automatically, but users of the raw NVML API will need to do this manually.

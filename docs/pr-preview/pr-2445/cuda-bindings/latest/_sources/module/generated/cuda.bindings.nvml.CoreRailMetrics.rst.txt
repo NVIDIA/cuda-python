@@ -1,0 +1,32 @@
+﻿cuda.bindings.nvml.CoreRailMetrics
+==================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: CoreRailMetrics
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CoreRailMetrics.__init__
+      ~CoreRailMetrics.from_buffer
+      ~CoreRailMetrics.from_data
+      ~CoreRailMetrics.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CoreRailMetrics.ptr
+      ~CoreRailMetrics.rails
+   
+   

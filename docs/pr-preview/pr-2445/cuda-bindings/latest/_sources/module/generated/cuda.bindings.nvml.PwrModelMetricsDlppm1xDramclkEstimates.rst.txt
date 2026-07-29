@@ -1,0 +1,32 @@
+﻿cuda.bindings.nvml.PwrModelMetricsDlppm1xDramclkEstimates
+=========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PwrModelMetricsDlppm1xDramclkEstimates
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PwrModelMetricsDlppm1xDramclkEstimates.__init__
+      ~PwrModelMetricsDlppm1xDramclkEstimates.from_buffer
+      ~PwrModelMetricsDlppm1xDramclkEstimates.from_data
+      ~PwrModelMetricsDlppm1xDramclkEstimates.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PwrModelMetricsDlppm1xDramclkEstimates.estimated_metrics
+      ~PwrModelMetricsDlppm1xDramclkEstimates.ptr
+   
+   

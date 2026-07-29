@@ -1,0 +1,35 @@
+﻿cuda.bindings.nvml.OperationalEventContextInfo\_v1
+==================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: OperationalEventContextInfo_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OperationalEventContextInfo_v1.__init__
+      ~OperationalEventContextInfo_v1.from_buffer
+      ~OperationalEventContextInfo_v1.from_data
+      ~OperationalEventContextInfo_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OperationalEventContextInfo_v1.data_format_version
+      ~OperationalEventContextInfo_v1.data_size
+      ~OperationalEventContextInfo_v1.nvml_gpu_operational_event_context_type
+      ~OperationalEventContextInfo_v1.ptr
+      ~OperationalEventContextInfo_v1.source_event_context_type
+   
+   

@@ -1,0 +1,32 @@
+﻿cuda.bindings.nvml.PerfMetricsDlppc2xSample
+===========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PerfMetricsDlppc2xSample
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PerfMetricsDlppc2xSample.__init__
+      ~PerfMetricsDlppc2xSample.from_buffer
+      ~PerfMetricsDlppc2xSample.from_data
+      ~PerfMetricsDlppc2xSample.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PerfMetricsDlppc2xSample.observed_metrics
+      ~PerfMetricsDlppc2xSample.ptr
+   
+   
