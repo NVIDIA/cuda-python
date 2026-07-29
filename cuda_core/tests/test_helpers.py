@@ -17,7 +17,7 @@ NBYTES = 64
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
-@thread_unsafe_on_windows
+@pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
 def test_latchkernel():
     """Test LatchKernel."""
     log = TimestampedLogger(enabled=ENABLE_LOGGING)
