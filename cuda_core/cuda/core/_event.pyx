@@ -43,6 +43,8 @@ if TYPE_CHECKING:
     import cuda.bindings.driver  # no-cython-lint
     from cuda.core._device import Device
 
+__all__ = ['Event', 'EventOptions']
+
 
 @dataclass
 cdef class EventOptions:

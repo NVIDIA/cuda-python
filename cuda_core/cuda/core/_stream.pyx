@@ -47,6 +47,9 @@ if TYPE_CHECKING:
     from cuda.core._device import Device
     from cuda.core.graph import GraphBuilder
 
+__all__ = ['LEGACY_DEFAULT_STREAM', 'PER_THREAD_DEFAULT_STREAM', 'Stream', 'StreamOptions']
+
+
 @dataclass
 cdef class StreamOptions:
     """Customizable :obj:`~_stream.Stream` options.
