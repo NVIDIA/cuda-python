@@ -390,17 +390,28 @@ jobs:
       # Only this step crashes.  cuda.bindings runs the same wrapper, the same
       # 8 MB thread and the same coverage wheel, and finishes normally, so the
       # extra diagnostics are scoped to cuda.core alone.
+      #
+      # The crash log narrows the fault to "somewhere before pytest collects".
+      # PYTHONVERBOSE narrows it to a module: the interpreter announces every
+      # import as it begins one, so the last line written before the process
+      # dies names the module it died in.  That output is stderr, which is why
+      # the session is redirected to a file rather than left in the step log --
+      # a crash takes the tail of a pipe with it, while each unbuffered write
+      # to a file has already reached the OS.
       - name: Run cuda.core tests (with 8MB stack)
         continue-on-error: true
         env:
           PYTEST_CRASHLOG: ${{ github.workspace }}/crashlog-core.txt
+          PYTEST_FAULTLOG: ${{ github.workspace }}/faulthandler-core.txt
+          PYTHONVERBOSE: "1"
         run: |
           "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
             --isolate \
             --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
-            "$GITHUB_WORKSPACE/cuda_core/tests"
+            "$GITHUB_WORKSPACE/cuda_core/tests" \
+            > "$GITHUB_WORKSPACE/verbose-core.txt" 2>&1
 
       # The step above has been exiting 139 on every run, and Git Bash reports
       # that as a bare "Segmentation fault".  The crash log's final line says
@@ -411,11 +422,69 @@ jobs:
         run: |
           log="$GITHUB_WORKSPACE/crashlog-core.txt"
           if [ -f "$log" ]; then
-            echo "=== $(wc -l < "$log") lines, last 20 ==="
+            echo "=== crashlog: $(wc -l < "$log") lines, last 20 ==="
             tail -n 20 "$log"
           else
             echo "No crash log: died before pytest started."
           fi
+
+          echo ""
+          fault="$GITHUB_WORKSPACE/faulthandler-core.txt"
+          if [ -s "$fault" ]; then
+            echo "=== faulthandler ==="
+            cat "$fault"
+          else
+            # Empty is itself a result: the fault never reached Python's
+            # handler, which points at native code running outside any Python
+            # frame -- an extension module's initialisation, for instance.
+            echo "=== faulthandler: no output ==="
+          fi
+
+          echo ""
+          verbose="$GITHUB_WORKSPACE/verbose-core.txt"
+          if [ -f "$verbose" ]; then
+            echo "=== PYTHONVERBOSE: $(wc -l < "$verbose") lines, last 40 ==="
+            tail -n 40 "$verbose"
+          fi
+
+      # Windows records an Application Error entry for every process it kills,
+      # naming the faulting module and the offset within it, and it does so
+      # whether or not crash dumps are configured.  That is the one fact no
+      # Python-level log can produce, and reading the log changes no machine
+      # state, so nothing has to be restored afterwards.
+      - name: Read the crash record from the Windows event log
+        if: always()
+        continue-on-error: true
+        shell: powershell
+        run: |
+          $events = Get-WinEvent -FilterHashtable @{
+            LogName      = 'Application'
+            ProviderName = 'Application Error', 'Windows Error Reporting'
+            StartTime    = (Get-Date).AddHours(-2)
+          } -ErrorAction SilentlyContinue
+          if (-not $events) {
+            Write-Output "No Application Error / WER records in the last 2 hours."
+            Write-Output "(If this image keeps no such log, a minidump is the fallback.)"
+            exit 0
+          }
+          foreach ($e in $events | Select-Object -First 15) {
+            Write-Output "===== $($e.TimeCreated.ToString('u'))  $($e.ProviderName)  Id=$($e.Id) ====="
+            Write-Output $e.Message
+            Write-Output ""
+          }
+
+      - name: Upload crash diagnostics
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: crash-diagnostics-windows
+          path: |
+            crashlog-core.txt
+            faulthandler-core.txt
+            verbose-core.txt
+          retention-days: 7
+          if-no-files-found: warn
 
       - name: Copy Windows coverage file to workspace
         run: |

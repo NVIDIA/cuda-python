@@ -95,6 +95,23 @@ def main():
     if args.isolate:
         sys.exit(_run_isolated(args.stack_mb, args.cwd, pytest_args))
 
+    # PYTHONFAULTHANDLER writes to stderr, and the nightly's stderr has so far
+    # carried nothing at all -- which leaves two very different readings: the
+    # handler produced a traceback that the dying process failed to flush, or
+    # it never ran because the fault happened outside any Python frame.  A
+    # dedicated unbuffered file separates them: still empty here means the
+    # handler genuinely had nothing to say.  The handle is deliberately kept
+    # alive for the life of the process; faulthandler writes through its fd.
+    if os.environ.get("PYTEST_FAULTLOG"):
+        import faulthandler
+
+        try:
+            _fault_fp = open(os.environ["PYTEST_FAULTLOG"], "w", buffering=1)  # noqa: SIM115
+        except OSError as exc:
+            print(f"[stack-wrapper] cannot open fault log: {exc}", file=sys.stderr, flush=True)
+        else:
+            faulthandler.enable(file=_fault_fp, all_threads=True)
+
     plugins = []
     if os.environ.get("PYTEST_CRASHLOG"):
         # Load the progress logger from this script's directory, which is not
