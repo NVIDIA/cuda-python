@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3ee237ed16e651bae93e2bc6d4d63dcf99b309ad7a74cb3e2bd5b9e540e714f4
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b793aebd0586162e23d26c82e2bd54c21675584e3c23d6e443f3a83c61a8674c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -768,13 +768,19 @@ cdef class Fence:
         return obj
 
 
-dev_attribute_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(cudlaDevAttribute))),
-    {
-        "unified_addressing_supported": (_numpy.uint8, 0),
-        "device_version": (_numpy.uint32, 0),
-    }
-    ))
+cdef _get_dev_attribute_dtype_offsets():
+    cdef cudlaDevAttribute pod
+    return _numpy.dtype({
+        'names': ['unified_addressing_supported', 'device_version'],
+        'formats': [_numpy.uint8, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.unifiedAddressingSupported)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.deviceVersion)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(cudlaDevAttribute),
+    })
+
+dev_attribute_dtype = _get_dev_attribute_dtype_offsets()
 
 cdef class DevAttribute:
     """Empty-initialize an instance of `cudlaDevAttribute`.
@@ -905,15 +911,21 @@ cdef class DevAttribute:
         return obj
 
 
-module_attribute_dtype = _numpy.dtype((
-    _numpy.dtype((_numpy.void, sizeof(cudlaModuleAttribute))),
-    {
-        "num_input_tensors": (_numpy.uint32, 0),
-        "num_output_tensors": (_numpy.uint32, 0),
-        "input_tensor_desc": (_numpy.intp, 0),
-        "output_tensor_desc": (_numpy.intp, 0),
-    }
-    ))
+cdef _get_module_attribute_dtype_offsets():
+    cdef cudlaModuleAttribute pod
+    return _numpy.dtype({
+        'names': ['num_input_tensors', 'num_output_tensors', 'input_tensor_desc', 'output_tensor_desc'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.numInputTensors)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.numOutputTensors)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.inputTensorDesc)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.outputTensorDesc)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(cudlaModuleAttribute),
+    })
+
+module_attribute_dtype = _get_module_attribute_dtype_offsets()
 
 cdef class ModuleAttribute:
     """Empty-initialize an instance of `cudlaModuleAttribute`.
@@ -1153,7 +1165,12 @@ cdef class WaitEvents:
         """int: """
         if self._ptr[0].preFences == NULL or self._ptr[0].numEvents == 0:
             return []
-        return Fence.from_ptr(<intptr_t>(self._ptr[0].preFences), self._ptr[0].numEvents)
+        return Fence.from_ptr(
+            <intptr_t>(self._ptr[0].preFences),
+            self._ptr[0].numEvents,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @pre_fences.setter
     def pre_fences(self, val):
@@ -1319,7 +1336,12 @@ cdef class SignalEvents:
         """int: """
         if self._ptr[0].eofFences == NULL or self._ptr[0].numEvents == 0:
             return []
-        return Fence.from_ptr(<intptr_t>(self._ptr[0].eofFences), self._ptr[0].numEvents)
+        return Fence.from_ptr(
+            <intptr_t>(self._ptr[0].eofFences),
+            self._ptr[0].numEvents,
+            owner=self,
+            readonly=self._readonly
+        )
 
     @eof_fences.setter
     def eof_fences(self, val):

@@ -24,7 +24,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
     as_intptr,
     create_event_handle_ref,
-    create_graph_handle_ref,
+    create_child_graph_handle,
     create_kernel_handle_ref,
     graph_node_get_graph,
 )
@@ -470,7 +470,8 @@ cdef class ChildGraphNode(GraphNode):
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(node, &child_graph))
         cdef GraphHandle h_graph = graph_node_get_graph(h_node)
-        cdef GraphHandle h_child = create_graph_handle_ref(child_graph, h_graph)
+        cdef GraphHandle h_child = create_child_graph_handle(
+            child_graph, h_graph, node)
         return ChildGraphNode._create_with_params(h_node, h_child)
 
     def __repr__(self) -> str:
@@ -656,9 +657,9 @@ cdef class ConditionalNode(GraphNode):
         cdef GraphHandle h_branch
         if cond_params.phGraph_out is not None:
             for i in range(size):
-                h_branch = create_graph_handle_ref(
+                h_branch = create_child_graph_handle(
                     <cydriver.CUgraph><uintptr_t>int(cond_params.phGraph_out[i]),
-                    h_graph)
+                    h_graph, node)
                 branch_list.append(GraphDefinition._from_handle(h_branch))
         cdef tuple branches = tuple(branch_list)
 

@@ -3,6 +3,9 @@
 
 """Tests for mutating a graph definition (edge changes, node removal)."""
 
+import gc
+import weakref
+
 import numpy as np
 import pytest
 from helpers.collection_interface_testers import assert_mutable_set_interface
@@ -305,6 +308,42 @@ def test_destroyed_node(init_cuda):
     # Repeated destroy succeeds quietly.
     b.destroy()
     assert not b.is_valid
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_failed_destroy_preserves_node_and_attachments(init_cuda):
+    """A graph-memory restriction must not invalidate a failed node deletion."""
+    if not Device(0).properties.memory_pools_supported:
+        pytest.skip("graph memory nodes require memory pool support")
+
+    called = [False]
+
+    def callback():
+        called[0] = True
+
+    callback_weak = weakref.ref(callback)
+    graph_def = GraphDefinition()
+    alloc = graph_def.allocate(4)
+    node = alloc.callback(callback)
+    edge = (alloc, node)
+
+    del callback
+    gc.collect()
+    assert callback_weak() is not None
+
+    with pytest.raises(CUDAError):
+        node.destroy()
+
+    assert node.is_valid
+    assert node in graph_def.nodes()
+    assert edge in graph_def.edges()
+    assert callback_weak() is not None
+
+    graph = graph_def.instantiate()
+    stream = Device().create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called[0]
 
 
 def test_add_wrong_type(init_cuda):

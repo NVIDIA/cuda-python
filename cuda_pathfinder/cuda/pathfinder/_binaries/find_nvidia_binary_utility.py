@@ -63,7 +63,9 @@ def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[str]) -> str | Non
         seen.add(directory)
         candidate = os.path.join(directory, normalized_name)
         if _is_executable_candidate(candidate):
-            return candidate
+            # Return an absolute path, as the docstring promises (a relative
+            # search dir would otherwise leak a relative result).
+            return os.path.abspath(candidate)
     return None
 
 

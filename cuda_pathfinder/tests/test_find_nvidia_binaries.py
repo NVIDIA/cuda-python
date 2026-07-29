@@ -152,7 +152,7 @@ def test_find_binary_first_matching_dir_wins(monkeypatch, mocker):
     result = find_nvidia_binary_utility("nvcc")
 
     # Conda comes before CUDA_HOME, so the Conda hit wins and CUDA_HOME is never probed.
-    assert result == conda_nvcc
+    assert result == os.path.abspath(conda_nvcc)
     assert checked == [os.path.join(site_dir, "nvcc"), conda_nvcc]
 
 
@@ -173,7 +173,7 @@ def test_find_binary_ctk_root_canary_fallback(monkeypatch, mocker):
 
     result = find_nvidia_binary_utility("nvcc")
 
-    assert result == ctk_nvcc
+    assert result == os.path.abspath(ctk_nvcc)
     canary_mock.assert_called_once_with()
     # No earlier trusted dirs existed, so the only probe is the canary bin dir.
     assert checked == [ctk_nvcc]
@@ -218,7 +218,7 @@ def test_find_binary_canary_not_consulted_when_found_earlier(monkeypatch, mocker
 
     result = find_nvidia_binary_utility("nvcc")
 
-    assert result == conda_nvcc
+    assert result == os.path.abspath(conda_nvcc)
     canary_mock.assert_not_called()
 
 
@@ -370,3 +370,27 @@ def test_caching_per_utility():
     # them is None)
     if nvdisasm1 is not None and nvcc1 is not None:
         assert nvdisasm1 != nvcc1
+
+
+def test_resolve_in_trusted_dirs_returns_absolute_path(tmp_path, monkeypatch, mocker):
+    """A match found under a relative search dir must be absolutized.
+
+    ``find_nvidia_binary_utility`` documents an absolute, separator-resolved
+    result. A relative search dir (e.g. a relative ``CUDA_HOME``) previously
+    leaked a relative path that would re-resolve against a possibly different
+    CWD at execution time.
+    """
+    rel_dir = os.path.join("some", "relative", "bin")
+    candidate = os.path.join(rel_dir, "nvcc")
+    mocker.patch.object(
+        binary_finder_module,
+        "_is_executable_candidate",
+        side_effect=lambda path: path == candidate,
+    )
+
+    # Anchor CWD so os.path.abspath is deterministic for the assertion.
+    monkeypatch.chdir(tmp_path)
+    result = binary_finder_module._resolve_in_trusted_dirs("nvcc", [rel_dir])
+
+    assert os.path.isabs(result)
+    assert result == os.path.abspath(os.path.join(str(tmp_path), candidate))
