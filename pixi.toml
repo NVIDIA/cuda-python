@@ -13,6 +13,7 @@ platforms = ["linux-64", "linux-aarch64", "win-64"]
 cu12 = { features = ["cu12"] }
 cu13 = { features = ["cu13"] }
 docs = { features = [], solve-group = "docs" }
+clean = { features = ["clean"], no-default-feature = true }
 
 [activation.env]
 PIXI_ENVIRONMENT_NAME = "${PIXI_ENVIRONMENT_NAME/default/cu13}"
@@ -94,3 +95,23 @@ depends-on = [
 
 [dependencies]
 ruff = ">=0.15.3,<0.16"
+
+# Remove stale build artifacts (compiled Cython extensions, generated .pyx/.cpp,
+# the cache_driver/cache_runtime/cache_nvrtc parser caches). Needed when moving a
+# checkout between the cu12 and cu13 environments, where leftovers from the
+# previous CUDA major make the next build fail with errors that point at code
+# which is fine.
+#
+#   pixi run clean-dry-run   # show what would be removed
+#   pixi run clean           # remove it
+#
+# Lives in its own environment (with `no-default-feature`) so that the Python
+# needed to run the script is not solved into the cu12/cu13/docs environments.
+[feature.clean.dependencies]
+python = ">=3.10"
+
+[feature.clean.tasks.clean]
+cmd = ["python", "toolshed/clean.py"]
+
+[feature.clean.tasks.clean-dry-run]
+cmd = ["python", "toolshed/clean.py", "--dry-run"]
