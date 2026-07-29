@@ -6,7 +6,6 @@
 # Usage:
 #     cd cuda-python
 #     powershell -File toolshed\collect_site_packages_dll_files.ps1
-#     python .\toolshed\make_site_packages_libdirs.py windows site_packages_dll.txt
 
 $ErrorActionPreference = 'Stop'
 

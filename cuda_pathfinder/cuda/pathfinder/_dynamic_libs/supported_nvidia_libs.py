@@ -68,7 +68,6 @@ LIBNAMES_REQUIRING_RTLD_DEEPBIND = tuple(
     desc.name for desc in DESCRIPTOR_CATALOG if desc.requires_rtld_deepbind and desc.linux_sonames
 )
 
-# Based on output of toolshed/make_site_packages_libdirs_linux.py
 SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     desc.name: desc.site_packages_linux for desc in _CTK_DESCRIPTORS if desc.site_packages_linux
 }
