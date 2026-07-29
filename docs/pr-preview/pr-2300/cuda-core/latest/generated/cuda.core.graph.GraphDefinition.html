@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0c80bd3b"></script>
+    <script src="../_static/documentation_options.js?v=8d515ae2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev21';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev41';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -661,6 +661,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE.html">cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
@@ -755,6 +756,10 @@
 <p>A GraphDefinition is used to construct a graph explicitly by adding nodes
 and specifying dependencies. Once construction is complete, call
 instantiate() to obtain an executable Graph.</p>
+<p class="rubric">Notes</p>
+<p>Definitions that view the same root, child, or conditional graph hierarchy
+share underlying graph state. Mutations anywhere in that hierarchy must be
+externally synchronized.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.GraphDefinition.__init__">
@@ -1009,9 +1014,9 @@ a dependency edge in the graph.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">dst:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">width</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">height=1</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">pitch=0</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">dst_owner=None</span></span></em>,</dd>
 </dl>
 
