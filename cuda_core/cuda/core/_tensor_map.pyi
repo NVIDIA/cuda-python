@@ -284,6 +284,7 @@ class TensorMapDescriptor:
 
     def __repr__(self) -> str:
         ...
+__all__ = ['TensorMapDescriptor', 'TensorMapDescriptorOptions']
 _TMA_DT_UINT8 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT8)
 _TMA_DT_UINT16 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT16)
 _TMA_DT_UINT32 = int(cydriver.CU_TENSOR_MAP_DATA_TYPE_UINT32)

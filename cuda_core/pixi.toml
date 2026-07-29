@@ -21,6 +21,7 @@ pytest-randomly = "*"
 pytest-repeat = "*"
 pytest-rerunfailures = "*"
 cloudpickle = "*"
+docutils = "*"
 psutil = "*"
 pyglet = "*"
 

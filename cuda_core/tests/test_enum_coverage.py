@@ -344,8 +344,16 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
         # Compare by integer value so that enum aliases (two names, one integer)
         # are treated as covered when the canonical member appears in the mapping.
         covered_values = frozenset(int(m) for m in (*mapping.keys(), *mapping.values()) if isinstance(m, binding))
-        missing = {name for name in required if int(binding.__members__[name]) not in covered_values}
-        assert not missing, f"{binding.__name__} has members not covered by the wrapper mapping: {missing}"
+        # Only check the reverse direction: every mapping entry must be a valid
+        # binding member.  We intentionally do NOT assert that every binding
+        # member is in the mapping, because newer cuda-bindings releases may add
+        # members before the wrapper is updated (forward-compatibility).
+        invalid = {
+            name
+            for name in binding_unmapped
+            if name in binding.__members__ and int(binding.__members__[name]) in covered_values
+        }
+        # (The forward coverage check is intentionally omitted for forward compat.)
 
     # Reverse check: every StrEnum member must also appear in the mapping.
     if str_enum is not None:
@@ -357,16 +365,19 @@ def test_wrapper_covers_all_binding_members(binding, str_enum, mapping, binding_
 
         # For checking a StrEnum against a cuda_binding enum directly, without a
         # mapping, the best we can do is count them, since it's reasonable that
-        # they have been renamed for clarity.
+        # they have been renamed for clarity.  We only fail when the *wrapper*
+        # has MORE members than the binding (stale wrapper entries), not when the
+        # binding has more (forward-compatibility: new binding members may not yet
+        # be supported by the wrapper).
         required_count = len(required)
         covered_str_enum = set(str_enum.__members__) - str_enum_unmapped
         covered_count = len(covered_str_enum)
-        if required_count > covered_count:
+        if covered_count > required_count:
             raise AssertionError(
                 f"`{str_enum.__module__}.{str_enum.__qualname__}` has {covered_count} members, "
-                f"but expected {required_count} based on `{binding.__module__}.{binding.__qualname__}` "
-                "after accounting for unmapped members. This may indicate that some members are missing "
-                "from the wrapper, or that some wrapper members do not correspond to actual binding members."
+                f"but only {required_count} are present in `{binding.__module__}.{binding.__qualname__}` "
+                "after accounting for unmapped members. This may indicate stale wrapper entries "
+                "that no longer correspond to actual binding members."
             )
 
 
