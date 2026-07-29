@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=2b2ec289"></script>
+    <script src="_static/documentation_options.js?v=d6a008b6"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.5.7';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.6.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -460,6 +460,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.6.0-notes.html">1.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.5.6-notes.html">1.5.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.5.5-notes.html">1.5.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.5.4-notes.html">1.5.4</a></li>
@@ -584,7 +585,7 @@ the following commands:</p>
 </section>
 <section id="installing-from-source">
 <h3>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_pathfinder
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
@@ -592,6 +593,15 @@ the following commands:</p>
 <p>For an editable install (e.g. when developing <code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> itself):</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The version is derived from git tags via <code class="docutils literal notranslate"><span class="pre">setuptools-scm</span></code>, so the clone
+must include tags reaching back to at least the latest <code class="docutils literal notranslate"><span class="pre">cuda-pathfinder-v*</span></code>
+tag. Do not use <code class="docutils literal notranslate"><span class="pre">--depth</span></code> or <code class="docutils literal notranslate"><span class="pre">--no-tags</span></code>: a shallow clone builds without
+error but produces a bogus version such as <code class="docutils literal notranslate"><span class="pre">0.1.dev1+g0d22cb444</span></code>. See
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md">Cloning the repository</a>
+for details and recovery steps.</p>
 </div>
 </section>
 </section>

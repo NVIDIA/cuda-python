@@ -1,0 +1,6 @@
+﻿cuda.core.system.FunctionNotFoundError
+======================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: FunctionNotFoundError
