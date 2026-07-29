@@ -19,7 +19,6 @@ CUDA bitcode and static libraries.
    get_cuda_path_or_home
 
    SUPPORTED_NVIDIA_LIBNAMES
-   windows_supported_arches
    load_nvidia_dynamic_lib
    LoadedDL
    DynamicLibNotFoundError
