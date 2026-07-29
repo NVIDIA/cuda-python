@@ -321,10 +321,10 @@ cpdef str DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
 
     cdef int dev_id = Device(device_id).device_id
     cdef cydriver.CUmemAccess_flags flags
-    cdef cydriver.CUmemLocation location
-
-    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    location.id = dev_id
+    cdef cydriver.CUmemLocation location = cydriver.CUmemLocation(
+        type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
+        id=dev_id,
+    )
 
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(dmr._h_pool), &location))

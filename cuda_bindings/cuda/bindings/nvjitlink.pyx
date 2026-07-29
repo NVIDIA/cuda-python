@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=85275f1596953f034c156776f8fe4f6e518dbb89ffedda994d8e78bfd9284246
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=73b6eb59cbe4fda520d37939d18d4625eb3818e37689796be45025a8aa877473
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -117,7 +117,8 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
 
     Args:
         num_options (uint32_t): Number of options passed.
-        options (object): Array of size ``num_options`` of option strings. It can be:
+        options (object): Array of size ``num_options`` of option
+            strings. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address

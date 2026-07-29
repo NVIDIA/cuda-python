@@ -9,13 +9,10 @@ from libc.string cimport memcpy as c_memcpy
 from cuda.bindings cimport cydriver
 
 from cuda.core._resource_handles cimport (
-    GraphHandle,
     OpaqueHandle,
-    graph_set_slot,
     make_opaque_malloc,
     make_opaque_py,
 )
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import ctypes as ct
 
@@ -38,8 +35,7 @@ cdef void _resolve_host_callback(
     On return ``*out_fn`` / ``*out_user_data`` are ready to pass to
     ``cuGraphAddHostNode`` or ``cuLaunchHostFunc``. ``*out_fn_owner`` owns the
     callback object; ``*out_data_owner`` owns a copied ``user_data`` buffer and
-    is left null otherwise. The caller attaches the owners to the node's graph
-    slots.
+    is left null otherwise. The caller attaches both owners to the graph node.
     """
     if isinstance(fn, ct._CFuncPtr):
         out_fn[0] = <cydriver.CUhostFn><uintptr_t>ct.cast(fn, ct.c_void_p).value
@@ -65,15 +61,3 @@ cdef void _resolve_host_callback(
         out_user_data[0] = <void*>fn
 
     out_fn_owner[0] = make_opaque_py(fn)
-
-
-cdef int _attach_host_callback_owners(
-        const GraphHandle& h_graph, cydriver.CUgraphNode node,
-        OpaqueHandle fn_owner, OpaqueHandle data_owner) except -1:
-    """Attach a resolved host callback's owners to its node's graph slots: the
-    callback in slot 0 and any copied ``user_data`` buffer in slot 1.
-    """
-    HANDLE_RETURN(graph_set_slot(h_graph, node, 0, fn_owner))
-    if data_owner:
-        HANDLE_RETURN(graph_set_slot(h_graph, node, 1, data_owner))
-    return 0

@@ -3,10 +3,42 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=27eba7e4fbbc2bca4f40e906d63b9386cce38cbabfcc50e6a2d7ad5bc0b68e91
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=45cd03eeb8717b33a1e11d83ae99ac8d6b580e4c57fad99d185614bd0047faf3
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
+
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
 
 cdef extern from "<dlfcn.h>":
     void* _cyb_dlsym "dlsym"(void*, const char*) nogil
@@ -16,7 +48,7 @@ from libc.stdint cimport intptr_t as _cyb_intptr_t
 
 import threading as _cyb_threading
 
-cdef bint _cyb___py_nvml_init = False
+cdef int _cyb___py_nvml_init = 0
 cdef dict _cyb_func_ptrs = None
 cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
@@ -383,6 +415,10 @@ cdef void* __nvmlDeviceGetVgpuSchedulerLog_v2 = NULL
 cdef void* __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = NULL
 cdef void* __nvmlDeviceSetVgpuSchedulerState_v2 = NULL
 cdef void* __nvmlGpuInstanceSetVgpuSchedulerState_v2 = NULL
+cdef void* __nvmlSystemGetCPER_v1 = NULL
+cdef void* __nvmlDeviceGetBBXTimeData_v1 = NULL
+cdef void* __nvmlDeviceGetAccountingStats_v2 = NULL
+cdef void* __nvmlDeviceGetRemappedRows_v2 = NULL
 
 cdef int _init_nvml() except -1 nogil:
     global _cyb___py_nvml_init
@@ -2847,11 +2883,39 @@ cdef int _init_nvml() except -1 nogil:
                 handle = load_library()
             __nvmlGpuInstanceSetVgpuSchedulerState_v2 = _cyb_dlsym(handle, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
 
-        _cyb___py_nvml_init = True
+        global __nvmlSystemGetCPER_v1
+        __nvmlSystemGetCPER_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetCPER_v1')
+        if __nvmlSystemGetCPER_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlSystemGetCPER_v1 = _cyb_dlsym(handle, 'nvmlSystemGetCPER_v1')
+
+        global __nvmlDeviceGetBBXTimeData_v1
+        __nvmlDeviceGetBBXTimeData_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetBBXTimeData_v1')
+        if __nvmlDeviceGetBBXTimeData_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetBBXTimeData_v1 = _cyb_dlsym(handle, 'nvmlDeviceGetBBXTimeData_v1')
+
+        global __nvmlDeviceGetAccountingStats_v2
+        __nvmlDeviceGetAccountingStats_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAccountingStats_v2')
+        if __nvmlDeviceGetAccountingStats_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetAccountingStats_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetAccountingStats_v2')
+
+        global __nvmlDeviceGetRemappedRows_v2
+        __nvmlDeviceGetRemappedRows_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetRemappedRows_v2')
+        if __nvmlDeviceGetRemappedRows_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetRemappedRows_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetRemappedRows_v2')
+
+        _cyb_atomic_int_store(<int *>&_cyb___py_nvml_init, 1)
         return 0
 
 cdef inline int _check_or_init_nvml() except -1 nogil:
-    if _cyb___py_nvml_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_nvml_init):
         return 0
 
     return _init_nvml()
@@ -3916,6 +3980,18 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlGpuInstanceSetVgpuSchedulerState_v2
     data["__nvmlGpuInstanceSetVgpuSchedulerState_v2"] = <_cyb_intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState_v2
+
+    global __nvmlSystemGetCPER_v1
+    data["__nvmlSystemGetCPER_v1"] = <_cyb_intptr_t>__nvmlSystemGetCPER_v1
+
+    global __nvmlDeviceGetBBXTimeData_v1
+    data["__nvmlDeviceGetBBXTimeData_v1"] = <_cyb_intptr_t>__nvmlDeviceGetBBXTimeData_v1
+
+    global __nvmlDeviceGetAccountingStats_v2
+    data["__nvmlDeviceGetAccountingStats_v2"] = <_cyb_intptr_t>__nvmlDeviceGetAccountingStats_v2
+
+    global __nvmlDeviceGetRemappedRows_v2
+    data["__nvmlDeviceGetRemappedRows_v2"] = <_cyb_intptr_t>__nvmlDeviceGetRemappedRows_v2
     _cyb_func_ptrs = data
     return data
 
@@ -7446,3 +7522,43 @@ cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpu
             raise FunctionNotFoundError("function nvmlGpuInstanceSetVgpuSchedulerState_v2 is not found")
     return (<nvmlReturn_t (*)(nvmlGpuInstance_t, nvmlVgpuSchedulerState_v2_t*) noexcept nogil>__nvmlGpuInstanceSetVgpuSchedulerState_v2)(
         gpuInstance, pSchedulerState)
+
+
+cdef nvmlReturn_t _nvmlSystemGetCPER_v1(nvmlGetCPER_v1_t* cper) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlSystemGetCPER_v1
+    _check_or_init_nvml()
+    if __nvmlSystemGetCPER_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlSystemGetCPER_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlGetCPER_v1_t*) noexcept nogil>__nvmlSystemGetCPER_v1)(
+        cper)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetBBXTimeData_v1(nvmlDevice_t device, nvmlBBXTimeData_v1_t* timeData) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetBBXTimeData_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetBBXTimeData_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetBBXTimeData_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlBBXTimeData_v1_t*) noexcept nogil>__nvmlDeviceGetBBXTimeData_v1)(
+        device, timeData)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetAccountingStats_v2(nvmlDevice_t device, nvmlAccountingStats_v2_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetAccountingStats_v2
+    _check_or_init_nvml()
+    if __nvmlDeviceGetAccountingStats_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetAccountingStats_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlAccountingStats_v2_t*) noexcept nogil>__nvmlDeviceGetAccountingStats_v2)(
+        device, stats)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappedRowsInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetRemappedRows_v2
+    _check_or_init_nvml()
+    if __nvmlDeviceGetRemappedRows_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetRemappedRows_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlRemappedRowsInfo_v2_t*) noexcept nogil>__nvmlDeviceGetRemappedRows_v2)(
+        device, info)

@@ -9,8 +9,8 @@ import numpy as np
 
 from cuda import pathfinder
 from cuda.bindings import driver as cuda
-from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
+from cuda.bindings._v2 import nvrtc
 
 from .helper_cuda import check_cuda_errors
 
@@ -44,7 +44,7 @@ class KernelHelper:
                 requirement_not_met(f'pathfinder.find_nvidia_header_directory("{libname}") returned None')
             include_dirs.append(hdr_dir)
 
-        prog = check_cuda_errors(nvrtc.nvrtcCreateProgram(str.encode(code), b"sourceCode.cu", 0, None, None))
+        prog = nvrtc.create_program(str.encode(code), b"sourceCode.cu")
 
         # Initialize CUDA
         check_cuda_errors(cudart.cudaFree(0))
@@ -55,7 +55,7 @@ class KernelHelper:
         minor = check_cuda_errors(
             cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, dev_id)
         )
-        _, nvrtc_minor = check_cuda_errors(nvrtc.nvrtcVersion())
+        _, nvrtc_minor = nvrtc.version()
         use_cubin = nvrtc_minor >= 1
         prefix = "sm" if use_cubin else "compute"
         arch_arg = bytes(f"--gpu-architecture={prefix}_{major}{minor}", "ascii")
@@ -70,11 +70,9 @@ class KernelHelper:
             opts.append(f"--include-path={inc_dir}".encode())
 
         try:
-            check_cuda_errors(nvrtc.nvrtcCompileProgram(prog, len(opts), opts))
-        except RuntimeError as err:
-            log_size = check_cuda_errors(nvrtc.nvrtcGetProgramLogSize(prog))
-            log = b" " * log_size
-            check_cuda_errors(nvrtc.nvrtcGetProgramLog(prog, log))
+            nvrtc.compile_program(prog, opts)
+        except nvrtc.NvrtcError as err:
+            log = nvrtc.get_program_log(prog)
             import sys
 
             print(log.decode(), file=sys.stderr)  # noqa: T201
@@ -82,13 +80,9 @@ class KernelHelper:
             sys.exit(1)
 
         if use_cubin:
-            data_size = check_cuda_errors(nvrtc.nvrtcGetCUBINSize(prog))
-            data = b" " * data_size
-            check_cuda_errors(nvrtc.nvrtcGetCUBIN(prog, data))
+            data = nvrtc.get_cubin(prog)
         else:
-            data_size = check_cuda_errors(nvrtc.nvrtcGetPTXSize(prog))
-            data = b" " * data_size
-            check_cuda_errors(nvrtc.nvrtcGetPTX(prog, data))
+            data = nvrtc.get_ptx(prog)
 
         self.module = check_cuda_errors(cuda.cuModuleLoadData(np.char.array(data)))
 

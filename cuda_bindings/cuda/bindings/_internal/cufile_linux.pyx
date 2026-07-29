@@ -3,10 +3,42 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ae15aefcbc4ccf2d415fb5d6436ae854690559f5561704523ba7d6f45abfc592
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=73d6889e33bb56f1e0e63be7a0ba1f176c5c09e6e1adf9c4360d23335e131260
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
+
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
 
 cdef extern from "<dlfcn.h>":
     void* _cyb_dlsym "dlsym"(void*, const char*) nogil
@@ -17,7 +49,7 @@ from libc.stdint cimport intptr_t as _cyb_intptr_t
 
 import threading as _cyb_threading
 
-cdef bint _cyb___py_cufile_init = False
+cdef int _cyb___py_cufile_init = 0
 cdef dict _cyb_func_ptrs = None
 cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
@@ -385,11 +417,11 @@ cdef int _init_cufile() except -1 nogil:
                 handle = load_library()
             __cuFileGetParameterPosixPoolSlabArray = _cyb_dlsym(handle, 'cuFileGetParameterPosixPoolSlabArray')
 
-        _cyb___py_cufile_init = True
+        _cyb_atomic_int_store(<int *>&_cyb___py_cufile_init, 1)
         return 0
 
 cdef inline int _check_or_init_cufile() except -1 nogil:
-    if _cyb___py_cufile_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_cufile_init):
         return 0
 
     return _init_cufile()
