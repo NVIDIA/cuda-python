@@ -2,7 +2,7 @@
 .. SPDX-License-Identifier: Apache-2.0
 
 .. !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=aeabf4d9caf54446607e921c2143746c4bdc69ab464e319ee0091fdce702280f
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b2e152b7f88e4586d38b2fe9692dba22ce9eff2fc1186a152c681481bcf3f9f9
 -------
 runtime
 -------
@@ -5397,14 +5397,9 @@ Data types used by CUDA Runtime
 
     Indicates that the layered sparse CUDA array or CUDA mipmapped array has a single mip tail region for all layers
 
-.. autoattribute:: cuda.bindings.runtime.CUDART_CB
 .. autoattribute:: cuda.bindings.runtime.cudaMemPoolCreateUsageHwDecompress
 
     This flag, if set, indicates that the memory will be used as a buffer for hardware accelerated decompression.
-
-.. autoattribute:: cuda.bindings.runtime.CU_UUID_HAS_BEEN_DEFINED
-
-    CUDA UUID types
 
 .. autoattribute:: cuda.bindings.runtime.CUDA_IPC_HANDLE_SIZE
 
@@ -5430,7 +5425,6 @@ Data types used by CUDA Runtime
 
     When /p flags of :py:obj:`~.cudaDeviceGetNvSciSyncAttributes` is set to this, it indicates that application need waiter specific NvSciSyncAttr to be filled by :py:obj:`~.cudaDeviceGetNvSciSyncAttributes`.
 
-.. autoattribute:: cuda.bindings.runtime.RESOURCE_ABI_BYTES
 .. autoattribute:: cuda.bindings.runtime.cudaGraphKernelNodePortDefault
 
     This port activates when the kernel has finished executing.
@@ -5443,14 +5437,11 @@ Data types used by CUDA Runtime
 
     This port activates when all blocks of the kernel have begun execution. See also :py:obj:`~.cudaLaunchAttributeLaunchCompletionEvent`.
 
-.. autoattribute:: cuda.bindings.runtime.cudaStreamAttrID
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributeAccessPolicyWindow
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributeSynchronizationPolicy
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributeMemSyncDomainMap
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributeMemSyncDomain
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributePriority
-.. autoattribute:: cuda.bindings.runtime.cudaStreamAttrValue
-.. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttrID
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeAccessPolicyWindow
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeCooperative
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributePriority
@@ -5461,7 +5452,6 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributePreferredSharedMemoryCarveout
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling
-.. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttrValue
 .. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1D
 .. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2D
 .. autoattribute:: cuda.bindings.runtime.cudaSurfaceType3D

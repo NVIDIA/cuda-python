@@ -2,7 +2,7 @@
 .. SPDX-License-Identifier: Apache-2.0
 
 .. !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=97724cda94bae86a54d6cf1205fbed172482bf03a3231089ab976da3c0b7299d
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ea05ceca543606364bee4723cab7db84783c502707e837a5bba39dba9ed996f7
 ------
 driver
 ------
@@ -6611,10 +6611,6 @@ Data types used by CUDA driver
 
     CUDA API version number
 
-.. autoattribute:: cuda.bindings.driver.CU_UUID_HAS_BEEN_DEFINED
-
-    CUDA UUID types
-
 .. autoattribute:: cuda.bindings.driver.CU_IPC_HANDLE_SIZE
 
     CUDA IPC handle size
@@ -6645,7 +6641,6 @@ Data types used by CUDA driver
 
 .. autoattribute:: cuda.bindings.driver.CU_COMPUTE_ACCELERATED_TARGET_BASE
 .. autoattribute:: cuda.bindings.driver.CU_COMPUTE_FAMILY_TARGET_BASE
-.. autoattribute:: cuda.bindings.driver.CUDA_CB
 .. autoattribute:: cuda.bindings.driver.CU_GRAPH_COND_ASSIGN_DEFAULT
 
     Conditional node handle flags Default value is applied when graph is launched.
@@ -8194,7 +8189,6 @@ Green context restrictions apply to memory copy operations only when the copy is
 .. autoclass:: cuda.bindings.driver.CUdevWorkqueueConfigResource
 .. autoclass:: cuda.bindings.driver.CUdevWorkqueueResource
 .. autoclass:: cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS
-.. autofunction:: cuda.bindings.driver._CONCAT_OUTER
 .. autofunction:: cuda.bindings.driver.cuGreenCtxCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxDestroy
 .. autofunction:: cuda.bindings.driver.cuCtxFromGreenCtx
@@ -8210,10 +8204,6 @@ Green context restrictions apply to memory copy operations only when the copy is
 .. autofunction:: cuda.bindings.driver.cuGreenCtxStreamCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxGetId
 .. autofunction:: cuda.bindings.driver.cuStreamGetDevResource
-.. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_VERSION
-.. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_BYTES
-.. autoattribute:: cuda.bindings.driver._CONCAT_INNER
-.. autoattribute:: cuda.bindings.driver._CONCAT_OUTER
 
 Error Log Management Functions
 ------------------------------
