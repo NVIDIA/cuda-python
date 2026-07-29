@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_cpu\_affinity
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_cpu_affinity
