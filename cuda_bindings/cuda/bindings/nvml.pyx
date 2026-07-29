@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1e395a10038778dd6f706137392c0bdf3ca8298e806338fda6f4557dd3ddf550
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e6637452fb185e3d30ab3d126d11f1f4de18b77785d64948b4ee580f4ddf03fe
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -24667,7 +24667,7 @@ cdef class GpuFabricInfo_v4:
 
     @property
     def num_cliques(self):
-        """int: Number of valid entries in `cliques`[]."""
+        """int: Number of valid entries in cliques[]."""
         return self._ptr[0].numCliques
 
     @num_cliques.setter
@@ -31777,7 +31777,7 @@ cpdef int device_get_virtualization_mode(intptr_t device) except? -1:
 
     Returns:
         int: Reference to virtualization mode. One of
-            NVML_GPU_VIRTUALIZATION_?.
+            ``NVML_GPU_VIRTUALIZATION_?``.
 
     .. seealso:: `nvmlDeviceGetVirtualizationMode`
     """
@@ -31812,7 +31812,7 @@ cpdef device_set_virtualization_mode(intptr_t device, int virtual_mode):
     Args:
         device (intptr_t): Identifier of the target device.
         virtual_mode (GpuVirtualizationMode): virtualization mode. One
-            of NVML_GPU_VIRTUALIZATION_?.
+            of ``NVML_GPU_VIRTUALIZATION_?``.
 
     .. seealso:: `nvmlDeviceSetVirtualizationMode`
     """
