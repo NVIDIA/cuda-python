@@ -1,6 +1,0 @@
-﻿cuda.core.system.typing.AffinityScope
-=====================================
-
-.. currentmodule:: cuda.core.system.typing
-
-.. autoenum:: AffinityScope
