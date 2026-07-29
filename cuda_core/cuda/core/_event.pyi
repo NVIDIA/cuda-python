@@ -180,6 +180,7 @@ class IPCEventDescriptor:
 
     def __reduce__(self) -> tuple[object, ...]:
         ...
+__all__ = ['Event', 'EventOptions']
 
 def _reduce_event(event: Event) -> tuple[object, ...]:
     ...
