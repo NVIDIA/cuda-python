@@ -503,17 +503,19 @@ def test_from_handle_mr_deallocation_restores_no_current_context(init_cuda, caps
     buf = mr.allocate(1024)
     stream = init_cuda.create_stream() if replace_stream else None
     assert len(mr.active) == 1
-    capsys.readouterr()
 
     previous = handle_return(driver.cuCtxPopCurrent())
     assert int(previous) != 0
-    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    try:
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
 
-    buf.close(stream)
+        buf.close(stream)
 
-    assert len(mr.active) == 0
-    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
-    assert "mr.deallocate() failed" not in capsys.readouterr().err
+        assert len(mr.active) == 0
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+        assert "mr.deallocate() failed" not in capsys.readouterr().err
+    finally:
+        handle_return(driver.cuCtxSetCurrent(previous))
 
 
 def test_mr_deallocate_receives_stream():
@@ -595,18 +597,20 @@ def test_from_handle_pool_pointer_deallocates_without_current_context(mempool_de
     stream.sync()
     used_after_alloc = mr.attributes.used_mem_current
     buf = Buffer.from_handle(int(ptr), size, mr=mr)
-    capsys.readouterr()
 
     previous = handle_return(driver.cuCtxPopCurrent())
     assert int(previous) != 0
-    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    try:
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
 
-    buf.close(stream)
-    stream.sync()
+        buf.close(stream)
+        stream.sync()
 
-    assert mr.attributes.used_mem_current < used_after_alloc
-    assert int(handle_return(driver.cuCtxGetCurrent())) == 0
-    assert "mr.deallocate() failed" not in capsys.readouterr().err
+        assert mr.attributes.used_mem_current < used_after_alloc
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+        assert "mr.deallocate() failed" not in capsys.readouterr().err
+    finally:
+        handle_return(driver.cuCtxSetCurrent(previous))
 
 
 def test_memory_resource_and_owner_disallowed():
