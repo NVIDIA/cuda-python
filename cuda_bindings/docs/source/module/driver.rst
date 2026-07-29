@@ -1,8 +1,10 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
+.. This code was automatically generated with version 13.4.0. Do not modify it directly.
+
 .. !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=97724cda94bae86a54d6cf1205fbed172482bf03a3231089ab976da3c0b7299d
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d177af98becf52d0965c6bcaf352b66e8382b394bfaae3356ee54668bbc57d4d
 ------
 driver
 ------
@@ -6611,10 +6613,6 @@ Data types used by CUDA driver
 
     CUDA API version number
 
-.. autoattribute:: cuda.bindings.driver.CU_UUID_HAS_BEEN_DEFINED
-
-    CUDA UUID types
-
 .. autoattribute:: cuda.bindings.driver.CU_IPC_HANDLE_SIZE
 
     CUDA IPC handle size
@@ -6645,7 +6643,6 @@ Data types used by CUDA driver
 
 .. autoattribute:: cuda.bindings.driver.CU_COMPUTE_ACCELERATED_TARGET_BASE
 .. autoattribute:: cuda.bindings.driver.CU_COMPUTE_FAMILY_TARGET_BASE
-.. autoattribute:: cuda.bindings.driver.CUDA_CB
 .. autoattribute:: cuda.bindings.driver.CU_GRAPH_COND_ASSIGN_DEFAULT
 
     Conditional node handle flags Default value is applied when graph is launched.
@@ -8194,7 +8191,6 @@ Green context restrictions apply to memory copy operations only when the copy is
 .. autoclass:: cuda.bindings.driver.CUdevWorkqueueConfigResource
 .. autoclass:: cuda.bindings.driver.CUdevWorkqueueResource
 .. autoclass:: cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS
-.. autofunction:: cuda.bindings.driver._CONCAT_OUTER
 .. autofunction:: cuda.bindings.driver.cuGreenCtxCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxDestroy
 .. autofunction:: cuda.bindings.driver.cuCtxFromGreenCtx
@@ -8210,10 +8206,6 @@ Green context restrictions apply to memory copy operations only when the copy is
 .. autofunction:: cuda.bindings.driver.cuGreenCtxStreamCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxGetId
 .. autofunction:: cuda.bindings.driver.cuStreamGetDevResource
-.. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_VERSION
-.. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_BYTES
-.. autoattribute:: cuda.bindings.driver._CONCAT_INNER
-.. autoattribute:: cuda.bindings.driver._CONCAT_OUTER
 
 Error Log Management Functions
 ------------------------------
