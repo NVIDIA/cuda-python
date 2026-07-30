@@ -72,7 +72,7 @@ PROTECTED_DIR_NAMES = frozenset({".pixi", ".venv", "venv", ".env"})
 def repo_root() -> Path:
     """Return the top level of the worktree containing this script."""
     out = subprocess.run(
-        ["git", "rev-parse", "--show-toplevel"],
+        ["git", "rev-parse", "--show-toplevel"],  # noqa: S607
         cwd=Path(__file__).resolve().parent,
         capture_output=True,
         check=True,
@@ -101,7 +101,7 @@ def ignored_paths(root: Path) -> list[str]:
     the outermost path of each artifact tree.
     """
     out = subprocess.run(
-        ["git", "status", "--porcelain", "-z", "--ignored"],
+        ["git", "status", "--porcelain", "-z", "--ignored"],  # noqa: S607
         cwd=root,
         capture_output=True,
         check=True,
