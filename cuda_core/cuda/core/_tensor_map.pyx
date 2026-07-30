@@ -47,6 +47,8 @@ try:
 except ImportError:
     ml_bfloat16 = None
 
+__all__ = ['TensorMapDescriptor', 'TensorMapDescriptorOptions']
+
 
 class TensorMapDataType(enum.IntEnum):
     """Data types for tensor map descriptors.
