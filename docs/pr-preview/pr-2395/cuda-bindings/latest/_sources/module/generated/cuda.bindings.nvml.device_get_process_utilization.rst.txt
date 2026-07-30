@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_process\_utilization
-====================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_process_utilization
