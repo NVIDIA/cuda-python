@@ -7,6 +7,7 @@ from __future__ import annotations
 cimport cython
 from libc.stddef cimport size_t
 from libc.stdint cimport intptr_t
+from libcpp.mutex cimport py_safe_call_once
 
 from collections import namedtuple
 from os import fsencode, fspath, PathLike
@@ -590,6 +591,31 @@ CodeTypeT = bytes | bytearray | str
 
 cdef tuple _supported_code_type = tuple(ObjectCodeFormatType.__members__.values())
 
+
+cdef void _lazy_load_module_once(void *self_v) except *:
+    # Call-once helper for the lazy module loading, we want to avoid unloading
+    # a module in case of threads racing, so use `call_once`.
+    cdef ObjectCode self = <ObjectCode>self_v
+    cdef LibraryHandle h_library
+    cdef bytes path_bytes
+    module = self._module
+    if isinstance(module, str):
+        path_bytes = module.encode()
+        h_library = create_library_handle_from_file(<const char*>path_bytes)
+    elif isinstance(module, (bytes, bytearray)):
+        h_library = create_library_handle_from_data(<const void*><char*>module)
+    elif isinstance(module, PathLike):
+        path_bytes = fsencode(module)
+        h_library = create_library_handle_from_file(<const char*>path_bytes)
+    else:
+        assert_type_str_or_bytes_like(module)
+        raise_code_path_meant_to_be_unreachable()
+        return
+    if not h_library:
+        HANDLE_RETURN(get_last_error())
+    self._h_library = h_library
+
+
 cdef class ObjectCode:
     """Represent a compiled program to be loaded onto the device.
 
@@ -752,30 +778,8 @@ cdef class ObjectCode:
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
-    @cython.critical_section
     cdef int _lazy_load_module(self) except -1:
-        cdef LibraryHandle _h_library
-        if self._h_library:
-            return 0
-        module = self._module
-        cdef bytes path_bytes
-        if isinstance(module, str):
-            path_bytes = module.encode()
-            _h_library = create_library_handle_from_file(<const char*>path_bytes)
-        elif isinstance(module, (bytes, bytearray)):
-            _h_library = create_library_handle_from_data(<const void*><char*>module)
-        elif isinstance(module, PathLike):
-            path_bytes = fsencode(module)
-            _h_library = create_library_handle_from_file(<const char*>path_bytes)
-        else:
-            assert_type_str_or_bytes_like(module)
-            raise_code_path_meant_to_be_unreachable()
-            return -1
-        if not _h_library:
-            HANDLE_RETURN(get_last_error())
-
-        if not self._h_library:
-            self._h_library = _h_library
+        py_safe_call_once(self._load_once, _lazy_load_module_once, <void *>self)
         return 0
 
     def get_kernel(self, name: str | bytes) -> Kernel:
