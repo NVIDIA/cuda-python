@@ -257,9 +257,9 @@ jobs:
           # --paginate fetches all pages; jq outputs one name per line per page;
           # head -1 takes the first (newest) match since GitHub returns tags
           # newest-first. Fails hard if no cuda-core-v* tag is found.
-          tag="$(gh api "repos/$GITHUB_REPOSITORY/tags" --paginate \
-            --jq '.[] | select(.name | startswith("cuda-core-v")) | .name' \
-            | head -1)"
+          mapfile -t _tags < <(gh api "repos/$GITHUB_REPOSITORY/tags" --paginate \
+            --jq '.[] | select(.name | startswith("cuda-core-v")) | .name' || true)
+          tag="${_tags[0]:-}"
           if [[ -z "${tag}" ]]; then
             echo "::error::No cuda-core-v* tag found in the repository." >&2
             exit 1
