@@ -387,54 +387,88 @@ jobs:
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_bindings/tests"
 
-      # Import tracing put the fault in cuda.core._event, reached through
-      # _stream from _context.  These probes strip everything that is not
-      # needed to see it: no pytest, no conftest, no tests -- one fresh
-      # interpreter per module, importing exactly one name under coverage,
-      # since the linetrace wheel and the ctracer are the two conditions
-      # `test-wheel-windows.yml` lacks on this same runner.
+      # The whole crash reduces to one `import cuda.core` under coverage, with
+      # no pytest, no conftest and no tests: the linetrace wheel and the
+      # ctracer are the two conditions `test-wheel-windows.yml` lacks on this
+      # same runner.  Importing submodules one at a time was tried first and
+      # measured nothing -- every one of them executes cuda/core/__init__.py
+      # on the way in, so all six probes walked the same path and all six
+      # failed identically.
       #
-      # The order runs leaf-first, so the first line that fails to print
-      # `PROBE OK` is the smallest unit that reproduces.  Importing _event
-      # directly also enters the _context/_stream/_event cimport cycle from
-      # the opposite side, which says whether the direction matters.
+      # What is missing is the native half.  The fault happens inside an
+      # extension module's initialiser, and faulthandler's report ends at
+      # `<cannot get C stack on this system>`.  The usual ways to see past
+      # that are all closed here: cdb is not installed (the SDK ships without
+      # the Debugging Tools feature), procdump would need an outbound
+      # download, a postmortem debugger under AeDebug never fires because this
+      # image does not record user-process crashes with WER, and there are no
+      # PDBs because build_hooks.py refuses debuggable builds on Windows.
       #
-      # Placed here rather than before the other suites because this is the
-      # machine state the crash is known to occur in; a clean-machine
-      # placement is the follow-up if these come back clean.
+      # dbgcore.dll in System32 is always present though, so the process
+      # reports on itself.  ci/tools/native_crash_handler.py catches the fault
+      # first-chance and writes the faulting address resolved to module + RVA,
+      # the native return chain resolved the same way, the module map, and a
+      # minidump, then lets the process die exactly as it would have.  Which
+      # binary faults is the open question, and module + RVA answers it
+      # without symbols.
       #
-      # COVERAGE_FILE keeps the probes out of the real .coverage, which
+      # Four runs, each answering something the others cannot:
+      #
+      #   selftest     faults on purpose, so a clean report proves the handler
+      #                works here and an empty one is not mistaken for "no
+      #                crash"
+      #   coverage     the nightly's own conditions, on the 8 MB stack the
+      #                pytest wrapper uses
+      #   breadcrumb   the same import with a bare trace function instead of
+      #                coverage.  It arms Cython's linetrace the same way, so
+      #                a crash here means any tracer will do rather than
+      #                coverage specifically -- and the last line of its log
+      #                names the .pyx statement that was executing
+      #   fingerprint  the environment around the import: driver, CPU, and
+      #                the loaded-module map, which is what a comparison
+      #                against a machine that does not crash needs
+      #
+      # COVERAGE_FILE keeps all of this out of the real .coverage, which
       # `coverage run` would otherwise truncate.
-      - name: Probe which module import faults
+      - name: Record the native side of the fault
         if: always()
         continue-on-error: true
         env:
           COVERAGE_FILE: ${{ github.workspace }}/.coverage.probe
         run: |
-          cat > "$GITHUB_WORKSPACE/probe_import.py" <<'EOF'
-          import importlib
-          import sys
-
-          name = sys.argv[1]
-          importlib.import_module(name)
-          print(f"PROBE OK {name}", flush=True)
-          EOF
-
+          probe="$GITHUB_WORKSPACE/ci/tools/crash_probe.py"
+          python="$GITHUB_WORKSPACE/.venv/Scripts/python"
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
-          for mod in \
-            cuda.core._resource_handles \
-            cuda.core._device_resources \
-            cuda.core._event \
-            cuda.core._stream \
-            cuda.core._context \
-            cuda.core
-          do
-            rc=0
-            "$GITHUB_WORKSPACE/.venv/Scripts/python" -m coverage run \
-              --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
-              "$GITHUB_WORKSPACE/probe_import.py" "$mod" || rc=$?
-            echo "PROBE EXIT $mod rc=$rc"
-          done
+
+          rc=0
+          "$python" "$probe" --selftest \
+            --native-log "$GITHUB_WORKSPACE/native-selftest.txt" \
+            --dump "$GITHUB_WORKSPACE/selftest.dmp" || rc=$?
+          echo "SELFTEST rc=$rc"
+          head -n 10 "$GITHUB_WORKSPACE/native-selftest.txt" || true
+
+          rc=0
+          "$python" -m coverage run --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
+            "$probe" --stack-mb 8 \
+            --native-log "$GITHUB_WORKSPACE/native-coverage.txt" \
+            --dump "$GITHUB_WORKSPACE/crash-coverage.dmp" || rc=$?
+          echo "COVERAGE PROBE rc=$rc"
+          cat "$GITHUB_WORKSPACE/native-coverage.txt" || true
+
+          rc=0
+          "$python" "$probe" --stack-mb 8 \
+            --breadcrumb "$GITHUB_WORKSPACE/breadcrumb.txt" \
+            --native-log "$GITHUB_WORKSPACE/native-breadcrumb.txt" \
+            --dump "$GITHUB_WORKSPACE/crash-breadcrumb.dmp" || rc=$?
+          echo "BREADCRUMB PROBE rc=$rc"
+          echo "=== breadcrumb: $(wc -l < "$GITHUB_WORKSPACE/breadcrumb.txt") lines, last 25 ==="
+          tail -n 25 "$GITHUB_WORKSPACE/breadcrumb.txt" || true
+
+          rc=0
+          "$python" -m coverage run --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
+            "$GITHUB_WORKSPACE/ci/tools/env_fingerprint.py" --stack-mb 8 \
+            "$GITHUB_WORKSPACE/fingerprint-windows.txt" || rc=$?
+          echo "FINGERPRINT rc=$rc"
 
       # Only this step crashes.  cuda.bindings runs the same wrapper, the same
       # 8 MB thread and the same coverage wheel, and finishes normally, so the
@@ -532,6 +566,14 @@ jobs:
             crashlog-core.txt
             faulthandler-core.txt
             verbose-core.txt
+            native-selftest.txt
+            native-coverage.txt
+            native-breadcrumb.txt
+            breadcrumb.txt
+            fingerprint-windows.txt
+            selftest.dmp
+            crash-coverage.dmp
+            crash-breadcrumb.dmp
           retention-days: 7
           if-no-files-found: warn
 
