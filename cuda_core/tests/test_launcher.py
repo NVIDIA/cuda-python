@@ -198,8 +198,7 @@ def test_to_native_launch_config_pdl():
         f"Expected CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION, got {attr.id}"
     )
     assert attr.value.programmaticStreamSerializationAllowed == 1, (
-        f"Expected programmaticStreamSerializationAllowed=1, "
-        f"got {attr.value.programmaticStreamSerializationAllowed}"
+        f"Expected programmaticStreamSerializationAllowed=1, got {attr.value.programmaticStreamSerializationAllowed}"
     )
 
 
@@ -269,9 +268,7 @@ def test_pdl_primary_secondary_overlap_same_stream():
         return int(overlapped[0])
 
     # Without the PDL attribute, same-stream kernels stay serialized.
-    assert _run(secondary_serial_cfg) == 0, (
-        "Expected no overlap when programmatic_stream_serialization is False"
-    )
+    assert _run(secondary_serial_cfg) == 0, "Expected no overlap when programmatic_stream_serialization is False"
 
     # PDL overlap is opportunistic; retry a few times on a quiet GPU.
     saw_overlap = False
