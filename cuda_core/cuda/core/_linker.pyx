@@ -684,10 +684,6 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    # Do not call module.version(): nvJitLink 12.0-12.2 lack the unversioned
-    # nvJitLinkVersion export, so version() raises FunctionNotFoundError (#2408).
-    # Inspect the symbol pointer instead, and catch DynamicLibNotFoundError when
-    # the dylib is missing so we can fall back to cuLink.
     nvjitlink_module = _optional_cuda_import("cuda.bindings.nvjitlink")
     if nvjitlink_module is None:
         warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
