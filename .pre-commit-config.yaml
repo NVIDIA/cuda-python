@@ -58,6 +58,14 @@ repos:
         files: ^cuda_bindings/
         types: [text]
 
+      - id: check-pixi-cuda-version
+        name: Check pixi cuda-version pins track ci/versions.yml
+        entry: python ./ci/tools/check_pixi_cuda_version.py
+        language: python
+        additional_dependencies: [pyyaml==6.0.3]
+        files: '^(ci/versions\.yml|cuda_bindings/pixi\.toml|cuda_core/pixi\.toml)$'
+        pass_filenames: false
+
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c

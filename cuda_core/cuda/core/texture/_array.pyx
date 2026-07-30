@@ -522,7 +522,6 @@ def _create_opaque_array(options):
     shape_t = opts.shape
 
     cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format>_ARRAYFORMAT_TO_CU[opts.format]
-    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
     cdef int rank = len(shape_t)
     cdef unsigned int flags = (
         cydriver.CUDA_ARRAY3D_SURFACE_LDST if opts.is_surface_load_store else 0
@@ -530,13 +529,14 @@ def _create_opaque_array(options):
 
     # cuArray3DCreate handles 1D/2D/3D uniformly (Height/Depth 0 sentinels),
     # so a single descriptor + create_array_handle covers every shape.
-    memset(&desc3d, 0, sizeof(desc3d))
-    desc3d.Width = <size_t>shape_t[0]
-    desc3d.Height = <size_t>(shape_t[1] if rank >= 2 else 0)
-    desc3d.Depth = <size_t>(shape_t[2] if rank >= 3 else 0)
-    desc3d.Format = c_format
-    desc3d.NumChannels = <unsigned int>opts.num_channels
-    desc3d.Flags = flags
+    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d = cydriver.CUDA_ARRAY3D_DESCRIPTOR(
+        Width=<size_t>shape_t[0],
+        Height=<size_t>(shape_t[1] if rank >= 2 else 0),
+        Depth=<size_t>(shape_t[2] if rank >= 3 else 0),
+        Format=c_format,
+        NumChannels=<unsigned int>opts.num_channels,
+        Flags=flags,
+    )
 
     cdef OpaqueArrayHandle h = create_array_handle(desc3d)
     if not h:
