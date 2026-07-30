@@ -683,22 +683,32 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    # Do not probe via module.version(): nvJitLink 12.0-12.2 lacks the unversioned
-    # nvJitLinkVersion symbol, so calling version() raises FunctionNotFoundError.
-    # Use _nvjitlink_has_version_symbol() below instead (symbol pointer inspection).
-    nvjitlink_module = _optional_cuda_import("cuda.bindings.nvjitlink")
-    if nvjitlink_module is None:
-        warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
-    else:
+    # Probe via symbol-pointer inspection (not module.version()):
+    # - Triggers nvJitLink dylib load; DynamicLibNotFoundError is caught by
+    #   _optional_cuda_import so a missing dylib falls back to cuLink.
+    # - Avoids FunctionNotFoundError on nvJitLink 12.0-12.2, which lack the
+    #   unversioned nvJitLinkVersion export added in 12.3 (#2408).
+    has_version_symbol = [False]
+
+    def _probe_nvjitlink(module):
         from cuda.bindings._internal import nvjitlink
 
-        if _nvjitlink_has_version_symbol(nvjitlink):
-            _use_nvjitlink_backend = True
-            return False  # Use nvjitlink
+        has_version_symbol[0] = _nvjitlink_has_version_symbol(nvjitlink)
+
+    nvjitlink_module = _optional_cuda_import(
+        "cuda.bindings.nvjitlink",
+        probe_function=_probe_nvjitlink,
+    )
+    if nvjitlink_module is None:
+        warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
+    elif not has_version_symbol[0]:
         warn_txt = (
             f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
             f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
         )
+    else:
+        _use_nvjitlink_backend = True
+        return False  # Use nvjitlink
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
     _use_nvjitlink_backend = False

@@ -310,13 +310,41 @@ class TestWhichBackendClassmethod:
 
         def fake__optional_cuda_import(modname, probe_function=None):
             assert modname == "cuda.bindings.nvjitlink"
-            assert probe_function is None
+            assert probe_function is not None
+            probe_function(object())
             return object()
 
         monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
         monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: False)
 
         with pytest.warns(RuntimeWarning, match="too old \\(<12.3\\)"):
+            assert Linker.which_backend() == "driver"
+
+        assert _linker._use_nvjitlink_backend is False
+
+    def test_which_backend_falls_back_when_dylib_missing(self, monkeypatch):
+        """Missing nvJitLink dylib must fall back without raising."""
+        from cuda.pathfinder import DynamicLibNotFoundError
+
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
+        monkeypatch.setattr(_linker, "_driver", None)
+
+        def raise_missing(_nvjitlink):
+            raise DynamicLibNotFoundError("missing")
+
+        def fake__optional_cuda_import(modname, probe_function=None):
+            assert modname == "cuda.bindings.nvjitlink"
+            assert probe_function is not None
+            try:
+                probe_function(object())
+            except DynamicLibNotFoundError:
+                return None
+            return object()
+
+        monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", raise_missing)
+        monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+
+        with pytest.warns(RuntimeWarning, match="cuda.bindings.nvjitlink is not available"):
             assert Linker.which_backend() == "driver"
 
         assert _linker._use_nvjitlink_backend is False
