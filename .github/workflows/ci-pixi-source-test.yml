@@ -58,6 +58,22 @@ env:
   # prefix-dev/pixi#6285 + #6123) also bumps the pixi.lock format to v7.
   PIXI_VERSION: "v0.73.0"
 
+  # Fail fast when a pixi.toml changed without a matching `pixi lock`, instead
+  # of silently re-solving. Without this, `pixi run` updates the lock file in
+  # place and CI tests an environment that is NOT the one committed to the
+  # repo -- so a stale lock passes CI and only breaks for the next developer.
+  #
+  # Set as an env var rather than a `--locked` flag on each command because the
+  # root test/docs tasks dispatch into the sub-package manifests via nested
+  # `pixi run --manifest-path ...`; the variable is inherited by those child
+  # processes, a flag on the outer command is not.
+  #
+  # `--locked` compares the lock against the manifest only. It does not re-solve
+  # against the channels, so it stays green when a floating dependency gets a
+  # new upstream release -- unlike `pixi lock --check`, which would go red
+  # spontaneously whenever conda-forge publishes.
+  PIXI_LOCKED: "true"
+
 jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
   build-smoke:
