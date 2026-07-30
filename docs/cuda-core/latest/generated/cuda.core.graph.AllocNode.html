@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5dcbb5e2"></script>
+    <script src="../_static/documentation_options.js?v=6a333f88"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1005,6 +1005,8 @@ a non-zero value at runtime.</p>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><span class="pre">KernelNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.AllocNode.launch" title="Link to this definition">#</a></dt>
 <dd><p>Add a kernel launch node depending on this node.</p>
+<p>Clustered and cooperative launch configurations are not currently
+supported for graph kernel nodes.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Use caution when a retained kernel argument directly or indirectly
