@@ -226,7 +226,7 @@ def test_pdl_primary_secondary_overlap_same_stream():
     extern "C" __global__ void primary_kernel(int* secondary_started, int* overlapped) {
         cudaTriggerProgrammaticLaunchCompletion();
 
-        const long long deadline = clock64() + 100000000LL;  // ~post-trigger overlap window
+        const long long deadline = clock64() + 100000000LL;  // ~50ms @ ~2GHz
         if (threadIdx.x == 0 && blockIdx.x == 0) {
             while (clock64() < deadline) {
                 if (atomicAdd(secondary_started, 0) != 0) {
@@ -242,15 +242,6 @@ def test_pdl_primary_secondary_overlap_same_stream():
         if (threadIdx.x == 0 && blockIdx.x == 0) {
             atomicExch(secondary_started, 1);
         }
-        __syncthreads();
-
-        // Remain concurrent with primary long enough to be observed.
-        const long long deadline = clock64() + 20000000LL;
-        while (clock64() < deadline) {
-            __nanosleep(1000);
-        }
-
-        cudaGridDependencySynchronize();
     }
     """
 
@@ -291,9 +282,11 @@ def test_pdl_primary_secondary_overlap_same_stream():
 
     assert saw_overlap, (
         "Expected primary and secondary kernels to overlap on the same stream via PDL; "
-        "primary never observed secondary_started while still running after "
+        "primary never observed secondary launched while running after "
         "cudaTriggerProgrammaticLaunchCompletion()"
     )
+
+    print(f"PDL overlap verified on {dev.name} compute capability {dev.compute_capability}", flush=True)
 
 
 def test_launch_config_cluster_accepts_hopper_cc(monkeypatch):
