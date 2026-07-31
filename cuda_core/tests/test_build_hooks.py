@@ -162,24 +162,20 @@ def _write_stamp(build_tree, cuda_major):
 class TestBuildMajorStamp:
     """Tests for _check_build_major() and record_build_major()."""
 
-    @pytest.mark.agent_authored(model="claude-opus-5")
     def test_first_build_does_not_force(self, build_tree):
         assert build_hooks._check_build_major() == "13"
         assert build_hooks.force_build_ext is False
 
-    @pytest.mark.agent_authored(model="claude-opus-5")
     def test_same_major_does_not_force(self, build_tree):
         _write_stamp(build_tree, "13")
         assert build_hooks._check_build_major() == "13"
         assert build_hooks.force_build_ext is False
 
-    @pytest.mark.agent_authored(model="claude-opus-5")
     def test_changed_major_forces_rebuild(self, build_tree):
         _write_stamp(build_tree, "12")
         assert build_hooks._check_build_major() == "13"
         assert build_hooks.force_build_ext is True
 
-    @pytest.mark.agent_authored(model="claude-opus-5")
     def test_record_writes_stamp(self, build_tree):
         build_hooks.record_build_major()
         assert (build_tree / build_hooks._BUILD_MAJOR_STAMP).read_text().strip() == "13"
