@@ -1,0 +1,6 @@
+﻿cuda.core.WorkqueueResourceOptions
+==================================
+
+.. currentmodule:: cuda.core
+
+.. autoclass:: WorkqueueResourceOptions
