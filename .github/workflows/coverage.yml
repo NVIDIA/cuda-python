@@ -445,11 +445,16 @@ jobs:
       # binary faults is the open question, and module + RVA answers it
       # without symbols.
       #
-      # Four runs, each answering something the others cannot:
+      # Five runs, each answering something the others cannot:
       #
       #   selftest     faults on purpose, so a clean report proves the handler
       #                works here and an empty one is not mistaken for "no
       #                crash"
+      #   plain        the import with no coverage and no trace function at
+      #                all.  The fault is a null read inside msvcp140's mutex
+      #                lock, taken unconditionally by _stream.pyx:422, so this
+      #                should crash as well -- and if it does, instrumentation
+      #                was never a condition
       #   coverage     the nightly's own conditions, on the 8 MB stack the
       #                pytest wrapper uses
       #   breadcrumb   the same import with a bare trace function instead of
@@ -479,6 +484,21 @@ jobs:
             --dump "$GITHUB_WORKSPACE/selftest.dmp" || rc=$?
           echo "SELFTEST rc=$rc"
           head -n 10 "$GITHUB_WORKSPACE/native-selftest.txt" || true
+
+          # No coverage, no trace function, nothing but the import.  The fault
+          # was named as a null read inside msvcp140's mutex lock, reached from
+          # a std::lock_guard that _stream.pyx:422 takes unconditionally, so
+          # instrumentation should have nothing to do with it.  If this crashes
+          # too, "linetrace plus a tracer" was never the condition -- the cov
+          # wheels simply are not built through delvewheel, so they load the
+          # system msvcp140.dll instead of a vendored one, and that copy on
+          # this image predates the constexpr std::mutex change.
+          rc=0
+          "$python" "$probe" --stack-mb 8 \
+            --native-log "$GITHUB_WORKSPACE/native-plain.txt" \
+            --dump "$GITHUB_WORKSPACE/crash-plain.dmp" || rc=$?
+          echo "PLAIN PROBE (no coverage, no tracer) rc=$rc"
+          cat "$GITHUB_WORKSPACE/native-plain.txt" || true
 
           rc=0
           "$python" -m coverage run --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
@@ -600,11 +620,13 @@ jobs:
             faulthandler-core.txt
             verbose-core.txt
             native-selftest.txt
+            native-plain.txt
             native-coverage.txt
             native-breadcrumb.txt
             breadcrumb.txt
             fingerprint-windows.txt
             selftest.dmp
+            crash-plain.dmp
             crash-coverage.dmp
             crash-breadcrumb.dmp
           retention-days: 7
