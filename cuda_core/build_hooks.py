@@ -119,6 +119,71 @@ def _determine_cuda_major_version() -> str:
 # used later by setup()
 _extensions = None
 
+# Build-configuration identity. Set by _build_cuda_core(), read by setup.py.
+# Please keep this whole section in sync with the copy in cuda_bindings/build_hooks.py.
+_build_identity = None
+force_build_ext = False
+
+_BUILD_IDENTITY_STAMP = os.path.join("build", ".build-identity")
+
+
+def _resolve_build_identity(debug: bool) -> str:
+    """Compute this build's identity and decide whether a rebuild is forced.
+
+    The identity covers the axes that change what cythonize and the compiler
+    *produce*, but which neither tool records in its own up-to-date check:
+
+    - CUDA major: fed to Cython as ``compile_time_env``, and selects the CUDA
+      headers the generated C++ is compiled against.
+    - debug: toggles ``gdb_debug``, which changes the cythonize output.
+    - coverage: toggles ``linetrace``, which changes the generated C++.
+
+    Python version and platform are deliberately absent: setuptools already
+    encodes them in its own ``build/lib.*`` and ``build/temp.*`` directory
+    names, so repeating them here would only lengthen paths.
+
+    Keying the generated-source directory by this identity is not sufficient on
+    its own. In an editable install the compiled extension lands in the source
+    tree under a name keyed by the Python ABI tag alone -- there is no place to
+    put the CUDA major -- so on a cu12 -> cu13 -> cu12 round trip build_ext
+    would find the (older) cu12 generated source next to the (newer) cu13 .so
+    and conclude everything is fresh. Forcing build_ext whenever the identity
+    changes is what makes a cu13 output impossible to mistake for a cu12 one.
+    """
+    global _build_identity, force_build_ext
+
+    identity = f"cu{_determine_cuda_major_version()}"
+    if debug:
+        identity += "-debug"
+    if bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0"))):
+        identity += "-coverage"
+
+    try:
+        with open(_BUILD_IDENTITY_STAMP, encoding="utf-8") as f:
+            previous = f.read().strip()
+    except FileNotFoundError:
+        previous = None
+
+    if previous is not None and previous != identity:
+        print(f"Build configuration changed ({previous} -> {identity}); forcing a full rebuild")
+        force_build_ext = True
+
+    _build_identity = identity
+    return identity
+
+
+def record_build_identity() -> None:
+    """Persist the identity of the build that just completed.
+
+    setup.py calls this after build_ext succeeds, so that a build which failed
+    partway through does not claim outputs it never produced.
+    """
+    if _build_identity is None:
+        return
+    os.makedirs(os.path.dirname(_BUILD_IDENTITY_STAMP), exist_ok=True)
+    with open(_BUILD_IDENTITY_STAMP, "w", encoding="utf-8") as f:
+        f.write(_build_identity + "\n")
+
 
 def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
@@ -127,6 +192,8 @@ def _build_cuda_core(debug=False):
     #
     # This function populates "_extensions".
     global _extensions
+
+    build_identity = _resolve_build_identity(debug)
 
     # Add cuda-bindings to sys.path so Cython can find .pxd files
     # This is needed for editable installs where meta path finders don't work for Cython
@@ -220,7 +287,9 @@ def _build_cuda_core(debug=False):
         ext_modules,
         verbose=True,
         language_level=3,
-        build_dir="." if COMPILE_FOR_COVERAGE else "build/cython",
+        # CUDA_PYTHON_COVERAGE deliberately generates in-tree so the sources can
+        # be packaged; every other build gets its own per-configuration cache.
+        build_dir="." if COMPILE_FOR_COVERAGE else f"build/cython/{build_identity}",
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,

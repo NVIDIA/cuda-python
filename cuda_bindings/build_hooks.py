@@ -12,6 +12,7 @@ import contextlib
 import functools
 import glob
 import os
+import re
 import shutil
 import sys
 import sysconfig
@@ -72,6 +73,98 @@ def _get_cuda_path() -> str:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     print("CUDA path:", cuda_path)
     return cuda_path
+
+
+@functools.cache
+def _determine_cuda_major_version() -> str:
+    """Determine the CUDA major version the extensions are compiled against.
+
+    Derived from the CUDA_VERSION macro in cuda.h under CUDA_PATH or CUDA_HOME,
+    which is the toolkit whose headers the build actually uses. Unlike
+    cuda.core, cuda.bindings has no compile-time CUDA-major conditionals, so
+    this is used only to key build artifacts -- see _resolve_build_identity().
+    """
+    cuda_h = os.path.join(_get_cuda_path(), "include", "cuda.h")
+    with open(cuda_h, encoding="utf-8") as f:
+        for line in f:
+            m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
+            if m:
+                # CUDA_VERSION is e.g. 12020 for 12.2.
+                cuda_major = str(int(m.group(1)) // 1000)
+                print("CUDA MAJOR VERSION:", cuda_major)
+                return cuda_major
+
+    raise RuntimeError(f"Cannot determine CUDA major version: no CUDA_VERSION macro in {cuda_h}")
+
+
+# -----------------------------------------------------------------------
+# Build-configuration identity
+#
+# Please keep this whole section in sync with the copy in cuda_core/build_hooks.py.
+
+# Set by _build_cuda_bindings(), read by setup.py.
+_build_identity = None
+force_build_ext = False
+
+_BUILD_IDENTITY_STAMP = os.path.join("build", ".build-identity")
+
+
+def _resolve_build_identity(debug: bool) -> str:
+    """Compute this build's identity and decide whether a rebuild is forced.
+
+    The identity covers the axes that change what cythonize and the compiler
+    *produce*, but which neither tool records in its own up-to-date check:
+
+    - CUDA major: selects the CUDA headers the generated C++ is compiled
+      against (and, in cuda.core, the Cython ``compile_time_env``).
+    - debug: toggles ``gdb_debug``, which changes the cythonize output.
+    - coverage: toggles ``linetrace``, which changes the generated C++.
+
+    Python version and platform are deliberately absent: setuptools already
+    encodes them in its own ``build/lib.*`` and ``build/temp.*`` directory
+    names, so repeating them here would only lengthen paths.
+
+    Keying the generated-source directory by this identity is not sufficient on
+    its own. In an editable install the compiled extension lands in the source
+    tree under a name keyed by the Python ABI tag alone -- there is no place to
+    put the CUDA major -- so on a cu12 -> cu13 -> cu12 round trip build_ext
+    would find the (older) cu12 generated source next to the (newer) cu13 .so
+    and conclude everything is fresh. Forcing build_ext whenever the identity
+    changes is what makes a cu13 output impossible to mistake for a cu12 one.
+    """
+    global _build_identity, force_build_ext
+
+    identity = f"cu{_determine_cuda_major_version()}"
+    if debug:
+        identity += "-debug"
+    if bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0"))):
+        identity += "-coverage"
+
+    try:
+        with open(_BUILD_IDENTITY_STAMP, encoding="utf-8") as f:
+            previous = f.read().strip()
+    except FileNotFoundError:
+        previous = None
+
+    if previous is not None and previous != identity:
+        print(f"Build configuration changed ({previous} -> {identity}); forcing a full rebuild")
+        force_build_ext = True
+
+    _build_identity = identity
+    return identity
+
+
+def record_build_identity() -> None:
+    """Persist the identity of the build that just completed.
+
+    setup.py calls this after build_ext succeeds, so that a build which failed
+    partway through does not claim outputs it never produced.
+    """
+    if _build_identity is None:
+        return
+    os.makedirs(os.path.dirname(_BUILD_IDENTITY_STAMP), exist_ok=True)
+    with open(_BUILD_IDENTITY_STAMP, "w", encoding="utf-8") as f:
+        f.write(_build_identity + "\n")
 
 
 # -----------------------------------------------------------------------
@@ -147,6 +240,7 @@ def _build_cuda_bindings(debug=False):
         nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", "0") or "0")
 
     compile_for_coverage = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+    build_identity = _resolve_build_identity(debug)
 
     # Prepare compile/link arguments
     include_path_list = [os.path.join(cuda_path, "include")]
@@ -231,7 +325,9 @@ def _build_cuda_bindings(debug=False):
     _extensions = cythonize(
         extensions,
         nthreads=nthreads,
-        build_dir="." if compile_for_coverage else "build/cython",
+        # CUDA_PYTHON_COVERAGE deliberately generates in-tree so the sources can
+        # be packaged; every other build gets its own per-configuration cache.
+        build_dir="." if compile_for_coverage else f"build/cython/{build_identity}",
         compiler_directives=cython_directives,
         **extra_cythonize_kwargs,
     )

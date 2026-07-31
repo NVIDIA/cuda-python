@@ -40,6 +40,13 @@ def _is_clang(compiler):
 
 
 class build_ext(_build_ext):
+    def finalize_options(self):
+        super().finalize_options()
+        # A cu13 .so in the source tree looks perfectly fresh to a cu12 build;
+        # see build_hooks._resolve_build_identity().
+        if build_hooks.force_build_ext:
+            self.force = True
+
     def build_extensions(self):
         if nthreads > 0:
             self.parallel = nthreads
@@ -47,6 +54,7 @@ class build_ext(_build_ext):
             for ext in self.extensions:
                 ext.extra_compile_args = [a for a in ext.extra_compile_args if a != "-fno-var-tracking-assignments"]
         super().build_extensions()
+        build_hooks.record_build_identity()
 
 
 class build_py(_build_py):
