@@ -286,7 +286,10 @@ jobs:
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
         if: ${{ startsWith(matrix.PY_VER, '3.15') }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
+        run: |
+          echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
+          echo "PIP_ONLY_BINARY=numpy" >> "$GITHUB_ENV"
+          echo "NUMPY_VERSION=<=2.6.0.dev0" >> "$GITHUB_ENV"
 
       - name: Verify LongPathsEnabled
         run: |
