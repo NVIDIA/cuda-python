@@ -304,6 +304,48 @@ jobs:
           cd cuda_core
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
+      # The step every other Windows build does and this one never did.
+      #
+      # cibuildwheel runs `repair-wheel-command` out of each package's
+      # pyproject.toml after building, which on Windows is delvewheel: it
+      # copies the dependent DLLs into <package>.libs under content-hashed
+      # names, rewrites the .pyd import tables to reference those names, and
+      # adds an os.add_dll_directory call to the package __init__.  A plain
+      # `pip wheel` knows nothing about [tool.cibuildwheel], so this build has
+      # always shipped .pyd files that import a bare "MSVCP140.dll" and
+      # resolve it to whatever the test machine happens to have in System32 --
+      # which on that runner is 14.00.24215.1, from 2015.
+      #
+      # _resource_handles.pyd, compiled by MSVC 14.44, takes only _Mtx_lock
+      # and _Mtx_unlock from that DLL and never _Mtx_init_in_situ, because
+      # std::mutex has had a constexpr constructor since VS 2022 17.10. The
+      # 2015 runtime still expects that initialisation to have happened and
+      # dereferences a null handle on the first lock, which _stream.pyx:422
+      # takes during import.
+      #
+      # Vendoring 14.51 from this build machine removes the dependency on what
+      # the test machine has. --namespace-pkg cuda is required: `cuda` is a
+      # namespace package, and without it the add_dll_directory patch lands in
+      # the wrong __init__.
+      - name: Vendor the C++ runtime into the wheels
+        run: |
+          .venv/Scripts/pip install delvewheel
+          mkdir -p wheels-repaired
+          for whl in ./wheels/cuda_bindings-*.whl ./wheels/cuda_core-*.whl; do
+            echo "=== repairing $whl ==="
+            .venv/Scripts/delvewheel repair --namespace-pkg cuda \
+              --exclude "torch_cpu.dll;torch_python.dll" \
+              -w ./wheels-repaired "$whl"
+          done
+          # Replace the originals in place: everything downstream, including
+          # the artifact the test job installs from, reads ./wheels.
+          mv -f ./wheels-repaired/*.whl ./wheels/
+          echo "=== what got vendored ==="
+          for whl in ./wheels/cuda_bindings-*.whl ./wheels/cuda_core-*.whl; do
+            echo "--- $whl"
+            unzip -l "$whl" | grep -i "\.libs/" || echo "    (nothing vendored)"
+          done
+
       - name: List wheel artifacts
         run: |
           echo "=== Windows wheel artifacts ==="
