@@ -8,6 +8,12 @@ on:
   schedule:
     - cron: '0 0 * * *' # This runs the workflow every day at 12:00 AM UTC
   workflow_dispatch: {}
+  # TEMPORARY (do not merge): runs this workflow against a PR through the
+  # copy-pr-bot mirror branch, so the wheel repair below can be verified
+  # before it is proposed on its own. Same trigger as ci.yml.
+  push:
+    branches:
+      - "pull-request/[0-9]+"
 
 env:
   PY_VER: "3.14"
@@ -32,6 +38,9 @@ jobs:
   coverage-linux:
     name: Coverage (Linux)
     needs: [coverage-vars]
+    # TEMPORARY (do not merge): only Windows is under test here, and the Linux
+    # leg holds an A100 for half an hour.
+    if: ${{ !startsWith(github.ref, 'refs/heads/pull-request/') }}
     runs-on: "linux-amd64-gpu-a100-latest-1"
     permissions:
       id-token: write
@@ -444,7 +453,10 @@ jobs:
     name: Combine Coverage and Deploy
     needs: [coverage-linux, coverage-windows]
     runs-on: ubuntu-latest
-    if: always()
+    # TEMPORARY (do not merge): a PR run has no Linux half, so this would both
+    # fail on the missing .coverage.linux and publish a partial report to
+    # gh-pages.
+    if: ${{ always() && !startsWith(github.ref, 'refs/heads/pull-request/') }}
     permissions:
       id-token: write
       contents: write
