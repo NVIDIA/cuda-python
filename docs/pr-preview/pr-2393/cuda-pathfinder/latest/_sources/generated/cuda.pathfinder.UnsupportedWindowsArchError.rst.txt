@@ -1,6 +1,0 @@
-﻿cuda.pathfinder.UnsupportedWindowsArchError
-===========================================
-
-.. currentmodule:: cuda.pathfinder
-
-.. autoexception:: UnsupportedWindowsArchError
