@@ -9,11 +9,13 @@
 #include <atomic>
 #include <array>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <list>
 #include <map>
 #include <mutex>
+#include <new>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
@@ -44,6 +46,7 @@ decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate = nullptr;
 
 decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority = nullptr;
 decltype(&cuStreamDestroy) p_cuStreamDestroy = nullptr;
+decltype(&cuStreamGetCtx) p_cuStreamGetCtx = nullptr;
 
 decltype(&cuEventCreate) p_cuEventCreate = nullptr;
 decltype(&cuEventDestroy) p_cuEventDestroy = nullptr;
@@ -201,19 +204,29 @@ public:
         }
 
         GILReleaseGuard gil;
-        if (p_cuCtxGetCurrent(&previous_) != CUDA_SUCCESS ||
-            previous_ == target) {
+        status_ = p_cuCtxGetCurrent(&previous_);
+        if (status_ != CUDA_SUCCESS || previous_ == target) {
             return;
         }
-        changed_ = p_cuCtxSetCurrent(target) == CUDA_SUCCESS;
+        status_ = p_cuCtxSetCurrent(target);
+        changed_ = status_ == CUDA_SUCCESS;
     }
 
     ~ScopedCurrentContext() {
         if (changed_) {
             GILReleaseGuard gil;
-            p_cuCtxSetCurrent(previous_);
+            CUresult status = p_cuCtxSetCurrent(previous_);
+            if (status != CUDA_SUCCESS) {
+                std::fprintf(
+                    stderr,
+                    "Warning: cuCtxSetCurrent failed while restoring a cleanup context "
+                    "(CUDA error %d)\n",
+                    static_cast<int>(status));
+            }
         }
     }
+
+    CUresult status() const noexcept { return status_; }
 
     ScopedCurrentContext(const ScopedCurrentContext&) = delete;
     ScopedCurrentContext& operator=(const ScopedCurrentContext&) = delete;
@@ -222,6 +235,7 @@ private:
     ContextHandle h_context_;
     CUcontext previous_ = nullptr;
     bool changed_ = false;
+    CUresult status_ = CUDA_SUCCESS;
 };
 
 }  // namespace
@@ -936,15 +950,101 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
 // ============================================================================
 
 namespace {
+struct ReleaseStream {
+    StreamHandle h_stream;
+    ContextHandle h_context;
+};
+
 struct DevicePtrBox {
     CUdeviceptr resource;
-    // Mutable to allow set_deallocation_stream() to update the stream
-    // through a const DevicePtrHandle. The stream can be changed after
-    // allocation (e.g., to synchronize deallocation with a different stream).
-    mutable StreamHandle h_stream;
-    // Used by MR-backed pointer deleters; native deleters ignore it.
-    mutable ContextHandle h_context;
+    // Mutable so Buffer.close(stream=...) can replace the complete stream
+    // dependency through a const DevicePtrHandle.
+    mutable ReleaseStream release_stream;
 };
+
+bool is_context_relative_stream(CUstream stream) noexcept {
+    return stream == nullptr ||
+           stream == CU_STREAM_LEGACY ||
+           stream == CU_STREAM_PER_THREAD;
+}
+
+CUresult make_release_stream(
+        const StreamHandle& h_stream,
+        ReleaseStream* release_stream,
+        const ContextHandle& fallback_context = {},
+        bool require_context = true) noexcept {
+    release_stream->h_stream = h_stream;
+    release_stream->h_context.reset();
+    if (!h_stream || !is_context_relative_stream(as_cu(h_stream))) {
+        return CUDA_SUCCESS;
+    }
+
+    CUcontext context = nullptr;
+    CUresult status;
+    {
+        GILReleaseGuard gil;
+        status = p_cuStreamGetCtx(as_cu(h_stream), &context);
+    }
+    bool context_unavailable =
+        status == CUDA_ERROR_INVALID_CONTEXT ||
+        status == CUDA_ERROR_NOT_INITIALIZED;
+    if (context_unavailable && fallback_context) {
+        release_stream->h_context = fallback_context;
+        return CUDA_SUCCESS;
+    }
+    if (context_unavailable && !require_context) {
+        return CUDA_SUCCESS;
+    }
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+    if (!context) {
+        return CUDA_ERROR_INVALID_CONTEXT;
+    }
+
+    try {
+        release_stream->h_context =
+            cuda_core::create_context_handle_ref(context);
+    } catch (const std::bad_alloc&) {
+        return CUDA_ERROR_OUT_OF_MEMORY;
+    } catch (...) {
+        return CUDA_ERROR_UNKNOWN;
+    }
+    return CUDA_SUCCESS;
+}
+
+template <typename Fn>
+CUresult call_with_release_stream(
+        const ReleaseStream& release_stream,
+        Fn&& fn) noexcept {
+    ScopedCurrentContext context(release_stream.h_context);
+    if (context.status() != CUDA_SUCCESS) {
+        return context.status();
+    }
+    GILReleaseGuard gil;
+    return fn(as_cu(release_stream.h_stream));
+}
+
+void report_cleanup_error(const char* operation, CUresult status) noexcept {
+    if (status != CUDA_SUCCESS) {
+        std::fprintf(
+            stderr,
+            "Warning: %s failed during resource destruction (CUDA error %d)\n",
+            operation,
+            static_cast<int>(status));
+    }
+}
+
+void release_async_deviceptr(DevicePtrBox* box) noexcept {
+    report_cleanup_error(
+        "cuMemFreeAsync",
+        call_with_release_stream(
+            box->release_stream,
+            [box](CUstream stream) {
+                return p_cuMemFreeAsync(box->resource, stream);
+            }));
+    delete box;
+}
 }  // namespace
 
 // Recovers the owning DevicePtrBox from the aliased CUdeviceptr pointer.
@@ -960,21 +1060,27 @@ static DevicePtrBox* get_box(const DevicePtrHandle& h) {
 }
 
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
-    return get_box(h)->h_stream;
+    return get_box(h)->release_stream.h_stream;
 }
 
-void set_deallocation_stream(
+CUresult set_deallocation_stream(
         const DevicePtrHandle& h,
-        const StreamHandle& h_stream,
-        const ContextHandle& h_context) noexcept {
-    DevicePtrBox* box = get_box(h);
-    box->h_stream = h_stream;
-    if (!box->h_context) {
-        box->h_context = h_context;
+        const StreamHandle& h_stream) noexcept {
+    ReleaseStream release_stream;
+    CUresult status = make_release_stream(h_stream, &release_stream);
+    if (status != CUDA_SUCCESS) {
+        return status;
     }
+    DevicePtrBox* box = get_box(h);
+    box->release_stream = std::move(release_stream);
+    return CUDA_SUCCESS;
 }
 
 DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) {
+    ReleaseStream release_stream;
+    if (CUDA_SUCCESS != (err = make_release_stream(h_stream, &release_stream))) {
+        return {};
+    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, as_cu(h_stream)))) {
@@ -982,17 +1088,20 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream, {}},
+        new DevicePtrBox{ptr, std::move(release_stream)},
         [h_pool](DevicePtrBox* b) {
-            GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
-            delete b;
+            (void)h_pool;
+            release_async_deviceptr(b);
         }
     );
     return DevicePtrHandle(box, &box->resource);
 }
 
 DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream) {
+    ReleaseStream release_stream;
+    if (CUDA_SUCCESS != (err = make_release_stream(h_stream, &release_stream))) {
+        return {};
+    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, as_cu(h_stream)))) {
@@ -1000,17 +1109,20 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream, {}},
-        [](DevicePtrBox* b) {
-            GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
-            delete b;
-        }
+        new DevicePtrBox{ptr, std::move(release_stream)},
+        release_async_deviceptr
     );
     return DevicePtrHandle(box, &box->resource);
 }
 
 DevicePtrHandle deviceptr_alloc(size_t size) {
+    ContextHandle h_context = get_current_context();
+    if (!h_context) {
+        if (err == CUDA_SUCCESS) {
+            err = CUDA_ERROR_INVALID_CONTEXT;
+        }
+        return {};
+    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAlloc(&ptr, size))) {
@@ -1018,10 +1130,11 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, {}, {}},
-        [](DevicePtrBox* b) {
+        new DevicePtrBox{ptr, {}},
+        [h_context](DevicePtrBox* b) {
+            (void)h_context;
             GILReleaseGuard gil;
-            p_cuMemFree(b->resource);
+            report_cleanup_error("cuMemFree", p_cuMemFree(b->resource));
             delete b;
         }
     );
@@ -1029,6 +1142,13 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
 }
 
 DevicePtrHandle deviceptr_alloc_host(size_t size) {
+    ContextHandle h_context = get_current_context();
+    if (!h_context) {
+        if (err == CUDA_SUCCESS) {
+            err = CUDA_ERROR_INVALID_CONTEXT;
+        }
+        return {};
+    }
     GILReleaseGuard gil;
     void* ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocHost(&ptr, size))) {
@@ -1036,10 +1156,13 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), {}, {}},
-        [](DevicePtrBox* b) {
+        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), {}},
+        [h_context](DevicePtrBox* b) {
+            (void)h_context;
             GILReleaseGuard gil;
-            p_cuMemFreeHost(reinterpret_cast<void*>(b->resource));
+            report_cleanup_error(
+                "cuMemFreeHost",
+                p_cuMemFreeHost(reinterpret_cast<void*>(b->resource)));
             delete b;
         }
     );
@@ -1048,7 +1171,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
 
 DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
     auto box = std::make_shared<DevicePtrBox>(
-        DevicePtrBox{ptr, {}, {}});
+        DevicePtrBox{ptr, {}});
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -1064,7 +1187,7 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
     }
     Py_INCREF(owner);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, {}, {}},
+        new DevicePtrBox{ptr, {}},
         [owner](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
@@ -1081,12 +1204,30 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
     const GraphicsResourceHandle& h_resource,
     const StreamHandle& h_stream
 ) {
+    ReleaseStream release_stream;
+    if (CUDA_SUCCESS != (err = make_release_stream(h_stream, &release_stream))) {
+        return {};
+    }
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream, {}},
+        new DevicePtrBox{ptr, std::move(release_stream)},
         [h_resource](DevicePtrBox* b) {
-            GILReleaseGuard gil;
+            ScopedCurrentContext context(
+                get_graphics_resource_context(h_resource));
+            if (context.status() != CUDA_SUCCESS) {
+                report_cleanup_error(
+                    "cuCtxSetCurrent", context.status());
+                delete b;
+                return;
+            }
             CUgraphicsResource resource = as_cu(h_resource);
-            p_cuGraphicsUnmapResources(1, &resource, as_cu(b->h_stream));
+            report_cleanup_error(
+                "cuGraphicsUnmapResources",
+                call_with_release_stream(
+                    b->release_stream,
+                    [&resource](CUstream stream) {
+                        return p_cuGraphicsUnmapResources(
+                            1, &resource, stream);
+                    }));
             delete b;
         }
     );
@@ -1107,9 +1248,19 @@ DevicePtrHandle deviceptr_create_with_mr(
         CUdeviceptr ptr,
         size_t size,
         PyObject* mr,
-        const ContextHandle& h_context) {
+        const ContextHandle& h_allocation_context,
+        const StreamHandle& h_stream,
+        bool require_stream_context) {
     if (!mr) {
         return deviceptr_create_ref(ptr);
+    }
+    ReleaseStream release_stream;
+    if (CUDA_SUCCESS != (err = make_release_stream(
+            h_stream,
+            &release_stream,
+            h_allocation_context,
+            require_stream_context))) {
+        return {};
     }
     // GIL required when mr is provided
     GILAcquireGuard gil;
@@ -1118,13 +1269,22 @@ DevicePtrHandle deviceptr_create_with_mr(
     }
     Py_INCREF(mr);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, {}, h_context},
-        [mr, size](DevicePtrBox* b) {
-            ScopedCurrentContext context(b->h_context);
+        new DevicePtrBox{ptr, std::move(release_stream)},
+        [mr, size, h_allocation_context](DevicePtrBox* b) {
+            (void)h_allocation_context;
+            ScopedCurrentContext context(
+                b->release_stream.h_context);
             GILAcquireGuard gil;
             if (gil.acquired()) {
-                if (mr_dealloc_cb) {
-                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                if (context.status() == CUDA_SUCCESS && mr_dealloc_cb) {
+                    mr_dealloc_cb(
+                        mr,
+                        b->resource,
+                        size,
+                        b->release_stream.h_stream);
+                } else if (context.status() != CUDA_SUCCESS) {
+                    report_cleanup_error(
+                        "cuCtxSetCurrent", context.status());
                 }
                 Py_DECREF(mr);
             }
@@ -1195,6 +1355,10 @@ static std::mutex ipc_import_mutex;
 DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) {
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
+    ReleaseStream release_stream;
+    if (CUDA_SUCCESS != (err = make_release_stream(h_stream, &release_stream))) {
+        return {};
+    }
 
     if (use_ipc_ptr_cache()) {
         ExportDataKey key;
@@ -1213,12 +1377,11 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         }
 
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream, {}},
+            new DevicePtrBox{ptr, std::move(release_stream)},
             [h_pool, key](DevicePtrBox* b) {
+                (void)h_pool;
                 ipc_ptr_cache.unregister_handle(key);
-                GILReleaseGuard gil;
-                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
-                delete b;
+                release_async_deviceptr(b);
             }
         );
         DevicePtrHandle h(box, &box->resource);
@@ -1233,11 +1396,10 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         }
 
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream, {}},
+            new DevicePtrBox{ptr, std::move(release_stream)},
             [h_pool](DevicePtrBox* b) {
-                GILReleaseGuard gil;
-                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
-                delete b;
+                (void)h_pool;
+                release_async_deviceptr(b);
             }
         );
         return DevicePtrHandle(box, &box->resource);
@@ -1927,19 +2089,49 @@ void invalidate_graph_node(const GraphNodeHandle& h) noexcept {
 namespace {
 struct GraphicsResourceBox {
     CUgraphicsResource resource;
+    ContextHandle h_context;
 };
+
+static const GraphicsResourceBox* get_box(
+        const GraphicsResourceHandle& h) noexcept {
+    const CUgraphicsResource* p = h.get();
+    return reinterpret_cast<const GraphicsResourceBox*>(
+        reinterpret_cast<const char*>(p) -
+        offsetof(GraphicsResourceBox, resource)
+    );
+}
 }  // namespace
 
 GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource) {
+    ContextHandle h_context = get_current_context();
+    if (!h_context) {
+        if (err == CUDA_SUCCESS) {
+            err = CUDA_ERROR_INVALID_CONTEXT;
+        }
+        return {};
+    }
     auto box = std::shared_ptr<const GraphicsResourceBox>(
-        new GraphicsResourceBox{resource},
+        new GraphicsResourceBox{resource, h_context},
         [](const GraphicsResourceBox* b) {
-            GILReleaseGuard gil;
-            p_cuGraphicsUnregisterResource(b->resource);
+            ScopedCurrentContext context(b->h_context);
+            if (context.status() == CUDA_SUCCESS) {
+                GILReleaseGuard gil;
+                report_cleanup_error(
+                    "cuGraphicsUnregisterResource",
+                    p_cuGraphicsUnregisterResource(b->resource));
+            } else {
+                report_cleanup_error(
+                    "cuCtxSetCurrent", context.status());
+            }
             delete b;
         }
     );
     return GraphicsResourceHandle(box, &box->resource);
+}
+
+ContextHandle get_graphics_resource_context(
+        const GraphicsResourceHandle& h) noexcept {
+    return h ? get_box(h)->h_context : ContextHandle{};
 }
 
 // ============================================================================

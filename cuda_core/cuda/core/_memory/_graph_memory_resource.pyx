@@ -128,7 +128,7 @@ cdef class cyGraphMemoryResource(MemoryResource):
         Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
         cdef Stream s = Stream_accept(stream)
-        return GMR_deallocate(ptr, size, s)
+        GMR_deallocate(ptr, size, s)
 
     def close(self) -> None:
         """No operation (provided for compatibility)."""
@@ -225,8 +225,11 @@ cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream 
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
-cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:
+cdef inline int GMR_deallocate(
+    intptr_t ptr, size_t size, Stream stream
+) except?-1:
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
+    return 0

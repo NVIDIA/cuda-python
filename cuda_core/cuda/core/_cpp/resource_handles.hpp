@@ -77,6 +77,7 @@ extern decltype(&cuGreenCtxStreamCreate) p_cuGreenCtxStreamCreate;
 
 extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
 extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
+extern decltype(&cuStreamGetCtx) p_cuStreamGetCtx;
 
 extern decltype(&cuEventCreate) p_cuEventCreate;
 extern decltype(&cuEventDestroy) p_cuEventDestroy;
@@ -403,15 +404,17 @@ using MRDeallocCallback = void (*)(PyObject* mr, CUdeviceptr ptr,
 void register_mr_dealloc_callback(MRDeallocCallback cb);
 
 // Create a device pointer handle whose destructor calls mr.deallocate()
-// via the registered callback. The supplied context is retained and made
-// current for the callback. The mr's refcount is incremented and decremented
-// when the handle is released.
+// via the registered callback. The supplied allocation context is retained,
+// and the optional deallocation stream is passed to the callback. The mr's
+// refcount is incremented and decremented when the handle is released.
 // If mr is nullptr, equivalent to deviceptr_create_ref.
 DevicePtrHandle deviceptr_create_with_mr(
     CUdeviceptr ptr,
     size_t size,
     PyObject* mr,
-    const ContextHandle& h_context);
+    const ContextHandle& h_allocation_context,
+    const StreamHandle& h_stream,
+    bool require_stream_context);
 
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
@@ -426,12 +429,11 @@ DevicePtrHandle deviceptr_import_ipc(
 // For non-owning handles, the stream is not used but can still be accessed.
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
-// Set the deallocation stream for a device pointer handle.
-// If the handle has no cleanup context, use the supplied stream context.
-void set_deallocation_stream(
+// Set the deallocation stream for a device pointer handle. Context-relative
+// default streams are bound to the calling thread's current context.
+CUresult set_deallocation_stream(
     const DevicePtrHandle& h,
-    const StreamHandle& h_stream,
-    const ContextHandle& h_context) noexcept;
+    const StreamHandle& h_stream) noexcept;
 
 // ============================================================================
 // Library handle functions
@@ -589,6 +591,8 @@ void invalidate_graph_node(const GraphNodeHandle& h) noexcept;
 // When the last reference is released, cuGraphicsUnregisterResource is called automatically.
 // Use for CUgraphicsResource handles obtained from cuGraphicsGLRegisterBuffer etc.
 GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource);
+ContextHandle get_graphics_resource_context(
+    const GraphicsResourceHandle& h) noexcept;
 
 // ============================================================================
 // NVRTC Program handle functions

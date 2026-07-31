@@ -212,7 +212,9 @@ cdef DevicePtrHandle deviceptr_create_mapped_graphics(
     const StreamHandle& h_stream) except+ nogil
 cdef DevicePtrHandle deviceptr_create_with_mr(
     cydriver.CUdeviceptr ptr, size_t size, object mr,
-    const ContextHandle& h_context) except+ nogil
+    const ContextHandle& h_allocation_context,
+    const StreamHandle& h_stream,
+    bint require_stream_context) except+ nogil
 
 # MR deallocation callback type and registration
 ctypedef void (*MRDeallocCallback)(
@@ -223,9 +225,8 @@ cdef void register_mr_dealloc_callback(MRDeallocCallback cb) noexcept
 cdef DevicePtrHandle deviceptr_import_ipc(
     const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil
-cdef void set_deallocation_stream(
-    const DevicePtrHandle& h, const StreamHandle& h_stream,
-    const ContextHandle& h_context) noexcept nogil
+cdef cydriver.CUresult set_deallocation_stream(
+    const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
 # Library handles
 cdef LibraryHandle create_library_handle_from_file(const char* path) except+ nogil

@@ -8,8 +8,10 @@ from typing import Sequence
 
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
+    DevicePtrHandle,
     create_graphics_resource_handle,
     deviceptr_create_mapped_graphics,
+    get_last_error,
     as_cu,
     as_intptr,
 )
@@ -147,11 +149,19 @@ cdef class GraphicsResource:
         cdef cydriver.CUgraphicsResource resource
         cdef cydriver.GLuint cy_buffer = <cydriver.GLuint>gl_buffer
         cdef unsigned int cy_flags = _parse_register_flags(flags)
+        cdef cydriver.CUresult status
+        cdef cydriver.CUresult rollback_status
         with nogil:
             HANDLE_RETURN(
                 cydriver.cuGraphicsGLRegisterBuffer(&resource, cy_buffer, cy_flags)
             )
         self._handle = create_graphics_resource_handle(resource)
+        if not self._handle:
+            status = get_last_error()
+            with nogil:
+                rollback_status = cydriver.cuGraphicsUnregisterResource(resource)
+            HANDLE_RETURN(rollback_status)
+            HANDLE_RETURN(status)
         self._mapped_buffer = None
         self._context_manager_stream = stream
         self._entered_buffer = None
@@ -198,11 +208,19 @@ cdef class GraphicsResource:
         cdef cydriver.GLuint cy_image = <cydriver.GLuint>image
         cdef cydriver.GLenum cy_target = <cydriver.GLenum>target
         cdef unsigned int cy_flags = _parse_register_flags(flags)
+        cdef cydriver.CUresult status
+        cdef cydriver.CUresult rollback_status
         with nogil:
             HANDLE_RETURN(
                 cydriver.cuGraphicsGLRegisterImage(&resource, cy_image, cy_target, cy_flags)
             )
         self._handle = create_graphics_resource_handle(resource)
+        if not self._handle:
+            status = get_last_error()
+            with nogil:
+                rollback_status = cydriver.cuGraphicsUnregisterResource(resource)
+            HANDLE_RETURN(rollback_status)
+            HANDLE_RETURN(status)
         self._mapped_buffer = None
         self._context_manager_stream = None
         self._entered_buffer = None
@@ -251,6 +269,10 @@ cdef class GraphicsResource:
         """
         cdef cydriver.CUdeviceptr dev_ptr = 0
         cdef size_t size = 0
+        cdef cydriver.CUresult status
+        cdef cydriver.CUresult rollback_status
+        cdef bint mapped = False
+        cdef DevicePtrHandle h_ptr
         if not self._handle:
             raise RuntimeError("GraphicsResource has been closed")
         if self._get_mapped_buffer() is not None:
@@ -259,15 +281,35 @@ cdef class GraphicsResource:
         cdef Stream s_obj = Stream_accept(stream)
         cdef cydriver.CUgraphicsResource raw = as_cu(self._handle)
         cdef cydriver.CUstream cy_stream = as_cu(s_obj._h_stream)
-        with nogil:
-            HANDLE_RETURN(
-                cydriver.cuGraphicsMapResources(1, &raw, cy_stream)
-            )
-            HANDLE_RETURN(
-                cydriver.cuGraphicsResourceGetMappedPointer(&dev_ptr, &size, raw)
-            )
+        try:
+            with nogil:
+                HANDLE_RETURN(
+                    cydriver.cuGraphicsMapResources(1, &raw, cy_stream)
+                )
+            mapped = True
+            with nogil:
+                HANDLE_RETURN(
+                    cydriver.cuGraphicsResourceGetMappedPointer(
+                        &dev_ptr, &size, raw)
+                )
+        except:
+            if mapped:
+                with nogil:
+                    rollback_status = cydriver.cuGraphicsUnmapResources(
+                        1, &raw, cy_stream)
+                HANDLE_RETURN(rollback_status)
+            raise
+        h_ptr = deviceptr_create_mapped_graphics(
+            dev_ptr, self._handle, s_obj._h_stream)
+        if not h_ptr:
+            status = get_last_error()
+            with nogil:
+                rollback_status = cydriver.cuGraphicsUnmapResources(
+                    1, &raw, cy_stream)
+            HANDLE_RETURN(rollback_status)
+            HANDLE_RETURN(status)
         cdef Buffer buf = Buffer_from_deviceptr_handle(
-            deviceptr_create_mapped_graphics(dev_ptr, self._handle, s_obj._h_stream),
+            h_ptr,
             size,
             None,
             None,

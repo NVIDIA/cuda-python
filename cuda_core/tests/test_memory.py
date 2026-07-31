@@ -536,27 +536,19 @@ def test_mr_deallocate_receives_stream():
     assert received["stream"].handle == stream.handle
 
 
-def test_mr_dealloc_callback_falls_back_to_default_stream():
-    """When a Buffer's device-pointer handle has no attached deallocation
-    stream (e.g. buffers minted via :meth:`Buffer.from_handle` from DLPack
-    import, IPC import, or third-party adapters), the C++ deleter callback
-    must fall back to the default stream rather than passing ``stream=None``
-    to ``mr.deallocate``. Stream-ordered MRs validate the stream and would
-    otherwise raise ``TypeError`` from inside the ``noexcept`` callback,
-    which only logs a warning and silently leaks the allocation. See
-    `#2001 <https://github.com/NVIDIA/cuda-python/issues/2001>`__.
-    """
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize("provide_stream", [False, True])
+def test_mr_dealloc_callback_preserves_release_stream(provide_stream):
+    """MR cleanup receives the stream selected when ownership is adopted."""
     import gc
 
-    from cuda.core._stream import Stream_accept, default_stream
+    from cuda.core._stream import default_stream
 
     device = Device()
     device.set_current()
     captured = {}
 
-    class StrictCapturingMR(MemoryResource):
-        # Models a stream-ordered MR: deallocate validates the stream
-        # the same way DeviceMemoryResource.deallocate does.
+    class CapturingMR(MemoryResource):
         @property
         def is_device_accessible(self):
             return True
@@ -573,37 +565,36 @@ def test_mr_dealloc_callback_falls_back_to_default_stream():
             raise NotImplementedError  # not used; we use from_handle below
 
         def deallocate(self, ptr, size, *, stream):
-            captured["stream"] = Stream_accept(stream)
+            captured["stream"] = stream
 
-    mr = StrictCapturingMR()
-    # Buffer.from_handle binds mr but does not attach a deallocation stream.
-    # ptr=1 is fine because StrictCapturingMR.deallocate does not free.
-    buf = Buffer.from_handle(1, 1024, mr=mr)
+    mr = CapturingMR()
+    stream = device.create_stream() if provide_stream else None
+    # ptr=1 is fine because CapturingMR.deallocate does not free.
+    buf = Buffer.from_handle(1, 1024, mr=mr, stream=stream)
     del buf
     gc.collect()
 
-    assert "stream" in captured, "deallocate was not invoked (callback raised and leaked)"
-    assert captured["stream"].handle == default_stream().handle
+    expected = stream if stream is not None else default_stream()
+    assert captured["stream"].handle == expected.handle
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_from_handle_pool_pointer_deallocates_without_current_context(mempool_device, capsys):
-    """A context-independent pool pointer uses its deallocation stream context."""
+    """A native pool handle releases on an explicit stream without a current context."""
     dev = mempool_device
     stream = dev.create_stream()
     mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
     size = 256
-    ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, mr.handle, stream.handle))
+    buf = mr.allocate(size, stream=stream)
     stream.sync()
     used_after_alloc = mr.attributes.used_mem_current
-    buf = Buffer.from_handle(int(ptr), size, mr=mr)
 
     previous = handle_return(driver.cuCtxPopCurrent())
     assert int(previous) != 0
     try:
         assert int(handle_return(driver.cuCtxGetCurrent())) == 0
 
-        buf.close(stream)
+        buf.close()
         stream.sync()
 
         assert mr.attributes.used_mem_current < used_after_alloc
@@ -611,6 +602,30 @@ def test_from_handle_pool_pointer_deallocates_without_current_context(mempool_de
         assert "mr.deallocate() failed" not in capsys.readouterr().err
     finally:
         handle_return(driver.cuCtxSetCurrent(previous))
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_from_handle_pool_pointer_requires_stream_without_current_context(
+    mempool_device,
+):
+    """A context-independent pointer cannot infer a default stream context."""
+    dev = mempool_device
+    stream = dev.create_stream()
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    size = 256
+    ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, mr.handle, stream.handle))
+    stream.sync()
+
+    previous = handle_return(driver.cuCtxPopCurrent())
+    assert int(previous) != 0
+    try:
+        with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_CONTEXT"):
+            Buffer.from_handle(int(ptr), size, mr=mr)
+    finally:
+        handle_return(driver.cuCtxSetCurrent(previous))
+
+    handle_return(driver.cuMemFreeAsync(ptr, stream.handle))
+    stream.sync()
 
 
 def test_memory_resource_and_owner_disallowed():

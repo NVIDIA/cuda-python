@@ -450,7 +450,7 @@ class VirtualMemoryResource(MemoryResource):
         buf._clear()
 
         # Return a new Buffer for the new mapping
-        return Buffer.from_handle(ptr=new_ptr, size=new_size, mr=self)
+        return Buffer._init(ptr=new_ptr, size=new_size, mr=self)
 
     def _build_access_descriptors(self, prop: driver.CUmemAllocationProp) -> list[driver.CUmemAccessDesc]:
         """
@@ -566,7 +566,7 @@ class VirtualMemoryResource(MemoryResource):
             trans.commit()
 
         # Done — return a Buffer that tracks this VA range
-        buf = Buffer.from_handle(ptr=ptr, size=aligned_size, mr=self)
+        buf = Buffer._init(ptr=ptr, size=aligned_size, mr=self)
         return buf
 
     def deallocate(self, ptr: DevicePointerType, size: int, *, stream: Stream | GraphBuilder | None = None) -> None:

@@ -342,13 +342,14 @@ cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = B
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None, cls)
 
 
-cdef inline void _MP_deallocate(
+cdef inline int _MP_deallocate(
     _MemPool self, uintptr_t ptr, size_t size, Stream stream
-) noexcept nogil:
+) except?-1 nogil:
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
+    return 0
 
 
 cdef inline _MP_close(_MemPool self):

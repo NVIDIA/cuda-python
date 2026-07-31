@@ -20,7 +20,7 @@ from cuda.core._resource_handles cimport (
     create_context_handle_ref,
     deviceptr_create_with_owner,
     deviceptr_create_with_mr,
-    get_stream_context,
+    get_last_error,
     register_mr_dealloc_callback,
     as_intptr,
     as_cu,
@@ -55,20 +55,14 @@ cdef void _mr_dealloc_callback(
     """Called by the C++ deleter to deallocate via MemoryResource.deallocate.
 
     This is the C++ teardown path: there is no Python caller frame from
-    which to obtain a stream. If the device-pointer handle was created
-    without ``set_deallocation_stream`` being called (e.g. buffers minted
-    via ``Buffer.from_handle(ptr, size, mr=mr)`` from DLPack import,
-    third-party adapters, or other foreign sources), ``h_stream`` is
-    empty here. Stream-ordered MR ``deallocate`` overrides reject
-    ``stream=None`` (issue #2001), so without a fallback the destructor
-    would print a warning and leak the allocation. Fall back to the
-    legacy/per-thread default stream so the free still happens; this is
-    the unique exception to the "no implicit default-stream fallback"
-    policy because the teardown has no other source of truth.
+    which to obtain a stream. The device-pointer handle therefore carries
+    the exact stream selected at allocation/adoption or by ``Buffer.close``.
+    An empty handle remains ``None``; cleanup must never invent ordering by
+    selecting a default stream at destruction time.
     """
-    cdef Stream stream
+    cdef object stream
     try:
-        stream = Stream._from_handle(Stream, h_stream) if h_stream else default_stream()
+        stream = Stream._from_handle(Stream, h_stream) if h_stream else None
         mr.deallocate(int(ptr), size, stream=stream)
     except Exception as exc:
         print(f"Warning: mr.deallocate() failed during Buffer destruction: {exc}",
@@ -80,23 +74,15 @@ register_mr_dealloc_callback(_mr_dealloc_callback)
 __all__ = ['Buffer', 'MemoryResource']
 
 
-# Context Resolution Helpers
-# --------------------------
-cdef ContextHandle _current_context_handle():
-    cdef ContextHandle h_context
-    cdef cydriver.CUcontext context = NULL
-    with nogil:
-        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&context))
-    if context != NULL:
-        h_context = create_context_handle_ref(context)
-    return h_context
-
-
-cdef ContextHandle _pointer_context_handle(cydriver.CUdeviceptr ptr):
-    """Return the pointer's context, or the current context for an async allocation."""
+cdef ContextHandle _pointer_context_handle(
+    cydriver.CUdeviceptr ptr,
+    bint* require_stream_context,
+):
+    """Return the pointer's owning context when CUDA reports one."""
     cdef ContextHandle h_context
     cdef cydriver.CUcontext context = NULL
     cdef cydriver.CUresult result
+    require_stream_context[0] = False
     if ptr == 0:
         return h_context
 
@@ -109,9 +95,9 @@ cdef ContextHandle _pointer_context_handle(cydriver.CUdeviceptr ptr):
     if result == cydriver.CUDA_SUCCESS:
         if context != NULL:
             return create_context_handle_ref(context)
-        # Stream-ordered allocations are context-independent. Retain the
-        # wrapping thread's current context for default-stream deallocation.
-        return _current_context_handle()
+        # Stream-ordered allocations are context-independent.
+        require_stream_context[0] = True
+        return h_context
     if result in (
         cydriver.CUresult.CUDA_ERROR_INVALID_VALUE,
         cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED,
@@ -120,22 +106,6 @@ cdef ContextHandle _pointer_context_handle(cydriver.CUdeviceptr ptr):
         return h_context
     with nogil:
         HANDLE_RETURN(result)
-    return h_context
-
-
-cdef ContextHandle _stream_context_handle(Stream stream):
-    cdef ContextHandle h_context = stream._h_context
-    cdef cydriver.CUcontext context = NULL
-    if h_context:
-        return h_context
-    h_context = get_stream_context(stream._h_stream)
-    if h_context:
-        return h_context
-
-    with nogil:
-        HANDLE_RETURN(cydriver.cuStreamGetCtx(as_cu(stream._h_stream), &context))
-    if context != NULL:
-        h_context = create_context_handle_ref(context)
     return h_context
 
 
@@ -238,7 +208,8 @@ cdef class Buffer:
     def _init(
         cls, ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         ipc_descriptor: IPCBufferDescriptor | None = None,
-        owner : object | None = None
+        owner : object | None = None,
+        stream: Stream | GraphBuilder | None = None,
     ) -> Buffer:
         """Create a Buffer from a raw pointer.
 
@@ -251,10 +222,27 @@ cdef class Buffer:
         cdef Buffer self = Buffer.__new__(cls)
         cdef uintptr_t c_ptr = <uintptr_t>(int(ptr))
         cdef ContextHandle h_context
+        cdef StreamHandle h_stream
+        cdef Stream s
+        cdef bint require_stream_context
         if mr is not None:
-            h_context = _pointer_context_handle(c_ptr)
+            if stream is not None:
+                s = Stream_accept(stream)
+                h_stream = s._h_stream
+            h_context = _pointer_context_handle(
+                c_ptr, &require_stream_context)
             self._h_ptr = deviceptr_create_with_mr(
-                c_ptr, size, mr, h_context)
+                c_ptr,
+                size,
+                mr,
+                h_context,
+                h_stream,
+                require_stream_context,
+            )
+            if not self._h_ptr:
+                HANDLE_RETURN(get_last_error())
+                raise RuntimeError(
+                    "Failed to create an owning device-pointer handle")
         else:
             self._h_ptr = deviceptr_create_with_owner(c_ptr, owner)
         self._size = size
@@ -282,6 +270,7 @@ cdef class Buffer:
     def from_handle(
         ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         owner: object | None = None,
+        *, stream: Stream | GraphBuilder | None = None,
     ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
@@ -299,6 +288,10 @@ cdef class Buffer:
             An object holding external allocation that the ``ptr`` points to.
             The reference is kept as long as the buffer is alive.
             The ``owner`` and ``mr`` cannot be specified together.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
+            Initial deallocation stream when ``mr`` owns the pointer. If
+            omitted, the current default stream is selected and retained now,
+            rather than during eventual destruction.
 
         Note
         ----
@@ -306,7 +299,10 @@ cdef class Buffer:
         non-owning reference.  The pointer will NOT be freed when the
         :class:`Buffer` is closed or garbage collected.
         """
-        return Buffer._init(ptr, size, mr=mr, owner=owner)
+        if mr is not None and stream is None:
+            stream = default_stream()
+        return Buffer._init(
+            ptr, size, mr=mr, owner=owner, stream=stream)
 
     @classmethod
     def from_ipc_descriptor(
@@ -684,14 +680,14 @@ cdef Buffer Buffer_from_deviceptr_handle(
 cdef inline void Buffer_close(Buffer self, object stream):
     """Close a buffer, freeing its memory."""
     cdef Stream s
-    cdef ContextHandle h_context
     if not self._h_ptr:
         return
     # Update deallocation stream if provided
     if stream is not None:
         s = Stream_accept(stream)
-        h_context = _stream_context_handle(s)
-        set_deallocation_stream(self._h_ptr, s._h_stream, h_context)
+        with nogil:
+            HANDLE_RETURN(set_deallocation_stream(
+                self._h_ptr, s._h_stream))
     # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
     self._h_ptr.reset()
     self._size = 0

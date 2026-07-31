@@ -679,6 +679,70 @@ def test_deferred_buffer_cleanup_restores_no_current_context(tmp_path):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize("use_ptds", [False, True])
+def test_deferred_native_buffer_cleanup_uses_bound_default_context(tmp_path, use_ptds):
+    """Native default-stream cleanup restores its retained context."""
+    code = f"timeout = {_FINALIZE_TIMEOUT!r}\nuse_ptds = {int(use_ptds)}\n" + textwrap.dedent(
+        """
+            import gc
+            import os
+            import time
+
+            os.environ["CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM"] = str(
+                use_ptds
+            )
+
+            from cuda.core import Device, DeviceMemoryResource
+            from cuda.core.graph import GraphDefinition
+            from cuda.core._utils._weak_handles import weak_handle
+            from cuda.core._utils.cuda_utils import driver, handle_return
+
+            dev = Device(0)
+            dev.set_current()
+            mr = DeviceMemoryResource(dev)
+            before = mr.attributes.used_mem_current
+            buf = mr.allocate(256, stream=dev.default_stream)
+            dev.default_stream.sync()
+            after_alloc = mr.attributes.used_mem_current
+            assert after_alloc > before
+
+            graph_def = GraphDefinition()
+            graph_def.memset(buf, 0, 256)
+            allocation = weak_handle(buf)
+            buf.close()
+            assert allocation
+
+            previous = handle_return(driver.cuCtxPopCurrent())
+            assert int(previous) != 0
+            try:
+                del graph_def
+                deadline = time.monotonic() + timeout
+                while allocation:
+                    gc.collect()
+                    if time.monotonic() >= deadline:
+                        raise AssertionError("deferred buffer cleanup timed out")
+                    time.sleep(0)
+                    time.sleep(0.02)
+                assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+            finally:
+                handle_return(driver.cuCtxSetCurrent(previous))
+
+            dev.default_stream.sync()
+            assert mr.attributes.used_mem_current < after_alloc
+            """
+    )
+    result = subprocess.run(  # noqa: S603 - controlled interpreter probe
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "failed during resource destruction" not in result.stderr
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_pending_call_queue_saturation_preserves_cleanup(tmp_path):
     """A full CPython queue neither strands nor mis-threads cleanup."""
     code = f"timeout = {_FINALIZE_TIMEOUT!r}\n" + textwrap.dedent(

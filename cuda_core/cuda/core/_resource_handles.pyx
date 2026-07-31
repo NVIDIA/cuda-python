@@ -123,15 +123,16 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         MRDeallocCallback cb) noexcept
     DevicePtrHandle deviceptr_create_with_mr "cuda_core::deviceptr_create_with_mr" (
         cydriver.CUdeviceptr ptr, size_t size, object mr,
-        const ContextHandle& h_context) except+ nogil
+        const ContextHandle& h_allocation_context,
+        const StreamHandle& h_stream,
+        bint require_stream_context) except+ nogil
 
     DevicePtrHandle deviceptr_import_ipc "cuda_core::deviceptr_import_ipc" (
         const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
         const DevicePtrHandle& h) noexcept nogil
-    void set_deallocation_stream "cuda_core::set_deallocation_stream" (
-        const DevicePtrHandle& h, const StreamHandle& h_stream,
-        const ContextHandle& h_context) noexcept nogil
+    cydriver.CUresult set_deallocation_stream "cuda_core::set_deallocation_stream" (
+        const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
     # Library handles
     LibraryHandle create_library_handle_from_file "cuda_core::create_library_handle_from_file" (
@@ -287,6 +288,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Stream
     void* p_cuStreamCreateWithPriority "reinterpret_cast<void*&>(cuda_core::p_cuStreamCreateWithPriority)"
     void* p_cuStreamDestroy "reinterpret_cast<void*&>(cuda_core::p_cuStreamDestroy)"
+    void* p_cuStreamGetCtx "reinterpret_cast<void*&>(cuda_core::p_cuStreamGetCtx)"
 
     # Event
     void* p_cuEventCreate "reinterpret_cast<void*&>(cuda_core::p_cuEventCreate)"
@@ -383,7 +385,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuCtxGetCurrent, p_cuCtxSetCurrent
     global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
     global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
-    global p_cuStreamCreateWithPriority, p_cuStreamDestroy
+    global p_cuStreamCreateWithPriority, p_cuStreamDestroy, p_cuStreamGetCtx
     global p_cuEventCreate, p_cuEventDestroy, p_cuIpcOpenEventHandle
     global p_cuDeviceGetCount
     global p_cuMemPoolSetAccess, p_cuMemPoolDestroy, p_cuMemPoolCreate
@@ -418,6 +420,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     # Stream
     p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
     p_cuStreamDestroy = _get_driver_fn("cuStreamDestroy")
+    p_cuStreamGetCtx = _get_driver_fn("cuStreamGetCtx")
 
     # Event
     p_cuEventCreate = _get_driver_fn("cuEventCreate")
