@@ -34,6 +34,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     build_dynamic_lib_subprocess_command,
     parse_dynamic_lib_subprocess_payload,
 )
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_LIBNAMES
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if TYPE_CHECKING:
@@ -42,9 +43,7 @@ if TYPE_CHECKING:
 # All libnames recognized by load_nvidia_dynamic_lib, across all categories
 # (CTK, third-party, driver).
 _ALL_KNOWN_LIBNAMES: frozenset[str] = frozenset(LIB_DESCRIPTORS)
-_ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
-    name for name, desc in LIB_DESCRIPTORS.items() if (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
-)
+_ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(SUPPORTED_LIBNAMES)
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 

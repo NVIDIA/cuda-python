@@ -25,6 +25,11 @@ STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICT
 assert STRICTNESS in ("see_what_works", "all_must_work")
 
 
+@pytest.mark.agent_authored(model="gpt-5")
+def test_loader_uses_platform_supported_libnames():
+    assert frozenset(supported_nvidia_libs.SUPPORTED_LIBNAMES) == load_nvidia_dynamic_lib_module._ALL_SUPPORTED_LIBNAMES
+
+
 def test_supported_libnames_linux_sonames_consistency():
     assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_LINUX)) == tuple(
         sorted(supported_nvidia_libs.SUPPORTED_LINUX_SONAMES_CTK.keys())
