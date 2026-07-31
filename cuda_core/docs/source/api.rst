@@ -191,6 +191,41 @@ nodes also cannot currently be constructed explicitly.
    graph.WhileNode
    graph.SwitchNode
 
+Executable node views
+`````````````````````
+
+Index an executable :class:`~graph.Graph` with a definition node to update that
+node in the executable, for example
+``graph[kernel_node].update(config=config, kernel=kernel, args=args)``.
+The returned view retains the executable and source node, while CUDA validates
+that the node is associated with the executable.
+
+Executable updates require complete replacement parameters because CUDA does
+not expose executable-node parameter getters. Buffer operands, kernels, events,
+kernel arguments, and callback bindings are retained for every future launch
+that may use them. Superseded resources remain retained until a successful
+whole-graph update or executable destruction. Raw integer addresses remain
+caller-owned. Memcpy and memset updates use the current CUDA context, which
+must match the original node context.
+
+Kernel, memcpy, and memset views also provide ``is_enabled``, ``enable()``, and
+``disable()``. Executable-node updates require CUDA driver and
+``cuda.bindings`` versions 12.2 or newer.
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   graph.ExecutableGraphNode
+   graph.ExecutableKernelNode
+   graph.ExecutableMemcpyNode
+   graph.ExecutableMemsetNode
+   graph.ExecutableHostCallbackNode
+   graph.ExecutableChildGraphNode
+   graph.ExecutableEventRecordNode
+   graph.ExecutableEventWaitNode
+
 
 Graphics interoperability
 -------------------------

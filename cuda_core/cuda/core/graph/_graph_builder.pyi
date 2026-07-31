@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph._graph_definition import GraphCondition, GraphDefinition
+from cuda.core.graph._graph_node import GraphNode
+from cuda.core.graph._subclasses import ExecutableGraphNode
 
 _BuilderKind = int
 _CaptureState = int
@@ -458,6 +460,14 @@ class Graph:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int()`` on the returned object.
 
+        """
+
+    def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
+        """Return an executable view bound to *node*.
+
+        The view retains both the executable graph and source node. CUDA
+        validates that the node identifies a node in this executable when an
+        operation is performed.
         """
 
     def update(self, source: 'GraphBuilder | GraphDefinition') -> None:

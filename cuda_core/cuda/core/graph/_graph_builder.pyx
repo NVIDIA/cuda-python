@@ -10,7 +10,12 @@ from libc.stdint cimport intptr_t
 from cuda.bindings cimport cydriver
 
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
+from cuda.core.graph._graph_node cimport GraphNode
 from cuda.core.graph._host_callback cimport _resolve_host_callback
+from cuda.core.graph._subclasses cimport (
+    ExecutableGraphNode,
+    create_executable_node_view,
+)
 from cuda.core._resource_handles cimport (
     GraphExecHandle,
     GraphHandle,
@@ -1100,6 +1105,16 @@ cdef class Graph:
 
         """
         return as_py(self._h_graph_exec)
+
+    def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
+        """Return an executable view bound to *node*.
+
+        The view retains both the executable graph and source node. CUDA
+        validates that the node identifies a node in this executable when an
+        operation is performed.
+        """
+        return create_executable_node_view(
+            self._h_graph_exec, node)
 
     def update(self, source: "GraphBuilder | GraphDefinition") -> None:
         """Update the graph using a new graph definition.
