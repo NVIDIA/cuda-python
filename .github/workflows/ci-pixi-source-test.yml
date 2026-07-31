@@ -112,24 +112,17 @@ jobs:
 
   # ── PR guard: build artifacts must be CUDA-major aware ──
   #
-  # Generated Cython sources and compiled extensions are configuration
-  # dependent, but neither Cython nor setuptools tracks the configuration in
-  # its own up-to-date check: Cython does not hash `compile_time_env`, and an
-  # editable install's .so is named by the Python ABI tag alone, with nowhere
-  # to record the CUDA major. Before build_hooks keyed them by build identity,
+  # Neither Cython nor setuptools tracks the CUDA major in its own up-to-date
+  # check: Cython does not hash `compile_time_env`, and an editable install's
+  # .so is named by the Python ABI tag alone. Before build_hooks keyed them,
   # a cu13 build followed by a cu12 build in the same checkout failed while
   # compiling cu13-generated C++ against CUDA 12 headers.
   #
   # The round trip (not just cu13 -> cu12) is what catches the second half:
   # coming back to cu13 must not silently reuse the cu12 extension.
   #
-  # SCOPE: cuda_core only. cuda_bindings cannot be source-built in its cu12
-  # environment at all -- the 13.x sources reference CUDA 13-only symbols
-  # (CUatomicOperation, nvrtcBundledHeadersInfo, CUstreamCigCaptureParams), so
-  # even freshly generated cu12 sources fail to compile against CUDA 12
-  # headers. That is a separate problem from artifact staleness; the identical
-  # identity logic in cuda_bindings/build_hooks.py is covered by unit tests
-  # (cuda_bindings/tests/test_build_hooks.py) instead.
+  # cuda_core only: cuda_bindings cannot be source-built in its cu12
+  # environment at all, for reasons unrelated to stale artifacts.
   build-identity-roundtrip:
     name: "cu13 -> cu12 -> cu13 round trip (linux-64, CPU)"
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
@@ -160,23 +153,19 @@ jobs:
               python -c "import cuda.core; print('core import OK')"
             echo "::endgroup::"
           done
-
-      - name: Each configuration kept its own generated sources
-        run: |
-          # The last build was cu13, so that is what the stamp must report,
-          # and both majors must have their own generated-source directory.
-          stamp=$(cat cuda_core/build/.build-identity)
-          case "${stamp}" in
-            cu13*) ;;
-            *) echo "::error::build identity is '${stamp}', expected cu13"; exit 1 ;;
-          esac
+          # The last build was cu13, and each major must have kept its own
+          # generated sources rather than overwriting the other's.
+          stamp=$(cat cuda_core/build/.build-cuda-major)
+          if [ "${stamp}" != "13" ]; then
+            echo "::error::build stamp is '${stamp}', expected 13"
+            exit 1
+          fi
           for major in cu12 cu13; do
-            if ! compgen -G "cuda_core/build/cython/${major}*" > /dev/null; then
+            if [ ! -d "cuda_core/build/cython/${major}" ]; then
               echo "::error::no ${major} generated-source directory"
               exit 1
             fi
           done
-          echo "generated sources are keyed by build identity"
 
   # ── Nightly: full `pixi run test` on a GPU runner ──
   full-test:

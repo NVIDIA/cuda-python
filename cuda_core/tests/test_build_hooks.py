@@ -139,71 +139,47 @@ class TestGetCudaMajorVersion:
 
 @pytest.fixture
 def build_tree(tmp_path, monkeypatch):
-    """Run the identity helpers against a scratch source tree.
+    """Run the stamp helpers against a scratch source tree.
 
     The stamp path is relative because PEP 517 hooks always run with the
     package directory as the working directory.
     """
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(build_hooks, "_build_identity", None)
     monkeypatch.setattr(build_hooks, "force_build_ext", False)
     build_hooks._get_cuda_path.cache_clear()
     build_hooks._determine_cuda_major_version.cache_clear()
     get_cuda_path_or_home.cache_clear()
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
-    monkeypatch.delenv("CUDA_PYTHON_COVERAGE", raising=False)
     return tmp_path
 
 
-def _write_stamp(build_tree, identity):
-    stamp = build_tree / build_hooks._BUILD_IDENTITY_STAMP
+def _write_stamp(build_tree, cuda_major):
+    stamp = build_tree / build_hooks._BUILD_MAJOR_STAMP
     stamp.parent.mkdir(parents=True, exist_ok=True)
-    stamp.write_text(identity + "\n")
+    stamp.write_text(cuda_major + "\n")
 
 
-class TestBuildIdentity:
-    """Tests for _resolve_build_identity() and record_build_identity()."""
-
-    @pytest.mark.agent_authored(model="claude-opus-5")
-    def test_identity_encodes_configuration_axes(self, build_tree, monkeypatch):
-        assert build_hooks._resolve_build_identity(debug=False) == "cu13"
-        assert build_hooks._resolve_build_identity(debug=True) == "cu13-debug"
-        monkeypatch.setenv("CUDA_PYTHON_COVERAGE", "1")
-        assert build_hooks._resolve_build_identity(debug=False) == "cu13-coverage"
-
-    @pytest.mark.agent_authored(model="claude-opus-5")
-    def test_identity_tracks_cuda_major(self, build_tree, monkeypatch):
-        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "12")
-        build_hooks._determine_cuda_major_version.cache_clear()
-        assert build_hooks._resolve_build_identity(debug=False) == "cu12"
+class TestBuildMajorStamp:
+    """Tests for _check_build_major() and record_build_major()."""
 
     @pytest.mark.agent_authored(model="claude-opus-5")
     def test_first_build_does_not_force(self, build_tree):
-        build_hooks._resolve_build_identity(debug=False)
+        assert build_hooks._check_build_major() == "13"
         assert build_hooks.force_build_ext is False
 
     @pytest.mark.agent_authored(model="claude-opus-5")
-    def test_same_configuration_does_not_force(self, build_tree):
-        _write_stamp(build_tree, "cu13")
-        build_hooks._resolve_build_identity(debug=False)
+    def test_same_major_does_not_force(self, build_tree):
+        _write_stamp(build_tree, "13")
+        assert build_hooks._check_build_major() == "13"
         assert build_hooks.force_build_ext is False
 
     @pytest.mark.agent_authored(model="claude-opus-5")
-    @pytest.mark.parametrize("previous", ["cu12", "cu13-debug", "cu13-coverage"])
-    def test_changed_configuration_forces_rebuild(self, build_tree, previous):
-        _write_stamp(build_tree, previous)
-        build_hooks._resolve_build_identity(debug=False)
+    def test_changed_major_forces_rebuild(self, build_tree):
+        _write_stamp(build_tree, "12")
+        assert build_hooks._check_build_major() == "13"
         assert build_hooks.force_build_ext is True
 
     @pytest.mark.agent_authored(model="claude-opus-5")
     def test_record_writes_stamp(self, build_tree):
-        build_hooks._resolve_build_identity(debug=True)
-        build_hooks.record_build_identity()
-        assert (build_tree / build_hooks._BUILD_IDENTITY_STAMP).read_text().strip() == "cu13-debug"
-
-    @pytest.mark.agent_authored(model="claude-opus-5")
-    def test_record_is_noop_without_a_build(self, build_tree):
-        """A failed build must not advertise outputs it never produced."""
-        _write_stamp(build_tree, "cu12")
-        build_hooks.record_build_identity()
-        assert (build_tree / build_hooks._BUILD_IDENTITY_STAMP).read_text().strip() == "cu12"
+        build_hooks.record_build_major()
+        assert (build_tree / build_hooks._BUILD_MAJOR_STAMP).read_text().strip() == "13"
