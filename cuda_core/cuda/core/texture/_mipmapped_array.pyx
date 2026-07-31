@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from libc.string cimport memset
-
 from cuda.bindings cimport cydriver
 from cuda.core.texture._array cimport _array_from_handle
 from cuda.core.texture._array import (
@@ -201,7 +199,6 @@ def _create_mipmapped_array(options):
     shape_t = opts.shape
 
     cdef cydriver.CUarray_format c_format = <cydriver.CUarray_format>_ARRAYFORMAT_TO_CU[opts.format]
-    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d
     cdef int rank = len(shape_t)
     cdef unsigned int flags = (
         cydriver.CUDA_ARRAY3D_SURFACE_LDST if opts.is_surface_load_store else 0
@@ -210,13 +207,14 @@ def _create_mipmapped_array(options):
 
     # Mipmap creation uses the 3D descriptor regardless of rank; lower-rank
     # shapes use Height=0/Depth=0 sentinels, matching cuArray3DCreate.
-    memset(&desc3d, 0, sizeof(desc3d))
-    desc3d.Width = <size_t>shape_t[0]
-    desc3d.Height = <size_t>(shape_t[1] if rank >= 2 else 0)
-    desc3d.Depth = <size_t>(shape_t[2] if rank >= 3 else 0)
-    desc3d.Format = c_format
-    desc3d.NumChannels = <unsigned int>opts.num_channels
-    desc3d.Flags = flags
+    cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR desc3d = cydriver.CUDA_ARRAY3D_DESCRIPTOR(
+        Width=<size_t>shape_t[0],
+        Height=<size_t>(shape_t[1] if rank >= 2 else 0),
+        Depth=<size_t>(shape_t[2] if rank >= 3 else 0),
+        Format=c_format,
+        NumChannels=<unsigned int>opts.num_channels,
+        Flags=flags,
+    )
 
     cdef MipmappedArrayHandle h = create_mipmapped_array_handle(desc3d, c_levels)
     if not h:

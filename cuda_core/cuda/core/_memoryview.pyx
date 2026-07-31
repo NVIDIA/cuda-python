@@ -346,13 +346,15 @@ cdef class StridedMemoryView:
             data = cpython.PyCapsule_GetPointer(
                 self.metadata, DLPACK_VERSIONED_TENSOR_USED_NAME)
             dlm_tensor_ver = <DLManagedTensorVersioned*>data
-            dlm_tensor_ver.deleter(dlm_tensor_ver)
+            if dlm_tensor_ver.deleter != NULL:
+                dlm_tensor_ver.deleter(dlm_tensor_ver)
         elif cpython.PyCapsule_IsValid(
                 self.metadata, DLPACK_TENSOR_USED_NAME):
             data = cpython.PyCapsule_GetPointer(
                 self.metadata, DLPACK_TENSOR_USED_NAME)
             dlm_tensor = <DLManagedTensor*>data
-            dlm_tensor.deleter(dlm_tensor)
+            if dlm_tensor.deleter != NULL:
+                dlm_tensor.deleter(dlm_tensor)
 
     def view(
         self, layout : _StridedLayout | None = None, dtype : numpy.dtype | None = None
@@ -1176,7 +1178,7 @@ cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
 
 cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     cdef dict cai_data = obj.__cuda_array_interface__
-    if cai_data["version"] < 3:
+    if cai_data.get("version", 0) < 3:
         raise BufferError("only CUDA Array Interface v3 or above is supported")
     if cai_data.get("mask") is not None:
         raise BufferError("mask is not supported")
@@ -1232,7 +1234,7 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
 
 cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     cdef dict data = obj.__array_interface__
-    if data["version"] < 3:
+    if data.get("version", 0) < 3:
         raise BufferError("only NumPy Array Interface v3 or above is supported")
     if data.get("mask") is not None:
         raise BufferError("mask is not supported")

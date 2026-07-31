@@ -276,7 +276,12 @@ jobs:
       - name: Set up Python ${{ matrix.PY_VER }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
-          python-version: ${{ matrix.PY_VER }}
+          # TODO: Pin beta.2 precisely until cibuildwheel catches up (b4 broke ABI for Cython)
+          # this precise pin requires the explicit `freethreaded`.
+          # When 3.15 is officially supported we can also remove the `allow-prereleases` override.
+          python-version: ${{ startsWith(matrix.PY_VER, '3.15') && '3.15.0-beta.2' || matrix.PY_VER }}
+          freethreaded: ${{ endsWith(matrix.PY_VER, 't') }}
+          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
 
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
         if: ${{ startsWith(matrix.PY_VER, '3.15') }}

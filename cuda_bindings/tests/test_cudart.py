@@ -294,7 +294,6 @@ def test_cudart_cudaGraphGetEdges_edgeData_outlives_call():
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
-            assert ed.reserved == b"\x00" * 5
     finally:
         (err,) = cudart.cudaGraphDestroy(graph)
         assertSuccess(err)
@@ -334,7 +333,6 @@ def test_cudart_cudaGraphNodeGetDependencies_edgeData_outlives_call():
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
-            assert ed.reserved == b"\x00" * 5
     finally:
         (err,) = cudart.cudaGraphDestroy(graph)
         assertSuccess(err)

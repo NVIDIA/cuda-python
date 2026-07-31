@@ -303,3 +303,105 @@ def test_default_stream_consistency(init_cuda):
     # Should be same object (or at least equal)
     assert default1 == default2
     assert hash(default1) == hash(default2)
+
+
+class _BadStreamProtocol:
+    """Object whose __cuda_stream__ (a method) returns a malformed value."""
+
+    def __init__(self, value):
+        self._value = value
+
+    def __cuda_stream__(self):
+        return self._value
+
+
+class _AttrStreamProtocol:
+    """Object implementing __cuda_stream__ as an attribute (deprecated form)
+    rather than a method; the tuple length is wrong so resolution stops before
+    any GPU work."""
+
+    __cuda_stream__ = (0, 1, 2)
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_stream_init_rejects_obj_and_options():
+    """Stream._init rejects supplying both a foreign object and options."""
+    from cuda.core._stream import Stream
+
+    with pytest.raises(ValueError, match="obj and options cannot be both specified"):
+        Stream._init(obj=_BadStreamProtocol((0, 0)), options=StreamOptions())
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+@pytest.mark.parametrize(
+    "value,match",
+    [
+        ((0, 1, 2), "must return a sequence with 2 elements"),  # wrong length
+        (5, "must return a sequence with 2 elements"),  # not a sequence
+        ((1, 123), r"first element of the sequence.*must be 0"),  # bad version
+    ],
+)
+def test_stream_init_rejects_bad_cuda_stream_protocol(value, match):
+    """A foreign object whose __cuda_stream__ returns a malformed value is
+    rejected before any handle is created."""
+    from cuda.core._stream import Stream
+
+    with pytest.raises(RuntimeError, match=match):
+        Stream._init(obj=_BadStreamProtocol(value))
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_stream_init_warns_on_attribute_cuda_stream_protocol():
+    """Implementing __cuda_stream__ as an attribute (not a method) is deprecated:
+    resolution emits a DeprecationWarning and then still rejects the malformed
+    (wrong-length) value with a RuntimeError."""
+    from cuda.core._stream import Stream
+
+    with (
+        pytest.warns(DeprecationWarning, match="must be implemented as a method"),
+        pytest.raises(RuntimeError, match="must return a sequence with 2 elements"),
+    ):
+        Stream._init(obj=_AttrStreamProtocol())
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_stream_init_from_existing_stream_object(init_cuda):
+    """Passing an existing Stream as the foreign object yields a borrowed stream over the same handle."""
+    from cuda.core._stream import Stream
+
+    src = Device().create_stream(options=StreamOptions())
+    borrowed = Stream._init(obj=src)
+    assert int(borrowed.handle) == int(src.handle)
+    borrowed.close()
+    src.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_stream_from_handle_lazy_flag_and_priority_queries(init_cuda):
+    """A from_handle stream reports is_nonblocking and priority read back from the
+    driver (matching the source stream), not the constructor defaults."""
+    from cuda.core._stream import Stream
+
+    # priority=-1 (not the default 0) so the value proves the driver was actually queried.
+    real = Device().create_stream(options=StreamOptions(nonblocking=True, priority=-1))
+    wrapped = Stream.from_handle(int(real.handle))
+    assert wrapped.is_nonblocking is True
+    assert wrapped.priority == -1
+    wrapped.close()
+    real.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+@pytest.mark.thread_unsafe(
+    reason="mutates the process-global CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM env var that default_stream() reads live"
+)
+def test_default_stream_per_thread_when_env_set(monkeypatch):
+    """default_stream() returns the per-thread default stream when
+    CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM is set to a nonzero value, and the
+    legacy default stream otherwise."""
+    from cuda.core._stream import default_stream
+
+    monkeypatch.setenv("CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM", "1")
+    assert default_stream() is PER_THREAD_DEFAULT_STREAM
+    monkeypatch.delenv("CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM", raising=False)
+    assert default_stream() is LEGACY_DEFAULT_STREAM

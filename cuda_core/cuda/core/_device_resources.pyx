@@ -250,7 +250,6 @@ cdef object _resolve_split_by_count_request(SMResourceOptions options):
     cdef list counts = _broadcast_field(options.count, n_groups)
     cdef object first = counts[0]
     cdef object value
-    cdef unsigned int min_count
 
     if options.coscheduled_sm_count is not None:
         raise RuntimeError(
@@ -270,7 +269,7 @@ cdef object _resolve_split_by_count_request(SMResourceOptions options):
                 "use CUDA 13.1 or newer for per-group counts"
             )
 
-    min_count = _to_sm_count(first)
+    cdef unsigned int min_count = _to_sm_count(first)
     return n_groups, min_count
 
 
@@ -520,11 +519,10 @@ cdef class SMResource:
         )
         _resolve_group_count(opts)
         _check_green_ctx_support()
-        with self._split_mutex:
-            if _can_use_structured_sm_split():
-                return _split_with_general_api(self, opts, dry_run)
-            # SplitByCount requires the same 12.4+ as green ctx support (already checked above)
-            return _split_with_count_api(self, opts, dry_run)
+        if _can_use_structured_sm_split():
+            return _split_with_general_api(self, opts, dry_run)
+        # SplitByCount requires the same 12.4+ as green ctx support (already checked above)
+        return _split_with_count_api(self, opts, dry_run)
 
 
 cdef class WorkqueueResource:
