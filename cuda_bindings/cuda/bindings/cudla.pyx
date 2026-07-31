@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b793aebd0586162e23d26c82e2bd54c21675584e3c23d6e443f3a83c61a8674c
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ee04e18498a1e4e597afcdead5590bfe22af25afb2d43cd85b19089bee10a721
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1776,7 +1776,7 @@ cpdef submit_task(intptr_t dev_handle, intptr_t ptr_to_tasks, uint32_t num_tasks
     check_status(__status__)
 
 
-cpdef object device_get_attribute(intptr_t dev_handle, int attrib) except *:
+cpdef object device_get_attribute(intptr_t dev_handle, int attrib):
     cdef DevAttribute p_attribute_py = DevAttribute()
     cdef cudlaDevAttribute *p_attribute = <cudlaDevAttribute *><intptr_t>(p_attribute_py._get_ptr())
     with nogil:
@@ -1810,7 +1810,7 @@ cpdef set_task_timeout_in_ms(intptr_t dev_handle, uint32_t timeout):
     check_status(__status__)
 
 
-cpdef module_get_attributes(intptr_t h_module, int attr_type) except *:
+cpdef module_get_attributes(intptr_t h_module, int attr_type):
     """Query module attributes, interpreting the cudlaModuleAttribute union
     based on the requested attribute type.
 
