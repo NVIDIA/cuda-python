@@ -5,7 +5,7 @@
 import time
 
 import pytest
-from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
+from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer, thread_unsafe_on_windows
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
@@ -17,6 +17,7 @@ NBYTES = 64
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
 def test_latchkernel():
     """Test LatchKernel."""
     log = TimestampedLogger(enabled=ENABLE_LOGGING)
@@ -51,6 +52,7 @@ def test_latchkernel():
     under_compute_sanitizer(),
     reason="Too slow under compute-sanitizer (UVM-heavy test).",
 )
+@thread_unsafe_on_windows
 def test_patterngen_seeds():
     """Test PatternGen with seed argument."""
     device = Device()
@@ -69,6 +71,7 @@ def test_patterngen_seeds():
                 pgen.verify_buffer(buffer, seed=j)
 
 
+@thread_unsafe_on_windows
 def test_patterngen_values():
     """Test PatternGen with value argument, also compare_equal_buffers."""
     device = Device()
