@@ -177,8 +177,23 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
     # Graph exec handles
-    GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (
-        cydriver.CUgraphExec graph_exec) except+ nogil
+    cydriver.CUresult graph_prepare_exec_attachments "cuda_core::graph_prepare_exec_attachments" (
+        const GraphHandle& h_source,
+        PreparedExecAttachments* out_prepared) except+
+    cydriver.CUresult graph_commit_exec_instantiation "cuda_core::graph_commit_exec_instantiation" (
+        cydriver.CUgraphExec graph_exec,
+        PreparedExecAttachments& prepared,
+        GraphExecHandle* out_handle) except+
+    cydriver.CUresult graph_commit_exec_update "cuda_core::graph_commit_exec_update" (
+        const GraphExecHandle& h_exec,
+        PreparedExecAttachments& prepared) except+
+    cydriver.CUresult graph_prepare_exec_attachment_append "cuda_core::graph_prepare_exec_attachment_append" (
+        const GraphExecHandle& h_exec,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1,
+        PreparedExecAttachmentAppend* out_prepared) except+
+    void graph_commit_exec_attachment_append "cuda_core::graph_commit_exec_attachment_append" (
+        PreparedExecAttachmentAppend& prepared) noexcept
 
     # Graph node handles
     GraphNodeHandle create_graph_node_handle "cuda_core::create_graph_node_handle" (

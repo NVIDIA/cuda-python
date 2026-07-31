@@ -77,6 +77,18 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         PreparedChildGraphUpdateState
     ] PreparedChildGraphUpdate
 
+    cppclass PreparedExecAttachmentsState:
+        pass
+    ctypedef shared_ptr[
+        PreparedExecAttachmentsState
+    ] PreparedExecAttachments
+
+    cppclass PreparedExecAttachmentAppendState:
+        pass
+    ctypedef shared_ptr[
+        PreparedExecAttachmentAppendState
+    ] PreparedExecAttachmentAppend
+
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
     cydriver.CUgreenCtx as_cu(GreenCtxHandle h) noexcept nogil
@@ -269,7 +281,23 @@ cdef void invalidate_child_graph_state(
     const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
 # Graph exec handles
-cdef GraphExecHandle create_graph_exec_handle(cydriver.CUgraphExec graph_exec) except+ nogil
+cdef cydriver.CUresult graph_prepare_exec_attachments(
+    const GraphHandle& h_source,
+    PreparedExecAttachments* out_prepared) except+
+cdef cydriver.CUresult graph_commit_exec_instantiation(
+    cydriver.CUgraphExec graph_exec,
+    PreparedExecAttachments& prepared,
+    GraphExecHandle* out_handle) except+
+cdef cydriver.CUresult graph_commit_exec_update(
+    const GraphExecHandle& h_exec,
+    PreparedExecAttachments& prepared) except+
+cdef cydriver.CUresult graph_prepare_exec_attachment_append(
+    const GraphExecHandle& h_exec,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedExecAttachmentAppend* out_prepared) except+
+cdef void graph_commit_exec_attachment_append(
+    PreparedExecAttachmentAppend& prepared) noexcept
 
 # Graph node handles
 cdef GraphNodeHandle create_graph_node_handle(cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil

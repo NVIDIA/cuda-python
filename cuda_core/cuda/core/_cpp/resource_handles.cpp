@@ -1913,24 +1913,250 @@ CUresult graph_clone_attachments(
 // ============================================================================
 
 namespace {
-struct GraphExecBox {
-    CUgraphExec resource;
-};
-}  // namespace
 
-GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec) {
-    auto box = std::shared_ptr<const GraphExecBox>(
-        new GraphExecBox{graph_exec},
-        [](const GraphExecBox* b) {
-            {
+// Append-only owners introduced by individual executable-node updates. CUDA
+// owns this payload through a user object propagated into the CUgraphExec.
+struct ExecAttachments : DeferredCleanupItem {
+    CUuserObject object = nullptr;
+    std::vector<OpaqueHandle> owners;
+};
+
+struct GraphExecBox {
+    CUgraphExec resource = nullptr;
+    CUuserObject attachment_object = nullptr;  // Non-owning.
+    ExecAttachments* attachments = nullptr;    // Non-owning.
+
+    ~GraphExecBox() noexcept {
+        if (resource) {
+            GILReleaseGuard gil;
+            p_cuGraphExecDestroy(resource);
+        }
+        // The accumulator fields may be dangling after exec destruction.
+        retry_deferred_cleanup();
+    }
+};
+
+GraphExecBox* get_exec_box(const GraphExecHandle& h) noexcept {
+    return const_cast<GraphExecBox*>(
+        reinterpret_cast<const GraphExecBox*>(h.get()));
+}
+
+GraphExecHandle make_graph_exec_handle(
+        CUgraphExec graph_exec, ExecAttachments* attachments) {
+    struct RawGraphExecGuard {
+        CUgraphExec resource;
+
+        ~RawGraphExecGuard() noexcept {
+            if (resource) {
                 GILReleaseGuard gil;
-                p_cuGraphExecDestroy(b->resource);
+                p_cuGraphExecDestroy(resource);
             }
             retry_deferred_cleanup();
-            delete b;
         }
-    );
+    } guard{graph_exec};
+
+    auto box = std::make_shared<GraphExecBox>();
+    box->resource = graph_exec;
+    box->attachment_object = attachments->object;
+    box->attachments = attachments;
+    guard.resource = nullptr;
     return GraphExecHandle(box, &box->resource);
+}
+
+}  // namespace
+
+struct PreparedExecAttachmentsState {
+    GraphHandle h_source;
+    ExecAttachments* replacement = nullptr;
+
+    explicit PreparedExecAttachmentsState(GraphHandle h_source_)
+        : h_source(std::move(h_source_)) {}
+
+    ~PreparedExecAttachmentsState() noexcept {
+        if (!h_source || !replacement) {
+            return;
+        }
+        {
+            GILReleaseGuard gil;
+            p_cuGraphReleaseUserObject(
+                *h_source, replacement->object, 1);
+        }
+        replacement = nullptr;
+    }
+};
+
+struct PreparedExecAttachmentAppendState {
+    GraphExecHandle h_exec;
+    ExecAttachments* attachments = nullptr;
+    size_t original_size = 0;
+    bool committed = false;
+
+    PreparedExecAttachmentAppendState(
+            GraphExecHandle h_exec_,
+            ExecAttachments* attachments_,
+            size_t original_size_)
+        : h_exec(std::move(h_exec_)),
+          attachments(attachments_),
+          original_size(original_size_) {}
+
+    ~PreparedExecAttachmentAppendState() noexcept {
+        if (committed || !attachments) {
+            return;
+        }
+        while (attachments->owners.size() > original_size) {
+            attachments->owners.pop_back();
+        }
+    }
+};
+
+namespace {
+
+CUresult release_prepared_exec_attachments(
+        PreparedExecAttachmentsState& state) noexcept {
+    CUresult status;
+    {
+        GILReleaseGuard gil;
+        status = p_cuGraphReleaseUserObject(
+            *state.h_source, state.replacement->object, 1);
+    }
+    state.replacement = nullptr;
+    state.h_source.reset();
+    return status;
+}
+
+}  // namespace
+
+CUresult graph_prepare_exec_attachments(
+        const GraphHandle& h_source,
+        PreparedExecAttachments* out_prepared) {
+    if (!h_source || !*h_source || !out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+    if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
+        !p_cuGraphRetainUserObject || !p_cuGraphReleaseUserObject) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    ensure_deferred_cleanup_ready();
+    PreparedExecAttachments prepared =
+        std::make_shared<PreparedExecAttachmentsState>(h_source);
+    auto* replacement = new ExecAttachments;
+
+    CUuserObject object = nullptr;
+    CUresult status;
+    {
+        GILReleaseGuard gil;
+        status = p_cuUserObjectCreate(
+            &object,
+            static_cast<DeferredCleanupItem*>(replacement),
+            reinterpret_cast<CUhostFn>(enqueue_cleanup),
+            1,
+            CU_USER_OBJECT_NO_DESTRUCTOR_SYNC);
+        if (status != CUDA_SUCCESS) {
+            delete replacement;
+            return status;
+        }
+        replacement->object = object;
+        status = p_cuGraphRetainUserObject(
+            *h_source, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
+        if (status != CUDA_SUCCESS) {
+            p_cuUserObjectRelease(object, 1);
+            return status;
+        }
+    }
+
+    prepared->replacement = replacement;
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+CUresult graph_commit_exec_instantiation(
+        CUgraphExec graph_exec,
+        PreparedExecAttachments& prepared,
+        GraphExecHandle* out_handle) {
+    if (!out_handle) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_handle->reset();
+    if (!graph_exec || !prepared || !prepared->replacement) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphExecHandle h_exec = make_graph_exec_handle(
+        graph_exec, prepared->replacement);
+
+    CUresult status = release_prepared_exec_attachments(*prepared);
+    prepared.reset();
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+    *out_handle = std::move(h_exec);
+    return CUDA_SUCCESS;
+}
+
+CUresult graph_commit_exec_update(
+        const GraphExecHandle& h_exec,
+        PreparedExecAttachments& prepared) {
+    if (!h_exec || !prepared || !prepared->replacement) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphExecBox* box = get_exec_box(h_exec);
+    if (!box->resource) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    // CUDA may already have retired the old accumulator. Publish the new raw
+    // fields before releasing the source graph's temporary reference.
+    box->attachment_object = prepared->replacement->object;
+    box->attachments = prepared->replacement;
+    CUresult status = release_prepared_exec_attachments(*prepared);
+    prepared.reset();
+    return status;
+}
+
+CUresult graph_prepare_exec_attachment_append(
+        const GraphExecHandle& h_exec,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1,
+        PreparedExecAttachmentAppend* out_prepared) {
+    if (!h_exec || !out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+
+    GraphExecBox* box = get_exec_box(h_exec);
+    if (!box->resource || !box->attachments) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    ExecAttachments* attachments = box->attachments;
+    const size_t original_size = attachments->owners.size();
+    const size_t additions =
+        static_cast<size_t>(static_cast<bool>(owner0)) +
+        static_cast<size_t>(static_cast<bool>(owner1));
+    attachments->owners.reserve(original_size + additions);
+    PreparedExecAttachmentAppend prepared =
+        std::make_shared<PreparedExecAttachmentAppendState>(
+            h_exec, attachments, original_size);
+    if (owner0) {
+        attachments->owners.emplace_back(std::move(owner0));
+    }
+    if (owner1) {
+        attachments->owners.emplace_back(std::move(owner1));
+    }
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+void graph_commit_exec_attachment_append(
+        PreparedExecAttachmentAppend& prepared) noexcept {
+    if (!prepared) {
+        return;
+    }
+    prepared->committed = true;
+    prepared.reset();
 }
 
 namespace {

@@ -494,7 +494,7 @@ class Graph:
         """
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
-def _instantiate_graph(h_graph, options: GraphCompleteOptions | None=None) -> Graph:
+def _instantiate_graph(source, options: GraphCompleteOptions | None=None) -> Graph:
     ...
 
 def _capture_callback_with_tail_failure_for_testing(gb: GraphBuilder, fn, *, user_data=None):

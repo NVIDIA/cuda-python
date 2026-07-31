@@ -522,6 +522,18 @@ struct PreparedChildGraphUpdateState;
 using PreparedChildGraphUpdate =
     std::shared_ptr<PreparedChildGraphUpdateState>;
 
+struct PreparedExecAttachmentsState;
+// Opaque transaction for propagating a fresh attachment accumulator through a
+// source graph into an executable graph.
+using PreparedExecAttachments =
+    std::shared_ptr<PreparedExecAttachmentsState>;
+
+struct PreparedExecAttachmentAppendState;
+// Opaque append transaction. Releasing it rolls back newly appended owners
+// unless graph_commit_exec_attachment_append has committed them.
+using PreparedExecAttachmentAppend =
+    std::shared_ptr<PreparedExecAttachmentAppendState>;
+
 // Copy requested owners from node's current attachment. Pass nullptr to ignore
 // either owner; a missing attachment produces empty handles.
 CUresult graph_get_attachment(
@@ -573,9 +585,36 @@ void invalidate_child_graph_state(
 // Graph exec handle functions
 // ============================================================================
 
-// Wrap an externally-created CUgraphExec with RAII cleanup.
-// When the last reference is released, cuGraphExecDestroy is called automatically.
-GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec);
+// Create and temporarily retain a fresh attachment accumulator on h_source.
+// The prepared state keeps the source alive; dropping it releases the temporary
+// graph reference.
+CUresult graph_prepare_exec_attachments(
+    const GraphHandle& h_source,
+    PreparedExecAttachments* out_prepared);
+
+// Adopt an instantiated exec together with its propagated accumulator.
+// On failure, destroys graph_exec and leaves out_handle empty.
+CUresult graph_commit_exec_instantiation(
+    CUgraphExec graph_exec,
+    PreparedExecAttachments& prepared,
+    GraphExecHandle* out_handle);
+
+// Publish the fresh accumulator propagated by a successful whole-graph update.
+CUresult graph_commit_exec_update(
+    const GraphExecHandle& h_exec,
+    PreparedExecAttachments& prepared);
+
+// Append owners before an executable-node mutation. Dropping the transaction
+// restores the accumulator to its original size.
+CUresult graph_prepare_exec_attachment_append(
+    const GraphExecHandle& h_exec,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedExecAttachmentAppend* out_prepared);
+
+// Keep the owners added by graph_prepare_exec_attachment_append.
+void graph_commit_exec_attachment_append(
+    PreparedExecAttachmentAppend& prepared) noexcept;
 
 // ============================================================================
 // Graph node handle functions
