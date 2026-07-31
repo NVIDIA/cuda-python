@@ -34,7 +34,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     build_dynamic_lib_subprocess_command,
     parse_dynamic_lib_subprocess_payload,
 )
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_LIBNAMES
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import ALL_AVAILABLE_LIBNAMES
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if TYPE_CHECKING:
@@ -43,7 +43,6 @@ if TYPE_CHECKING:
 # All libnames recognized by load_nvidia_dynamic_lib, across all categories
 # (CTK, third-party, driver).
 _ALL_KNOWN_LIBNAMES: frozenset[str] = frozenset(LIB_DESCRIPTORS)
-_ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(SUPPORTED_LIBNAMES)
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 
@@ -307,9 +306,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         )
     if libname not in _ALL_KNOWN_LIBNAMES:
         raise DynamicLibUnknownError(f"Unknown library name: {libname!r}. Known names: {sorted(_ALL_KNOWN_LIBNAMES)}")
-    if libname not in _ALL_SUPPORTED_LIBNAMES:
+    if libname not in ALL_AVAILABLE_LIBNAMES:
         raise DynamicLibNotAvailableError(
             f"Library name {libname!r} is known but not available on {_PLATFORM_NAME}. "
-            f"Supported names on {_PLATFORM_NAME}: {sorted(_ALL_SUPPORTED_LIBNAMES)}"
+            f"Supported names on {_PLATFORM_NAME}: {sorted(ALL_AVAILABLE_LIBNAMES)}"
         )
     return _load_lib_no_cache(libname)

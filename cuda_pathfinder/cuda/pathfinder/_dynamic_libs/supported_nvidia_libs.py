@@ -32,6 +32,15 @@ SUPPORTED_LIBNAMES_WINDOWS_ONLY = tuple(
     desc.name for desc in _CTK_DESCRIPTORS if desc.windows_dlls and not desc.linux_sonames
 )
 
+if not IS_WINDOWS:
+    ALL_AVAILABLE_LIBNAMES = frozenset(desc.name for desc in DESCRIPTOR_CATALOG if desc.linux_sonames)
+else:
+    assert IS_WINDOWS_X64 or IS_WINDOWS_ARM64
+    _current_windows_arch = "x64" if IS_WINDOWS_X64 else "arm64"
+    ALL_AVAILABLE_LIBNAMES = frozenset(
+        desc.name for desc in DESCRIPTOR_CATALOG if _current_windows_arch in desc.supported_windows_arch
+    )
+
 SUPPORTED_LIBNAMES_LINUX = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ONLY
 SUPPORTED_LIBNAMES_WINDOWS_X64 = tuple(desc.name for desc in _CTK_DESCRIPTORS if "x64" in desc.supported_windows_arch)
 SUPPORTED_LIBNAMES_WINDOWS_ARM64 = tuple(

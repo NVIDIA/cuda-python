@@ -26,8 +26,8 @@ assert STRICTNESS in ("see_what_works", "all_must_work")
 
 
 @pytest.mark.agent_authored(model="gpt-5")
-def test_loader_uses_platform_supported_libnames():
-    assert frozenset(supported_nvidia_libs.SUPPORTED_LIBNAMES) == load_nvidia_dynamic_lib_module._ALL_SUPPORTED_LIBNAMES
+def test_loader_uses_all_available_libnames():
+    assert supported_nvidia_libs.ALL_AVAILABLE_LIBNAMES == load_nvidia_dynamic_lib_module.ALL_AVAILABLE_LIBNAMES
 
 
 def test_supported_libnames_linux_sonames_consistency():
@@ -95,7 +95,7 @@ def test_unknown_libname_raises_dynamic_lib_unknown_error():
 def test_known_but_platform_unavailable_libname_raises_dynamic_lib_not_available_error(monkeypatch):
     load_nvidia_dynamic_lib.cache_clear()
     monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_ALL_KNOWN_LIBNAMES", frozenset(("known_but_unavailable",)))
-    monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_ALL_SUPPORTED_LIBNAMES", frozenset())
+    monkeypatch.setattr(load_nvidia_dynamic_lib_module, "ALL_AVAILABLE_LIBNAMES", frozenset())
     monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_PLATFORM_NAME", "TestOS")
     with pytest.raises(
         DynamicLibNotAvailableError,
