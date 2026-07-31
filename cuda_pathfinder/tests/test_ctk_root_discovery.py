@@ -135,6 +135,7 @@ def test_derive_ctk_root_windows_ctk13():
     assert _derive_ctk_root_windows(path) == r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0"
 
 
+@pytest.mark.agent_authored(model="gpt-5")
 def test_derive_ctk_root_windows_ctk13_arm64():
     path = r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.4\bin\arm64\cudart64_13.dll"
     assert _derive_ctk_root_windows(path) == r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.4"
@@ -204,6 +205,7 @@ def test_try_via_ctk_root_regular_lib(tmp_path):
     assert result.found_via == "system-ctk-root"
 
 
+@pytest.mark.agent_authored(model="gpt-5")
 def test_try_via_ctk_root_windows_arm64_prefers_arch_dir(tmp_path):
     ctk_root = tmp_path / "cuda-13"
     x64_dir = ctk_root / "bin" / "x64"

@@ -123,16 +123,19 @@ class TestWindowsPythonArch:
         assert isinstance(platform, LinuxSearchPlatform)
         get_windows_arch.assert_not_called()
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_detects_sysconfig_x64(self, mocker):
         mocker.patch.object(windows_arch_mod.sysconfig, "get_platform", return_value="win-amd64")
 
         assert windows_arch_mod.windows_python_arch() == "x64"
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_detects_sysconfig_arm64(self, mocker):
         mocker.patch.object(windows_arch_mod.sysconfig, "get_platform", return_value="win-arm64")
 
         assert windows_arch_mod.windows_python_arch() == "arm64"
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_rejects_unknown_sysconfig_tag(self, mocker):
         mocker.patch.object(windows_arch_mod.sysconfig, "get_platform", return_value="custom-win")
 
@@ -144,7 +147,6 @@ class TestWindowsPythonArch:
         assert exc_info.value.platform_tag == "custom-win"
 
 
-@pytest.mark.agent_authored(model="gpt-5")
 @pytest.mark.parametrize(
     ("machine", "target_arch", "expected"),
     (
@@ -154,6 +156,7 @@ class TestWindowsPythonArch:
         (0xAA64, "arm64", True),
     ),
 )
+@pytest.mark.agent_authored(model="gpt-5")
 def test_windows_pe_matches_arch(tmp_path, machine, target_arch, expected):
     dll = tmp_path / "test.dll"
     _write_pe(dll, machine)
@@ -223,6 +226,7 @@ class TestFindInSitePackages:
         assert result.abs_path == str(dll)
         assert result.found_via == "site-packages"
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_found_windows_arm64_prefers_cuda13_arch_dir_to_cuda12(self, mocker, tmp_path):
         x86_64_dir = tmp_path / "nvidia" / "cu13" / "bin" / "x86_64"
         arm64_dir = tmp_path / "nvidia" / "cu13" / "bin" / "arm64"
@@ -244,6 +248,7 @@ class TestFindInSitePackages:
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "site-packages"
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_found_windows_x64_prefers_cuda13_arch_dir_to_cuda12(self, mocker, tmp_path):
         x86_64_dir = tmp_path / "nvidia" / "cu13" / "bin" / "x86_64"
         arm64_dir = tmp_path / "nvidia" / "cu13" / "bin" / "arm64"
@@ -410,6 +415,7 @@ class TestFindInConda:
         assert result.abs_path == str(dll)
         assert result.found_via == "conda"
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_found_windows_arm64_prefers_arch_dir(self, mocker, tmp_path):
         x64_dir = tmp_path / "Library" / "bin" / "x64"
         arm64_dir = tmp_path / "Library" / "bin" / "arm64"
@@ -511,6 +517,7 @@ class TestFindInCudaHome:
         assert result.abs_path == str(dll)
         assert result.found_via == "CUDA_PATH"
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_found_windows_arm64_prefers_arch_dir(self, mocker, tmp_path):
         x64_dir = tmp_path / "bin" / "x64"
         arm64_dir = tmp_path / "bin" / "arm64"
@@ -527,7 +534,6 @@ class TestFindInCudaHome:
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "CUDA_PATH"
 
-    @pytest.mark.agent_authored(model="gpt-5")
     @pytest.mark.parametrize(
         ("target_arch", "machine", "expected_found"),
         (
@@ -537,6 +543,7 @@ class TestFindInCudaHome:
             ("arm64", 0xAA64, True),
         ),
     )
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_nvvm_windows_checks_binary_arch(self, mocker, tmp_path, target_arch, machine, expected_found):
         nvvm_dir = tmp_path / "nvvm" / "bin"
         nvvm_dir.mkdir(parents=True)
@@ -651,6 +658,7 @@ class TestAnchorRelDirs:
         assert desc.anchor_rel_dirs_windows.for_arch("x64") == ()
         assert desc.anchor_rel_dirs_windows.for_arch("arm64") == ("bin/arm64",)
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_windows_anchor_dirs_select_arm64(self):
         desc = _make_desc(
             anchor_rel_dirs_windows=WindowsSearchDirs(
@@ -660,6 +668,7 @@ class TestAnchorRelDirs:
         )
         assert WindowsSearchPlatform(target_arch="arm64").anchor_rel_dirs(desc) == ("bin/arm64", "bin")
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_windows_anchor_dirs_select_x64(self):
         desc = _make_desc(
             anchor_rel_dirs_windows=WindowsSearchDirs(
@@ -691,6 +700,7 @@ class TestAnchorRelDirs:
         assert result is not None
         assert result.endswith(os.path.join("nvvm", "bin"))
 
+    @pytest.mark.agent_authored(model="gpt-5")
     def test_find_lib_dir_windows_arm64_uses_arm64_anchor(self, tmp_path):
         (tmp_path / "bin" / "x64").mkdir(parents=True)
         (tmp_path / "bin" / "arm64").mkdir(parents=True)
