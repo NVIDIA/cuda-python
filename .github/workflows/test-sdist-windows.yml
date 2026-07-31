@@ -91,6 +91,7 @@ jobs:
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
-          export PIP_FIND_LINKS="$(cygpath -w "$(pwd)/cuda_bindings/dist") $(cygpath -w "$(pwd)/cuda_pathfinder/dist")"
+          export CUDA_CORE_BUILD_BINDINGS_WHEEL_DIR="$(cygpath -w "$(pwd)/cuda_bindings/dist")"
+          export PIP_FIND_LINKS="$(cygpath -w "$(pwd)/cuda_pathfinder/dist")"
           python -m build --sdist cuda_core/
           pip wheel --no-deps --wheel-dir cuda_core/dist cuda_core/dist/*.tar.gz
