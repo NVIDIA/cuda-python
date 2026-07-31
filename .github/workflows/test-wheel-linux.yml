@@ -303,6 +303,10 @@ jobs:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
+      - name: Enable Scientific Python Nightly Wheels for Python 3.15
+        if: ${{ startsWith(matrix.PY_VER, '3.15') }}
+        run: echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
+
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk

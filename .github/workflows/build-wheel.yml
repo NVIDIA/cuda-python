@@ -342,6 +342,10 @@ jobs:
           # TODO: remove allow-prereleases once 3.15 is officially supported
           allow-prereleases: ${{ startsWith(matrix.python-version, '3.15') }}
 
+      - name: Enable Scientific Python Nightly Wheels for Python 3.15
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        run: echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
+        
       - name: verify free-threaded build
         if: endsWith(matrix.python-version, 't')
         run: python -c 'import sys; assert not sys._is_gil_enabled()'

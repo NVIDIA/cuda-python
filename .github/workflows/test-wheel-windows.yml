@@ -278,6 +278,11 @@ jobs:
         with:
           python-version: ${{ matrix.PY_VER }}
 
+      - name: Enable Scientific Python Nightly Wheels for Python 3.15
+        if: ${{ startsWith(matrix.PY_VER, '3.15') }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
+
       - name: Verify LongPathsEnabled
         run: |
           $val = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled').LongPathsEnabled
