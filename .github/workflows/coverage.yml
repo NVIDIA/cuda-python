@@ -227,6 +227,22 @@ jobs:
       - name: Set up MSVC
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
 
+      # Printed for contrast with the same step in the test job: wheels are
+      # built here and run there, and it is the copy on the *test* machine that
+      # decides whether std::mutex works.  A plain `pip wheel` performs no
+      # delvewheel repair, so nothing from this machine travels with the wheel.
+      - name: Report the C++ runtime on the build machine
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          foreach ($name in "msvcp140.dll", "vcruntime140.dll") {
+            $path = Join-Path $env:WINDIR "System32\$name"
+            if (Test-Path $path) {
+              "{0,-20} {1}" -f $name, (Get-Item $path).VersionInfo.FileVersion
+            }
+          }
+          "cl.exe               {0}" -f (Get-Command cl.exe -ErrorAction SilentlyContinue).Source
+
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
@@ -349,6 +365,28 @@ jobs:
       - name: Ensure GPU is working
         run: |
           nvidia-smi
+
+      # The crash is a null read inside msvcp140's mutex lock, and the copy
+      # this machine loads was built before VS 2022 17.10 made std::mutex's
+      # constructor constexpr -- code compiled after that change no longer
+      # calls _Mtx_init, which the older runtime still expects.  The version is
+      # currently only inferred from a TimeDateStamp in a minidump, so read it
+      # from the file itself; the number is what a report to the runner owners
+      # needs.  The build machine's copy is printed for contrast: wheels are
+      # built there, tested here.
+      - name: Report the C++ runtime this machine loads
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          foreach ($name in "msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll") {
+            $path = Join-Path $env:WINDIR "System32\$name"
+            if (Test-Path $path) {
+              $info = (Get-Item $path).VersionInfo
+              "{0,-20} {1,-16} {2}" -f $name, $info.FileVersion, $path
+            } else {
+              "{0,-20} <absent from System32>" -f $name
+            }
+          }
 
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
