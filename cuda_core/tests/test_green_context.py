@@ -21,7 +21,9 @@ from cuda.core import (
     WorkqueueResourceOptions,
     launch,
 )
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.version import binding_version, driver_version
+from cuda.core.graph import GraphDefinition
 from cuda.core.typing import WorkqueueSharingScopeType
 
 # ---------------------------------------------------------------------------
@@ -158,6 +160,38 @@ def _use_green_ctx(dev, ctx):
         yield
     finally:
         dev.set_current(prev)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_memory_node_updates_preserve_green_context(
+    init_cuda,
+    green_ctx,
+):
+    if driver_version() < (13, 2, 0) or binding_version() < (13, 2, 0):
+        pytest.skip("generic graph node parameter queries require CUDA 13.2+")
+
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(4)
+    dst = memory_resource.allocate(4)
+    with _use_green_ctx(init_cuda, green_ctx):
+        graph_def = GraphDefinition()
+        memset_node = graph_def.memset(dst, 0, 4)
+        memcpy_node = graph_def.memcpy(dst, src, 4)
+        original_memset = handle_return(driver.cuGraphNodeGetParams(memset_node.handle))
+        original_memcpy = handle_return(driver.cuGraphNodeGetParams(memcpy_node.handle))
+
+    memset_node.update(value=1)
+    memcpy_node.update(size=2)
+    updated_memset = handle_return(driver.cuGraphNodeGetParams(memset_node.handle))
+    updated_memcpy = handle_return(driver.cuGraphNodeGetParams(memcpy_node.handle))
+
+    assert int(updated_memset.memset.ctx) == int(original_memset.memset.ctx)
+    assert int(updated_memcpy.memcpy.copyCtx) == int(original_memcpy.memcpy.copyCtx)
+
+    memset_node.destroy()
+    memcpy_node.destroy()
+    src.close()
+    dst.close()
 
 
 # ---------------------------------------------------------------------------
