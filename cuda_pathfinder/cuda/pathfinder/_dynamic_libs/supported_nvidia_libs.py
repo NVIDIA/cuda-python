@@ -35,7 +35,7 @@ SUPPORTED_LIBNAMES_WINDOWS_ONLY = tuple(
 if not IS_WINDOWS:
     ALL_AVAILABLE_LIBNAMES = frozenset(desc.name for desc in DESCRIPTOR_CATALOG if desc.linux_sonames)
 else:
-    assert IS_WINDOWS_X64 or IS_WINDOWS_ARM64
+    assert IS_WINDOWS_X64 != IS_WINDOWS_ARM64
     _current_windows_arch = "x64" if IS_WINDOWS_X64 else "arm64"
     ALL_AVAILABLE_LIBNAMES = frozenset(
         desc.name for desc in DESCRIPTOR_CATALOG if _current_windows_arch in desc.supported_windows_arch
