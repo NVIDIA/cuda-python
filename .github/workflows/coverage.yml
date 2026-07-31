@@ -8,17 +8,6 @@ on:
   schedule:
     - cron: '0 0 * * *' # This runs the workflow every day at 12:00 AM UTC
   workflow_dispatch: {}
-  # TEMPORARY (do not merge): runs the Windows coverage job against a PR, via
-  # the copy-pr-bot mirror branch.  Same trigger as ci.yml.
-  push:
-    branches:
-      - "pull-request/[0-9]+"
-
-# One coverage run per ref: the Windows leg holds an A100 runner for the whole
-# job, so superseded runs must not queue up behind each other.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
-  cancel-in-progress: true
 
 env:
   PY_VER: "3.14"
@@ -43,8 +32,6 @@ jobs:
   coverage-linux:
     name: Coverage (Linux)
     needs: [coverage-vars]
-    # Only Windows crashes, so a PR run skips the Linux leg entirely.
-    if: ${{ !startsWith(github.ref, 'refs/heads/pull-request/') }}
     runs-on: "linux-amd64-gpu-a100-latest-1"
     permissions:
       id-token: write
@@ -227,22 +214,6 @@ jobs:
       - name: Set up MSVC
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
 
-      # Printed for contrast with the same step in the test job: wheels are
-      # built here and run there, and it is the copy on the *test* machine that
-      # decides whether std::mutex works.  A plain `pip wheel` performs no
-      # delvewheel repair, so nothing from this machine travels with the wheel.
-      - name: Report the C++ runtime on the build machine
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          foreach ($name in "msvcp140.dll", "vcruntime140.dll") {
-            $path = Join-Path $env:WINDIR "System32\$name"
-            if (Test-Path $path) {
-              "{0,-20} {1}" -f $name, (Get-Item $path).VersionInfo.FileVersion
-            }
-          }
-          "cl.exe               {0}" -f (Get-Command cl.exe -ErrorAction SilentlyContinue).Source
-
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
@@ -264,87 +235,63 @@ jobs:
           cd cuda_bindings
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
-      # TEMPORARY (do not merge): build against the cuda-bindings wheel built a
-      # step ago, not whatever PyPI offers.
+      # PIP_PRE is set so pip will consider the cuda-bindings wheel built one
+      # step ago: it carries a .devN version, which counts as a pre-release.
+      # The side effect is that PyPI's pre-releases become eligible too, and
+      # since cuda-bindings 13.4.0b1 was published on 2026-07-29 it outranks
+      # the local build for `cuda-bindings==13.*`.  Its cydriver.pxd is
+      # generated from CTK 13.4 headers, where CUmemLocation has a `localized`
+      # field, while cuda.core here compiles against the 13.3.0 mini-CTK, where
+      # it does not -- and Cython generates a struct converter over every
+      # field, so the build fails on `error C2039`.  Constraining the version
+      # keeps what PIP_PRE is for and drops what it lets in.
       #
-      # PIP_PRE is here so pip will consider the locally built wheel at all --
-      # it carries a .devN version, which is a pre-release.  The side effect is
-      # that PyPI's pre-releases become eligible too, and cuda-bindings
-      # 13.4.0b1, published 2026-07-29, outranks the local build for
-      # `cuda-bindings==13.*`.  Its cydriver.pxd is generated from CTK 13.4
-      # headers, so CUmemLocation gains a `localized` field, while cuda.core
-      # compiles against the 13.3.0 mini-CTK that has no such field.  Cython
-      # generates a struct converter over every field, and the build dies:
-      #
-      #   _managed_memory_ops.cpp(18447): error C2039: 'localized' is not a
-      #   member of 'CUmemLocation_st'
-      #
-      # Windows coverage has produced nothing since; the job fails here and
-      # Coverage (Windows) is skipped.  cibuildwheel escapes it in
-      # build-wheel.yml only because it sets PIP_FIND_LINKS without PIP_PRE.
-      #
-      # Pinning the exact local version keeps what PIP_PRE was for and drops
-      # what it let in.  The real fix belongs upstream; this only exists so the
-      # crash diagnostics on this branch can run before that lands.
+      # The local segment is stripped because PEP 440 has a public `==`
+      # specifier ignore a candidate's local label: `==13.3.2.dev152` still
+      # selects 13.3.2.dev152+g0123456, and constraints files stay free of
+      # local versions.
       - name: Build cuda.core wheel
         run: |
           export PIP_FIND_LINKS="$(pwd)/wheels"
           export PIP_PRE=1
           bindings_whl="$(ls ./wheels/cuda_bindings-*.whl | head -1)"
           bindings_ver="$(basename "$bindings_whl" | cut -d- -f2)"
-          # Drop the local segment: PEP 440 says a public `==` specifier ignores
-          # a candidate's local label, so `==13.3.2.dev139` still selects
-          # 13.3.2.dev139+g0123456 while avoiding local versions in a
-          # constraints file, which pip has been unhappy with before.
-          bindings_ver="${bindings_ver%%+*}"
-          echo "cuda-bindings==${bindings_ver}" > "$GITHUB_WORKSPACE/constraints.txt"
-          echo "=== pip constraints ==="
+          echo "cuda-bindings==${bindings_ver%%+*}" > "$GITHUB_WORKSPACE/constraints.txt"
           cat "$GITHUB_WORKSPACE/constraints.txt"
           export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints.txt"
           cd cuda_core
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
-      # The step every other Windows build does and this one never did.
+      # Every other Windows build repairs its wheels and this one never did.
+      # cibuildwheel runs each package's repair-wheel-command from
+      # pyproject.toml, which on Windows is delvewheel: it copies dependent
+      # DLLs into <package>.libs under content-hashed names, rewrites the .pyd
+      # import tables to match, and registers the directory from the package
+      # __init__.  A plain `pip wheel` never reads [tool.cibuildwheel], so
+      # these wheels imported a bare "MSVCP140.dll" and resolved it against
+      # whatever the test machine had in System32 -- 14.00.24215.1, from 2015,
+      # on the runner this job uses.
       #
-      # cibuildwheel runs `repair-wheel-command` out of each package's
-      # pyproject.toml after building, which on Windows is delvewheel: it
-      # copies the dependent DLLs into <package>.libs under content-hashed
-      # names, rewrites the .pyd import tables to reference those names, and
-      # adds an os.add_dll_directory call to the package __init__.  A plain
-      # `pip wheel` knows nothing about [tool.cibuildwheel], so this build has
-      # always shipped .pyd files that import a bare "MSVCP140.dll" and
-      # resolve it to whatever the test machine happens to have in System32 --
-      # which on that runner is 14.00.24215.1, from 2015.
+      # That is fatal rather than cosmetic.  _resource_handles.pyd, compiled by
+      # MSVC 14.44, imports only _Mtx_lock and _Mtx_unlock and never
+      # _Mtx_init_in_situ, because std::mutex has had a constexpr constructor
+      # since VS 2022 17.10.  The 2015 runtime still expects that
+      # initialisation and dereferences a null handle on the first lock, which
+      # _stream.pyx takes while cuda.core is still importing: every Windows
+      # coverage run since 2026-03-17 died there, before collecting a test.
       #
-      # _resource_handles.pyd, compiled by MSVC 14.44, takes only _Mtx_lock
-      # and _Mtx_unlock from that DLL and never _Mtx_init_in_situ, because
-      # std::mutex has had a constexpr constructor since VS 2022 17.10. The
-      # 2015 runtime still expects that initialisation to have happened and
-      # dereferences a null handle on the first lock, which _stream.pyx:422
-      # takes during import.
-      #
-      # Vendoring 14.51 from this build machine removes the dependency on what
-      # the test machine has. --namespace-pkg cuda is required: `cuda` is a
-      # namespace package, and without it the add_dll_directory patch lands in
-      # the wrong __init__.
-      - name: Vendor the C++ runtime into the wheels
+      # --namespace-pkg cuda is required; `cuda` is a namespace package and
+      # delvewheel otherwise patches the wrong __init__.
+      - name: Repair the Windows wheels
         run: |
           .venv/Scripts/pip install delvewheel
           mkdir -p wheels-repaired
           for whl in ./wheels/cuda_bindings-*.whl ./wheels/cuda_core-*.whl; do
-            echo "=== repairing $whl ==="
             .venv/Scripts/delvewheel repair --namespace-pkg cuda \
               --exclude "torch_cpu.dll;torch_python.dll" \
               -w ./wheels-repaired "$whl"
           done
-          # Replace the originals in place: everything downstream, including
-          # the artifact the test job installs from, reads ./wheels.
           mv -f ./wheels-repaired/*.whl ./wheels/
-          echo "=== what got vendored ==="
-          for whl in ./wheels/cuda_bindings-*.whl ./wheels/cuda_core-*.whl; do
-            echo "--- $whl"
-            unzip -l "$whl" | grep -i "\.libs/" || echo "    (nothing vendored)"
-          done
 
       - name: List wheel artifacts
         run: |
@@ -372,15 +319,6 @@ jobs:
       ARCH: "amd64"
       CUDA_PYTHON_COVERAGE: "1"
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
-      # Diagnostics for the recurring exit-139 crash in the cuda.core step.
-      # faulthandler names the Windows exception (access violation vs stack
-      # overflow) and dumps every thread's Python stack; unlike pytest's
-      # built-in faulthandler plugin, the env var is inherited by tests that
-      # spawn their own `python -c` children, which crash too.  Unbuffered
-      # stdio keeps the last lines before a hard crash from dying in the
-      # block buffer of a non-tty pipe.
-      PYTHONFAULTHANDLER: "1"
-      PYTHONUNBUFFERED: "1"
     defaults:
       run:
         shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -407,28 +345,6 @@ jobs:
       - name: Ensure GPU is working
         run: |
           nvidia-smi
-
-      # The crash is a null read inside msvcp140's mutex lock, and the copy
-      # this machine loads was built before VS 2022 17.10 made std::mutex's
-      # constructor constexpr -- code compiled after that change no longer
-      # calls _Mtx_init, which the older runtime still expects.  The version is
-      # currently only inferred from a TimeDateStamp in a minidump, so read it
-      # from the file itself; the number is what a report to the runner owners
-      # needs.  The build machine's copy is printed for contrast: wheels are
-      # built there, tested here.
-      - name: Report the C++ runtime this machine loads
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          foreach ($name in "msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll") {
-            $path = Join-Path $env:WINDIR "System32\$name"
-            if (Test-Path $path) {
-              $info = (Get-Item $path).VersionInfo
-              "{0,-20} {1,-16} {2}" -f $name, $info.FileVersion, $path
-            } else {
-              "{0,-20} <absent from System32>" -f $name
-            }
-          }
 
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
@@ -500,217 +416,14 @@ jobs:
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_bindings/tests"
 
-      # The whole crash reduces to one `import cuda.core` under coverage, with
-      # no pytest, no conftest and no tests: the linetrace wheel and the
-      # ctracer are the two conditions `test-wheel-windows.yml` lacks on this
-      # same runner.  Importing submodules one at a time was tried first and
-      # measured nothing -- every one of them executes cuda/core/__init__.py
-      # on the way in, so all six probes walked the same path and all six
-      # failed identically.
-      #
-      # What is missing is the native half.  The fault happens inside an
-      # extension module's initialiser, and faulthandler's report ends at
-      # `<cannot get C stack on this system>`.  The usual ways to see past
-      # that are all closed here: cdb is not installed (the SDK ships without
-      # the Debugging Tools feature), procdump would need an outbound
-      # download, a postmortem debugger under AeDebug never fires because this
-      # image does not record user-process crashes with WER, and there are no
-      # PDBs because build_hooks.py refuses debuggable builds on Windows.
-      #
-      # dbgcore.dll in System32 is always present though, so the process
-      # reports on itself.  ci/tools/native_crash_handler.py catches the fault
-      # first-chance and writes the faulting address resolved to module + RVA,
-      # the native return chain resolved the same way, the module map, and a
-      # minidump, then lets the process die exactly as it would have.  Which
-      # binary faults is the open question, and module + RVA answers it
-      # without symbols.
-      #
-      # Five runs, each answering something the others cannot:
-      #
-      #   selftest     faults on purpose, so a clean report proves the handler
-      #                works here and an empty one is not mistaken for "no
-      #                crash"
-      #   plain        the import with no coverage and no trace function at
-      #                all.  The fault is a null read inside msvcp140's mutex
-      #                lock, taken unconditionally by _stream.pyx:422, so this
-      #                should crash as well -- and if it does, instrumentation
-      #                was never a condition
-      #   coverage     the nightly's own conditions, on the 8 MB stack the
-      #                pytest wrapper uses
-      #   breadcrumb   the same import with a bare trace function instead of
-      #                coverage.  It arms Cython's linetrace the same way, so
-      #                a crash here means any tracer will do rather than
-      #                coverage specifically -- and the last line of its log
-      #                names the .pyx statement that was executing
-      #   fingerprint  the environment around the import: driver, CPU, and
-      #                the loaded-module map, which is what a comparison
-      #                against a machine that does not crash needs
-      #
-      # COVERAGE_FILE keeps all of this out of the real .coverage, which
-      # `coverage run` would otherwise truncate.
-      - name: Record the native side of the fault
-        if: always()
-        continue-on-error: true
-        env:
-          COVERAGE_FILE: ${{ github.workspace }}/.coverage.probe
-        run: |
-          probe="$GITHUB_WORKSPACE/ci/tools/crash_probe.py"
-          python="$GITHUB_WORKSPACE/.venv/Scripts/python"
-          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
-
-          rc=0
-          "$python" "$probe" --selftest \
-            --native-log "$GITHUB_WORKSPACE/native-selftest.txt" \
-            --dump "$GITHUB_WORKSPACE/selftest.dmp" || rc=$?
-          echo "SELFTEST rc=$rc"
-          head -n 10 "$GITHUB_WORKSPACE/native-selftest.txt" || true
-
-          # No coverage, no trace function, nothing but the import.  The fault
-          # was named as a null read inside msvcp140's mutex lock, reached from
-          # a std::lock_guard that _stream.pyx:422 takes unconditionally, so
-          # instrumentation should have nothing to do with it.  If this crashes
-          # too, "linetrace plus a tracer" was never the condition -- the cov
-          # wheels simply are not built through delvewheel, so they load the
-          # system msvcp140.dll instead of a vendored one, and that copy on
-          # this image predates the constexpr std::mutex change.
-          rc=0
-          "$python" "$probe" --stack-mb 8 \
-            --native-log "$GITHUB_WORKSPACE/native-plain.txt" \
-            --dump "$GITHUB_WORKSPACE/crash-plain.dmp" || rc=$?
-          echo "PLAIN PROBE (no coverage, no tracer) rc=$rc"
-          cat "$GITHUB_WORKSPACE/native-plain.txt" || true
-
-          rc=0
-          "$python" -m coverage run --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
-            "$probe" --stack-mb 8 \
-            --native-log "$GITHUB_WORKSPACE/native-coverage.txt" \
-            --dump "$GITHUB_WORKSPACE/crash-coverage.dmp" || rc=$?
-          echo "COVERAGE PROBE rc=$rc"
-          cat "$GITHUB_WORKSPACE/native-coverage.txt" || true
-
-          rc=0
-          "$python" "$probe" --stack-mb 8 \
-            --breadcrumb "$GITHUB_WORKSPACE/breadcrumb.txt" \
-            --native-log "$GITHUB_WORKSPACE/native-breadcrumb.txt" \
-            --dump "$GITHUB_WORKSPACE/crash-breadcrumb.dmp" || rc=$?
-          echo "BREADCRUMB PROBE rc=$rc"
-          echo "=== breadcrumb: $(wc -l < "$GITHUB_WORKSPACE/breadcrumb.txt") lines, last 25 ==="
-          tail -n 25 "$GITHUB_WORKSPACE/breadcrumb.txt" || true
-
-          rc=0
-          "$python" -m coverage run --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
-            "$GITHUB_WORKSPACE/ci/tools/env_fingerprint.py" --stack-mb 8 \
-            "$GITHUB_WORKSPACE/fingerprint-windows.txt" || rc=$?
-          echo "FINGERPRINT rc=$rc"
-
-      # Only this step crashes.  cuda.bindings runs the same wrapper, the same
-      # 8 MB thread and the same coverage wheel, and finishes normally, so the
-      # extra diagnostics are scoped to cuda.core alone.
-      #
-      # The crash log narrows the fault to "somewhere before pytest collects".
-      # PYTHONVERBOSE narrows it to a module: the interpreter announces every
-      # import as it begins one, so the last line written before the process
-      # dies names the module it died in.  That output is stderr, which is why
-      # the session is redirected to a file rather than left in the step log --
-      # a crash takes the tail of a pipe with it, while each unbuffered write
-      # to a file has already reached the OS.
       - name: Run cuda.core tests (with 8MB stack)
         continue-on-error: true
-        env:
-          PYTEST_CRASHLOG: ${{ github.workspace }}/crashlog-core.txt
-          PYTEST_FAULTLOG: ${{ github.workspace }}/faulthandler-core.txt
-          PYTHONVERBOSE: "1"
         run: |
           "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
-            --isolate \
             --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
-            "$GITHUB_WORKSPACE/cuda_core/tests" \
-            > "$GITHUB_WORKSPACE/verbose-core.txt" 2>&1
-
-      # The step above has been exiting 139 on every run, and Git Bash reports
-      # that as a bare "Segmentation fault".  The crash log's final line says
-      # how far the session actually got.
-      - name: Report how far the cuda.core session got
-        if: always()
-        continue-on-error: true
-        run: |
-          log="$GITHUB_WORKSPACE/crashlog-core.txt"
-          if [ -f "$log" ]; then
-            echo "=== crashlog: $(wc -l < "$log") lines, last 20 ==="
-            tail -n 20 "$log"
-          else
-            echo "No crash log: died before pytest started."
-          fi
-
-          echo ""
-          fault="$GITHUB_WORKSPACE/faulthandler-core.txt"
-          if [ -s "$fault" ]; then
-            echo "=== faulthandler ==="
-            cat "$fault"
-          else
-            # Empty is itself a result: the fault never reached Python's
-            # handler, which points at native code running outside any Python
-            # frame -- an extension module's initialisation, for instance.
-            echo "=== faulthandler: no output ==="
-          fi
-
-          echo ""
-          verbose="$GITHUB_WORKSPACE/verbose-core.txt"
-          if [ -f "$verbose" ]; then
-            echo "=== PYTHONVERBOSE: $(wc -l < "$verbose") lines, last 40 ==="
-            tail -n 40 "$verbose"
-          fi
-
-      # Windows records an Application Error entry for every process it kills,
-      # naming the faulting module and the offset within it, and it does so
-      # whether or not crash dumps are configured.  That is the one fact no
-      # Python-level log can produce, and reading the log changes no machine
-      # state, so nothing has to be restored afterwards.
-      - name: Read the crash record from the Windows event log
-        if: always()
-        continue-on-error: true
-        shell: powershell
-        run: |
-          $events = Get-WinEvent -FilterHashtable @{
-            LogName      = 'Application'
-            ProviderName = 'Application Error', 'Windows Error Reporting'
-            StartTime    = (Get-Date).AddHours(-2)
-          } -ErrorAction SilentlyContinue
-          if (-not $events) {
-            Write-Output "No Application Error / WER records in the last 2 hours."
-            Write-Output "(If this image keeps no such log, a minidump is the fallback.)"
-            exit 0
-          }
-          foreach ($e in $events | Select-Object -First 15) {
-            Write-Output "===== $($e.TimeCreated.ToString('u'))  $($e.ProviderName)  Id=$($e.Id) ====="
-            Write-Output $e.Message
-            Write-Output ""
-          }
-
-      - name: Upload crash diagnostics
-        if: always()
-        continue-on-error: true
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: crash-diagnostics-windows
-          path: |
-            crashlog-core.txt
-            faulthandler-core.txt
-            verbose-core.txt
-            native-selftest.txt
-            native-plain.txt
-            native-coverage.txt
-            native-breadcrumb.txt
-            breadcrumb.txt
-            fingerprint-windows.txt
-            selftest.dmp
-            crash-plain.dmp
-            crash-coverage.dmp
-            crash-breadcrumb.dmp
-          retention-days: 7
-          if-no-files-found: warn
+            "$GITHUB_WORKSPACE/cuda_core/tests"
 
       - name: Copy Windows coverage file to workspace
         run: |
@@ -731,10 +444,7 @@ jobs:
     name: Combine Coverage and Deploy
     needs: [coverage-linux, coverage-windows]
     runs-on: ubuntu-latest
-    # always() alone would still run this after coverage-linux is skipped, and
-    # it would both fail on the missing .coverage.linux and publish a half
-    # report to gh-pages.
-    if: ${{ always() && !startsWith(github.ref, 'refs/heads/pull-request/') }}
+    if: always()
     permissions:
       id-token: write
       contents: write
