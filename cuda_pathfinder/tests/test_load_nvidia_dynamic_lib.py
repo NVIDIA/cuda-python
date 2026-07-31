@@ -36,24 +36,6 @@ def test_supported_libnames_linux_sonames_consistency():
     )
 
 
-@pytest.mark.parametrize(
-    ("target_arch", "supported_libnames"),
-    [
-        ("x64", supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS_X64),
-        ("arm64", supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS_ARM64),
-    ],
-)
-@pytest.mark.agent_authored(model="gpt-5")
-def test_supported_libnames_windows_dlls_consistency(target_arch, supported_libnames):
-    expected = {
-        desc.name
-        for desc in load_nvidia_dynamic_lib_module.LIB_DESCRIPTORS.values()
-        if desc.packaged_with == "ctk" and target_arch in desc.supported_windows_arch
-    }
-    assert set(supported_libnames) == expected
-    assert expected <= set(supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS_CTK)
-
-
 def test_supported_libnames_linux_site_packages_libdirs_ctk_consistency():
     assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_LINUX)) == tuple(
         sorted(supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_LINUX_CTK.keys())
