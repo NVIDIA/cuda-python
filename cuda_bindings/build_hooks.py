@@ -85,16 +85,24 @@ def _determine_cuda_major_version() -> str:
     this is used only to key build artifacts -- see _resolve_build_identity().
     """
     cuda_h = os.path.join(_get_cuda_path(), "include", "cuda.h")
-    with open(cuda_h, encoding="utf-8") as f:
-        for line in f:
-            m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
-            if m:
-                # CUDA_VERSION is e.g. 12020 for 12.2.
-                cuda_major = str(int(m.group(1)) // 1000)
-                print("CUDA MAJOR VERSION:", cuda_major)
-                return cuda_major
+    try:
+        with open(cuda_h, encoding="utf-8") as f:
+            for line in f:
+                m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
+                if m:
+                    # CUDA_VERSION is e.g. 12020 for 12.2.
+                    cuda_major = str(int(m.group(1)) // 1000)
+                    print("CUDA MAJOR VERSION:", cuda_major)
+                    return cuda_major
+    except OSError:
+        pass
 
-    raise RuntimeError(f"Cannot determine CUDA major version: no CUDA_VERSION macro in {cuda_h}")
+    # CUDA_PATH or CUDA_HOME is required for the build, so we should not reach
+    # here in normal circumstances. Raise an error to make the issue clear.
+    raise RuntimeError(
+        "Cannot determine CUDA major version. "
+        "Ensure CUDA_PATH or CUDA_HOME points to a valid CUDA installation with include/cuda.h."
+    )
 
 
 # -----------------------------------------------------------------------
