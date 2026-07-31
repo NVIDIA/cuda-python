@@ -248,10 +248,43 @@ jobs:
           cd cuda_bindings
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
+      # TEMPORARY (do not merge): build against the cuda-bindings wheel built a
+      # step ago, not whatever PyPI offers.
+      #
+      # PIP_PRE is here so pip will consider the locally built wheel at all --
+      # it carries a .devN version, which is a pre-release.  The side effect is
+      # that PyPI's pre-releases become eligible too, and cuda-bindings
+      # 13.4.0b1, published 2026-07-29, outranks the local build for
+      # `cuda-bindings==13.*`.  Its cydriver.pxd is generated from CTK 13.4
+      # headers, so CUmemLocation gains a `localized` field, while cuda.core
+      # compiles against the 13.3.0 mini-CTK that has no such field.  Cython
+      # generates a struct converter over every field, and the build dies:
+      #
+      #   _managed_memory_ops.cpp(18447): error C2039: 'localized' is not a
+      #   member of 'CUmemLocation_st'
+      #
+      # Windows coverage has produced nothing since; the job fails here and
+      # Coverage (Windows) is skipped.  cibuildwheel escapes it in
+      # build-wheel.yml only because it sets PIP_FIND_LINKS without PIP_PRE.
+      #
+      # Pinning the exact local version keeps what PIP_PRE was for and drops
+      # what it let in.  The real fix belongs upstream; this only exists so the
+      # crash diagnostics on this branch can run before that lands.
       - name: Build cuda.core wheel
         run: |
           export PIP_FIND_LINKS="$(pwd)/wheels"
           export PIP_PRE=1
+          bindings_whl="$(ls ./wheels/cuda_bindings-*.whl | head -1)"
+          bindings_ver="$(basename "$bindings_whl" | cut -d- -f2)"
+          # Drop the local segment: PEP 440 says a public `==` specifier ignores
+          # a candidate's local label, so `==13.3.2.dev139` still selects
+          # 13.3.2.dev139+g0123456 while avoiding local versions in a
+          # constraints file, which pip has been unhappy with before.
+          bindings_ver="${bindings_ver%%+*}"
+          echo "cuda-bindings==${bindings_ver}" > "$GITHUB_WORKSPACE/constraints.txt"
+          echo "=== pip constraints ==="
+          cat "$GITHUB_WORKSPACE/constraints.txt"
+          export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints.txt"
           cd cuda_core
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
