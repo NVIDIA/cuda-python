@@ -36,7 +36,11 @@ def windows_python_arch() -> str:
 
 
 def windows_pe_matches_arch(path: str, target_arch: str) -> bool:
-    """Return whether a valid PE file has the requested machine architecture."""
+    """Return whether a Windows Portable Executable (PE) targets the requested architecture.
+
+    PE is the file format used for Windows executables and DLLs. This reads the
+    PE/COFF header's machine field to distinguish x64 images from Arm64 images.
+    """
     expected_machine = WINDOWS_PE_MACHINE_BY_ARCH.get(target_arch)
     if expected_machine is None:
         raise ValueError(f"Unsupported Windows target architecture: {target_arch!r}")

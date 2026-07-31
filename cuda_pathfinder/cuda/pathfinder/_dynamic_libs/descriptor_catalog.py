@@ -131,6 +131,9 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
             arm64=("nvvm/bin",),
         ),
         ctk_root_canary_anchor_libnames=CTK_ROOT_CANARY_ANCHOR_LIBNAMES,
+        # requires_windows_binary_arch_check disambiguates pre-13.4 x64 DLLs
+        # from 13.4+ Arm64 DLLs in nvvm/bin; see
+        # _utils/windows_arch.py for the validation.
         requires_windows_binary_arch_check=True,
     ),
     DescriptorSpec(
