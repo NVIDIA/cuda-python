@@ -98,12 +98,21 @@ def test_device_cpu_affinity(subtests):
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_affinity(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
-            for scope in typing.AffinityScope.__members__.values():
+        for scope in typing.AffinityScope.__members__.values():
+            with subtests.test(
+                device_index=device.index,
+                affinity_scope=scope.value,
+                affinity_api="get_cpu_affinity",
+            ):
                 with unsupported_before(device, typing.DeviceArch.KEPLER):
                     affinity = device.get_cpu_affinity(scope)
                 assert isinstance(affinity, list)
 
+            with subtests.test(
+                device_index=device.index,
+                affinity_scope=scope.value,
+                affinity_api="get_memory_affinity",
+            ):
                 affinity = device.get_memory_affinity(scope)
                 assert isinstance(affinity, list)
 
@@ -410,8 +419,11 @@ def test_field_values(subtests):
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_get_all_devices_with_cpu_affinity(subtests):
     for i in range(multiprocessing.cpu_count()):
-        with subtests.test(i=i):
-            for device in system.Device.get_all_devices_with_cpu_affinity(i):
+        devices = []
+        with subtests.test(cpu_index=i, affinity_api="get_all_devices_with_cpu_affinity"):
+            devices = list(system.Device.get_all_devices_with_cpu_affinity(i))
+        for device in devices:
+            with subtests.test(cpu_index=i, device_index=device.index):
                 with unsupported_before(device, DeviceArch.KEPLER):
                     affinity = device.get_cpu_affinity()
                 assert isinstance(affinity, list)
@@ -566,8 +578,8 @@ def test_auto_boosted_clocks_enabled(subtests):
 
 def test_clock(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
-            for clock_type in typing.ClockType:
+        for clock_type in typing.ClockType:
+            with subtests.test(device_index=device.index, clock_type=clock_type.value):
                 clock = device.get_clock(clock_type)
                 assert isinstance(clock, _device.ClockInfo)
 
@@ -628,44 +640,45 @@ def test_clock_event_reasons(subtests):
 
 def test_fan(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
-            # The fan APIs are only supported on discrete devices with fans,
-            # but when they are not available `device.num_fans` returns 0.
-            if device.num_fans == 0:
+        # The fan APIs are only supported on discrete devices with fans,
+        # but when they are not available `device.num_fans` returns 0.
+        if device.num_fans == 0:
+            with subtests.test(device_index=device.index):
                 pytest.skip("Device has no fans to test")
+            continue
 
-            for fan_idx in range(device.num_fans):
-                with subtests.test(fan_idx=fan_idx):
-                    fan_info = device.get_fan(fan_idx)
-                    assert isinstance(fan_info, _device.FanInfo)
+        for fan_idx in range(device.num_fans):
+            with subtests.test(device_index=device.index, fan_index=fan_idx):
+                fan_info = device.get_fan(fan_idx)
+                assert isinstance(fan_info, _device.FanInfo)
 
-                    speed = fan_info.speed
-                    assert isinstance(speed, int)
-                    assert 0 <= speed <= 200
-                    try:
-                        fan_info.speed = 50
-                    except nvml.NoPermissionError as e:
-                        pytest.xfail(f"nvml.NoPermissionError: {e}")
-                    try:
-                        fan_info.speed = speed
+                speed = fan_info.speed
+                assert isinstance(speed, int)
+                assert 0 <= speed <= 200
+                try:
+                    fan_info.speed = 50
+                except nvml.NoPermissionError as e:
+                    pytest.xfail(f"nvml.NoPermissionError: {e}")
+                try:
+                    fan_info.speed = speed
 
-                        speed_rpm = fan_info.speed_rpm
-                        assert isinstance(speed_rpm, int)
-                        assert speed_rpm >= 0
+                    speed_rpm = fan_info.speed_rpm
+                    assert isinstance(speed_rpm, int)
+                    assert speed_rpm >= 0
 
-                        target_speed = fan_info.target_speed
-                        assert isinstance(target_speed, int)
-                        assert speed <= target_speed * 2
+                    target_speed = fan_info.target_speed
+                    assert isinstance(target_speed, int)
+                    assert speed <= target_speed * 2
 
-                        min_, max_ = fan_info.min_max_speed
-                        assert isinstance(min_, int)
-                        assert isinstance(max_, int)
-                        assert min_ <= max_
+                    min_, max_ = fan_info.min_max_speed
+                    assert isinstance(min_, int)
+                    assert isinstance(max_, int)
+                    assert min_ <= max_
 
-                        control_policy = fan_info.control_policy
-                        assert isinstance(control_policy, typing.FanControlPolicy)
-                    finally:
-                        fan_info.set_default_speed()
+                    control_policy = fan_info.control_policy
+                    assert isinstance(control_policy, typing.FanControlPolicy)
+                finally:
+                    fan_info.set_default_speed()
 
 
 def test_cooler(subtests):
@@ -691,35 +704,55 @@ def test_cooler(subtests):
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_temperature(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        device_index = device.index
+        temperature = None
+        with subtests.test(device_index=device_index, temperature_api="temperature"):
             temperature = device.temperature
             assert isinstance(temperature, _device.Temperature)
+        if temperature is None:
+            continue
 
+        with subtests.test(device_index=device_index, temperature_api="get_sensor"):
             sensor = temperature.get_sensor()
             assert isinstance(sensor, int)
             assert sensor >= 0
 
-            # By docs, should be supported on KEPLER or newer, but experimentally,
-            # is also unsupported on other hardware.
-            # get_threshold emits DeprecationWarning for some thresholds on Ada+;
-            # that behaviour is tested separately in
-            # test_temperature_threshold_unrecognized_device_arch.
-            with unsupported_before(device, None):
-                for threshold in list(typing.TemperatureThresholds):
+        # By docs, should be supported on KEPLER or newer, but experimentally,
+        # is also unsupported on other hardware.
+        # get_threshold emits DeprecationWarning for some thresholds on Ada+;
+        # that behaviour is tested separately in
+        # test_temperature_threshold_unrecognized_device_arch.
+        for threshold in typing.TemperatureThresholds:
+            with subtests.test(
+                device_index=device_index,
+                temperature_api="get_threshold",
+                threshold=threshold.value,
+            ):
+                with unsupported_before(device, None):
                     t = temperature.get_threshold(threshold)
-                    assert isinstance(t, int)
-                    assert t >= 0
+                assert isinstance(t, int)
+                assert t >= 0
 
+        with subtests.test(device_index=device_index, temperature_api="margin"):
             with unsupported_before(device, None):
                 margin = temperature.margin
             assert isinstance(margin, int)
             assert margin >= 0
 
+        thermals = None
+        with subtests.test(device_index=device_index, temperature_api="get_thermal_settings"):
             with unsupported_before(device, None):
                 thermals = temperature.get_thermal_settings(typing.ThermalTarget.ALL)
             assert isinstance(thermals, _device.ThermalSettings)
+        if thermals is None:
+            continue
 
-            for i, sensor in enumerate(thermals):
+        for i, sensor in enumerate(thermals):
+            with subtests.test(
+                device_index=device_index,
+                temperature_api="thermal_sensor",
+                sensor_index=i,
+            ):
                 assert isinstance(sensor, _device.ThermalSensor)
                 assert isinstance(sensor.target, typing.ThermalTarget)
                 assert isinstance(sensor.controller, typing.ThermalController)
@@ -827,8 +860,14 @@ def test_compute_running_processes(subtests):
 
 def test_nvlink(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device), unsupported_before(device, None):
-            for link in range(device.get_nvlink_count()):
+        device_index = device.index
+        link_count = 0
+        with subtests.test(device_index=device_index, nvlink_api="get_nvlink_count"):
+            with unsupported_before(device, None):
+                link_count = device.get_nvlink_count()
+
+        for link in range(link_count):
+            with subtests.test(device_index=device_index, nvlink_api="get_nvlink", link_index=link):
                 with unsupported_before(device, None):
                     nvlink_info = device.get_nvlink(link)
                 assert isinstance(nvlink_info, _device.NvlinkInfo)
@@ -846,7 +885,13 @@ def test_nvlink(subtests):
                 assert len(version) == 2
                 assert all(isinstance(i, int) for i in version)
 
-            for nvlink_info in device.get_nvlinks():
+        nvlink_infos = []
+        with subtests.test(device_index=device_index, nvlink_api="get_nvlinks"):
+            with unsupported_before(device, None):
+                nvlink_infos = list(device.get_nvlinks())
+
+        for link, nvlink_info in enumerate(nvlink_infos):
+            with subtests.test(device_index=device_index, nvlink_api="get_nvlinks", link_index=link):
                 assert isinstance(nvlink_info, _device.NvlinkInfo)
 
                 with unsupported_before(device, None):
