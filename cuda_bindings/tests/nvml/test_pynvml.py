@@ -285,8 +285,8 @@ def test_device_get_pcie_throughput(ngpus, handles, subtests):
 )  # Link is supported on this device
 def test_device_get_nvlink_capability(ngpus, handles, cap_type, subtests):
     for i in range(ngpus):
-        with subtests.test(i=i):
-            for j in range(nvml.NVLINK_MAX_LINKS):
+        for j in range(nvml.NVLINK_MAX_LINKS):
+            with subtests.test(device_index=i, link_index=j):
                 # By the documentation, this should be supported on PASCAL or newer,
                 # but this also seems to fail on newer.
                 with unsupported_before(handles[i], None):
