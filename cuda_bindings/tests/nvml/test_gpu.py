@@ -21,7 +21,7 @@ def test_gpu_get_module_id(nvml_init, subtests):
         if util.is_vgpu(device):
             continue
 
-        with subtests.test(i=i):
+        with subtests.test(device_index=i):
             with unsupported_before(device, None):
                 module_id = nvml.device_get_module_id(device)
             assert isinstance(module_id, int)
@@ -29,7 +29,7 @@ def test_gpu_get_module_id(nvml_init, subtests):
 
 def test_gpu_get_platform_info(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             if util.is_vgpu(device):
                 pytest.skip(f"Not supported on vGPU device {device}")
 
@@ -63,7 +63,11 @@ def test_conf_compute_attestation_report_t(all_devices):
 def test_gpu_conf_compute_attestation_report(all_devices, subtests):
     for device in all_devices:
         # Documentation says AMPERE or newer
-        with subtests.test(device=device), unsupported_before(device, None), pytest.raises(nvml.UnknownError):
+        with (
+            subtests.test(device_index=nvml.device_get_index(device)),
+            unsupported_before(device, None),
+            pytest.raises(nvml.UnknownError),
+        ):
             # The nonce string is nonsensical, so if this "works", we expect an UnknownError
             nvml.device_get_conf_compute_gpu_attestation_report(device, nonce=b"12345678")
 
@@ -79,6 +83,10 @@ def test_conf_compute_gpu_certificate_t():
 def test_conf_compute_gpu_certificate(all_devices, subtests):
     for device in all_devices:
         # Documentation says AMPERE or newer
-        with subtests.test(device=device), unsupported_before(device, None), pytest.raises(nvml.UnknownError):
+        with (
+            subtests.test(device_index=nvml.device_get_index(device)),
+            unsupported_before(device, None),
+            pytest.raises(nvml.UnknownError),
+        ):
             # This is expected to fail if the device doesn't have a proper certificate
             nvml.device_get_conf_compute_gpu_certificate(device)

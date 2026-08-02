@@ -64,7 +64,7 @@ def test_device_architecture():
 
 def test_device_bar1_memory(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, None):
                 bar1_memory_info = device.bar1_memory_info
             free, total, used = (
@@ -87,7 +87,7 @@ def test_device_bar1_memory(subtests):
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_cpu_affinity(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, typing.DeviceArch.KEPLER):
                 affinity = device.get_cpu_affinity(typing.AffinityScope.NODE)
             assert isinstance(affinity, list)
@@ -119,7 +119,7 @@ def test_affinity(subtests):
 
 def test_numa_node_id(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, None):
                 numa_node_id = device.numa_node_id
             assert isinstance(numa_node_id, int)
@@ -138,7 +138,7 @@ def test_device_cuda_compute_capability():
 
 def test_device_memory(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, None):
                 memory_info = device.memory_info
             free, total, used, reserved = memory_info.free, memory_info.total, memory_info.used, memory_info.reserved
@@ -165,7 +165,7 @@ def test_device_name():
 
 def test_device_pci_info(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             pci_info = device.pci_info
             assert isinstance(pci_info, _device.PciInfo)
 
@@ -226,7 +226,7 @@ def test_device_pci_info(subtests):
 
 def test_device_serial(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, "HAS_INFOROM"):
                 serial = device.serial
             assert isinstance(serial, str)
@@ -319,7 +319,7 @@ def test_device_pci_bus_id():
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_attributes(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             # Docs say this should work on AMPERE or newer, but experimentally
             # that's not the case.
             with unsupported_before(device, None):
@@ -342,7 +342,7 @@ def test_device_attributes(subtests):
 
 def test_c2c_mode_enabled(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, None):
                 is_enabled = device.is_c2c_enabled
             assert isinstance(is_enabled, bool)
@@ -351,7 +351,7 @@ def test_c2c_mode_enabled(subtests):
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
 def test_persistence_mode_enabled(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             is_enabled = device.is_persistence_mode_enabled
             assert isinstance(is_enabled, bool)
             try:
@@ -366,7 +366,7 @@ def test_persistence_mode_enabled(subtests):
 
 def test_field_values(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             # TODO: Are there any fields that return double's?  It would be good to
             # test those.
 
@@ -439,7 +439,7 @@ def test_index():
 
 def test_module_id(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, None):
                 module_id = device.module_id
             assert isinstance(module_id, int)
@@ -448,7 +448,7 @@ def test_module_id(subtests):
 
 def test_addressing_mode(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             # By docs, should be supported on TURING or newer, but experimentally,
             # is also unsupported on other hardware.
             with unsupported_before(device, None):
@@ -467,7 +467,7 @@ def test_display_mode():
 
 def test_repair_status(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             # By docs, should be supported on AMPERE or newer, but experimentally,
             # this seems to also work on some TURING systems.
             with unsupported_before(device, None):
@@ -528,7 +528,7 @@ def test_get_minor_number():
 
 def test_get_inforom_version(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, "HAS_INFOROM"):
                 inforom = device.inforom
 
@@ -567,7 +567,7 @@ def test_get_inforom_version(subtests):
 
 def test_auto_boosted_clocks_enabled(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             # This API is supported on KEPLER and newer, but it also seems
             # unsupported elsewhere.
             with unsupported_before(device, None):
@@ -628,7 +628,7 @@ def test_clock(subtests):
 
 def test_clock_event_reasons(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, None):
                 reasons = device.current_clock_event_reasons
             assert all(isinstance(reason, typing.ClocksEventReasons) for reason in reasons)
@@ -690,7 +690,7 @@ def test_fan(subtests):
 
 def test_cooler(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             # The cooler APIs are only supported on discrete devices with fans,
             # but when they are not available `device.num_fans` returns 0.
             if device.num_fans == 0:
@@ -825,7 +825,7 @@ def test_device_arg_validation():
 
 def test_pstates(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, None):
                 pstate = device.performance_state
             assert isinstance(pstate, int)
@@ -847,7 +847,7 @@ def test_pstates(subtests):
 
 def test_compute_running_processes(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, "FERMI"):
                 processes = device.compute_running_processes
             assert isinstance(processes, list)
@@ -922,7 +922,7 @@ def test_nvlink_max_links_deprecated():
 
 def test_utilization(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device):
+        with subtests.test(device_index=device.index):
             with unsupported_before(device, None):
                 utilization = device.utilization
             assert isinstance(utilization, _device.Utilization)
@@ -939,7 +939,7 @@ def test_utilization(subtests):
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="MIG not supported on WSL or Windows")
 def test_mig(subtests):
     for device in system.Device.get_all_devices():
-        with subtests.test(device=device), unsupported_before(device, None):
+        with subtests.test(device_index=device.index), unsupported_before(device, None):
             mig = device.mig
 
             assert isinstance(mig.is_mig_device, bool)

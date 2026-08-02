@@ -11,7 +11,7 @@ from .conftest import unsupported_before
 
 def test_discover_gpus(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             pci_info = nvml.device_get_pci_info_v3(device)
             # Docs say this should be supported on PASCAL and later
             with unsupported_before(device, None), contextlib.suppress(nvml.OperatingSystemError):
@@ -27,7 +27,7 @@ def test_bridge_chip_hierarchy_t():
 
 def test_bridge_chip_info(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
                 info = nvml.device_get_bridge_chip_info(device)
             assert isinstance(info, nvml.BridgeChipHierarchy)

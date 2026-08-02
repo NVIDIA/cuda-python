@@ -40,7 +40,7 @@ def test_clk_mon_status_t():
 
 def test_current_clock_freqs(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
                 clk_freqs = nvml.device_get_current_clock_freqs(device)
             assert isinstance(clk_freqs, str)
@@ -72,7 +72,7 @@ def test_get_handle_by_uuidv(all_devices):
 
 def test_get_nv_link_supported_bw_modes(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
                 modes = nvml.device_get_nvlink_supported_bw_modes(device)
             assert isinstance(modes, nvml.NvlinkSupportedBwModes_v1)
@@ -92,7 +92,7 @@ def test_device_get_pdi(all_devices):
 
 def test_device_get_performance_modes(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
                 modes = nvml.device_get_performance_modes(device)
             assert isinstance(modes, str)
@@ -101,7 +101,7 @@ def test_device_get_performance_modes(all_devices, subtests):
 @pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
 def test_device_get_unrepairable_memory_flag(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
                 status = nvml.device_get_unrepairable_memory_flag_v1(device)
             assert isinstance(status, int)
@@ -109,7 +109,7 @@ def test_device_get_unrepairable_memory_flag(all_devices, subtests):
 
 def test_device_vgpu_get_heterogeneous_mode(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             with unsupported_before(device, None):
                 mode = nvml.device_get_vgpu_heterogeneous_mode(device)
             assert isinstance(mode, int)
@@ -118,7 +118,7 @@ def test_device_vgpu_get_heterogeneous_mode(all_devices, subtests):
 @pytest.mark.skipif(cuda_version_less_than(13010), reason="Introduced in 13.1")
 def test_read_prm_counters(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             counters = nvml.PRMCounter_v1(5)
             with unsupported_before(device, None):
                 read_counters = nvml.device_read_prm_counters_v1(device, counters)
@@ -129,7 +129,7 @@ def test_read_prm_counters(all_devices, subtests):
 @pytest.mark.thread_unsafe(reason="API appears to be thread-unsafe (2026-06)")
 def test_read_write_prm(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             # Docs say supported in BLACKWELL or later
             with unsupported_before(device, None):
                 try:
@@ -144,13 +144,18 @@ def test_read_write_prm(all_devices, subtests):
 def test_get_power_management_limit(all_devices, subtests):
     for device in all_devices:
         # Docs say supported on KEPLER or later
-        with subtests.test(device=device), unsupported_before(device, nvml.DeviceArch.KEPLER):
+        with subtests.test(device_index=nvml.device_get_index(device)), unsupported_before(
+            device, nvml.DeviceArch.KEPLER
+        ):
             nvml.device_get_power_management_limit(device)
 
 
 def test_set_power_management_limit(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device), unsupported_before(device, nvml.DeviceArch.KEPLER):
+        with (
+            subtests.test(device_index=nvml.device_get_index(device)),
+            unsupported_before(device, nvml.DeviceArch.KEPLER),
+        ):
             try:
                 nvml.device_set_power_management_limit_v2(device, nvml.PowerScope.GPU, 10000)
             except nvml.NoPermissionError:
@@ -161,7 +166,7 @@ def test_set_power_management_limit(all_devices, subtests):
 
 def test_set_temperature_threshold(all_devices, subtests):
     for device in all_devices:
-        with subtests.test(device=device):
+        with subtests.test(device_index=nvml.device_get_index(device)):
             # Docs say supported on MAXWELL or newer
             with unsupported_before(device, None):
                 temp = nvml.device_get_temperature_threshold(
