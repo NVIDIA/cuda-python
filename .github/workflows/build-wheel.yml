@@ -350,8 +350,7 @@ jobs:
         run: |
           echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
           echo "PIP_ONLY_BINARY=numpy" >> "$GITHUB_ENV"
-          echo "NUMPY_VERSION=<=2.6.0.dev0" >> "$GITHUB_ENV"
-        
+
       - name: verify free-threaded build
         if: endsWith(matrix.python-version, 't')
         run: python -c 'import sys; assert not sys._is_gil_enabled()'
@@ -376,7 +375,7 @@ jobs:
           if [ -f "/c/Program Files/Git/usr/bin/link.exe" ]; then
             mv "/c/Program Files/Git/usr/bin/link.exe" "/c/Program Files/Git/usr/bin/link.exe.bak"
           fi
-          
+
       - name: Build cuda.bindings Cython tests
         run: |
           pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
