@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0f2431380680008795336b7acb5ccd83dba7a6e05d0c81c2b5f825bc95576ccd
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=033835aa1fcce7bcd75db8c655b92a6415a74fe0734819cda666ebf038bc1bce
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -405,10 +405,6 @@ cdef class cudaArraySparseProperties:
         Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -433,10 +429,6 @@ cdef class cudaArrayMemoryRequirements:
 
     alignment : size_t
         Alignment necessary for mapping the array.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -612,10 +604,6 @@ cdef class cudaMemcpyNodeParams:
     ----------
 
     flags : int
-        Must be zero
-
-
-    reserved : int
         Must be zero
 
 
@@ -1025,13 +1013,6 @@ cdef class anon_struct4:
 
 cdef class anon_struct5:
     """
-    Attributes
-    ----------
-
-    reserved : list[int]
-
-
-
     Methods
     -------
     getPtr()
@@ -1060,10 +1041,6 @@ cdef class anon_union0:
 
 
 
-    reserved : anon_struct5
-
-
-
     Methods
     -------
     getPtr()
@@ -1081,9 +1058,6 @@ cdef class anon_union0:
 
 
     cdef anon_struct4 _pitch2D
-
-
-    cdef anon_struct5 _reserved
 
 
 cdef class cudaResourceDesc:
@@ -1155,10 +1129,6 @@ cdef class cudaResourceViewDesc:
         Last layer index
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
@@ -1199,10 +1169,6 @@ cdef class cudaPointerAttributes:
         memory or NULL if no such address exists.  CUDA doesn't check if
         unregistered memory is allocated so this field may contain invalid
         pointer if an invalid pointer has been passed to CUDA.
-
-
-    reserved : list[long]
-        Must be zero
 
 
     Methods
@@ -1333,14 +1299,6 @@ cdef class cudaFuncAttributes:
         the value.
 
 
-    reserved1 : int
-
-
-
-    reserved : list[int]
-        Reserved for future use.
-
-
     Methods
     -------
     getPtr()
@@ -1440,10 +1398,6 @@ cdef class cudaMemPoolProps:
         Bitmask indicating intended usage for the pool.
 
 
-    reserved : bytes
-        reserved for future use, must be 0
-
-
     Methods
     -------
     getPtr()
@@ -1461,13 +1415,6 @@ cdef class cudaMemPoolProps:
 cdef class cudaMemPoolPtrExportData:
     """
     Opaque data for exporting a pool allocation
-
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
 
     Methods
     -------
@@ -2236,10 +2183,6 @@ cdef class cudaDeviceProp:
         multi-node system.
 
 
-    reserved : list[int]
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -2255,13 +2198,6 @@ cdef class cudaIpcEventHandle_st:
     """
     CUDA IPC event handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -2274,13 +2210,6 @@ cdef class cudaIpcMemHandle_st:
     """
     CUDA IPC memory handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -2291,13 +2220,6 @@ cdef class cudaIpcMemHandle_st:
 
 cdef class cudaMemFabricHandle_st:
     """
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -2385,10 +2307,6 @@ cdef class cudaExternalMemoryHandleDesc:
         Flags must either be zero or cudaExternalMemoryDedicated
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
@@ -2417,10 +2335,6 @@ cdef class cudaExternalMemoryBufferDesc:
 
     flags : unsigned int
         Flags reserved for future use. Must be zero.
-
-
-    reserved : list[unsigned int]
-        Must be zero
 
 
     Methods
@@ -2458,10 +2372,6 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
 
     numLevels : unsigned int
         Total number of levels in the mipmap chain
-
-
-    reserved : list[unsigned int]
-        Must be zero
 
 
     Methods
@@ -2553,10 +2463,6 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Flags reserved for the future. Must be zero.
 
 
-    reserved : list[unsigned int]
-        Must be zero
-
-
     Methods
     -------
     getPtr()
@@ -2590,10 +2496,6 @@ cdef class anon_union5:
     ----------
 
     fence : Any
-
-
-
-    reserved : unsigned long long
 
 
 
@@ -2640,10 +2542,6 @@ cdef class anon_struct12:
 
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -2682,10 +2580,6 @@ cdef class cudaExternalSemaphoreSignalParams:
         all other types of cudaExternalSemaphore_t, flags must be zero.
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -2719,10 +2613,6 @@ cdef class anon_union6:
     ----------
 
     fence : Any
-
-
-
-    reserved : unsigned long long
 
 
 
@@ -2773,10 +2663,6 @@ cdef class anon_struct15:
 
 
 
-    reserved : list[unsigned int]
-
-
-
     Methods
     -------
     getPtr()
@@ -2813,10 +2699,6 @@ cdef class cudaExternalSemaphoreWaitParams:
         synchronization operations should be performed for any external
         memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
         all other types of cudaExternalSemaphore_t, flags must be zero.
-
-
-    reserved : list[unsigned int]
-
 
 
     Methods
@@ -2898,13 +2780,6 @@ cdef class cudaDevWorkqueueResource:
     """
     Handle to a pre-existing workqueue related resource
 
-    Attributes
-    ----------
-
-    reserved : bytes
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -2937,10 +2812,6 @@ cdef class cudaDevSmResourceGroupParams_st:
     flags : unsigned int
         Combination of `cudaDevSmResourceGroup_flags` values to indicate
         this this group is created.
-
-
-    reserved : list[unsigned int]
-        Reserved for future use - ensure this is zero initialized.
 
 
     Methods
@@ -3477,14 +3348,6 @@ cdef class cudaGraphNodeParams:
         Type of the node
 
 
-    reserved0 : list[int]
-        Reserved. Must be zero.
-
-
-    reserved1 : list[long long]
-        Padding. Unused bytes must be zero.
-
-
     kernel : cudaKernelNodeParamsV2
         Kernel node parameters.
 
@@ -3531,10 +3394,6 @@ cdef class cudaGraphNodeParams:
 
     conditional : cudaConditionalNodeParams
         Conditional node parameters.
-
-
-    reserved2 : long long
-        Reserved bytes. Must be zero.
 
 
     Methods
@@ -3616,11 +3475,6 @@ cdef class cudaGraphEdgeData_st:
         This should be populated with a value from cudaGraphDependencyType.
         (It is typed as char due to compiler-specific layout of bitfields.)
         See cudaGraphDependencyType.
-
-
-    reserved : bytes
-        These bytes are unused and must be zeroed. This ensures
-        compatibility if additional fields are added in the future.
 
 
     Methods
@@ -4023,12 +3877,12 @@ cdef class cudaLaunchAttributeValue:
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
     launchCompletionEvent : anon_struct20
@@ -4314,10 +4168,6 @@ cdef class cudaEglPlaneDesc_st:
         Channel Format Descriptor
 
 
-    reserved : list[unsigned int]
-        Reserved for future use
-
-
     Methods
     -------
     getPtr()
@@ -4430,13 +4280,6 @@ cdef class cudaIpcEventHandle_t(cudaIpcEventHandle_st):
     """
     CUDA IPC event handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -4448,13 +4291,6 @@ cdef class cudaIpcMemHandle_t(cudaIpcMemHandle_st):
     """
     CUDA IPC memory handle
 
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -4464,13 +4300,6 @@ cdef class cudaIpcMemHandle_t(cudaIpcMemHandle_st):
 
 cdef class cudaMemFabricHandle_t(cudaMemFabricHandle_st):
     """
-    Attributes
-    ----------
-
-    reserved : bytes
-
-
-
     Methods
     -------
     getPtr()
@@ -4502,10 +4331,6 @@ cdef class cudaDevSmResourceGroupParams(cudaDevSmResourceGroupParams_st):
     flags : unsigned int
         Combination of `cudaDevSmResourceGroup_flags` values to indicate
         this this group is created.
-
-
-    reserved : list[unsigned int]
-        Reserved for future use - ensure this is zero initialized.
 
 
     Methods
@@ -4607,11 +4432,6 @@ cdef class cudaGraphEdgeData(cudaGraphEdgeData_st):
         This should be populated with a value from cudaGraphDependencyType.
         (It is typed as char due to compiler-specific layout of bitfields.)
         See cudaGraphDependencyType.
-
-
-    reserved : bytes
-        These bytes are unused and must be zeroed. This ensures
-        compatibility if additional fields are added in the future.
 
 
     Methods
@@ -4830,12 +4650,12 @@ cdef class cudaStreamAttrValue(cudaLaunchAttributeValue):
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
     launchCompletionEvent : anon_struct20
@@ -4959,12 +4779,12 @@ cdef class cudaKernelNodeAttrValue(cudaLaunchAttributeValue):
         with the following fields: - `x` - The X dimension of the preferred
         cluster, in blocks. Must be a divisor of the grid X dimension, and
         must be a multiple of the `x` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension
-        of the preferred cluster, in blocks. Must be a divisor of the grid
-        Y dimension, and must be a multiple of the `y` field of
-        ::cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension
-        of the preferred cluster, in blocks. Must be equal to the `z` field
-        of ::cudaLaunchAttributeValue::clusterDim.
+        cudaLaunchAttributeValue::clusterDim.    - `y` - The Y dimension of
+        the preferred cluster, in blocks. Must be a divisor of the grid Y
+        dimension, and must be a multiple of the `y` field of
+        cudaLaunchAttributeValue::clusterDim.    - `z` - The Z dimension of
+        the preferred cluster, in blocks. Must be equal to the `z` field of
+        cudaLaunchAttributeValue::clusterDim.
 
 
     launchCompletionEvent : anon_struct20
@@ -5041,10 +4861,6 @@ cdef class cudaEglPlaneDesc(cudaEglPlaneDesc_st):
 
     channelDesc : cudaChannelFormatDesc
         Channel Format Descriptor
-
-
-    reserved : list[unsigned int]
-        Reserved for future use
 
 
     Methods
