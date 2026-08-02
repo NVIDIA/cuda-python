@@ -869,9 +869,11 @@ def test_nvlink(subtests):
     for device in system.Device.get_all_devices():
         device_index = device.index
         link_count = 0
-        with subtests.test(device_index=device_index, nvlink_api="get_nvlink_count"):
-            with unsupported_before(device, None):
-                link_count = device.get_nvlink_count()
+        with (
+            subtests.test(device_index=device_index, nvlink_api="get_nvlink_count"),
+            unsupported_before(device, None),
+        ):
+            link_count = device.get_nvlink_count()
 
         for link in range(link_count):
             with subtests.test(device_index=device_index, nvlink_api="get_nvlink", link_index=link):
@@ -893,9 +895,11 @@ def test_nvlink(subtests):
                 assert all(isinstance(i, int) for i in version)
 
         nvlink_infos = []
-        with subtests.test(device_index=device_index, nvlink_api="get_nvlinks"):
-            with unsupported_before(device, None):
-                nvlink_infos = list(device.get_nvlinks())
+        with (
+            subtests.test(device_index=device_index, nvlink_api="get_nvlinks"),
+            unsupported_before(device, None),
+        ):
+            nvlink_infos = list(device.get_nvlinks())
 
         for link, nvlink_info in enumerate(nvlink_infos):
             with subtests.test(device_index=device_index, nvlink_api="get_nvlinks", link_index=link):
