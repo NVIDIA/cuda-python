@@ -75,7 +75,7 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - stubgen-pyx==0.2.6
-          - Cython==3.2.4
+          - Cython==3.2.9
 
   # Link checking for authored documentation files
   - repo: https://github.com/lycheeverse/lychee
