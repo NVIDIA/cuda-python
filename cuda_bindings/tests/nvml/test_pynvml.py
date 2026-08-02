@@ -67,8 +67,8 @@ def test_device_get_handle_by_pci_bus_id(ngpus, pci_info):
 @pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
 def test_device_get_memory_affinity(handles, scope, subtests):
     size = 1024
-    for handle in handles:
-        with subtests.test(handle=handle):
+    for device_index, handle in enumerate(handles):
+        with subtests.test(device_index=device_index):
             with unsupported_before(handle, nvml.DeviceArch.KEPLER):
                 node_set = nvml.device_get_memory_affinity(handle, size, scope)
             assert node_set is not None
@@ -79,8 +79,8 @@ def test_device_get_memory_affinity(handles, scope, subtests):
 @pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
 def test_device_get_cpu_affinity_within_scope(handles, scope, subtests):
     size = 1024
-    for handle in handles:
-        with subtests.test(handle=handle):
+    for device_index, handle in enumerate(handles):
+        with subtests.test(device_index=device_index):
             with unsupported_before(handle, nvml.DeviceArch.KEPLER):
                 cpu_set = nvml.device_get_cpu_affinity_within_scope(handle, size, scope)
             assert cpu_set is not None
@@ -142,7 +142,7 @@ def test_device_get_p2p_status(handles, index):
 
 def test_device_get_power_usage(ngpus, handles, subtests):
     for i in range(ngpus):
-        with subtests.test(i=i):
+        with subtests.test(device_index=i):
             # Note: documentation says this is supported on Fermi or newer,
             # but in practice it fails on some later architectures.
             with unsupported_before(handles[i], None):
@@ -152,7 +152,7 @@ def test_device_get_power_usage(ngpus, handles, subtests):
 
 def test_device_get_total_energy_consumption(ngpus, handles, subtests):
     for i in range(ngpus):
-        with subtests.test(i=i):
+        with subtests.test(device_index=i):
             with unsupported_before(handles[i], None):
                 energy_mjoules1 = nvml.device_get_total_energy_consumption(handles[i])
 
@@ -174,7 +174,7 @@ def test_device_get_total_energy_consumption(ngpus, handles, subtests):
 
 def test_device_get_memory_info(ngpus, handles, subtests):
     for i in range(ngpus):
-        with subtests.test(i=i):
+        with subtests.test(device_index=i):
             with unsupported_before(handles[i], None):
                 meminfo = nvml.device_get_memory_info_v2(handles[i])
             assert (meminfo.used <= meminfo.total) and (meminfo.free <= meminfo.total)
@@ -192,7 +192,7 @@ def test_device_get_memory_info(ngpus, handles, subtests):
 
 def test_device_get_utilization_rates(ngpus, handles, subtests):
     for i in range(ngpus):
-        with subtests.test(i=i):
+        with subtests.test(device_index=i):
             with unsupported_before(handles[i], None):
                 urate = nvml.device_get_utilization_rates(handles[i])
             assert urate.gpu >= 0
@@ -251,7 +251,7 @@ def test_device_get_utilization_rates(ngpus, handles, subtests):
 
 def test_device_get_pcie_throughput(ngpus, handles, subtests):
     for i in range(ngpus):
-        with subtests.test(i=i):
+        with subtests.test(device_index=i):
             with unsupported_before(handles[i], None):
                 tx_bytes_tp = nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_TX_BYTES)
             assert tx_bytes_tp >= 0
