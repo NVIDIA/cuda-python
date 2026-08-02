@@ -640,15 +640,22 @@ def test_clock_event_reasons(subtests):
 
 def test_fan(subtests):
     for device in system.Device.get_all_devices():
+        device_index = device.index
+        num_fans = None
         # The fan APIs are only supported on discrete devices with fans,
         # but when they are not available `device.num_fans` returns 0.
-        if device.num_fans == 0:
-            with subtests.test(device_index=device.index):
+        with subtests.test(device_index=device_index, fan_api="get_num_fans"):
+            value = device.num_fans
+            assert isinstance(value, int)
+            assert value >= 0
+            num_fans = value
+            if num_fans == 0:
                 pytest.skip("Device has no fans to test")
+        if not num_fans:
             continue
 
-        for fan_idx in range(device.num_fans):
-            with subtests.test(device_index=device.index, fan_index=fan_idx):
+        for fan_idx in range(num_fans):
+            with subtests.test(device_index=device_index, fan_index=fan_idx):
                 fan_info = device.get_fan(fan_idx)
                 assert isinstance(fan_info, _device.FanInfo)
 
