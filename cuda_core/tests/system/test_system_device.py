@@ -635,36 +635,37 @@ def test_fan(subtests):
                 pytest.skip("Device has no fans to test")
 
             for fan_idx in range(device.num_fans):
-                fan_info = device.get_fan(fan_idx)
-            assert isinstance(fan_info, _device.FanInfo)
+                with subtests.test(fan_idx=fan_idx):
+                    fan_info = device.get_fan(fan_idx)
+                    assert isinstance(fan_info, _device.FanInfo)
 
-            speed = fan_info.speed
-            assert isinstance(speed, int)
-            assert 0 <= speed <= 200
-            try:
-                fan_info.speed = 50
-            except nvml.NoPermissionError as e:
-                pytest.xfail(f"nvml.NoPermissionError: {e}")
-            try:
-                fan_info.speed = speed
+                    speed = fan_info.speed
+                    assert isinstance(speed, int)
+                    assert 0 <= speed <= 200
+                    try:
+                        fan_info.speed = 50
+                    except nvml.NoPermissionError as e:
+                        pytest.xfail(f"nvml.NoPermissionError: {e}")
+                    try:
+                        fan_info.speed = speed
 
-                speed_rpm = fan_info.speed_rpm
-                assert isinstance(speed_rpm, int)
-                assert speed_rpm >= 0
+                        speed_rpm = fan_info.speed_rpm
+                        assert isinstance(speed_rpm, int)
+                        assert speed_rpm >= 0
 
-                target_speed = fan_info.target_speed
-                assert isinstance(target_speed, int)
-                assert speed <= target_speed * 2
+                        target_speed = fan_info.target_speed
+                        assert isinstance(target_speed, int)
+                        assert speed <= target_speed * 2
 
-                min_, max_ = fan_info.min_max_speed
-                assert isinstance(min_, int)
-                assert isinstance(max_, int)
-                assert min_ <= max_
+                        min_, max_ = fan_info.min_max_speed
+                        assert isinstance(min_, int)
+                        assert isinstance(max_, int)
+                        assert min_ <= max_
 
-                control_policy = fan_info.control_policy
-                assert isinstance(control_policy, typing.FanControlPolicy)
-            finally:
-                fan_info.set_default_speed()
+                        control_policy = fan_info.control_policy
+                        assert isinstance(control_policy, typing.FanControlPolicy)
+                    finally:
+                        fan_info.set_default_speed()
 
 
 def test_cooler(subtests):
