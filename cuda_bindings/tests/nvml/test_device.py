@@ -143,8 +143,8 @@ def test_read_write_prm(all_devices, subtests):
 
 def test_get_power_management_limit(all_devices, subtests):
     for device in all_devices:
-        # Docs say supported on KEPLER or later
-        with subtests.test(device=device), unsupported_before(device, nvml.DeviceArch.KEPLER):
+        # Docs say supported on FERMI or later
+        with subtests.test(device=device), unsupported_before(device, "FERMI"):
             nvml.device_get_power_management_limit(device)
 
 
