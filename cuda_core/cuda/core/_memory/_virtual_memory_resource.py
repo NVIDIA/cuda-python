@@ -46,10 +46,9 @@ class VirtualMemoryResourceOptions:
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
         Controls the location of the allocation.
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
-        Export handle type for the physical allocation. Use
-        ``"posix_fd"`` on Linux if you plan to
-        import/export the allocation (required for cuMemRetainAllocationHandle).
-        Use `None` if you don't need an exportable handle.
+        Export handle type for the physical allocation. Use ``"posix_fd"`` on
+        Linux if you plan to import/export the allocation. Use `None` if you
+        don't need an exportable handle.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
     granularity: :obj:`~_memory.VirtualMemoryGranularityType` | str

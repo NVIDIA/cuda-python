@@ -544,11 +544,10 @@ cdef inline void Linker_add_code_object(Linker self, object object_code) except 
     cdef cydriver.CUjitInputType c_drv_input_type
     cdef const char* c_data_ptr
     cdef size_t c_data_size
-    cdef const char* c_name_ptr
     cdef const char* c_file_ptr
 
     name_bytes = f"{object_code.name}".encode()
-    c_name_ptr = <const char*>name_bytes
+    cdef const char* c_name_ptr = <const char*>name_bytes
 
     input_types = _nvjitlink_input_types if self._use_nvjitlink else _driver_input_types
     py_input_type = input_types.get(object_code.code_type)
@@ -702,8 +701,8 @@ def _decide_nvjitlink_or_driver() -> bool:
         )
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
-    _use_nvjitlink_backend = False
     _driver = driver
+    _use_nvjitlink_backend = False
     return True
 
 

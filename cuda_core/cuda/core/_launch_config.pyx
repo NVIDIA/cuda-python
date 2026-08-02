@@ -15,6 +15,8 @@ from cuda.core._utils.cuda_utils import (
 
 _LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative')
 
+__all__ = ['LaunchConfig']
+
 
 cdef class LaunchConfig:
     """Customizable launch options.
