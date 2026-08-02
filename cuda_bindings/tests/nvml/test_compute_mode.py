@@ -22,9 +22,11 @@ def test_compute_mode_supported_nonroot(all_devices, subtests):
     for device in all_devices:
         device_index = nvml.device_get_index(device)
         original_compute_mode = None
-        with subtests.test(device_index=device_index, compute_mode_api="get_compute_mode"):
-            with unsupported_before(device, None):
-                original_compute_mode = nvml.device_get_compute_mode(device)
+        with (
+            subtests.test(device_index=device_index, compute_mode_api="get_compute_mode"),
+            unsupported_before(device, None),
+        ):
+            original_compute_mode = nvml.device_get_compute_mode(device)
         if original_compute_mode is None:
             continue
 
