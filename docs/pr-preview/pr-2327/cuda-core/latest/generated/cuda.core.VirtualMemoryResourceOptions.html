@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e2a04e36"></script>
+    <script src="../_static/documentation_options.js?v=afcffa1a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1.dev47';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev23';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -661,6 +661,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.NvlinkInfo.html">cuda.core.system.NvlinkInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE.html">cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
@@ -674,6 +675,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.0-notes.html">1.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.1.1-notes.html">1.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.0-notes.html">1.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.0.1-notes.html">1.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.0.0-notes.html">1.0.0</a></li>
@@ -795,10 +797,9 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResourceOptions.handle_type">
 <span class="sig-name descname"><span class="pre">handle_type</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResourceOptions.handle_type" title="Link to this definition">#</a></dt>
-<dd><p>Export handle type for the physical allocation. Use
-<code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on Linux if you plan to
-import/export the allocation (required for cuMemRetainAllocationHandle).
-Use <cite>None</cite> if you don’t need an exportable handle.</p>
+<dd><p>Export handle type for the physical allocation. Use <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on
+Linux if you plan to import/export the allocation. Use <cite>None</cite> if you
+don’t need an exportable handle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryHandleType</span></code> | str</p>

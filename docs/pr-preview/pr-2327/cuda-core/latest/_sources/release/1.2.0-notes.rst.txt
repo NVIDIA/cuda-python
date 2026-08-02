@@ -18,6 +18,13 @@ Fixes and enhancements
   (`#2357 <https://github.com/NVIDIA/cuda-python/pull/2357>`__,
   `#2371 <https://github.com/NVIDIA/cuda-python/pull/2371>`__)
 
+- Added ``update()`` methods to kernel, memcpy, memset, child-graph, event
+  record, event wait, and host-callback graph definition nodes. Updates change
+  parameters used by future graph instantiations without affecting existing
+  executable graphs. This feature requires CUDA driver and ``cuda.bindings``
+  versions 12.2 or newer.
+  (`#2352 <https://github.com/NVIDIA/cuda-python/issues/2352>`__)
+
 Deprecation Notices
 -------------------
 
