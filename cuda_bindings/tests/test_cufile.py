@@ -80,7 +80,7 @@ def cufileVersionLessThan(target):
 
 @pytest.fixture(scope="session")
 def skipIfUnsupportedFilesystem(tmpdir_factory):
-    """Fixture that skips if the current filesystem is not supported (ext4 or xfs).
+    """Fixture that skips if the current filesystem is not supported (ext4, xfs, or tmpfs on 13.2+).
 
     The actual requirements are probably both stricter (ext4 was not working on CI previously)
     and possibly also less strict.
@@ -92,12 +92,12 @@ def skipIfUnsupportedFilesystem(tmpdir_factory):
     logging.info(f"Current filesystem type (findmnt): {fs_type}")
 
     if fs_type == "overlay" and os.environ.get("CI") is not None:
-        # Things seems to be fine on CI tmpfiles which report as "overlay".
-        # (Previously the build folder reporting as ext4 was not fine, though.)
-        return
+        # CI reports as overlay but the temporary directory seems to be tmpfs.
+        fs_type = "tmpfs"
 
-    # Newer versions may actuall support more (e.g. tmpfs)
-    supported_fs_types = ("ext4", "xfs")
+    supported_fs_types = ["ext4", "xfs"]
+    if not cufileVersionLessThan(1170):  # tmpfs is supported starting with CTK 13.2
+        supported_fs_types.append("tmpfs")
     if fs_type not in supported_fs_types:
         pytest.skip(f"cuFile handle_register does not support filesystem: {fs_type}")
 
