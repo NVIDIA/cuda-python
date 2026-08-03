@@ -3,12 +3,13 @@
 
 #include <Python.h>
 
+#include <climits>
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <stdexcept>
 #include <string>
-#include <climits>
-#include <cstdint>
+#include <utility>
 
 // PyLong_AsInt entered the public/stable CPython API in 3.13. cuda.bindings
 // supports Python 3.10+, so provide a file-local backport for older builds.
@@ -76,90 +77,11 @@ static std::map<std::pair<PyTypeObject*,PyTypeObject*>, std::function<int(void*,
 // the ctypes module itself is later dropped from sys.modules.
 static PyTypeObject* fetch_ctypes_type(PyObject* ctypes_dict, const char* name)
 {
-    if (target_t == ctypes_c_int)
-    {
-        if (source_t == &PyLong_Type)
-        {
-            m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
-            {
-                // PyLong_AsInt range-checks against the 32-bit int slot and raises
-                // OverflowError itself, so an out-of-range value is rejected rather
-                // than silently truncated.
-                int v = PyLong_AsInt(value);
-                if (v == -1 && PyErr_Occurred())
-                    return -1;
-                *((int*)ptr) = v;
-                return sizeof(int);
-            };
-            return;
-        }
-    } else if (target_t == ctypes_c_bool) {
-        if (source_t == &PyBool_Type)
-        {
-            m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
-            {
-                *((bool*)ptr) = (value == Py_True);
-                return sizeof(bool);
-            };
-            return;
-        }
-    } else if (target_t == ctypes_c_byte) {
-        if (source_t == &PyLong_Type)
-        {
-            m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
-            {
-                // c_byte is an 8-bit slot with no dedicated CPython converter, so
-                // range-check explicitly against INT8_MIN/INT8_MAX. AsLongAndOverflow's
-                // `overflow` only flags values outside `long` (64-bit on LP64), so a
-                // value in that range would be silently truncated by (int8_t)v without
-                // the explicit bounds check. When overflow!=0, v is the -1 sentinel
-                // (not the real value), so that case must be caught before trusting v.
-                int overflow = 0;
-                long v = PyLong_AsLongAndOverflow(value, &overflow);
-                if (overflow == 0 && v == -1 && PyErr_Occurred())
-                    return -1;  // non-overflow conversion error; exception already set
-                if (overflow != 0 || v < INT8_MIN || v > INT8_MAX)
-                {
-                    PyErr_SetString(PyExc_OverflowError,
-                        "Python int is out of range for a c_byte (8-bit) kernel argument");
-                    return -1;
-                }
-                *((int8_t*)ptr) = (int8_t)v;
-                return sizeof(int8_t);
-            };
-            return;
-        }
-    } else if (target_t == ctypes_c_double) {
-        if (source_t == &PyFloat_Type)
-        {
-            m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
-            {
-                *((double*)ptr) = (double)PyFloat_AsDouble(value);
-                return sizeof(double);
-            };
-            return;
-        }
-    } else if (target_t == ctypes_c_float) {
-        if (source_t == &PyFloat_Type)
-        {
-            m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
-            {
-                *((float*)ptr) = (float)PyFloat_AsDouble(value);
-                return sizeof(float);
-            };
-            return;
-        }
-    } else if (target_t == ctypes_c_longlong) {
-        if (source_t == &PyLong_Type)
-        {
-            m_feeders[{target_t,source_t}] = [](void* ptr, PyObject* value) -> int
-            {
-                *((long long*)ptr) = (long long)PyLong_AsLongLong(value);
-                return sizeof(long long);
-            };
-            return;
-        }
-    }
+    PyObject* type_obj = PyDict_GetItemString(ctypes_dict, name);  // borrowed
+    if (type_obj == nullptr)
+        throw std::runtime_error(std::string("Cannot find ctypes.") + std::string(name));
+    Py_INCREF(type_obj);
+    return (PyTypeObject*) type_obj;
 }
 
 static void fetch_ctypes()
@@ -203,14 +125,36 @@ static void fetch_ctypes()
 }
 
 
-// Build the complete feeder table. This is the same finite set of six
-// (target type, source type) pairs the previous lazy populate_feeders() could
-// ever produce, so building it eagerly is behavior-neutral.
+// Build the complete feeder table: the same finite set of six (target, source)
+// type pairs the previous lazy populate_feeders() could ever produce.
+//
+// Out-of-range integers: a feeder must write exactly what the caller's fallback
+// (`ctype(value)` in utils.pxi) would write, because it exists only to make that
+// path faster. ctypes truncates silently rather than raising -- c_byte(300) is
+// 44, c_int(2**40) is 0 -- but a bare (int)PyLong_AsLong(...) does NOT agree
+// with it: where `long` is 32 bits (Windows LLP64), PyLong_AsLong overflows and
+// yields -1, so the old fast path wrote -1 where ctypes writes 0.
+//
+// So the integer feeders range-check and **return 0** on any value they cannot
+// convert faithfully, which routes the caller to its ctypes fallback and gets
+// ctypes' own answer. Returning a negative size instead would be unsafe: the
+// caller tests only `if size == 0` and then does `data_idx += size`, so a -1
+// would skip the fallback and rewind the pack buffer, corrupting the next
+// argument. Any error the probe set is cleared -- feed() must not leave an
+// exception pending, since it is declared implicitly noexcept to Cython.
 static void populate_feeders()
 {
     m_feeders[{ctypes_c_int, &PyLong_Type}] = [](void* ptr, PyObject* value) -> int
     {
-        *((int*)ptr) = (int)PyLong_AsLong(value);
+        // PyLong_AsInt range-checks against the 32-bit int slot (raising
+        // OverflowError) instead of silently truncating.
+        int v = PyLong_AsInt(value);
+        if (v == -1 && PyErr_Occurred())
+        {
+            PyErr_Clear();
+            return 0;  // decline: let the ctypes fallback define the result
+        }
+        *((int*)ptr) = v;
         return sizeof(int);
     };
     m_feeders[{ctypes_c_bool, &PyBool_Type}] = [](void* ptr, PyObject* value) -> int
@@ -220,7 +164,22 @@ static void populate_feeders()
     };
     m_feeders[{ctypes_c_byte, &PyLong_Type}] = [](void* ptr, PyObject* value) -> int
     {
-        *((int8_t*)ptr) = (int8_t)PyLong_AsLong(value);
+        // c_byte is an 8-bit slot with no dedicated CPython converter, so
+        // range-check explicitly. AsLongAndOverflow's `overflow` only flags
+        // values outside `long`, so a value inside `long` but outside int8 would
+        // still be truncated by the cast without the explicit bounds test. When
+        // overflow != 0, v is the -1 sentinel rather than the real value, so
+        // that case must be excluded before trusting v.
+        int overflow = 0;
+        long v = PyLong_AsLongAndOverflow(value, &overflow);
+        if (overflow == 0 && v == -1 && PyErr_Occurred())
+        {
+            PyErr_Clear();
+            return 0;
+        }
+        if (overflow != 0 || v < INT8_MIN || v > INT8_MAX)
+            return 0;
+        *((int8_t*)ptr) = (int8_t)v;
         return sizeof(int8_t);
     };
     m_feeders[{ctypes_c_double, &PyFloat_Type}] = [](void* ptr, PyObject* value) -> int
@@ -235,7 +194,13 @@ static void populate_feeders()
     };
     m_feeders[{ctypes_c_longlong, &PyLong_Type}] = [](void* ptr, PyObject* value) -> int
     {
-        *((long long*)ptr) = (long long)PyLong_AsLongLong(value);
+        long long v = PyLong_AsLongLong(value);
+        if (v == -1 && PyErr_Occurred())
+        {
+            PyErr_Clear();
+            return 0;
+        }
+        *((long long*)ptr) = v;
         return sizeof(long long);
     };
 }
@@ -254,9 +219,10 @@ static void init_param_packer()
 }
 
 // Pure lookup + invoke over never-mutated state: non-throwing and safe to call
-// concurrently. If init_param_packer() was never called the table is empty, so
-// every lookup misses and returns 0, which routes the caller to its ctypes
-// fallback (utils.pxi) -- slower, but still correct.
+// concurrently. Returns 0 for an unhandled (target, source) pair or a value the
+// feeder declines, which routes the caller to its ctypes fallback (utils.pxi) --
+// slower, but always the same bytes. If init_param_packer() was never called the
+// table is empty, so every lookup misses and the fallback handles everything.
 static int feed(void* ptr, PyObject* value, PyObject* type)
 {
     auto found = m_feeders.find({(PyTypeObject*)type, Py_TYPE(value)});
