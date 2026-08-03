@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import gc
 import multiprocessing
 import os
 import pathlib
@@ -114,6 +115,18 @@ def _init_cuda_context():
     try:
         yield device
     finally:
+        # Force any pool/allocation whose only remaining reference was a local
+        # in this test's frame to actually get destroyed now, then drain the
+        # context so the stream-ordered frees that destruction enqueues retire
+        # before the next test runs. Without this, a memory pool's VA
+        # reservation is not returned until both have happened, and per-test
+        # leftovers accumulate across the run -- which is how full-suite runs
+        # can exhaust address space and hit CUDA_ERROR_OUT_OF_MEMORY on a
+        # device with plenty of free physical memory (issue #2381). gc.collect()
+        # must run first: cuCtxSynchronize alone cannot drain frees that were
+        # never enqueued because their owning object had not been collected yet.
+        gc.collect()
+        driver.cuCtxSynchronize()
         _ = _device_unset_current()
 
 
