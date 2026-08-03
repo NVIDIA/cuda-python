@@ -6,7 +6,6 @@ from __future__ import annotations
 
 cimport cython
 from libc.stddef cimport size_t
-from libc.stdint cimport intptr_t
 from libcpp.mutex cimport py_safe_call_once
 
 from collections import namedtuple
