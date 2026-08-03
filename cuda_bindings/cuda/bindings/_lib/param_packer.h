@@ -3,8 +3,8 @@
 
 #include <Python.h>
 
-#include <map>
 #include <functional>
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <climits>
@@ -30,7 +30,23 @@ PyLong_AsInt(PyObject *obj)
 }
 #endif
 
-static PyObject* ctypes_module = nullptr;
+// Thread-safety contract (free-threaded builds declare Py_MOD_GIL_NOT_USED, so
+// there is no GIL serializing the calls below):
+//
+// Every static in this header is written exactly once, by init_param_packer(),
+// while the importing thread is still the only thread that can reach it --
+// Python's import machinery guarantees a module body runs to completion before
+// any other thread can call into the module. Afterwards the state is read-only,
+// which is what makes the hot feed() path safe to call concurrently without a
+// lock: concurrent std::map::find() on a map that is never mutated is safe by
+// the C++ standard.
+//
+// Do not reintroduce lazy initialization here. This header is textually
+// compiled into every extension module that cimports param_packer.pxd, so each
+// such module owns an independent copy of this state and would need its own
+// racy lazy path.
+
+static bool param_packer_initialized = false;
 
 static PyTypeObject* ctypes_c_char = nullptr;
 static PyTypeObject* ctypes_c_bool = nullptr;
@@ -50,40 +66,15 @@ static PyTypeObject* ctypes_c_float = nullptr;
 static PyTypeObject* ctypes_c_double = nullptr;
 static PyTypeObject* ctypes_c_void_p = nullptr;
 
-static void fetch_ctypes()
-{
-    ctypes_module = PyImport_ImportModule("ctypes");
-    if (ctypes_module == nullptr)
-        throw std::runtime_error("Cannot import ctypes module");
-    // get method addressof
-    PyObject* ctypes_dict = PyModule_GetDict(ctypes_module);
-    if (ctypes_dict == nullptr)
-        throw std::runtime_error(std::string("FAILURE @ ") + std::string(__FILE__) + " : " + std::to_string(__LINE__));
-    // supportedtypes
-    ctypes_c_char = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_char");
-    ctypes_c_bool = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_bool");
-    ctypes_c_wchar = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_wchar");
-    ctypes_c_byte = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_byte");
-    ctypes_c_ubyte = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_ubyte");
-    ctypes_c_short = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_short");
-    ctypes_c_ushort = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_ushort");
-    ctypes_c_int = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_int");
-    ctypes_c_uint = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_uint");
-    ctypes_c_long = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_long");
-    ctypes_c_ulong = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_ulong");
-    ctypes_c_longlong = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_longlong");
-    ctypes_c_ulonglong = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_ulonglong");
-    ctypes_c_size_t = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_size_t");
-    ctypes_c_float = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_float");
-    ctypes_c_double = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_double");
-    ctypes_c_void_p = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_void_p"); // == c_voidp
-}
-
-
-// (target type, source type)
+// (target type, source type) -> writer. Built in full by init_param_packer()
+// and never mutated afterwards; see the thread-safety contract above.
 static std::map<std::pair<PyTypeObject*,PyTypeObject*>, std::function<int(void*, PyObject*)>> m_feeders;
 
-static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
+// Look a type up in the ctypes module dict and return a *strong* reference.
+// PyDict_GetItemString returns a borrowed reference; we upgrade it to a strong
+// one so the cached PyTypeObject* stays valid for the process lifetime even if
+// the ctypes module itself is later dropped from sys.modules.
+static PyTypeObject* fetch_ctypes_type(PyObject* ctypes_dict, const char* name)
 {
     if (target_t == ctypes_c_int)
     {
@@ -171,17 +162,104 @@ static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
     }
 }
 
+static void fetch_ctypes()
+{
+    PyObject* ctypes_module = PyImport_ImportModule("ctypes");
+    if (ctypes_module == nullptr)
+        throw std::runtime_error("Cannot import ctypes module");
+    // The module dict is borrowed from the module, and the type objects we pull
+    // out of it are INCREF'd individually, so the module reference itself is not
+    // load-bearing: release it once we are done rather than leaking it.
+    try
+    {
+        PyObject* ctypes_dict = PyModule_GetDict(ctypes_module);  // borrowed
+        if (ctypes_dict == nullptr)
+            throw std::runtime_error(std::string("FAILURE @ ") + std::string(__FILE__) + " : " + std::to_string(__LINE__));
+        // supported types
+        ctypes_c_char = fetch_ctypes_type(ctypes_dict, "c_char");
+        ctypes_c_bool = fetch_ctypes_type(ctypes_dict, "c_bool");
+        ctypes_c_wchar = fetch_ctypes_type(ctypes_dict, "c_wchar");
+        ctypes_c_byte = fetch_ctypes_type(ctypes_dict, "c_byte");
+        ctypes_c_ubyte = fetch_ctypes_type(ctypes_dict, "c_ubyte");
+        ctypes_c_short = fetch_ctypes_type(ctypes_dict, "c_short");
+        ctypes_c_ushort = fetch_ctypes_type(ctypes_dict, "c_ushort");
+        ctypes_c_int = fetch_ctypes_type(ctypes_dict, "c_int");
+        ctypes_c_uint = fetch_ctypes_type(ctypes_dict, "c_uint");
+        ctypes_c_long = fetch_ctypes_type(ctypes_dict, "c_long");
+        ctypes_c_ulong = fetch_ctypes_type(ctypes_dict, "c_ulong");
+        ctypes_c_longlong = fetch_ctypes_type(ctypes_dict, "c_longlong");
+        ctypes_c_ulonglong = fetch_ctypes_type(ctypes_dict, "c_ulonglong");
+        ctypes_c_size_t = fetch_ctypes_type(ctypes_dict, "c_size_t");
+        ctypes_c_float = fetch_ctypes_type(ctypes_dict, "c_float");
+        ctypes_c_double = fetch_ctypes_type(ctypes_dict, "c_double");
+        ctypes_c_void_p = fetch_ctypes_type(ctypes_dict, "c_void_p"); // == c_voidp
+    }
+    catch (...)
+    {
+        Py_DECREF(ctypes_module);
+        throw;
+    }
+    Py_DECREF(ctypes_module);
+}
+
+
+// Build the complete feeder table. This is the same finite set of six
+// (target type, source type) pairs the previous lazy populate_feeders() could
+// ever produce, so building it eagerly is behavior-neutral.
+static void populate_feeders()
+{
+    m_feeders[{ctypes_c_int, &PyLong_Type}] = [](void* ptr, PyObject* value) -> int
+    {
+        *((int*)ptr) = (int)PyLong_AsLong(value);
+        return sizeof(int);
+    };
+    m_feeders[{ctypes_c_bool, &PyBool_Type}] = [](void* ptr, PyObject* value) -> int
+    {
+        *((bool*)ptr) = (value == Py_True);
+        return sizeof(bool);
+    };
+    m_feeders[{ctypes_c_byte, &PyLong_Type}] = [](void* ptr, PyObject* value) -> int
+    {
+        *((int8_t*)ptr) = (int8_t)PyLong_AsLong(value);
+        return sizeof(int8_t);
+    };
+    m_feeders[{ctypes_c_double, &PyFloat_Type}] = [](void* ptr, PyObject* value) -> int
+    {
+        *((double*)ptr) = (double)PyFloat_AsDouble(value);
+        return sizeof(double);
+    };
+    m_feeders[{ctypes_c_float, &PyFloat_Type}] = [](void* ptr, PyObject* value) -> int
+    {
+        *((float*)ptr) = (float)PyFloat_AsDouble(value);
+        return sizeof(float);
+    };
+    m_feeders[{ctypes_c_longlong, &PyLong_Type}] = [](void* ptr, PyObject* value) -> int
+    {
+        *((long long*)ptr) = (long long)PyLong_AsLongLong(value);
+        return sizeof(long long);
+    };
+}
+
+// Must be called from the module body (i.e. at import, single-threaded) of
+// every extension module that calls feed(). Declared `except +` in the .pxd so
+// a C++ throw becomes a Python exception instead of std::terminate; this is the
+// only function here that can throw.
+static void init_param_packer()
+{
+    if (param_packer_initialized)
+        return;
+    fetch_ctypes();
+    populate_feeders();
+    param_packer_initialized = true;
+}
+
+// Pure lookup + invoke over never-mutated state: non-throwing and safe to call
+// concurrently. If init_param_packer() was never called the table is empty, so
+// every lookup misses and returns 0, which routes the caller to its ctypes
+// fallback (utils.pxi) -- slower, but still correct.
 static int feed(void* ptr, PyObject* value, PyObject* type)
 {
-    PyTypeObject* pto = (PyTypeObject*)type;
-    if (ctypes_c_int == nullptr)
-        fetch_ctypes();
-    auto found = m_feeders.find({pto,value->ob_type});
-    if (found == m_feeders.end())
-    {
-        populate_feeders(pto, value->ob_type);
-        found = m_feeders.find({pto,value->ob_type});
-    }
+    auto found = m_feeders.find({(PyTypeObject*)type, Py_TYPE(value)});
     if (found != m_feeders.end())
     {
         return found->second(ptr, value);

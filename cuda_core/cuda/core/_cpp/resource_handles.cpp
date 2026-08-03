@@ -318,8 +318,11 @@ void enqueue_cleanup(void* item) noexcept {
 
 }  // namespace
 
-// Module initialization calls this once with the GIL held, which serializes
-// the check, allocation, and publication below.
+// Called exactly once, from the module body of _resource_handles.pyx (at
+// import, single-threaded). The check-then-act below is therefore an
+// idempotency guard, not a racy lazy init -- concurrent callers would each
+// allocate a queue and all but one would leak. Do not add a second call site
+// without converting this to a compare-exchange.
 void initialize_deferred_cleanup() {
     if (deferred_cleanup_queue.load(std::memory_order_acquire)) {
         return;
@@ -1060,10 +1063,14 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
 // MemoryResource-owned Device Pointer Handles
 // ============================================================================
 
-static MRDeallocCallback mr_dealloc_cb = nullptr;
+// Registered exactly once, from the module body of _memory/_buffer.pyx (at
+// import, single-threaded), but read from shared_ptr deleters running on
+// arbitrary threads. Atomic with release/acquire ordering so those readers have
+// a well-formed happens-before edge to the registration rather than a data race.
+static std::atomic<MRDeallocCallback> mr_dealloc_cb{nullptr};
 
 void register_mr_dealloc_callback(MRDeallocCallback cb) {
-    mr_dealloc_cb = cb;
+    mr_dealloc_cb.store(cb, std::memory_order_release);
 }
 
 DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr) {
@@ -1081,8 +1088,11 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
         [mr, size](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
-                if (mr_dealloc_cb) {
-                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                // Load once into a local: testing and calling the atomic
+                // separately would be two independent loads.
+                MRDeallocCallback cb = mr_dealloc_cb.load(std::memory_order_acquire);
+                if (cb) {
+                    cb(mr, b->resource, size, b->h_stream);
                 }
                 Py_DECREF(mr);
             }
