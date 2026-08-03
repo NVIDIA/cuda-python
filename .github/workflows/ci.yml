@@ -255,11 +255,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # --paginate fetches all pages; jq outputs one name per line per page;
-          # head -1 takes the first (newest) match since GitHub returns tags
-          # newest-first. Fails hard if no cuda-core-v* tag is found.
+          # sed prints the first (newest) match while consuming all pages, so
+          # gh can complete without SIGPIPE. Fails if no cuda-core-v* tag is found.
           tag="$(gh api "repos/$GITHUB_REPOSITORY/tags" --paginate \
             --jq '.[] | select(.name | startswith("cuda-core-v")) | .name' \
-            | head -1)"
+            | sed -n '1p')"
           if [[ -z "${tag}" ]]; then
             echo "::error::No cuda-core-v* tag found in the repository." >&2
             exit 1
@@ -501,6 +501,38 @@ jobs:
     with:
       is-release: ${{ github.ref_type == 'tag' }}
 
+  precommit-windows:
+    name: Pre-commit on Windows
+    runs-on: windows-latest
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    needs:
+      - should-skip
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: '3.13'
+
+      - name: Install pre-commit
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python -m pip install --upgrade pip pre-commit
+
+      - name: Run pre-commit
+        shell: bash
+        run: |
+          set -euxo pipefail
+          SKIP=lychee pre-commit run --all-files
+
   checks:
     name: Check job status
     if: always()
@@ -514,6 +546,7 @@ jobs:
       - test-linux-aarch64
       - test-windows
       - doc
+      - precommit-windows
     steps:
       - name: Exit
         run: |
@@ -546,6 +579,7 @@ jobs:
           check_result "should-skip"    "success" "${{ needs.should-skip.result }}"
           check_result "detect-changes" "success" "${{ needs.detect-changes.result }}"
           check_result "doc"            "success" "${{ needs.doc.result }}"
+          check_result "precommit-windows" "success" "${{ needs.precommit-windows.result }}"
 
           # [doc-only] flips these from 'success' to 'skipped'
           if [[ "$doc_only" == "true" ]]; then expected="skipped"; else expected="success"; fi

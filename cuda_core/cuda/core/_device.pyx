@@ -1289,7 +1289,10 @@ class Device:
             # use primary ctx
             h_context = get_primary_context(self._device_id)
             if h_context.get() == NULL:
-                raise ValueError("Cannot set NULL context as current")
+                HANDLE_RETURN(get_last_error())
+                raise RuntimeError(
+                    f"Failed to retain the primary context for device {self._device_id}"
+                )
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxSetCurrent(as_cu(h_context)))
             self._has_inited = True
