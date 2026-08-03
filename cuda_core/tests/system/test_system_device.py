@@ -722,6 +722,39 @@ def test_temperature():
             assert sensor.default_min_temp <= sensor.current_temp <= sensor.default_max_temp
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_temperature_arg_validation():
+    # Both getters reject an unknown key before issuing any NVML call.
+    temperature = system.Device(index=0).temperature
+    with pytest.raises(ValueError, match="Invalid temperature threshold type"):
+        temperature.get_threshold("not-a-threshold")
+    with pytest.raises(ValueError, match="Invalid thermal sensor index"):
+        temperature.get_thermal_settings("not-a-sensor")
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_device_constructor_selector_validation():
+    # The constructor requires exactly one selector, rejected before NVML is touched.
+    with pytest.raises(ValueError, match="only one of"):
+        system.Device(index=0, uuid="ignored")
+    with pytest.raises(ValueError, match="either a device"):
+        system.Device()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_device_arg_validation():
+    device = system.Device(index=0)
+    # Each argument validator raises before reaching the driver/NVML call.
+    with pytest.raises(ValueError, match="Invalid affinity scope"):
+        device.get_memory_affinity("not-a-scope")
+    with pytest.raises(ValueError, match="Invalid affinity scope"):
+        device.get_cpu_affinity("not-a-scope")
+    with pytest.raises(ValueError, match="Invalid topology level"):
+        list(device.get_topology_nearest_gpus("not-a-level"))
+    with pytest.raises(ValueError, match="Invalid P2P caps index"):
+        system.get_p2p_status(device, device, "not-an-index")
+
+
 def test_pstates():
     for device in system.Device.get_all_devices():
         with unsupported_before(device, None):

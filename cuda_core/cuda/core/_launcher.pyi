@@ -8,6 +8,7 @@ from cuda.core._stream import Stream
 from cuda.core.graph import GraphBuilder
 from cuda.core.typing import IsStreamType
 
+__all__ = ['launch']
 
 def launch(stream: Stream | GraphBuilder | IsStreamType, config: LaunchConfig, kernel: Kernel, *kernel_args) -> None:
     """Launches a :obj:`~_module.Kernel`
