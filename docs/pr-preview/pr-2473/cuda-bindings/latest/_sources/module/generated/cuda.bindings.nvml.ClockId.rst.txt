@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.ClockId
+==========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: ClockId

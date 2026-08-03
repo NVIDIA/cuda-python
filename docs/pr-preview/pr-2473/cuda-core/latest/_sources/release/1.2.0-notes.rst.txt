@@ -1,0 +1,44 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.2.0 Release Notes
+==================================
+
+Fixes and enhancements
+----------------------
+
+- Graph node resources are now retained independently across graph clones,
+  executable graphs, updates, node deletion, and in-flight launches. Previously,
+  modifying a graph definition could release resources still used by an
+  existing executable graph. Releasing graph-attached objects could also call
+  CUDA from a CUDA-invoked callback, where CUDA API calls are prohibited; these
+  objects are now released from a safe context.
+  (`#2357 <https://github.com/NVIDIA/cuda-python/pull/2357>`__,
+  `#2371 <https://github.com/NVIDIA/cuda-python/pull/2371>`__)
+
+- Added ``update()`` methods to kernel, memcpy, memset, child-graph, event
+  record, event wait, and host-callback graph definition nodes. Updates change
+  parameters used by future graph instantiations without affecting existing
+  executable graphs. This feature requires CUDA driver and ``cuda.bindings``
+  versions 12.2 or newer.
+  (`#2352 <https://github.com/NVIDIA/cuda-python/issues/2352>`__)
+
+- Added ``graph[node]`` views for updating nodes in an executable graph.
+  Kernel, memcpy, memset, child-graph, event, and host-callback parameters can
+  be replaced without reinstantiating the graph. Kernel, memcpy, and memset
+  nodes can also be enabled or disabled. Resources introduced by these updates
+  remain alive through in-flight launches. CUDA cannot detach resources from an
+  executable graph, so a superseded resource stays alive until a successful
+  whole-graph update or executable graph destruction. This feature requires
+  CUDA driver and ``cuda.bindings`` versions 12.2 or newer.
+  (`#2353 <https://github.com/NVIDIA/cuda-python/issues/2353>`__,
+  `#2354 <https://github.com/NVIDIA/cuda-python/issues/2354>`__)
+
+Deprecation Notices
+-------------------
+
+- Support for using ``cuda-core`` with Python 3.10 is deprecated and will be
+  removed in a future version.  Python 3.10 reaches end of life in October 2026
+  per the `CPython support cycle <https://devguide.python.org/versions/>`_.
