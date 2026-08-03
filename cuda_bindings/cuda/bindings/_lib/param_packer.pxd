@@ -10,7 +10,7 @@ cdef extern from "param_packer.h":
     # allocation failure while building the feeder table) into a Python
     # exception. Without it Cython treats an extern cdef function as implicitly
     # noexcept and generates no handler, so a throw would hit std::terminate.
-    void init_param_packer() except +
+    void init_param_packer() except +*
     # Non-throwing by construction: a lookup in a table that is never mutated
     # after init, so no exception specification is needed here.
     int feed(void* ptr, object o, object ct)
