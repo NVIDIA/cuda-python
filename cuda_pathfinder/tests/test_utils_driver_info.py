@@ -46,7 +46,6 @@ def test_query_driver_cuda_version_uses_windll_on_windows(monkeypatch):
     fake_driver_lib = _FakeDriverLib(status=0, version=12080)
     loaded_paths: list[str] = []
 
-    monkeypatch.setattr(driver_info, "IS_WINDOWS", True)
     monkeypatch.setattr(
         driver_info,
         "_load_nvidia_dynamic_lib",
@@ -57,7 +56,7 @@ def test_query_driver_cuda_version_uses_windll_on_windows(monkeypatch):
         loaded_paths.append(abs_path)
         return fake_driver_lib
 
-    monkeypatch.setattr(driver_info.ctypes, "WinDLL", fake_windll, raising=False)
+    monkeypatch.setattr(driver_info, "_DRIVER_LIB_LOADER", fake_windll)
 
     assert driver_info._query_driver_cuda_version_int() == 12080
     assert loaded_paths == [r"C:\Windows\System32\nvcuda.dll"]
@@ -93,9 +92,8 @@ def test_query_driver_cuda_version_wraps_internal_failures(monkeypatch):
 def test_query_driver_cuda_version_int_raises_when_cuda_call_fails(monkeypatch):
     fake_driver_lib = _FakeDriverLib(status=1, version=0)
 
-    monkeypatch.setattr(driver_info, "IS_WINDOWS", False)
     monkeypatch.setattr(driver_info, "_load_nvidia_dynamic_lib", lambda _libname: _loaded_cuda("/usr/lib/libcuda.so.1"))
-    monkeypatch.setattr(driver_info.ctypes, "CDLL", lambda _abs_path: fake_driver_lib)
+    monkeypatch.setattr(driver_info, "_DRIVER_LIB_LOADER", lambda _abs_path: fake_driver_lib)
 
     with pytest.raises(RuntimeError, match=r"cuDriverGetVersion\(\) \(status=1\)"):
         driver_info._query_driver_cuda_version_int()
