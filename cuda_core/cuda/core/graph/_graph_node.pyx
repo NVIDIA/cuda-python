@@ -1003,7 +1003,7 @@ cdef void _init_memcpy_params(
     params.srcMemoryType = src_type[0]
     params.dstMemoryType = dst_type[0]
     if src_type[0] == cydriver.CU_MEMORYTYPE_HOST:
-        params.srcHost = <const void*><uintptr_t>src
+        params.srcHost = <void*><uintptr_t>src
     else:
         params.srcDevice = src
     if dst_type[0] == cydriver.CU_MEMORYTYPE_HOST:
