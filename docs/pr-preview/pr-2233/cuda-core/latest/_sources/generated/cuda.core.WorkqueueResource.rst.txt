@@ -24,6 +24,9 @@ cuda.core.WorkqueueResource
    .. rubric:: Attributes
 
    
+   .. autoattribute:: concurrency_limit
+   .. autoattribute:: device
    .. autoattribute:: handle
+   .. autoattribute:: sharing_scope
    
    

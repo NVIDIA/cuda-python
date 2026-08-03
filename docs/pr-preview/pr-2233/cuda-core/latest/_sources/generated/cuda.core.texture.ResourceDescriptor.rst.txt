@@ -14,9 +14,9 @@ cuda.core.texture.ResourceDescriptor
 
    
    .. automethod:: __init__
-   .. automethod:: from_array
    .. automethod:: from_linear
    .. automethod:: from_mipmapped_array
+   .. automethod:: from_opaque_array
    .. automethod:: from_pitch2d
 
    

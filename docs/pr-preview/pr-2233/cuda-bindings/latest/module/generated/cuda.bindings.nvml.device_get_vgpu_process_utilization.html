@@ -537,6 +537,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release/13.4.0-notes.html">13.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.1-notes.html">13.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.3.0-notes.html">13.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../release/13.2.0-notes.html">13.2.0</a></li>
@@ -1321,13 +1322,23 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>device</strong> (<em>intptr_t</em>) – The identifier for the target device.</p></li>
-<li><p><strong>last_seen_time_stamp</strong> (<em>unsigned long long</em>) – Return only samples with timestamp greater than last_seen_time_stamp.</p></li>
+<li><p><strong>last_seen_time_stamp</strong> (<em>unsigned long long</em>) – Return only samples
+with timestamp greater than last_seen_time_stamp.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p>unsigned int: Pointer to caller-supplied array size, and returns number of processes running on vGPU instances.</p></li>
-<li><p>nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied buffer in which vGPU sub process utilization samples are returned.</p></li>
+<li><dl class="simple">
+<dt>unsigned int: Pointer to caller-supplied array size, and</dt><dd><p>returns number of processes running on vGPU instances.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied</dt><dd><p>buffer in which vGPU sub process utilization samples are
+returned.</p>
+</dd>
+</dl>
+</li>
 </ul>
 </p>
 </dd>
