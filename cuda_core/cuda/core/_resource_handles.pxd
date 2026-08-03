@@ -77,17 +77,13 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         PreparedChildGraphUpdateState
     ] PreparedChildGraphUpdate
 
-    cppclass PreparedExecAttachmentsState:
+    cppclass PreparedExecAttachmentState:
         pass
-    ctypedef shared_ptr[
-        PreparedExecAttachmentsState
-    ] PreparedExecAttachments
-
-    cppclass PreparedExecAttachmentAppendState:
+    cppclass PreparedExecAttachmentDeleter:
         pass
-    ctypedef shared_ptr[
-        PreparedExecAttachmentAppendState
-    ] PreparedExecAttachmentAppend
+    ctypedef unique_ptr[
+        PreparedExecAttachmentState, PreparedExecAttachmentDeleter
+    ] PreparedExecAttachment
 
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
@@ -281,23 +277,20 @@ cdef void invalidate_child_graph_state(
     const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
 # Graph exec handles
-cdef cydriver.CUresult graph_prepare_exec_attachments(
+cdef GraphExecHandle create_graph_exec_handle(
     const GraphHandle& h_source,
-    PreparedExecAttachments* out_prepared) except+
-cdef cydriver.CUresult graph_commit_exec_instantiation(
-    cydriver.CUgraphExec graph_exec,
-    PreparedExecAttachments& prepared,
-    GraphExecHandle* out_handle) except+
-cdef cydriver.CUresult graph_commit_exec_update(
+    cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS* params) except+
+cdef cydriver.CUresult graph_exec_update(
     const GraphExecHandle& h_exec,
-    PreparedExecAttachments& prepared) except+
-cdef cydriver.CUresult graph_prepare_exec_attachment_append(
+    const GraphHandle& h_source,
+    cydriver.CUgraphExecUpdateResultInfo* result_info) except+
+cdef cydriver.CUresult graph_prepare_exec_attachment(
     const GraphExecHandle& h_exec,
     OpaqueHandle owner0,
     OpaqueHandle owner1,
-    PreparedExecAttachmentAppend* out_prepared) except+
-cdef void graph_commit_exec_attachment_append(
-    PreparedExecAttachmentAppend& prepared) noexcept
+    PreparedExecAttachment* out_prepared) except+
+cdef void graph_commit_exec_attachment(
+    PreparedExecAttachment& prepared) noexcept
 
 # Graph node handles
 cdef GraphNodeHandle create_graph_node_handle(cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil

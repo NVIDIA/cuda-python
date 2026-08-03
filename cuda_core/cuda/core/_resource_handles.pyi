@@ -28,5 +28,4 @@ SurfObjectHandle = shared_ptr
 OpaqueHandle = shared_ptr
 PreparedAttachment = unique_ptr
 PreparedChildGraphUpdate = shared_ptr
-PreparedExecAttachments = shared_ptr
-PreparedExecAttachmentAppend = shared_ptr
+PreparedExecAttachment = unique_ptr

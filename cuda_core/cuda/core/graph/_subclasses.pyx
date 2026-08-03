@@ -33,7 +33,7 @@ from cuda.core._resource_handles cimport (
     OpaqueHandle,
     PreparedAttachment,
     PreparedChildGraphUpdate,
-    PreparedExecAttachmentAppend,
+    PreparedExecAttachment,
     as_cu,
     as_intptr,
     create_child_graph_handle,
@@ -41,12 +41,12 @@ from cuda.core._resource_handles cimport (
     create_kernel_handle_ref,
     graph_commit_attachment,
     graph_commit_child_graph_update,
-    graph_commit_exec_attachment_append,
+    graph_commit_exec_attachment,
     graph_get_attachment,
     graph_node_get_graph,
     graph_prepare_attachment,
     graph_prepare_child_graph_update,
-    graph_prepare_exec_attachment_append,
+    graph_prepare_exec_attachment,
     make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
@@ -153,8 +153,8 @@ cdef void _set_executable_node_params(
     if node == NULL:
         raise ValueError("source graph node is no longer valid")
 
-    cdef PreparedExecAttachmentAppend prepared
-    HANDLE_RETURN(graph_prepare_exec_attachment_append(
+    cdef PreparedExecAttachment prepared
+    HANDLE_RETURN(graph_prepare_exec_attachment(
         h_exec, owner0, owner1, &prepared))
 
     cdef cydriver.CUresult status
@@ -162,7 +162,7 @@ cdef void _set_executable_node_params(
         status = cydriver.cuGraphExecNodeSetParams(
             graph_exec, node, params)
     if status == cydriver.CUDA_SUCCESS:
-        graph_commit_exec_attachment_append(prepared)
+        graph_commit_exec_attachment(prepared)
     HANDLE_RETURN(status)
 
 

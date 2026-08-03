@@ -21,15 +21,13 @@ from cuda.core._resource_handles cimport (
     GraphHandle,
     OpaqueHandle,
     PreparedAttachment,
-    PreparedExecAttachments,
     as_cu, as_py,
-    create_child_graph_handle, create_graph_handle,
+    create_child_graph_handle, create_graph_exec_handle, create_graph_handle,
+    get_last_error,
     graph_clone_attachments,
     graph_commit_attachment,
-    graph_commit_exec_instantiation,
-    graph_commit_exec_update,
+    graph_exec_update,
     graph_prepare_attachment,
-    graph_prepare_exec_attachments,
     invalidate_child_graph_state,
     retry_deferred_cleanup,
 )
@@ -174,7 +172,7 @@ class GraphCompleteOptions:
 def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> Graph:
     cdef GraphHandle h_graph
     cdef GraphExecHandle h_exec
-    cdef PreparedExecAttachments prepared
+    cdef cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS params
 
     if isinstance(source, GraphBuilder):
         h_graph = (<GraphBuilder>source)._h_graph
@@ -184,25 +182,26 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
         raise TypeError(
             f"expected GraphBuilder or GraphDefinition, got {type(source).__name__}")
 
-    params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
+    params.flags = 0
+    params.hUploadStream = <cydriver.CUstream>NULL
+    params.hErrNode_out = <cydriver.CUgraphNode>NULL
+    params.result_out = cydriver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS
     if options:
         flags = 0
         if options.auto_free_on_launch:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
         if options.upload_stream:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD
-            params.hUploadStream = options.upload_stream.handle
+            params.hUploadStream = as_cu((<Stream>options.upload_stream)._h_stream)
         if options.device_launch:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_DEVICE_LAUNCH
         if options.use_node_priority:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
         params.flags = flags
 
-    HANDLE_RETURN(graph_prepare_exec_attachments(h_graph, &prepared))
-    py_exec = handle_return(
-        driver.cuGraphInstantiateWithParams(as_py(h_graph), params))
-    # Check result_out before adopting the exec: on a non-SUCCESS result the
-    # returned handle may be invalid.
+    # The exec is adopted only when result_out reports success, so the
+    # diagnostics below run before the handle is checked.
+    h_exec = create_graph_exec_handle(h_graph, &params)
     if params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_ERROR:
         raise RuntimeError(
             "Instantiation failed for an unexpected reason which is described in the return value of the function."
@@ -223,9 +222,8 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
     elif params.result_out != driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS:
         raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
 
-    cdef cydriver.CUgraphExec c_exec = <cydriver.CUgraphExec><intptr_t>int(py_exec)
-    HANDLE_RETURN(graph_commit_exec_instantiation(
-        c_exec, prepared, &h_exec))
+    if as_cu(h_exec) == NULL:
+        HANDLE_RETURN(get_last_error())
     return Graph._init(h_exec)
 
 
@@ -1129,8 +1127,6 @@ cdef class Graph:
 
         """
         cdef GraphHandle h_source
-        cdef PreparedExecAttachments prepared
-        cdef cydriver.CUgraphExec cu_exec = as_cu(self._h_graph_exec)
 
         if isinstance(source, GraphBuilder):
             if (<GraphBuilder>source)._state == CLOSED:
@@ -1144,20 +1140,14 @@ cdef class Graph:
             raise TypeError(
                 f"expected GraphBuilder or GraphDefinition, got {type(source).__name__}")
 
-        cdef cydriver.CUgraph cu_graph = as_cu(h_source)
         cdef cydriver.CUgraphExecUpdateResultInfo result_info
-        cdef cydriver.CUresult err
-        HANDLE_RETURN(graph_prepare_exec_attachments(
-            h_source, &prepared))
-        with nogil:
-            err = cydriver.cuGraphExecUpdate(cu_exec, cu_graph, &result_info)
+        cdef cydriver.CUresult err = graph_exec_update(
+            self._h_graph_exec, h_source, &result_info)
         if err == cydriver.CUresult.CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE:
             reason = driver.CUgraphExecUpdateResult(result_info.result)
             msg = f"Graph update failed: {reason.__doc__.strip()} ({reason.name})"
             raise CUDAError(msg)
         HANDLE_RETURN(err)
-        HANDLE_RETURN(graph_commit_exec_update(
-            self._h_graph_exec, prepared))
 
     def upload(self, stream: Stream) -> None:
         """Uploads the graph in a stream.

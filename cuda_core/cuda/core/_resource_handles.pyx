@@ -177,23 +177,20 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
     # Graph exec handles
-    cydriver.CUresult graph_prepare_exec_attachments "cuda_core::graph_prepare_exec_attachments" (
+    GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (
         const GraphHandle& h_source,
-        PreparedExecAttachments* out_prepared) except+
-    cydriver.CUresult graph_commit_exec_instantiation "cuda_core::graph_commit_exec_instantiation" (
-        cydriver.CUgraphExec graph_exec,
-        PreparedExecAttachments& prepared,
-        GraphExecHandle* out_handle) except+
-    cydriver.CUresult graph_commit_exec_update "cuda_core::graph_commit_exec_update" (
+        cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS* params) except+
+    cydriver.CUresult graph_exec_update "cuda_core::graph_exec_update" (
         const GraphExecHandle& h_exec,
-        PreparedExecAttachments& prepared) except+
-    cydriver.CUresult graph_prepare_exec_attachment_append "cuda_core::graph_prepare_exec_attachment_append" (
+        const GraphHandle& h_source,
+        cydriver.CUgraphExecUpdateResultInfo* result_info) except+
+    cydriver.CUresult graph_prepare_exec_attachment "cuda_core::graph_prepare_exec_attachment" (
         const GraphExecHandle& h_exec,
         OpaqueHandle owner0,
         OpaqueHandle owner1,
-        PreparedExecAttachmentAppend* out_prepared) except+
-    void graph_commit_exec_attachment_append "cuda_core::graph_commit_exec_attachment_append" (
-        PreparedExecAttachmentAppend& prepared) noexcept
+        PreparedExecAttachment* out_prepared) except+
+    void graph_commit_exec_attachment "cuda_core::graph_commit_exec_attachment" (
+        PreparedExecAttachment& prepared) noexcept
 
     # Graph node handles
     GraphNodeHandle create_graph_node_handle "cuda_core::create_graph_node_handle" (
@@ -343,6 +340,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Graph
     void* p_cuGraphDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphDestroy)"
+    void* p_cuGraphInstantiateWithParams "reinterpret_cast<void*&>(cuda_core::p_cuGraphInstantiateWithParams)"
+    void* p_cuGraphExecUpdate "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecUpdate)"
     void* p_cuGraphExecDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecDestroy)"
     void* p_cuUserObjectCreate "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectCreate)"
     void* p_cuUserObjectRelease "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectRelease)"
@@ -409,7 +408,8 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuMemFreeAsync, p_cuMemFree, p_cuMemFreeHost
     global p_cuMemPoolImportPointer
     global p_cuLibraryLoadFromFile, p_cuLibraryLoadData, p_cuLibraryUnload, p_cuLibraryGetKernel
-    global p_cuGraphDestroy, p_cuGraphExecDestroy
+    global p_cuGraphDestroy, p_cuGraphInstantiateWithParams
+    global p_cuGraphExecUpdate, p_cuGraphExecDestroy
     global p_cuUserObjectCreate, p_cuUserObjectRelease
     global p_cuGraphRetainUserObject, p_cuGraphReleaseUserObject
     global p_cuGraphNodeFindInClone, p_cuGraphChildGraphNodeGetGraph
@@ -472,6 +472,8 @@ cdef void _init_driver_fn_pointers() noexcept:
 
     # Graph
     p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
+    p_cuGraphInstantiateWithParams = _get_driver_fn("cuGraphInstantiateWithParams")
+    p_cuGraphExecUpdate = _get_driver_fn("cuGraphExecUpdate")
     p_cuGraphExecDestroy = _get_driver_fn("cuGraphExecDestroy")
     p_cuUserObjectCreate = _get_driver_fn("cuUserObjectCreate")
     p_cuUserObjectRelease = _get_driver_fn("cuUserObjectRelease")
