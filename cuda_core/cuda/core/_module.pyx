@@ -811,7 +811,7 @@ cdef class ObjectCode:
             HANDLE_RETURN(get_last_error())
         return Kernel._from_handle(h_kernel)
 
-    def get_module(self) -> object:
+    def get_module(self) -> driver.CUmodule:
         """Return a context-dependent :obj:`~driver.CUmodule` for legacy interop.
 
         Bridges the native :obj:`~driver.CUlibrary` (see :attr:`handle`) to a
@@ -828,7 +828,7 @@ cdef class ObjectCode:
         cdef cydriver.CUmodule mod
         with nogil:
             HANDLE_RETURN(cydriver.cuLibraryGetModule(&mod, as_cu(self._h_library)))
-        return driver.CUmodule(<intptr_t>mod)
+        return as_py(mod)
 
     @property
     def code(self) -> CodeTypeT:

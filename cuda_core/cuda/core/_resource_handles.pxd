@@ -130,6 +130,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(MemoryPoolHandle h)
     object as_py(DevicePtrHandle h)
     object as_py(LibraryHandle h)
+    object as_py(const cydriver.CUmodule& h)
     object as_py(KernelHandle h)
     object as_py(GraphHandle h)
     object as_py(GraphExecHandle h)

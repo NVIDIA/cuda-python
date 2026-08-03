@@ -968,6 +968,12 @@ inline PyObject* as_py(const LibraryHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUlibrary", as_intptr(h));
 }
 
+// Regular pointer (CUmodule), not a shared_ptr: lifetime is owned by the
+// CUlibrary it was retrieved from.
+inline PyObject* as_py(const CUmodule& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUmodule", reinterpret_cast<std::intptr_t>(h));
+}
+
 inline PyObject* as_py(const KernelHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUkernel", as_intptr(h));
 }
