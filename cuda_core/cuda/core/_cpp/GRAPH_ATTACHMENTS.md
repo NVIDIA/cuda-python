@@ -93,13 +93,77 @@ published attachment. The resources those owners keep alive, including Python
 objects, may remain mutable, but they must not be modified in a way that
 releases resources still referenced by an installed parameter version.
 
+## Executable graph attachments
+
+CUDA cannot attach a user object to an executable graph.
+`cuGraphRetainUserObject` accepts a `CUgraph` only. A `CUgraphExec` receives
+references by propagation: instantiation clones the source graph's references,
+and `cuGraphExecUpdate` releases the executable's references and clones the
+source graph's references again.
+
+Executable node updates still introduce resources, such as new kernel
+arguments, a new memcpy source, or a new host callback. Those resources must
+outlive in-flight launches, but nothing can be attached after instantiation.
+
+cuda.core therefore attaches one container before the executable exists.
+`ExecAttachments` is an append-only vector of `OpaqueHandle` owners, owned by a
+CUDA user object in the same way as a `NodeAttachment`. Both
+`create_graph_exec_handle` and `graph_exec_update` follow one order:
+
+1. Create the accumulator and its user object, holding one reference.
+2. Retain that reference on the source graph with `CU_GRAPH_USER_OBJECT_MOVE`.
+3. Call CUDA to instantiate or update, which propagates the reference into the
+   executable.
+4. Release the source graph's reference.
+
+Step 4 gives the order its meaning. After a successful call the executable
+holds the only reference, so the accumulator lives exactly as long as the
+executable and its in-flight launches. After a failed call nothing propagated,
+so the same release drops the last reference and retires the accumulator. A
+stack guard performs the release, which covers every early return.
+
+```mermaid
+flowchart LR
+    Source["CUgraph definition"] -->|temporary reference| UserObject["CUuserObject"]
+    Executable["CUgraphExec"] -->|propagated reference| UserObject
+    Launch["in-flight launch"] -->|retains| UserObject
+    UserObject -->|owns| Accumulator["ExecAttachments"]
+    Accumulator -->|owns| Resources["resources"]
+    Executable -. non-owning append target .-> Accumulator
+```
+
+An executable-node update appends its owners to the accumulator through the
+same two-phase transaction that definition attachments use.
+`graph_prepare_exec_attachment` reserves capacity and appends the owners. If
+CUDA accepts the mutation, `graph_commit_exec_attachment` keeps them.
+Otherwise the guard truncates the vector to its earlier size. Reserving first
+means that neither commit nor rollback can allocate or fail.
+
+Because CUDA cannot detach a user object from an executable, an owner cannot be
+removed once appended. Ten updates to one executable node keep ten owners alive
+until the executable is destroyed. This retention is necessary: cuda.core
+cannot know when an earlier launch stops reading the parameters it was given.
+Accumulator growth is therefore bounded by the number of updates, not by the
+number of parameter versions still in use.
+
+A whole-graph update replaces the accumulator instead of appending to it,
+because `cuGraphExecUpdate` releases the executable's existing references. The
+new accumulator is published before the source graph's temporary reference is
+released. CUDA retires the old accumulator after its last launch finishes.
+
+Two operations attach nothing. Enabling or disabling a node changes no
+parameters. A child-graph executable update relies on CUDA cloning the
+replacement graph's user-object references into the executable, which carries
+the child definition's attachments with it.
+
 ## Deferred cleanup
 
 CUDA invokes a user-object destructor on an internal thread where CUDA API
 calls are forbidden. Destroying an attachment there could release handles whose
 deleters call CUDA or run Python finalizers.
 
-`NodeAttachment` therefore inherits from `DeferredCleanupItem`. The CUDA
+`NodeAttachment` and `ExecAttachments` therefore inherit from
+`DeferredCleanupItem`. The CUDA
 destructor callback only adds the attachment to the process-lifetime
 `DeferredCleanupQueue` and requests a `Py_AddPendingCall`.
 
@@ -171,16 +235,25 @@ be invalidated when CUDA destroys that graph. They use separate
    CUDA.
 10. Graph mutations and their metadata updates require the same external
    synchronization as the underlying CUDA graph.
+11. An accumulator is retained on the source graph before the CUDA call that
+   propagates it into an executable graph.
+12. The source graph's temporary reference is released on every path, which
+   leaves a successful executable graph as the accumulator's only owner.
+13. Accumulator owners are appended, never removed. A superseded owner lives
+   until the executable graph is destroyed.
+14. A whole-graph update publishes its new accumulator before it releases the
+   source graph's reference.
 
 ## Scope
 
 - Attachment metadata tracks graph mutations performed through cuda.core.
 - Raw driver clones receive the CUDA user-object references needed for safe
   execution, but cuda.core cannot reconstruct their node-to-attachment map.
-- Executable graphs rely on CUDA's inherited user-object references; they do
-  not use `GraphAttachmentMap`.
-- Direct executable-node updates require separate executable ownership and are
-  not tracked by definition attachment metadata.
+- Executable graphs keep one append-only accumulator instead of a
+  `GraphAttachmentMap`. cuda.core cannot map an executable node back to its
+  owners, so it can neither report nor release them individually.
+- Executable-node updates do not change definition attachment metadata, and
+  definition updates do not change an executable's accumulator.
 - Stream capture explicitly retains host callbacks. Other captured operations
   keep their documented caller-owned lifetime contract.
 - CPython's cyclic garbage collector cannot follow the ownership path from a

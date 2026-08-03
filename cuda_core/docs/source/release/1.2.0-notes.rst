@@ -29,8 +29,10 @@ Fixes and enhancements
   Kernel, memcpy, memset, child-graph, event, and host-callback parameters can
   be replaced without reinstantiating the graph. Kernel, memcpy, and memset
   nodes can also be enabled or disabled. Resources introduced by these updates
-  remain alive through in-flight launches. This feature requires CUDA driver
-  and ``cuda.bindings`` versions 12.2 or newer.
+  remain alive through in-flight launches. CUDA cannot detach resources from an
+  executable graph, so a superseded resource stays alive until a successful
+  whole-graph update or executable graph destruction. This feature requires
+  CUDA driver and ``cuda.bindings`` versions 12.2 or newer.
   (`#2353 <https://github.com/NVIDIA/cuda-python/issues/2353>`__,
   `#2354 <https://github.com/NVIDIA/cuda-python/issues/2354>`__)
 
