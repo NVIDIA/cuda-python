@@ -25,6 +25,7 @@ Fixes and enhancements
   versions 12.2 or newer.
   (`#2352 <https://github.com/NVIDIA/cuda-python/issues/2352>`__)
 
+<<<<<<< HEAD
 - The default-stream singletons ``LEGACY_DEFAULT_STREAM`` and
   ``PER_THREAD_DEFAULT_STREAM`` no longer cache the first context and device
   they observe. A default-stream token refers to whatever context is current,
@@ -33,6 +34,16 @@ Fixes and enhancements
   Previously the first query pinned the singleton to one context for the
   lifetime of the process, which also kept that context alive.
   (`#2485 <https://github.com/NVIDIA/cuda-python/issues/2485>`__)
+=======
+- :meth:`Linker.which_backend` and constructing a :class:`Linker` no longer
+  raise ``FunctionNotFoundError`` when an nvJitLink older than 12.3
+  (12.0–12.2) is installed. These versions do not export the unversioned
+  ``nvJitLinkVersion`` symbol, so probing the version crashed instead of
+  falling back. ``cuda.core`` now warns and falls back to the driver
+  (``cuLink``) backend, restoring the pre-0.7.0 behavior.
+  (`#2409 <https://github.com/NVIDIA/cuda-python/pull/2409>`__,
+  closes `#2408 <https://github.com/NVIDIA/cuda-python/issues/2408>`__)
+>>>>>>> origin/main
 
 Deprecation Notices
 -------------------

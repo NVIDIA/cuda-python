@@ -9,9 +9,9 @@ from child_load_nvidia_dynamic_lib_helper import (
     build_child_process_failed_for_libname_message,
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
+from conftest import skip_if_missing_libnvcudla_so
 from local_helpers import have_distribution
 
-from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder import DynamicLibNotAvailableError, DynamicLibUnknownError, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs

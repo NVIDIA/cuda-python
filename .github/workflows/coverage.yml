@@ -335,7 +335,6 @@ jobs:
 
       - name: Install test dependencies and coverage tools
         run: |
-          .venv/Scripts/pip install -v ./cuda_python_test_helpers
           .venv/Scripts/pip install coverage pytest-cov Cython
           .venv/Scripts/pip install --group ./cuda_pathfinder/pyproject.toml:test
           .venv/Scripts/pip install --group ./cuda_bindings/pyproject.toml:test
