@@ -23,6 +23,7 @@ import glob
 import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path, PurePath
 from typing import NoReturn, cast
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
@@ -73,10 +74,14 @@ FindStep = Callable[[SearchContext], FindResult | None]
 def _find_lib_dir_using_anchor(desc: LibDescriptor, platform: SearchPlatform, anchor_point: str) -> str | None:
     """Find the library directory under *anchor_point* using the descriptor's relative paths."""
     rel_dirs = platform.anchor_rel_dirs(desc)
+    anchor = Path(anchor_point)
     for rel_path in rel_dirs:
-        for dirname in sorted(glob.glob(os.path.join(anchor_point, rel_path))):
-            if os.path.isdir(dirname):
-                return os.path.normpath(dirname)
+        for match in sorted(glob.glob(str(anchor / rel_path))):
+            if Path(match).is_dir():
+                # os.path.normpath has no pathlib equivalent: PurePath deliberately does
+                # not collapse "..", so keeping it preserves the exact path reported for
+                # an anchor such as a CUDA_PATH containing "..".
+                return os.path.normpath(match)
     return None
 
 
@@ -104,15 +109,17 @@ def _derive_ctk_root_linux(resolved_lib_path: str) -> str | None:
     - ``$CTK_ROOT/lib/libfoo.so.*``
     - ``$CTK_ROOT/targets/<triple>/lib64/libfoo.so.*``
     - ``$CTK_ROOT/targets/<triple>/lib/libfoo.so.*``
+
+    Uses the host path flavour (``PurePath``); the Windows canary layouts are
+    handled by :func:`_derive_ctk_root_windows`.
     """
-    lib_dir = os.path.dirname(resolved_lib_path)
-    basename = os.path.basename(lib_dir)
-    if basename in ("lib64", "lib"):
-        parent = os.path.dirname(lib_dir)
-        grandparent = os.path.dirname(parent)
-        if os.path.basename(grandparent) == "targets":
-            return os.path.dirname(grandparent)
-        return parent
+    lib_dir = PurePath(resolved_lib_path).parent
+    if lib_dir.name in ("lib64", "lib"):
+        parent = lib_dir.parent
+        grandparent = parent.parent
+        if grandparent.name == "targets":
+            return str(grandparent.parent)
+        return str(parent)
     return None
 
 
@@ -123,6 +130,12 @@ def _derive_ctk_root_windows(resolved_lib_path: str) -> str | None:
     - ``$CTK_ROOT/bin/x64/foo.dll`` (CTK 13 style)
     - ``$CTK_ROOT/bin/arm64/foo.dll`` (Windows on Arm CTK 13 style)
     - ``$CTK_ROOT/bin/foo.dll`` (CTK 12 style)
+
+    Uses ``ntpath`` rather than ``PureWindowsPath``: ``ntpath.dirname`` slices the
+    input and keeps whichever separator the caller used, while ``PureWindowsPath``
+    rewrites them to backslashes. :func:`derive_ctk_root` also reaches this function
+    on Linux, where rewriting would yield an unusable root for a POSIX path whose
+    parent directory happens to be named ``bin``.
     """
     import ntpath
 
