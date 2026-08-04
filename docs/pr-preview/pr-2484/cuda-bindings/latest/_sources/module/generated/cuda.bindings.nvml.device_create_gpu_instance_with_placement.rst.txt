@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_create\_gpu\_instance\_with\_placement
-=================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_create_gpu_instance_with_placement
