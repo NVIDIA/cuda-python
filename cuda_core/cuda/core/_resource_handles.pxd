@@ -85,6 +85,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUmemoryPool as_cu(MemoryPoolHandle h) noexcept nogil
     cydriver.CUdeviceptr as_cu(DevicePtrHandle h) noexcept nogil
     cydriver.CUlibrary as_cu(LibraryHandle h) noexcept nogil
+    cydriver.CUmodule as_cu(cydriver.CUmodule h) noexcept nogil
     cydriver.CUkernel as_cu(KernelHandle h) noexcept nogil
     cydriver.CUgraph as_cu(GraphHandle h) noexcept nogil
     cydriver.CUgraphExec as_cu(GraphExecHandle h) noexcept nogil

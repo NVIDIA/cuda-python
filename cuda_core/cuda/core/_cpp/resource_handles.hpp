@@ -754,6 +754,10 @@ inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUmodule as_cu(const CUmodule& h) noexcept {
+    return h;
+}
+
 inline CUkernel as_cu(const KernelHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -838,10 +842,8 @@ inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-// Regular pointer (CUmodule), not a shared_ptr: lifetime is owned by the
-// CUlibrary it was retrieved from.
 inline std::intptr_t as_intptr(const CUmodule& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(h);
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
 inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
