@@ -4,6 +4,7 @@
 import functools
 import os
 from collections.abc import Iterable
+from pathlib import Path
 
 from cuda.pathfinder._binaries import supported_nvidia_binaries, windows_nsight
 from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
@@ -29,22 +30,23 @@ def _normalize_utility_name(utility_name: str) -> str:
     return utility_name
 
 
-def _is_executable_candidate(path: str) -> bool:
-    if not os.path.isfile(path):
+def _is_executable_candidate(path: Path) -> bool:
+    if not path.is_file():
         return False
     if IS_WINDOWS:
         return True
+    # pathlib has no access() equivalent.
     return os.access(path, os.X_OK)
 
 
-def _ctk_bin_subdirs(root: str) -> list[str]:
+def _ctk_bin_subdirs(root: Path) -> list[Path]:
     if IS_WINDOWS:
         return [
-            os.path.join(root, "bin", "x64"),
-            os.path.join(root, "bin", "x86_64"),
-            os.path.join(root, "bin"),
+            root / "bin" / "x64",
+            root / "bin" / "x86_64",
+            root / "bin",
         ]
-    return [os.path.join(root, "bin")]
+    return [root / "bin"]
 
 
 def _resolve_candidate_paths(candidates: Iterable[str]) -> str | None:
@@ -54,7 +56,7 @@ def _resolve_candidate_paths(candidates: Iterable[str]) -> str | None:
         if candidate in seen:
             continue
         seen.add(candidate)
-        if _is_executable_candidate(candidate):
+        if _is_executable_candidate(Path(candidate)):
             return os.path.abspath(candidate)
     return None
 
@@ -75,31 +77,34 @@ def _resolve_ctk_root_via_canary() -> str | None:
     return ctk_root
 
 
-def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[str]) -> str | None:
+def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[Path]) -> str | None:
     """Resolve ``normalized_name`` against ``dirs`` in order."""
-    seen: set[str] = set()
+    seen: set[Path] = set()
     for directory in dirs:
         if directory in seen:
             continue
-        assert directory
+        # Path("") is Path("."), which would silently search the CWD (#2119).
+        assert directory != Path()
         seen.add(directory)
-        candidate = os.path.join(directory, normalized_name)
+        candidate = directory / normalized_name
         if _is_executable_candidate(candidate):
             # Return an absolute path, as the docstring promises (a relative
-            # search dir would otherwise leak a relative result).
+            # search dir would otherwise leak a relative result). os.path.abspath
+            # has no pathlib equivalent: Path.absolute() does not normalize and
+            # Path.resolve() would also follow symlinks.
             return os.path.abspath(candidate)
     return None
 
 
-def _resolve_names_in_trusted_dirs(candidate_names: tuple[str, ...], dirs: list[str]) -> str | None:
+def _resolve_names_in_trusted_dirs(candidate_names: tuple[str, ...], dirs: list[Path]) -> str | None:
     """Resolve ordered candidate names within each trusted directory."""
-    seen: set[str] = set()
+    seen: set[Path] = set()
     for directory in dirs:
         if directory in seen:
             continue
-        assert directory
+        assert directory != Path()
         seen.add(directory)
-        found = _resolve_candidate_paths(os.path.join(directory, name) for name in candidate_names)
+        found = _resolve_candidate_paths(str(directory / name) for name in candidate_names)
         if found is not None:
             return found
     return None
@@ -193,17 +198,15 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
 
     # 1. Search in site-packages (NVIDIA wheels)
     candidate_dirs = supported_nvidia_binaries.SITE_PACKAGES_BINDIRS.get(utility_name, ())
-    dirs = []
+    dirs: list[Path] = []
 
     for sub_dir in candidate_dirs:
-        dirs.extend(find_sub_dirs_all_sitepackages(sub_dir.split(os.sep)))
+        dirs.extend(Path(abs_dir) for abs_dir in find_sub_dirs_all_sitepackages(sub_dir))
 
     # 2. Search in Conda environment
     if (conda_prefix := os.environ.get("CONDA_PREFIX")) is not None:
-        if IS_WINDOWS:
-            dirs.append(os.path.join(conda_prefix, "Library", "bin"))
-        else:
-            dirs.append(os.path.join(conda_prefix, "bin"))
+        conda_root = Path(conda_prefix)
+        dirs.append(conda_root / "Library" / "bin" if IS_WINDOWS else conda_root / "bin")
 
     normalized_name = _normalize_utility_name(utility_name)
     if IS_WINDOWS and utility_name in ("compute-sanitizer", "ncu"):
@@ -235,5 +238,5 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     if ctk_root is not None:
         if IS_WINDOWS and utility_name == "compute-sanitizer":
             return _find_windows_compute_sanitizer(ctk_root)
-        return _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(ctk_root))
+        return _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(Path(ctk_root)))
     return None
