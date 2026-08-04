@@ -25,6 +25,15 @@ Fixes and enhancements
   versions 12.2 or newer.
   (`#2352 <https://github.com/NVIDIA/cuda-python/issues/2352>`__)
 
+- The default-stream singletons ``LEGACY_DEFAULT_STREAM`` and
+  ``PER_THREAD_DEFAULT_STREAM`` no longer cache the first context and device
+  they observe. A default-stream token refers to whatever context is current,
+  so ``Stream.context``, ``Stream.device``, ``Stream.resources``, and
+  ``Stream.record()`` now resolve against the current context on every call.
+  Previously the first query pinned the singleton to one context for the
+  lifetime of the process, which also kept that context alive.
+  (`#2485 <https://github.com/NVIDIA/cuda-python/issues/2485>`__)
+
 Deprecation Notices
 -------------------
 

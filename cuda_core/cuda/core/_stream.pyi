@@ -165,7 +165,16 @@ class Stream:
 
     @property
     def context(self) -> Context:
-        """Return the :obj:`~_context.Context` associated with this stream."""
+        """Return the :obj:`~_context.Context` associated with this stream.
+
+        Note
+        ----
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so this returns the current
+        context at call time.
+
+        """
 
     @property
     def resources(self) -> DeviceResources:
