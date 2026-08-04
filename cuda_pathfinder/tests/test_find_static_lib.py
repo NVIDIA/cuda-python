@@ -52,7 +52,7 @@ def _located_static_lib_asserts(located_static_lib):
     assert isinstance(located_static_lib.filename, str)
     assert isinstance(located_static_lib.found_via, str)
     assert located_static_lib.found_via in ("site-packages", "conda", "CUDA_PATH")
-    assert os.path.isfile(located_static_lib.abs_path)
+    assert Path(located_static_lib.abs_path).is_file()
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
@@ -69,10 +69,10 @@ def test_locate_static_lib(info_summary_append, libname):
 
     info_summary_append(f"abs_path={quote_for_shell(lib_path)}")
     _located_static_lib_asserts(located_lib)
-    assert os.path.isfile(lib_path)
+    assert Path(lib_path).is_file()
     assert lib_path == located_lib.abs_path
     expected_filename = located_lib.filename
-    assert os.path.basename(lib_path) == expected_filename
+    assert Path(lib_path).name == expected_filename
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
@@ -81,7 +81,7 @@ def test_locate_static_lib_search_order(monkeypatch, tmp_path):
     conda_rel_path = CUDADEVRT_INFO["conda_rel_paths"][0]
 
     site_pkg_rel = CUDADEVRT_INFO["site_packages_dirs"][0]
-    site_packages_lib_dir = tmp_path / "site-packages" / Path(site_pkg_rel.replace("/", os.sep))
+    site_packages_lib_dir = tmp_path / "site-packages" / Path(site_pkg_rel)
     site_packages_path = _make_static_lib_file(site_packages_lib_dir, filename)
 
     conda_prefix = tmp_path / "conda-prefix"
@@ -167,7 +167,7 @@ def test_find_static_lib_not_found_error_includes_cuda_home_directory_listing(mo
         find_static_lib("cudadevrt")
 
     message = str(exc_info.value)
-    expected_missing_file = os.path.join(str(lib_dir), filename)
+    expected_missing_file = lib_dir / filename
     assert f"No such file: {expected_missing_file}" in message
     assert f'listdir("{lib_dir}"):' in message
     assert "README.txt" in message
