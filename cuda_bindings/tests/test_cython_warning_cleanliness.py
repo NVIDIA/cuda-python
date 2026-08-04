@@ -40,9 +40,7 @@ def test_build_hooks_enable_cython_warning_errors():
         and isinstance(node.value, ast.Constant)
         and node.value.value is True
     }
-    assert "warning_errors" in assigned, (
-        "cuda_bindings/build_hooks.py must set Cython Options.warning_errors = True"
-    )
+    assert "warning_errors" in assigned, "cuda_bindings/build_hooks.py must set Cython Options.warning_errors = True"
 
 
 @pytest.mark.agent_authored(model="grok-4.5")
@@ -55,10 +53,13 @@ def test_windll_pxd_declares_load_library_flag_as_const():
         text,
         re.MULTILINE,
     ), "LOAD_LIBRARY_SEARCH_SYSTEM32 must be declared as const DWORD (no assignment)"
-    assert re.search(
-        r"LOAD_LIBRARY_SEARCH_SYSTEM32\s*=",
-        text,
-    ) is None
+    assert (
+        re.search(
+            r"LOAD_LIBRARY_SEARCH_SYSTEM32\s*=",
+            text,
+        )
+        is None
+    )
 
 
 @pytest.mark.agent_authored(model="grok-4.5")
