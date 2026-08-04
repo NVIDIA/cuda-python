@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.set\_vgpu\_version
-=====================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: set_vgpu_version
