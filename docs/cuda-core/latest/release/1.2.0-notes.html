@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=029f8ad6"></script>
+    <script src="../_static/documentation_options.js?v=c9161a1b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev13';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev14';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -766,6 +766,14 @@ parameters used by future graph instantiations without affecting existing
 executable graphs. This feature requires CUDA driver and <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
 versions 12.2 or newer.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2352">#2352</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker.which_backend" title="cuda.core.Linker.which_backend"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code></a> and constructing a <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> no longer
+raise <code class="docutils literal notranslate"><span class="pre">FunctionNotFoundError</span></code> when an nvJitLink older than 12.3
+(12.0–12.2) is installed. These versions do not export the unversioned
+<code class="docutils literal notranslate"><span class="pre">nvJitLinkVersion</span></code> symbol, so probing the version crashed instead of
+falling back. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now warns and falls back to the driver
+(<code class="docutils literal notranslate"><span class="pre">cuLink</span></code>) backend, restoring the pre-0.7.0 behavior.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2409">#2409</a>,
+closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2408">#2408</a>)</p></li>
 </ul>
 </section>
 <section id="deprecation-notices">
