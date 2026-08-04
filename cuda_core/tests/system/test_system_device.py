@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .conftest import skip_if_nvml_unsupported, unsupported_before
+from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported, unsupported_before
 
 pytestmark = skip_if_nvml_unsupported
 

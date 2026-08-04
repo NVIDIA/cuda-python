@@ -9,8 +9,8 @@ import time
 import pytest
 
 from cuda.bindings import nvml
+from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
 
-from . import util
 from .conftest import unsupported_before
 
 XFAIL_LEGACY_NVLINK_MSG = "Legacy NVLink test expected to fail."
@@ -64,7 +64,7 @@ def test_device_get_handle_by_pci_bus_id(ngpus, pci_info):
 
 
 @pytest.mark.parametrize("scope", [nvml.AffinityScope.NODE, nvml.AffinityScope.SOCKET])
-@pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
+@pytest.mark.skipif(IS_WSL or IS_WINDOWS, reason="Not supported on WSL or Windows")
 def test_device_get_memory_affinity(handles, scope):
     size = 1024
     for handle in handles:
@@ -75,7 +75,7 @@ def test_device_get_memory_affinity(handles, scope):
 
 
 @pytest.mark.parametrize("scope", [nvml.AffinityScope.NODE, nvml.AffinityScope.SOCKET])
-@pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
+@pytest.mark.skipif(IS_WSL or IS_WINDOWS, reason="Not supported on WSL or Windows")
 def test_device_get_cpu_affinity_within_scope(handles, scope):
     size = 1024
     for handle in handles:
