@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
+    <script src="../_static/documentation_options.js?v=5a961468"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev16';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -819,8 +819,8 @@ mapped buffer, if one exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>gl_buffer</strong> (<em>int</em>) – The OpenGL buffer name (<code class="docutils literal notranslate"><span class="pre">GLuint</span></code>) to register.</p></li>
-<li><p><strong>flags</strong> (<em>str</em><em> or </em><em>sequence</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Registration flags specifying intended usage. Accepted values:
+<li><p><strong>gl_buffer</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The OpenGL buffer name (<code class="docutils literal notranslate"><span class="pre">GLuint</span></code>) to register.</p></li>
+<li><p><strong>flags</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>sequence</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Registration flags specifying intended usage. Accepted values:
 <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;read_only&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;write_discard&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;surface_load_store&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;texture_gather&quot;</span></code>.
 Multiple flags can be combined by passing a sequence
@@ -856,7 +856,7 @@ The returned resource can be used as a context manager. If
 <dd class="field-even"><ul class="simple">
 <li><p><strong>CUDAError</strong> – If the registration fails (e.g., no current GL context, invalid
     buffer name, or operating system error).</p></li>
-<li><p><strong>ValueError</strong> – If an unknown flag string is provided.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If an unknown flag string is provided.</p></li>
 </ul>
 </dd>
 </dl>
@@ -880,9 +880,9 @@ The returned resource can be used as a context manager. If
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>int</em>) – The OpenGL texture or renderbuffer name (<code class="docutils literal notranslate"><span class="pre">GLuint</span></code>) to register.</p></li>
-<li><p><strong>target</strong> (<em>int</em>) – The OpenGL target type (e.g., <code class="docutils literal notranslate"><span class="pre">GL_TEXTURE_2D</span></code>).</p></li>
-<li><p><strong>flags</strong> (<em>str</em><em> or </em><em>sequence</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Registration flags specifying intended usage. Accepted values:
+<li><p><strong>image</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The OpenGL texture or renderbuffer name (<code class="docutils literal notranslate"><span class="pre">GLuint</span></code>) to register.</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The OpenGL target type (e.g., <code class="docutils literal notranslate"><span class="pre">GL_TEXTURE_2D</span></code>).</p></li>
+<li><p><strong>flags</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>sequence</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Registration flags specifying intended usage. Accepted values:
 <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;read_only&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;write_discard&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;surface_load_store&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;texture_gather&quot;</span></code>.
 Multiple flags can be combined by passing a sequence
@@ -899,7 +899,7 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">None</s
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>CUDAError</strong> – If the registration fails.</p></li>
-<li><p><strong>ValueError</strong> – If an unknown flag string is provided.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If an unknown flag string is provided.</p></li>
 </ul>
 </dd>
 </dl>
@@ -932,7 +932,7 @@ unmapped.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>RuntimeError</strong> – If the resource is already mapped or has been closed.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If the resource is already mapped or has been closed.</p></li>
 <li><p><strong>CUDAError</strong> – If the mapping fails.</p></li>
 </ul>
 </dd>
@@ -949,7 +949,7 @@ unmapped.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cuda.core.GraphicsResource.unmap" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.GraphicsResource.unmap" title="Link to this definition">#</a></dt>
 <dd><p>Unmap this graphics resource, releasing it back to the graphics API.</p>
 <p>After unmapping, the <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> previously returned
 by <a class="reference internal" href="#cuda.core.GraphicsResource.map" title="cuda.core.GraphicsResource.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">map()</span></code></a> must not be used.</p>
@@ -960,7 +960,7 @@ mapped buffer is closed. Otherwise the mapping stream is reused.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>RuntimeError</strong> – If the resource is not currently mapped or has been closed.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If the resource is not currently mapped or has been closed.</p></li>
 <li><p><strong>CUDAError</strong> – If the unmapping fails.</p></li>
 </ul>
 </dd>

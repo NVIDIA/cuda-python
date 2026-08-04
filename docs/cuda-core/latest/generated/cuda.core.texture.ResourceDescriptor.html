@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
+    <script src="../_static/documentation_options.js?v=5a961468"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev16';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -797,10 +797,10 @@ require an <a class="reference internal" href="cuda.core.texture.OpaqueArray.htm
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>buffer</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a>) – Device-memory backing. Must remain alive for the lifetime of any
 <a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a> built from this descriptor.</p></li>
-<li><p><strong>format</strong> (<a class="reference internal" href="cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><em>ArrayFormatType</em></a><em>, </em><em>str</em><em>, or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><em>numpy.dtype</em></a>) – Element format. Accepts an <a class="reference internal" href="cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayFormatType</span></code></a>,
+<li><p><strong>format</strong> (<a class="reference internal" href="cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><em>ArrayFormatType</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><em>numpy.dtype</em></a>) – Element format. Accepts an <a class="reference internal" href="cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayFormatType</span></code></a>,
 a plain string (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code>), or a NumPy dtype object.</p></li>
-<li><p><strong>num_channels</strong> (<em>int</em>) – Channels per element. Must be 1, 2, or 4.</p></li>
-<li><p><strong>size_bytes</strong> (<em>int</em><em>, </em><em>optional</em>) – Bytes of <code class="docutils literal notranslate"><span class="pre">buffer</span></code> to bind. Defaults to <code class="docutils literal notranslate"><span class="pre">buffer.size</span></code>. Must not
+<li><p><strong>num_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Channels per element. Must be 1, 2, or 4.</p></li>
+<li><p><strong>size_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Bytes of <code class="docutils literal notranslate"><span class="pre">buffer</span></code> to bind. Defaults to <code class="docutils literal notranslate"><span class="pre">buffer.size</span></code>. Must not
 exceed it.</p></li>
 </ul>
 </dd>
@@ -849,12 +849,12 @@ require a single <a class="reference internal" href="cuda.core.texture.OpaqueArr
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>buffer</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a>) – Device-memory backing. Must remain alive for the lifetime of any
 <a class="reference internal" href="cuda.core.texture.TextureObject.html#cuda.core.texture.TextureObject" title="cuda.core.texture.TextureObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureObject</span></code></a> built from this descriptor.</p></li>
-<li><p><strong>format</strong> (<a class="reference internal" href="cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><em>ArrayFormatType</em></a><em>, </em><em>str</em><em>, or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><em>numpy.dtype</em></a>) – Element format. Accepts an <a class="reference internal" href="cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayFormatType</span></code></a>,
+<li><p><strong>format</strong> (<a class="reference internal" href="cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><em>ArrayFormatType</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><em>numpy.dtype</em></a>) – Element format. Accepts an <a class="reference internal" href="cuda.core.typing.ArrayFormatType.html#cuda.core.typing.ArrayFormatType" title="cuda.core.typing.ArrayFormatType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayFormatType</span></code></a>,
 a plain string (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code>), or a NumPy dtype object.</p></li>
-<li><p><strong>num_channels</strong> (<em>int</em>) – Channels per element. Must be 1, 2, or 4.</p></li>
-<li><p><strong>width</strong> (<em>int</em>) – Image width, in elements.</p></li>
-<li><p><strong>height</strong> (<em>int</em>) – Image height, in rows.</p></li>
-<li><p><strong>pitch_bytes</strong> (<em>int</em>) – Distance between consecutive rows, in bytes. Must be at least
+<li><p><strong>num_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Channels per element. Must be 1, 2, or 4.</p></li>
+<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Image width, in elements.</p></li>
+<li><p><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Image height, in rows.</p></li>
+<li><p><strong>pitch_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Distance between consecutive rows, in bytes. Must be at least
 <code class="docutils literal notranslate"><span class="pre">width</span> <span class="pre">*</span> <span class="pre">format_size</span> <span class="pre">*</span> <span class="pre">num_channels</span></code> and meet the driver’s
 <code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT</span></code>.</p></li>
 </ul>

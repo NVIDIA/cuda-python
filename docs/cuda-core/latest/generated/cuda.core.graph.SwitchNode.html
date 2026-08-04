@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
+    <script src="../_static/documentation_options.js?v=5a961468"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev16';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -778,10 +778,10 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<em>int</em>) – Number of bytes to allocate.</p></li>
-<li><p><strong>device</strong> (<em>int</em><em> or </em><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em>, </em><em>optional</em>) – The device on which to allocate memory. If None (default),
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of bytes to allocate.</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em>, </em><em>optional</em>) – The device on which to allocate memory. If None (default),
 uses the current CUDA context’s device.</p></li>
-<li><p><strong>memory_type</strong> (<a class="reference internal" href="cuda.core.typing.GraphMemoryType.html#cuda.core.typing.GraphMemoryType" title="cuda.core.typing.GraphMemoryType"><em>GraphMemoryType</em></a><em> or </em><em>str</em><em>, </em><em>optional</em>) – <p>Type of memory to allocate. One of:</p>
+<li><p><strong>memory_type</strong> (<a class="reference internal" href="cuda.core.typing.GraphMemoryType.html#cuda.core.typing.GraphMemoryType" title="cuda.core.typing.GraphMemoryType"><em>GraphMemoryType</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – <p>Type of memory to allocate. One of:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">GraphMemoryType.DEVICE</span></code> (default): Pinned device memory,
 optimal for GPU kernels.</p></li>
@@ -794,7 +794,7 @@ automatically migrates between host and device. Useful for
 mixed host/device access patterns.</p></li>
 </ul>
 </p></li>
-<li><p><strong>peer_access</strong> (<em>list</em><em> of </em><em>int</em><em> or </em><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em>, </em><em>optional</em>) – List of devices that should have read-write access to the
+<li><p><strong>peer_access</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em>, </em><em>optional</em>) – List of devices that should have read-write access to the
 allocated memory. If None (default), only the allocating
 device has access.</p></li>
 </ul>
@@ -814,7 +814,7 @@ memory allocation nodes per CUDA documentation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.SwitchNode.callback">
-<span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">object</span></span></span><a class="headerlink" href="#cuda.core.graph.SwitchNode.callback" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#cuda.core.graph.SwitchNode.callback" title="Link to this definition">#</a></dt>
 <dd><p>Add a host callback node depending on this node.</p>
 <p>The callback runs on the host CPU when the graph reaches this node.
 Two modes are supported:</p>
@@ -840,7 +840,7 @@ Use a weak reference to break such cycles.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fn</strong> (<em>callable</em><em> or </em><em>ctypes function pointer</em>) – The callback function.</p></li>
-<li><p><strong>user_data</strong> (<em>int</em><em> or </em><em>bytes-like</em><em>, </em><em>optional</em>) – Only for ctypes function pointers. If <code class="docutils literal notranslate"><span class="pre">int</span></code>, passed as a raw
+<li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>bytes-like</em><em>, </em><em>optional</em>) – Only for ctypes function pointers. If <code class="docutils literal notranslate"><span class="pre">int</span></code>, passed as a raw
 pointer (caller manages lifetime). If bytes-like, the data is
 copied and its lifetime is tied to the graph.</p></li>
 </ul>
@@ -860,7 +860,7 @@ copied and its lifetime is tied to the graph.</p></li>
 <dd><p>Add a memory free node depending on this node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dptr</strong> (<em>int</em>) – Device pointer to free (typically from AllocNode.dptr).</p>
+<dd class="field-odd"><p><strong>dptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device pointer to free (typically from AllocNode.dptr).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A new FreeNode representing the free operation.</p>
@@ -873,7 +873,7 @@ copied and its lifetime is tied to the graph.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.SwitchNode.destroy">
-<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cuda.core.graph.SwitchNode.destroy" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.SwitchNode.destroy" title="Link to this definition">#</a></dt>
 <dd><p>Destroy this node and remove all its edges from the parent graph.</p>
 <p>After this call, <a class="reference internal" href="#cuda.core.graph.SwitchNode.is_valid" title="cuda.core.graph.SwitchNode.is_valid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_valid</span></code></a> returns <code class="docutils literal notranslate"><span class="pre">False</span></code> and the node
 cannot be re-added to any graph.  Safe to call on an
@@ -1046,17 +1046,17 @@ collector. Use a weak reference to break such cycles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dst</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a><em> or </em><em>int</em>) – Destination (device or pinned host). When a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> is given,
+<li><p><strong>dst</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Destination (device or pinned host). When a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> is given,
 the underlying allocation is retained for the graph’s lifetime. A raw
 pointer (<code class="docutils literal notranslate"><span class="pre">int</span></code>) is used as-is; the caller must keep the underlying
 memory alive, or supply <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> to have the graph retain it.</p></li>
-<li><p><strong>src</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a><em> or </em><em>int</em>) – Source (device or pinned host). Same retention rules as <code class="docutils literal notranslate"><span class="pre">dst</span></code>;
+<li><p><strong>src</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Source (device or pinned host). Same retention rules as <code class="docutils literal notranslate"><span class="pre">dst</span></code>;
 use <code class="docutils literal notranslate"><span class="pre">src_owner</span></code> for a raw pointer.</p></li>
-<li><p><strong>size</strong> (<em>int</em>) – Number of bytes to copy.</p></li>
-<li><p><strong>dst_owner</strong> (<em>object</em><em>, </em><em>optional</em>) – Object retained for the graph’s lifetime when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a raw
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of bytes to copy.</p></li>
+<li><p><strong>dst_owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object retained for the graph’s lifetime when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a raw
 pointer. A <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> owner retains its underlying allocation.
 Must not be passed when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>.</p></li>
-<li><p><strong>src_owner</strong> (<em>object</em><em>, </em><em>optional</em>) – Object retained for the graph’s lifetime when <code class="docutils literal notranslate"><span class="pre">src</span></code> is a raw
+<li><p><strong>src_owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object retained for the graph’s lifetime when <code class="docutils literal notranslate"><span class="pre">src</span></code> is a raw
 pointer. A <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> owner retains its underlying allocation.
 Must not be passed when <code class="docutils literal notranslate"><span class="pre">src</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>.</p></li>
 </ul>
@@ -1068,7 +1068,7 @@ Must not be passed when <code class="docutils literal notranslate"><span class="
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode" title="cuda.core.graph.MemcpyNode">MemcpyNode</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> or <code class="docutils literal notranslate"><span class="pre">src_owner</span></code> is given together with a
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> or <code class="docutils literal notranslate"><span class="pre">src_owner</span></code> is given together with a
     <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> <code class="docutils literal notranslate"><span class="pre">dst</span></code> or <code class="docutils literal notranslate"><span class="pre">src</span></code> respectively.</p>
 </dd>
 </dl>
@@ -1101,16 +1101,16 @@ collector. Use a weak reference to break such cycles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dst</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a><em> or </em><em>int</em>) – Destination. When <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>, the underlying
+<li><p><strong>dst</strong> (<a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><em>Buffer</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Destination. When <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>, the underlying
 allocation is retained for the graph’s lifetime. A raw pointer
 (<code class="docutils literal notranslate"><span class="pre">int</span></code>) is used as-is; the caller must keep the underlying memory
 alive, or supply <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> to have the graph retain it.</p></li>
-<li><p><strong>value</strong> (<em>int</em><em> or </em><em>buffer-protocol object</em>) – Fill value. int for 1-byte fill (range [0, 256)),
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><em>buffer-protocol object</em>) – Fill value. int for 1-byte fill (range [0, 256)),
 or buffer-protocol object of 1, 2, or 4 bytes.</p></li>
-<li><p><strong>width</strong> (<em>int</em>) – Width of the row in elements.</p></li>
-<li><p><strong>height</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of rows (default 1).</p></li>
-<li><p><strong>pitch</strong> (<em>int</em><em>, </em><em>optional</em>) – Pitch of destination in bytes (default 0, unused if height is 1).</p></li>
-<li><p><strong>dst_owner</strong> (<em>object</em><em>, </em><em>optional</em>) – Object retained for the graph’s lifetime when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a raw
+<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Width of the row in elements.</p></li>
+<li><p><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of rows (default 1).</p></li>
+<li><p><strong>pitch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Pitch of destination in bytes (default 0, unused if height is 1).</p></li>
+<li><p><strong>dst_owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – Object retained for the graph’s lifetime when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a raw
 pointer. A <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> owner retains its underlying allocation,
 not the wrapper. Must not be passed when <code class="docutils literal notranslate"><span class="pre">dst</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>.</p></li>
 </ul>
@@ -1122,7 +1122,7 @@ not the wrapper. Must not be passed when <code class="docutils literal notransla
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode" title="cuda.core.graph.MemsetNode">MemsetNode</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> is given together with a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> <code class="docutils literal notranslate"><span class="pre">dst</span></code>.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> is given together with a <code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code> <code class="docutils literal notranslate"><span class="pre">dst</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1162,7 +1162,7 @@ value is out of range, no branch executes.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>condition</strong> (<a class="reference internal" href="cuda.core.graph.GraphCondition.html#cuda.core.graph.GraphCondition" title="cuda.core.graph.GraphCondition"><em>GraphCondition</em></a>) – GraphCondition from <a class="reference internal" href="cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.create_condition" title="cuda.core.graph.GraphDefinition.create_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphDefinition.create_condition()</span></code></a>.</p></li>
-<li><p><strong>count</strong> (<em>int</em>) – Number of switch cases (branches).</p></li>
+<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of switch cases (branches).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

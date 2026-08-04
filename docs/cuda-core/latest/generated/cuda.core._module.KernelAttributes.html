@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
+    <script src="../_static/documentation_options.js?v=5a961468"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev16';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -752,7 +752,7 @@
 <p>The default view returned by <code class="xref py py-attr docutils literal notranslate"><span class="pre">Kernel.attributes</span></code> is bound to
 the current device, resolved at attribute-access time. Use
 <code class="docutils literal notranslate"><span class="pre">kernel.attributes[device]</span></code> to obtain a view bound to a specific
-device (an <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> device ordinal or <code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code>). Per-device
+device (an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> device ordinal or <code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code>). Per-device
 views share the underlying cache so a value queried through one view
 is visible through the others.</p>
 <p class="rubric">Methods</p>
