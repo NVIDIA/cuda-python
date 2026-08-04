@@ -200,13 +200,13 @@ node in the executable, for example
 The returned view retains the executable and source node, while CUDA validates
 that the node is associated with the executable.
 
-Executable updates require complete replacement parameters because CUDA does
-not expose executable-node parameter getters. Buffer operands, kernels, events,
-kernel arguments, and callback bindings are retained for every future launch
-that may use them. Superseded resources remain retained until a successful
-whole-graph update or executable destruction. Raw integer addresses remain
-caller-owned. Memcpy and memset updates use the current CUDA context, which
-must match the original node context.
+Executable graphs do not support reading back current node parameters, so
+updates take a complete replacement. Buffer operands, kernels, events, kernel
+arguments, and callback bindings are retained for every future launch that may
+use them. Superseded resources remain retained until a successful whole-graph
+update or executable destruction. Raw integer addresses remain caller-owned.
+Memcpy and memset updates use the current CUDA context, which must match the
+original node context.
 
 Kernel, memcpy, and memset views also provide ``is_enabled``, ``enable()``, and
 ``disable()``. Executable-node updates require CUDA driver and

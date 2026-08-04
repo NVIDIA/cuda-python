@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=16f433b3"></script>
+    <script src="_static/documentation_options.js?v=c03eeece"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1035,13 +1035,13 @@ node in the executable, for example
 <code class="docutils literal notranslate"><span class="pre">graph[kernel_node].update(config=config,</span> <span class="pre">kernel=kernel,</span> <span class="pre">args=args)</span></code>.
 The returned view retains the executable and source node, while CUDA validates
 that the node is associated with the executable.</p>
-<p>Executable updates require complete replacement parameters because CUDA does
-not expose executable-node parameter getters. Buffer operands, kernels, events,
-kernel arguments, and callback bindings are retained for every future launch
-that may use them. Superseded resources remain retained until a successful
-whole-graph update or executable destruction. Raw integer addresses remain
-caller-owned. Memcpy and memset updates use the current CUDA context, which
-must match the original node context.</p>
+<p>Executable graphs do not support reading back current node parameters, so
+updates take a complete replacement. Buffer operands, kernels, events, kernel
+arguments, and callback bindings are retained for every future launch that may
+use them. Superseded resources remain retained until a successful whole-graph
+update or executable destruction. Raw integer addresses remain caller-owned.
+Memcpy and memset updates use the current CUDA context, which must match the
+original node context.</p>
 <p>Kernel, memcpy, and memset views also provide <code class="docutils literal notranslate"><span class="pre">is_enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">enable()</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">disable()</span></code>. Executable-node updates require CUDA driver and
 <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions 12.2 or newer.</p>
