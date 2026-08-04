@@ -18,6 +18,7 @@ import argparse
 import os
 import re
 import sys
+from pathlib import Path
 
 COMPONENT_TO_PACKAGE: dict[str, str] = {
     "cuda-core": "cuda_core",
@@ -63,7 +64,7 @@ def is_post_release(version: str) -> bool:
 
 
 def load_backport_branch(repo_root: str = ".") -> str | None:
-    path = os.path.join(repo_root, "ci", "versions.yml")
+    path = Path(repo_root, "ci", "versions.yml")
     try:
         with open(path, encoding="utf-8") as f:
             for line in f:
@@ -85,7 +86,7 @@ def is_backport_version(version: str, backport_branch: str) -> bool:
 
 
 def notes_path(package: str, version: str) -> str:
-    return os.path.join(package, "docs", "source", "release", f"{version}-notes.rst")
+    return str(Path(package, "docs", "source", "release", f"{version}-notes.rst"))
 
 
 def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> list[tuple[str, str]]:
@@ -105,10 +106,10 @@ def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> l
         return []
 
     path = notes_path(COMPONENT_TO_PACKAGE[component], version)
-    full = os.path.join(repo_root, path)
-    if not os.path.isfile(full):
+    full = Path(repo_root, path)
+    if not full.is_file():
         return [(path, "missing")]
-    if os.path.getsize(full) == 0:
+    if full.stat().st_size == 0:
         return [(path, "empty")]
     return []
 
