@@ -10,7 +10,6 @@ on OS flags like ``IS_WINDOWS``. Instead, it calls through the single
 
 from __future__ import annotations
 
-import glob
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path, PurePath
@@ -23,13 +22,30 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
 
 
+def sorted_glob(directory: Path, pattern: str, *, reverse: bool = False) -> list[Path]:
+    """Return ``directory.glob(pattern)`` matches in a deterministic order.
+
+    The ordering is deliberately taken from the string form rather than from
+    ``Path`` comparison: ``PurePath`` ordering is case-insensitive on Windows,
+    so plain ``sorted()`` over ``Path`` objects would reorder mixed-case
+    filenames relative to the byte-wise ordering used up to now. Issue #1732
+    tracks the newest-first policy that rides on this ordering, so it is kept
+    unchanged on both platforms.
+    """
+    return sorted(directory.glob(pattern), key=str, reverse=reverse)
+
+
+def _sorted_dir_entry_names(directory: Path) -> list[str]:
+    return sorted(entry.name for entry in directory.iterdir())
+
+
 def _no_such_file_in_sub_dirs(
     sub_dirs: Sequence[str], file_wild: str, error_messages: list[str], attachments: list[str]
 ) -> None:
     error_messages.append(f"No such file: {file_wild}")
     for sub_dir in find_sub_dirs_all_sitepackages(sub_dirs):
         attachments.append(f'  listdir("{sub_dir}"):')
-        for node in sorted(node_path.name for node_path in Path(sub_dir).iterdir()):
+        for node in _sorted_dir_entry_names(Path(sub_dir)):
             attachments.append(f"    {node}")
 
 
@@ -38,7 +54,7 @@ def _find_so_in_rel_dirs(
     so_basename: str,
     error_messages: list[str],
     attachments: list[str],
-) -> str | None:
+) -> Path | None:
     sub_dirs_searched: list[tuple[str, ...]] = []
     file_wild = so_basename + "*"
     for rel_dir in rel_dirs:
@@ -50,29 +66,29 @@ def _find_so_in_rel_dirs(
             # multiple coexist, matching the newest-first bias elsewhere in pathfinder
             # (see LinuxSearchPlatform.find_in_lib_dir and load_dl_linux._candidate_sonames).
             # Issue #1732 tracks the deferred question of raising on true ambiguity.
-            so_path = Path(abs_dir, so_basename)
+            abs_dir_path = Path(abs_dir)
+            so_path = abs_dir_path / so_basename
             if so_path.is_file():
-                return str(so_path)
-            for match in sorted(glob.glob(str(Path(abs_dir, file_wild))), reverse=True):
-                so_path = Path(match)
+                return so_path
+            for so_path in sorted_glob(abs_dir_path, file_wild, reverse=True):
                 if so_path.is_file():
-                    return str(so_path)
+                    return so_path
         sub_dirs_searched.append(sub_dir)
     for sub_dir in sub_dirs_searched:
         _no_such_file_in_sub_dirs(sub_dir, file_wild, error_messages, attachments)
     return None
 
 
-def _find_dll_under_dir(dirpath: str, file_wild: str, target_arch: str | None = None) -> str | None:
-    for match in sorted(glob.glob(str(Path(dirpath, file_wild)))):
-        path = Path(match)
+def _find_dll_under_dir(dirpath: Path, file_wild: str, target_arch: str | None = None) -> Path | None:
+    for path in sorted_glob(dirpath, file_wild):
         if not path.is_file():
             continue
         if is_suppressed_dll_file(path.name):
             continue
+        # windows_pe_matches_arch() lives in _utils and is still str-typed.
         if target_arch is not None and not windows_pe_matches_arch(str(path), target_arch):
             continue
-        return str(path)
+        return path
     return None
 
 
@@ -81,14 +97,14 @@ def _find_dll_in_rel_dirs(
     lib_searched_for: str,
     error_messages: list[str],
     attachments: list[str],
-) -> str | None:
+) -> Path | None:
     sub_dirs_searched: list[tuple[str, ...]] = []
     for rel_dir in rel_dirs:
         sub_dir = PurePath(rel_dir).parts
         for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
-            dll_name = _find_dll_under_dir(abs_dir, lib_searched_for)
-            if dll_name is not None:
-                return dll_name
+            dll_path = _find_dll_under_dir(Path(abs_dir), lib_searched_for)
+            if dll_path is not None:
+                return dll_path
         sub_dirs_searched.append(sub_dir)
     for sub_dir in sub_dirs_searched:
         _no_such_file_in_sub_dirs(sub_dir, lib_searched_for, error_messages, attachments)
@@ -100,7 +116,7 @@ class SearchPlatform(Protocol):
 
     def site_packages_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]: ...
 
-    def conda_anchor_point(self, conda_prefix: str) -> str: ...
+    def conda_anchor_point(self, conda_prefix: str) -> Path: ...
 
     def anchor_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]: ...
 
@@ -110,16 +126,16 @@ class SearchPlatform(Protocol):
         lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
-    ) -> str | None: ...
+    ) -> Path | None: ...
 
     def find_in_lib_dir(
         self,
-        lib_dir: str,
+        lib_dir: Path,
         desc: LibDescriptor,
         lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
-    ) -> str | None: ...
+    ) -> Path | None: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,8 +146,8 @@ class LinuxSearchPlatform:
     def site_packages_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
         return cast(tuple[str, ...], desc.site_packages_linux)
 
-    def conda_anchor_point(self, conda_prefix: str) -> str:
-        return conda_prefix
+    def conda_anchor_point(self, conda_prefix: str) -> Path:
+        return Path(conda_prefix)
 
     def anchor_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
         return cast(tuple[str, ...], desc.anchor_rel_dirs_linux)
@@ -142,22 +158,21 @@ class LinuxSearchPlatform:
         lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
-    ) -> str | None:
+    ) -> Path | None:
         return _find_so_in_rel_dirs(rel_dirs, lib_searched_for, error_messages, attachments)
 
     def find_in_lib_dir(
         self,
-        lib_dir: str,
+        lib_dir: Path,
         _desc: LibDescriptor,
         lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
-    ) -> str | None:
-        lib_dir_path = Path(lib_dir)
+    ) -> Path | None:
         # Most libraries have both unversioned and versioned files/symlinks (exact match first)
-        so_path = lib_dir_path / lib_searched_for
+        so_path = lib_dir / lib_searched_for
         if so_path.is_file():
-            return str(so_path)
+            return so_path
         # Some libraries only exist as versioned files (e.g., libcupti.so.13 in conda),
         # so the glob fallback is needed
         file_wild = lib_searched_for + "*"
@@ -165,16 +180,15 @@ class LinuxSearchPlatform:
         # situations, and to be internally consistent, we sort in reverse order with the
         # intent to return the newest version first. Issue #1732 tracks the deferred
         # question of raising on true ambiguity.
-        for match in sorted(glob.glob(str(lib_dir_path / file_wild)), reverse=True):
-            so_path = Path(match)
+        for so_path in sorted_glob(lib_dir, file_wild, reverse=True):
             if so_path.is_file():
-                return str(so_path)
+                return so_path
         error_messages.append(f"No such file: {file_wild}")
         attachments.append(f'  listdir("{lib_dir}"):')
-        if not lib_dir_path.is_dir():
+        if not lib_dir.is_dir():
             attachments.append("    DIRECTORY DOES NOT EXIST")
         else:
-            for node in sorted(node_path.name for node_path in lib_dir_path.iterdir()):
+            for node in _sorted_dir_entry_names(lib_dir):
                 attachments.append(f"    {node}")
         return None
 
@@ -189,8 +203,8 @@ class WindowsSearchPlatform:
     def site_packages_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
         return cast(tuple[str, ...], desc.site_packages_windows.for_arch(self.target_arch))
 
-    def conda_anchor_point(self, conda_prefix: str) -> str:
-        return str(Path(conda_prefix, "Library"))
+    def conda_anchor_point(self, conda_prefix: str) -> Path:
+        return Path(conda_prefix, "Library")
 
     def anchor_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
         return cast(tuple[str, ...], desc.anchor_rel_dirs_windows.for_arch(self.target_arch))
@@ -201,32 +215,31 @@ class WindowsSearchPlatform:
         lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
-    ) -> str | None:
+    ) -> Path | None:
         return _find_dll_in_rel_dirs(rel_dirs, lib_searched_for, error_messages, attachments)
 
     def find_in_lib_dir(
         self,
-        lib_dir: str,
+        lib_dir: Path,
         desc: LibDescriptor,
         _lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
-    ) -> str | None:
+    ) -> Path | None:
         file_wild = desc.name + "*.dll"
         target_arch = self.target_arch if desc.requires_windows_binary_arch_check else None
-        dll_name = _find_dll_under_dir(lib_dir, file_wild, target_arch)
-        if dll_name is not None:
-            return dll_name
+        dll_path = _find_dll_under_dir(lib_dir, file_wild, target_arch)
+        if dll_path is not None:
+            return dll_path
         if target_arch is None:
             error_messages.append(f"No such file: {file_wild}")
         else:
             error_messages.append(f"No {target_arch}-compatible PE file: {file_wild}")
-        lib_dir_path = Path(lib_dir)
         attachments.append(f'  listdir("{lib_dir}"):')
-        if not lib_dir_path.is_dir():
+        if not lib_dir.is_dir():
             attachments.append("    DIRECTORY DOES NOT EXIST")
         else:
-            for node in sorted(node_path.name for node_path in lib_dir_path.iterdir()):
+            for node in _sorted_dir_entry_names(lib_dir):
                 attachments.append(f"    {node}")
         return None
 
