@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c9161a1b"></script>
+    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev14';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -786,7 +786,7 @@ so it stays valid until both it and this object are released. Idempotent.</p>
 <dd><p>Return a non-owning <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> view of the given mip level.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Mip level index in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">num_levels)</span></code>.</p>
+<dd class="field-odd"><p><strong>level</strong> (<em>int</em>) – Mip level index in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">num_levels)</span></code>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A non-owning <a class="reference internal" href="cuda.core.texture.OpaqueArray.html#cuda.core.texture.OpaqueArray" title="cuda.core.texture.OpaqueArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpaqueArray</span></code></a> wrapping the level’s <code class="docutils literal notranslate"><span class="pre">CUarray</span></code>.

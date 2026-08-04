@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c9161a1b"></script>
+    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev14';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -773,13 +773,13 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">dry_run=False</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.SMResource" title="cuda.core.SMResource"><span class="pre">SMResource</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cuda.core.SMResource" title="cuda.core.SMResource"><span class="pre">SMResource</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.SMResource.split" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.SMResource" title="cuda.core.SMResource"><span class="pre">SMResource</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cuda.core.SMResource" title="cuda.core.SMResource"><span class="pre">SMResource</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.SMResource.split" title="Link to this definition">#</a></dt>
 <dd><p>Split this SM resource into groups and a remainder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.SMResourceOptions.html#cuda.core.SMResourceOptions" title="cuda.core.SMResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResourceOptions</span></code></a>) – Split configuration (count, co-scheduling constraints).</p></li>
-<li><p><strong>dry_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return filled-in metadata without creating
+<li><p><strong>dry_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return filled-in metadata without creating
 usable resource objects. (Default to <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
 </ul>
 </dd>

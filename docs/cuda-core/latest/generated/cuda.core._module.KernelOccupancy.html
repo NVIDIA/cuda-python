@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c9161a1b"></script>
+    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev14';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -766,21 +766,21 @@ launch parameters such as block size, grid size, and shared memory usage.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">block_size:</span> <span class="pre">int</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.available_dynamic_shared_memory_per_block" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.available_dynamic_shared_memory_per_block" title="Link to this definition">#</a></dt>
 <dd><p>Dynamic shared memory available per block for given launch configuration.</p>
 <p>The amount of dynamic shared memory per block, in bytes, for given kernel launch configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_blocks_per_multiprocessor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of blocks to be concurrently executing on a multiprocessor.</p></li>
-<li><p><strong>block_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Block size parameter used to launch this kernel.</p></li>
+<li><p><strong>num_blocks_per_multiprocessor</strong> (<em>int</em>) – Number of blocks to be concurrently executing on a multiprocessor.</p></li>
+<li><p><strong>block_size</strong> (<em>int</em>) – Block size parameter used to launch this kernel.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dynamic shared memory available per block for given launch configuration.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -795,14 +795,14 @@ launch parameters such as block size, grid size, and shared memory usage.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dynamic_shared_memory_size:</span> <span class="pre">int</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.max_active_blocks_per_multiprocessor" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.max_active_blocks_per_multiprocessor" title="Link to this definition">#</a></dt>
 <dd><p>Occupancy of the kernel.</p>
 <p>Returns the maximum number of active blocks per multiprocessor for this kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>block_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Block size parameter used to launch this kernel.</p></li>
-<li><p><strong>dynamic_shared_memory_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The amount of dynamic shared memory in bytes needed by block.
+<li><p><strong>block_size</strong> (<em>int</em>) – Block size parameter used to launch this kernel.</p></li>
+<li><p><strong>dynamic_shared_memory_size</strong> (<em>int</em>) – The amount of dynamic shared memory in bytes needed by block.
 Use <cite>0</cite> if block does not need shared memory.</p></li>
 </ul>
 </dd>
@@ -810,7 +810,7 @@ Use <cite>0</cite> if block does not need shared memory.</p></li>
 <dd class="field-even"><p>The maximum number of active blocks per multiprocessor.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 <div class="admonition note">
@@ -832,7 +832,7 @@ theoretical multiprocessor utilization (occupancy).</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.max_active_clusters" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.max_active_clusters" title="Link to this definition">#</a></dt>
 <dd><p>Maximum number of active clusters on the target device.</p>
 <p>The maximum number of clusters that could concurrently execute on the target device.</p>
 <dl class="field-list simple">
@@ -848,7 +848,7 @@ use the default stream.</p></li>
 <dd class="field-even"><p>The maximum number of clusters that could co-exist on the target device.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -870,12 +870,12 @@ the maximum block size that can achieve the maximum occupancy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dynamic_shared_memory_needed</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>driver.CUoccupancyB2DSize</em><em>]</em>) – The amount of dynamic shared memory in bytes needed by block.
+<li><p><strong>dynamic_shared_memory_needed</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>driver.CUoccupancyB2DSize</em><em>]</em>) – The amount of dynamic shared memory in bytes needed by block.
 Use <cite>0</cite> if block does not need shared memory. Use C-callable
 represented by <code class="xref py py-obj docutils literal notranslate"><span class="pre">CUoccupancyB2DSize</span></code> to encode
 amount of needed dynamic shared memory which varies depending
 on tne block size.</p></li>
-<li><p><strong>block_size_limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Known upper limit on the kernel block size. Use <cite>0</cite> to indicate
+<li><p><strong>block_size_limit</strong> (<em>int</em>) – Known upper limit on the kernel block size. Use <cite>0</cite> to indicate
 the maximum block size permitted by the device / kernel instead</p></li>
 </ul>
 </dd>
@@ -905,7 +905,7 @@ Interpreter Lock may lead to deadlocks.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.max_potential_cluster_size" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.max_potential_cluster_size" title="Link to this definition">#</a></dt>
 <dd><p>Maximum potential cluster size.</p>
 <p>The maximum potential cluster size for this kernel and given launch configuration.</p>
 <dl class="field-list simple">
@@ -921,7 +921,7 @@ use the default stream.</p></li>
 <dd class="field-even"><p>The maximum cluster size that can be launched for this kernel and launch configuration.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>

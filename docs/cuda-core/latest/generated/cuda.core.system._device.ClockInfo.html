@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c9161a1b"></script>
+    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev14';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -761,10 +761,10 @@
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">clock_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.ClockId.html#cuda.core.system.typing.ClockId" title="cuda.core.system.typing.ClockId"><span class="pre">ClockId</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ClockId.CURRENT</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">clock_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.ClockId.html#cuda.core.system.typing.ClockId" title="cuda.core.system.typing.ClockId"><span class="pre">ClockId</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ClockId.CURRENT</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.ClockInfo.get_current_mhz" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cuda.core.system._device.ClockInfo.get_current_mhz" title="Link to this definition">#</a></dt>
 <dd><p>Get the current clock speed of a specific clock domain, in MHz.</p>
 <p>For Kepler™ or newer fully supported devices.</p>
 <dl class="field-list simple">
@@ -775,14 +775,14 @@
 <dd class="field-even"><p>The clock speed in MHz.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system._device.ClockInfo.get_max_customer_boost_mhz">
-<span class="sig-name descname"><span class="pre">get_max_customer_boost_mhz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.ClockInfo.get_max_customer_boost_mhz" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_max_customer_boost_mhz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cuda.core.system._device.ClockInfo.get_max_customer_boost_mhz" title="Link to this definition">#</a></dt>
 <dd><p>Get the maximum customer boost clock speed of a specific clock, in MHz.</p>
 <p>For Pascal™ or newer fully supported devices.</p>
 <dl class="field-list simple">
@@ -790,14 +790,14 @@
 <dd class="field-odd"><p>The maximum customer boost clock speed in MHz.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-even"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system._device.ClockInfo.get_max_mhz">
-<span class="sig-name descname"><span class="pre">get_max_mhz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system._device.ClockInfo.get_max_mhz" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_max_mhz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cuda.core.system._device.ClockInfo.get_max_mhz" title="Link to this definition">#</a></dt>
 <dd><p>Get the maximum clock speed of a specific clock domain, in MHz.</p>
 <p>For Fermi™ or newer fully supported devices.</p>
 <p>Current P0 clocks (reported by <a class="reference internal" href="#cuda.core.system._device.ClockInfo.get_current_mhz" title="cuda.core.system._device.ClockInfo.get_current_mhz"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_current_mhz()</span></code></a> can differ from
@@ -807,7 +807,7 @@ max clocks by a few MHz.</p>
 <dd class="field-odd"><p>The maximum clock speed in MHz.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-even"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -821,12 +821,12 @@ max clocks by a few MHz.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">pstate:</span> <span class="pre">int</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system._device.ClockInfo.get_min_max_clock_of_pstate_mhz" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system._device.ClockInfo.get_min_max_clock_of_pstate_mhz" title="Link to this definition">#</a></dt>
 <dd><p>Get the minimum and maximum clock speeds for this clock domain
 at a given performance state (Pstate), in MHz.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pstate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The performance state to query.  Must be an int between 0 and 15,
+<dd class="field-odd"><p><strong>pstate</strong> (<em>int</em>) – The performance state to query.  Must be an int between 0 and 15,
 where 0 is the highest performance state (P0) and 15 is the lowest
 (P15).</p>
 </dd>
@@ -834,7 +834,7 @@ where 0 is the highest performance state (P0) and 15 is the lowest
 <dd class="field-even"><p>A tuple containing the minimum and maximum clock speeds in MHz.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+<dd class="field-odd"><p>tuple[int, int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -846,7 +846,7 @@ where 0 is the highest performance state (P0) and 15 is the lowest
 <p>For Maxwell™ or newer fully supported devices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pstate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The performance state to query.  Must be an int between 0 and 15,
+<dd class="field-odd"><p><strong>pstate</strong> (<em>int</em>) – The performance state to query.  Must be an int between 0 and 15,
 where 0 is the highest performance state (P0) and 15 is the lowest
 (P15).</p>
 </dd>

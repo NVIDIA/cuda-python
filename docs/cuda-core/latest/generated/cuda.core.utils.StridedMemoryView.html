@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c9161a1b"></script>
+    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev14';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -773,10 +773,10 @@
 <p><code class="docutils literal notranslate"><span class="pre">StridedMemoryView(obj,</span> <span class="pre">stream_ptr)</span></code> can be used to create a view from
 objects supporting either DLPack (up to v1.0) or CUDA Array Interface
 (CAI) v3. When wrapping an arbitrary object it will try the DLPack protocol
-first, then the CAI protocol. A <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BufferError" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BufferError</span></code></a> is raised if neither is
+first, then the CAI protocol. A <code class="xref py py-obj docutils literal notranslate"><span class="pre">BufferError</span></code> is raised if neither is
 supported.</p>
 <p>Since either way would take a consumer stream, for DLPack it is passed to
-<code class="docutils literal notranslate"><span class="pre">obj.__dlpack__()</span></code> as-is (except for <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, see below); for CAI, a
+<code class="docutils literal notranslate"><span class="pre">obj.__dlpack__()</span></code> as-is (except for <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, see below); for CAI, a
 stream order will be established between the consumer stream and the
 producer stream (from <code class="docutils literal notranslate"><span class="pre">obj.__cuda_array_interface__()[&quot;stream&quot;]</span></code>), as if
 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code> is called by this method.</p>
@@ -791,7 +791,7 @@ internally passed to <code class="docutils literal notranslate"><span class="pre
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> (<em>Any</em>) – Any objects that supports either DLPack (up to v1.0) or CUDA Array
 Interface (v3).</p></li>
-<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The pointer address (as Python <cite>int</cite>) to the <strong>consumer</strong> stream.
+<li><p><strong>stream_ptr</strong> (<em>int</em>) – The pointer address (as Python <cite>int</cite>) to the <strong>consumer</strong> stream.
 Stream ordering will be properly established unless <code class="docutils literal notranslate"><span class="pre">-1</span></code> is passed.</p></li>
 </ul>
 </dd>
@@ -802,7 +802,7 @@ Stream ordering will be properly established unless <code class="docutils litera
 <dd><p>Pointer to the tensor buffer (as a Python <cite>int</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -814,7 +814,7 @@ Stream ordering will be properly established unless <code class="docutils litera
 (meaning those only accessible from the host).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -825,7 +825,7 @@ Stream ordering will be properly established unless <code class="docutils litera
 <dd><p>Whether the tensor data can be accessed on the GPU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -836,7 +836,7 @@ Stream ordering will be properly established unless <code class="docutils litera
 <dd><p>Whether the tensor data can be modified in place.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -879,7 +879,7 @@ it will be the Buffer instance passed to the method.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">oob_fill:</span> <span class="pre">object</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.as_tensor_map" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">object</span></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.as_tensor_map" title="Link to this definition">#</a></dt>
 <dd><p>Create a tiled <code class="xref py py-obj docutils literal notranslate"><span class="pre">TensorMapDescriptor</span></code> from this view.</p>
 <p>This is the public entry point for creating tiled tensor map
 descriptors in <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>. Pass either <code class="docutils literal notranslate"><span class="pre">box_dim</span></code> and the
@@ -899,7 +899,7 @@ options via <code class="docutils literal notranslate"><span class="pre">options
 <dd><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">blocking:</span> <span class="pre">bool</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.copy_from" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.copy_from" title="Link to this definition">#</a></dt>
 <dd><p>Copies the data from the other view into this view.</p>
 <p>The copy can be performed between following memory spaces:
 host-to-device, device-to-host, device-to-device (on the same device).</p>
@@ -911,7 +911,7 @@ host-to-device, device-to-host, device-to-device (on the same device).</p>
 <li><p><strong>allocator</strong> (<a class="reference internal" href="cuda.core.MemoryResource.html#cuda.core.MemoryResource" title="cuda.core.MemoryResource"><em>MemoryResource</em></a><em> | </em><em>None</em><em>, </em><em>optional</em>) – If temporary buffers are needed, the specified memory resources
 will be used to allocate the memory. If not specified, default
 resources will be used.</p></li>
-<li><p><strong>blocking</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em> | </em><em>None</em><em>, </em><em>optional</em>) – <dl class="simple">
+<li><p><strong>blocking</strong> (<em>bool</em><em> | </em><em>None</em><em>, </em><em>optional</em>) – <dl class="simple">
 <dt>Whether the call should block until the copy is complete.</dt><dd><ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: the <code class="docutils literal notranslate"><span class="pre">stream</span></code> is synchronized with the host at the end of the call,
 blocking until the copy is complete.</p></li>
@@ -947,7 +947,7 @@ still synchronize with the host if necessary.</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">blocking:</span> <span class="pre">bool</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.copy_to" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.copy_to" title="Link to this definition">#</a></dt>
 <dd><p>Copies the data from this view into the <code class="docutils literal notranslate"><span class="pre">other</span></code> view.</p>
 <p>For details, see <a class="reference internal" href="#cuda.core.utils.StridedMemoryView.copy_from" title="cuda.core.utils.StridedMemoryView.copy_from"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy_from()</span></code></a>.</p>
 </dd></dl>
@@ -971,10 +971,10 @@ regardless of which protocol is selected.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An object implementing <a class="reference external" href="https://dmlc.github.io/dlpack/latest/">DLPack</a> or
+<li><p><strong>obj</strong> (<em>object</em>) – <p>An object implementing <a class="reference external" href="https://dmlc.github.io/dlpack/latest/">DLPack</a> or
 <a class="reference external" href="https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html">__cuda_array_interface__</a>.</p>
 </p></li>
-<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Stream pointer for synchronization. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no synchronization is performed.</p></li>
+<li><p><strong>stream_ptr</strong> (<em>int</em><em>, </em><em>optional</em>) – Stream pointer for synchronization. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no synchronization is performed.</p></li>
 </ul>
 </dd>
 </dl>
@@ -986,14 +986,14 @@ regardless of which protocol is selected.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_array_interface" title="Link to this definition">#</a></dt>
 <dd><p>Create a view from an object supporting the <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.interface.html">__array_interface__</a> protocol.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An object implementing the <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.interface.html">__array_interface__</a> protocol (e.g., a numpy array).</p>
+<dd class="field-odd"><p><strong>obj</strong> (<em>object</em>) – <p>An object implementing the <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.interface.html">__array_interface__</a> protocol (e.g., a numpy array).</p>
 </p>
 </dd>
 </dl>
@@ -1015,13 +1015,13 @@ the data in <code class="docutils literal notranslate"><span class="pre">buffer<
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>buffer</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>) – The buffer to create the view from.</p></li>
-<li><p><strong>shape</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code></a>) – The layout describing the shape, strides and itemsize of the elements in
+<li><p><strong>shape</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code>) – The layout describing the shape, strides and itemsize of the elements in
 the buffer.</p></li>
-<li><p><strong>strides</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code></a>) – The layout describing the shape, strides and itemsize of the elements in
+<li><p><strong>strides</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code>) – The layout describing the shape, strides and itemsize of the elements in
 the buffer.</p></li>
 <li><p><strong>dtype</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.dtype</span></code></a>) – Optional dtype.
 If specified, the dtype’s itemsize must match the layout’s itemsize.</p></li>
-<li><p><strong>is_readonly</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether the mark the view as readonly.</p></li>
+<li><p><strong>is_readonly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the mark the view as readonly.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1042,9 +1042,9 @@ If specified, the dtype’s itemsize must match the layout’s itemsize.</p></li
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An object implementing the <a class="reference external" href="https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html">__cuda_array_interface__</a> protocol.</p>
+<li><p><strong>obj</strong> (<em>object</em>) – <p>An object implementing the <a class="reference external" href="https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html">__cuda_array_interface__</a> protocol.</p>
 </p></li>
-<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Stream pointer for synchronization. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no synchronization is performed.</p></li>
+<li><p><strong>stream_ptr</strong> (<em>int</em><em>, </em><em>optional</em>) – Stream pointer for synchronization. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no synchronization is performed.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1065,10 +1065,10 @@ If specified, the dtype’s itemsize must match the layout’s itemsize.</p></li
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An object implementing the <a class="reference external" href="https://dmlc.github.io/dlpack/latest/">DLPack</a> protocol
+<li><p><strong>obj</strong> (<em>object</em>) – <p>An object implementing the <a class="reference external" href="https://dmlc.github.io/dlpack/latest/">DLPack</a> protocol
 (via <code class="docutils literal notranslate"><span class="pre">__dlpack__</span></code>).</p>
 </p></li>
-<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Stream pointer for synchronization. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no synchronization is performed.</p></li>
+<li><p><strong>stream_ptr</strong> (<em>int</em><em>, </em><em>optional</em>) – Stream pointer for synchronization. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no synchronization is performed.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1098,7 +1098,7 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 <p>Supports standard NumPy dtypes as well as narrow data types (e.g., <code class="docutils literal notranslate"><span class="pre">bfloat16</span></code>)
 when the optional <a class="reference external" href="https://github.com/jax-ml/ml_dtypes">ml_dtypes</a> package is
 installed. If <code class="docutils literal notranslate"><span class="pre">ml_dtypes</span></code> is not available and such a tensor is encountered,
-a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> will be raised.</p>
+a <code class="xref py py-obj docutils literal notranslate"><span class="pre">NotImplementedError</span></code> will be raised.</p>
 </dd></dl>
 
 <dl class="py attribute">

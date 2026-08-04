@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c9161a1b"></script>
+    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev14';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -755,8 +755,8 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">DeviceMemoryResource</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html#cuda.core.DeviceMemoryResourceOptions" title="cuda.core.DeviceMemoryResourceOptions"><span class="pre">DeviceMemoryResourceOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html#cuda.core.DeviceMemoryResourceOptions" title="cuda.core.DeviceMemoryResourceOptions"><span class="pre">DeviceMemoryResourceOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.DeviceMemoryResource" title="Link to this definition">#</a></dt>
@@ -764,7 +764,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device_id</strong> (<a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device or Device ordinal for which a memory resource is constructed.</p></li>
+<li><p><strong>device_id</strong> (<a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a><em> | </em><em>int</em>) – Device or Device ordinal for which a memory resource is constructed.</p></li>
 <li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html#cuda.core.DeviceMemoryResourceOptions" title="cuda.core.DeviceMemoryResourceOptions"><em>DeviceMemoryResourceOptions</em></a>) – <p>Memory resource creation options.</p>
 <p>If set to <cite>None</cite>, the memory resource uses the driver’s current
 stream-ordered memory pool for the specified <cite>device_id</cite>. If no memory
@@ -811,18 +811,18 @@ of the corresponding MR. Registered MMRs can be looked up via
 way, the use of buffer descriptors can be avoided. Instead, buffer objects
 can themselves be serialized and transferred directly. Serialization embeds
 the UUID, which is used to locate the correct MMR during reconstruction.</p>
-<p>IPC-enabled memory resources interoperate with the <a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#module-multiprocessing" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">multiprocessing</span></code></a>
+<p>IPC-enabled memory resources interoperate with the <code class="xref py py-mod docutils literal notranslate"><span class="pre">multiprocessing</span></code>
 module to provide a simplified interface. This approach can avoid direct
 use of allocation handles, buffer descriptors, MMRs, and the registry. When
-using <a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#module-multiprocessing" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">multiprocessing</span></code></a> to spawn processes or send objects through
-communication channels such as <a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.Queue</span></code></a>,
+using <code class="xref py py-mod docutils literal notranslate"><span class="pre">multiprocessing</span></code> to spawn processes or send objects through
+communication channels such as <code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.Queue</span></code>,
 <code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.Pipe</span></code>, or <code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.Connection</span></code>,
 <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> objects may be sent directly, and in such cases the process
 for creating MMRs and mapping buffers will be handled automatically.</p>
 <p>For greater efficiency when transferring many buffers, one may also send
-MRs and buffers separately. When an MR is sent via <a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#module-multiprocessing" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">multiprocessing</span></code></a>,
+MRs and buffers separately. When an MR is sent via <code class="xref py py-mod docutils literal notranslate"><span class="pre">multiprocessing</span></code>,
 an MMR is created and registered in the receiving process. Subsequently,
-buffers may be serialized and transferred using ordinary <a class="reference external" href="https://docs.python.org/3/library/pickle.html#module-pickle" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pickle</span></code></a>
+buffers may be serialized and transferred using ordinary <code class="xref py py-mod docutils literal notranslate"><span class="pre">pickle</span></code>
 methods.  The reconstruction procedure uses the registry to find the
 associated MMR. Unpickling a <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> performs an IPC import from
 the embedded descriptor; only unpickle buffers received from trusted peers.</p>
@@ -856,7 +856,7 @@ untrusted sources.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to allocate, in bytes.</p></li>
+<li><p><strong>size</strong> (<em>int</em>) – The size of the buffer to allocate, in bytes.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword-only. The stream on which to perform the allocation
 asynchronously. Must be passed explicitly; pass
 <code class="docutils literal notranslate"><span class="pre">device.default_stream</span></code> to use the default stream.</p></li>
@@ -874,7 +874,7 @@ resource was created for.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.close" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.close" title="Link to this definition">#</a></dt>
 <dd><p>Close the memory resource and destroy the associated memory pool
 if owned.</p>
 </dd></dl>
@@ -891,13 +891,13 @@ if owned.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.deallocate" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.deallocate" title="Link to this definition">#</a></dt>
 <dd><p>Deallocate a buffer previously allocated by this resource.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerType</span></code>) – The pointer or handle to the buffer to deallocate.</p></li>
-<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
+<li><p><strong>size</strong> (<em>int</em>) – The size of the buffer to deallocate, in bytes.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword-only. The stream on which to perform the deallocation
 asynchronously. Must be passed explicitly; pass
 <code class="docutils literal notranslate"><span class="pre">device.default_stream</span></code> to use the default stream.</p></li>
@@ -912,8 +912,8 @@ asynchronously. Must be passed explicitly; pass
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">alloc_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">alloc_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><span class="pre">DeviceMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.from_allocation_handle" title="Link to this definition">#</a></dt>
@@ -924,9 +924,9 @@ the resource is associated with the specified <cite>device_id</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a>) – The ID of the device or a Device object for which the memory
+<li><p><strong>device_id</strong> (<em>int</em><em> | </em><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a>) – The ID of the device or a Device object for which the memory
 resource is created.</p></li>
-<li><p><strong>alloc_handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><em>IPCAllocationHandle</em></a>) – The shareable handle of the device memory resource to import. If an
+<li><p><strong>alloc_handle</strong> (<em>int</em><em> | </em><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><em>IPCAllocationHandle</em></a>) – The shareable handle of the device memory resource to import. If an
 integer is supplied, it must represent a valid platform-specific
 handle. It is the caller’s responsibility to close that handle.</p></li>
 </ul>
@@ -942,14 +942,14 @@ handle. It is the caller’s responsibility to close that handle.</p></li>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_registry</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID" title="(in Python v3.14)"><span class="pre">uuid.UUID</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uuid.UUID</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><span class="pre">DeviceMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.from_registry" title="Link to this definition">#</a></dt>
 <dd><p>Obtain a registered mapped memory resource.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If no mapped memory resource is found in the registry.</p>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If no mapped memory resource is found in the registry.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -960,7 +960,7 @@ handle. It is the caller’s responsibility to close that handle.</p></li>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID" title="(in Python v3.14)"><span class="pre">uuid.UUID</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uuid.UUID</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><span class="pre">DeviceMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.register" title="Link to this definition">#</a></dt>
@@ -1084,7 +1084,7 @@ pool. Access can be modified at any time and affects all allocations
 from this memory pool.</p>
 <p>Returns a set-like proxy of <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> objects that manages
 peer access. Inputs are accepted as either <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a>
-objects or device-ordinal <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> values.</p>
+objects or device-ordinal <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> values.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span> <span class="o">=</span> <span class="n">DeviceMemoryResource</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dmr</span><span class="o">.</span><span class="n">peer_accessible_by</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">}</span>   <span class="c1"># grant access to device 1</span>

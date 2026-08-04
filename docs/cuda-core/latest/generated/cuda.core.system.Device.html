@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c9161a1b"></script>
+    <script src="../_static/documentation_options.js?v=6d6e9e02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev14';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev15';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -771,18 +771,18 @@ NVML may initialize additional GPUs if the target GPU is an SLI slave.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – <p>Integer representing the CUDA device index to get a handle to.  Valid
+<li><p><strong>index</strong> (<em>int</em><em>, </em><em>optional</em>) – <p>Integer representing the CUDA device index to get a handle to.  Valid
 values are between <code class="docutils literal notranslate"><span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">cuda.core.system.get_num_devices()</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
 <p>The order in which devices are enumerated has no guarantees of
 consistency between reboots.  For that reason, it is recommended that
 devices are looked up by their PCI ids or UUID.</p>
 </p></li>
-<li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – UUID of a CUDA device to get a handle to.</p></li>
-<li><p><strong>pci_bus_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – PCI bus ID of a CUDA device to get a handle to.</p></li>
+<li><p><strong>uuid</strong> (<em>bytes</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – UUID of a CUDA device to get a handle to.</p></li>
+<li><p><strong>pci_bus_id</strong> (<em>bytes</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – PCI bus ID of a CUDA device to get a handle to.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If anything other than a single <cite>index</cite>, <cite>uuid</cite> or <cite>pci_bus_id</cite> are specified.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If anything other than a single <cite>index</cite>, <cite>uuid</cite> or <cite>pci_bus_id</cite> are specified.</p>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
@@ -793,7 +793,7 @@ devices are looked up by their PCI ids or UUID.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.clear_cpu_affinity">
-<span class="sig-name descname"><span class="pre">clear_cpu_affinity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.clear_cpu_affinity" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">clear_cpu_affinity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cuda.core.system.Device.clear_cpu_affinity" title="Link to this definition">#</a></dt>
 <dd><p>Clear all affinity bindings for the calling thread.</p>
 <p>For Kepler™ or newer fully supported devices.</p>
 <p>Supported on Linux only.</p>
@@ -801,11 +801,11 @@ devices are looked up by their PCI ids or UUID.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.clear_field_values">
-<span class="sig-name descname"><span class="pre">clear_field_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">self,</span> <span class="pre">list</span> <span class="pre">field_ids:</span> <span class="pre">list[int</span> <span class="pre">|</span> <span class="pre">tuple[int,</span> <span class="pre">int]]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.clear_field_values" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">clear_field_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">self,</span> <span class="pre">list</span> <span class="pre">field_ids:</span> <span class="pre">list[int</span> <span class="pre">|</span> <span class="pre">tuple[int,</span> <span class="pre">int]]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cuda.core.system.Device.clear_field_values" title="Link to this definition">#</a></dt>
 <dd><p>Clear multiple field values from the device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>field_ids</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>]</em>) – <p>List of field IDs to clear.</p>
+<dd class="field-odd"><p><strong>field_ids</strong> (<em>list</em><em>[</em><em>int</em><em> | </em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>]</em>) – <p>List of field IDs to clear.</p>
 <p>Each item may be either a single value from the <code class="xref py py-class docutils literal notranslate"><span class="pre">FieldId</span></code>
 enum, or a pair of (<code class="xref py py-class docutils literal notranslate"><span class="pre">FieldId</span></code>, scope ID).</p>
 </p>
@@ -841,7 +841,7 @@ enum, or a pair of (<code class="xref py py-class docutils literal notranslate">
 <p>Supported on Linux only.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cpu_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The CPU index.</p>
+<dd class="field-odd"><p><strong>cpu_index</strong> (<em>int</em>) – The CPU index.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An iterator over available devices.</p>
@@ -854,7 +854,7 @@ enum, or a pair of (<code class="xref py py-class docutils literal notranslate">
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.get_clock">
-<span class="sig-name descname"><span class="pre">get_clock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clock_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.ClockType.html#cuda.core.system.typing.ClockType" title="cuda.core.system.typing.ClockType"><span class="pre">ClockType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system._device.ClockInfo.html#cuda.core.system._device.ClockInfo" title="cuda.core.system._device.ClockInfo"><span class="pre">ClockInfo</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.get_clock" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_clock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clock_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.ClockType.html#cuda.core.system.typing.ClockType" title="cuda.core.system.typing.ClockType"><span class="pre">ClockType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system._device.ClockInfo.html#cuda.core.system._device.ClockInfo" title="cuda.core.system._device.ClockInfo"><span class="pre">ClockInfo</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.get_clock" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference internal" href="cuda.core.system._device.ClockInfo.html#cuda.core.system._device.ClockInfo" title="cuda.core.system._device.ClockInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClockInfo</span></code></a> object to get information about and manage a specific clock on a device.</p>
 </dd></dl>
 
@@ -864,10 +864,10 @@ enum, or a pair of (<code class="xref py py-class docutils literal notranslate">
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope" title="cuda.core.system.typing.AffinityScope"><span class="pre">AffinityScope</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">AffinityScope.NODE</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope" title="cuda.core.system.typing.AffinityScope"><span class="pre">AffinityScope</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">AffinityScope.NODE</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_cpu_affinity" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_cpu_affinity" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
 CPU affinity for the device.</p>
 <p>For Kepler™ or newer fully supported devices.</p>
@@ -877,7 +877,7 @@ will fall back to reporting the memory affinity for the immediate non-I/O
 ancestor of the device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>scope</strong> (<a class="reference internal" href="cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope" title="cuda.core.system.typing.AffinityScope"><em>AffinityScope</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The scope of the affinity query.  Must be one of the values of
+<dd class="field-odd"><p><strong>scope</strong> (<a class="reference internal" href="cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope" title="cuda.core.system.typing.AffinityScope"><em>AffinityScope</em></a><em> | </em><em>str</em><em>, </em><em>optional</em>) – The scope of the affinity query.  Must be one of the values of
 <code class="xref py py-class docutils literal notranslate"><span class="pre">AffinityScope</span></code>.  Default is <code class="xref py py-attr docutils literal notranslate"><span class="pre">AffinityScope.NODE</span></code>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -885,21 +885,21 @@ ancestor of the device.</p>
 affinity for the device.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+<dd class="field-odd"><p>list[int]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.get_device_count">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_device_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.get_device_count" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_device_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_device_count" title="Link to this definition">#</a></dt>
 <dd><p>Get the number of available devices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The number of available devices.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-even"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -921,7 +921,7 @@ returned <a class="reference internal" href="cuda.core.system._device.FieldValue
 <a class="reference internal" href="cuda.core.system._device.FieldValues.html#cuda.core.system._device.FieldValues.validate" title="cuda.core.system._device.FieldValues.validate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>field_ids</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>]</em>) – <p>List of field IDs to query.</p>
+<dd class="field-odd"><p><strong>field_ids</strong> (<em>list</em><em>[</em><em>int</em><em> | </em><em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>]</em>) – <p>List of field IDs to query.</p>
 <p>Each item may be either a single value from the <code class="xref py py-class docutils literal notranslate"><span class="pre">FieldId</span></code>
 enum, or a pair of (<code class="xref py py-class docutils literal notranslate"><span class="pre">FieldId</span></code>, scope ID).</p>
 </p>
@@ -941,10 +941,10 @@ enum, or a pair of (<code class="xref py py-class docutils literal notranslate">
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope" title="cuda.core.system.typing.AffinityScope"><span class="pre">AffinityScope</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">AffinityScope.NODE</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope" title="cuda.core.system.typing.AffinityScope"><span class="pre">AffinityScope</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">AffinityScope.NODE</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_memory_affinity" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_memory_affinity" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
 memory affinity for the device.</p>
 <p>For Kepler™ or newer fully supported devices.</p>
@@ -954,7 +954,7 @@ will fall back to reporting the memory affinity for the immediate non-I/O
 ancestor of the device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>scope</strong> (<a class="reference internal" href="cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope" title="cuda.core.system.typing.AffinityScope"><em>AffinityScope</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The scope of the affinity query.  Must be one of the values of
+<dd class="field-odd"><p><strong>scope</strong> (<a class="reference internal" href="cuda.core.system.typing.AffinityScope.html#cuda.core.system.typing.AffinityScope" title="cuda.core.system.typing.AffinityScope"><em>AffinityScope</em></a><em> | </em><em>str</em><em>, </em><em>optional</em>) – The scope of the affinity query.  Must be one of the values of
 <code class="xref py py-class docutils literal notranslate"><span class="pre">AffinityScope</span></code>.  Default is <code class="xref py py-attr docutils literal notranslate"><span class="pre">AffinityScope.NODE</span></code>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -962,7 +962,7 @@ ancestor of the device.</p>
 affinity for the device.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+<dd class="field-odd"><p>list[int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -976,7 +976,7 @@ affinity for the device.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.get_nvlink_count">
-<span class="sig-name descname"><span class="pre">get_nvlink_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.get_nvlink_count" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_nvlink_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_nvlink_count" title="Link to this definition">#</a></dt>
 <dd><p>Get the number of NVLink links on this device.</p>
 <p>For devices with NVLink support.</p>
 </dd></dl>
@@ -990,7 +990,7 @@ affinity for the device.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.get_supported_event_types">
-<span class="sig-name descname"><span class="pre">get_supported_event_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><span class="pre">EventType</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_supported_event_types" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_supported_event_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><span class="pre">EventType</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_supported_event_types" title="Link to this definition">#</a></dt>
 <dd><p>Get the list of event types supported by this device.</p>
 <p>For Fermi™ or newer fully supported devices.  For Linux only (returns an
 empty list on Windows).</p>
@@ -999,7 +999,7 @@ empty list on Windows).</p>
 <dd class="field-odd"><p>The list of supported event types.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType">EventType</a>]</p>
+<dd class="field-even"><p>list[<a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType">EventType</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1010,7 +1010,7 @@ empty list on Windows).</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.GpuTopologyLevel.html#cuda.core.system.typing.GpuTopologyLevel" title="cuda.core.system.typing.GpuTopologyLevel"><span class="pre">GpuTopologyLevel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.GpuTopologyLevel.html#cuda.core.system.typing.GpuTopologyLevel" title="cuda.core.system.typing.GpuTopologyLevel"><span class="pre">GpuTopologyLevel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><span class="pre">Device</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_topology_nearest_gpus" title="Link to this definition">#</a></dt>
@@ -1035,7 +1035,7 @@ empty list on Windows).</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><span class="pre">EventType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><span class="pre">EventType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><span class="pre">EventType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><span class="pre">EventType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system._device.DeviceEvents.html#cuda.core.system._device.DeviceEvents" title="cuda.core.system._device.DeviceEvents"><span class="pre">DeviceEvents</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.register_events" title="Link to this definition">#</a></dt>
@@ -1059,7 +1059,7 @@ the <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>events</strong> (<a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><em>EventType</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><em>EventType</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The event type or list of event types to register for this device.</p>
+<dd class="field-odd"><p><strong>events</strong> (<a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><em>EventType</em></a><em>, </em><em>str</em><em>, or </em><em>list</em><em> of </em><a class="reference internal" href="cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType" title="cuda.core.system.typing.EventType"><em>EventType</em></a><em> or </em><em>str</em>) – The event type or list of event types to register for this device.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An object representing the registered events.  Call
@@ -1076,7 +1076,7 @@ the <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.set_cpu_affinity">
-<span class="sig-name descname"><span class="pre">set_cpu_affinity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.set_cpu_affinity" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_cpu_affinity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cuda.core.system.Device.set_cpu_affinity" title="Link to this definition">#</a></dt>
 <dd><p>Sets the ideal affinity for the calling thread and device.</p>
 <p>For Kepler™ or newer fully supported devices.</p>
 <p>Supported on Linux only.</p>
@@ -1097,7 +1097,7 @@ NVIDIA Management Library (NVML) access).</p>
 <dd class="field-even"><p><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device">cuda.core.Device</a></p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – No corresponding CUDA device is found for this NVML device.
+<dd class="field-odd"><p><strong>RuntimeError</strong> – No corresponding CUDA device is found for this NVML device.
     
     For example, on a MIG system, the physical GPU will not have an
     available CUDA device, since it can not be used directly, even
@@ -1347,7 +1347,7 @@ where 0 is maximum performance and higher numbers are lower performance.
 Returns <cite>None</cite> if the performance state is unknown.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> | None</p>
+<dd class="field-even"><p>int | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1391,7 +1391,7 @@ between 0 and 15, where 0 is maximum performance and higher numbers
 are lower performance.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+<dd class="field-even"><p>list[int]</p>
 </dd>
 </dl>
 </dd></dl>
