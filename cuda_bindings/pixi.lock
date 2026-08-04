@@ -37,7 +37,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-12.9.86-h4bc722e_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-tools-12.9.86-h4bc722e_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-profiler-api-12.9.79-h7938cbb_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.4-py314h1807b08_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.8-py314h1807b08_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dav1d-1.2.1-hd590300_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dbus-1.16.2-h24cb091_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ffmpeg-8.0.1-gpl_hcddb375_914.conda
@@ -238,7 +238,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-impl-12.9.86-h7b14b0b_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-tools-12.9.86-h7b14b0b_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-profiler-api-12.9.79-h16bee8c_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.4-py314h4c416a3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.8-py314hc6b4731_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dav1d-1.2.1-h31becfc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dbus-1.16.2-h70963c4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/ffmpeg-8.0.1-gpl_h62efc85_914.conda
@@ -469,7 +469,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-impl-12.9.86-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-tools-12.9.86-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-profiler-api-12.9.79-h57928b3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.4-py314h344ed54_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.8-py314h344ed54_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/dav1d-1.2.1-hcfcfb64_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/ffmpeg-8.0.1-gpl_hb2d76f6_914.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/fontconfig-2.17.1-hd47e2ca_0.conda
@@ -574,7 +574,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-13.3.33-h4bc722e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-tools-13.3.33-h4bc722e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-profiler-api-13.3.27-h7938cbb_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.4-py314h1807b08_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.8-py314h1807b08_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dav1d-1.2.1-hd590300_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dbus-1.16.2-h24cb091_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ffmpeg-8.0.1-gpl_hb3f9226_906.conda
@@ -767,7 +767,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-impl-13.3.33-h7b14b0b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-tools-13.3.33-h7b14b0b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-profiler-api-13.3.27-h16bee8c_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.4-py314h4c416a3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.8-py314hc6b4731_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dav1d-1.2.1-h31becfc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dbus-1.16.2-h70963c4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/ffmpeg-8.0.1-gpl_h936a714_906.conda
@@ -990,7 +990,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-impl-13.3.33-h2466b09_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-tools-13.3.33-h2466b09_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-profiler-api-13.3.27-h57928b3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.4-py314h344ed54_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.8-py314h344ed54_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/dav1d-1.2.1-hcfcfb64_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/ffmpeg-8.0.1-gpl_h74fd8f1_908.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/fontconfig-2.15.0-h765892d_1.conda
@@ -1089,7 +1089,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-13.3.73-h4bc722e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-tools-13.3.73-h4bc722e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-profiler-api-13.3.27-h7938cbb_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.3-py314h1807b08_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.8-py314h1807b08_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dav1d-1.2.1-hd590300_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dbus-1.16.2-h24cb091_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ffmpeg-8.0.1-gpl_hb3f9226_906.conda
@@ -1282,7 +1282,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-impl-13.3.73-h7b14b0b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-tools-13.3.73-h7b14b0b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-profiler-api-13.3.27-h16bee8c_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.3-py314h4c416a3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.8-py314hc6b4731_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dav1d-1.2.1-h31becfc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dbus-1.16.2-h70963c4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/ffmpeg-8.0.1-gpl_h936a714_906.conda
@@ -1505,7 +1505,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-impl-12.9.86-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-tools-12.9.86-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-profiler-api-12.9.79-h57928b3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.3-py314h344ed54_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.8-py314h344ed54_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/dav1d-1.2.1-hcfcfb64_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/ffmpeg-8.0.1-gpl_h74fd8f1_907.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/fontconfig-2.15.0-h765892d_1.conda
@@ -1597,7 +1597,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-bindings-13.2.0-py312hf79963d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvrtc-13.3.33-hecca717_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cuda-nvvm-impl-13.3.33-h4bc722e_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.4-py312h68e6be4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.9-py312h68e6be4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.20-py312h8285ef7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/greenlet-3.3.2-py312h8285ef7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-78.3-h33c6efd_0.conda
@@ -1772,7 +1772,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-bindings-13.2.0-py312hdc0efb6_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvrtc-13.3.33-h8f3c8d4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cuda-nvvm-impl-13.3.33-h7b14b0b_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.4-py312he940de5_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.9-py312hbda70bc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/debugpy-1.8.20-py312hf55c4e8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/greenlet-3.3.2-py312hf55c4e8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/icu-78.3-hcab7f73_0.conda
@@ -2059,7 +2059,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-bindings-13.2.0-py312hc128f0a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvrtc-13.3.33-hac47afa_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cuda-nvvm-impl-13.3.33-h2466b09_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.4-py312hd245ac3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.9-py312hd245ac3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.20-py312ha1a9051_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/greenlet-3.3.2-py312ha1a9051_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/krb5-1.22.2-h0ea6238_0.conda
@@ -2639,47 +2639,6 @@ packages:
   run_exports: {}
   size: 25007
   timestamp: 1779913616712
-- conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.3-py314h1807b08_0.conda
-  sha256: a0e2ed0efefb82278e0fd1d455d10d1095d951a896591838b30674aa872300c4
-  md5: f0658a93053b13335be941289d7d6160
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=14
-  - libstdcxx >=14
-  - python >=3.14,<3.15.0a0
-  - python_abi 3.14.* *_cp314
-  license: Apache-2.0
-  license_family: APACHE
-  size: 3797747
-  timestamp: 1765651158436
-- conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.4-py312h68e6be4_0.conda
-  sha256: 01b815091e0c534a5f32a830b514e31c150dc2f539b7ba1d5c70b6d095a5ebcf
-  md5: 14f638dad5953c83443a2c4f011f1c9e
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=14
-  - libstdcxx >=14
-  - python >=3.12,<3.13.0a0
-  - python_abi 3.12.* *_cp312
-  license: Apache-2.0
-  license_family: APACHE
-  purls:
-  - pkg:pypi/cython?source=hash-mapping
-  size: 3738170
-  timestamp: 1767577770165
-- conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.4-py314h1807b08_0.conda
-  sha256: f700d10c2a794710a1656a6fdb8908fb04f3c7812ac4f17187777646ede1a3d9
-  md5: 866fd3d25b767bccb4adc8476f4035cd
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=14
-  - libstdcxx >=14
-  - python >=3.14,<3.15.0a0
-  - python_abi 3.14.* *_cp314
-  license: Apache-2.0
-  license_family: APACHE
-  size: 3806945
-  timestamp: 1767576996860
 - conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.8-py314h1807b08_0.conda
   sha256: f0210259007f573e38f7b8037be9b36e53aa0906b786e9f1f931e0a24f8a18e6
   md5: 0e6a14f60b561b2fff81d325b4dc8283
@@ -2694,6 +2653,22 @@ packages:
   run_exports: {}
   size: 3819412
   timestamp: 1782821647528
+- conda: https://conda.anaconda.org/conda-forge/linux-64/cython-3.2.9-py312h68e6be4_0.conda
+  sha256: 13e37a868e52933951b3f80fd5fe953742804499f2ee2b9a123e74070c265c0d
+  md5: 7311d3a6721eec7d76f4a84045f1ddfd
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - libgcc >=14
+  - libstdcxx >=14
+  - python >=3.12,<3.13.0a0
+  - python_abi 3.12.* *_cp312
+  license: Apache-2.0
+  license_family: APACHE
+  purls:
+  - pkg:pypi/cython?source=hash-mapping
+  run_exports: {}
+  size: 3731635
+  timestamp: 1785016112258
 - conda: https://conda.anaconda.org/conda-forge/linux-64/dav1d-1.2.1-hd590300_0.conda
   sha256: 22053a5842ca8ee1cf8e1a817138cdb5e647eb2c46979f84153f6ad7bde73020
   md5: 418c6ca5929a611cbd69204907a83995
@@ -7148,47 +7123,6 @@ packages:
   run_exports: {}
   size: 25101
   timestamp: 1779913642980
-- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.3-py314h4c416a3_0.conda
-  sha256: 431042164f0f50ce173be72d96f6a9ec069d1a4846f19ff8cf616ea98678a090
-  md5: e641cbdecc93a5e243af87d198edc716
-  depends:
-  - libgcc >=14
-  - libstdcxx >=14
-  - python >=3.14,<3.15.0a0
-  - python >=3.14,<3.15.0a0 *_cp314
-  - python_abi 3.14.* *_cp314
-  license: Apache-2.0
-  license_family: APACHE
-  size: 3701570
-  timestamp: 1765651306767
-- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.4-py312he940de5_0.conda
-  sha256: 30bfb6445b8ae8022996283faa2d918393b1f0f78e37014995e1733e50df4303
-  md5: 2f50ec4afc8e9f402b9041e9cee62744
-  depends:
-  - libgcc >=14
-  - libstdcxx >=14
-  - python >=3.12,<3.13.0a0
-  - python >=3.12,<3.13.0a0 *_cpython
-  - python_abi 3.12.* *_cp312
-  license: Apache-2.0
-  license_family: APACHE
-  purls:
-  - pkg:pypi/cython?source=hash-mapping
-  size: 3629503
-  timestamp: 1767577211661
-- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.4-py314h4c416a3_0.conda
-  sha256: 1369b5b23d9451ae3ef678cb68678778a6ea164186bc8ebe6539a1d6fa803da8
-  md5: 822c83a4ba5a12101695ba39607c338f
-  depends:
-  - libgcc >=14
-  - libstdcxx >=14
-  - python >=3.14,<3.15.0a0
-  - python >=3.14,<3.15.0a0 *_cp314
-  - python_abi 3.14.* *_cp314
-  license: Apache-2.0
-  license_family: APACHE
-  size: 3707806
-  timestamp: 1767577060898
 - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.8-py314hc6b4731_0.conda
   sha256: 4add54f62b3fbdc7f8e1238f5e5990e16a561bed33d18e3dbc1db1d4f6cf8572
   md5: c8ec76477232c7e59f68545a1b4fb8ea
@@ -7202,6 +7136,21 @@ packages:
   run_exports: {}
   size: 3747072
   timestamp: 1782821625037
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cython-3.2.9-py312hbda70bc_0.conda
+  sha256: 9c3df78ef64fc05aaf01b4d16ccefe25656b7aac677a3a9d5e89e0c462c65a2c
+  md5: 30984003a6a35ea7b9eedc979cf52c7e
+  depends:
+  - libgcc >=14
+  - libstdcxx >=14
+  - python >=3.12,<3.13.0a0
+  - python_abi 3.12.* *_cp312
+  license: Apache-2.0
+  license_family: APACHE
+  purls:
+  - pkg:pypi/cython?source=hash-mapping
+  run_exports: {}
+  size: 3649707
+  timestamp: 1785016066705
 - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/dav1d-1.2.1-h31becfc_0.conda
   sha256: 33fe66d025cf5bac7745196d1a3dd7a437abcf2dbce66043e9745218169f7e17
   md5: 6e5a87182d66b2d1328a96b61ca43a62
@@ -13825,47 +13774,6 @@ packages:
   run_exports: {}
   size: 25690
   timestamp: 1779913686281
-- conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.3-py314h344ed54_0.conda
-  sha256: 6406b67af71dc477f891e6380eb6021d012ea467635c432017f08f954fa2b98d
-  md5: 91e2ed41320f5c89cc6d77ef47a820cd
-  depends:
-  - python >=3.14,<3.15.0a0
-  - python_abi 3.14.* *_cp314
-  - ucrt >=10.0.20348.0
-  - vc >=14.3,<15
-  - vc14_runtime >=14.44.35208
-  license: Apache-2.0
-  license_family: APACHE
-  size: 3336844
-  timestamp: 1765651351516
-- conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.4-py312hd245ac3_0.conda
-  sha256: 68e921fad16accb32e86c7c73abaea7d49c9346e078924d0a593f821672a5a0c
-  md5: 575ebca0d973015c21087b800bc48515
-  depends:
-  - python >=3.12,<3.13.0a0
-  - python_abi 3.12.* *_cp312
-  - ucrt >=10.0.20348.0
-  - vc >=14.3,<15
-  - vc14_runtime >=14.44.35208
-  license: Apache-2.0
-  license_family: APACHE
-  purls:
-  - pkg:pypi/cython?source=hash-mapping
-  size: 3285032
-  timestamp: 1767577225362
-- conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.4-py314h344ed54_0.conda
-  sha256: c2e08246f2e6f38b5793ebc8d36de32704e4f152ed959ab0558d529580610e0e
-  md5: 545afbc1940d8a81f114b9c14eecf2ca
-  depends:
-  - python >=3.14,<3.15.0a0
-  - python_abi 3.14.* *_cp314
-  - ucrt >=10.0.20348.0
-  - vc >=14.3,<15
-  - vc14_runtime >=14.44.35208
-  license: Apache-2.0
-  license_family: APACHE
-  size: 3332872
-  timestamp: 1767577440799
 - conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.8-py314h344ed54_0.conda
   sha256: 8900c3a11e71521ed7400265a36686c4ed3973b937658c1f58cc74b707a1c173
   md5: 596f6f1a842a246dbe778dce002d0ca5
@@ -13880,6 +13788,22 @@ packages:
   run_exports: {}
   size: 3338147
   timestamp: 1782821777709
+- conda: https://conda.anaconda.org/conda-forge/win-64/cython-3.2.9-py312hd245ac3_0.conda
+  sha256: 277887d63842d6b9d8a49f6bde1c57149fd65342c85e1f3e2aa44402125d3115
+  md5: 762f58961f768b8790a215a8521d33cd
+  depends:
+  - python >=3.12,<3.13.0a0
+  - python_abi 3.12.* *_cp312
+  - ucrt >=10.0.20348.0
+  - vc >=14.3,<15
+  - vc14_runtime >=14.44.35208
+  license: Apache-2.0
+  license_family: APACHE
+  purls:
+  - pkg:pypi/cython?source=hash-mapping
+  run_exports: {}
+  size: 3316549
+  timestamp: 1785016176418
 - conda: https://conda.anaconda.org/conda-forge/win-64/dav1d-1.2.1-hcfcfb64_0.conda
   sha256: 2aa2083c9c186da7d6f975ccfbef654ed54fff27f4bc321dbcd12cee932ec2c4
   md5: ed2c27bda330e3f0ab41577cf8b9b585

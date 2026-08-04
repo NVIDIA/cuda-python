@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5e55307c8ff89e076c29fc7c2a36bf0af7ecf3162693a4c94d7fca65454d6a9e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f4f48bbdecd36a33b5561334a2c33ce79322a49091f8ac6cfea40ec71c94287a
 from libc.stdint cimport int64_t
 
 
@@ -2357,3 +2357,7 @@ cdef nvmlReturn_t nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgpu
 cdef nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_v2_t* pSchedulerLogInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlSystemGetCPER_v1(nvmlGetCPER_v1_t* cper) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetBBXTimeData_v1(nvmlDevice_t device, nvmlBBXTimeData_v1_t* timeData) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetAccountingStats_v2(nvmlDevice_t device, nvmlAccountingStats_v2_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappedRowsInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil

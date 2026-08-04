@@ -84,7 +84,7 @@ class IPCAllocationHandle:
     @property
     def uuid(self) -> uuid.UUID:
         ...
-__all__ = ['IPCBufferDescriptor', 'IPCAllocationHandle']
+__all__ = []
 
 def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
     ...

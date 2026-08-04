@@ -10,11 +10,11 @@ import textwrap
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
-from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def driverVersionLessThan(target):
@@ -213,12 +213,9 @@ def test_cuda_repr():
         value : 0
     nvSciSync :
         fence : 0x0
-        reserved : 0
     keyedMutex :
         key : 0
-    reserved : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 flags : 0
-reserved : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 """)
     assert actual_repr.split() == expected_repr.split()
 
@@ -606,16 +603,6 @@ def test_eglFrame():
     assert int(val.frame.pPitch[0]) == 1
     assert int(val.frame.pPitch[1]) == 2
     assert int(val.frame.pPitch[2]) == 3
-
-
-def test_char_range():
-    val = cuda.CUipcMemHandle_st()
-    for x in range(-128, 0):
-        val.reserved = [x] * 64
-        assert val.reserved[0] == 256 + x
-    for x in range(256):
-        val.reserved = [x] * 64
-        assert val.reserved[0] == x
 
 
 def test_anon_assign():
@@ -1008,7 +995,6 @@ def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
-            assert ed.reserved == b"\x00" * 5
     finally:
         (err,) = cuda.cuGraphDestroy(graph)
         assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1048,7 +1034,6 @@ def test_cuGraphNodeGetDependencies_edgeData_outlives_call(device, ctx):
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
-            assert ed.reserved == b"\x00" * 5
     finally:
         (err,) = cuda.cuGraphDestroy(graph)
         assert err == cuda.CUresult.CUDA_SUCCESS

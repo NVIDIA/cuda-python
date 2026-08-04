@@ -18,6 +18,22 @@ Fixes and enhancements
   (`#2357 <https://github.com/NVIDIA/cuda-python/pull/2357>`__,
   `#2371 <https://github.com/NVIDIA/cuda-python/pull/2371>`__)
 
+- Added ``update()`` methods to kernel, memcpy, memset, child-graph, event
+  record, event wait, and host-callback graph definition nodes. Updates change
+  parameters used by future graph instantiations without affecting existing
+  executable graphs. This feature requires CUDA driver and ``cuda.bindings``
+  versions 12.2 or newer.
+  (`#2352 <https://github.com/NVIDIA/cuda-python/issues/2352>`__)
+
+- :meth:`Linker.which_backend` and constructing a :class:`Linker` no longer
+  raise ``FunctionNotFoundError`` when an nvJitLink older than 12.3
+  (12.0–12.2) is installed. These versions do not export the unversioned
+  ``nvJitLinkVersion`` symbol, so probing the version crashed instead of
+  falling back. ``cuda.core`` now warns and falls back to the driver
+  (``cuLink``) backend, restoring the pre-0.7.0 behavior.
+  (`#2409 <https://github.com/NVIDIA/cuda-python/pull/2409>`__,
+  closes `#2408 <https://github.com/NVIDIA/cuda-python/issues/2408>`__)
+
 - Growing a :class:`VirtualMemoryResource` allocation now preserves the buffer's
   base pointer when the driver can extend the reservation contiguously.
   Previously an address comparison never matched, so every grow re-reserved and

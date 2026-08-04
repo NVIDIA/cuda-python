@@ -6,12 +6,12 @@ import math
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda import pathfinder
 from cuda.bindings import runtime
-from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def isSuccess(err):
@@ -294,7 +294,6 @@ def test_cudart_cudaGraphGetEdges_edgeData_outlives_call():
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
-            assert ed.reserved == b"\x00" * 5
     finally:
         (err,) = cudart.cudaGraphDestroy(graph)
         assertSuccess(err)
@@ -334,7 +333,6 @@ def test_cudart_cudaGraphNodeGetDependencies_edgeData_outlives_call():
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
-            assert ed.reserved == b"\x00" * 5
     finally:
         (err,) = cudart.cudaGraphDestroy(graph)
         assertSuccess(err)
