@@ -34,16 +34,55 @@ from helpers.child_processes import child_timeout_sec, kill_subprocesses
 # but would need far too many to cover a 48-bit space.
 POOL_BYTES_COARSE = 64 * 1024**3
 POOL_BYTES_FINE = 1024**3
-MAX_POOLS_PER_PASS = 4096
 BLOCK_MS = 2000
 
+# The cost that matters is the number of pools, not their size: every one has to
+# be created, then destroyed again with its stream-ordered free queued behind the
+# blocking kernel. This cap bounds both halves. A machine needing more than this
+# to exhaust its address space skips instead, which is how large-address-space
+# environments (WSL, for one) opt out without naming a platform.
+MAX_POOLS_TOTAL = 512
+# Ceiling for the address-space probe, reached by doubling from 1 GiB.
+VA_PROBE_LIMIT = 256 * 1024**4
+VA_ALIGNMENT = 2 * 1024**2
+
+# Outcomes meaning this machine cannot host the probe, so there is nothing to
+# assert. The parent skips on all of these.
+UNSUPPORTED = "unsupported"
+ADDRESS_SPACE_TOO_LARGE = "address-space-too-large"
 NO_EXHAUSTION = "no-exhaustion"
+BUDGET_EXPIRED = "budget-expired"
 NOT_DEFERRED = "not-deferred"
+SKIP_OUTCOMES = frozenset({UNSUPPORTED, ADDRESS_SPACE_TOO_LARGE, NO_EXHAUSTION, BUDGET_EXPIRED, NOT_DEFERRED})
+
+# Outcomes meaning the probe actually ran. The parent asserts on these.
 RECOVERED = "recovered"
 NOT_RECOVERED = "not-recovered"
-UNSUPPORTED = "unsupported"
 CRASHED = "crashed"
-TIMED_OUT = "timed-out"
+
+# Parent-side only: the child never reported anything, so its own budgets failed
+# to keep it inside the timeout. Distinct from BUDGET_EXPIRED, where the child
+# recognised it was out of time and bowed out cleanly -- that skips, this fails.
+NO_RESULT = "no-result"
+
+
+def _largest_va_reservation(driver):
+    """Largest single VA range that can be reserved, found by doubling.
+
+    A reservation costs address space but no physical memory, so this is cheap.
+    It is a lower bound on the total space, which is all that is needed to decide
+    whether exhausting it is affordable.
+    """
+    largest = 0
+    size = 1024**3
+    while size <= VA_PROBE_LIMIT:
+        err, ptr = driver.cuMemAddressReserve(size, VA_ALIGNMENT, 0, 0)
+        if err != driver.CUresult.CUDA_SUCCESS:
+            break
+        driver.cuMemAddressFree(ptr, size)
+        largest = size
+        size *= 2
+    return largest
 
 
 def _run_deferred_release():
@@ -70,6 +109,14 @@ def _run_deferred_release():
     err, dev = driver.cuDeviceGet(0)
     assert err == driver.CUresult.CUDA_SUCCESS, err
 
+    # Decide up front whether exhausting this address space is affordable, rather
+    # than discovering it by running out of budget partway through.
+    va_bytes = _largest_va_reservation(driver)
+    if va_bytes // POOL_BYTES_COARSE > MAX_POOLS_TOTAL:
+        return ADDRESS_SPACE_TOO_LARGE, (
+            f"address space of at least {va_bytes / 1024**4:.1f} TiB needs over {MAX_POOLS_TOTAL} pools to exhaust"
+        )
+
     def default_pool_available():
         err, _pool = driver.cuDeviceGetMemPool(dev)
         return err == driver.CUresult.CUDA_SUCCESS
@@ -82,15 +129,22 @@ def _run_deferred_release():
 
     pools = []
     buffers = []
-    # Stop well inside the parent's timeout. An address space too large to
-    # exhaust -- WSL, for one -- would otherwise grind through thousands of pool
-    # creations until the parent gave up, failing the run instead of skipping it.
-    deadline = time.monotonic() + child_timeout_sec() / 2
+    # Stay well inside the parent's timeout, in two stages. Reserving stops at
+    # the first deadline; the deferred-release phase that follows is expensive in
+    # its own right (destroying every pool, waiting out the blocking kernel, then
+    # retrying), so if that cannot also fit we skip instead of letting the parent
+    # time out. Capping only the reservation loop is not enough -- a large address
+    # space produces thousands of pools whose teardown alone overruns the budget.
+    budget = child_timeout_sec()
+    reserve_deadline = time.monotonic() + budget / 3
+    recovery_deadline = time.monotonic() + budget / 2
 
     def reserve_until_oom(pool_bytes):
         options = DeviceMemoryResourceOptions(max_size=pool_bytes)
-        for _ in range(MAX_POOLS_PER_PASS):
-            if time.monotonic() > deadline:
+        # The cap is shared across both passes: it bounds total teardown cost, so
+        # splitting it per pass would let the two together exceed the budget.
+        while len(pools) < MAX_POOLS_TOTAL:
+            if time.monotonic() > reserve_deadline:
                 return
             try:
                 mr = DeviceMemoryResource(device, options=options)
@@ -110,6 +164,8 @@ def _run_deferred_release():
 
     if default_pool_available():
         return NO_EXHAUSTION, f"{len(pools)} pools reserved, default pool still available"
+    if time.monotonic() > recovery_deadline:
+        return BUDGET_EXPIRED, f"exhausted with {len(pools)} pools, too slow to also test recovery"
 
     # Stall the deallocation stream behind a slow kernel on another stream, so
     # the frees below cannot retire until the context is drained.
@@ -122,7 +178,7 @@ def _run_deferred_release():
 
     if default_pool_available():
         # Release outran us; there was no deferred window to recover from.
-        return NOT_DEFERRED, None
+        return NOT_DEFERRED, "pool release completed before the retry could be tested"
 
     # The raw lookup just failed, so anything the retried lookup achieves below
     # is attributable to the retry itself -- no cross-build comparison needed.
@@ -158,17 +214,13 @@ def test_default_mempool_lookup_recovers_from_deferred_release():
     try:
         outcome, detail = result_queue.get(timeout=child_timeout_sec())
     except queue.Empty:
-        outcome, detail = TIMED_OUT, f"child produced no result within {child_timeout_sec()}s"
+        outcome, detail = NO_RESULT, f"child produced no result within {child_timeout_sec()}s"
     finally:
         proc.join(timeout=child_timeout_sec())
         survivors = kill_subprocesses(proc)
 
-    if outcome == UNSUPPORTED:
-        pytest.skip(detail)
-    if outcome == NO_EXHAUSTION:
-        pytest.skip(f"could not exhaust the address space: {detail}")
-    if outcome == NOT_DEFERRED:
-        pytest.skip("pool release completed too quickly to leave a deferred window")
+    if outcome in SKIP_OUTCOMES:
+        pytest.skip(f"{outcome}: {detail}")
 
     assert outcome == RECOVERED, f"{outcome}: {detail}"
     assert not survivors, "child process did not exit"
