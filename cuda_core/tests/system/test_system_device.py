@@ -722,6 +722,25 @@ def test_temperature():
             assert sensor.default_min_temp <= sensor.current_temp <= sensor.default_max_temp
 
 
+@pytest.mark.thread_unsafe(reason="Temporarily replaces process-global NVML functions")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_temperature_threshold_unrecognized_device_arch(monkeypatch):
+    temperature = system.Device(index=0).temperature
+    unrecognized_arch = int(nvml.DeviceArch.UNKNOWN) - 1
+    with pytest.raises(ValueError):
+        nvml.DeviceArch(unrecognized_arch)
+
+    monkeypatch.setattr(nvml, "device_get_architecture", lambda _handle: unrecognized_arch)
+    monkeypatch.setattr(
+        nvml,
+        "device_get_temperature_threshold",
+        lambda _handle, _threshold: 42,
+    )
+
+    with pytest.warns(DeprecationWarning, match="no longer recommended"):
+        assert temperature.get_threshold(typing.TemperatureThresholds.SHUTDOWN) == 42
+
+
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_temperature_arg_validation():
     # Both getters reject an unknown key before issuing any NVML call.
