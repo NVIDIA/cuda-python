@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a1baaf45"></script>
+    <script src="../_static/documentation_options.js?v=16f433b3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev5';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev18';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -752,6 +752,24 @@
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Buffer cleanup is now context-safe. A <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> keeps a handle on the
+CUDA context its allocation and deallocation stream depend on, and makes that
+context current while the memory is freed, restoring the thread’s prior
+context afterwards. Previously the free could fail and leak the allocation
+whenever no suitable context was current on the releasing thread, which
+notably affected buffers attached to a graph, since those are released from a
+deferred cleanup queue rather than from the code that created them. Failures
+encountered during cleanup are now reported on <code class="docutils literal notranslate"><span class="pre">stderr</span></code> instead of being
+discarded, and memory-pool deallocation no longer treats
+<code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_CONTEXT</span></code> as success.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2455">#2455</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_handle" title="cuda.core.Buffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a> and <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.from_handle" title="cuda.core.ManagedBuffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ManagedBuffer.from_handle()</span></code></a> accept a new
+keyword-only <code class="docutils literal notranslate"><span class="pre">stream</span></code> argument that records the stream to be passed to
+<code class="docutils literal notranslate"><span class="pre">MemoryResource.deallocate()</span></code> when the adopted pointer is released. It
+defaults to the calling thread’s default stream, so a stream-ordered memory
+resource is no longer handed <code class="docutils literal notranslate"><span class="pre">stream=None</span></code> at destruction
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2001">#2001</a>).
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2455">#2455</a>)</p></li>
 <li><p>Graph node resources are now retained independently across graph clones,
 executable graphs, updates, node deletion, and in-flight launches. Previously,
 modifying a graph definition could release resources still used by an
@@ -760,6 +778,12 @@ CUDA from a CUDA-invoked callback, where CUDA API calls are prohibited; these
 objects are now released from a safe context.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2357">#2357</a>,
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2371">#2371</a>)</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">update()</span></code> methods to kernel, memcpy, memset, child-graph, event
+record, event wait, and host-callback graph definition nodes. Updates change
+parameters used by future graph instantiations without affecting existing
+executable graphs. This feature requires CUDA driver and <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
+versions 12.2 or newer.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2352">#2352</a>)</p></li>
 </ul>
 </section>
 <section id="deprecation-notices">
