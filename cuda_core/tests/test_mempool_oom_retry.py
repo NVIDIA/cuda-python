@@ -26,6 +26,7 @@ import queue
 import traceback
 
 import pytest
+from helpers import IS_WSL
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 
 # Fill coarsely first, then top up finely. A single pool size cannot do both:
@@ -206,6 +207,9 @@ def _worker_deferred_release(result_queue):
 
 @pytest.mark.agent_authored(model="claude-opus-5")
 @pytest.mark.thread_unsafe(reason="Reserves the device's entire virtual address space.")
+# Must be pre-spawn: the budgets below are checked between operations, and under
+# WSL control never returns to Python for them to run.
+@pytest.mark.skipif(IS_WSL, reason="child blocks in the CUDA driver; in-child budgets cannot preempt it")
 def test_default_mempool_lookup_recovers_from_deferred_release():
     ctx = _mp.get_context("spawn")
     result_queue = ctx.Queue()
