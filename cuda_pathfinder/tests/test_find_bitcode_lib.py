@@ -29,10 +29,10 @@ def _bitcode_lib_filename(libname: str) -> str:
 
 @pytest.fixture
 def clear_find_bitcode_lib_cache():
-    find_bitcode_lib_module.find_bitcode_lib.cache_clear()
+    find_bitcode_lib_module.locate_bitcode_lib.cache_clear()
     get_cuda_path_or_home.cache_clear()
     yield
-    find_bitcode_lib_module.find_bitcode_lib.cache_clear()
+    find_bitcode_lib_module.locate_bitcode_lib.cache_clear()
     get_cuda_path_or_home.cache_clear()
 
 
@@ -124,11 +124,13 @@ def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path, libname):
     assert located_lib.abs_path == site_packages_path
     assert located_lib.found_via == "site-packages"
     os.remove(site_packages_path)
+    find_bitcode_lib_module.locate_bitcode_lib.cache_clear()
 
     located_lib = locate_bitcode_lib(libname)
     assert located_lib.abs_path == conda_path
     assert located_lib.found_via == "conda"
     os.remove(conda_path)
+    find_bitcode_lib_module.locate_bitcode_lib.cache_clear()
 
     located_lib = locate_bitcode_lib(libname)
     assert located_lib.abs_path == cuda_home_path

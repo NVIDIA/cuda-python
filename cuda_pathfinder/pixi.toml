@@ -70,6 +70,7 @@ setuptools = ">=80"
 setuptools-scm = ">=8"
 
 [package.run-dependencies]
+packaging = "*"
 python = ">=3.10"
 
 [target.linux.tasks.test]
