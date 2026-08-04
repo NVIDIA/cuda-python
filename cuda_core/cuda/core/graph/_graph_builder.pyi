@@ -463,11 +463,12 @@ class Graph:
         """
 
     def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
-        """Return an executable view bound to *node*.
+        """Return a view for updating *node* in this executable graph.
 
-        The view retains both the executable graph and source node. CUDA
-        validates that the node identifies a node in this executable when an
-        operation is performed.
+        *node* is a definition node from the graph used to instantiate this
+        executable. Call ``update()`` on the returned view to replace that
+        node's parameters for future launches. Kernel, memcpy, and memset
+        views also support enabling and disabling the node.
         """
 
     def update(self, source: 'GraphBuilder | GraphDefinition') -> None:
