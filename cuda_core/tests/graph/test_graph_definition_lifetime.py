@@ -685,6 +685,7 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
 # =============================================================================
 
 
+@pytest.mark.thread_unsafe(reason="asserts cleanup on main thread")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
     """More than 32 CUDA callbacks drain through one main-thread pending call."""
@@ -1412,6 +1413,7 @@ def test_memcpy_buffer_survives_close(init_cuda):
     assert list(out) == [0xCD] * 4
 
 
+@pytest.mark.thread_unsafe(reason="deferred cleanup on main thread which would wait")
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_allocations_released_after_graph_destroyed(init_cuda):
     """Destroying the graph frees both memcpy operand allocations.

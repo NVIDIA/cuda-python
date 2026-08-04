@@ -527,6 +527,26 @@ def sample_switch_node_alt(sample_graphdef):
     return sample_graphdef.switch(condition, 3)
 
 
+# Indirect-parametrize helpers: request.getfixturevalue() runs here, in the
+# fixture (main thread), so the resolved object is already available when the
+# test function runs in a worker thread.
+
+
+@pytest.fixture
+def sample_object(request):
+    return request.getfixturevalue(request.param)
+
+
+@pytest.fixture
+def sample_object_a(request):
+    return request.getfixturevalue(request.param)
+
+
+@pytest.fixture
+def sample_object_b(request):
+    return request.getfixturevalue(request.param)
+
+
 # =============================================================================
 # Type groupings
 # =============================================================================
@@ -722,12 +742,11 @@ REPR_PATTERNS = [
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", WEAKREF_TYPES)
-def test_weakref_supported(fixture_name, request):
+@pytest.mark.parametrize("sample_object", WEAKREF_TYPES, indirect=True)
+def test_weakref_supported(sample_object):
     """Object supports weak references."""
-    obj = request.getfixturevalue(fixture_name)
-    ref = weakref.ref(obj)
-    assert ref() is obj
+    ref = weakref.ref(sample_object)
+    assert ref() is sample_object
 
 
 # =============================================================================
@@ -735,27 +754,22 @@ def test_weakref_supported(fixture_name, request):
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", HASH_TYPES)
-def test_hash_consistency(fixture_name, request):
+@pytest.mark.parametrize("sample_object", HASH_TYPES, indirect=True)
+def test_hash_consistency(sample_object):
     """Hash is consistent across multiple calls."""
-    obj = request.getfixturevalue(fixture_name)
-    assert hash(obj) == hash(obj)
+    assert hash(sample_object) == hash(sample_object)
 
 
-@pytest.mark.parametrize("a_name,b_name", SAME_TYPE_PAIRS)
-def test_hash_distinct_same_type(a_name, b_name, request):
+@pytest.mark.parametrize("sample_object_a,sample_object_b", SAME_TYPE_PAIRS, indirect=True)
+def test_hash_distinct_same_type(sample_object_a, sample_object_b):
     """Distinct objects of the same type have different hashes."""
-    obj_a = request.getfixturevalue(a_name)
-    obj_b = request.getfixturevalue(b_name)
-    assert hash(obj_a) != hash(obj_b)  # extremely unlikely
+    assert hash(sample_object_a) != hash(sample_object_b)  # extremely unlikely
 
 
-@pytest.mark.parametrize("a_name,b_name", itertools.combinations(HASH_TYPES, 2))
-def test_hash_distinct_cross_type(a_name, b_name, request):
+@pytest.mark.parametrize("sample_object_a,sample_object_b", itertools.combinations(HASH_TYPES, 2), indirect=True)
+def test_hash_distinct_cross_type(sample_object_a, sample_object_b):
     """Distinct objects of different types have different hashes."""
-    obj_a = request.getfixturevalue(a_name)
-    obj_b = request.getfixturevalue(b_name)
-    assert hash(obj_a) != hash(obj_b)  # extremely unlikely
+    assert hash(sample_object_a) != hash(sample_object_b)  # extremely unlikely
 
 
 # =============================================================================
@@ -763,41 +777,35 @@ def test_hash_distinct_cross_type(a_name, b_name, request):
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", EQ_TYPES)
-def test_equality_basic(fixture_name, request):
+@pytest.mark.parametrize("sample_object", EQ_TYPES, indirect=True)
+def test_equality_basic(sample_object):
     """Object equality: reflexive, not equal to None or other types."""
-    obj = request.getfixturevalue(fixture_name)
-    assert obj == obj
-    assert obj is not None
-    assert obj != "string"
-    if hasattr(obj, "handle"):
-        assert obj != obj.handle
+    assert sample_object == sample_object
+    assert sample_object is not None
+    assert sample_object != "string"
+    if hasattr(sample_object, "handle"):
+        assert sample_object != sample_object.handle
 
 
-@pytest.mark.parametrize("a_name,b_name", itertools.combinations(EQ_TYPES, 2))
-def test_no_cross_type_equality(a_name, b_name, request):
+@pytest.mark.parametrize("sample_object_a,sample_object_b", itertools.combinations(EQ_TYPES, 2), indirect=True)
+def test_no_cross_type_equality(sample_object_a, sample_object_b):
     """No two distinct objects of different types should compare equal."""
-    obj_a = request.getfixturevalue(a_name)
-    obj_b = request.getfixturevalue(b_name)
-    assert obj_a != obj_b
+    assert sample_object_a != sample_object_b
 
 
-@pytest.mark.parametrize("a_name,b_name", SAME_TYPE_PAIRS)
-def test_same_type_inequality(a_name, b_name, request):
+@pytest.mark.parametrize("sample_object_a,sample_object_b", SAME_TYPE_PAIRS, indirect=True)
+def test_same_type_inequality(sample_object_a, sample_object_b):
     """Two distinct objects of the same type should not compare equal."""
-    obj_a = request.getfixturevalue(a_name)
-    obj_b = request.getfixturevalue(b_name)
-    assert obj_a is not obj_b
-    assert obj_a != obj_b
+    assert sample_object_a is not sample_object_b
+    assert sample_object_a != sample_object_b
 
 
-@pytest.mark.parametrize("fixture_name,copy_fn", FROM_HANDLE_COPIES)
-def test_equality_same_handle(fixture_name, copy_fn, request):
+@pytest.mark.parametrize("sample_object,copy_fn", FROM_HANDLE_COPIES, indirect=["sample_object"])
+def test_equality_same_handle(sample_object, copy_fn):
     """Two wrappers around the same handle should compare equal."""
-    obj = request.getfixturevalue(fixture_name)
-    obj2 = copy_fn(obj)
-    assert obj == obj2
-    assert hash(obj) == hash(obj2)
+    obj2 = copy_fn(sample_object)
+    assert sample_object == obj2
+    assert hash(sample_object) == hash(obj2)
 
 
 # =============================================================================
@@ -805,48 +813,43 @@ def test_equality_same_handle(fixture_name, copy_fn, request):
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name", DICT_KEY_TYPES)
-def test_usable_as_dict_key(fixture_name, request):
+@pytest.mark.parametrize("sample_object", DICT_KEY_TYPES, indirect=True)
+def test_usable_as_dict_key(sample_object):
     """Object can be used as a dictionary key."""
-    obj = request.getfixturevalue(fixture_name)
-    d = {obj: "value"}
-    assert d[obj] == "value"
-    assert obj in d
+    d = {sample_object: "value"}
+    assert d[sample_object] == "value"
+    assert sample_object in d
 
 
-@pytest.mark.parametrize("fixture_name", DICT_KEY_TYPES)
-def test_usable_in_set(fixture_name, request):
+@pytest.mark.parametrize("sample_object", DICT_KEY_TYPES, indirect=True)
+def test_usable_in_set(sample_object):
     """Object can be added to a set."""
-    obj = request.getfixturevalue(fixture_name)
-    s = {obj}
-    assert obj in s
+    s = {sample_object}
+    assert sample_object in s
 
 
-@pytest.mark.parametrize("fixture_name", WEAKREF_TYPES)
-def test_usable_in_weak_value_dict(fixture_name, request):
+@pytest.mark.parametrize("sample_object", WEAKREF_TYPES, indirect=True)
+def test_usable_in_weak_value_dict(sample_object):
     """Object can be used as a WeakValueDictionary value."""
-    obj = request.getfixturevalue(fixture_name)
     wvd = weakref.WeakValueDictionary()
-    wvd["key"] = obj
-    assert wvd["key"] is obj
+    wvd["key"] = sample_object
+    assert wvd["key"] is sample_object
 
 
-@pytest.mark.parametrize("fixture_name", WEAK_KEY_TYPES)
-def test_usable_in_weak_key_dict(fixture_name, request):
+@pytest.mark.parametrize("sample_object", WEAK_KEY_TYPES, indirect=True)
+def test_usable_in_weak_key_dict(sample_object):
     """Object can be used as a WeakKeyDictionary key."""
-    obj = request.getfixturevalue(fixture_name)
     wkd = weakref.WeakKeyDictionary()
-    wkd[obj] = "value"
-    assert wkd[obj] == "value"
+    wkd[sample_object] = "value"
+    assert wkd[sample_object] == "value"
 
 
-@pytest.mark.parametrize("fixture_name", WEAK_KEY_TYPES)
-def test_usable_in_weak_set(fixture_name, request):
+@pytest.mark.parametrize("sample_object", WEAK_KEY_TYPES, indirect=True)
+def test_usable_in_weak_set(sample_object):
     """Object can be added to a WeakSet."""
-    obj = request.getfixturevalue(fixture_name)
     ws = weakref.WeakSet()
-    ws.add(obj)
-    assert obj in ws
+    ws.add(sample_object)
+    assert sample_object in ws
 
 
 # =============================================================================
@@ -854,12 +857,10 @@ def test_usable_in_weak_set(fixture_name, request):
 # =============================================================================
 
 
-@pytest.mark.parametrize("fixture_name,pattern", REPR_PATTERNS)
-def test_repr_format(fixture_name, pattern, request):
+@pytest.mark.parametrize("sample_object,pattern", REPR_PATTERNS, indirect=["sample_object"])
+def test_repr_format(sample_object, pattern):
     """repr() returns a properly formatted string."""
-    obj = request.getfixturevalue(fixture_name)
-    result = repr(obj)
-    assert re.fullmatch(pattern, result)
+    assert re.fullmatch(pattern, repr(sample_object))
 
 
 # =============================================================================
@@ -868,10 +869,9 @@ def test_repr_format(fixture_name, pattern, request):
 
 
 @pytest.mark.parametrize("pickle_module", PICKLE_MODULES)
-@pytest.mark.parametrize("fixture_name", PICKLE_TYPES)
-def test_pickle_roundtrip(fixture_name, pickle_module, request):
+@pytest.mark.parametrize("sample_object", PICKLE_TYPES, indirect=True)
+def test_pickle_roundtrip(sample_object, pickle_module):
     """Object survives a pickle/cloudpickle roundtrip."""
     mod = pytest.importorskip(pickle_module)
-    obj = request.getfixturevalue(fixture_name)
-    result = mod.loads(mod.dumps(obj))
-    assert type(result) is type(obj)
+    result = mod.loads(mod.dumps(sample_object))
+    assert type(result) is type(sample_object)

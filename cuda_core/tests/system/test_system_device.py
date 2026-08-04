@@ -349,6 +349,7 @@ def test_c2c_mode_enabled():
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
+@pytest.mark.thread_unsafe(reason="device persistence mode is global state")
 def test_persistence_mode_enabled():
     for device in system.Device.get_all_devices():
         is_enabled = device.is_persistence_mode_enabled
