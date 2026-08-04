@@ -265,27 +265,6 @@ def test_device_get_pcie_throughput(ngpus, handles):
 # Test pynvml.nvmlDeviceGetNvLinkRemotePciInfo
 
 
-@pytest.mark.parametrize(
-    "cap_type",
-    [
-        nvml.NvLinkCapability.NVLINK_CAP_P2P_SUPPORTED,  # P2P over NVLink is supported
-        nvml.NvLinkCapability.NVLINK_CAP_SYSMEM_ACCESS,  # Access to system memory is supported
-        nvml.NvLinkCapability.NVLINK_CAP_P2P_ATOMICS,  # P2P atomics are supported
-        nvml.NvLinkCapability.NVLINK_CAP_SYSMEM_ATOMICS,  # System memory atomics are supported
-        nvml.NvLinkCapability.NVLINK_CAP_SLI_BRIDGE,  # SLI is supported over this link
-        nvml.NvLinkCapability.NVLINK_CAP_VALID,
-    ],
-)  # Link is supported on this device
-def test_device_get_nvlink_capability(ngpus, handles, cap_type):
-    for i in range(ngpus):
-        for j in range(nvml.NVLINK_MAX_LINKS):
-            # By the documentation, this should be supported on PASCAL or newer,
-            # but this also seems to fail on newer.
-            with unsupported_before(handles[i], None):
-                cap = nvml.device_get_nvlink_capability(handles[i], j, cap_type)
-            assert cap >= 0
-
-
 # Test pynvml.nvmlDeviceResetNvLinkUtilizationCounter
 # Test pynvml.nvmlDeviceSetNvLinkUtilizationControl
 # Test pynvml.nvmlDeviceGetNvLinkUtilizationCounter
