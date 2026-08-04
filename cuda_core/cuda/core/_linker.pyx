@@ -706,8 +706,8 @@ def _decide_nvjitlink_or_driver() -> bool:
             )
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
-    _use_nvjitlink_backend = False
     _driver = driver
+    _use_nvjitlink_backend = False
     return True
 
 
