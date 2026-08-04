@@ -5,7 +5,7 @@
 
 import numpy as np
 import pytest
-from helpers.marks import requires_module
+from cuda_python_test_helpers.marks import requires_module
 
 from cuda.core import (
     Device,

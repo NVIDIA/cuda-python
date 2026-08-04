@@ -61,6 +61,8 @@ _tls = threading.local()
 _lock = threading.Lock()
 cdef bint _is_cuInit = False
 
+__all__ = ['Device']
+
 
 cdef class DeviceProperties:
     """
@@ -1287,7 +1289,10 @@ class Device:
             # use primary ctx
             h_context = get_primary_context(self._device_id)
             if h_context.get() == NULL:
-                raise ValueError("Cannot set NULL context as current")
+                HANDLE_RETURN(get_last_error())
+                raise RuntimeError(
+                    f"Failed to retain the primary context for device {self._device_id}"
+                )
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxSetCurrent(as_cu(h_context)))
             self._has_inited = True
@@ -1316,7 +1321,6 @@ class Device:
         cdef object res
         cdef SMResource sm_res
         cdef WorkqueueResource wq_res
-        cdef GreenCtxHandle h_green
 
         if options is None:
             raise ValueError(
@@ -1348,7 +1352,7 @@ class Device:
             else:
                 raise TypeError(f"Unsupported context resource type: {type(res)}")
 
-        h_green = create_green_ctx_handle(
+        cdef GreenCtxHandle h_green = create_green_ctx_handle(
             c_resources.data(),
             <unsigned int>(c_resources.size()),
             <cydriver.CUdevice>(self._device_id),
