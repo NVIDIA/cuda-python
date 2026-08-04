@@ -6,9 +6,15 @@ import os
 from dataclasses import dataclass
 from typing import NoReturn, TypedDict
 
+from cuda.pathfinder._utils.binary_format import (
+    BinaryFormat,
+    python_binary_format,
+    static_archive_matches_binary_format,
+)
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.windows_arch import windows_python_arch
 
 
 class StaticLibNotFoundError(RuntimeError):
@@ -32,17 +38,29 @@ class _StaticLibInfo(TypedDict):
     site_packages_dirs: tuple[str, ...]
 
 
+def _cudadevrt_info() -> _StaticLibInfo:
+    if not IS_WINDOWS:
+        return {
+            "filename": "libcudadevrt.a",
+            "ctk_rel_paths": ("lib64", "lib"),
+            "conda_rel_paths": ("lib",),
+            "site_packages_dirs": ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib"),
+        }
+
+    target_arch = windows_python_arch()
+    arch_dir = {"x64": "x64", "arm64": "arm64"}[target_arch]
+    component_wheel_dirs = ("nvidia/cuda_runtime/lib/x64",) if target_arch == "x64" else ()
+    conda_fallback_dirs = ("lib",) if target_arch == "x64" else ()
+    return {
+        "filename": "cudadevrt.lib",
+        "ctk_rel_paths": (os.path.join("lib", arch_dir),),
+        "conda_rel_paths": (os.path.join("lib", arch_dir), *conda_fallback_dirs),
+        "site_packages_dirs": (f"nvidia/cu13/lib/{arch_dir}", *component_wheel_dirs),
+    }
+
+
 _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
-    "cudadevrt": {
-        "filename": "cudadevrt.lib" if IS_WINDOWS else "libcudadevrt.a",
-        "ctk_rel_paths": (os.path.join("lib", "x64"),) if IS_WINDOWS else ("lib64", "lib"),
-        "conda_rel_paths": ((os.path.join("lib", "x64"), "lib") if IS_WINDOWS else ("lib",)),
-        "site_packages_dirs": (
-            ("nvidia/cu13/lib/x64", "nvidia/cuda_runtime/lib/x64")
-            if IS_WINDOWS
-            else ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib")
-        ),
-    },
+    "cudadevrt": _cudadevrt_info(),
 }
 
 SUPPORTED_STATIC_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_STATIC_LIBS_INFO.keys()))
@@ -68,16 +86,29 @@ class _FindStaticLib:
         self.ctk_rel_paths: tuple[str, ...] = self.config["ctk_rel_paths"]
         self.conda_rel_paths: tuple[str, ...] = self.config["conda_rel_paths"]
         self.site_packages_dirs: tuple[str, ...] = self.config["site_packages_dirs"]
+        self.binary_format: BinaryFormat = python_binary_format()
         self.error_messages: list[str] = []
         self.attachments: list[str] = []
+
+    def compatible_candidate(self, file_path: str) -> str | None:
+        if not os.path.isfile(file_path):
+            return None
+        if static_archive_matches_binary_format(file_path, self.binary_format):
+            return file_path
+        self.error_messages.append(
+            f'Incompatible static library: "{file_path}" does not match '
+            f"Python's {self.binary_format.kind.upper()} machine type 0x{self.binary_format.machine:04x}"
+        )
+        return None
 
     def try_site_packages(self) -> str | None:
         for rel_dir in self.site_packages_dirs:
             sub_dir = tuple(rel_dir.split("/"))
             for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
                 file_path = os.path.join(abs_dir, self.filename)
-                if os.path.isfile(file_path):
-                    return file_path
+                candidate = self.compatible_candidate(file_path)
+                if candidate is not None:
+                    return candidate
         return None
 
     def try_with_conda_prefix(self) -> str | None:
@@ -88,8 +119,9 @@ class _FindStaticLib:
         anchor = os.path.join(conda_prefix, "Library") if IS_WINDOWS else conda_prefix
         for rel_path in self.conda_rel_paths:
             file_path = os.path.join(anchor, rel_path, self.filename)
-            if os.path.isfile(file_path):
-                return file_path
+            candidate = self.compatible_candidate(file_path)
+            if candidate is not None:
+                return candidate
         return None
 
     def try_with_cuda_home(self) -> str | None:
@@ -100,15 +132,18 @@ class _FindStaticLib:
 
         for rel_path in self.ctk_rel_paths:
             file_path = os.path.join(cuda_home, rel_path, self.filename)
-            if os.path.isfile(file_path):
-                return file_path
+            candidate = self.compatible_candidate(file_path)
+            if candidate is not None:
+                return candidate
 
-        _no_such_file_in_dir(
-            os.path.join(cuda_home, self.ctk_rel_paths[0]),
-            self.filename,
-            self.error_messages,
-            self.attachments,
-        )
+        first_file_path = os.path.join(cuda_home, self.ctk_rel_paths[0], self.filename)
+        if not os.path.isfile(first_file_path):
+            _no_such_file_in_dir(
+                os.path.join(cuda_home, self.ctk_rel_paths[0]),
+                self.filename,
+                self.error_messages,
+                self.attachments,
+            )
         return None
 
     def raise_not_found_error(self) -> NoReturn:

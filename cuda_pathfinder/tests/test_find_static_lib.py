@@ -31,10 +31,26 @@ def clear_find_static_lib_cache():
     get_cuda_path_or_home.cache_clear()
 
 
-def _make_static_lib_file(dir_path: Path, filename: str) -> str:
+def _archive_object(binary_format):
+    if binary_format.kind == "elf":
+        data = bytearray(64)
+        data[:6] = b"\x7fELF\x02\x01"
+        data[18:20] = binary_format.machine.to_bytes(2, "little")
+        return bytes(data)
+
+    data = bytearray(20)
+    data[:2] = binary_format.machine.to_bytes(2, "little")
+    return bytes(data)
+
+
+def _make_static_lib_file(dir_path: Path, filename: str, binary_format=None) -> str:
     dir_path.mkdir(parents=True, exist_ok=True)
     file_path = dir_path / filename
-    file_path.touch()
+    if binary_format is None:
+        binary_format = find_static_lib_module.python_binary_format()
+    member = _archive_object(binary_format)
+    header = b"object.o/       0           0     0     100644  " + str(len(member)).encode("ascii").ljust(10) + b"`\n"
+    file_path.write_bytes(b"!<arch>\n" + header + member + (b"\n" if len(member) % 2 else b""))
     return str(file_path)
 
 
@@ -141,6 +157,69 @@ def test_locate_static_lib_conda_rel_path_fallback(monkeypatch, tmp_path):
     located_lib = locate_static_lib("cudadevrt")
     assert located_lib.abs_path == conda_path
     assert located_lib.found_via == "conda"
+
+
+@pytest.mark.parametrize(
+    ("kind", "machine"),
+    (("elf", 0x003E), ("coff", 0x8664), ("coff", 0xAA64)),
+)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_static_archive_binary_format_matching(tmp_path, kind, machine):
+    expected = find_static_lib_module.BinaryFormat(kind, machine)
+    archive = _make_static_lib_file(tmp_path, "library.a", expected)
+
+    assert find_static_lib_module.static_archive_matches_binary_format(archive, expected)
+    assert not find_static_lib_module.static_archive_matches_binary_format(
+        archive,
+        find_static_lib_module.BinaryFormat(kind, machine ^ 1),
+    )
+
+
+@pytest.mark.usefixtures("clear_find_static_lib_cache")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_locate_static_lib_skips_incompatible_candidate(monkeypatch, tmp_path):
+    filename = CUDADEVRT_INFO["filename"]
+    expected = find_static_lib_module.python_binary_format()
+    incompatible = find_static_lib_module.BinaryFormat(expected.kind, expected.machine ^ 1)
+
+    site_packages_lib_dir = tmp_path / "site-packages"
+    site_packages_path = _make_static_lib_file(site_packages_lib_dir, filename, incompatible)
+    conda_prefix = tmp_path / "conda-prefix"
+    conda_lib_dir = _conda_anchor(conda_prefix) / Path(CUDADEVRT_INFO["conda_rel_paths"][0])
+    conda_path = _make_static_lib_file(conda_lib_dir, filename, expected)
+
+    monkeypatch.setattr(
+        find_static_lib_module,
+        "find_sub_dirs_all_sitepackages",
+        lambda _sub_dir: [str(site_packages_lib_dir)],
+    )
+    monkeypatch.setenv("CONDA_PREFIX", str(conda_prefix))
+    monkeypatch.delenv("CUDA_HOME", raising=False)
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+
+    located_lib = locate_static_lib("cudadevrt")
+    assert located_lib.abs_path == conda_path
+    assert located_lib.abs_path != site_packages_path
+    assert located_lib.found_via == "conda"
+
+
+@pytest.mark.parametrize(
+    ("target_arch", "expected_dirs"),
+    (
+        ("x64", ("nvidia/cu13/lib/x64", "nvidia/cuda_runtime/lib/x64")),
+        ("arm64", ("nvidia/cu13/lib/arm64",)),
+    ),
+)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_cudadevrt_windows_paths_follow_python_arch(monkeypatch, target_arch, expected_dirs):
+    monkeypatch.setattr(find_static_lib_module, "IS_WINDOWS", True)
+    monkeypatch.setattr(find_static_lib_module, "windows_python_arch", lambda: target_arch)
+
+    info = find_static_lib_module._cudadevrt_info()
+
+    assert info["ctk_rel_paths"] == (os.path.join("lib", target_arch),)
+    assert info["site_packages_dirs"] == expected_dirs
+    assert all(target_arch in path for path in info["ctk_rel_paths"])
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")

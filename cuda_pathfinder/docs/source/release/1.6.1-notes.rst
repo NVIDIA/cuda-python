@@ -24,6 +24,11 @@ Highlights
 
 * Add ``UnsupportedArchError`` for unsupported Windows Python platform tags.
 
+* Make static-library discovery binary-format aware. Candidates are now
+  checked against the current Python executable's object format and machine
+  type before they are returned, and Windows searches use the matching x64 or
+  Arm64 CUDA Toolkit and wheel directories.
+
 Internal maintenance
 --------------------
 
