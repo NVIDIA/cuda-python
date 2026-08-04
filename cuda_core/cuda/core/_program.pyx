@@ -649,12 +649,10 @@ def _get_nvvm_module() -> object:
     """Get the NVVM module, importing it lazily with availability checks."""
     global _nvvm_module, _nvvm_import_attempted
 
-    if _nvvm_import_attempted:
-        if _nvvm_module is None:
-            raise RuntimeError("NVVM module is not available (previous import attempt failed)")
+    if _nvvm_module is not None:
         return _nvvm_module
-
-    _nvvm_import_attempted = True
+    if _nvvm_import_attempted:
+        raise RuntimeError("NVVM module is not available (previous import attempt failed)")
 
     try:
         version = binding_version()
@@ -678,7 +676,9 @@ def _get_nvvm_module() -> object:
 
     except RuntimeError:
         _nvvm_module = None
+        _nvvm_import_attempted = True
         raise
+
 
 def _find_libdevice_path() -> object:
     """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
