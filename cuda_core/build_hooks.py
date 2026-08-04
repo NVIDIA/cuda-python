@@ -46,9 +46,9 @@ def _import_get_cuda_path_or_home():
             cuda = None
 
         for p in sys.path:
-            sp_cuda = os.path.join(p, "cuda")
-            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
-                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+            sp_cuda = Path(p, "cuda")
+            if (sp_cuda / "pathfinder").is_dir():
+                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
                 break
         else:
             raise ModuleNotFoundError(
@@ -93,7 +93,7 @@ def _determine_cuda_major_version() -> str:
 
     # Derive from the CUDA headers (the authoritative source for what we compile against).
     cuda_path = _get_cuda_path()
-    cuda_h = os.path.join(cuda_path, "include", "cuda.h")
+    cuda_h = Path(cuda_path, "include", "cuda.h")
     try:
         with open(cuda_h, encoding="utf-8") as f:
             for line in f:
@@ -153,10 +153,11 @@ def _build_cuda_core(debug=False):
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
     def module_names():
-        root_path = os.path.sep.join(["cuda", "core", ""])
-        for filename in glob.glob(f"{root_path}/**/*.pyx", recursive=True):
-            mod = filename[len(root_path) : -4]
-            if sys.platform == "win32" and mod.replace(os.path.sep, "/") in _posix_only_modules:
+        root_path = Path("cuda", "core")
+        for filename in glob.glob(str(root_path / "**" / "*.pyx"), recursive=True):
+            # Module names are always spelled POSIX-style, on every platform.
+            mod = Path(filename).relative_to(root_path).with_suffix("").as_posix()
+            if sys.platform == "win32" and mod in _posix_only_modules:
                 continue
             yield mod
 
@@ -167,12 +168,12 @@ def _build_cuda_core(debug=False):
         # Add module-specific .cpp file from _cpp/ directory if it exists
         # Example: _resource_handles.pyx finds _cpp/resource_handles.cpp.
         cpp_file = f"cuda/core/_cpp/{mod_name.lstrip('_')}.cpp"
-        if os.path.exists(cpp_file):
+        if Path(cpp_file).exists():
             sources.append(cpp_file)
 
         return sources
 
-    all_include_dirs = [os.path.join(_get_cuda_path(), "include")]
+    all_include_dirs = [str(Path(_get_cuda_path(), "include"))]
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
@@ -196,7 +197,7 @@ def _build_cuda_core(debug=False):
 
     ext_modules = tuple(
         Extension(
-            f"cuda.core.{mod.replace(os.path.sep, '.')}",
+            f"cuda.core.{mod.replace('/', '.')}",
             sources=get_sources(mod),
             include_dirs=[
                 "cuda/core/_include",
@@ -230,7 +231,7 @@ def _build_cuda_core(debug=False):
     return
 
 
-def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
+def _add_cython_include_paths_to_pth(wheel_path: Path) -> None:
     """
     Modify the .pth file in an editable install wheel to add Cython include paths.
 
@@ -261,7 +262,7 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
     # Create a temporary directory for wheel manipulation
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
-        wheel_file = Path(wheel_path)
+        wheel_file = wheel_path
 
         # Extract the wheel
         extract_dir = tmpdir_path / "extracted"
@@ -316,7 +317,7 @@ def build_editable(wheel_directory, config_settings=None, metadata_directory=Non
     wheel_name = _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
 
     # Patch the .pth file to add Cython include paths
-    wheel_path = os.path.join(wheel_directory, wheel_name)
+    wheel_path = Path(wheel_directory, wheel_name)
     _add_cython_include_paths_to_pth(wheel_path)
 
     return wheel_name

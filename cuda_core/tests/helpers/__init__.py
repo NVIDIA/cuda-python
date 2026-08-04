@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-import os
+from pathlib import Path
 from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
@@ -13,12 +13,12 @@ CUDA_PATH = get_cuda_path_or_home()
 CUDA_INCLUDE_PATH = None
 CCCL_INCLUDE_PATHS = None
 if CUDA_PATH is not None:
-    path = os.path.join(CUDA_PATH, "include")
-    if os.path.isdir(path):
+    path = Path(CUDA_PATH, "include")
+    if path.is_dir():
         CUDA_INCLUDE_PATH = path
         CCCL_INCLUDE_PATHS = (path,)
-        path = os.path.join(path, "cccl")
-        if os.path.isdir(path):
+        path = path / "cccl"
+        if path.is_dir():
             CCCL_INCLUDE_PATHS = (path,) + CCCL_INCLUDE_PATHS
 
 
