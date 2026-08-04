@@ -4,6 +4,7 @@
 import functools
 import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import NoReturn, TypedDict
 
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
@@ -35,8 +36,8 @@ class _StaticLibInfo(TypedDict):
 _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
     "cudadevrt": {
         "filename": "cudadevrt.lib" if IS_WINDOWS else "libcudadevrt.a",
-        "ctk_rel_paths": (os.path.join("lib", "x64"),) if IS_WINDOWS else ("lib64", "lib"),
-        "conda_rel_paths": ((os.path.join("lib", "x64"), "lib") if IS_WINDOWS else ("lib",)),
+        "ctk_rel_paths": (str(Path("lib", "x64")),) if IS_WINDOWS else ("lib64", "lib"),
+        "conda_rel_paths": ((str(Path("lib", "x64")), "lib") if IS_WINDOWS else ("lib",)),
         "site_packages_dirs": (
             ("nvidia/cu13/lib/x64", "nvidia/cuda_runtime/lib/x64")
             if IS_WINDOWS
@@ -49,10 +50,11 @@ SUPPORTED_STATIC_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_STATIC_LIBS_INF
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
-    error_messages.append(f"No such file: {os.path.join(dir_path, filename)}")
-    if os.path.isdir(dir_path):
+    directory = Path(dir_path)
+    error_messages.append(f"No such file: {directory / filename}")
+    if directory.is_dir():
         attachments.append(f'  listdir("{dir_path}"):')
-        for node in sorted(os.listdir(dir_path)):
+        for node in sorted(node_path.name for node_path in directory.iterdir()):
             attachments.append(f"    {node}")
     else:
         attachments.append(f'  Directory does not exist: "{dir_path}"')
@@ -75,9 +77,9 @@ class _FindStaticLib:
         for rel_dir in self.site_packages_dirs:
             sub_dir = tuple(rel_dir.split("/"))
             for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
-                file_path = os.path.join(abs_dir, self.filename)
-                if os.path.isfile(file_path):
-                    return file_path
+                file_path = Path(abs_dir, self.filename)
+                if file_path.is_file():
+                    return str(file_path)
         return None
 
     def try_with_conda_prefix(self) -> str | None:
@@ -85,11 +87,11 @@ class _FindStaticLib:
         if not conda_prefix:
             return None
 
-        anchor = os.path.join(conda_prefix, "Library") if IS_WINDOWS else conda_prefix
+        anchor = Path(conda_prefix, "Library") if IS_WINDOWS else Path(conda_prefix)
         for rel_path in self.conda_rel_paths:
-            file_path = os.path.join(anchor, rel_path, self.filename)
-            if os.path.isfile(file_path):
-                return file_path
+            file_path = anchor / rel_path / self.filename
+            if file_path.is_file():
+                return str(file_path)
         return None
 
     def try_with_cuda_home(self) -> str | None:
@@ -98,13 +100,14 @@ class _FindStaticLib:
             self.error_messages.append("CUDA_HOME/CUDA_PATH not set")
             return None
 
+        cuda_home_path = Path(cuda_home)
         for rel_path in self.ctk_rel_paths:
-            file_path = os.path.join(cuda_home, rel_path, self.filename)
-            if os.path.isfile(file_path):
-                return file_path
+            file_path = cuda_home_path / rel_path / self.filename
+            if file_path.is_file():
+                return str(file_path)
 
         _no_such_file_in_dir(
-            os.path.join(cuda_home, self.ctk_rel_paths[0]),
+            str(cuda_home_path / self.ctk_rel_paths[0]),
             self.filename,
             self.error_messages,
             self.attachments,
