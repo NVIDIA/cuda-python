@@ -37,6 +37,7 @@ from cuda.core._resource_handles cimport (
     get_legacy_stream,
     get_per_thread_stream,
     get_stream_context,
+    retain_context_handle,
     as_intptr,
     as_cu,
     as_py,
@@ -445,6 +446,26 @@ cpdef Stream default_stream():
         return PER_THREAD_DEFAULT_STREAM
     else:
         return LEGACY_DEFAULT_STREAM
+
+
+cdef ContextHandle Stream_resolve_context(Stream stream):
+    """Return the stream's context, resolving default tokens on this thread."""
+    cdef cydriver.CUstream raw_stream = as_cu(stream._h_stream)
+    cdef cydriver.CUcontext current = NULL
+    cdef ContextHandle no_context
+    if (
+        raw_stream == NULL
+        or raw_stream == <cydriver.CUstream>cydriver.CU_STREAM_LEGACY
+        or raw_stream == <cydriver.CUstream>cydriver.CU_STREAM_PER_THREAD
+    ):
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&current))
+        if current != NULL:
+            return retain_context_handle(current)
+        return no_context
+
+    Stream_ensure_ctx(stream)
+    return stream._h_context
 
 
 cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:

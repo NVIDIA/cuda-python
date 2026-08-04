@@ -12,10 +12,15 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core._memory cimport _ipc
-from cuda.core._stream cimport Stream_accept, Stream
+from cuda.core._stream cimport (
+    Stream,
+    Stream_accept,
+    Stream_resolve_context,
+)
 from cuda.core._resource_handles cimport (
-    MemoryPoolHandle,
+    ContextHandle,
     DevicePtrHandle,
+    MemoryPoolHandle,
     create_mempool_handle,
     deviceptr_alloc_from_pool,
     get_last_error,
@@ -327,10 +332,14 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = Buffer):
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
+    cdef ContextHandle h_release_context = Stream_resolve_context(stream)
+    if not h_release_context:
+        HANDLE_RETURN(cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT)
     cdef DevicePtrHandle h_ptr
     with nogil:
         check_not_capturing(s)
-        h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
+        h_ptr = deviceptr_alloc_from_pool(
+            size, self._h_pool, stream._h_stream, h_release_context)
     if not h_ptr:
         HANDLE_RETURN(get_last_error())
         raise RuntimeError(

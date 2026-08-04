@@ -50,6 +50,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUgreenCtx ctx) except+ nogil
     ContextHandle get_primary_context "cuda_core::get_primary_context" (
         int device_id) except+ nogil
+    ContextHandle retain_context_handle "cuda_core::retain_context_handle" (
+        cydriver.CUcontext ctx) except+ nogil
     ContextHandle get_current_context "cuda_core::get_current_context" () except+ nogil
 
     # Stream handles
@@ -104,9 +106,11 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Device pointer handles
     DevicePtrHandle deviceptr_alloc_from_pool "cuda_core::deviceptr_alloc_from_pool" (
-        size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) except+ nogil
+        size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream,
+        const ContextHandle& h_release_context) except+ nogil
     DevicePtrHandle deviceptr_alloc_async "cuda_core::deviceptr_alloc_async" (
-        size_t size, const StreamHandle& h_stream) except+ nogil
+        size_t size, const StreamHandle& h_stream,
+        const ContextHandle& h_release_context) except+ nogil
     DevicePtrHandle deviceptr_alloc "cuda_core::deviceptr_alloc" (size_t size) except+ nogil
     DevicePtrHandle deviceptr_alloc_host "cuda_core::deviceptr_alloc_host" (size_t size) except+ nogil
     DevicePtrHandle deviceptr_create_ref "cuda_core::deviceptr_create_ref" (
@@ -116,7 +120,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     DevicePtrHandle deviceptr_create_mapped_graphics "cuda_core::deviceptr_create_mapped_graphics" (
         cydriver.CUdeviceptr ptr,
         const GraphicsResourceHandle& h_resource,
-        const StreamHandle& h_stream) except+ nogil
+        const StreamHandle& h_stream,
+        const ContextHandle& h_release_context) except+ nogil
 
     # MR deallocation callback
     void register_mr_dealloc_callback "cuda_core::register_mr_dealloc_callback" (
@@ -125,14 +130,16 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         cydriver.CUdeviceptr ptr, size_t size, object mr,
         const ContextHandle& h_allocation_context,
         const StreamHandle& h_stream,
-        bint require_stream_context) except+ nogil
+        const ContextHandle& h_release_context) except+ nogil
 
     DevicePtrHandle deviceptr_import_ipc "cuda_core::deviceptr_import_ipc" (
-        const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
+        const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream,
+        const ContextHandle& h_release_context) except+ nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
         const DevicePtrHandle& h) noexcept nogil
-    cydriver.CUresult set_deallocation_stream "cuda_core::set_deallocation_stream" (
-        const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
+    void set_deallocation_stream "cuda_core::set_deallocation_stream" (
+        const DevicePtrHandle& h, const StreamHandle& h_stream,
+        const ContextHandle& h_release_context) noexcept nogil
 
     # Library handles
     LibraryHandle create_library_handle_from_file "cuda_core::create_library_handle_from_file" (
@@ -277,8 +284,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Context
     void* p_cuDevicePrimaryCtxRetain "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRetain)"
     void* p_cuDevicePrimaryCtxRelease "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRelease)"
+    void* p_cuDevicePrimaryCtxGetState "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxGetState)"
     void* p_cuCtxGetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetCurrent)"
     void* p_cuCtxSetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxSetCurrent)"
+    void* p_cuCtxGetDevice "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetDevice)"
     void* p_cuGreenCtxCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxCreate)"
     void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
     void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
@@ -382,7 +391,8 @@ cdef void* _get_optional_driver_fn(str name):
 
 cdef void _init_driver_fn_pointers() noexcept:
     global p_cuDevicePrimaryCtxRetain, p_cuDevicePrimaryCtxRelease
-    global p_cuCtxGetCurrent, p_cuCtxSetCurrent
+    global p_cuDevicePrimaryCtxGetState
+    global p_cuCtxGetCurrent, p_cuCtxSetCurrent, p_cuCtxGetDevice
     global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
     global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
     global p_cuStreamCreateWithPriority, p_cuStreamDestroy, p_cuStreamGetCtx
@@ -409,8 +419,10 @@ cdef void _init_driver_fn_pointers() noexcept:
     # Context
     p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
     p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
+    p_cuDevicePrimaryCtxGetState = _get_driver_fn("cuDevicePrimaryCtxGetState")
     p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
     p_cuCtxSetCurrent = _get_driver_fn("cuCtxSetCurrent")
+    p_cuCtxGetDevice = _get_driver_fn("cuCtxGetDevice")
     p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
     p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
     p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")

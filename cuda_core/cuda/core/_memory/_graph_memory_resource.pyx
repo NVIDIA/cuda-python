@@ -9,13 +9,18 @@ from libc.stdint cimport intptr_t
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core._resource_handles cimport (
+    ContextHandle,
     DevicePtrHandle,
     deviceptr_alloc_async,
     get_last_error,
     as_cu,
 )
 
-from cuda.core._stream cimport Stream_accept, Stream
+from cuda.core._stream cimport (
+    Stream,
+    Stream_accept,
+    Stream_resolve_context,
+)
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from typing import TYPE_CHECKING
@@ -210,10 +215,14 @@ cdef inline int check_capturing(cydriver.CUstream s) except?-1 nogil:
 
 cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
+    cdef ContextHandle h_release_context = Stream_resolve_context(stream)
+    if not h_release_context:
+        HANDLE_RETURN(cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT)
     cdef DevicePtrHandle h_ptr
     with nogil:
         check_capturing(s)
-        h_ptr = deviceptr_alloc_async(size, stream._h_stream)
+        h_ptr = deviceptr_alloc_async(
+            size, stream._h_stream, h_release_context)
     if not h_ptr:
         HANDLE_RETURN(get_last_error())
         raise RuntimeError(

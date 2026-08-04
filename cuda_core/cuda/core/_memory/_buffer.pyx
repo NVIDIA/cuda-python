@@ -17,7 +17,7 @@ from cuda.core._resource_handles cimport (
     ContextHandle,
     DevicePtrHandle,
     StreamHandle,
-    create_context_handle_ref,
+    retain_context_handle,
     deviceptr_create_with_owner,
     deviceptr_create_with_mr,
     get_last_error,
@@ -28,7 +28,12 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core.typing import DevicePointerType
 
-from cuda.core._stream cimport Stream, Stream_accept, default_stream
+from cuda.core._stream cimport (
+    Stream,
+    Stream_accept,
+    Stream_resolve_context,
+    default_stream,
+)
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
@@ -55,10 +60,19 @@ cdef void _mr_dealloc_callback(
     """Called by the C++ deleter to deallocate via MemoryResource.deallocate.
 
     This is the C++ teardown path: there is no Python caller frame from
-    which to obtain a stream. The device-pointer handle therefore carries
-    the exact stream selected at allocation/adoption or by ``Buffer.close``.
-    An empty handle remains ``None``; cleanup must never invent ordering by
-    selecting a default stream at destruction time.
+    which to obtain a stream, so the handle supplies the stream recorded at
+    allocation/adoption or by ``Buffer.close`` and cleanup never picks one of
+    its own. An empty handle stays ``None``, which is a warning-only path: a
+    resource that cannot free without a stream raises, and the failure is
+    reported below rather than propagated, because a destructor has nowhere to
+    raise to.
+
+    The recorded stream may be a default-stream token. A token is resolved by
+    the driver on the thread that runs the destructor, so under per-thread
+    default streams the physical stream can differ from the one the buffer's
+    owner used. Only the choice of stream is preserved; ordering work across
+    threads remains the application's responsibility, as it is for the
+    equivalent raw driver calls.
     """
     cdef object stream
     try:
@@ -76,13 +90,18 @@ __all__ = ['Buffer', 'MemoryResource']
 
 cdef ContextHandle _pointer_context_handle(
     cydriver.CUdeviceptr ptr,
-    bint* require_stream_context,
+    bint* is_stream_ordered,
 ):
-    """Return the pointer's owning context when CUDA reports one."""
+    """Return a handle for the pointer's owning context, if CUDA reports one.
+
+    The handle owns the context when the driver permits it (see
+    ``retain_context_handle``), which for a primary context makes the
+    allocation's context a genuine dependency of the buffer.
+    """
     cdef ContextHandle h_context
     cdef cydriver.CUcontext context = NULL
     cdef cydriver.CUresult result
-    require_stream_context[0] = False
+    is_stream_ordered[0] = False
     if ptr == 0:
         return h_context
 
@@ -94,9 +113,9 @@ cdef ContextHandle _pointer_context_handle(
         )
     if result == cydriver.CUDA_SUCCESS:
         if context != NULL:
-            return create_context_handle_ref(context)
+            return retain_context_handle(context)
         # Stream-ordered allocations are context-independent.
-        require_stream_context[0] = True
+        is_stream_ordered[0] = True
         return h_context
     if result in (
         cydriver.CUresult.CUDA_ERROR_INVALID_VALUE,
@@ -216,28 +235,38 @@ cdef class Buffer:
         When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
         is called when the buffer is closed or garbage collected.  When ``owner``
         is provided, the owner is kept alive but no deallocation is performed.
+
+        An owning buffer always records a deallocation stream, defaulting to
+        ``default_stream()``, so teardown never has to choose one at destruction
+        time. Callers wanting different ordering must pass ``stream``.
         """
         if mr is not None and owner is not None:
             raise ValueError("owner and memory resource cannot be both specified together")
         cdef Buffer self = Buffer.__new__(cls)
         cdef uintptr_t c_ptr = <uintptr_t>(int(ptr))
-        cdef ContextHandle h_context
+        cdef ContextHandle h_allocation_context
+        cdef ContextHandle h_release_context
         cdef StreamHandle h_stream
         cdef Stream s
-        cdef bint require_stream_context
+        cdef bint is_stream_ordered
         if mr is not None:
-            if stream is not None:
-                s = Stream_accept(stream)
-                h_stream = s._h_stream
-            h_context = _pointer_context_handle(
-                c_ptr, &require_stream_context)
+            s = Stream_accept(default_stream() if stream is None else stream)
+            h_stream = s._h_stream
+            h_allocation_context = _pointer_context_handle(
+                c_ptr, &is_stream_ordered)
+            h_release_context = Stream_resolve_context(s)
+            if not h_release_context:
+                h_release_context = h_allocation_context
+            if is_stream_ordered and not h_release_context:
+                HANDLE_RETURN(
+                    cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT)
             self._h_ptr = deviceptr_create_with_mr(
                 c_ptr,
                 size,
                 mr,
-                h_context,
+                h_allocation_context,
                 h_stream,
-                require_stream_context,
+                h_release_context,
             )
             if not self._h_ptr:
                 HANDLE_RETURN(get_last_error())
@@ -289,9 +318,11 @@ cdef class Buffer:
             The reference is kept as long as the buffer is alive.
             The ``owner`` and ``mr`` cannot be specified together.
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            Initial deallocation stream when ``mr`` owns the pointer. If
-            omitted, the current default stream is selected and retained now,
-            rather than during eventual destruction.
+            Deallocation stream to record when ``mr`` owns the pointer.
+            Defaults to the calling thread's default stream, chosen here
+            rather than at destruction time. Note that a default stream is
+            recorded as a token: under per-thread default streams the driver
+            resolves it against whichever thread runs the destructor.
 
         Note
         ----
@@ -299,8 +330,6 @@ cdef class Buffer:
         non-owning reference.  The pointer will NOT be freed when the
         :class:`Buffer` is closed or garbage collected.
         """
-        if mr is not None and stream is None:
-            stream = default_stream()
         return Buffer._init(
             ptr, size, mr=mr, owner=owner, stream=stream)
 
@@ -680,14 +709,19 @@ cdef Buffer Buffer_from_deviceptr_handle(
 cdef inline void Buffer_close(Buffer self, object stream):
     """Close a buffer, freeing its memory."""
     cdef Stream s
+    cdef ContextHandle h_release_context
     if not self._h_ptr:
         return
     # Update deallocation stream if provided
     if stream is not None:
         s = Stream_accept(stream)
+        h_release_context = Stream_resolve_context(s)
+        if not h_release_context:
+            HANDLE_RETURN(
+                cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT)
         with nogil:
-            HANDLE_RETURN(set_deallocation_stream(
-                self._h_ptr, s._h_stream))
+            set_deallocation_stream(
+                self._h_ptr, s._h_stream, h_release_context)
     # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
     self._h_ptr.reset()
     self._size = 0

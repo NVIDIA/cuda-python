@@ -682,6 +682,9 @@ def test_deferred_buffer_cleanup_restores_no_current_context(tmp_path):
 @pytest.mark.parametrize("use_ptds", [False, True])
 def test_deferred_native_buffer_cleanup_uses_bound_default_context(tmp_path, use_ptds):
     """Native default-stream cleanup restores its retained context."""
+    # The child process allocates from a DeviceMemoryResource, which needs
+    # mempool support (absent on, e.g., Windows TCC Turing parts).
+    _skip_if_no_mempool()
     code = f"timeout = {_FINALIZE_TIMEOUT!r}\nuse_ptds = {int(use_ptds)}\n" + textwrap.dedent(
         """
             import gc

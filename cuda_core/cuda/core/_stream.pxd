@@ -23,3 +23,4 @@ cdef class Stream:
 
 cpdef Stream default_stream()
 cpdef Stream Stream_accept(arg, bint allow_stream_protocol=*)
+cdef ContextHandle Stream_resolve_context(Stream stream)

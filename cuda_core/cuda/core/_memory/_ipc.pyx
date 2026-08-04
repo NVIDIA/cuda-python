@@ -8,13 +8,19 @@ from libc.stddef cimport size_t
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool
-from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._stream cimport (
+    Stream,
+    Stream_accept,
+    Stream_resolve_context,
+)
 from cuda.core._resource_handles cimport (
+    ContextHandle,
     DevicePtrHandle,
     create_fd_handle,
     create_mempool_handle_ipc,
     deviceptr_import_ipc,
     get_last_error,
+    get_primary_context,
     as_cu,
     as_intptr,
     as_py,
@@ -187,10 +193,23 @@ cdef Buffer Buffer_from_ipc_descriptor(
             f"expected at least {expected_size}"
         )
     cdef Stream s = Stream_accept(stream)
+    cdef ContextHandle h_release_context = Stream_resolve_context(s)
+    cdef int device_id
+    if not h_release_context:
+        # IPC import is GPU work, so it may create the primary context needed
+        # to interpret a default-stream token during release.
+        from .._device import Device
+        device_id = int(getattr(mr, "device_id", -1))
+        if device_id < 0:
+            device_id = Device().device_id
+        h_release_context = get_primary_context(device_id)
+        if not h_release_context:
+            HANDLE_RETURN(get_last_error())
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
         mr._h_pool,
         ipc_descriptor.payload_ptr(),
-        s._h_stream
+        s._h_stream,
+        h_release_context,
     )
     if not h_ptr:
         HANDLE_RETURN(get_last_error())

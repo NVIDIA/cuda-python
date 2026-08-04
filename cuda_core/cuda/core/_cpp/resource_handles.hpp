@@ -66,8 +66,10 @@ void clear_last_error() noexcept;
 
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
+extern decltype(&cuDevicePrimaryCtxGetState) p_cuDevicePrimaryCtxGetState;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
 extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
+extern decltype(&cuCtxGetDevice) p_cuCtxGetDevice;
 extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
 extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
@@ -232,7 +234,16 @@ GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
 // Returns empty handle on error (caller must check)
 ContextHandle get_primary_context(int device_id);
 
-// Get handle to the current CUDA context
+// Create a context handle that owns `ctx` when the driver allows it.
+// cuDevicePrimaryCtxRetain is the only lifetime-extending context API, so an
+// owning handle is returned only for a device's primary context (or for a
+// context cuda.core already tracks). Otherwise this degrades to
+// create_context_handle_ref and the caller must keep the context alive.
+// Returns empty handle if ctx is null.
+ContextHandle retain_context_handle(CUcontext ctx);
+
+// Get handle to the current CUDA context, owning it when possible
+// (see retain_context_handle).
 // Returns empty handle if no context is current (caller must check)
 ContextHandle get_current_context();
 
@@ -354,12 +365,16 @@ using DevicePtrHandle = std::shared_ptr<const CUdeviceptr>;
 DevicePtrHandle deviceptr_alloc_from_pool(
     size_t size,
     const MemoryPoolHandle& h_pool,
-    const StreamHandle& h_stream);
+    const StreamHandle& h_stream,
+    const ContextHandle& h_release_context);
 
 // Allocate device memory asynchronously via cuMemAllocAsync.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Returns empty handle on error (caller must check).
-DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream);
+DevicePtrHandle deviceptr_alloc_async(
+    size_t size,
+    const StreamHandle& h_stream,
+    const ContextHandle& h_release_context);
 
 // Allocate device memory synchronously via cuMemAlloc.
 // When the last reference is released, cuMemFree is called.
@@ -390,7 +405,8 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
 DevicePtrHandle deviceptr_create_mapped_graphics(
     CUdeviceptr ptr,
     const GraphicsResourceHandle& h_resource,
-    const StreamHandle& h_stream);
+    const StreamHandle& h_stream,
+    const ContextHandle& h_release_context);
 
 // Callback type for MemoryResource deallocation.
 // Called from the shared_ptr deleter when a handle created via
@@ -404,9 +420,10 @@ using MRDeallocCallback = void (*)(PyObject* mr, CUdeviceptr ptr,
 void register_mr_dealloc_callback(MRDeallocCallback cb);
 
 // Create a device pointer handle whose destructor calls mr.deallocate()
-// via the registered callback. The supplied allocation context is retained,
-// and the optional deallocation stream is passed to the callback. The mr's
-// refcount is incremented and decremented when the handle is released.
+// via the registered callback. The supplied allocation context becomes a
+// dependency of the handle. h_stream is passed to the callback unchanged, and
+// h_release_context is made current while the callback runs. The mr's refcount
+// is incremented and decremented when the handle is released.
 // If mr is nullptr, equivalent to deviceptr_create_ref.
 DevicePtrHandle deviceptr_create_with_mr(
     CUdeviceptr ptr,
@@ -414,26 +431,28 @@ DevicePtrHandle deviceptr_create_with_mr(
     PyObject* mr,
     const ContextHandle& h_allocation_context,
     const StreamHandle& h_stream,
-    bool require_stream_context);
+    const ContextHandle& h_release_context);
 
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
+// h_release_context is made current for that call.
 // Note: Does not yet implement reference counting for nvbug 5570902.
 // On error, returns empty handle and sets thread-local error (use get_last_error()).
 DevicePtrHandle deviceptr_import_ipc(
     const MemoryPoolHandle& h_pool,
     const void* export_data,
-    const StreamHandle& h_stream);
+    const StreamHandle& h_stream,
+    const ContextHandle& h_release_context);
 
 // Access the deallocation stream for a device pointer handle (read-only).
 // For non-owning handles, the stream is not used but can still be accessed.
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
-// Set the deallocation stream for a device pointer handle. Context-relative
-// default streams are bound to the calling thread's current context.
-CUresult set_deallocation_stream(
+// Set the stream and context to use when the device pointer is released.
+void set_deallocation_stream(
     const DevicePtrHandle& h,
-    const StreamHandle& h_stream) noexcept;
+    const StreamHandle& h_stream,
+    const ContextHandle& h_release_context) noexcept;
 
 // ============================================================================
 // Library handle functions

@@ -35,8 +35,10 @@ namespace cuda_core {
 
 decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain = nullptr;
 decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease = nullptr;
+decltype(&cuDevicePrimaryCtxGetState) p_cuDevicePrimaryCtxGetState = nullptr;
 decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent = nullptr;
 decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent = nullptr;
+decltype(&cuCtxGetDevice) p_cuCtxGetDevice = nullptr;
 decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate = nullptr;
 decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy = nullptr;
 decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx = nullptr;
@@ -192,8 +194,22 @@ private:
     bool acquired_;
 };
 
-// Temporarily make a retained context current, restoring the caller's exact
-// prior context (including no current context) on scope exit.
+// Report a CUDA failure that cannot be returned to a caller, either because it
+// happened in a destructor or because it happened while undoing a temporary
+// driver state change.
+void report_driver_warning(const char* operation, CUresult status) noexcept {
+    if (status != CUDA_SUCCESS) {
+        std::fprintf(
+            stderr,
+            "Warning: %s failed (CUDA error %d)\n",
+            operation,
+            static_cast<int>(status));
+    }
+}
+
+// Temporarily make a context current, restoring the caller's prior binding
+// (including having no context current) on scope exit. The handle is held for
+// the duration so the context cannot be destroyed mid-scope.
 class ScopedCurrentContext {
 public:
     explicit ScopedCurrentContext(ContextHandle h_context) noexcept
@@ -215,14 +231,9 @@ public:
     ~ScopedCurrentContext() {
         if (changed_) {
             GILReleaseGuard gil;
-            CUresult status = p_cuCtxSetCurrent(previous_);
-            if (status != CUDA_SUCCESS) {
-                std::fprintf(
-                    stderr,
-                    "Warning: cuCtxSetCurrent failed while restoring a cleanup context "
-                    "(CUDA error %d)\n",
-                    static_cast<int>(status));
-            }
+            report_driver_warning(
+                "cuCtxSetCurrent (restoring the caller's context)",
+                p_cuCtxSetCurrent(previous_));
         }
     }
 
@@ -623,16 +634,98 @@ ContextHandle get_primary_context(int device_id) {
     return h;
 }
 
-ContextHandle get_current_context() {
+namespace {
+// Return the device ordinal that owns `ctx`, or -1 when it cannot be
+// determined. cuCtxGetDevice only reports the calling thread's current
+// context, so `ctx` is made current for the duration of the query.
+int context_device_ordinal(CUcontext ctx) noexcept {
     GILReleaseGuard gil;
-    CUcontext ctx = nullptr;
-    if (CUDA_SUCCESS != (err = p_cuCtxGetCurrent(&ctx))) {
+    CUcontext previous = nullptr;
+    if (p_cuCtxGetCurrent(&previous) != CUDA_SUCCESS) {
+        return -1;
+    }
+    CUdevice device = 0;
+    if (previous == ctx) {
+        return p_cuCtxGetDevice(&device) == CUDA_SUCCESS
+                   ? static_cast<int>(device)
+                   : -1;
+    }
+    if (p_cuCtxSetCurrent(ctx) != CUDA_SUCCESS) {
+        return -1;
+    }
+    CUresult status = p_cuCtxGetDevice(&device);
+    CUresult restored = p_cuCtxSetCurrent(previous);
+    report_driver_warning(
+        "cuCtxSetCurrent (restoring the caller's context)", restored);
+    if (status != CUDA_SUCCESS || restored != CUDA_SUCCESS) {
+        return -1;
+    }
+    return static_cast<int>(device);
+}
+
+// True when the device's primary context already exists. Retaining an inactive
+// primary context would create one as a side effect, so callers that only want
+// to compare against an existing context must check this first.
+bool primary_context_is_active(int device_id) noexcept {
+    GILReleaseGuard gil;
+    unsigned int flags = 0;
+    int active = 0;
+    if (p_cuDevicePrimaryCtxGetState(
+            static_cast<CUdevice>(device_id), &flags, &active) != CUDA_SUCCESS) {
+        return false;
+    }
+    return active != 0;
+}
+}  // namespace
+
+ContextHandle retain_context_handle(CUcontext ctx) {
+    if (!ctx) {
         return {};
+    }
+    // An already-registered handle carries whatever ownership cuda.core holds
+    // for this context: a primary-context retain, a green context, or a plain
+    // reference created earlier.
+    if (ContextHandle h = context_registry.lookup(ctx)) {
+        return h;
+    }
+    // cuDevicePrimaryCtxRetain is the only driver API that can extend a
+    // context's lifetime, so ownership is possible only when `ctx` is a
+    // device's primary context. The probe below must not disturb the error
+    // state the caller is about to inspect, and must not touch an inactive
+    // primary context, because retaining one creates it.
+    ContextHandle h_owning;
+    {
+        CUresult saved_err = err;
+        int device_id = context_device_ordinal(ctx);
+        if (device_id >= 0 && primary_context_is_active(device_id)) {
+            ContextHandle h_primary = get_primary_context(device_id);
+            if (h_primary && as_cu(h_primary) == ctx) {
+                h_owning = std::move(h_primary);
+            }
+        }
+        err = saved_err;
+    }
+    if (h_owning) {
+        return h_owning;
+    }
+    // User-created and green contexts cannot be retained through the driver,
+    // so the handle is a plain reference and the caller is responsible for
+    // keeping the context alive.
+    return create_context_handle_ref(ctx);
+}
+
+ContextHandle get_current_context() {
+    CUcontext ctx = nullptr;
+    {
+        GILReleaseGuard gil;
+        if (CUDA_SUCCESS != (err = p_cuCtxGetCurrent(&ctx))) {
+            return {};
+        }
     }
     if (!ctx) {
         return {};  // No current context (not an error)
     }
-    return create_context_handle_ref(ctx);
+    return retain_context_handle(ctx);
 }
 
 // ============================================================================
@@ -962,67 +1055,28 @@ struct DevicePtrBox {
     mutable ReleaseStream release_stream;
 };
 
-bool is_context_relative_stream(CUstream stream) noexcept {
-    return stream == nullptr ||
-           stream == CU_STREAM_LEGACY ||
-           stream == CU_STREAM_PER_THREAD;
-}
-
-CUresult make_release_stream(
-        const StreamHandle& h_stream,
-        ReleaseStream* release_stream,
-        const ContextHandle& fallback_context = {},
-        bool require_context = true) noexcept {
-    release_stream->h_stream = h_stream;
-    release_stream->h_context.reset();
-    if (!h_stream || !is_context_relative_stream(as_cu(h_stream))) {
-        return CUDA_SUCCESS;
+// Invoke a driver call with `h_context` current, if one was recorded. Reports
+// the context switch failure as the call's own failure so callers have a single
+// status to check.
+template <typename Fn>
+CUresult call_with_context(const ContextHandle& h_context, Fn&& fn) noexcept {
+    ScopedCurrentContext context(h_context);
+    if (context.status() != CUDA_SUCCESS) {
+        return context.status();
     }
-
-    CUcontext context = nullptr;
-    CUresult status;
-    {
-        GILReleaseGuard gil;
-        status = p_cuStreamGetCtx(as_cu(h_stream), &context);
-    }
-    bool context_unavailable =
-        status == CUDA_ERROR_INVALID_CONTEXT ||
-        status == CUDA_ERROR_NOT_INITIALIZED;
-    if (context_unavailable && fallback_context) {
-        release_stream->h_context = fallback_context;
-        return CUDA_SUCCESS;
-    }
-    if (context_unavailable && !require_context) {
-        return CUDA_SUCCESS;
-    }
-    if (status != CUDA_SUCCESS) {
-        return status;
-    }
-    if (!context) {
-        return CUDA_ERROR_INVALID_CONTEXT;
-    }
-
-    try {
-        release_stream->h_context =
-            cuda_core::create_context_handle_ref(context);
-    } catch (const std::bad_alloc&) {
-        return CUDA_ERROR_OUT_OF_MEMORY;
-    } catch (...) {
-        return CUDA_ERROR_UNKNOWN;
-    }
-    return CUDA_SUCCESS;
+    GILReleaseGuard gil;
+    return fn();
 }
 
 template <typename Fn>
 CUresult call_with_release_stream(
         const ReleaseStream& release_stream,
         Fn&& fn) noexcept {
-    ScopedCurrentContext context(release_stream.h_context);
-    if (context.status() != CUDA_SUCCESS) {
-        return context.status();
-    }
-    GILReleaseGuard gil;
-    return fn(as_cu(release_stream.h_stream));
+    return call_with_context(
+        release_stream.h_context,
+        [&release_stream, &fn]() {
+            return fn(as_cu(release_stream.h_stream));
+        });
 }
 
 void report_cleanup_error(const char* operation, CUresult status) noexcept {
@@ -1063,24 +1117,18 @@ StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
     return get_box(h)->release_stream.h_stream;
 }
 
-CUresult set_deallocation_stream(
+void set_deallocation_stream(
         const DevicePtrHandle& h,
-        const StreamHandle& h_stream) noexcept {
-    ReleaseStream release_stream;
-    CUresult status = make_release_stream(h_stream, &release_stream);
-    if (status != CUDA_SUCCESS) {
-        return status;
-    }
-    DevicePtrBox* box = get_box(h);
-    box->release_stream = std::move(release_stream);
-    return CUDA_SUCCESS;
+        const StreamHandle& h_stream,
+        const ContextHandle& h_release_context) noexcept {
+    get_box(h)->release_stream = {h_stream, h_release_context};
 }
 
-DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) {
-    ReleaseStream release_stream;
-    if (CUDA_SUCCESS != (err = make_release_stream(h_stream, &release_stream))) {
-        return {};
-    }
+DevicePtrHandle deviceptr_alloc_from_pool(
+        size_t size,
+        const MemoryPoolHandle& h_pool,
+        const StreamHandle& h_stream,
+        const ContextHandle& h_release_context) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, as_cu(h_stream)))) {
@@ -1088,7 +1136,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, std::move(release_stream)},
+        new DevicePtrBox{ptr, {h_stream, h_release_context}},
         [h_pool](DevicePtrBox* b) {
             (void)h_pool;
             release_async_deviceptr(b);
@@ -1097,11 +1145,10 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream) {
-    ReleaseStream release_stream;
-    if (CUDA_SUCCESS != (err = make_release_stream(h_stream, &release_stream))) {
-        return {};
-    }
+DevicePtrHandle deviceptr_alloc_async(
+        size_t size,
+        const StreamHandle& h_stream,
+        const ContextHandle& h_release_context) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, as_cu(h_stream)))) {
@@ -1109,7 +1156,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, std::move(release_stream)},
+        new DevicePtrBox{ptr, {h_stream, h_release_context}},
         release_async_deviceptr
     );
     return DevicePtrHandle(box, &box->resource);
@@ -1132,9 +1179,11 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
     auto box = std::shared_ptr<DevicePtrBox>(
         new DevicePtrBox{ptr, {}},
         [h_context](DevicePtrBox* b) {
-            (void)h_context;
-            GILReleaseGuard gil;
-            report_cleanup_error("cuMemFree", p_cuMemFree(b->resource));
+            report_cleanup_error(
+                "cuMemFree",
+                call_with_context(h_context, [b]() {
+                    return p_cuMemFree(b->resource);
+                }));
             delete b;
         }
     );
@@ -1158,11 +1207,12 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
     auto box = std::shared_ptr<DevicePtrBox>(
         new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), {}},
         [h_context](DevicePtrBox* b) {
-            (void)h_context;
-            GILReleaseGuard gil;
             report_cleanup_error(
                 "cuMemFreeHost",
-                p_cuMemFreeHost(reinterpret_cast<void*>(b->resource)));
+                call_with_context(h_context, [b]() {
+                    return p_cuMemFreeHost(
+                        reinterpret_cast<void*>(b->resource));
+                }));
             delete b;
         }
     );
@@ -1202,14 +1252,11 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
 DevicePtrHandle deviceptr_create_mapped_graphics(
     CUdeviceptr ptr,
     const GraphicsResourceHandle& h_resource,
-    const StreamHandle& h_stream
+    const StreamHandle& h_stream,
+    const ContextHandle& h_release_context
 ) {
-    ReleaseStream release_stream;
-    if (CUDA_SUCCESS != (err = make_release_stream(h_stream, &release_stream))) {
-        return {};
-    }
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, std::move(release_stream)},
+        new DevicePtrBox{ptr, {h_stream, h_release_context}},
         [h_resource](DevicePtrBox* b) {
             ScopedCurrentContext context(
                 get_graphics_resource_context(h_resource));
@@ -1250,17 +1297,9 @@ DevicePtrHandle deviceptr_create_with_mr(
         PyObject* mr,
         const ContextHandle& h_allocation_context,
         const StreamHandle& h_stream,
-        bool require_stream_context) {
+        const ContextHandle& h_release_context) {
     if (!mr) {
         return deviceptr_create_ref(ptr);
-    }
-    ReleaseStream release_stream;
-    if (CUDA_SUCCESS != (err = make_release_stream(
-            h_stream,
-            &release_stream,
-            h_allocation_context,
-            require_stream_context))) {
-        return {};
     }
     // GIL required when mr is provided
     GILAcquireGuard gil;
@@ -1269,7 +1308,10 @@ DevicePtrHandle deviceptr_create_with_mr(
     }
     Py_INCREF(mr);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, std::move(release_stream)},
+        new DevicePtrBox{ptr, {h_stream, h_release_context}},
+        // h_allocation_context is captured for its lifetime only: the pointer's
+        // context must outlive the allocation even when release runs on a
+        // stream belonging to some other context.
         [mr, size, h_allocation_context](DevicePtrBox* b) {
             (void)h_allocation_context;
             ScopedCurrentContext context(
@@ -1352,13 +1394,13 @@ struct ExportDataKeyHash {
 static HandleRegistry<ExportDataKey, DevicePtrHandle, ExportDataKeyHash> ipc_ptr_cache;
 static std::mutex ipc_import_mutex;
 
-DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) {
+DevicePtrHandle deviceptr_import_ipc(
+        const MemoryPoolHandle& h_pool,
+        const void* export_data,
+        const StreamHandle& h_stream,
+        const ContextHandle& h_release_context) {
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
-    ReleaseStream release_stream;
-    if (CUDA_SUCCESS != (err = make_release_stream(h_stream, &release_stream))) {
-        return {};
-    }
 
     if (use_ipc_ptr_cache()) {
         ExportDataKey key;
@@ -1377,7 +1419,7 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         }
 
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, std::move(release_stream)},
+            new DevicePtrBox{ptr, {h_stream, h_release_context}},
             [h_pool, key](DevicePtrBox* b) {
                 (void)h_pool;
                 ipc_ptr_cache.unregister_handle(key);
@@ -1396,7 +1438,7 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         }
 
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, std::move(release_stream)},
+            new DevicePtrBox{ptr, {h_stream, h_release_context}},
             [h_pool](DevicePtrBox* b) {
                 (void)h_pool;
                 release_async_deviceptr(b);
@@ -2113,16 +2155,11 @@ GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resour
     auto box = std::shared_ptr<const GraphicsResourceBox>(
         new GraphicsResourceBox{resource, h_context},
         [](const GraphicsResourceBox* b) {
-            ScopedCurrentContext context(b->h_context);
-            if (context.status() == CUDA_SUCCESS) {
-                GILReleaseGuard gil;
-                report_cleanup_error(
-                    "cuGraphicsUnregisterResource",
-                    p_cuGraphicsUnregisterResource(b->resource));
-            } else {
-                report_cleanup_error(
-                    "cuCtxSetCurrent", context.status());
-            }
+            report_cleanup_error(
+                "cuGraphicsUnregisterResource",
+                call_with_context(b->h_context, [b]() {
+                    return p_cuGraphicsUnregisterResource(b->resource);
+                }));
             delete b;
         }
     );

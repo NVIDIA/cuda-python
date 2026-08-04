@@ -45,6 +45,10 @@ class Buffer:
         When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
         is called when the buffer is closed or garbage collected.  When ``owner``
         is provided, the owner is kept alive but no deallocation is performed.
+
+        An owning buffer always records a deallocation stream, defaulting to
+        ``default_stream()``, so teardown never has to choose one at destruction
+        time. Callers wanting different ordering must pass ``stream``.
         """
 
     @staticmethod
@@ -73,9 +77,11 @@ class Buffer:
             The reference is kept as long as the buffer is alive.
             The ``owner`` and ``mr`` cannot be specified together.
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            Initial deallocation stream when ``mr`` owns the pointer. If
-            omitted, the current default stream is selected and retained now,
-            rather than during eventual destruction.
+            Deallocation stream to record when ``mr`` owns the pointer.
+            Defaults to the calling thread's default stream, chosen here
+            rather than at destruction time. Note that a default stream is
+            recorded as a token: under per-thread default streams the driver
+            resolves it against whichever thread runs the destructor.
 
         Note
         ----

@@ -8,6 +8,7 @@ from typing import Sequence
 
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
+    ContextHandle,
     DevicePtrHandle,
     create_graphics_resource_handle,
     deviceptr_create_mapped_graphics,
@@ -16,7 +17,11 @@ from cuda.core._resource_handles cimport (
     as_intptr,
 )
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
-from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._stream cimport (
+    Stream,
+    Stream_accept,
+    Stream_resolve_context,
+)
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 __all__ = ['GraphicsResource']
@@ -281,6 +286,9 @@ cdef class GraphicsResource:
         cdef Stream s_obj = Stream_accept(stream)
         cdef cydriver.CUgraphicsResource raw = as_cu(self._handle)
         cdef cydriver.CUstream cy_stream = as_cu(s_obj._h_stream)
+        cdef ContextHandle h_release_context = Stream_resolve_context(s_obj)
+        if not h_release_context:
+            HANDLE_RETURN(cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT)
         try:
             with nogil:
                 HANDLE_RETURN(
@@ -300,7 +308,11 @@ cdef class GraphicsResource:
                 HANDLE_RETURN(rollback_status)
             raise
         h_ptr = deviceptr_create_mapped_graphics(
-            dev_ptr, self._handle, s_obj._h_stream)
+            dev_ptr,
+            self._handle,
+            s_obj._h_stream,
+            h_release_context,
+        )
         if not h_ptr:
             status = get_last_error()
             with nogil:

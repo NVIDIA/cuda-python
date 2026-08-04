@@ -176,12 +176,9 @@ class ManagedBuffer(Buffer):
             An object that keeps the underlying allocation alive.
             ``owner`` and ``mr`` cannot both be specified.
         stream : Stream | GraphBuilder, optional
-            Initial deallocation stream when ``mr`` owns the pointer.
+            Deallocation stream to record when ``mr`` owns the pointer.
+            Defaults to the calling thread's default stream.
         """
-        if mr is not None and stream is None:
-            from cuda.core._stream import default_stream
-
-            stream = default_stream()
         return cls._init(ptr, size, mr=mr, owner=owner, stream=stream)
 
     @property
