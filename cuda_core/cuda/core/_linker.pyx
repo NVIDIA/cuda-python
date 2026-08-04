@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union
 from warnings import warn
 
+from cuda.pathfinder import DynamicLibNotFoundError
 from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
 from cuda.core._device import Device
 from cuda.core._module import ObjectCode
@@ -683,22 +684,26 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    nvjitlink_module = _optional_cuda_import(
-        "cuda.bindings.nvjitlink",
-        probe_function=lambda module: module.version(),  # probe triggers nvJitLink runtime load
-    )
+    nvjitlink_module = _optional_cuda_import("cuda.bindings.nvjitlink")
     if nvjitlink_module is None:
         warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
     else:
         from cuda.bindings._internal import nvjitlink
 
-        if _nvjitlink_has_version_symbol(nvjitlink):
-            _use_nvjitlink_backend = True
-            return False  # Use nvjitlink
-        warn_txt = (
-            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
-            f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
-        )
+        try:
+            has_version_symbol = _nvjitlink_has_version_symbol(nvjitlink)
+        except DynamicLibNotFoundError:
+            warn_txt = (
+                f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
+            )
+        else:
+            if has_version_symbol:
+                _use_nvjitlink_backend = True
+                return False  # Use nvjitlink
+            warn_txt = (
+                f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
+                f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
+            )
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
     _driver = driver
