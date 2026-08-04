@@ -428,6 +428,10 @@ def test_default_stream_follows_current_context(stream):
         assert stream.device.device_id == device_id
         assert stream.context == dev.context
         assert stream.record().context == dev.context
+        # Exercise Stream.resources and check it tracks the same context
+        # resolution as .context (issue #2485).
+        assert stream.resources.sm.sm_count == stream.context.resources.sm.sm_count
+        assert stream.resources.sm.sm_count == dev.resources.sm.sm_count
 
 
 @pytest.mark.agent_authored(model="claude-opus-5")

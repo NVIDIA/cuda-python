@@ -274,6 +274,13 @@ cdef class Stream:
         :obj:`~_event.Event`
             Newly created event object.
 
+        Note
+        ----
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so a newly created event is
+        associated with the current context at call time.
+
         """
         # Create an Event object (or reusing the given one) by recording
         # on the stream. Event flags such as disabling timing, nonblocking,
@@ -347,9 +354,14 @@ cdef class Stream:
 
         Note
         ----
-        The current context on the device may differ from this
-        stream's context. This case occurs when a different CUDA
-        context is set current after a stream is created.
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so this returns the device for
+        the current context at call time.
+
+        For a created stream, the current context on the device may differ from
+        this stream's context. That case occurs when a different CUDA context is
+        set current after the stream is created.
 
         """
         from cuda.core._device import Device  # avoid circular import
@@ -382,6 +394,14 @@ cdef class Stream:
         For streams created from a green context, returns the resources
         that context was provisioned with. For streams on the primary
         context, returns the full device resources.
+
+        Note
+        ----
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so this queries the current
+        context at call time.
+
         """
         cdef ContextHandle h_context
         cdef int device_id
@@ -478,7 +498,9 @@ cdef inline int Stream_get_ctx(Stream self, ContextHandle* h_context) except?-1 
     cdef cydriver.CUcontext ctx
     cdef bint is_default = Stream_is_default_token(self)
 
-    if self._h_context:
+    # Default-stream tokens must never reuse a sticky object field, even if
+    # something else populated ``_h_context`` (defense in depth for #2485).
+    if self._h_context and not is_default:
         h_context[0] = self._h_context
         return 0
 

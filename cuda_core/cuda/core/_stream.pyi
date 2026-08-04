@@ -131,6 +131,13 @@ class Stream:
         :obj:`~_event.Event`
             Newly created event object.
 
+        Note
+        ----
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so a newly created event is
+        associated with the current context at call time.
+
         """
 
     def wait(self, event_or_stream: Event | Stream) -> None:
@@ -157,9 +164,14 @@ class Stream:
 
         Note
         ----
-        The current context on the device may differ from this
-        stream's context. This case occurs when a different CUDA
-        context is set current after a stream is created.
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so this returns the device for
+        the current context at call time.
+
+        For a created stream, the current context on the device may differ from
+        this stream's context. That case occurs when a different CUDA context is
+        set current after the stream is created.
 
         """
 
@@ -183,6 +195,14 @@ class Stream:
         For streams created from a green context, returns the resources
         that context was provisioned with. For streams on the primary
         context, returns the full device resources.
+
+        Note
+        ----
+        A default stream (:obj:`LEGACY_DEFAULT_STREAM` or
+        :obj:`PER_THREAD_DEFAULT_STREAM`) carries no context of its own; it
+        refers to whichever context is current, so this queries the current
+        context at call time.
+
         """
 
     @staticmethod
