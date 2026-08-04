@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import pathlib
 import re
 import warnings
 
@@ -743,6 +744,33 @@ def test_program_options_as_bytes_nvvm():
     assert "-g" in options_str
     assert "-ftz=1" in options_str
     assert "-opt=3" in options_str
+
+
+@pytest.mark.parametrize("include_path", ["/usr/local/include", pathlib.Path("/usr/local/include")])
+def test_program_options_path_option_accepts_str_or_path(include_path):
+    """Path-valued options take str or os.PathLike and normalize to Path."""
+    expected = pathlib.Path("/usr/local/include")
+    options = ProgramOptions(arch="sm_80", include_path=include_path)
+    assert options.include_path == expected
+    assert f"--include-path={expected}".encode() in options.as_bytes("nvrtc")
+
+
+def test_program_options_path_option_sequence_accepts_str_or_path():
+    """A list may mix str and os.PathLike; every entry becomes a Path."""
+    first, second = pathlib.Path("/opt/first"), pathlib.Path("/opt/second")
+    options = ProgramOptions(arch="sm_80", include_path=[str(first), second])
+    assert options.include_path == [first, second]
+    emitted = [opt.decode() for opt in options.as_bytes("nvrtc")]
+    assert f"--include-path={first}" in emitted
+    assert f"--include-path={second}" in emitted
+
+
+def test_program_options_non_path_values_are_left_alone():
+    """Values the compiler silently ignores must not be coerced (or Path()
+    would raise on them); only str / os.PathLike entries are converted."""
+    options = ProgramOptions(arch="sm_80", include_path=False, use_pch=False)
+    assert options.include_path is False
+    assert options.use_pch is False
 
 
 def test_program_options_as_bytes_invalid_backend():

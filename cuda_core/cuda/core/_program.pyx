@@ -10,6 +10,8 @@ This module provides :class:`Program` for compiling source code into
 from __future__ import annotations
 
 from dataclasses import dataclass
+from os import PathLike
+from pathlib import Path
 import threading
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -294,6 +296,12 @@ cdef class Program:
 class ProgramOptions:
     """Customizable options for configuring :class:`Program`.
 
+    Every path-valued option (``include_path``, ``pre_include``, ``create_pch``,
+    ``use_pch``, ``pch_dir``, ``fdevice_time_trace``) accepts either a :class:`str`
+    or any :class:`os.PathLike`, and stores it as a :class:`pathlib.Path`. Callers
+    building paths with :mod:`pathlib` therefore never need to convert back to
+    ``str``.
+
     Attributes
     ----------
     name : str, optional
@@ -360,11 +368,11 @@ class ProgramOptions:
     undefine_macro : Union[str, list[str]], optional
         Cancel any previous definition of a macro, or list of macros.
         Default: None
-    include_path : Union[str, list[str]], optional
+    include_path : Union[str, os.PathLike, list[Union[str, os.PathLike]]], optional
         Add the directory or directories to the list of directories to be searched for headers.
         Default: None
-    pre_include : Union[str, list[str]], optional
-        Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
+    pre_include : Union[str, os.PathLike, list[Union[str, os.PathLike]]], optional
+        Preinclude one or more headers during preprocessing. Can be either a single path or a list of paths.
         Default: None
     no_source_include : bool, optional
         Disable the default behavior of adding the directory of each input source to the include path.
@@ -423,7 +431,7 @@ class ProgramOptions:
     no_cache : bool, optional
         Disable compiler caching.
         Default: False
-    fdevice_time_trace : str, optional
+    fdevice_time_trace : Union[str, os.PathLike], optional
         Generate time trace JSON for profiling compilation (NVRTC only).
         Default: None
     device_float128 : bool, optional
@@ -438,13 +446,13 @@ class ProgramOptions:
     pch : bool, optional
         Use default precompiled header (NVRTC only, CUDA 12.8+).
         Default: False
-    create_pch : str, optional
+    create_pch : Union[str, os.PathLike], optional
         Create precompiled header file (NVRTC only, CUDA 12.8+).
         Default: None
-    use_pch : str, optional
+    use_pch : Union[str, os.PathLike], optional
         Use specific precompiled header file (NVRTC only, CUDA 12.8+).
         Default: None
-    pch_dir : str, optional
+    pch_dir : Union[str, os.PathLike], optional
         PCH directory location (NVRTC only, CUDA 12.8+).
         Default: None
     pch_verbose : bool, optional
@@ -487,8 +495,8 @@ class ProgramOptions:
     gen_opt_lto: bool | None = None
     define_macro: str | tuple[str, str] | list[str | tuple[str, str]] | tuple[str | tuple[str, str], ...] | None = None
     undefine_macro: str | list[str] | tuple[str] | None = None
-    include_path: str | list[str] | tuple[str] | None = None
-    pre_include: str | list[str] | tuple[str] | None = None
+    include_path: str | PathLike[str] | list[str | PathLike[str]] | tuple[str | PathLike[str]] | None = None
+    pre_include: str | PathLike[str] | list[str | PathLike[str]] | tuple[str | PathLike[str]] | None = None
     no_source_include: bool | None = None
     std: str | None = None
     builtin_move_forward: bool | None = None
@@ -508,14 +516,14 @@ class ProgramOptions:
     fdevice_syntax_only: bool | None = None
     minimal: bool | None = None
     no_cache: bool | None = None
-    fdevice_time_trace: str | None = None
+    fdevice_time_trace: str | PathLike[str] | None = None
     device_float128: bool | None = None
     frandom_seed: str | None = None
     ofast_compile: str | None = None
     pch: bool | None = None
-    create_pch: str | None = None
-    use_pch: str | None = None
-    pch_dir: str | None = None
+    create_pch: str | PathLike[str] | None = None
+    use_pch: str | PathLike[str] | None = None
+    pch_dir: str | PathLike[str] | None = None
     pch_verbose: bool | None = None
     pch_messages: bool | None = None
     instantiate_templates_in_pch: bool | None = None
@@ -528,6 +536,12 @@ class ProgramOptions:
         if self.name is None:
             self.name = "default_program"
         self._name = self.name.encode()
+        # Path-valued options accept str or os.PathLike; normalize to Path so
+        # callers never have to convert back to str just to build options.
+        for _field in _PATH_OPTION_FIELDS:
+            _value = getattr(self, _field)
+            if _value is not None:
+                setattr(self, _field, _coerce_path_option(_value))
         # Set arch to default if not provided
         if self.arch is None:
             self.arch = f"sm_{Device().arch}"
@@ -630,6 +644,42 @@ class ProgramOptions:
 # =============================================================================
 # Private Classes and Helper Functions
 # =============================================================================
+
+
+# ``ProgramOptions`` fields that name a filesystem path. ``str`` and
+# ``os.PathLike`` values for these are normalized to :class:`pathlib.Path` in
+# ``ProgramOptions.__post_init__`` so everything downstream sees one type.
+#
+# ``name`` is not here: NVRTC uses it as the source *filename*, but it is a
+# plain label (``ProgramOptions.__post_init__`` encodes it, and the program
+# cache inspects it for a directory component), so it stays ``str``. ``time``
+# is not here either: NVRTC treats it as an output filename, but the same
+# field is forwarded to ``LinkerOptions.time`` (a bool flag) for PTX inputs.
+_PATH_OPTION_FIELDS = (
+    "include_path",
+    "pre_include",
+    "create_pch",
+    "use_pch",
+    "pch_dir",
+    "fdevice_time_trace",
+)
+
+
+def _coerce_path_option(value):
+    """Normalize a path-valued :class:`ProgramOptions` field.
+
+    ``str`` / :class:`os.PathLike` becomes :class:`pathlib.Path`; a ``list``
+    or ``tuple`` has its ``str`` / :class:`os.PathLike` items converted while
+    keeping the container type. Anything else is returned unchanged, so the
+    "silently ignored at compile time" behavior of non-path values (``False``,
+    ``range(...)``, ...) is unaffected.
+    """
+    if isinstance(value, (str, PathLike)):
+        return Path(value)
+    if isinstance(value, (list, tuple)):
+        coerced = [Path(v) if isinstance(v, (str, PathLike)) else v for v in value]
+        return tuple(coerced) if isinstance(value, tuple) else coerced
+    return value
 
 
 def _program_compile_uncached(program, target_type, name_expressions, logs):
@@ -1129,13 +1179,15 @@ cdef inline list _prepare_nvrtc_options_impl(object opts):
             for macro in opts.undefine_macro:
                 options.append(f"--undefine-macro={macro}")
     if opts.include_path is not None:
-        if isinstance(opts.include_path, str):
+        # ``__post_init__`` turns str/PathLike into Path, but the dataclass is
+        # mutable, so accept either form here.
+        if isinstance(opts.include_path, (str, PathLike)):
             options.append(f"--include-path={opts.include_path}")
         elif is_sequence(opts.include_path):
             for path in opts.include_path:
                 options.append(f"--include-path={path}")
     if opts.pre_include is not None:
-        if isinstance(opts.pre_include, str):
+        if isinstance(opts.pre_include, (str, PathLike)):
             options.append(f"--pre-include={opts.pre_include}")
         elif is_sequence(opts.pre_include):
             for header in opts.pre_include:

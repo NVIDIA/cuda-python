@@ -3,18 +3,18 @@
 
 # If we have subcategories of examples in the future, this file can be split along those lines
 
-import glob
 import os
 import platform
 import subprocess
 import sys
 import warnings
+from pathlib import Path
 
 import pytest
-from cuda_python_test_helpers.pep723 import has_package_requirements_or_skip
 
 from cuda.core import Device, ManagedMemoryResource, system
 from cuda.core._program import _can_load_generated_ptx
+from cuda_python_test_helpers.pep723 import has_package_requirements_or_skip
 
 
 def has_compute_capability_9_or_higher() -> bool:
@@ -91,14 +91,14 @@ SYSTEM_REQUIREMENTS = {
 }
 
 
-samples_path = os.path.join(os.path.dirname(__file__), "..", "..", "examples")
-sample_files = [os.path.basename(x) for x in glob.glob(samples_path + "**/*.py", recursive=True)]
+samples_path = Path(__file__).parents[2] / "examples"
+sample_files = [x.name for x in samples_path.glob("**/*.py")]
 
 
 @pytest.mark.parametrize("example", sample_files)
 @pytest.mark.parallel_threads_limit(8)
 def test_example(example):
-    example_path = os.path.join(samples_path, example)
+    example_path = samples_path / example
     has_package_requirements_or_skip(example_path)
 
     system_requirement = SYSTEM_REQUIREMENTS.get(example, lambda: True)
