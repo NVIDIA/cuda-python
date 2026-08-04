@@ -1854,6 +1854,23 @@ def test_vmm_options_handle_type_win32_raises():
         VirtualMemoryResourceOptions._handle_type_to_driver("win32")
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("location_type", ["host", "host_numa", "host_numa_current"])
+def test_vmm_host_location_types_report_host_accessible(location_type):
+    """Every host-backed location type reports is_host_accessible.
+
+    __init__ classifies "host", "host_numa" and "host_numa_current" alike when
+    deciding the resource is not bound to a device, so is_host_accessible must
+    agree; otherwise a NUMA-located resource claims to be neither host- nor
+    device-accessible.
+    """
+    device = Device()
+    device.set_current()
+    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+    assert mr.device is None
+    assert mr.is_host_accessible is True
+
+
 def test_device_memory_resource_peer_accessible_by_non_owned(mempool_device):
     """peer_accessible_by on a non-owned (default) DMR queries the driver live."""
     dev = mempool_device
