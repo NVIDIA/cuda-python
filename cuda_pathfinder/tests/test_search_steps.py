@@ -682,9 +682,9 @@ class TestAnchorRelDirs:
         (tmp_path / "nvvm" / "lib64").mkdir(parents=True)
 
         desc = _make_desc(name="nvvm", anchor_rel_dirs_linux=("nvvm/lib64",))
-        result = _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), str(tmp_path))
+        result = _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), tmp_path)
         assert result is not None
-        assert result.endswith(os.path.join("nvvm", "lib64"))
+        assert str(result).endswith(os.path.join("nvvm", "lib64"))
 
     def test_find_lib_dir_uses_descriptor_windows(self, tmp_path):
         (tmp_path / "nvvm" / "bin").mkdir(parents=True)
@@ -696,9 +696,9 @@ class TestAnchorRelDirs:
                 arm64=("nvvm/bin/arm64", "nvvm/bin"),
             ),
         )
-        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="x64"), str(tmp_path))
+        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="x64"), tmp_path)
         assert result is not None
-        assert result.endswith(os.path.join("nvvm", "bin"))
+        assert str(result).endswith(os.path.join("nvvm", "bin"))
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_find_lib_dir_windows_arm64_uses_arm64_anchor(self, tmp_path):
@@ -712,13 +712,13 @@ class TestAnchorRelDirs:
                 arm64=("bin/arm64",),
             ),
         )
-        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="arm64"), str(tmp_path))
+        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="arm64"), tmp_path)
         assert result is not None
-        assert result.endswith(os.path.join("bin", "arm64"))
+        assert str(result).endswith(os.path.join("bin", "arm64"))
 
     def test_find_lib_dir_returns_none_when_no_match(self, tmp_path):
         desc = _make_desc(anchor_rel_dirs_linux=("nonexistent",))
-        assert _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), str(tmp_path)) is None
+        assert _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), tmp_path) is None
 
     def test_nvvm_cuda_home_linux(self, mocker, tmp_path):
         """End-to-end: find_in_cuda_path resolves nvvm under its custom subdir."""
