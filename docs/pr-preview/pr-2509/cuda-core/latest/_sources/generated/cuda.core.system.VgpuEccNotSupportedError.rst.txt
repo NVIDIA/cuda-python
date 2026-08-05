@@ -1,0 +1,6 @@
+﻿cuda.core.system.VgpuEccNotSupportedError
+=========================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: VgpuEccNotSupportedError
