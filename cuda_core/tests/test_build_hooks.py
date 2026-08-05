@@ -135,3 +135,47 @@ class TestGetCudaMajorVersion:
             pytest.raises(RuntimeError, match="CUDA_PATH or CUDA_HOME"),
         ):
             build_hooks._determine_cuda_major_version()
+
+
+@pytest.fixture
+def build_tree(tmp_path, monkeypatch):
+    """Run the stamp helpers against a scratch source tree.
+
+    The stamp path is relative because PEP 517 hooks always run with the
+    package directory as the working directory.
+    """
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(build_hooks, "force_build_ext", False)
+    build_hooks._get_cuda_path.cache_clear()
+    build_hooks._determine_cuda_major_version.cache_clear()
+    get_cuda_path_or_home.cache_clear()
+    monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+    return tmp_path
+
+
+def _write_stamp(build_tree, cuda_major):
+    stamp = build_tree / build_hooks._BUILD_MAJOR_STAMP
+    stamp.parent.mkdir(parents=True, exist_ok=True)
+    stamp.write_text(cuda_major + "\n")
+
+
+class TestBuildMajorStamp:
+    """Tests for _check_build_major() and record_build_major()."""
+
+    def test_first_build_does_not_force(self, build_tree):
+        assert build_hooks._check_build_major() == "13"
+        assert build_hooks.force_build_ext is False
+
+    def test_same_major_does_not_force(self, build_tree):
+        _write_stamp(build_tree, "13")
+        assert build_hooks._check_build_major() == "13"
+        assert build_hooks.force_build_ext is False
+
+    def test_changed_major_forces_rebuild(self, build_tree):
+        _write_stamp(build_tree, "12")
+        assert build_hooks._check_build_major() == "13"
+        assert build_hooks.force_build_ext is True
+
+    def test_record_writes_stamp(self, build_tree):
+        build_hooks.record_build_major()
+        assert (build_tree / build_hooks._BUILD_MAJOR_STAMP).read_text().strip() == "13"
