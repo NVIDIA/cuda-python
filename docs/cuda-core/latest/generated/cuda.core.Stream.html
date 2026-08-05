@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=16f433b3"></script>
+    <script src="../_static/documentation_options.js?v=b28cb7aa"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev19';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -847,6 +847,13 @@ recording on the stream.</p>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a></p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A default stream (<a class="reference internal" href="../api.html#cuda.core.LEGACY_DEFAULT_STREAM" title="cuda.core.LEGACY_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code></a> or
+<a class="reference internal" href="../api.html#cuda.core.PER_THREAD_DEFAULT_STREAM" title="cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a>) carries no context of its own; it
+refers to whichever context is current, so a newly created event is
+associated with the current context at call time.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -877,6 +884,13 @@ streams.</p>
 <dt class="sig sig-object py" id="cuda.core.Stream.context">
 <span class="sig-name descname"><span class="pre">context</span></span><a class="headerlink" href="#cuda.core.Stream.context" title="Link to this definition">#</a></dt>
 <dd><p>Return the <a class="reference internal" href="cuda.core.Context.html#cuda.core.Context" title="cuda.core._context.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a> associated with this stream.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A default stream (<a class="reference internal" href="../api.html#cuda.core.LEGACY_DEFAULT_STREAM" title="cuda.core.LEGACY_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code></a> or
+<a class="reference internal" href="../api.html#cuda.core.PER_THREAD_DEFAULT_STREAM" title="cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a>) carries no context of its own; it
+refers to whichever context is current, so this returns the current
+context at call time.</p>
+</div>
 </dd></dl>
 
 <dl class="py attribute">
@@ -885,9 +899,13 @@ streams.</p>
 <dd><p>Return the <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> singleton associated with this stream.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The current context on the device may differ from this
-stream’s context. This case occurs when a different CUDA
-context is set current after a stream is created.</p>
+<p>A default stream (<a class="reference internal" href="../api.html#cuda.core.LEGACY_DEFAULT_STREAM" title="cuda.core.LEGACY_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code></a> or
+<a class="reference internal" href="../api.html#cuda.core.PER_THREAD_DEFAULT_STREAM" title="cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a>) carries no context of its own; it
+refers to whichever context is current, so this returns the device for
+the current context at call time.</p>
+<p>For a created stream, the current context on the device may differ from
+this stream’s context. That case occurs when a different CUDA context is
+set current after the stream is created.</p>
 </div>
 </dd></dl>
 
@@ -922,6 +940,13 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(St
 <p>For streams created from a green context, returns the resources
 that context was provisioned with. For streams on the primary
 context, returns the full device resources.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A default stream (<a class="reference internal" href="../api.html#cuda.core.LEGACY_DEFAULT_STREAM" title="cuda.core.LEGACY_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code></a> or
+<a class="reference internal" href="../api.html#cuda.core.PER_THREAD_DEFAULT_STREAM" title="cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a>) carries no context of its own; it
+refers to whichever context is current, so this queries the current
+context at call time.</p>
+</div>
 </dd></dl>
 
 </dd></dl>
