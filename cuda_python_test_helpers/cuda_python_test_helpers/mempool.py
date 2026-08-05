@@ -5,16 +5,11 @@ import sys
 
 import pytest
 
-from cuda.bindings import driver, runtime
 
-
-# Keep in sync with the fallback in cuda_core/tests/conftest.py. The cuda_core
-# copy is intentionally simpler because it only handles cuda_core CUDAError
-# exceptions when this helper is absent from older published bindings.
 def is_windows_mcdm_device(device=0):
     if sys.platform != "win32":
         return False
-    import cuda.bindings.nvml as nvml
+    from cuda.bindings import driver, nvml
 
     device_id = int(getattr(device, "device_id", device))
     (err,) = driver.cuInit(0)
@@ -34,6 +29,8 @@ def is_windows_mcdm_device(device=0):
 
 
 def xfail_if_mempool_oom(err_or_exc, api_name=None, device=0):
+    from cuda.bindings import driver, runtime
+
     if api_name is not None and not isinstance(api_name, str):
         device = api_name
         api_name = None

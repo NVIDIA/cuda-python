@@ -11,16 +11,10 @@ import sys
 import warnings
 
 import pytest
+from cuda_python_test_helpers.pep723 import has_package_requirements_or_skip
 
 from cuda.core import Device, ManagedMemoryResource, system
 from cuda.core._program import _can_load_generated_ptx
-
-try:
-    from cuda.bindings._test_helpers.pep723 import has_package_requirements_or_skip
-except ImportError:
-    # If the import fails, we define a dummy function that will cause all tests to be skipped.
-    def has_package_requirements_or_skip(example):
-        pytest.skip("PEP 723 test helper is not available")
 
 
 def has_compute_capability_9_or_higher() -> bool:

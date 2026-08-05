@@ -14,15 +14,15 @@ import platform
 import re
 
 import pytest
-from helpers import IS_WINDOWS, supports_ipc_mempool
-from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
-
 from conftest import (
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
     skip_if_managed_memory_unsupported,
     skip_if_pinned_memory_unsupported,
 )
+from helpers import supports_ipc_mempool
+from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
+
 from cuda.core import (
     Buffer,
     Device,
@@ -53,6 +53,7 @@ from cuda.core.typing import (
     VirtualMemoryLocationType,
 )
 from cuda.core.utils import StridedMemoryView
+from cuda_python_test_helpers import IS_WINDOWS
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -1452,11 +1453,13 @@ def test_pinned_mr_numa_id_default_no_ipc(init_cuda):
     device = Device()
     skip_if_pinned_memory_unsupported(device)
 
-    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(), xfail_device=device)
+    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(max_size=POOL_SIZE), xfail_device=device)
     assert mr.numa_id == -1
     mr.close()
 
-    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(ipc_enabled=False), xfail_device=device)
+    mr = create_pinned_memory_resource_or_xfail(
+        PinnedMemoryResourceOptions(ipc_enabled=False, max_size=POOL_SIZE), xfail_device=device
+    )
     assert mr.numa_id == -1
     mr.close()
 
@@ -1491,7 +1494,9 @@ def test_pinned_mr_numa_id_explicit(init_cuda):
     if host_numa_id < 0:
         pytest.skip("System does not support NUMA")
 
-    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(numa_id=host_numa_id), xfail_device=device)
+    mr = create_pinned_memory_resource_or_xfail(
+        PinnedMemoryResourceOptions(numa_id=host_numa_id, max_size=POOL_SIZE), xfail_device=device
+    )
     assert mr.numa_id == host_numa_id
     mr.close()
 
