@@ -10,11 +10,11 @@ import textwrap
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
-from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
 
 
 def driverVersionLessThan(target):

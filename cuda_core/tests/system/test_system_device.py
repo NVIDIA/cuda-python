@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .conftest import SHOULD_SKIP_NVML_TESTS, skip_if_nvml_unsupported, unsupported_before
+from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported, unsupported_before
 
 pytestmark = skip_if_nvml_unsupported
 
@@ -439,11 +439,10 @@ def test_module_id():
         assert module_id >= 0
 
 
-@pytest.mark.skipif(
-    not SHOULD_SKIP_NVML_TESTS and system.get_kernel_mode_driver_version()[0] < 580,
-    reason="nvmlDeviceGetAddressingMode requires an R580+ kernel-mode driver",
-)
 def test_addressing_mode():
+    if system.get_kernel_mode_driver_version()[0] < 580:
+        pytest.skip("nvmlDeviceGetAddressingMode requires an R580+ kernel-mode driver")
+
     for device in system.Device.get_all_devices():
         # By docs, should be supported on TURING or newer, but experimentally,
         # is also unsupported on other hardware.
@@ -461,11 +460,10 @@ def test_display_mode():
         assert isinstance(is_display_active, bool)
 
 
-@pytest.mark.skipif(
-    not SHOULD_SKIP_NVML_TESTS and system.get_kernel_mode_driver_version()[0] < 580,
-    reason="nvmlDeviceGetRepairStatus requires an R580+ kernel-mode driver",
-)
 def test_repair_status():
+    if system.get_kernel_mode_driver_version()[0] < 580:
+        pytest.skip("nvmlDeviceGetRepairStatus requires an R580+ kernel-mode driver")
+
     for device in system.Device.get_all_devices():
         # By docs, should be supported on AMPERE or newer, but experimentally,
         # this seems to also work on some TURING systems.
@@ -728,6 +726,25 @@ def test_temperature():
             assert sensor.default_max_temp >= sensor.default_min_temp
             assert isinstance(sensor.current_temp, int)
             assert sensor.default_min_temp <= sensor.current_temp <= sensor.default_max_temp
+
+
+@pytest.mark.thread_unsafe(reason="Temporarily replaces process-global NVML functions")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_temperature_threshold_unrecognized_device_arch(monkeypatch):
+    temperature = system.Device(index=0).temperature
+    unrecognized_arch = int(nvml.DeviceArch.UNKNOWN) - 1
+    with pytest.raises(ValueError):
+        nvml.DeviceArch(unrecognized_arch)
+
+    monkeypatch.setattr(nvml, "device_get_architecture", lambda _handle: unrecognized_arch)
+    monkeypatch.setattr(
+        nvml,
+        "device_get_temperature_threshold",
+        lambda _handle, _threshold: 42,
+    )
+
+    with pytest.warns(DeprecationWarning, match="no longer recommended"):
+        assert temperature.get_threshold(typing.TemperatureThresholds.SHUTDOWN) == 42
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
