@@ -25,7 +25,6 @@ from cuda.core import (
     launch,
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
-from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.typing import ObjectCodeFormatType, SourceCodeType
 
 
@@ -63,66 +62,58 @@ def test_launch_config_shmem_size():
     assert config.shmem_size == 0
 
 
-def test_launch_config_cluster_grid_conversion(init_cuda):
+def test_launch_config_cluster_grid_conversion():
     """Test that LaunchConfig preserves original grid values and conversion happens in native config."""
-    try:
-        # Test case 1: 1D - Issue #867 example
-        config = LaunchConfig(grid=4, cluster=2, block=32)
-        assert config.grid == (4, 1, 1), f"Expected (4, 1, 1), got {config.grid}"
-        assert config.cluster == (2, 1, 1), f"Expected (2, 1, 1), got {config.cluster}"
-        assert config.block == (32, 1, 1), f"Expected (32, 1, 1), got {config.block}"
+    # Test case 1: 1D - Issue #867 example
+    config = LaunchConfig(grid=4, cluster=2, block=32)
+    assert config.grid == (4, 1, 1), f"Expected (4, 1, 1), got {config.grid}"
+    assert config.cluster == (2, 1, 1), f"Expected (2, 1, 1), got {config.cluster}"
+    assert config.block == (32, 1, 1), f"Expected (32, 1, 1), got {config.block}"
 
-        # Test case 2: 2D grid and cluster
-        config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
-        assert config.grid == (2, 3, 1), f"Expected (2, 3, 1), got {config.grid}"
-        assert config.cluster == (2, 2, 1), f"Expected (2, 2, 1), got {config.cluster}"
+    # Test case 2: 2D grid and cluster
+    config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
+    assert config.grid == (2, 3, 1), f"Expected (2, 3, 1), got {config.grid}"
+    assert config.cluster == (2, 2, 1), f"Expected (2, 2, 1), got {config.cluster}"
 
-        # Test case 3: 3D full specification
-        config = LaunchConfig(grid=(2, 2, 2), cluster=(3, 3, 3), block=(8, 8, 8))
-        assert config.grid == (2, 2, 2), f"Expected (2, 2, 2), got {config.grid}"
-        assert config.cluster == (3, 3, 3), f"Expected (3, 3, 3), got {config.cluster}"
+    # Test case 3: 3D full specification
+    config = LaunchConfig(grid=(2, 2, 2), cluster=(3, 3, 3), block=(8, 8, 8))
+    assert config.grid == (2, 2, 2), f"Expected (2, 2, 2), got {config.grid}"
+    assert config.cluster == (3, 3, 3), f"Expected (3, 3, 3), got {config.cluster}"
 
-        # Test case 4: Identity case
-        config = LaunchConfig(grid=1, cluster=1, block=32)
-        assert config.grid == (1, 1, 1), f"Expected (1, 1, 1), got {config.grid}"
+    # Test case 4: Identity case
+    config = LaunchConfig(grid=1, cluster=1, block=32)
+    assert config.grid == (1, 1, 1), f"Expected (1, 1, 1), got {config.grid}"
 
-        # Test case 5: No cluster (should not convert grid)
-        config = LaunchConfig(grid=4, block=32)
-        assert config.grid == (4, 1, 1), f"Expected (4, 1, 1), got {config.grid}"
-        assert config.cluster is None
-
-    except CUDAError:
-        pytest.skip("Driver or GPU not new enough for thread block clusters")
+    # Test case 5: No cluster (should not convert grid)
+    config = LaunchConfig(grid=4, block=32)
+    assert config.grid == (4, 1, 1), f"Expected (4, 1, 1), got {config.grid}"
+    assert config.cluster is None
 
 
 def test_launch_config_native_conversion(init_cuda):
     """Test that _to_native_launch_config correctly converts grid from cluster units to block units."""
     from cuda.core._launch_config import _to_native_launch_config
 
-    try:
-        # Test case 1: 1D - Issue #867 example
-        config = LaunchConfig(grid=4, cluster=2, block=32)
-        native_config = _to_native_launch_config(config)
-        assert native_config.gridDimX == 8, f"Expected gridDimX=8, got {native_config.gridDimX}"
-        assert native_config.gridDimY == 1, f"Expected gridDimY=1, got {native_config.gridDimY}"
-        assert native_config.gridDimZ == 1, f"Expected gridDimZ=1, got {native_config.gridDimZ}"
+    # Test case 1: 1D - Issue #867 example
+    config = LaunchConfig(grid=4, cluster=2, block=32)
+    native_config = _to_native_launch_config(config)
+    assert native_config.gridDimX == 8, f"Expected gridDimX=8, got {native_config.gridDimX}"
+    assert native_config.gridDimY == 1, f"Expected gridDimY=1, got {native_config.gridDimY}"
+    assert native_config.gridDimZ == 1, f"Expected gridDimZ=1, got {native_config.gridDimZ}"
 
-        # Test case 2: 2D grid and cluster
-        config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
-        native_config = _to_native_launch_config(config)
-        assert native_config.gridDimX == 4, f"Expected gridDimX=4, got {native_config.gridDimX}"
-        assert native_config.gridDimY == 6, f"Expected gridDimY=6, got {native_config.gridDimY}"
-        assert native_config.gridDimZ == 1, f"Expected gridDimZ=1, got {native_config.gridDimZ}"
+    # Test case 2: 2D grid and cluster
+    config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
+    native_config = _to_native_launch_config(config)
+    assert native_config.gridDimX == 4, f"Expected gridDimX=4, got {native_config.gridDimX}"
+    assert native_config.gridDimY == 6, f"Expected gridDimY=6, got {native_config.gridDimY}"
+    assert native_config.gridDimZ == 1, f"Expected gridDimZ=1, got {native_config.gridDimZ}"
 
-        # Test case 3: No cluster (should not convert grid)
-        config = LaunchConfig(grid=4, block=32)
-        native_config = _to_native_launch_config(config)
-        assert native_config.gridDimX == 4, f"Expected gridDimX=4, got {native_config.gridDimX}"
-        assert native_config.gridDimY == 1, f"Expected gridDimY=1, got {native_config.gridDimY}"
-        assert native_config.gridDimZ == 1, f"Expected gridDimZ=1, got {native_config.gridDimZ}"
-
-    except CUDAError:
-        pytest.skip("Driver or GPU not new enough for thread block clusters")
+    # Test case 3: No cluster (should not convert grid)
+    config = LaunchConfig(grid=4, block=32)
+    native_config = _to_native_launch_config(config)
+    assert native_config.gridDimX == 4, f"Expected gridDimX=4, got {native_config.gridDimX}"
+    assert native_config.gridDimY == 1, f"Expected gridDimY=1, got {native_config.gridDimY}"
+    assert native_config.gridDimZ == 1, f"Expected gridDimZ=1, got {native_config.gridDimZ}"
 
 
 def test_to_native_launch_config_no_cluster():
@@ -142,34 +133,17 @@ def test_to_native_launch_config_no_cluster():
     assert list(native.attrs) == [], f"Expected empty attrs, got {list(native.attrs)}"
 
 
-def test_launch_config_cooperative_unsupported(monkeypatch):
-    """LaunchConfig(is_cooperative=True) raises when device does not support it."""
-    from cuda.core import _launch_config as _lc_mod
-
-    class _FakeProps:
-        cooperative_launch = False
-
-    class _FakeDev:
-        properties = _FakeProps()
-
-    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
-    with pytest.raises(CUDAError, match="cooperative kernels are not supported"):
-        LaunchConfig(grid=1, block=1, is_cooperative=True)
+@pytest.mark.human_reviewed
+def test_launch_config_cooperative_defers_device_check():
+    """LaunchConfig(is_cooperative=True) is pure config construction."""
+    config = LaunchConfig(grid=1, block=1, is_cooperative=True)
+    assert config.is_cooperative is True
 
 
-def test_to_native_launch_config_cooperative(monkeypatch):
-    """Covers the is_cooperative branch of _to_native_launch_config; Device is mocked so it runs on any GPU."""
+def test_to_native_launch_config_cooperative():
+    """Covers the is_cooperative branch of _to_native_launch_config."""
     from cuda.bindings import driver
-    from cuda.core import _launch_config as _lc_mod
     from cuda.core._launch_config import _to_native_launch_config
-
-    class _FakeProps:
-        cooperative_launch = True
-
-    class _FakeDev:
-        properties = _FakeProps()
-
-    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
 
     config = LaunchConfig(grid=2, block=4, is_cooperative=True)
     native = _to_native_launch_config(config)
@@ -183,39 +157,12 @@ def test_to_native_launch_config_cooperative(monkeypatch):
     assert attr.value.cooperative == 1, f"Expected cooperative=1, got {attr.value.cooperative}"
 
 
-def test_launch_config_cluster_accepts_hopper_cc(monkeypatch):
-    """LaunchConfig accepts ``cluster`` when the device reports compute
-    capability >= 9.0. Device is mocked so the cluster-cast branch runs on any
-    GPU (real cluster support otherwise requires Hopper+)."""
-    from cuda.core import _launch_config as _lc_mod
-
-    class _FakeDev:
-        compute_capability = (9, 0)
-
-    # looked_up confirms the mock took effect.
-    looked_up = []
-    monkeypatch.setattr(_lc_mod, "Device", lambda: looked_up.append(1) or _FakeDev())
-
+@pytest.mark.human_reviewed
+def test_launch_config_cluster_defers_device_check():
+    """LaunchConfig accepts ``cluster`` without consulting the current device."""
     config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
-    assert looked_up, "Device was not looked up via the module global; mock did not take effect"
     assert config.cluster == (2, 2, 1)
     assert config.grid == (2, 3, 1)
-
-
-def test_launch_config_cluster_rejects_pre_hopper_cc(monkeypatch):
-    """LaunchConfig(cluster=...) raises on a device with compute capability < 9.0."""
-    from cuda.core import _launch_config as _lc_mod
-
-    class _FakeDev:
-        compute_capability = (8, 6)
-
-    # looked_up confirms the mock took effect.
-    looked_up = []
-    monkeypatch.setattr(_lc_mod, "Device", lambda: looked_up.append(1) or _FakeDev())
-
-    with pytest.raises(CUDAError, match="thread block clusters are not supported"):
-        LaunchConfig(grid=2, cluster=2, block=32)
-    assert looked_up, "Device was not looked up via the module global; mock did not take effect"
 
 
 def test_to_native_launch_config_cluster_branch():
@@ -223,10 +170,8 @@ def test_to_native_launch_config_cluster_branch():
     converted from cluster units to block units, plus the cluster-dimension
     attribute) without requiring Hopper.
 
-    The cc gate lives in ``LaunchConfig.__init__``; ``cluster`` itself is a
-    public attribute, so setting it on a cluster-free config yields the exact
-    object ``__init__`` would build on Hopper and lets the conversion run on
-    any GPU.
+    The cc gate lives in launch-time validation, so constructing cluster
+    configs and converting them to native launch configs can run on any GPU.
 
     Note: this exercises the standalone ``cpdef _to_native_launch_config``
     function (a duplicate of the ``LaunchConfig._to_native_launch_config``
@@ -236,8 +181,7 @@ def test_to_native_launch_config_cluster_branch():
     from cuda.bindings import driver
     from cuda.core._launch_config import _to_native_launch_config
 
-    config = LaunchConfig(grid=(2, 3, 4), block=(5, 6, 7))
-    config.cluster = (2, 2, 2)
+    config = LaunchConfig(grid=(2, 3, 4), cluster=(2, 2, 2), block=(5, 6, 7))
     native = _to_native_launch_config(config)
 
     # grid (in cluster units) * cluster -> block units
