@@ -121,7 +121,9 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
 
 
 def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: bool) -> LoadedDL | None:
-    for dll_name in desc.windows_dlls:
+    # Reverse tabulated names to achieve new -> old search order, matching
+    # load_with_system_search() below and both Linux entry points.
+    for dll_name in reversed(desc.windows_dlls):
         handle = kernel32.GetModuleHandleW(dll_name)
         if handle:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)
