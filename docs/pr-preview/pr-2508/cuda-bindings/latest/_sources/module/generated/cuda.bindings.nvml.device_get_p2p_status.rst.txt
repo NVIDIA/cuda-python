@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_p2p\_status
+===========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_p2p_status

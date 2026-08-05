@@ -1,0 +1,13 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.4.2 Release notes
+=======================================
+
+Highlights
+----------
+
+* Privatize ``optional_cuda_import()`` (renamed to ``_optional_cuda_import()``)
+  to remove it from the public API surface.
