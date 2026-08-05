@@ -1,25 +1,26 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-#
 # SPDX-License-Identifier: Apache-2.0
 
-"""Static guard against uncapped memory pools in the test suite.
+"""Check that tests do not create uncapped CUDA memory pools.
 
 A pool created without ``max_size`` reserves an address-space window sized from
-device memory rather than from what the test allocates, and the whole suite
-shares one process. Enough of those reservations exhaust the address space and
-the rest of the session fails with ``CUDA_ERROR_OUT_OF_MEMORY`` on a device with
-free physical memory (issue #2381). See AGENTS.md in this directory.
+installed device memory rather than from what the test allocates, and the whole
+cuda_core suite shares one process. Enough of those reservations exhaust the
+address space, after which the rest of the session fails with
+CUDA_ERROR_OUT_OF_MEMORY on a device with free physical memory.
 
-This check is static rather than runtime so that it also covers pools created
-by tests that are skipped on the current platform.
+See cuda_core/tests/AGENTS.md for the rule this enforces.
 """
 
+from __future__ import annotations
+
+import argparse
 import ast
-import pathlib
+import sys
+from pathlib import Path
 
-import pytest
-
-TESTS_ROOT = pathlib.Path(__file__).parent
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_TREE = ROOT / "cuda_core" / "tests"
 
 # Managed pools cannot be right-sized: cuMemPoolCreate requires maxSize == 0 for
 # managed pools, so ManagedMemoryResourceOptions has no max_size to set.
@@ -59,7 +60,8 @@ def _opted_out(lines: list[str], node: ast.AST) -> bool:
     return any(OPT_OUT_MARKER in line for line in lines[start:end])
 
 
-def _violations_in(path: pathlib.Path) -> list[str]:
+def violations_in(path: Path) -> list[str]:
+    """Return one message per uncapped pool construction in ``path``."""
     source = path.read_text(encoding="utf-8")
     lines = source.splitlines()
     found = []
@@ -76,15 +78,36 @@ def _violations_in(path: pathlib.Path) -> list[str]:
         else:
             continue
         if uncapped and not _opted_out(lines, node):
-            found.append(f"{path.relative_to(TESTS_ROOT).as_posix()}:{node.lineno}: {name} without max_size")
+            found.append(f"{path.as_posix()}:{node.lineno}: {name} without max_size")
     return found
 
 
-@pytest.mark.agent_authored(model="claude-opus-5")
-def test_no_uncapped_memory_pools():
-    violations = sorted(v for path in TESTS_ROOT.rglob("*.py") for v in _violations_in(path))
-    assert not violations, (
-        "Memory pools created by tests must set max_size (use POOL_SIZE = 2097152).\n"
-        f"Annotate a deliberate exception with a '# {OPT_OUT_MARKER}: <reason>' comment.\n"
-        "See cuda_core/tests/AGENTS.md.\n" + "\n".join(violations)
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "paths",
+        nargs="*",
+        type=Path,
+        help=f"Files to check. Defaults to every .py under {DEFAULT_TREE.relative_to(ROOT).as_posix()}.",
     )
+    args = parser.parse_args(argv)
+
+    paths = args.paths or sorted(DEFAULT_TREE.rglob("*.py"))
+    violations = sorted(v for path in paths if path.suffix == ".py" for v in violations_in(path))
+    if not violations:
+        return 0
+
+    print("error: memory pools created by tests must set max_size:", file=sys.stderr)
+    for violation in violations:
+        print(f"  - {violation}", file=sys.stderr)
+    print(
+        f"Use the suite-wide POOL_SIZE from cuda_core/tests/helpers/constants.py, or annotate a\n"
+        f"deliberate exception with a '# {OPT_OUT_MARKER}: <reason>' comment.\n"
+        f"See cuda_core/tests/AGENTS.md.",
+        file=sys.stderr,
+    )
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

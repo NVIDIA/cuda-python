@@ -58,6 +58,12 @@ repos:
         files: '^(ci/versions\.yml|cuda_bindings/pixi\.toml|cuda_core/pixi\.toml)$'
         pass_filenames: false
 
+      - id: check-mempool-hygiene
+        name: Check tests do not create uncapped memory pools
+        entry: python ./ci/tools/check_mempool_hygiene.py
+        language: python
+        files: '^cuda_core/tests/.*\.py$'
+
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c

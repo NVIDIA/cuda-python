@@ -22,6 +22,7 @@ from conftest import (
 )
 from helpers import supports_ipc_mempool
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
+from helpers.constants import POOL_SIZE
 
 from cuda.core import (
     Buffer,
@@ -54,8 +55,6 @@ from cuda.core.typing import (
 )
 from cuda.core.utils import StridedMemoryView
 from cuda_python_test_helpers import IS_WINDOWS
-
-POOL_SIZE = 2097152  # 2MB size
 
 
 def _allocate_pinned_buffer_or_xfail(mr, size, *, device):
