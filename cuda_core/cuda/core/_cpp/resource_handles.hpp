@@ -754,6 +754,10 @@ inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUmodule as_cu(const CUmodule& h) noexcept {
+    return h;
+}
+
 inline CUkernel as_cu(const KernelHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -835,6 +839,10 @@ inline std::intptr_t as_intptr(const DevicePtrHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const CUmodule& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -966,6 +974,10 @@ inline PyObject* as_py(const DevicePtrHandle& h) noexcept {
 
 inline PyObject* as_py(const LibraryHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUlibrary", as_intptr(h));
+}
+
+inline PyObject* as_py(const CUmodule& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUmodule", as_intptr(h));
 }
 
 inline PyObject* as_py(const KernelHandle& h) noexcept {
