@@ -172,7 +172,6 @@ class GraphCompleteOptions:
 def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> Graph:
     cdef GraphHandle h_graph
     cdef GraphExecHandle h_exec
-    cdef cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS params
 
     if isinstance(source, GraphBuilder):
         h_graph = (<GraphBuilder>source)._h_graph
@@ -182,10 +181,12 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
         raise TypeError(
             f"expected GraphBuilder or GraphDefinition, got {type(source).__name__}")
 
-    params.flags = 0
-    params.hUploadStream = <cydriver.CUstream>NULL
-    params.hErrNode_out = <cydriver.CUgraphNode>NULL
-    params.result_out = cydriver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS
+    cdef cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS params = cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS(
+        flags=0,
+        hUploadStream=<cydriver.CUstream>NULL,
+        hErrNode_out=<cydriver.CUgraphNode>NULL,
+        result_out=cydriver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS,
+    )
     if options:
         flags = 0
         if options.auto_free_on_launch:

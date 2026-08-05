@@ -77,12 +77,13 @@ The CUDA user-object reference count controls the attachment lifetime.
 `GraphAttachmentMap` only lets cuda.core find the attachment currently
 associated with a node.
 
-Each `NodeAttachment` contains two type-erased `OpaqueHandle` owners:
+Each `NodeAttachment` has two type-erased `OpaqueHandle` slots, allowing it to
+hold up to two node-specific resource owners. These are:
 
-- kernel: kernel and argument storage
-- host callback: callback and copied user data
-- memcpy: destination and source
-- memset or event: destination or event in the first owner
+- kernel node: kernel and argument storage
+- host callback node: callback and copied user data
+- memcpy node: destination and source
+- memset or event node: destination or event
 
 `OpaqueHandle` is `shared_ptr<const void>`. Existing cuda.core handles reuse
 their shared ownership when converted to it. Python objects and copied callback
@@ -127,12 +128,13 @@ destructor callback only adds the attachment to the process-lifetime
 `DeferredCleanupQueue` and requests a `Py_AddPendingCall`.
 
 One pending call drains all queued attachments from Python's main thread. The
-queue coalesces work because CPython's pending-call queue is bounded. If
-scheduling fails, attachments stay queued and a later enqueue or safe cuda.core
-entry retries. Graph and executable-graph destruction and explicit close paths
-provide additional retry points. During Python finalization, scheduling stops
-and unreclaimable attachments are intentionally leaked rather than destroyed
-in an unsafe context.
+queue coalesces work because CPython's pending-call queue is bounded, and there
+could be many more deferred cleanup items than allowed pending calls. If
+`Py_AddPendingCall` fails, the attachments remain queued. A later successful
+`Py_AddPendingCall` will safely clean them up. Graph and executable-graph
+destruction and explicit close paths provide additional retry points. During
+Python finalization, scheduling stops and unreclaimable attachments are
+intentionally leaked rather than destroyed in an unsafe context.
 
 ## Graph hierarchy state
 
@@ -180,28 +182,16 @@ be invalidated when CUDA destroys that graph. They use separate
 
 ## Invariants
 
-1. The owner bundle of a published `NodeAttachment` is never modified in place.
+1. The owner bundle of a published `NodeAttachment` is never modified in place;
+   replace the whole bundle.
 2. CUDA user-object references, not metadata pointers, own attachments.
-3. Metadata is removed or replaced before its graph reference is released.
-4. Fallible attachment setup and metadata allocation happen before the CUDA
-   graph mutation they support.
-5. Every live cuda.core `CUgraph` has one canonical `GraphBox` and registry
-   entry.
-6. Graph boxes remain in parent-before-child order.
-7. Destroyed child boxes remain at stable addresses in the graveyard.
-8. A raw graph handle is unregistered before its box becomes a tombstone.
-9. CUDA callbacks only enqueue attachments; they never release owners or call
+3. Fallible attachment setup and metadata allocation happen before the CUDA
+   graph mutation they support; metadata is removed or replaced before its
+   graph reference is released.
+4. CUDA callbacks only enqueue attachments; they never release owners or call
    CUDA.
-10. Graph mutations and their metadata updates require the same external
+5. Graph mutations and their metadata updates require the same external
    synchronization as the underlying CUDA graph.
-11. An accumulator is retained on the source graph before the CUDA call that
-   propagates it into an executable graph.
-12. The source graph's temporary reference is released on every path, which
-   leaves a successful executable graph as the accumulator's only owner.
-13. Accumulator owners are appended, never removed. A superseded owner lives
-   until the executable graph is destroyed.
-14. A whole-graph update publishes its new accumulator before it releases the
-   source graph's reference.
 
 ## Scope
 
