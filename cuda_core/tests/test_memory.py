@@ -1519,9 +1519,11 @@ def test_pinned_mr_numa_id_negative_error(init_cuda):
     skip_if_pinned_memory_unsupported(device)
 
     with pytest.raises(ValueError, match="numa_id must be >= 0"):
+        # uncapped-pool-ok: numa_id is validated before the pool is created
         PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-1))
 
     with pytest.raises(ValueError, match="numa_id must be >= 0"):
+        # uncapped-pool-ok: numa_id is validated before the pool is created
         PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-42))
 
 
@@ -1971,4 +1973,5 @@ def test_dmr_ipc_enabled_unsupported_raises(mempool_device):
     if not IS_WINDOWS:
         pytest.skip("memory IPC is supported on this platform; unsupported-raise path is Windows-only")
     with pytest.raises(RuntimeError, match="IPC is not available"):
+        # uncapped-pool-ok: IPC support is checked before the pool is created
         DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(ipc_enabled=True))
