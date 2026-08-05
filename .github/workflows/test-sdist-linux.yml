@@ -39,7 +39,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install build tools
-        run: pip install build
+        run: python -m pip install "pip>=25.3" build
 
       # Pure Python packages -- no CTK needed.
       - name: Build cuda.pathfinder sdist and wheel-from-sdist
@@ -51,6 +51,13 @@ jobs:
         run: |
           python -m build --sdist cuda_python/
           pip wheel --no-deps --wheel-dir cuda_python/dist cuda_python/dist/*.tar.gz
+
+      - name: Resolve cuda.bindings build dependencies
+        run: |
+          mkdir -p wheel-constraints
+          python ci/tools/write_wheel_constraints.py \
+            --output wheel-constraints/cuda-bindings.txt \
+            --wheel cuda-pathfinder cuda_pathfinder/dist
 
       # Cython packages need CTK + sccache.
       # The env vars ACTIONS_CACHE_SERVICE_V2, ACTIONS_RESULTS_URL, and ACTIONS_RUNTIME_TOKEN
@@ -88,9 +95,19 @@ jobs:
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export CC="sccache cc"
           export CXX="sccache c++"
-          export PIP_FIND_LINKS="$(pwd)/cuda_pathfinder/dist"
+          export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
+          export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
           python -m build --sdist cuda_bindings/
           pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
+
+      - name: Resolve cuda.core build dependencies
+        run: |
+          CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
+          python ci/tools/write_wheel_constraints.py \
+            --output wheel-constraints/cuda-core.txt \
+            --wheel cuda-pathfinder cuda_pathfinder/dist \
+            --wheel cuda-bindings cuda_bindings/dist \
+            --expected-major cuda-bindings "${CUDA_MAJOR}"
 
       # cuda_core sdist delegates to setuptools (no CTK needed), but
       # wheel-from-sdist needs CTK and cuda-bindings (dynamic build dep via
@@ -101,7 +118,8 @@ jobs:
           export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
           export CC="sccache cc"
           export CXX="sccache c++"
-          export PIP_FIND_LINKS="$(pwd)/cuda_bindings/dist $(pwd)/cuda_pathfinder/dist"
+          export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-core.txt"
+          export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
           python -m build --sdist cuda_core/
           pip wheel --no-deps --wheel-dir cuda_core/dist cuda_core/dist/*.tar.gz
 

@@ -48,7 +48,7 @@ jobs:
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
 
       - name: Install build tools
-        run: pip install build
+        run: python -m pip install "pip>=25.3" build
 
       # Pure Python packages -- no CTK needed.
       - name: Build cuda.pathfinder sdist and wheel-from-sdist
@@ -60,6 +60,13 @@ jobs:
         run: |
           python -m build --sdist cuda_python/
           pip wheel --no-deps --wheel-dir cuda_python/dist cuda_python/dist/*.tar.gz
+
+      - name: Resolve cuda.bindings build dependencies
+        run: |
+          mkdir -p wheel-constraints
+          python ci/tools/write_wheel_constraints.py \
+            --output wheel-constraints/cuda-bindings.txt \
+            --wheel cuda-pathfinder cuda_pathfinder/dist
 
       # Cython packages need CTK. No sccache on Windows (this is a correctness
       # smoke test, not a production build; see build-wheel.yml which also
@@ -73,16 +80,24 @@ jobs:
 
       # cuda_bindings/setup.py parses CUDA headers at import time, so CUDA_PATH
       # (set by fetch_ctk) must be available for both sdist and wheel builds.
-      # PIP_FIND_LINKS is passed as a native Windows path via cygpath because
-      # pip on Windows treats space-separated entries as separators and is
-      # picky about mixed path styles (see build-wheel.yml for the same
-      # convention).
+      # Constraint paths are passed as native Windows paths because the pip
+      # subprocesses run outside Git Bash.
       - name: Build cuda.bindings sdist and wheel-from-sdist
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
-          export PIP_FIND_LINKS="$(cygpath -w "$(pwd)/cuda_pathfinder/dist")"
+          export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
+          export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
           python -m build --sdist cuda_bindings/
           pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
+
+      - name: Resolve cuda.core build dependencies
+        run: |
+          CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
+          python ci/tools/write_wheel_constraints.py \
+            --output wheel-constraints/cuda-core.txt \
+            --wheel cuda-pathfinder cuda_pathfinder/dist \
+            --wheel cuda-bindings cuda_bindings/dist \
+            --expected-major cuda-bindings "${CUDA_MAJOR}"
 
       # cuda_core sdist delegates to setuptools (no CTK needed), but
       # wheel-from-sdist needs CTK and cuda-bindings (dynamic build dep via
@@ -91,6 +106,7 @@ jobs:
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
-          export PIP_FIND_LINKS="$(cygpath -w "$(pwd)/cuda_bindings/dist") $(cygpath -w "$(pwd)/cuda_pathfinder/dist")"
+          export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-core.txt")"
+          export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
           python -m build --sdist cuda_core/
           pip wheel --no-deps --wheel-dir cuda_core/dist cuda_core/dist/*.tar.gz
