@@ -67,8 +67,26 @@ def _update_executable_case(graph, case):
             view.update(replacement[0], user_data=replacement[1])
         else:
             view.update(replacement)
-    elif isinstance(case.node, (MemsetNode, MemcpyNode, KernelNode)):
-        view.update(**replacement)
+    elif isinstance(case.node, MemsetNode):
+        view.update(
+            dst=replacement["dst"],
+            value=replacement["value"],
+            width=replacement["width"],
+            height=replacement["height"],
+            pitch=replacement["pitch"],
+        )
+    elif isinstance(case.node, MemcpyNode):
+        view.update(
+            dst=replacement["dst"],
+            src=replacement["src"],
+            size=replacement["size"],
+        )
+    elif isinstance(case.node, KernelNode):
+        view.update(
+            config=replacement["config"],
+            kernel=replacement["kernel"],
+            args=replacement["args"],
+        )
     elif isinstance(case.node, ChildGraphNode):
         view.update(replacement["child"])
     else:  # pragma: no cover - fixture cases are exhaustive
