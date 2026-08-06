@@ -145,6 +145,7 @@ class ProgramOptions:
     ----------
     name : str, optional
         Name of the program. If the compilation succeeds, the name is passed down to the generated :class:`ObjectCode`.
+        When set to `None`, ``"default_program"`` is used.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
@@ -313,7 +314,7 @@ class ProgramOptions:
         math builtins library. Only supported for the NVVM backend.
         Default: False
     """
-    name: str | None = 'default_program'
+    name: str | None = _DEFAULT_PROGRAM_NAME
     arch: str | None = None
     relocatable_device_code: bool | None = None
     extensible_whole_program: bool | None = None
@@ -417,6 +418,7 @@ class ProgramOptions:
         """Convert extra_sources to bytes format for NVVM."""
 __all__ = ['Program', 'ProgramOptions']
 ProgramHandleT = nvrtc.nvrtcProgram | int | LinkerHandleT
+_DEFAULT_PROGRAM_NAME = 'default_program'
 _nvvm_module = None
 _nvvm_import_attempted = False
 

@@ -290,6 +290,9 @@ cdef class Program:
 # =============================================================================
 
 
+_DEFAULT_PROGRAM_NAME = "default_program"
+
+
 @dataclass
 class ProgramOptions:
     """Customizable options for configuring :class:`Program`.
@@ -298,6 +301,7 @@ class ProgramOptions:
     ----------
     name : str, optional
         Name of the program. If the compilation succeeds, the name is passed down to the generated :class:`ObjectCode`.
+        When set to `None`, ``"default_program"`` is used.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
@@ -467,7 +471,7 @@ class ProgramOptions:
         Default: False
     """
 
-    name: str | None = "default_program"
+    name: str | None = _DEFAULT_PROGRAM_NAME
     arch: str | None = None
     relocatable_device_code: bool | None = None
     extensible_whole_program: bool | None = None
@@ -523,6 +527,9 @@ class ProgramOptions:
     numba_debug: bool | None = None  # Custom option for Numba debugging
 
     def __post_init__(self) -> None:
+        # Set name to default if not provided
+        if self.name is None:
+            self.name = _DEFAULT_PROGRAM_NAME
         self._name = self.name.encode()
         # Set arch to default if not provided
         if self.arch is None:
