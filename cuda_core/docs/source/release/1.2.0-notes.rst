@@ -6,6 +6,18 @@
 ``cuda.core`` 1.2.0 Release Notes
 ==================================
 
+New features
+------------
+
+- Added the ``programmatic_stream_serialization`` option to
+  :class:`LaunchConfig`, which sets
+  ``CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION`` so a kernel can
+  begin executing before the preceding kernel in the same stream has fully
+  completed (programmatic dependent launch, PDL). Available starting with
+  devices of compute capability 9.0.
+  (`#2456 <https://github.com/NVIDIA/cuda-python/pull/2456>`__,
+   `#1334 <https://github.com/NVIDIA/cuda-python/issues/1334>`__)
+
 Fixes and enhancements
 ----------------------
 

@@ -7,13 +7,15 @@ import gc
 import time
 import weakref
 
+import helpers
 import numpy as np
 import pytest
 from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 from helpers.misc import try_create_condition
 
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
+from conftest import skipif_need_cuda_headers
+from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, launch
 from cuda.core.graph import GraphBuilder, GraphDefinition
 from cuda.core.graph._graph_builder import (
     _capture_callback_with_tail_failure_for_testing,
@@ -694,3 +696,154 @@ def test_graph_definition_conditional_body_during_capture_raises(init_cuda):
     finally:
         body_gb.end_building()
         gb.end_building()
+
+
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
+def test_pdl_launch_graph_capture(init_cuda):
+    """PDL LaunchConfig is graph-compatible via GraphBuilder stream capture.
+
+    Captures a producer then a secondary launch with
+    ``programmatic_stream_serialization=True``, instantiates, and launches.
+    Asserts functional correctness and that capture maps to a programmatic
+    dependency edge (Programming Guide §4.5.3) — not kernel overlap.
+    """
+
+    def _assert_programmatic_dependency_edge(graph_definition):
+        """Assert capture of ProgrammaticStreamSerialization produced a programmatic edge.
+
+        Programming Guide §4.5.3: stream-capturing a secondary launch with
+        ``cudaLaunchAttributeProgrammaticStreamSerialization`` maps to
+        ``CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC`` with
+        ``CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC``.
+        """
+        from cuda.bindings import driver
+
+        h_graph = graph_definition.handle
+        err, _, _, _, num_edges = driver.cuGraphGetEdges(h_graph)
+        assert err == driver.CUresult.CUDA_SUCCESS, err
+        err, _, _, edge_data, num_edges = driver.cuGraphGetEdges(h_graph, num_edges)
+        assert err == driver.CUresult.CUDA_SUCCESS, err
+        assert num_edges == 1, f"expected 1 edge, got {num_edges}"
+        ed = edge_data[0]
+        assert ed.type == driver.CUgraphDependencyType.CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC, ed.type
+        assert ed.from_port == driver.CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC, ed.from_port
+
+    mod = compile_common_kernels()
+    producer = mod.get_kernel("add_one")
+    consumer = mod.get_kernel("add_one")
+
+    stream = Device().create_stream()
+    mr = LegacyPinnedMemoryResource()
+    buf = mr.allocate(4)
+    arr = np.from_dlpack(buf).view(np.int32)
+    arr[0] = 0
+
+    cfg = LaunchConfig(grid=1, block=1)
+    pdl = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
+
+    gb = stream.create_graph_builder().begin_building()
+    launch(gb, cfg, producer, arr.ctypes.data)
+    launch(gb, pdl, consumer, arr.ctypes.data)
+    gb.end_building()
+    _assert_programmatic_dependency_edge(gb.graph_definition)
+    graph = gb.complete()
+
+    graph.launch(stream)
+    stream.sync()
+    assert arr[0] == 2
+
+    buf.close()
+    stream.close()
+
+
+@skipif_need_cuda_headers
+def test_pdl_primary_secondary_overlap_graph_capture():
+    """Primary + secondary PDL via GraphBuilder stream capture can overlap on Hopper+.
+
+    Same kernels / overlap protocol as test_pdl_primary_secondary_overlap_same_stream,
+    but launches are captured into a CUDA graph (Programming Guide §4.5.3 stream-capture
+    path). Overlap is opportunistic → miss is xfail.
+    """
+    dev = Device()
+    if dev.compute_capability < (9, 0):
+        pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
+    dev.set_current()
+    stream = dev.create_stream(options={"nonblocking": True})
+
+    # clock64 budgets are in GPU cycles; keep the post-trigger window long enough
+    # for the secondary to boot, but short enough for a unit test.
+    code = r"""
+    #include <cuda_device_runtime_api.h>
+
+    extern "C" __global__ void primary_kernel(int* secondary_started, int* overlapped) {
+        cudaTriggerProgrammaticLaunchCompletion();
+
+        const long long deadline = clock64() + 100000000LL;  // ~50ms @ ~2GHz
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            while (clock64() < deadline) {
+                if (atomicAdd(secondary_started, 0) != 0) {
+                    atomicExch(overlapped, 1);
+                    return;
+                }
+                __nanosleep(1000);
+            }
+        }
+    }
+
+    extern "C" __global__ void secondary_kernel(int* secondary_started) {
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            atomicExch(secondary_started, 1);
+        }
+    }
+    """
+
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CUDA_INCLUDE_PATH)
+    prog = Program(code, code_type="c++", options=pro_opts)
+    mod = prog.compile("cubin")
+    primary = mod.get_kernel("primary_kernel")
+    secondary = mod.get_kernel("secondary_kernel")
+
+    mr = LegacyPinnedMemoryResource()
+    secondary_started = np.from_dlpack(mr.allocate(4)).view(np.int32)
+    overlapped = np.from_dlpack(mr.allocate(4)).view(np.int32)
+
+    primary_cfg = LaunchConfig(grid=1, block=1)
+    secondary_cfg = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
+    secondary_serial_cfg = LaunchConfig(grid=1, block=1)
+
+    def _run(secondary_launch_cfg: LaunchConfig) -> int:
+        secondary_started[0] = 0
+        overlapped[0] = 0
+        gb = stream.create_graph_builder().begin_building()
+        launch(gb, primary_cfg, primary, secondary_started.ctypes.data, overlapped.ctypes.data)
+        launch(gb, secondary_launch_cfg, secondary, secondary_started.ctypes.data)
+        graph = gb.end_building().complete()
+        try:
+            graph.launch(stream)
+            stream.sync()
+        finally:
+            graph.close()
+            gb.close()
+        return int(overlapped[0])
+
+    # Without the PDL attribute, same-stream kernels stay serialized even via graph.
+    assert _run(secondary_serial_cfg) == 0, "Expected no overlap when programmatic_stream_serialization is False"
+
+    # PDL overlap is opportunistic; retry a few times on a quiet GPU.
+    saw_overlap = False
+    for _ in range(5):
+        if _run(secondary_cfg) == 1:
+            saw_overlap = True
+            break
+
+    if not saw_overlap:
+        pytest.xfail(
+            "PDL (Programmatic Dependent Launch) graph-capture overlap was not observed. "
+            "If this keeps xfailing in CI, manually re-check on a quiet Hopper+ GPU."
+        )
+
+    print(
+        f"PDL graph-capture overlap verified on {dev.name} compute capability {dev.compute_capability}",
+        flush=True,
+    )
