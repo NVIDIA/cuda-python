@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=05c22b5c"></script>
+    <script src="../_static/documentation_options.js?v=c03eeece"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1001,6 +1001,8 @@ a non-zero value at runtime.</p>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode" title="cuda.core.graph.KernelNode"><span class="pre">KernelNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.MemcpyNode.launch" title="Link to this definition">#</a></dt>
 <dd><p>Add a kernel launch node depending on this node.</p>
+<p>Clustered and cooperative launch configurations are not currently
+supported for graph kernel nodes.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Use caution when a retained kernel argument directly or indirectly
@@ -1180,6 +1182,38 @@ value is out of range, no branch executes.</p>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.SwitchNode.html#cuda.core.graph.SwitchNode" title="cuda.core.graph.SwitchNode">SwitchNode</a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.graph.MemcpyNode.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">src:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">size:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst_owner=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">src_owner=None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.MemcpyNode.update" title="Link to this definition">#</a></dt>
+<dd><p>Replace selected memcpy parameters.</p>
+<p>Omitted parameters preserve their current values. <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> and
+<code class="docutils literal notranslate"><span class="pre">src_owner</span></code> may only accompany their corresponding raw addresses.
+Multidimensional, pitched, offset, and array-backed memcpy nodes are
+not supported.</p>
+<p>With CUDA 12.2 through 13.1, the node’s intended CUDA context must be
+current when this method is called. CUDA driver and <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
+versions 13.2 and newer preserve the recorded context automatically.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use caution when a retained operand owner directly or indirectly
+owns a graph. Any reference cycle involving the owner and a graph
+that retains it cannot be broken by Python’s cyclic garbage
+collector. Use a weak reference to break such cycles.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -1393,6 +1427,7 @@ evaluates to a non-zero value.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.memset"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.memset()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.record"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.record()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.switch"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.switch()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.update"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.update()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.wait"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.wait()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.while_loop"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.while_loop()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.dst"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.dst</span></code></a></li>
