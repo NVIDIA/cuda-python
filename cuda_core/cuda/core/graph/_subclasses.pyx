@@ -1172,6 +1172,11 @@ cdef class HostCallbackNode(GraphNode):
     def update(self, fn, *, user_data=None) -> None:
         """Replace the callback and user-data binding for this node.
 
+        ``fn`` accepts the same forms as :meth:`~graph.GraphNode.callback`: a
+        Python callable, or a ctypes function pointer whose declared prototype
+        matches ``CUhostFn`` (``void (*)(void*)``). A mismatched ctypes
+        prototype raises ``TypeError``.
+
         .. warning::
 
             Callbacks must not call CUDA API functions. Doing so may
@@ -1602,6 +1607,10 @@ cdef class ExecutableHostCallbackNode(ExecutableGraphNode):
 
     def update(self, fn, *, user_data=None) -> None:
         """Replace the callback and user-data binding for future launches.
+
+        ``fn`` may be a Python callable, or a ctypes function pointer whose
+        declared prototype matches ``CUhostFn`` (``void (*)(void*)``); a
+        mismatched prototype raises ``TypeError``.
 
         .. warning::
 
