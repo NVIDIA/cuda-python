@@ -25,9 +25,9 @@ import ctypes as ct
 # Windows (x64 and ARM64) has a single calling convention, where the two are
 # interchangeable, and cuda.core callers already pass CFUNCTYPE; Windows
 # therefore accepts either.
-_FUNCFLAG_CDECL = ct._FUNCFLAG_CDECL
+_FUNCFLAG_CDECL = getattr(ct, "_FUNCFLAG_CDECL", 0x1)
 _FUNCFLAG_STDCALL = getattr(_ctypes, "FUNCFLAG_STDCALL", 0x2)
-_FUNCFLAG_PYTHONAPI = ct._FUNCFLAG_PYTHONAPI
+_FUNCFLAG_PYTHONAPI = getattr(ct, "_FUNCFLAG_PYTHONAPI", 0x4)
 
 _CUHOSTFN_HINT = (
     "ctypes.CFUNCTYPE(None, ctypes.c_void_p)"
