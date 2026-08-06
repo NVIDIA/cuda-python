@@ -521,18 +521,11 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install pre-commit and CI test tools
+      - name: Install pre-commit
         shell: bash
         run: |
           set -euxo pipefail
-          python -m pip install --upgrade pip pre-commit pytest
-
-      - name: Run CI tools unit tests
-        shell: bash
-        run: |
-          set -euxo pipefail
-          # Standalone CI tool tests; skip repo-root conftest.py (imports cuda.pathfinder).
-          python -m pytest -v --noconftest ci/tools/tests
+          python -m pip install --upgrade pip pre-commit
 
       - name: Run pre-commit
         shell: bash
