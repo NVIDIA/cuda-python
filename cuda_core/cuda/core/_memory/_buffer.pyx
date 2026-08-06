@@ -244,8 +244,11 @@ cdef class Buffer:
             The reference is kept as long as the buffer is alive.
             The ``owner`` and ``mr`` cannot be specified together.
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
-            Keyword-only. Deallocation stream to record when ``mr`` owns the
-            pointer. Defaults to the calling thread's default stream.
+            Keyword-only. The stream used to order the buffer's deallocation
+            when ``mr`` owns the pointer. Defaults to ``default_stream()``. If
+            the buffer may be freed from a different host thread, pass a stream
+            other than the per-thread default stream, which refers to a
+            different stream on each thread.
 
         Note
         ----
@@ -558,7 +561,11 @@ cdef class MemoryResource:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword-only. The stream on which to perform the allocation
             asynchronously. Must be passed explicitly; pass
-            ``device.default_stream`` to use the default stream.
+            ``device.default_stream`` to use the default stream. This stream
+            also orders the buffer's eventual deallocation, so if the buffer may
+            be freed from a different host thread, prefer a stream other than
+            the per-thread default stream, which refers to a different stream on
+            each thread.
 
         Returns
         -------

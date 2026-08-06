@@ -516,8 +516,8 @@ def test_mr_deallocate_receives_stream():
 def test_from_handle_mr_records_default_stream():
     """When a Buffer is minted via :meth:`Buffer.from_handle` with ``mr`` but
     without an explicit ``stream=``, the deallocation stream is recorded at
-    creation as the calling thread's default stream (not chosen later in the
-    destructor). See `#2497`.
+    creation as ``default_stream()`` (not chosen later in the destructor).
+    See `#2497`.
     """
     import gc
 
@@ -658,6 +658,21 @@ def test_mr_deallocation_with_foreign_context(capsys, replace_stream):
         assert "mr.deallocate() failed" not in capsys.readouterr().err
     finally:
         alloc_dev.set_current()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_mr_deallocate_raises_on_driver_error(mempool_device):
+    """An explicit mr.deallocate() call propagates driver errors to the caller.
+
+    Buffer teardown must not raise, so the containment lives in the destruction
+    callback rather than in deallocate() itself. See `#2497`.
+    """
+    dev = mempool_device
+    stream = dev.create_stream()
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+
+    with pytest.raises(CUDAError):
+        mr.deallocate(0xDEADBEEF, 256, stream=stream)
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
