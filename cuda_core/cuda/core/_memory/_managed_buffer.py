@@ -154,6 +154,8 @@ class ManagedBuffer(Buffer):
         size: int,
         mr: MemoryResource | None = None,
         owner: object | None = None,
+        *,
+        stream: Stream | GraphBuilder | None = None,
     ) -> Buffer:
         """Wrap an existing managed-memory pointer in a :class:`ManagedBuffer`.
 
@@ -173,8 +175,11 @@ class ManagedBuffer(Buffer):
         owner : object, optional
             An object that keeps the underlying allocation alive.
             ``owner`` and ``mr`` cannot both be specified.
+        stream : Stream | GraphBuilder, optional
+            Keyword-only. Deallocation stream to record when ``mr`` owns the
+            pointer. Defaults to the calling thread's default stream.
         """
-        return cls._init(ptr, size, mr=mr, owner=owner)
+        return cls._init(ptr, size, mr=mr, owner=owner, stream=stream)
 
     @property
     def read_mostly(self) -> bool:

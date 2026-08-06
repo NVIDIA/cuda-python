@@ -39,12 +39,14 @@ class Buffer:
         ...
 
     @classmethod
-    def _init(cls, ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, ipc_descriptor: IPCBufferDescriptor | None=None, owner: object | None=None) -> Buffer:
+    def _init(cls, ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, ipc_descriptor: IPCBufferDescriptor | None=None, owner: object | None=None, *, stream: Stream | GraphBuilder | None=None) -> Buffer:
         """Create a Buffer from a raw pointer.
 
         When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
         is called when the buffer is closed or garbage collected.  When ``owner``
         is provided, the owner is kept alive but no deallocation is performed.
+        When ``mr`` is provided, a deallocation stream is recorded at creation
+        (``stream`` if given, otherwise ``default_stream()``).
         """
 
     @staticmethod
@@ -55,7 +57,7 @@ class Buffer:
         ...
 
     @staticmethod
-    def from_handle(ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, owner: object | None=None) -> Buffer:
+    def from_handle(ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, owner: object | None=None, *, stream: Stream | GraphBuilder | None=None) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
         Parameters
@@ -72,6 +74,9 @@ class Buffer:
             An object holding external allocation that the ``ptr`` points to.
             The reference is kept as long as the buffer is alive.
             The ``owner`` and ``mr`` cannot be specified together.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
+            Keyword-only. Deallocation stream to record when ``mr`` owns the
+            pointer. Defaults to the calling thread's default stream.
 
         Note
         ----
