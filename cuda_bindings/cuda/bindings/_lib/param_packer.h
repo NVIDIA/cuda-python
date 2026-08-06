@@ -60,12 +60,11 @@ static PyTypeObject* ctypes_c_void_p = nullptr;
 static std::map<std::pair<PyTypeObject*,PyTypeObject*>, std::function<int(void*, PyObject*)>> m_feeders;
 
 // Helper to fetch a strong reference of the ctypes type
-static PyTypeObject* fetch_ctypes_type(PyObject* ctypes_dict, const char* name)
+static bool fetch_ctypes_type(PyObject* ctypes_dict, const char* name)
 {
     PyObject* type_obj = PyDict_GetItemStringRef(ctypes_dict, name);
-    if (type_obj == nullptr)
-        throw std::runtime_error(std::string("Cannot find ctypes.") + std::string(name));
-    return (PyTypeObject*) type_obj;
+    if (type_obj == nullptr) return false;
+    return true;
 }
 
 static bool fetch_ctypes()
@@ -78,26 +77,26 @@ static bool fetch_ctypes()
     PyObject* ctypes_dict = PyModule_GetDict(ctypes_module);
     if (ctypes_dict == nullptr) return false;
     bool success = (
-        ctypes_c_char = fetch_ctypes_type(ctypes_dict, "c_char") &&
-        ctypes_c_bool = fetch_ctypes_type(ctypes_dict, "c_bool") &&
-        ctypes_c_wchar = fetch_ctypes_type(ctypes_dict, "c_wchar") &&
-        ctypes_c_byte = fetch_ctypes_type(ctypes_dict, "c_byte") &&
-        ctypes_c_ubyte = fetch_ctypes_type(ctypes_dict, "c_ubyte") &&
-        ctypes_c_short = fetch_ctypes_type(ctypes_dict, "c_short"); &&
-        ctypes_c_ushort = fetch_ctypes_type(ctypes_dict, "c_ushort") &&
-        ctypes_c_int = fetch_ctypes_type(ctypes_dict, "c_int") &&
-        ctypes_c_uint = fetch_ctypes_type(ctypes_dict, "c_uint") &&
-        ctypes_c_long = fetch_ctypes_type(ctypes_dict, "c_long"); &&
-        ctypes_c_ulong = fetch_ctypes_type(ctypes_dict, "c_ulong") &&
-        ctypes_c_longlong = fetch_ctypes_type(ctypes_dict, "c_longlong") &&
-        ctypes_c_ulonglong = fetch_ctypes_type(ctypes_dict, "c_ulonglong") &&
-        ctypes_c_size_t = fetch_ctypes_type(ctypes_dict, "c_size_t") &&
-        ctypes_c_float = fetch_ctypes_type(ctypes_dict, "c_float") &&
-        ctypes_c_double = fetch_ctypes_type(ctypes_dict, "c_double") &&
-        ctypes_c_void_p = fetch_ctypes_type(ctypes_dict, "c_void_p")
+        fetch_ctypes_type(ctypes_dict, "c_char") &&
+        fetch_ctypes_type(ctypes_dict, "c_bool") &&
+        fetch_ctypes_type(ctypes_dict, "c_wchar") &&
+        fetch_ctypes_type(ctypes_dict, "c_byte") &&
+        fetch_ctypes_type(ctypes_dict, "c_ubyte") &&
+        fetch_ctypes_type(ctypes_dict, "c_short"); &&
+        fetch_ctypes_type(ctypes_dict, "c_ushort") &&
+        fetch_ctypes_type(ctypes_dict, "c_int") &&
+        fetch_ctypes_type(ctypes_dict, "c_uint") &&
+        fetch_ctypes_type(ctypes_dict, "c_long"); &&
+        fetch_ctypes_type(ctypes_dict, "c_ulong") &&
+        fetch_ctypes_type(ctypes_dict, "c_longlong") &&
+        fetch_ctypes_type(ctypes_dict, "c_ulonglong") &&
+        fetch_ctypes_type(ctypes_dict, "c_size_t") &&
+        fetch_ctypes_type(ctypes_dict, "c_float") &&
+        fetch_ctypes_type(ctypes_dict, "c_double") &&
+        fetch_ctypes_type(ctypes_dict, "c_void_p")
     );
     Py_DECREF(ctypes_module);
-    return success
+    return success;
 }
 
 
