@@ -210,7 +210,9 @@ def reservations_for(device) -> list[Reservation]:
 class ReservationReport:
     """What the early reservations cost, for the terminal."""
 
-    def __init__(self, device_name, device_memory, before, after, reservations, measured, seconds=0.0):
+    def __init__(
+        self, device_name, device_memory, before, after, reservations, measured, seconds=0.0, unsupported=False
+    ):
         self.device_name = device_name
         self.device_memory = device_memory
         self.before = before
@@ -218,6 +220,7 @@ class ReservationReport:
         self.reservations = reservations
         self.measured = measured
         self.seconds = seconds
+        self.unsupported = unsupported
 
     @property
     def failed(self) -> list[Reservation]:
@@ -231,6 +234,9 @@ class ReservationReport:
 
     def lines(self) -> list[str]:
         out = [f"device 0: {self.device_name} ({format_bytes(self.device_memory)} device memory)"]
+        if self.unsupported:
+            out.append("device does not support memory pools; nothing to reserve")
+            return out
         if self.measured:
             out.append(f"largest reservable range before: {format_bytes(self.before)}")
         else:
@@ -278,31 +284,24 @@ def build_failure_message(report: ReservationReport) -> str:
     ]
     for item in report.failed:
         lines.append(f"  {item.name} ({item.detail}): {item.error}")
-    lines += [
-        "",
-        "The driver keeps two pools per device -- the default memory pool and the graph",
-        "memory pool -- and reserves roughly twice the installed device memory of address",
-        "space for each one the first time it is used. Neither reservation can be capped,",
-        "and neither is released before the process exits. On a large-memory GPU with a",
-        "bounded per-process address space the two together can exceed the budget, and no",
-        "amount of freeing device memory helps: the exhausted resource is address space,",
-        "not memory. Expect cuMemGetInfo to report plenty free while this fails.",
-        "",
-        "Options: run on a device with less memory, run the graph tests in a separate",
-        "process from the rest of the suite so the two reservations never coexist, or on",
-        "Windows check whether the driver model (WDDM/MCDM/TCC) bounds the address space",
-        "more tightly than expected. See issue #2381.",
-        "",
-    ]
+
     return "\n".join(lines)
 
 
 def reserve_driver_pools(device, measure: bool = True) -> ReservationReport:
-    """Materialize both driver-managed pools, measuring address space around them."""
+    """Materialize both driver-managed pools, measuring address space around them.
+
+    Both pools require mempool support, so on a device without it there is
+    nothing to reserve and nothing to pre-empt. Skip rather than fail: the tests
+    that need pools skip themselves on such a device, and the rest still run.
+    """
     device_memory = None
     err, _free, total = driver.cuMemGetInfo()
     if err == driver.CUresult.CUDA_SUCCESS:
         device_memory = int(total)
+
+    if not device.properties.memory_pools_supported:
+        return ReservationReport(device.name, device_memory, None, None, [], measured=False, unsupported=True)
 
     measured = measure and vmm_supported(device.device_id)
     started = time.perf_counter()
