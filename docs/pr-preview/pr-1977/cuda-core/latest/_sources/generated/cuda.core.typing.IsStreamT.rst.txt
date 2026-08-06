@@ -1,6 +1,0 @@
-﻿cuda.core.typing.IsStreamT
-==========================
-
-.. currentmodule:: cuda.core.typing
-
-.. autoprotocol:: IsStreamT

@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.init\_with\_flags
-====================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: init_with_flags
