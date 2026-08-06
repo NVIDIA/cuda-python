@@ -409,7 +409,7 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_core
-          pytest -rxXs -v --durations=0 tests/test_utils.py tests/example_tests/
+          pytest -rxXs -v --durations=20 tests/test_utils.py tests/example_tests/
           popd
 
       - name: Run numba-cuda tests
@@ -452,7 +452,7 @@ jobs:
               --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_fortran_contiguous'
             )
           fi
-          pytest -rxXs -v --durations=0 \
+          pytest -rxXs -v --durations=20 \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
             "${DESELECTS[@]}" \
@@ -494,7 +494,7 @@ jobs:
               --deselect 'tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]'
             )
           fi
-          pytest -rxXs -v --durations=0 --randomly-dont-reorganize \
+          pytest -rxXs -v --durations=20 --randomly-dont-reorganize \
             "${DESELECTS[@]}" \
             tests/
           popd
