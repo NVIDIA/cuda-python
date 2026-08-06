@@ -14,6 +14,8 @@ from cuda.pathfinder._binaries.supported_nvidia_binaries import (
     SUPPORTED_BINARIES_ALL,
 )
 
+pytestmark = pytest.mark.usefixtures("disable_process_wide_compatibility_guard_rails")
+
 
 def test_unknown_utility_name():
     with pytest.raises(UnsupportedBinaryError, match=r"'unknown-utility' is not supported"):

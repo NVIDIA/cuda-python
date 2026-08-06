@@ -24,6 +24,8 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
 
+pytestmark = pytest.mark.usefixtures("disable_process_wide_compatibility_guard_rails")
+
 
 @pytest.mark.agent_authored(model="gpt-5")
 def test_loader_uses_all_available_libnames():

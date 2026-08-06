@@ -30,6 +30,7 @@ class _StaticLibInfo(TypedDict):
     ctk_rel_paths: tuple[str, ...]
     conda_rel_paths: tuple[str, ...]
     site_packages_dirs: tuple[str, ...]
+    ctk_companion_tags: tuple[str, ...]
 
 
 _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
@@ -42,10 +43,14 @@ _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
             if IS_WINDOWS
             else ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib")
         ),
+        "ctk_companion_tags": ("toolchain_cuda_nvcc",),
     },
 }
 
 SUPPORTED_STATIC_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_STATIC_LIBS_INFO.keys()))
+SUPPORTED_STATIC_LIBS_CTK_COMPANION_TAGS = {
+    name: info["ctk_companion_tags"] for name, info in _SUPPORTED_STATIC_LIBS_INFO.items()
+}
 
 
 def _no_such_file_in_dir(dir_path: str, filename: str, error_messages: list[str], attachments: list[str]) -> None:
@@ -117,6 +122,7 @@ class _FindStaticLib:
         raise StaticLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
 
 
+@functools.cache
 def locate_static_lib(name: str) -> LocatedStaticLib:
     """Locate a static library by name.
 
@@ -156,7 +162,6 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
     finder.raise_not_found_error()
 
 
-@functools.cache
 def find_static_lib(name: str) -> str:
     """Find the absolute path to a static library.
 
@@ -165,3 +170,6 @@ def find_static_lib(name: str) -> str:
         StaticLibNotFoundError: If the static library cannot be found.
     """
     return locate_static_lib(name).abs_path
+
+
+find_static_lib.cache_clear = locate_static_lib.cache_clear  # type: ignore[attr-defined]
