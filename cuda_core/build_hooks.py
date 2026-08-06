@@ -133,6 +133,9 @@ def _build_cuda_core(debug=False):
     # This function populates "_extensions".
     global _extensions
 
+    # Resolve CUDA first so the pathfinder import repairs PEP 517 namespace shadowing before importing bindings.
+    cuda_path = _get_cuda_path()
+
     # Add cuda-bindings to sys.path so Cython can find .pxd files
     # This is needed for editable installs where meta path finders don't work for Cython
     # We need to add the directory containing the 'cuda' package so Cython can resolve
@@ -178,7 +181,7 @@ def _build_cuda_core(debug=False):
 
         return sources
 
-    all_include_dirs = [os.path.join(_get_cuda_path(), "include")]
+    all_include_dirs = [os.path.join(cuda_path, "include")]
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}
