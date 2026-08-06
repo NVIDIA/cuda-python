@@ -94,6 +94,9 @@ class GraphNode:
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
 
+        Clustered and cooperative launch configurations are not currently
+        supported for graph kernel nodes.
+
         .. warning::
 
             Use caution when a retained kernel argument directly or indirectly

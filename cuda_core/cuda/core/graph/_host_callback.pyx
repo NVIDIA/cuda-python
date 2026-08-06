@@ -54,6 +54,9 @@ cdef void _resolve_host_callback(
             else:
                 out_user_data[0] = NULL
     else:
+        if not callable(fn):
+            raise TypeError(
+                f"callback must be callable, got {type(fn).__name__}")
         if user_data is not None:
             raise ValueError(
                 "user_data is only supported with ctypes function pointers")

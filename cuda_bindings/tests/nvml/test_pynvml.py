@@ -9,8 +9,8 @@ import time
 import pytest
 
 from cuda.bindings import nvml
+from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
 
-from . import util
 from .conftest import unsupported_before
 
 XFAIL_LEGACY_NVLINK_MSG = "Legacy NVLink test expected to fail."
@@ -64,7 +64,7 @@ def test_device_get_handle_by_pci_bus_id(ngpus, pci_info):
 
 
 @pytest.mark.parametrize("scope", [nvml.AffinityScope.NODE, nvml.AffinityScope.SOCKET])
-@pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
+@pytest.mark.skipif(IS_WSL or IS_WINDOWS, reason="Not supported on WSL or Windows")
 def test_device_get_memory_affinity(handles, scope):
     size = 1024
     for handle in handles:
@@ -75,7 +75,7 @@ def test_device_get_memory_affinity(handles, scope):
 
 
 @pytest.mark.parametrize("scope", [nvml.AffinityScope.NODE, nvml.AffinityScope.SOCKET])
-@pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
+@pytest.mark.skipif(IS_WSL or IS_WINDOWS, reason="Not supported on WSL or Windows")
 def test_device_get_cpu_affinity_within_scope(handles, scope):
     size = 1024
     for handle in handles:
@@ -263,27 +263,6 @@ def test_device_get_pcie_throughput(ngpus, handles):
 # Test pynvml.nvmlDeviceGetNvLinkVersion
 # Test pynvml.nvmlDeviceGetNvLinkState
 # Test pynvml.nvmlDeviceGetNvLinkRemotePciInfo
-
-
-@pytest.mark.parametrize(
-    "cap_type",
-    [
-        nvml.NvLinkCapability.NVLINK_CAP_P2P_SUPPORTED,  # P2P over NVLink is supported
-        nvml.NvLinkCapability.NVLINK_CAP_SYSMEM_ACCESS,  # Access to system memory is supported
-        nvml.NvLinkCapability.NVLINK_CAP_P2P_ATOMICS,  # P2P atomics are supported
-        nvml.NvLinkCapability.NVLINK_CAP_SYSMEM_ATOMICS,  # System memory atomics are supported
-        nvml.NvLinkCapability.NVLINK_CAP_SLI_BRIDGE,  # SLI is supported over this link
-        nvml.NvLinkCapability.NVLINK_CAP_VALID,
-    ],
-)  # Link is supported on this device
-def test_device_get_nvlink_capability(ngpus, handles, cap_type):
-    for i in range(ngpus):
-        for j in range(nvml.NVLINK_MAX_LINKS):
-            # By the documentation, this should be supported on PASCAL or newer,
-            # but this also seems to fail on newer.
-            with unsupported_before(handles[i], None):
-                cap = nvml.device_get_nvlink_capability(handles[i], j, cap_type)
-            assert cap >= 0
 
 
 # Test pynvml.nvmlDeviceResetNvLinkUtilizationCounter

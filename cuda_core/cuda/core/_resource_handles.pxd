@@ -71,6 +71,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         PreparedAttachmentState, PreparedAttachmentDeleter
     ] PreparedAttachment
 
+    cppclass PreparedChildGraphUpdateState:
+        pass
+    ctypedef shared_ptr[
+        PreparedChildGraphUpdateState
+    ] PreparedChildGraphUpdate
+
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
     cydriver.CUgreenCtx as_cu(GreenCtxHandle h) noexcept nogil
@@ -79,6 +85,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUmemoryPool as_cu(MemoryPoolHandle h) noexcept nogil
     cydriver.CUdeviceptr as_cu(DevicePtrHandle h) noexcept nogil
     cydriver.CUlibrary as_cu(LibraryHandle h) noexcept nogil
+    cydriver.CUmodule as_cu(cydriver.CUmodule h) noexcept nogil
     cydriver.CUkernel as_cu(KernelHandle h) noexcept nogil
     cydriver.CUgraph as_cu(GraphHandle h) noexcept nogil
     cydriver.CUgraphExec as_cu(GraphExecHandle h) noexcept nogil
@@ -101,6 +108,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(MemoryPoolHandle h) noexcept nogil
     intptr_t as_intptr(DevicePtrHandle h) noexcept nogil
     intptr_t as_intptr(LibraryHandle h) noexcept nogil
+    intptr_t as_intptr(const cydriver.CUmodule& h) noexcept nogil
     intptr_t as_intptr(KernelHandle h) noexcept nogil
     intptr_t as_intptr(GraphHandle h) noexcept nogil
     intptr_t as_intptr(GraphExecHandle h) noexcept nogil
@@ -124,6 +132,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(MemoryPoolHandle h)
     object as_py(DevicePtrHandle h)
     object as_py(LibraryHandle h)
+    object as_py(const cydriver.CUmodule& h)
     object as_py(KernelHandle h)
     object as_py(GraphHandle h)
     object as_py(GraphExecHandle h)
@@ -253,6 +262,12 @@ cdef cydriver.CUresult graph_commit_attachment(
     PreparedAttachment& prepared, cydriver.CUgraphNode node) except+
 cdef cydriver.CUresult graph_clone_attachments(
     const GraphHandle& h_clone, const GraphHandle& h_source) except+
+cdef cydriver.CUresult graph_prepare_child_graph_update(
+    const GraphHandle& h_parent, const GraphHandle& h_old_child,
+    cydriver.CUgraphNode owner_node, const GraphHandle& h_source,
+    PreparedChildGraphUpdate* out_prepared) except+
+cdef cydriver.CUresult graph_commit_child_graph_update(
+    PreparedChildGraphUpdate& prepared, GraphHandle* out_child) except+
 cdef void invalidate_child_graph_state(
     const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
