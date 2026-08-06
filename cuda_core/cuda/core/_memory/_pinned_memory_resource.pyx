@@ -21,7 +21,6 @@ import platform  # no-cython-lint
 import uuid
 
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
-from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
 from typing import TYPE_CHECKING
 
@@ -113,21 +112,17 @@ cdef class PinnedMemoryResource(_MemPool):
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
         device = s.device
-
-        cdef bint supported
-        if self._numa_id >= 0:
-            supported = device.properties.host_numa_memory_pools_supported
-        else:
-            IF CUDA_CORE_BUILD_MAJOR >= 13:
-                supported = device.properties.host_memory_pools_supported
-            ELSE:
-                supported = True
+        cdef bint supported = (
+            device.properties.host_numa_memory_pools_supported
+            if self._numa_id >= 0
+            else device.properties.host_memory_pools_supported
+        )
 
         if not supported:
-            raise CUDAError(
-                f"CUDA_ERROR_NOT_SUPPORTED: CUDA device {device.device_id} does not "
-                "support the requested host memory pool for PinnedMemoryResource. "
-                "Use LegacyPinnedMemoryResource if memory-pool features are not required."
+            raise RuntimeError(
+                f"CUDA device {device.device_id} does not support the requested "
+                "host memory pool for PinnedMemoryResource. Use "
+                "LegacyPinnedMemoryResource if memory-pool features are not required."
             )
         return _MP_allocate(self, size, s)
 
