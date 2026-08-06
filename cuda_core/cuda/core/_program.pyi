@@ -314,7 +314,7 @@ class ProgramOptions:
         math builtins library. Only supported for the NVVM backend.
         Default: False
     """
-    name: str | None = _DEFAULT_PROGRAM_NAME
+    name: str | None = 'default_program'
     arch: str | None = None
     relocatable_device_code: bool | None = None
     extensible_whole_program: bool | None = None
@@ -418,7 +418,6 @@ class ProgramOptions:
         """Convert extra_sources to bytes format for NVVM."""
 __all__ = ['Program', 'ProgramOptions']
 ProgramHandleT = nvrtc.nvrtcProgram | int | LinkerHandleT
-_DEFAULT_PROGRAM_NAME = 'default_program'
 _nvvm_module = None
 _nvvm_import_attempted = False
 

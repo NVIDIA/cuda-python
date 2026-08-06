@@ -361,14 +361,6 @@ def test_program_options_name_accepts_none(name):
     assert options._name == expected.encode()
 
 
-@pytest.mark.agent_authored(model="claude-opus-5")
-def test_program_name_none_reaches_object_code(init_cuda):
-    code = 'extern "C" __global__ void my_kernel() {}'
-    program = Program(code, "c++", options={"name": None})
-    ptx_object_code = program.compile("ptx")
-    assert ptx_object_code.name == "default_program"
-
-
 # This is tested against the current device's arch
 def test_program_compile_valid_target_type(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'

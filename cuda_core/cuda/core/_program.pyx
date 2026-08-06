@@ -290,9 +290,6 @@ cdef class Program:
 # =============================================================================
 
 
-_DEFAULT_PROGRAM_NAME = "default_program"
-
-
 @dataclass
 class ProgramOptions:
     """Customizable options for configuring :class:`Program`.
@@ -471,7 +468,7 @@ class ProgramOptions:
         Default: False
     """
 
-    name: str | None = _DEFAULT_PROGRAM_NAME
+    name: str | None = "default_program"
     arch: str | None = None
     relocatable_device_code: bool | None = None
     extensible_whole_program: bool | None = None
@@ -529,7 +526,7 @@ class ProgramOptions:
     def __post_init__(self) -> None:
         # Set name to default if not provided
         if self.name is None:
-            self.name = _DEFAULT_PROGRAM_NAME
+            self.name = "default_program"
         self._name = self.name.encode()
         # Set arch to default if not provided
         if self.arch is None:
