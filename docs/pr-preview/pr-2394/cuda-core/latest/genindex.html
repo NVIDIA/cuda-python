@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=c03eeece"></script>
+    <script src="_static/documentation_options.js?v=1fdcc766"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev25';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev29';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -623,6 +623,14 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableGraphNode.html">cuda.core.graph.ExecutableGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableKernelNode.html">cuda.core.graph.ExecutableKernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemcpyNode.html">cuda.core.graph.ExecutableMemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemsetNode.html">cuda.core.graph.ExecutableMemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableHostCallbackNode.html">cuda.core.graph.ExecutableHostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableChildGraphNode.html">cuda.core.graph.ExecutableChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventRecordNode.html">cuda.core.graph.ExecutableEventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventWaitNode.html">cuda.core.graph.ExecutableEventWaitNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -792,6 +800,22 @@
         <li><a href="generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode.__init__">(cuda.core.graph.EventRecordNode method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode.__init__">(cuda.core.graph.EventWaitNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableChildGraphNode.html#cuda.core.graph.ExecutableChildGraphNode.__init__">(cuda.core.graph.ExecutableChildGraphNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableEventRecordNode.html#cuda.core.graph.ExecutableEventRecordNode.__init__">(cuda.core.graph.ExecutableEventRecordNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableEventWaitNode.html#cuda.core.graph.ExecutableEventWaitNode.__init__">(cuda.core.graph.ExecutableEventWaitNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableGraphNode.html#cuda.core.graph.ExecutableGraphNode.__init__">(cuda.core.graph.ExecutableGraphNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableHostCallbackNode.html#cuda.core.graph.ExecutableHostCallbackNode.__init__">(cuda.core.graph.ExecutableHostCallbackNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableKernelNode.html#cuda.core.graph.ExecutableKernelNode.__init__">(cuda.core.graph.ExecutableKernelNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableMemcpyNode.html#cuda.core.graph.ExecutableMemcpyNode.__init__">(cuda.core.graph.ExecutableMemcpyNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableMemsetNode.html#cuda.core.graph.ExecutableMemsetNode.__init__">(cuda.core.graph.ExecutableMemsetNode method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.__init__">(cuda.core.graph.FreeNode method)</a>
 </li>
@@ -1696,6 +1720,14 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.direct_managed_mem_access_from_host">direct_managed_mem_access_from_host (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.graph.ExecutableKernelNode.html#cuda.core.graph.ExecutableKernelNode.disable">disable() (cuda.core.graph.ExecutableKernelNode method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph.ExecutableMemcpyNode.html#cuda.core.graph.ExecutableMemcpyNode.disable">(cuda.core.graph.ExecutableMemcpyNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableMemsetNode.html#cuda.core.graph.ExecutableMemsetNode.disable">(cuda.core.graph.ExecutableMemsetNode method)</a>
+</li>
+      </ul></li>
       <li><a href="generated/cuda.core.texture.TextureObjectOptions.html#cuda.core.texture.TextureObjectOptions.disable_trilinear_optimization">disable_trilinear_optimization (cuda.core.texture.TextureObjectOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.disable_warnings">disable_warnings (cuda.core.ProgramOptions attribute)</a>
@@ -1792,12 +1824,20 @@
         <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode.embed">(cuda.core.graph.WhileNode method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.empty">empty() (cuda.core.graph.GraphDefinition method)</a>
 </li>
       <li><a href="generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode">EmptyNode (class in cuda.core.graph)</a>
 </li>
+      <li><a href="generated/cuda.core.graph.ExecutableKernelNode.html#cuda.core.graph.ExecutableKernelNode.enable">enable() (cuda.core.graph.ExecutableKernelNode method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph.ExecutableMemcpyNode.html#cuda.core.graph.ExecutableMemcpyNode.enable">(cuda.core.graph.ExecutableMemcpyNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableMemsetNode.html#cuda.core.graph.ExecutableMemsetNode.enable">(cuda.core.graph.ExecutableMemsetNode method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.end_building">end_building() (cuda.core.graph.GraphBuilder method)</a>
 </li>
       <li><a href="generated/cuda.core.Event.html#cuda.core.Event">Event (class in cuda.core)</a>
@@ -1827,6 +1867,22 @@
       <li><a href="generated/cuda.core.system.typing.EventType.html#cuda.core.system.typing.EventType">EventType (class in cuda.core.system.typing)</a>
 </li>
       <li><a href="generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode">EventWaitNode (class in cuda.core.graph)</a>
+</li>
+      <li><a href="generated/cuda.core.graph.ExecutableChildGraphNode.html#cuda.core.graph.ExecutableChildGraphNode">ExecutableChildGraphNode (class in cuda.core.graph)</a>
+</li>
+      <li><a href="generated/cuda.core.graph.ExecutableEventRecordNode.html#cuda.core.graph.ExecutableEventRecordNode">ExecutableEventRecordNode (class in cuda.core.graph)</a>
+</li>
+      <li><a href="generated/cuda.core.graph.ExecutableEventWaitNode.html#cuda.core.graph.ExecutableEventWaitNode">ExecutableEventWaitNode (class in cuda.core.graph)</a>
+</li>
+      <li><a href="generated/cuda.core.graph.ExecutableGraphNode.html#cuda.core.graph.ExecutableGraphNode">ExecutableGraphNode (class in cuda.core.graph)</a>
+</li>
+      <li><a href="generated/cuda.core.graph.ExecutableHostCallbackNode.html#cuda.core.graph.ExecutableHostCallbackNode">ExecutableHostCallbackNode (class in cuda.core.graph)</a>
+</li>
+      <li><a href="generated/cuda.core.graph.ExecutableKernelNode.html#cuda.core.graph.ExecutableKernelNode">ExecutableKernelNode (class in cuda.core.graph)</a>
+</li>
+      <li><a href="generated/cuda.core.graph.ExecutableMemcpyNode.html#cuda.core.graph.ExecutableMemcpyNode">ExecutableMemcpyNode (class in cuda.core.graph)</a>
+</li>
+      <li><a href="generated/cuda.core.graph.ExecutableMemsetNode.html#cuda.core.graph.ExecutableMemsetNode">ExecutableMemsetNode (class in cuda.core.graph)</a>
 </li>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.exporting_obj">exporting_obj (cuda.core.utils.StridedMemoryView attribute)</a>
 </li>
@@ -2510,6 +2566,14 @@
 </li>
       <li><a href="generated/cuda.core.Event.html#cuda.core.Event.is_done">is_done (cuda.core.Event attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.graph.ExecutableKernelNode.html#cuda.core.graph.ExecutableKernelNode.is_enabled">is_enabled (cuda.core.graph.ExecutableKernelNode attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph.ExecutableMemcpyNode.html#cuda.core.graph.ExecutableMemcpyNode.is_enabled">(cuda.core.graph.ExecutableMemcpyNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableMemsetNode.html#cuda.core.graph.ExecutableMemsetNode.is_enabled">(cuda.core.graph.ExecutableMemsetNode attribute)</a>
+</li>
+      </ul></li>
       <li><a href="generated/cuda.core.Context.html#cuda.core.Context.is_green">is_green (cuda.core.Context attribute)</a>
 </li>
       <li><a href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.is_handle_owned">is_handle_owned (cuda.core.DeviceMemoryResource attribute)</a>
@@ -3961,6 +4025,20 @@
         <li><a href="generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode.update">(cuda.core.graph.EventRecordNode method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode.update">(cuda.core.graph.EventWaitNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableChildGraphNode.html#cuda.core.graph.ExecutableChildGraphNode.update">(cuda.core.graph.ExecutableChildGraphNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableEventRecordNode.html#cuda.core.graph.ExecutableEventRecordNode.update">(cuda.core.graph.ExecutableEventRecordNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableEventWaitNode.html#cuda.core.graph.ExecutableEventWaitNode.update">(cuda.core.graph.ExecutableEventWaitNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableHostCallbackNode.html#cuda.core.graph.ExecutableHostCallbackNode.update">(cuda.core.graph.ExecutableHostCallbackNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableKernelNode.html#cuda.core.graph.ExecutableKernelNode.update">(cuda.core.graph.ExecutableKernelNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableMemcpyNode.html#cuda.core.graph.ExecutableMemcpyNode.update">(cuda.core.graph.ExecutableMemcpyNode method)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ExecutableMemsetNode.html#cuda.core.graph.ExecutableMemsetNode.update">(cuda.core.graph.ExecutableMemsetNode method)</a>
 </li>
         <li><a href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph.update">(cuda.core.graph.Graph method)</a>
 </li>
