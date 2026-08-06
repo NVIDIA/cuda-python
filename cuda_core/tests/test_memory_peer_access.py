@@ -4,6 +4,7 @@
 import pytest
 from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch_buffer
 from helpers.collection_interface_testers import assert_single_member_mutable_set_interface
+from helpers.constants import POOL_SIZE
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, system
 from cuda.core._memory import _peer_access_utils
@@ -11,14 +12,8 @@ from cuda.core._memory._peer_access_utils import PeerAccessibleBySetProxy
 from cuda.core._utils.cuda_utils import CUDAError
 
 NBYTES = 1024
-# Every owned pool below holds at most NBYTES, but a pool created without an
-# explicit max_size reserves a system-dependent window that scales with device
-# memory -- hundreds of GiB on large-memory GPUs. The per-process virtual
-# address budget is bounded (~1 TB on Windows MCDM), and reservations are not
-# returned until a pool is torn down and its stream-ordered frees retire, so
-# oversized windows accumulate across a session and eventually starve later
-# pool creations with CUDA_ERROR_OUT_OF_MEMORY (issue #2381). Cap them.
-POOL_SIZE = 2097152  # 2MB size
+# Every owned pool below holds at most NBYTES, so they are all capped at the
+# suite-wide POOL_SIZE; see helpers/constants.py for why that matters.
 
 pytestmark = pytest.mark.thread_unsafe(reason="peer access tests mutate process-global CUDA memory-pool access state")
 
