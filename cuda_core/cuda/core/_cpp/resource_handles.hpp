@@ -67,6 +67,7 @@ void clear_last_error() noexcept;
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
 extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
 extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
