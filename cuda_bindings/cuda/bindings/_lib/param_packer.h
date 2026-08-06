@@ -31,21 +31,9 @@ PyLong_AsInt(PyObject *obj)
 }
 #endif
 
-// Thread-safety contract (free-threaded builds declare Py_MOD_GIL_NOT_USED, so
-// there is no GIL serializing the calls below):
-//
-// Every static in this header is written exactly once, by init_param_packer(),
-// while the importing thread is still the only thread that can reach it --
-// Python's import machinery guarantees a module body runs to completion before
-// any other thread can call into the module. Afterwards the state is read-only,
-// which is what makes the hot feed() path safe to call concurrently without a
-// lock: concurrent std::map::find() on a map that is never mutated is safe by
-// the C++ standard.
-//
-// Do not reintroduce lazy initialization here. This header is textually
-// compiled into every extension module that cimports param_packer.pxd, so each
-// such module owns an independent copy of this state and would need its own
-// racy lazy path.
+//  Statics must be initialized at Python import time via init_param_packer()
+// which happens when including utils.pxi.
+// This includes the m_feeders maps as it must not be mutated from threads.
 
 static bool param_packer_initialized = false;
 
@@ -71,57 +59,45 @@ static PyTypeObject* ctypes_c_void_p = nullptr;
 // and never mutated afterwards; see the thread-safety contract above.
 static std::map<std::pair<PyTypeObject*,PyTypeObject*>, std::function<int(void*, PyObject*)>> m_feeders;
 
-// Look a type up in the ctypes module dict and return a *strong* reference.
-// PyDict_GetItemString returns a borrowed reference; we upgrade it to a strong
-// one so the cached PyTypeObject* stays valid for the process lifetime even if
-// the ctypes module itself is later dropped from sys.modules.
+// Helper to fetch a strong reference of the ctypes type
 static PyTypeObject* fetch_ctypes_type(PyObject* ctypes_dict, const char* name)
 {
-    PyObject* type_obj = PyDict_GetItemString(ctypes_dict, name);  // borrowed
+    PyObject* type_obj = PyDict_GetItemStringRef(ctypes_dict, name);
     if (type_obj == nullptr)
         throw std::runtime_error(std::string("Cannot find ctypes.") + std::string(name));
-    Py_INCREF(type_obj);
     return (PyTypeObject*) type_obj;
 }
 
-static void fetch_ctypes()
+static bool fetch_ctypes()
 {
     PyObject* ctypes_module = PyImport_ImportModule("ctypes");
-    if (ctypes_module == nullptr)
-        throw std::runtime_error("Cannot import ctypes module");
+    if (ctypes_module == nullptr) return false;
     // The module dict is borrowed from the module, and the type objects we pull
     // out of it are INCREF'd individually, so the module reference itself is not
     // load-bearing: release it once we are done rather than leaking it.
-    try
-    {
-        PyObject* ctypes_dict = PyModule_GetDict(ctypes_module);  // borrowed
-        if (ctypes_dict == nullptr)
-            throw std::runtime_error(std::string("FAILURE @ ") + std::string(__FILE__) + " : " + std::to_string(__LINE__));
-        // supported types
-        ctypes_c_char = fetch_ctypes_type(ctypes_dict, "c_char");
-        ctypes_c_bool = fetch_ctypes_type(ctypes_dict, "c_bool");
-        ctypes_c_wchar = fetch_ctypes_type(ctypes_dict, "c_wchar");
-        ctypes_c_byte = fetch_ctypes_type(ctypes_dict, "c_byte");
-        ctypes_c_ubyte = fetch_ctypes_type(ctypes_dict, "c_ubyte");
-        ctypes_c_short = fetch_ctypes_type(ctypes_dict, "c_short");
-        ctypes_c_ushort = fetch_ctypes_type(ctypes_dict, "c_ushort");
-        ctypes_c_int = fetch_ctypes_type(ctypes_dict, "c_int");
-        ctypes_c_uint = fetch_ctypes_type(ctypes_dict, "c_uint");
-        ctypes_c_long = fetch_ctypes_type(ctypes_dict, "c_long");
-        ctypes_c_ulong = fetch_ctypes_type(ctypes_dict, "c_ulong");
-        ctypes_c_longlong = fetch_ctypes_type(ctypes_dict, "c_longlong");
-        ctypes_c_ulonglong = fetch_ctypes_type(ctypes_dict, "c_ulonglong");
-        ctypes_c_size_t = fetch_ctypes_type(ctypes_dict, "c_size_t");
-        ctypes_c_float = fetch_ctypes_type(ctypes_dict, "c_float");
-        ctypes_c_double = fetch_ctypes_type(ctypes_dict, "c_double");
-        ctypes_c_void_p = fetch_ctypes_type(ctypes_dict, "c_void_p"); // == c_voidp
-    }
-    catch (...)
-    {
-        Py_DECREF(ctypes_module);
-        throw;
-    }
+    PyObject* ctypes_dict = PyModule_GetDict(ctypes_module);
+    if (ctypes_dict == nullptr) return false;
+    bool success = (
+        ctypes_c_char = fetch_ctypes_type(ctypes_dict, "c_char") &&
+        ctypes_c_bool = fetch_ctypes_type(ctypes_dict, "c_bool") &&
+        ctypes_c_wchar = fetch_ctypes_type(ctypes_dict, "c_wchar") &&
+        ctypes_c_byte = fetch_ctypes_type(ctypes_dict, "c_byte") &&
+        ctypes_c_ubyte = fetch_ctypes_type(ctypes_dict, "c_ubyte") &&
+        ctypes_c_short = fetch_ctypes_type(ctypes_dict, "c_short"); &&
+        ctypes_c_ushort = fetch_ctypes_type(ctypes_dict, "c_ushort") &&
+        ctypes_c_int = fetch_ctypes_type(ctypes_dict, "c_int") &&
+        ctypes_c_uint = fetch_ctypes_type(ctypes_dict, "c_uint") &&
+        ctypes_c_long = fetch_ctypes_type(ctypes_dict, "c_long"); &&
+        ctypes_c_ulong = fetch_ctypes_type(ctypes_dict, "c_ulong") &&
+        ctypes_c_longlong = fetch_ctypes_type(ctypes_dict, "c_longlong") &&
+        ctypes_c_ulonglong = fetch_ctypes_type(ctypes_dict, "c_ulonglong") &&
+        ctypes_c_size_t = fetch_ctypes_type(ctypes_dict, "c_size_t") &&
+        ctypes_c_float = fetch_ctypes_type(ctypes_dict, "c_float") &&
+        ctypes_c_double = fetch_ctypes_type(ctypes_dict, "c_double") &&
+        ctypes_c_void_p = fetch_ctypes_type(ctypes_dict, "c_void_p")
+    );
     Py_DECREF(ctypes_module);
+    return success
 }
 
 
@@ -142,7 +118,7 @@ static void fetch_ctypes()
 // would skip the fallback and rewind the pack buffer, corrupting the next
 // argument. Any error the probe set is cleared -- feed() must not leave an
 // exception pending, since it is declared implicitly noexcept to Cython.
-static void populate_feeders()
+static void populate_feeders() noexcept
 {
     m_feeders[{ctypes_c_int, &PyLong_Type}] = [](void* ptr, PyObject* value) -> int
     {
@@ -213,7 +189,7 @@ static void init_param_packer()
 {
     if (param_packer_initialized)
         return;
-    fetch_ctypes();
+    if (!fetch_ctypes()) return;
     populate_feeders();
     param_packer_initialized = true;
 }
