@@ -9,12 +9,14 @@
 #include <atomic>
 #include <array>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <list>
 #include <map>
 #include <mutex>
 #include <stdexcept>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -727,6 +729,84 @@ StreamHandle get_per_thread_stream() {
 }
 
 // ============================================================================
+// Deallocation streams
+//
+// A DeallocationStream is a StreamHandle used for ordering frees. It differs
+// from an ordinary StreamHandle only for default-stream tokens, for which it
+// stores the (de)allocation context. Ordinarily, the LEGACY and PER_THREAD
+// default streams resolve to whichever context is active at the time they are
+// used, but for storing deallocation recipes we need to pin the context. With
+// the PER_THREAD token, it is not possible to restore the original stream when
+// deallocation runs on a different thread. Therefore, in that case the
+// allocating host thread id is also stored so that cross-thread frees can be
+// detected and warnings can be issued.
+// ============================================================================
+
+namespace {
+
+bool is_default_stream_token(CUstream stream) noexcept {
+    return stream == nullptr
+        || stream == CU_STREAM_LEGACY
+        || stream == CU_STREAM_PER_THREAD;
+}
+
+}  // namespace
+
+// ptds_tid is std::thread::id{} except for CU_STREAM_PER_THREAD.
+struct DeallocationStream {
+    StreamHandle h_stream;
+    std::thread::id ptds_tid{};
+};
+
+// Real streams are returned unchanged. Default-stream tokens without an
+// embedded context are bound to the current context when one is current;
+// otherwise the ambient token is left as-is.
+static DeallocationStream make_deallocation_stream(const StreamHandle& h) {
+    if (!h) {
+        return {};
+    }
+
+    const CUstream stream = as_cu(h);
+    if (!is_default_stream_token(stream)) {
+        return DeallocationStream{h, {}};
+    }
+
+    StreamHandle h_bound = h;
+    if (!get_stream_context(h)) {
+        ContextHandle h_ctx = get_current_context();
+        if (h_ctx) {
+            // Do not register in stream_registry: the token value alone is not
+            // a unique stream identity (context is part of the meaning).
+            auto box = std::shared_ptr<const StreamBox>(
+                new StreamBox{stream, h_ctx});
+            h_bound = StreamHandle(box, &box->resource);
+        }
+        // else: leave the ambient token; later work can fail loudly
+    }
+
+    std::thread::id ptds_tid{};
+    if (stream == CU_STREAM_PER_THREAD) {
+        ptds_tid = std::this_thread::get_id();
+    }
+    return DeallocationStream{std::move(h_bound), ptds_tid};
+}
+
+static void warn_if_ptds_cross_thread(const DeallocationStream& stream) noexcept {
+    if (stream.ptds_tid == std::thread::id{}) {
+        return;
+    }
+    if (stream.ptds_tid == std::this_thread::get_id()) {
+        return;
+    }
+    std::fprintf(
+        stderr,
+        "Warning: Buffer deallocation for a per-thread default stream "
+        "is running on a different host thread than the one that recorded "
+        "the deallocation stream; ordering relative to the allocating "
+        "thread's PTDS is not preserved\n");
+}
+
+// ============================================================================
 // Event Handles
 // ============================================================================
 
@@ -913,10 +993,10 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
 namespace {
 struct DevicePtrBox {
     CUdeviceptr resource;
-    // Mutable to allow set_deallocation_stream() to update the stream
-    // through a const DevicePtrHandle. The stream can be changed after
-    // allocation (e.g., to synchronize deallocation with a different stream).
-    mutable StreamHandle h_stream;
+    // Mutable so set_deallocation_stream() can update free ordering through a
+    // const DevicePtrHandle. Built with make_deallocation_stream so default-
+    // stream tokens carry a bound context.
+    mutable DeallocationStream deallocation;
 };
 }  // namespace
 
@@ -924,7 +1004,7 @@ struct DevicePtrBox {
 // This works because DevicePtrHandle is a shared_ptr alias pointing to
 // &box->resource, so we can compute the containing struct using offsetof.
 // The const_cast is safe because we only use this to access the mutable
-// h_stream member or in the deleter (where the box is being destroyed).
+// deallocation member or in the deleter (where the box is being destroyed).
 static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     const CUdeviceptr* p = h.get();
     return reinterpret_cast<DevicePtrBox*>(
@@ -933,11 +1013,11 @@ static DevicePtrBox* get_box(const DevicePtrHandle& h) {
 }
 
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
-    return get_box(h)->h_stream;
+    return get_box(h)->deallocation.h_stream;
 }
 
 void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
-    get_box(h)->h_stream = h_stream;
+    get_box(h)->deallocation = make_deallocation_stream(h_stream);
 }
 
 DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) {
@@ -948,10 +1028,11 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
+        new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+            warn_if_ptds_cross_thread(b->deallocation);
+            p_cuMemFreeAsync(b->resource, as_cu(b->deallocation.h_stream));
             delete b;
         }
     );
@@ -966,10 +1047,11 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
+        new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+            warn_if_ptds_cross_thread(b->deallocation);
+            p_cuMemFreeAsync(b->resource, as_cu(b->deallocation.h_stream));
             delete b;
         }
     );
@@ -984,7 +1066,7 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, StreamHandle{}},
+        new DevicePtrBox{ptr, DeallocationStream{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
             p_cuMemFree(b->resource);
@@ -1002,7 +1084,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), StreamHandle{}},
+        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), DeallocationStream{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
             p_cuMemFreeHost(reinterpret_cast<void*>(b->resource));
@@ -1013,7 +1095,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
 }
 
 DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
-    auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, StreamHandle{}});
+    auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, DeallocationStream{}});
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -1029,7 +1111,7 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
     }
     Py_INCREF(owner);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, StreamHandle{}},
+        new DevicePtrBox{ptr, DeallocationStream{}},
         [owner](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
@@ -1047,11 +1129,13 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
     const StreamHandle& h_stream
 ) {
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
+        new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
         [h_resource](DevicePtrBox* b) {
             GILReleaseGuard gil;
             CUgraphicsResource resource = as_cu(h_resource);
-            p_cuGraphicsUnmapResources(1, &resource, as_cu(b->h_stream));
+            warn_if_ptds_cross_thread(b->deallocation);
+            p_cuGraphicsUnmapResources(
+                1, &resource, as_cu(b->deallocation.h_stream));
             delete b;
         }
     );
@@ -1079,12 +1163,13 @@ DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject*
     }
     Py_INCREF(mr);
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, StreamHandle{}},
+        new DevicePtrBox{ptr, DeallocationStream{}},
         [mr, size](DevicePtrBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
                 if (mr_dealloc_cb) {
-                    mr_dealloc_cb(mr, b->resource, size, b->h_stream);
+                    warn_if_ptds_cross_thread(b->deallocation);
+                    mr_dealloc_cb(mr, b->resource, size, b->deallocation.h_stream);
                 }
                 Py_DECREF(mr);
             }
@@ -1173,11 +1258,12 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         }
 
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream},
+            new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
             [h_pool, key](DevicePtrBox* b) {
                 ipc_ptr_cache.unregister_handle(key);
                 GILReleaseGuard gil;
-                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+                warn_if_ptds_cross_thread(b->deallocation);
+                p_cuMemFreeAsync(b->resource, as_cu(b->deallocation.h_stream));
                 delete b;
             }
         );
@@ -1193,10 +1279,11 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
         }
 
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream},
+            new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
             [h_pool](DevicePtrBox* b) {
                 GILReleaseGuard gil;
-                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
+                warn_if_ptds_cross_thread(b->deallocation);
+                p_cuMemFreeAsync(b->resource, as_cu(b->deallocation.h_stream));
                 delete b;
             }
         );
