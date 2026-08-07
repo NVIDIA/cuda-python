@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph._graph_definition import GraphCondition, GraphDefinition
+from cuda.core.graph._graph_node import GraphNode
+from cuda.core.graph._subclasses import ExecutableGraphNode
 
 _BuilderKind = int
 _CaptureState = int
@@ -460,6 +462,15 @@ class Graph:
 
         """
 
+    def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
+        """Return a view for updating *node* in this executable graph.
+
+        *node* is a definition node from the graph used to instantiate this
+        executable. Call ``update()`` on the returned view to replace that
+        node's parameters for future launches. Kernel, memcpy, and memset
+        views also support enabling and disabling the node.
+        """
+
     def update(self, source: 'GraphBuilder | GraphDefinition') -> None:
         """Update the graph using a new graph definition.
 
@@ -494,7 +505,7 @@ class Graph:
         """
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
-def _instantiate_graph(h_graph, options: GraphCompleteOptions | None=None) -> Graph:
+def _instantiate_graph(source, options: GraphCompleteOptions | None=None) -> Graph:
     ...
 
 def _capture_callback_with_tail_failure_for_testing(gb: GraphBuilder, fn, *, user_data=None):
