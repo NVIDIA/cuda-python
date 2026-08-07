@@ -13,6 +13,7 @@ platforms = ["linux-64", "linux-aarch64", "win-64"]
 cu12 = { features = ["cu12"] }
 cu13 = { features = ["cu13"] }
 docs = { features = [], solve-group = "docs" }
+lint = { features = ["lint"], no-default-feature = true }
 
 [activation.env]
 PIXI_ENVIRONMENT_NAME = "${PIXI_ENVIRONMENT_NAME/default/cu13}"
@@ -92,5 +93,33 @@ depends-on = [
     { task = "docs-core" },
 ]
 
-[dependencies]
+# Lint tasks.
+#
+# Every task routes through pre-commit rather than invoking ruff directly. That
+# is deliberate: `.pre-commit-config.yaml` applies per-hook `exclude` patterns
+# (generated `*.pyi` files, `_fast_enum.py`), so a bare `ruff check .` would
+# reformat files that CI intentionally leaves alone. Going through pre-commit
+# keeps `pixi run lint` and pre-commit.ci in agreement by construction.
+#
+# `ruff` is still available in this environment for ad-hoc one-off invocations
+# (`pixi run -e lint ruff format <file>`).
+#
+# These live in their own feature + environment (with `no-default-feature`) so
+# the linters are not solved into the cu12/cu13/docs environments, which would
+# make those solves larger for no benefit.
+[feature.lint.dependencies]
 ruff = ">=0.15.3,<0.16"
+pre-commit = ">=4,<5"
+
+# Lint the whole tree -- the pre-commit.ci equivalent.
+[feature.lint.tasks.lint]
+cmd = ["pre-commit", "run", "--all-files"]
+
+# Lint only what is staged -- the fast inner-loop check before committing.
+[feature.lint.tasks.lint-staged]
+cmd = ["pre-commit", "run"]
+
+# Install the git hook so the above runs automatically on `git commit`.
+# See toolshed/check_precommit_installed.py, which warns when it is missing.
+[feature.lint.tasks.lint-install]
+cmd = ["pre-commit", "install"]
