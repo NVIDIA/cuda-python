@@ -160,9 +160,78 @@ def test_failure_message_names_the_pool_and_the_size_it_needed():
 
     assert "cannot run on this machine" in message
     assert "graph memory pool" in message
+    assert "cuGraphAddMemAllocNode" in message
     assert "357.63 GiB" in message  # 2x installed device memory
     assert "address space" in message
-    assert "#2381" in message
+    # The driver's own error, so the reader is not left guessing what refused.
+    assert "ZeroDivisionError" in message
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_pool_capacity_counts_two_pools_in_one_large_hole():
+    # A reservation must fit within a single hole, but one hole twice the size
+    # takes both pools -- the driver packs them from its low end. Counting only
+    # the holes that clear one pool would call this a failure.
+    pool = 358 * va_reservation.GIB
+    one_big_hole = [(800 * va_reservation.GIB, 0x1000)]
+    two_holes = [(400 * va_reservation.GIB, 0x1000), (400 * va_reservation.GIB, 0x2000)]
+
+    assert va_reservation.pool_capacity(one_big_hole, pool) == 2
+    assert va_reservation.pool_capacity(two_holes, pool) == 2
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_pool_capacity_ignores_holes_that_cannot_take_a_whole_pool():
+    # Free space that is merely plentiful does not help; it has to be
+    # contiguous. This is the shape that fails on the affected machine.
+    pool = 358 * va_reservation.GIB
+    lopsided = [(700 * va_reservation.GIB, 0x1000), (300 * va_reservation.GIB, 0x2000)]
+
+    assert va_reservation.pool_capacity(lopsided, pool) == 1
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_layout_lines_are_empty_off_windows():
+    # free_holes() returns None where VirtualQuery is unavailable; the report
+    # must simply omit the section rather than fail.
+    assert va_reservation.layout_lines(None, 358 * va_reservation.GIB, "before") == []
+    assert va_reservation.pool_capacity(None, 358 * va_reservation.GIB) is None
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_neither_report_mentions_holes_off_windows(monkeypatch):
+    # The hole layout comes from VirtualQuery, so it is Windows-only. Everything
+    # else is CUDA APIs and must still be reported. Simulates the non-win32
+    # branch of the guarded import in va_reservation.
+    monkeypatch.setattr(va_reservation, "win_address_space", None)
+    good = va_reservation.Reservation("default device mempool", "cuDeviceGetMemPool", lambda: None)
+    bad = va_reservation.Reservation("graph memory pool", "cuGraphAddMemAllocNode", lambda: 1 / 0)
+    good.run()
+    bad.run()
+    holes = va_reservation.free_holes()
+    gib = va_reservation.GIB
+
+    report = va_reservation.ReservationReport(
+        "dev", 25650855936, 900 * gib, 800 * gib, [good, bad], True, holes_before=holes
+    )
+
+    assert holes is None
+    assert "free holes" not in "\n".join(report.lines())
+    message = va_reservation.build_failure_message(report)
+    assert "free holes" not in message
+    assert "graph memory pool" in message  # the rest of the report survives
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_layout_lines_report_base_addresses():
+    # The bases are the point: comparing them across launches shows whether the
+    # layout is being randomized.
+    holes = [(500 * va_reservation.GIB, 0x2200000000)]
+
+    text = "\n".join(va_reservation.layout_lines(holes, 358 * va_reservation.GIB, "before"))
+
+    assert "room for 1 pool(s)" in text
+    assert "0x0000002200000000" in text
 
 
 @pytest.mark.agent_authored(model="claude-opus-5")

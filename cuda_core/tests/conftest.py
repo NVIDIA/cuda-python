@@ -60,7 +60,7 @@ _reservation_report = None
 
 
 @pytest.fixture(scope="session", autouse=True)
-def reserve_driver_pools(request, session_setup):
+def reserve_driver_pools(session_setup):
     """Take the driver's two large address-space reservations before anything else.
 
     Session-scoped and autouse so both reservations land back to back in a
@@ -81,14 +81,8 @@ def reserve_driver_pools(request, session_setup):
     with _init_cuda_context() as device:
         _reservation_report = va_reservation.reserve_driver_pools(device)
 
-    terminal_reporter = request.config.pluginmanager.get_plugin("terminalreporter")
-    if terminal_reporter is not None:
-        # Written here rather than only in the summary so the numbers survive a
-        # session that dies partway through.
-        terminal_reporter.write_sep("=", "cuda_core address space reservation")
-        for line in _reservation_report.lines():
-            terminal_reporter.write_line(line)
-
+    # Reported once, from pytest_terminal_summary. On the abort path below the
+    # message carries the same numbers, so nothing is lost by not printing here.
     if _reservation_report.failed:
         pytest.exit(va_reservation.build_failure_message(_reservation_report), returncode=1)
 
