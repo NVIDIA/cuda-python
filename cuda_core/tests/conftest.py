@@ -31,6 +31,7 @@ pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
 from cuda_python_test_helpers.marks import skipif_need_cuda_headers  # noqa: F401 (re-exported for tests)
 from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
+from helpers import va_reservation
 from helpers.constants import POOL_SIZE
 
 import cuda.core
@@ -53,6 +54,47 @@ def pytest_configure(config):
     parallel_threads = getattr(config.option, "parallel_threads", 0)
     if parallel_threads == "auto" or int(parallel_threads) > 1:
         config.pluginmanager.register(_CudaCoreParallelPlugin(), name="_cuda_core_parallel_plugin")
+
+
+_reservation_report = None
+
+
+@pytest.fixture(scope="session", autouse=True)
+def reserve_driver_pools(session_setup):
+    """Take the driver's two large address-space reservations before anything else.
+
+    Session-scoped and autouse so both reservations land back to back in a
+    nearly empty address space, ahead of any test that could fragment it.
+    Depends on session_setup for cuInit. See helpers/va_reservation.py for why
+    this matters, and issue #2381.
+
+    Aborts the session with an explanation if either reservation is refused:
+    every later test that needs the pool would fail the same way, and the
+    resulting cascade of identical OOM errors says nothing about the cause.
+    """
+    global _reservation_report
+
+    if int(os.environ.get("CUDA_CORE_TEST_SKIP_EARLY_RESERVATION", 0)) != 0:
+        yield
+        return
+
+    with _init_cuda_context() as device:
+        _reservation_report = va_reservation.reserve_driver_pools(device)
+
+    # Reported once, from pytest_terminal_summary. On the abort path below the
+    # message carries the same numbers, so nothing is lost by not printing here.
+    if _reservation_report.failed:
+        pytest.exit(va_reservation.build_failure_message(_reservation_report), returncode=1)
+
+    yield
+
+
+def pytest_terminal_summary(terminalreporter):
+    if _reservation_report is None or _reservation_report.failed:
+        return
+    terminalreporter.write_sep("=", "cuda_core address space reservation")
+    for line in _reservation_report.lines():
+        terminalreporter.write_line(line)
 
 
 @contextmanager
