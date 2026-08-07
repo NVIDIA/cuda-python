@@ -6,7 +6,7 @@ from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch
 from helpers.collection_interface_testers import assert_single_member_mutable_set_interface
 from helpers.constants import POOL_SIZE
 
-from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, system
+from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._memory import _peer_access_utils
 from cuda.core._memory._peer_access_utils import PeerAccessibleBySetProxy
 from cuda.core._utils.cuda_utils import CUDAError
@@ -231,7 +231,7 @@ def test_peer_accessible_by_silently_ignores_owner(isolated_dmr_x2):
 def test_peer_accessible_by_rejects_invalid_inputs(isolated_dmr_x2):
     """``add`` raises on out-of-range/unsupported inputs; lenient methods do not."""
     dmr, dev0, dev1 = isolated_dmr_x2
-    bad_id = system.get_num_devices()  # one past the last valid device ordinal
+    bad_id = len(Device.get_all_devices())  # one past the last valid CUDA device ordinal
 
     # add: validates strictly, propagates errors from Device(bad_id)
     with pytest.raises((ValueError, CUDAError)):
