@@ -53,15 +53,16 @@ def compile_pdl_overlap_kernels(device):
 
 
 def run_pdl_overlap_check(device, *, via_graph: bool = False):
-    """Run the shared primary/secondary PDL overlap protocol.
+    """Run the shared same-stream primary/secondary PDL overlap protocol.
 
-    Asserts no overlap without ``programmatic_stream_serialization``, then retries
-    a few times with it enabled. Overlap is opportunistic → miss is xfail.
+    Both paths launch primary then secondary on one stream. Asserts no overlap
+    without ``programmatic_stream_serialization``, then retries a few times with
+    it enabled. Overlap is opportunistic → miss is xfail.
 
     Args:
         device: Current CUDA device (compute capability >= 9.0 required).
-        via_graph: If True, capture launches into a CUDA graph and launch the
-            graph; otherwise launch kernels directly on the stream.
+        via_graph: If True, stream-capture the same-stream launches into a CUDA
+            graph and launch that graph; otherwise launch kernels directly.
     """
     if device.compute_capability < (9, 0):
         pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
@@ -97,7 +98,7 @@ def run_pdl_overlap_check(device, *, via_graph: bool = False):
             stream.sync()
         return int(overlapped[0])
 
-    path = "graph-capture" if via_graph else "same-stream"
+    path = "same-stream (graph)" if via_graph else "same-stream"
     assert _run(secondary_serial_cfg) == 0, (
         f"Expected no overlap when programmatic_stream_serialization is False ({path})"
     )

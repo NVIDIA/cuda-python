@@ -205,13 +205,13 @@ def test_to_native_launch_config_pdl():
 
 @skipif_need_cuda_headers
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_pdl_primary_secondary_overlap_same_stream(init_cuda):
-    """Primary + secondary PDL launch on one stream can overlap on Hopper+.
+def test_pdl_same_stream_primary_secondary_overlap(init_cuda):
+    """Same-stream primary + secondary PDL launch can overlap on Hopper+.
 
     Secondary is launched with ``programmatic_stream_serialization=True``. After
     the primary triggers completion, it spins until it observes a flag written by
     the secondary's independent preamble — proving both grids were resident at
-    once. Without PDL, the secondary cannot start until the primary exits.
+    once. Without PDL, same-stream kernels stay serialized.
 
     Note concurrency is opportunistic, so a missing overlap execution is reported as
     an expected failure.
