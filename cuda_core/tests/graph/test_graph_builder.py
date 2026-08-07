@@ -776,11 +776,7 @@ def test_pdl_launch_graph_capture(init_cuda):
 
 @skipif_need_cuda_headers
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_pdl_primary_secondary_overlap_graph_capture(init_cuda):
-    """Primary + secondary PDL via GraphBuilder stream capture can overlap on Hopper+.
-
-    Same kernels / overlap protocol as test_pdl_primary_secondary_overlap_same_stream,
-    but launches are captured into a CUDA graph (see CUDA Programming Guide,
-    Programmatic Dependent Launch). Overlap is opportunistic → miss is xfail.
+def test_pdl_same_stream_primary_secondary_overlap_via_graph(init_cuda):
+    """Same-stream PDL overlap via GraphBuilder stream capture on Hopper+.
     """
     run_pdl_overlap_check(Device(), via_graph=True)
