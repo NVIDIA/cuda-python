@@ -85,11 +85,18 @@ cmd = [
 [target.linux.tasks.docs-core]
 cmd = ["pixi", "run", "--manifest-path", "$PIXI_PROJECT_ROOT/cuda_core", "-e", "docs", "docs-build"]
 
+[target.linux.tasks.docs-python]
+cmd = ["pixi", "run", "--manifest-path", "$PIXI_PROJECT_ROOT/cuda_python", "-e", "docs", "build-docs"]
+
+# Note: this builds each package's docs in its own tree. Stitching them into
+# the single published site (cuda_python/docs/build/html/{cuda-bindings,
+# cuda-core,cuda-pathfinder}) is still cuda_python/docs/build_all_docs.sh.
 [target.linux.tasks.docs]
 depends-on = [
     { task = "docs-pathfinder" },
     { task = "docs-bindings" },
     { task = "docs-core" },
+    { task = "docs-python" },
 ]
 
 [dependencies]
