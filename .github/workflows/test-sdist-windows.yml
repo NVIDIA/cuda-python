@@ -61,12 +61,14 @@ jobs:
           python -m build --sdist cuda_python/
           pip wheel --no-deps --wheel-dir cuda_python/dist cuda_python/dist/*.tar.gz
 
-      - name: Resolve cuda.bindings build dependencies
+      - name: Constrain builds to the local cuda.pathfinder wheel
         run: |
+          pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
           mkdir -p wheel-constraints
-          python ci/tools/write_wheel_constraints.py \
-            --output wheel-constraints/cuda-bindings.txt \
-            --wheel cuda-pathfinder cuda_pathfinder/dist
+          pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
 
       # Cython packages need CTK. No sccache on Windows (this is a correctness
       # smoke test, not a production build; see build-wheel.yml which also
@@ -90,14 +92,22 @@ jobs:
           python -m build --sdist cuda_bindings/
           pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
 
-      - name: Resolve cuda.core build dependencies
+      - name: Constrain cuda.core to the local cuda.bindings wheel
         run: |
           CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
-          python ci/tools/write_wheel_constraints.py \
-            --output wheel-constraints/cuda-core.txt \
-            --wheel cuda-pathfinder cuda_pathfinder/dist \
-            --wheel cuda-bindings cuda_bindings/dist \
-            --expected-major cuda-bindings "${CUDA_MAJOR}"
+          pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
+          bindings_wheels=(cuda_bindings/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          test -f "${bindings_wheels[0]}"
+          mkdir -p wheel-constraints
+          pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+          bindings_uri="file:///$(cygpath -am "${bindings_wheels[0]}")"
+          {
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
+            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
+          } | tee wheel-constraints/cuda-core.txt
 
       # cuda_core sdist delegates to setuptools (no CTK needed), but
       # wheel-from-sdist needs CTK and cuda-bindings (dynamic build dep via

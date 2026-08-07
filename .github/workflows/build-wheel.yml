@@ -150,17 +150,18 @@ jobs:
         run: |
           twine check --strict cuda_pathfinder/*.whl
 
-      - name: Resolve cuda.bindings build dependencies
+      - name: Constrain builds to the local cuda.pathfinder wheel
         run: |
-          container_args=()
-          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            container_args+=(--container-mount /host)
-          fi
+          pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
           mkdir -p wheel-constraints
-          python ci/tools/write_wheel_constraints.py \
-            --output wheel-constraints/cuda-bindings.txt \
-            "${container_args[@]}" \
-            --wheel cuda-pathfinder cuda_pathfinder
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+          else
+            pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
+          fi
+          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
 
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
@@ -244,19 +245,26 @@ jobs:
         run: |
           twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
-      - name: Resolve cuda.core build dependencies
+      - name: Constrain cuda.core to the local cuda.bindings wheel
         run: |
-          container_args=()
-          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            container_args+=(--container-mount /host)
-          fi
+          pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
+          bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-"${BUILD_CUDA_MAJOR}".*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          test -f "${bindings_wheels[0]}"
           mkdir -p wheel-constraints
-          python ci/tools/write_wheel_constraints.py \
-            --output wheel-constraints/cuda-core.txt \
-            "${container_args[@]}" \
-            --wheel cuda-pathfinder cuda_pathfinder \
-            --wheel cuda-bindings "${CUDA_BINDINGS_ARTIFACTS_DIR}" \
-            --expected-major cuda-bindings "${BUILD_CUDA_MAJOR}"
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+            bindings_uri="file:///$(cygpath -am "${bindings_wheels[0]}")"
+          else
+            pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
+            bindings_uri="file:///host$(realpath "${bindings_wheels[0]}")"
+          fi
+          {
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
+            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
+          } | tee wheel-constraints/cuda-core.txt
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
@@ -489,19 +497,26 @@ jobs:
           mv $OLD_BASENAME/*.whl "${PREV_BINDINGS_DIR}"
           rmdir $OLD_BASENAME
 
-      - name: Resolve previous cuda.core build dependencies
+      - name: Constrain previous cuda.core to the downloaded cuda.bindings wheel
         run: |
-          container_args=()
-          if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            container_args+=(--container-mount /host)
-          fi
+          pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
+          bindings_wheels=(cuda_bindings/dist-prev/cuda_bindings-"${BUILD_PREV_CUDA_MAJOR}".*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          test -f "${bindings_wheels[0]}"
           mkdir -p wheel-constraints
-          python ci/tools/write_wheel_constraints.py \
-            --output wheel-constraints/cuda-core-prev.txt \
-            "${container_args[@]}" \
-            --wheel cuda-pathfinder cuda_pathfinder \
-            --wheel cuda-bindings cuda_bindings/dist-prev \
-            --expected-major cuda-bindings "${BUILD_PREV_CUDA_MAJOR}"
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+            bindings_uri="file:///$(cygpath -am "${bindings_wheels[0]}")"
+          else
+            pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
+            bindings_uri="file:///host$(realpath "${bindings_wheels[0]}")"
+          fi
+          {
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
+            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
+          } | tee wheel-constraints/cuda-core-prev.txt
 
       - name: Build cuda.core wheel
         uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c  # v4.1.1

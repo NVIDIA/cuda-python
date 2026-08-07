@@ -126,12 +126,14 @@ jobs:
           .venv/bin/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
           .venv/bin/pip install -v ./wheels/cuda_pathfinder*.whl --group ./cuda_pathfinder/pyproject.toml:test
 
-      - name: Resolve cuda-bindings build dependencies
+      - name: Constrain builds to the local cuda-pathfinder wheel
         run: |
+          pathfinder_wheels=(wheels/cuda_pathfinder-*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
           mkdir -p wheel-constraints
-          .venv/bin/python ci/tools/write_wheel_constraints.py \
-            --output wheel-constraints/cuda-bindings.txt \
-            --wheel cuda-pathfinder wheels
+          pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
+          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
 
       - name: Build and install cuda-bindings wheel
         run: |
@@ -140,14 +142,22 @@ jobs:
           .venv/bin/pip wheel -v --no-deps ./cuda_bindings -w ./wheels/
           .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./cuda_bindings/pyproject.toml:test
 
-      - name: Resolve cuda-core build dependencies
+      - name: Constrain cuda-core to the local cuda-bindings wheel
         run: |
           CUDA_MAJOR="${CUDA_VER%%.*}"
-          .venv/bin/python ci/tools/write_wheel_constraints.py \
-            --output wheel-constraints/cuda-core.txt \
-            --wheel cuda-pathfinder wheels \
-            --wheel cuda-bindings wheels \
-            --expected-major cuda-bindings "${CUDA_MAJOR}"
+          pathfinder_wheels=(wheels/cuda_pathfinder-*.whl)
+          bindings_wheels=(wheels/cuda_bindings-"${CUDA_MAJOR}".*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          test -f "${bindings_wheels[0]}"
+          mkdir -p wheel-constraints
+          pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
+          bindings_uri="file://$(realpath "${bindings_wheels[0]}")"
+          {
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
+            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
+          } | tee wheel-constraints/cuda-core.txt
 
       - name: Build and install cuda-core
         run: |
@@ -253,12 +263,14 @@ jobs:
           .venv/Scripts/python -m pip install "pip>=25.3" wheel setuptools Cython
           .venv/Scripts/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
 
-      - name: Resolve cuda.bindings build dependencies
+      - name: Constrain builds to the local cuda.pathfinder wheel
         run: |
+          pathfinder_wheels=(wheels/cuda_pathfinder-*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
           mkdir -p wheel-constraints
-          .venv/Scripts/python ci/tools/write_wheel_constraints.py \
-            --output wheel-constraints/cuda-bindings.txt \
-            --wheel cuda-pathfinder wheels
+          pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
 
       - name: Build cuda.bindings wheel
         run: |
@@ -267,14 +279,22 @@ jobs:
           cd cuda_bindings
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
-      - name: Resolve cuda.core build dependencies
+      - name: Constrain cuda.core to the local cuda.bindings wheel
         run: |
           CUDA_MAJOR="${CUDA_VER%%.*}"
-          .venv/Scripts/python ci/tools/write_wheel_constraints.py \
-            --output wheel-constraints/cuda-core.txt \
-            --wheel cuda-pathfinder wheels \
-            --wheel cuda-bindings wheels \
-            --expected-major cuda-bindings "${CUDA_MAJOR}"
+          pathfinder_wheels=(wheels/cuda_pathfinder-*.whl)
+          bindings_wheels=(wheels/cuda_bindings-"${CUDA_MAJOR}".*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          test -f "${bindings_wheels[0]}"
+          mkdir -p wheel-constraints
+          pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+          bindings_uri="file:///$(cygpath -am "${bindings_wheels[0]}")"
+          {
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
+            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
+          } | tee wheel-constraints/cuda-core.txt
 
       - name: Build cuda.core wheel
         run: |
