@@ -1,6 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+#
+# CI SAST via NVIDIA/security-workflows (CodeQL).
+# Replaces the repo-local CodeQL steps with the centrally maintained reusable workflow so action pins and query suites are updated in one place.
+# Pinned to a reviewed commit SHA.
 
 name: "Static Analysis: CodeQL Scan"
 
@@ -10,37 +14,22 @@ on:
       - "pull-request/[0-9]+"
       - "ctk-next"
       - "main"
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
+# Caller must grant every permission the reusable workflow declares.
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        - language: python
-          build-mode: none
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4.36.2
-      with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
-        queries: security-extended
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4.36.2
-      with:
-        category: "/language:${{matrix.language}}"
+    name: Analyze
+    uses: NVIDIA/security-workflows/.github/workflows/sast-scan-codeql.yml@b6d5bf6bab0cb8c878ed8fc784d5950ffb983765
+    with:
+      languages: '["python"]'
+      runs-on: ubuntu-latest
+      queries: security-extended
