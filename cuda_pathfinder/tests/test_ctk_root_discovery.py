@@ -33,7 +33,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     DYNAMIC_LIB_SUBPROCESS_MODULE,
     MODE_CANARY,
 )
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, IS_WINDOWS_ARM64, IS_WINDOWS_X64
 from cuda.pathfinder._utils.windows_arch import windows_python_arch
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
@@ -80,14 +80,16 @@ def _create_nvvm_in_ctk(ctk_root):
 
 def _create_cudart_in_ctk(ctk_root):
     """Create a fake cudart lib in the platform-appropriate CTK subdirectory."""
-    if IS_WINDOWS:
-        lib_dir = ctk_root / "bin" / windows_python_arch()
-        lib_dir.mkdir(parents=True)
+    if IS_WINDOWS_X64:
+        lib_dir = ctk_root / "bin" / "x64"
+        lib_file = lib_dir / "cudart64_13.dll"
+    elif IS_WINDOWS_ARM64:
+        lib_dir = ctk_root / "bin" / "arm64"
         lib_file = lib_dir / "cudart64_13.dll"
     else:
         lib_dir = ctk_root / "lib64"
-        lib_dir.mkdir(parents=True)
         lib_file = lib_dir / "libcudart.so"
+    lib_dir.mkdir(parents=True)
     lib_file.write_bytes(b"fake")
     return lib_file
 
