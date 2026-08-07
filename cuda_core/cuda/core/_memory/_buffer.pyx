@@ -228,6 +228,13 @@ cdef class Buffer:
 
     @staticmethod
     def _reduce_helper(mr, ipc_descriptor):
+        cdef ContextHandle h_ctx = get_current_context()
+        cdef int device_id
+        if not h_ctx:
+            # Spawned processes unpickle arguments before entering their target,
+            # so initialize the context needed to bind the default-stream token.
+            device_id = mr.device_id
+            (Device(device_id) if device_id >= 0 else Device()).set_current()
         # The parent process's stream is not portable across processes, so the
         # pickle path cannot thread an explicit stream through. Seed the
         # imported buffer's deallocation with the current context's default
