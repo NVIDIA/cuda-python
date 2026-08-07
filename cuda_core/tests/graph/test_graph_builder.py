@@ -306,6 +306,21 @@ def test_graph_capture_callback_ctypes(init_cuda):
     assert result[0] == 0xAB
 
 
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+def test_graph_capture_callback_ctypes_rejects_incompatible_signature(init_cuda):
+    """Stream-capture host callbacks use the same ctypes ABI check."""
+    import ctypes
+
+    bad_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+    launch_stream = Device().create_stream()
+    gb = launch_stream.create_graph_builder().begin_building()
+    try:
+        with pytest.raises(TypeError, match="CUhostFn"):
+            gb.callback(bad_type(0))
+    finally:
+        gb.end_building()
+
+
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_capture_callback_python_survives_del(init_cuda):
     """Captured callback is retained by its graph-node user object after del."""
