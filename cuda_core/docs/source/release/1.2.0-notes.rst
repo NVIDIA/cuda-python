@@ -53,6 +53,12 @@ Fixes and enhancements
   (`#2409 <https://github.com/NVIDIA/cuda-python/pull/2409>`__,
   closes `#2408 <https://github.com/NVIDIA/cuda-python/issues/2408>`__)
 
+- :class:`ProgramOptions` now accepts ``name=None`` and falls back to the
+  documented default ``"default_program"``. Previously the annotated and
+  documented ``None`` raised ``AttributeError`` during construction.
+  (`#2517 <https://github.com/NVIDIA/cuda-python/pull/2517>`__,
+  closes `#2516 <https://github.com/NVIDIA/cuda-python/issues/2516>`__)
+
 - ``cuda.core`` now checks ctypes host callbacks against the driver's
   ``CUhostFn`` signature (``void (*)(void*)``) before passing the function
   pointer to CUDA. :meth:`graph.GraphNode.callback`,
