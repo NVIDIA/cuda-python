@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.VgpuPgpuVirtualizationCapMigration
+=====================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: VgpuPgpuVirtualizationCapMigration
