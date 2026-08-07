@@ -1,0 +1,6 @@
+﻿cuda.core.utils.discard\_prefetch\_batch
+========================================
+
+.. currentmodule:: cuda.core.utils
+
+.. autofunction:: discard_prefetch_batch
