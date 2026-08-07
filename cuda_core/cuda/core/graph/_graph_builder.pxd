@@ -24,4 +24,4 @@ cdef class Graph:
         object __weakref__
 
     @staticmethod
-    cdef Graph _init(cydriver.CUgraphExec graph_exec)
+    cdef Graph _init(GraphExecHandle h_graph_exec)

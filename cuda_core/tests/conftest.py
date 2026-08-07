@@ -31,6 +31,7 @@ pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
 from cuda_python_test_helpers.marks import skipif_need_cuda_headers  # noqa: F401 (re-exported for tests)
 from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
+from helpers.constants import POOL_SIZE
 
 import cuda.core
 from cuda.bindings import driver
@@ -316,7 +317,6 @@ def ipc_device(init_cuda):
 )
 def ipc_memory_resource(request, ipc_device):
     """Provides IPC-enabled memory resource (either Device or Pinned)."""
-    POOL_SIZE = 2097152
     mr_type = request.param
 
     if mr_type == "device":

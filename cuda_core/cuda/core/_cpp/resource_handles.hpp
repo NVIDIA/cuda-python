@@ -108,6 +108,8 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
 // Graph
 extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
+extern decltype(&cuGraphInstantiateWithParams) p_cuGraphInstantiateWithParams;
+extern decltype(&cuGraphExecUpdate) p_cuGraphExecUpdate;
 extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
 extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
 extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
@@ -522,6 +524,21 @@ struct PreparedChildGraphUpdateState;
 using PreparedChildGraphUpdate =
     std::shared_ptr<PreparedChildGraphUpdateState>;
 
+struct PreparedExecAttachmentState;
+using PreparedExecAttachmentRollback =
+    void (*)(PreparedExecAttachmentState*) noexcept;
+struct PreparedExecAttachmentDeleter {
+    PreparedExecAttachmentRollback rollback = nullptr;
+
+    void operator()(PreparedExecAttachmentState* state) const noexcept {
+        rollback(state);
+    }
+};
+// Opaque append transaction. Releasing it rolls back newly appended owners
+// unless graph_commit_exec_attachment has kept them.
+using PreparedExecAttachment =
+    std::unique_ptr<PreparedExecAttachmentState, PreparedExecAttachmentDeleter>;
+
 // Copy requested owners from node's current attachment. Pass nullptr to ignore
 // either owner; a missing attachment produces empty handles.
 CUresult graph_get_attachment(
@@ -573,9 +590,39 @@ void invalidate_child_graph_state(
 // Graph exec handle functions
 // ============================================================================
 
-// Wrap an externally-created CUgraphExec with RAII cleanup.
-// When the last reference is released, cuGraphExecDestroy is called automatically.
-GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec);
+// Create an owning exec handle by calling cuGraphInstantiateWithParams.
+// A fresh attachment accumulator is retained on h_source first, because CUDA
+// propagates user object references only at instantiation; an exec cannot
+// receive them afterwards. The exec is the sole owner once this returns.
+// When the last reference is released, cuGraphExecDestroy is called
+// automatically.
+// Returns empty handle on error (caller must check). The caller reads
+// params->result_out for the specific instantiation failure and
+// get_last_error() for a driver status.
+GraphExecHandle create_graph_exec_handle(
+    const GraphHandle& h_source,
+    CUDA_GRAPH_INSTANTIATE_PARAMS* params);
+
+// Update h_exec in place by calling cuGraphExecUpdate, and publish a fresh
+// accumulator when CUDA accepts the update. Writes result_info for the caller.
+CUresult graph_exec_update(
+    const GraphExecHandle& h_exec,
+    const GraphHandle& h_source,
+    CUgraphExecUpdateResultInfo* result_info);
+
+// Append owners before an executable-node mutation. The accumulator grows
+// because CUDA cannot attach user objects to an exec after instantiation, so
+// old owners stay reachable. Dropping the transaction restores the accumulator
+// to its original size.
+CUresult graph_prepare_exec_attachment(
+    const GraphExecHandle& h_exec,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedExecAttachment* out_prepared);
+
+// Keep the owners added by graph_prepare_exec_attachment.
+void graph_commit_exec_attachment(
+    PreparedExecAttachment& prepared) noexcept;
 
 // ============================================================================
 // Graph node handle functions

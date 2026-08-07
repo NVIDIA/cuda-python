@@ -14,6 +14,7 @@ import weakref
 
 import pytest
 from conftest import xfail_on_graph_mempool_oom
+from helpers.constants import POOL_SIZE
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
@@ -223,8 +224,6 @@ def sample_kernel_alt(sample_object_code_alt):
 # =============================================================================
 # Fixtures - IPC samples (for pickle tests)
 # =============================================================================
-
-POOL_SIZE = 2097152
 
 
 @pytest.fixture
@@ -685,7 +684,8 @@ REPR_PATTERNS = [
     (
         "sample_launch_config",
         r"LaunchConfig\(grid=\(\d+, \d+, \d+\), cluster=.+, block=\(\d+, \d+, \d+\), "
-        r"shmem_size=\d+, is_cooperative=(?:True|False)\)",
+        r"shmem_size=\d+, is_cooperative=(?:True|False), "
+        r"programmatic_stream_serialization=(?:True|False)\)",
     ),
     ("sample_kernel", r"<Kernel handle=0x[0-9a-f]+>"),
     # ObjectCode variations (by code_type)
