@@ -291,12 +291,12 @@ class TestWorkqueueResource:
         assert wq_resource.sharing_scope is scope
 
     def test_device_id_matches_source_multi_gpu(self):
-        from cuda.core import Device, system
+        from cuda.core import Device
 
-        if system.get_num_devices() < 2:
+        devices = Device.get_all_devices()
+        if len(devices) < 2:
             pytest.skip("requires 2+ GPUs")
-        dev0 = Device(0)
-        dev1 = Device(1)
+        dev0, dev1 = devices[:2]
         try:
             wq0 = dev0.resources.workqueue
             wq1 = dev1.resources.workqueue

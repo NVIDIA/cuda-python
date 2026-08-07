@@ -408,9 +408,7 @@ def test_default_stream_per_thread_when_env_set(monkeypatch):
 
 
 def _skip_unless_multi_gpu():
-    from cuda.core import system
-
-    if system.get_num_devices() < 2:
+    if len(Device.get_all_devices()) < 2:
         pytest.skip("requires 2+ GPUs")
 
 
