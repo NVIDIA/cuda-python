@@ -19,10 +19,10 @@ current operating system. Platform differences are routed through the
 :data:`~cuda.pathfinder._dynamic_libs.search_platform.PLATFORM` instance.
 """
 
-import glob
 import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path, PurePath
 from typing import NoReturn, cast
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
@@ -39,7 +39,7 @@ from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 class FindResult:
     """A library file located on disk (not yet loaded)."""
 
-    abs_path: str
+    abs_path: Path
     found_via: str
 
 
@@ -70,22 +70,26 @@ class SearchContext:
 FindStep = Callable[[SearchContext], FindResult | None]
 
 
-def _find_lib_dir_using_anchor(desc: LibDescriptor, platform: SearchPlatform, anchor_point: str) -> str | None:
+def _find_lib_dir_using_anchor(desc: LibDescriptor, platform: SearchPlatform, anchor_point: Path) -> Path | None:
     """Find the library directory under *anchor_point* using the descriptor's relative paths."""
     rel_dirs = platform.anchor_rel_dirs(desc)
     for rel_path in rel_dirs:
-        for dirname in sorted(glob.glob(os.path.join(anchor_point, rel_path))):
-            if os.path.isdir(dirname):
-                return os.path.normpath(dirname)
+        for match in sorted(anchor_point.glob(rel_path)):
+            if match.is_dir():
+                # os.path.normpath has no pathlib equivalent: PurePath deliberately does
+                # not collapse "..", and Path.resolve() would also follow symlinks. Keeping
+                # normpath preserves the exact path reported for an anchor such as a
+                # CUDA_PATH containing "..".
+                return Path(os.path.normpath(match))
     return None
 
 
-def _find_using_lib_dir(ctx: SearchContext, lib_dir: str | None) -> str | None:
+def _find_using_lib_dir(ctx: SearchContext, lib_dir: Path | None) -> Path | None:
     """Find a library file in a resolved lib directory."""
     if lib_dir is None:
         return None
     return cast(
-        str | None,
+        Path | None,
         ctx.platform.find_in_lib_dir(
             lib_dir,
             ctx.desc,
@@ -104,15 +108,17 @@ def _derive_ctk_root_linux(resolved_lib_path: str) -> str | None:
     - ``$CTK_ROOT/lib/libfoo.so.*``
     - ``$CTK_ROOT/targets/<triple>/lib64/libfoo.so.*``
     - ``$CTK_ROOT/targets/<triple>/lib/libfoo.so.*``
+
+    Uses the host path flavour (``PurePath``); the Windows canary layouts are
+    handled by :func:`_derive_ctk_root_windows`.
     """
-    lib_dir = os.path.dirname(resolved_lib_path)
-    basename = os.path.basename(lib_dir)
-    if basename in ("lib64", "lib"):
-        parent = os.path.dirname(lib_dir)
-        grandparent = os.path.dirname(parent)
-        if os.path.basename(grandparent) == "targets":
-            return os.path.dirname(grandparent)
-        return parent
+    lib_dir = PurePath(resolved_lib_path).parent
+    if lib_dir.name in ("lib64", "lib"):
+        parent = lib_dir.parent
+        grandparent = parent.parent
+        if grandparent.name == "targets":
+            return str(grandparent.parent)
+        return str(parent)
     return None
 
 
@@ -123,6 +129,12 @@ def _derive_ctk_root_windows(resolved_lib_path: str) -> str | None:
     - ``$CTK_ROOT/bin/x64/foo.dll`` (CTK 13 style)
     - ``$CTK_ROOT/bin/arm64/foo.dll`` (Windows on Arm CTK 13 style)
     - ``$CTK_ROOT/bin/foo.dll`` (CTK 12 style)
+
+    Uses ``ntpath`` rather than ``PureWindowsPath``: ``ntpath.dirname`` slices the
+    input and keeps whichever separator the caller used, while ``PureWindowsPath``
+    rewrites them to backslashes. :func:`derive_ctk_root` also reaches this function
+    on Linux, where rewriting would yield an unusable root for a POSIX path whose
+    parent directory happens to be named ``bin``.
     """
     import ntpath
 
@@ -147,7 +159,7 @@ def derive_ctk_root(resolved_lib_path: str) -> str | None:
 
 def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | None:
     """Find a library under a previously derived CTK root."""
-    lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, ctk_root)
+    lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, Path(ctk_root))
     abs_path = _find_using_lib_dir(ctx, lib_dir)
     if abs_path is None:
         return None
@@ -197,7 +209,7 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
     cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
         return None
-    lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, cuda_home)
+    lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, Path(cuda_home))
     abs_path = _find_using_lib_dir(ctx, lib_dir)
     if abs_path is not None:
         return FindResult(abs_path, "CUDA_PATH")
