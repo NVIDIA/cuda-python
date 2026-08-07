@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=377130f9"></script>
+    <script src="../_static/documentation_options.js?v=2e1e1dc3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev37';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev43';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -833,10 +833,12 @@ Two modes are supported:</p>
 <li><p><strong>Python callable</strong>: Pass any callable. The GIL is acquired
 automatically. The callable must take no arguments; use closures
 or <code class="docutils literal notranslate"><span class="pre">functools.partial</span></code> to bind state.</p></li>
-<li><p><strong>ctypes function pointer</strong>: Pass a <code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE</span></code> instance.
-The function receives a single <code class="docutils literal notranslate"><span class="pre">void*</span></code> argument (the
-<code class="docutils literal notranslate"><span class="pre">user_data</span></code>). The caller must keep the ctypes wrapper alive
-for the lifetime of the graph.</p></li>
+<li><p><strong>ctypes function pointer</strong>: The function receives a single
+<code class="docutils literal notranslate"><span class="pre">void*</span></code> argument (the <code class="docutils literal notranslate"><span class="pre">user_data</span></code>), and the caller must keep
+the ctypes wrapper alive for the lifetime of the graph. Its
+declared prototype must match the driver’s <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>
+(<code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">(*)(void*)</span></code>): <code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE(None,</span> <span class="pre">ctypes.c_void_p)</span></code>,
+or <code class="docutils literal notranslate"><span class="pre">ctypes.WINFUNCTYPE(None,</span> <span class="pre">ctypes.c_void_p)</span></code> on Windows.</p></li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -861,6 +863,13 @@ copied and its lifetime is tied to the graph.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode" title="cuda.core.graph.HostCallbackNode">HostCallbackNode</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">fn</span></code> is a ctypes function pointer whose declared prototype
+    does not match <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">user_data</span></code> is given for a Python callable.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
