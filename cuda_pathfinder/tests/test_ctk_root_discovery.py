@@ -80,7 +80,11 @@ def _create_nvvm_in_ctk(ctk_root):
 def _create_cudart_in_ctk(ctk_root):
     """Create a fake cudart lib in the platform-appropriate CTK subdirectory."""
     if IS_WINDOWS:
-        lib_dir = ctk_root / "bin"
+        # Native ARM64 uses bin/arm64 only.
+        if windows_python_arch() == "arm64":
+            lib_dir = ctk_root / "bin" / "arm64"
+        else:
+            lib_dir = ctk_root / "bin"
         lib_dir.mkdir(parents=True)
         lib_file = lib_dir / "cudart64_12.dll"
     else:
