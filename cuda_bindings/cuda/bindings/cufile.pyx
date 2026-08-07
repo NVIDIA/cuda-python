@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f107413ea0012a1a854cd3de77d57f649bebd0f586901d4e6384f37288ac5421
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1ca8c2d672c5799154a85a73ac7f0f3661943ece8f4d7c1d2e11649a0a537c81
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -12,6 +12,10 @@ cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 cimport cpython.memoryview as _cyb_cpython_memoryview
 from cython cimport view as _cyb_view
+from libc.stdint cimport (
+    intptr_t,
+    uint64_t,
+)
 from libc.stdlib cimport (
     calloc as _cyb_calloc,
     free as _cyb_free,
@@ -21,6 +25,7 @@ from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
 )
+from libcpp cimport bool as _cyb_bool
 
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 
@@ -2986,9 +2991,12 @@ class cuFileError(Exception):
 @cython.profile(False)
 cdef int check_status(ReturnT status) except 1 nogil:
     if ReturnT is CUfileError_t:
-        if status.err != 0 or status.cu_err != 0:
+        if IS_CUDA_ERR(status):
             with gil:
                 raise cuFileError(status.err, status.cu_err)
+        elif IS_CUFILE_ERR(status.err):
+            with gil:
+                raise cuFileError(status.err)
     elif ReturnT is ssize_t:
         if status == -1:
             # note: this assumes cuFile already properly resets errno in each API
@@ -3107,7 +3115,7 @@ cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
     .. seealso:: `cuFileDriverSetPollMode`
     """
     with nogil:
-        __status__ = cuFileDriverSetPollMode(<cpp_bool>poll, poll_threshold_size)
+        __status__ = cuFileDriverSetPollMode(<_cyb_bool>poll, poll_threshold_size)
     check_status(__status__)
 
 
@@ -3232,7 +3240,7 @@ cpdef size_t get_parameter_size_t(int param) except? 0:
 
 
 cpdef bint get_parameter_bool(int param) except? 0:
-    cdef cpp_bool value
+    cdef _cyb_bool value
     with nogil:
         __status__ = cuFileGetParameterBool(<_BoolConfigParameter>param, &value)
     check_status(__status__)
@@ -3256,7 +3264,7 @@ cpdef set_parameter_size_t(int param, size_t value):
 
 cpdef set_parameter_bool(int param, bint value):
     with nogil:
-        __status__ = cuFileSetParameterBool(<_BoolConfigParameter>param, <cpp_bool>value)
+        __status__ = cuFileSetParameterBool(<_BoolConfigParameter>param, <_cyb_bool>value)
     check_status(__status__)
 
 

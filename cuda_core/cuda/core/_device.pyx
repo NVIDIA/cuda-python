@@ -924,34 +924,46 @@ cdef class DeviceProperties:
     @property
     def host_memory_pools_supported(self) -> bool:
         """bool: Device supports HOST location with the cuMemAllocAsync and cuMemPool family of APIs."""
-        return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
-        )
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
+            )
 
     @property
     def host_virtual_memory_management_supported(self) -> bool:
         """bool: Device supports HOST location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs."""
-        return bool(
-            self._get_cached_attribute(
-                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+                )
             )
-        )
 
     @property
     def host_alloc_dma_buf_supported(self) -> bool:
         """bool: Device supports page-locked host memory buffer sharing with dma_buf mechanism."""
-        return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED)
-        )
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED)
+            )
 
     @property
     def only_partial_host_native_atomic_supported(self) -> bool:
         """bool: Link between the device and the host supports only some native atomic operations."""
-        return bool(
-            self._get_cached_attribute(
-                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
+                )
             )
-        )
 
 
 class Device:
