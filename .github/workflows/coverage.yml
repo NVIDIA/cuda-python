@@ -235,12 +235,33 @@ jobs:
           cd cuda_bindings
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
+      # Pin cuda-bindings to the wheel built above; PIP_PRE, which is what makes
+      # that .devN wheel visible, would otherwise let a PyPI pre-release win.
       - name: Build cuda.core wheel
         run: |
           export PIP_FIND_LINKS="$(pwd)/wheels"
           export PIP_PRE=1
+          bindings_whl="$(ls ./wheels/cuda_bindings-*.whl | head -1)"
+          bindings_ver="$(basename "$bindings_whl" | cut -d- -f2)"
+          echo "cuda-bindings==${bindings_ver%%+*}" > "$GITHUB_WORKSPACE/constraints.txt"
+          cat "$GITHUB_WORKSPACE/constraints.txt"
+          export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints.txt"
           cd cuda_core
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
+
+      # Vendor the DLLs these wheels were built against, the way cibuildwheel
+      # does for every other Windows build.  --namespace-pkg is needed because
+      # `cuda` is a namespace package.
+      - name: Repair the Windows wheels
+        run: |
+          .venv/Scripts/pip install delvewheel
+          mkdir -p wheels-repaired
+          for whl in ./wheels/cuda_bindings-*.whl ./wheels/cuda_core-*.whl; do
+            .venv/Scripts/delvewheel repair --namespace-pkg cuda \
+              --exclude "torch_cpu.dll;torch_python.dll" \
+              -w ./wheels-repaired "$whl"
+          done
+          mv -f ./wheels-repaired/*.whl ./wheels/
 
       - name: List wheel artifacts
         run: |
