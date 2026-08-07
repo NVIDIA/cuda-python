@@ -3,6 +3,7 @@
 
 import os
 import platform
+from pathlib import Path
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import (
@@ -159,4 +160,4 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         abs_path = payload.abs_path
         assert abs_path is not None
         info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
-        assert os.path.isfile(abs_path)  # double-check the abs_path
+        assert Path(abs_path).is_file()  # double-check the abs_path
