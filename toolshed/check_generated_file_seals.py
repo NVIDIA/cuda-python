@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import hashlib
-import os
 import re
 import subprocess
 import sys
@@ -142,9 +141,7 @@ def main(args):
 
     returncode = 0
     for filepath in args:
-        # os.path.isfile, not Path.is_file: this skips anything that is not a
-        # readable regular file, and Path.is_file raises on e.g. EACCES.
-        if not os.path.isfile(filepath):
+        if not Path(filepath).is_file():
             continue
         if not validate_generated_file_seal(filepath, previously_sealed_paths):
             returncode = 1
