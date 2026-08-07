@@ -1,0 +1,44 @@
+﻿cuda.bindings.nvml.EccSramErrorStatus\_v1
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EccSramErrorStatus_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EccSramErrorStatus_v1.__init__
+      ~EccSramErrorStatus_v1.from_buffer
+      ~EccSramErrorStatus_v1.from_data
+      ~EccSramErrorStatus_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EccSramErrorStatus_v1.aggregate_cor
+      ~EccSramErrorStatus_v1.aggregate_unc_bucket_l2
+      ~EccSramErrorStatus_v1.aggregate_unc_bucket_mcu
+      ~EccSramErrorStatus_v1.aggregate_unc_bucket_other
+      ~EccSramErrorStatus_v1.aggregate_unc_bucket_pcie
+      ~EccSramErrorStatus_v1.aggregate_unc_bucket_sm
+      ~EccSramErrorStatus_v1.aggregate_unc_parity
+      ~EccSramErrorStatus_v1.aggregate_unc_sec_ded
+      ~EccSramErrorStatus_v1.b_threshold_exceeded
+      ~EccSramErrorStatus_v1.ptr
+      ~EccSramErrorStatus_v1.version
+      ~EccSramErrorStatus_v1.volatile_cor
+      ~EccSramErrorStatus_v1.volatile_unc_parity
+      ~EccSramErrorStatus_v1.volatile_unc_sec_ded
+   
+   
