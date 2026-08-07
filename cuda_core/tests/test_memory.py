@@ -758,7 +758,12 @@ def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
     if device.properties.host_memory_pools_supported:
         pytest.skip("Device supports host memory pools")
 
-    mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE))
+    try:
+        mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE))
+    except CUDAError as exc:
+        if "CUDA_ERROR_NOT_SUPPORTED" in str(exc):
+            pytest.skip("PinnedMemoryResource is not supported on this platform/device")
+        raise
     try:
         with pytest.raises(RuntimeError, match="does not support.*LegacyPinnedMemoryResource"):
             mr.allocate(1024, stream=device.default_stream)
