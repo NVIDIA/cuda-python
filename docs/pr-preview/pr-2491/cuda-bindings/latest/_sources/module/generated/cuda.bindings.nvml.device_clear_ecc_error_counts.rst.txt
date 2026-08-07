@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_clear\_ecc\_error\_counts
-====================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_clear_ecc_error_counts
