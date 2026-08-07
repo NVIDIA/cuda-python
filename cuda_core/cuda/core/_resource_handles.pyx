@@ -128,7 +128,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
         const DevicePtrHandle& h) noexcept nogil
-    void set_deallocation_stream "cuda_core::set_deallocation_stream" (
+    cydriver.CUresult set_deallocation_stream "cuda_core::set_deallocation_stream" (
         const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
     # Library handles
@@ -293,6 +293,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuDevicePrimaryCtxRetain "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRetain)"
     void* p_cuDevicePrimaryCtxRelease "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRelease)"
     void* p_cuCtxGetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetCurrent)"
+    void* p_cuCtxSetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxSetCurrent)"
     void* p_cuGreenCtxCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxCreate)"
     void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
     void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
@@ -397,6 +398,7 @@ cdef void* _get_optional_driver_fn(str name):
 
 cdef void _init_driver_fn_pointers() noexcept:
     global p_cuDevicePrimaryCtxRetain, p_cuDevicePrimaryCtxRelease, p_cuCtxGetCurrent
+    global p_cuCtxSetCurrent
     global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
     global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
     global p_cuStreamCreateWithPriority, p_cuStreamDestroy
@@ -425,6 +427,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
     p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
     p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
+    p_cuCtxSetCurrent = _get_driver_fn("cuCtxSetCurrent")
     p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
     p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
     p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")

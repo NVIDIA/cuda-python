@@ -9,6 +9,25 @@
 Fixes and enhancements
 ----------------------
 
+- A :class:`Buffer` is now freed correctly even when the CUDA context current
+  at teardown is not the one it was allocated in, or when no context is current
+  at all. This happens routinely when a buffer is released by the garbage
+  collector on another thread or by deferred CUDA graph cleanup; previously the
+  free could fail or be skipped, leaking the allocation.
+  (`#2497 <https://github.com/NVIDIA/cuda-python/issues/2497>`__)
+
+- :meth:`Buffer.from_handle` and :meth:`ManagedBuffer.from_handle` accept a
+  keyword-only ``stream`` that records the stream used to order the buffer's
+  deallocation when the memory resource owns the pointer. It defaults to
+  ``default_stream()``, which requires a CUDA context to be current so the
+  free recipe can pin that context.
+  (`#2497 <https://github.com/NVIDIA/cuda-python/issues/2497>`__)
+
+- Explicit calls to ``deallocate()`` on pool-backed memory resources and
+  :class:`GraphMemoryResource` now propagate errors from the underlying CUDA
+  free operation. Previously, these errors could be suppressed. Automatic
+  buffer cleanup remains non-raising and reports failures as warnings.
+
 - Graph node resources are now retained independently across graph clones,
   executable graphs, updates, node deletion, and in-flight launches. Previously,
   modifying a graph definition could release resources still used by an
