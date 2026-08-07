@@ -31,6 +31,7 @@ from cuda.core import (
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
     LegacyPinnedMemoryResource,
+    ManagedBuffer,
     ManagedMemoryResource,
     ManagedMemoryResourceOptions,
     MemoryResource,
@@ -607,6 +608,120 @@ def test_from_handle_stream_requires_mr():
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
+@pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
+def test_from_handle_mr_default_stream_requires_context(buffer_type):
+    """Owning from_handle with the default stream needs a current context."""
+    device = Device()
+    device.set_current()
+
+    class StrictCapturingMR(MemoryResource):
+        @property
+        def is_device_accessible(self):
+            return True
+
+        @property
+        def is_host_accessible(self):
+            return False
+
+        @property
+        def device_id(self):
+            return device.device_id
+
+        def allocate(self, size, *, stream):
+            raise NotImplementedError
+
+        def deallocate(self, ptr, size, *, stream):
+            pass
+
+    mr = StrictCapturingMR()
+    previous = handle_return(driver.cuCtxPopCurrent())
+    assert int(previous) != 0
+    try:
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+        with pytest.raises(RuntimeError, match="no CUDA context is current"):
+            buffer_type.from_handle(1, 1024, mr=mr)
+    finally:
+        handle_return(driver.cuCtxSetCurrent(previous))
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
+def test_from_handle_mr_explicit_stream_without_current_context(buffer_type):
+    """A context-bound stream makes owning from_handle context-independent."""
+    from cuda.core._stream import Stream_accept
+
+    device = Device()
+    device.set_current()
+    stream = device.create_stream()
+    captured = {}
+
+    class StrictCapturingMR(MemoryResource):
+        @property
+        def is_device_accessible(self):
+            return True
+
+        @property
+        def is_host_accessible(self):
+            return False
+
+        @property
+        def device_id(self):
+            return device.device_id
+
+        def allocate(self, size, *, stream):
+            raise NotImplementedError
+
+        def deallocate(self, ptr, size, *, stream):
+            captured["stream"] = Stream_accept(stream)
+
+    mr = StrictCapturingMR()
+    previous = handle_return(driver.cuCtxPopCurrent())
+    assert int(previous) != 0
+    try:
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+        buf = buffer_type.from_handle(1, 1024, mr=mr, stream=stream)
+        buf.close()
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    finally:
+        handle_return(driver.cuCtxSetCurrent(previous))
+
+    assert captured["stream"].handle == stream.handle
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_mr_deallocation_failure_warns(capfd):
+    """Destructor-path MR failures are contained and reported."""
+    device = Device()
+    device.set_current()
+
+    class FailingMR(MemoryResource):
+        @property
+        def is_device_accessible(self):
+            return True
+
+        @property
+        def is_host_accessible(self):
+            return False
+
+        @property
+        def device_id(self):
+            return device.device_id
+
+        def allocate(self, size, *, stream):
+            raise NotImplementedError
+
+        def deallocate(self, ptr, size, *, stream):
+            raise RuntimeError("expected deallocation failure")
+
+    buf = Buffer.from_handle(1, 1024, mr=FailingMR())
+    buf.close()
+
+    assert (
+        "Warning: mr.deallocate() failed during Buffer destruction: expected deallocation failure"
+    ) in capfd.readouterr().err
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
 @pytest.mark.parametrize("replace_stream", [False, True])
 def test_mr_deallocation_without_current_context(init_cuda, capsys, replace_stream):
     """MR-backed Buffer teardown activates the recorded context when none is current."""
@@ -676,7 +791,7 @@ def test_mr_deallocate_raises_on_driver_error(mempool_device):
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
-def test_pool_buffer_deallocates_without_current_context(mempool_device, capsys):
+def test_pool_buffer_deallocates_without_current_context(mempool_device, capfd):
     """Pool Buffer.close frees on the recorded stream with no current context."""
     dev = mempool_device
     stream = dev.create_stream()
@@ -696,7 +811,7 @@ def test_pool_buffer_deallocates_without_current_context(mempool_device, capsys)
 
         assert mr.attributes.used_mem_current < used_after_alloc
         assert int(handle_return(driver.cuCtxGetCurrent())) == 0
-        err = capsys.readouterr().err
+        err = capfd.readouterr().err
         assert "failed during resource destruction" not in err
         assert "mr.deallocate() failed" not in err
     finally:
@@ -704,7 +819,7 @@ def test_pool_buffer_deallocates_without_current_context(mempool_device, capsys)
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
-def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2, capsys):
+def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2, capfd):
     """Pool Buffer.close frees under the recorded context while another is current."""
     alloc_dev, foreign_dev = mempool_device_x2
     alloc_dev.set_current()
@@ -731,7 +846,7 @@ def test_pool_buffer_deallocates_with_foreign_context(mempool_device_x2, capsys)
         assert mr.attributes.used_mem_current < used_after_alloc
         foreign_dev.set_current()
 
-        err = capsys.readouterr().err
+        err = capfd.readouterr().err
         assert "failed during resource destruction" not in err
     finally:
         alloc_dev.set_current()

@@ -177,10 +177,11 @@ class ManagedBuffer(Buffer):
             ``owner`` and ``mr`` cannot both be specified.
         stream : Stream | GraphBuilder, optional
             Keyword-only. The stream used to order the buffer's deallocation
-            when ``mr`` owns the pointer. Defaults to ``default_stream()``. If
-            the buffer may be freed from a different host thread, pass a stream
-            other than the per-thread default stream, which refers to a
-            different stream on each thread.
+            when ``mr`` owns the pointer. Defaults to ``default_stream()``.
+            Recording a default-stream token requires a CUDA context to be
+            current. If the buffer may be freed from a different host thread,
+            pass a stream other than the per-thread default stream, which
+            refers to a different stream on each thread.
         """
         return cls._init(ptr, size, mr=mr, owner=owner, stream=stream)
 

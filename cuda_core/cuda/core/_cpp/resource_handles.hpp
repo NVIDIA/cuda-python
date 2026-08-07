@@ -424,7 +424,10 @@ DevicePtrHandle deviceptr_import_ipc(
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
+// Returns CUDA_ERROR_INVALID_CONTEXT when a default-stream token cannot be
+// bound because no CUDA context is current.
+CUresult set_deallocation_stream(
+    const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
 
 // ============================================================================
 // Library handle functions

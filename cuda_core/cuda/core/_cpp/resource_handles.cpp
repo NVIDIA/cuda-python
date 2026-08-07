@@ -796,39 +796,46 @@ struct DeallocationStream {
     std::thread::id ptds_tid{};
 };
 
-// Real streams are returned unchanged. Default-stream tokens without an
-// embedded context are bound to the current context when one is current;
-// otherwise the ambient token is left as-is.
-static DeallocationStream make_deallocation_stream(const StreamHandle& h) {
+// Real streams are copied unchanged. Default-stream tokens without an embedded
+// context are bound to the current context. Returns false (and sets err) when a
+// default-stream token cannot be bound because no context is current.
+static bool make_deallocation_stream(
+        const StreamHandle& h, DeallocationStream& out) noexcept {
+    out = {};
     if (!h) {
-        return {};
+        return true;
     }
 
     const CUstream stream = as_cu(h);
     if (stream != nullptr
             && stream != CU_STREAM_LEGACY
             && stream != CU_STREAM_PER_THREAD) {
-        return DeallocationStream{h, {}};
+        out = DeallocationStream{h, {}};
+        return true;
     }
 
     StreamHandle h_bound = h;
     if (!get_stream_context(h)) {
         ContextHandle h_ctx = get_current_context();
-        if (h_ctx) {
-            // Do not register in stream_registry: the token value alone is not
-            // a unique stream identity (context is part of the meaning).
-            auto box = std::shared_ptr<const StreamBox>(
-                new StreamBox{stream, h_ctx});
-            h_bound = StreamHandle(box, &box->resource);
+        if (!h_ctx) {
+            if (err == CUDA_SUCCESS) {
+                err = CUDA_ERROR_INVALID_CONTEXT;
+            }
+            return false;
         }
-        // else: leave the ambient token; later work can fail loudly
+        // Do not register in stream_registry: the token value alone is not
+        // a unique stream identity (context is part of the meaning).
+        auto box = std::shared_ptr<const StreamBox>(
+            new StreamBox{stream, h_ctx});
+        h_bound = StreamHandle(box, &box->resource);
     }
 
     std::thread::id ptds_tid{};
     if (stream == CU_STREAM_PER_THREAD) {
         ptds_tid = std::this_thread::get_id();
     }
-    return DeallocationStream{std::move(h_bound), ptds_tid};
+    out = DeallocationStream{std::move(h_bound), ptds_tid};
+    return true;
 }
 
 template <typename Fn>
@@ -1070,8 +1077,17 @@ StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
     return get_box(h)->deallocation.h_stream;
 }
 
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
-    get_box(h)->deallocation = make_deallocation_stream(h_stream);
+CUresult set_deallocation_stream(
+        const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept {
+    if (!h) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        return err != CUDA_SUCCESS ? err : CUDA_ERROR_INVALID_CONTEXT;
+    }
+    get_box(h)->deallocation = std::move(ds);
+    return CUDA_SUCCESS;
 }
 
 DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h_pool, const StreamHandle& h_stream) {
@@ -1081,8 +1097,14 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle& h
         return {};
     }
 
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        p_cuMemFreeAsync(ptr, as_cu(h_stream));
+        return {};
+    }
+
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
+        new DevicePtrBox{ptr, std::move(ds)},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
             with_deallocation_context(
@@ -1105,8 +1127,14 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream)
         return {};
     }
 
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        p_cuMemFreeAsync(ptr, as_cu(h_stream));
+        return {};
+    }
+
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
+        new DevicePtrBox{ptr, std::move(ds)},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
             with_deallocation_context(
@@ -1192,8 +1220,12 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
     const GraphicsResourceHandle& h_resource,
     const StreamHandle& h_stream
 ) {
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        return {};
+    }
     auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
+        new DevicePtrBox{ptr, std::move(ds)},
         [h_resource](DevicePtrBox* b) {
             GILReleaseGuard gil;
             CUgraphicsResource resource = as_cu(h_resource);
@@ -1331,8 +1363,14 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             return {};
         }
 
+        DeallocationStream ds;
+        if (!make_deallocation_stream(h_stream, ds)) {
+            p_cuMemFreeAsync(ptr, as_cu(h_stream));
+            return {};
+        }
+
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
+            new DevicePtrBox{ptr, std::move(ds)},
             [h_pool, key](DevicePtrBox* b) {
                 ipc_ptr_cache.unregister_handle(key);
                 GILReleaseGuard gil;
@@ -1357,8 +1395,14 @@ DevicePtrHandle deviceptr_import_ipc(const MemoryPoolHandle& h_pool, const void*
             return {};
         }
 
+        DeallocationStream ds;
+        if (!make_deallocation_stream(h_stream, ds)) {
+            p_cuMemFreeAsync(ptr, as_cu(h_stream));
+            return {};
+        }
+
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, make_deallocation_stream(h_stream)},
+            new DevicePtrBox{ptr, std::move(ds)},
             [h_pool](DevicePtrBox* b) {
                 GILReleaseGuard gil;
                 with_deallocation_context(

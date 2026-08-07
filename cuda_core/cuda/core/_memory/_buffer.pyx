@@ -16,11 +16,14 @@ from cuda.core._memory cimport _ipc
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     StreamHandle,
+    ContextHandle,
     deviceptr_create_with_owner,
     deviceptr_create_with_mr,
     register_mr_dealloc_callback,
     as_intptr,
     as_cu,
+    get_current_context,
+    get_stream_context,
     set_deallocation_stream,
 )
 from cuda.core.typing import DevicePointerType
@@ -70,6 +73,21 @@ cdef void _mr_dealloc_callback(
               file=sys.stderr)
 
 register_mr_dealloc_callback(_mr_dealloc_callback)
+
+
+cdef inline void _require_deallocation_stream_context(Stream s) except *:
+    """Default-stream tokens need a current context to pin into the free recipe."""
+    cdef ContextHandle h_ctx
+    if get_stream_context(s._h_stream):
+        return
+    h_ctx = get_current_context()
+    if h_ctx:
+        return
+    raise RuntimeError(
+        "Cannot record a default deallocation stream when no CUDA context is "
+        "current. Call Device.set_current() first, or pass stream= with a "
+        "non-default Stream."
+    )
 
 
 __all__ = ['Buffer', 'MemoryResource']
@@ -184,7 +202,8 @@ cdef class Buffer:
         is called when the buffer is closed or garbage collected.  When ``owner``
         is provided, the owner is kept alive but no deallocation is performed.
         When ``mr`` is provided, a deallocation stream is recorded at creation
-        (``stream`` if given, otherwise ``default_stream()``).
+        (``stream`` if given, otherwise ``default_stream()``). Recording a
+        default-stream token requires a CUDA context to be current.
         """
         if mr is not None and owner is not None:
             raise ValueError("owner and memory resource cannot be both specified together")
@@ -194,9 +213,10 @@ cdef class Buffer:
         cdef uintptr_t c_ptr = <uintptr_t>(int(ptr))
         cdef Stream s
         if mr is not None:
-            self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
             s = Stream_accept(default_stream() if stream is None else stream)
-            set_deallocation_stream(self._h_ptr, s._h_stream)
+            _require_deallocation_stream_context(s)
+            self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
+            HANDLE_RETURN(set_deallocation_stream(self._h_ptr, s._h_stream))
         else:
             self._h_ptr = deviceptr_create_with_owner(c_ptr, owner)
         self._size = size
@@ -245,10 +265,11 @@ cdef class Buffer:
             The ``owner`` and ``mr`` cannot be specified together.
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             Keyword-only. The stream used to order the buffer's deallocation
-            when ``mr`` owns the pointer. Defaults to ``default_stream()``. If
-            the buffer may be freed from a different host thread, pass a stream
-            other than the per-thread default stream, which refers to a
-            different stream on each thread.
+            when ``mr`` owns the pointer. Defaults to ``default_stream()``.
+            Recording a default-stream token requires a CUDA context to be
+            current. If the buffer may be freed from a different host thread,
+            pass a stream other than the per-thread default stream, which
+            refers to a different stream on each thread.
 
         Note
         ----
@@ -561,10 +582,11 @@ cdef class MemoryResource:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword-only. The stream on which to perform the allocation
             asynchronously. Must be passed explicitly; pass
-            ``device.default_stream`` to use the default stream. This stream
-            also orders the buffer's eventual deallocation, so if the buffer may
-            be freed from a different host thread, prefer a stream other than
-            the per-thread default stream, which refers to a different stream on
+            ``device.default_stream`` to use the default stream. For subclasses
+            that support stream-ordered deallocation, this stream also orders
+            the buffer's eventual deallocation, so if the buffer may be freed
+            from a different host thread, prefer a stream other than the
+            per-thread default stream, which refers to a different stream on
             each thread.
 
         Returns
@@ -646,7 +668,8 @@ cdef inline void Buffer_close(Buffer self, object stream):
     # Update deallocation stream if provided
     if stream is not None:
         s = Stream_accept(stream)
-        set_deallocation_stream(self._h_ptr, s._h_stream)
+        _require_deallocation_stream_context(s)
+        HANDLE_RETURN(set_deallocation_stream(self._h_ptr, s._h_stream))
     # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
     self._h_ptr.reset()
     self._size = 0

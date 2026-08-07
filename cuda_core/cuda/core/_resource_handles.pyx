@@ -128,7 +128,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
         const DevicePtrHandle& h) noexcept nogil
-    void set_deallocation_stream "cuda_core::set_deallocation_stream" (
+    cydriver.CUresult set_deallocation_stream "cuda_core::set_deallocation_stream" (
         const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
     # Library handles
