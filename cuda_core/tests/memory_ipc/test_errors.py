@@ -7,6 +7,7 @@ import re
 
 import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.constants import POOL_SIZE
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._memory._ipc import IPCBufferDescriptor
@@ -14,7 +15,6 @@ from cuda.core._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
-POOL_SIZE = 2097152
 
 
 # these tests spawn new processes and files which fails for very many threads
