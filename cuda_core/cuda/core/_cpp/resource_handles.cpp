@@ -34,6 +34,7 @@ namespace cuda_core {
 decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain = nullptr;
 decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease = nullptr;
 decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent = nullptr;
+decltype(&cuCtxSynchronize) p_cuCtxSynchronize = nullptr;
 decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate = nullptr;
 decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy = nullptr;
 decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx = nullptr;
@@ -890,6 +891,24 @@ MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) {
 MemoryPoolHandle get_device_mempool(int device_id) {
     GILReleaseGuard gil;
     CUmemoryPool pool;
+    if (CUDA_SUCCESS == (err = p_cuDeviceGetMemPool(&pool, device_id))) {
+        return create_mempool_handle_ref(pool);
+    }
+    if (err != CUDA_ERROR_OUT_OF_MEMORY) {
+        return {};
+    }
+
+    // A pool's virtual address reservation is only returned once the pool is
+    // torn down, and teardown waits on the stream-ordered frees of its
+    // outstanding allocations. A pool still awaiting those frees holds address
+    // space that is recoverable but not yet recovered, which is enough to fail
+    // this lookup wherever address space is scarce. Drain outstanding work once
+    // and retry before reporting exhaustion.
+    if (CUDA_SUCCESS != p_cuCtxSynchronize()) {
+        // Report why the pool is unavailable, not why the drain failed.
+        err = CUDA_ERROR_OUT_OF_MEMORY;
+        return {};
+    }
     if (CUDA_SUCCESS != (err = p_cuDeviceGetMemPool(&pool, device_id))) {
         return {};
     }
