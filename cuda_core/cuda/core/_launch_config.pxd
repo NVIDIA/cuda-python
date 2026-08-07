@@ -15,6 +15,7 @@ cdef class LaunchConfig:
         public tuple block
         public int shmem_size
         public bint is_cooperative
+        public bint programmatic_stream_serialization
 
         vector[cydriver.CUlaunchAttribute] _attrs
         object __weakref__

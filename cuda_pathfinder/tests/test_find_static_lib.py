@@ -143,6 +143,41 @@ def test_locate_static_lib_conda_rel_path_fallback(monkeypatch, tmp_path):
     assert located_lib.found_via == "conda"
 
 
+@pytest.mark.parametrize(
+    ("target_arch", "expected_ctk_dirs", "expected_conda_dirs", "expected_site_packages_dirs"),
+    (
+        (
+            "x64",
+            (os.path.join("lib", "x64"),),
+            (os.path.join("lib", "x64"), "lib"),
+            ("nvidia/cu13/lib/x64", "nvidia/cuda_runtime/lib/x64"),
+        ),
+        (
+            "arm64",
+            (os.path.join("lib", "arm64"),),
+            (os.path.join("lib", "arm64"),),
+            ("nvidia/cu13/lib/arm64",),
+        ),
+    ),
+)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_cudadevrt_windows_paths_follow_python_arch(
+    monkeypatch,
+    target_arch,
+    expected_ctk_dirs,
+    expected_conda_dirs,
+    expected_site_packages_dirs,
+):
+    monkeypatch.setattr(find_static_lib_module, "IS_WINDOWS", True)
+    monkeypatch.setattr(find_static_lib_module, "windows_python_arch", lambda: target_arch)
+
+    info = find_static_lib_module._cudadevrt_info()
+
+    assert info["ctk_rel_paths"] == expected_ctk_dirs
+    assert info["conda_rel_paths"] == expected_conda_dirs
+    assert info["site_packages_dirs"] == expected_site_packages_dirs
+
+
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
 def test_find_static_lib_not_found_error_includes_cuda_home_directory_listing(monkeypatch, tmp_path):
     filename = CUDADEVRT_INFO["filename"]
