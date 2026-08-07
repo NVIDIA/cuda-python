@@ -8,20 +8,6 @@ from collections.abc import Sequence
 from pathlib import Path
 
 
-def _is_dir(path: Path) -> bool:
-    """``path.is_dir()``, but False instead of raising on an inaccessible path.
-
-    This walks directories nobody here controls, so it has to tolerate whatever
-    it runs into. Path.is_dir() only swallows the errnos in pathlib's ignore
-    list, and raises for the rest (EACCES, ENAMETOOLONG); os.path.isdir, which
-    this replaces, returned False for all of them.
-    """
-    try:
-        return path.is_dir()
-    except OSError:
-        return False
-
-
 def find_sub_dirs_no_cache(parent_dirs: Sequence[str], sub_dirs: Sequence[str]) -> list[str]:
     # Results stay str: they are consumed by _binaries, _dynamic_libs, _headers
     # and _static_libs, so the type flip belongs in its own change.
@@ -31,7 +17,7 @@ def find_sub_dirs_no_cache(parent_dirs: Sequence[str], sub_dirs: Sequence[str]) 
         while stack:
             current_path, idx = stack.pop()
             if idx == len(sub_dirs):
-                if _is_dir(current_path):
+                if current_path.is_dir():
                     results.append(str(current_path))
                 continue
 
@@ -42,11 +28,11 @@ def find_sub_dirs_no_cache(parent_dirs: Sequence[str], sub_dirs: Sequence[str]) 
                 except OSError:
                     continue
                 for entry_path in entries:
-                    if _is_dir(entry_path):
+                    if entry_path.is_dir():
                         stack.append((entry_path, idx + 1))
             else:
                 next_path = current_path / sub
-                if _is_dir(next_path):
+                if next_path.is_dir():
                     stack.append((next_path, idx + 1))
     return results
 
