@@ -18,6 +18,7 @@ import argparse
 import os
 import re
 import sys
+from pathlib import Path
 
 COMPONENT_TO_PACKAGE: dict[str, str] = {
     "cuda-core": "cuda_core",
@@ -63,7 +64,7 @@ def is_post_release(version: str) -> bool:
 
 
 def load_backport_branch(repo_root: str = ".") -> str | None:
-    path = os.path.join(repo_root, "ci", "versions.yml")
+    path = Path(repo_root, "ci", "versions.yml")
     try:
         with open(path, encoding="utf-8") as f:
             for line in f:
@@ -84,12 +85,15 @@ def is_backport_version(version: str, backport_branch: str) -> bool:
     return version == backport_branch
 
 
-def notes_path(package: str, version: str) -> str:
-    return os.path.join(package, "docs", "source", "release", f"{version}-notes.rst")
+def notes_path(package: str, version: str) -> Path:
+    return Path(package, "docs", "source", "release", f"{version}-notes.rst")
 
 
-def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> list[tuple[str, str]]:
+def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> list[tuple[str | Path, str]]:
     """Return a list of (path, reason) for missing or empty release notes.
+
+    ``path`` is the repo-relative notes path, or a ``<placeholder>`` naming the
+    offending argument when the tag or component itself is the problem.
 
     Returns an empty list when notes are present and non-empty, or when the
     tag is a .post release (no new notes required).
@@ -105,10 +109,10 @@ def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> l
         return []
 
     path = notes_path(COMPONENT_TO_PACKAGE[component], version)
-    full = os.path.join(repo_root, path)
-    if not os.path.isfile(full):
+    full = Path(repo_root) / path
+    if not full.is_file():
         return [(path, "missing")]
-    if os.path.getsize(full) == 0:
+    if full.stat().st_size == 0:
         return [(path, "empty")]
     return []
 
@@ -123,7 +127,7 @@ def write_step_summary(message: str) -> None:
             f.write("\n")
 
 
-def warn_missing_backport_notes(git_tag: str, component: str, problems: list[tuple[str, str]]) -> None:
+def warn_missing_backport_notes(git_tag: str, component: str, problems: list[tuple[str | Path, str]]) -> None:
     print(f"WARNING: missing or empty release notes for backport tag {git_tag}:")
     summary_lines = [
         "## Release Notes Reminder",
@@ -148,7 +152,7 @@ def validate_backport_decision(
     backport_git_tag: str,
     backport_branch: str | None,
     repo_root: str,
-) -> tuple[int | None, list[tuple[str, str]]]:
+) -> tuple[int | None, list[tuple[str | Path, str]]]:
     if component not in BACKPORT_PLANNING_COMPONENTS or is_post_release(version):
         return None, []
 

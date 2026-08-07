@@ -17,6 +17,7 @@ import binascii
 import os
 import sys
 import textwrap
+from pathlib import Path
 
 import llvmlite.binding  # HINT: pip install llvmlite
 
@@ -24,10 +25,8 @@ from cuda.bindings import nvvm
 
 
 def get_minimal_nvvmir_txt_template():
-    cuda_bindings_tests_dir = os.path.normpath("cuda_bindings/tests")
-    assert os.path.isdir(cuda_bindings_tests_dir), (
-        "Please run this helper script from the cuda-python top-level directory."
-    )
+    cuda_bindings_tests_dir = Path("cuda_bindings/tests")
+    assert cuda_bindings_tests_dir.is_dir(), "Please run this helper script from the cuda-python top-level directory."
     sys.path.insert(0, os.path.abspath(cuda_bindings_tests_dir))
     import test_nvvm
 
