@@ -772,6 +772,7 @@ def test_pdl_launch_graph_capture(init_cuda):
 
 
 @skipif_need_cuda_headers
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_pdl_primary_secondary_overlap_graph_capture():
     """Primary + secondary PDL via GraphBuilder stream capture can overlap on Hopper+.
 
