@@ -145,6 +145,7 @@ class ProgramOptions:
     ----------
     name : str, optional
         Name of the program. If the compilation succeeds, the name is passed down to the generated :class:`ObjectCode`.
+        When set to `None`, ``"default_program"`` is used.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
