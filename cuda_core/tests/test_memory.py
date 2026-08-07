@@ -751,6 +751,26 @@ def test_pinned_memory_resource_initialization(init_cuda):
     buffer.close()
 
 
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
+    """allocate() must fail on devices without host memory pool support (see #2486)."""
+    device = init_cuda
+    if device.properties.host_memory_pools_supported:
+        pytest.skip("Device supports host memory pools")
+
+    try:
+        mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE))
+    except CUDAError as exc:
+        if "CUDA_ERROR_NOT_SUPPORTED" in str(exc):
+            pytest.skip("PinnedMemoryResource is not supported on this platform/device")
+        raise
+    try:
+        with pytest.raises(RuntimeError, match="does not support.*LegacyPinnedMemoryResource"):
+            mr.allocate(1024, stream=device.default_stream)
+    finally:
+        mr.close()
+
+
 def test_managed_memory_resource_initialization(init_cuda):
     device = Device()
     skip_if_managed_memory_unsupported(device)

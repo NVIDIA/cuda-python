@@ -5,8 +5,11 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 
+from cuda.core._memory._buffer import Buffer
 from cuda.core._memory._ipc import IPCAllocationHandle
 from cuda.core._memory._memory_pool import _MemPool
+from cuda.core._stream import Stream
+from cuda.core.graph import GraphBuilder
 
 
 @dataclass
@@ -63,6 +66,14 @@ class PinnedMemoryResource(_MemPool):
 
     Notes
     -----
+    The device associated with ``stream`` must support host memory pools. If
+    ``numa_id`` is set or derived for IPC, it must support host NUMA memory pools.
+    You can query these capabilities through
+    ``Device.properties.host_memory_pools_supported`` and
+    ``Device.properties.host_numa_memory_pools_supported``. If the required pool
+    is unsupported and stream-ordered allocation is not needed, use
+    :class:`LegacyPinnedMemoryResource`.
+
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
     option. When IPC is enabled and ``numa_id`` is not specified, the NUMA node
@@ -75,6 +86,9 @@ class PinnedMemoryResource(_MemPool):
 
     def __init__(self, options: PinnedMemoryResourceOptions | dict[str, object] | None=None) -> None:
         ...
+
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:
+        """Allocate a host-pinned buffer asynchronously on the supplied stream."""
 
     def __reduce__(self) -> tuple[object, ...]:
         ...
