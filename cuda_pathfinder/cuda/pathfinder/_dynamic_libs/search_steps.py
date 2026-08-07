@@ -27,7 +27,7 @@ from typing import NoReturn, cast
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
-from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatform, sorted_glob
+from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatform
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
 # ---------------------------------------------------------------------------
@@ -37,14 +37,9 @@ from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
 @dataclass
 class FindResult:
-    """A library file located on disk (not yet loaded).
+    """A library file located on disk (not yet loaded)."""
 
-    ``abs_path`` is a ``str``: it is handed to the platform loaders and surfaces
-    unchanged as the public ``LoadedDL.abs_path``. Everything upstream of this
-    dataclass works with ``Path``.
-    """
-
-    abs_path: str
+    abs_path: Path
     found_via: str
 
 
@@ -79,7 +74,7 @@ def _find_lib_dir_using_anchor(desc: LibDescriptor, platform: SearchPlatform, an
     """Find the library directory under *anchor_point* using the descriptor's relative paths."""
     rel_dirs = platform.anchor_rel_dirs(desc)
     for rel_path in rel_dirs:
-        for match in sorted_glob(anchor_point, rel_path):
+        for match in sorted(anchor_point.glob(rel_path)):
             if match.is_dir():
                 # os.path.normpath has no pathlib equivalent: PurePath deliberately does
                 # not collapse "..", and Path.resolve() would also follow symlinks. Keeping
@@ -155,11 +150,7 @@ def _derive_ctk_root_windows(resolved_lib_path: str) -> str | None:
 
 
 def derive_ctk_root(resolved_lib_path: str) -> str | None:
-    """Derive CTK root from a resolved canary library path.
-
-    Returns a ``str`` because the result crosses into ``load_nvidia_dynamic_lib``
-    and the header search, which are outside this module.
-    """
+    """Derive CTK root from a resolved canary library path."""
     ctk_root = _derive_ctk_root_linux(resolved_lib_path)
     if ctk_root is not None:
         return ctk_root
@@ -172,7 +163,7 @@ def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | None:
     abs_path = _find_using_lib_dir(ctx, lib_dir)
     if abs_path is None:
         return None
-    return FindResult(str(abs_path), "system-ctk-root")
+    return FindResult(abs_path, "system-ctk-root")
 
 
 # ---------------------------------------------------------------------------
@@ -187,7 +178,7 @@ def find_in_site_packages(ctx: SearchContext) -> FindResult | None:
         return None
     abs_path = ctx.platform.find_in_site_packages(rel_dirs, ctx.lib_searched_for, ctx.error_messages, ctx.attachments)
     if abs_path is not None:
-        return FindResult(str(abs_path), "site-packages")
+        return FindResult(abs_path, "site-packages")
     return None
 
 
@@ -200,7 +191,7 @@ def find_in_conda(ctx: SearchContext) -> FindResult | None:
     lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, anchor)
     abs_path = _find_using_lib_dir(ctx, lib_dir)
     if abs_path is not None:
-        return FindResult(str(abs_path), "conda")
+        return FindResult(abs_path, "conda")
     return None
 
 
@@ -221,7 +212,7 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
     lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, Path(cuda_home))
     abs_path = _find_using_lib_dir(ctx, lib_dir)
     if abs_path is not None:
-        return FindResult(str(abs_path), "CUDA_PATH")
+        return FindResult(abs_path, "CUDA_PATH")
     return None
 
 

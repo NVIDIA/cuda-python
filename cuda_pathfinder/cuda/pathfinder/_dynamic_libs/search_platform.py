@@ -22,30 +22,13 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
 
 
-def sorted_glob(directory: Path, pattern: str, *, reverse: bool = False) -> list[Path]:
-    """Return ``directory.glob(pattern)`` matches in a deterministic order.
-
-    The ordering is deliberately taken from the string form rather than from
-    ``Path`` comparison: ``PurePath`` ordering is case-insensitive on Windows,
-    so plain ``sorted()`` over ``Path`` objects would reorder mixed-case
-    filenames relative to the byte-wise ordering used up to now. Issue #1732
-    tracks the newest-first policy that rides on this ordering, so it is kept
-    unchanged on both platforms.
-    """
-    return sorted(directory.glob(pattern), key=str, reverse=reverse)
-
-
-def _sorted_dir_entry_names(directory: Path) -> list[str]:
-    return sorted(entry.name for entry in directory.iterdir())
-
-
 def _no_such_file_in_sub_dirs(
     sub_dirs: Sequence[str], file_wild: str, error_messages: list[str], attachments: list[str]
 ) -> None:
     error_messages.append(f"No such file: {file_wild}")
     for sub_dir in find_sub_dirs_all_sitepackages(sub_dirs):
         attachments.append(f'  listdir("{sub_dir}"):')
-        for node in _sorted_dir_entry_names(Path(sub_dir)):
+        for node in sorted(entry.name for entry in Path(sub_dir).iterdir()):
             attachments.append(f"    {node}")
 
 
@@ -70,7 +53,7 @@ def _find_so_in_rel_dirs(
             so_path = abs_dir_path / so_basename
             if so_path.is_file():
                 return so_path
-            for so_path in sorted_glob(abs_dir_path, file_wild, reverse=True):
+            for so_path in sorted(abs_dir_path.glob(file_wild), reverse=True):
                 if so_path.is_file():
                     return so_path
         sub_dirs_searched.append(sub_dir)
@@ -80,7 +63,7 @@ def _find_so_in_rel_dirs(
 
 
 def _find_dll_under_dir(dirpath: Path, file_wild: str, target_arch: str | None = None) -> Path | None:
-    for path in sorted_glob(dirpath, file_wild):
+    for path in sorted(dirpath.glob(file_wild)):
         if not path.is_file():
             continue
         if is_suppressed_dll_file(path.name):
@@ -180,7 +163,7 @@ class LinuxSearchPlatform:
         # situations, and to be internally consistent, we sort in reverse order with the
         # intent to return the newest version first. Issue #1732 tracks the deferred
         # question of raising on true ambiguity.
-        for so_path in sorted_glob(lib_dir, file_wild, reverse=True):
+        for so_path in sorted(lib_dir.glob(file_wild), reverse=True):
             if so_path.is_file():
                 return so_path
         error_messages.append(f"No such file: {file_wild}")
@@ -188,7 +171,7 @@ class LinuxSearchPlatform:
         if not lib_dir.is_dir():
             attachments.append("    DIRECTORY DOES NOT EXIST")
         else:
-            for node in _sorted_dir_entry_names(lib_dir):
+            for node in sorted(entry.name for entry in lib_dir.iterdir()):
                 attachments.append(f"    {node}")
         return None
 
@@ -239,7 +222,7 @@ class WindowsSearchPlatform:
         if not lib_dir.is_dir():
             attachments.append("    DIRECTORY DOES NOT EXIST")
         else:
-            for node in _sorted_dir_entry_names(lib_dir):
+            for node in sorted(entry.name for entry in lib_dir.iterdir()):
                 attachments.append(f"    {node}")
         return None
 
