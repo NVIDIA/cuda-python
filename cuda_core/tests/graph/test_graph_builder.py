@@ -717,19 +717,19 @@ def test_graph_definition_conditional_body_during_capture_raises(init_cuda):
 def test_pdl_launch_graph_capture(init_cuda):
     """PDL LaunchConfig is graph-compatible via GraphBuilder stream capture.
 
-    Captures a producer then a secondary launch with
+    Captures a first then a secondary launch with
     ``programmatic_stream_serialization=True``, instantiates, and launches.
     Asserts functional correctness and that capture maps to a programmatic
-    dependency edge (Programming Guide §4.5.3) — not kernel overlap.
+    dependency edge (see Programming Guide, Programmatic Dependent Launch) —
+    not kernel overlap.
     """
 
     def _assert_programmatic_dependency_edge(graph_definition):
         """Assert capture of ProgrammaticStreamSerialization produced a programmatic edge.
 
-        Programming Guide §4.5.3: stream-capturing a secondary launch with
-        ``cudaLaunchAttributeProgrammaticStreamSerialization`` maps to
-        ``CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC`` with
-        ``CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC``.
+        Per Programming Guide (Programmatic Dependent Launch): stream-capturing a
+        secondary launch with ``cudaLaunchAttributeProgrammaticStreamSerialization``
+        maps to a programmatic dependency edge from the programmatic kernel port.
         """
         from cuda.bindings import driver
 
@@ -740,6 +740,9 @@ def test_pdl_launch_graph_capture(init_cuda):
         assert err == driver.CUresult.CUDA_SUCCESS, err
         assert num_edges == 1, f"expected 1 edge, got {num_edges}"
         ed = edge_data[0]
+        # Driver (cuda.h) ↔ Runtime / Programming Guide (driver_types.h):
+        #   CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC  ↔ cudaGraphDependencyTypeProgrammatic
+        #   CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC ↔ cudaGraphKernelNodePortProgrammatic
         assert ed.type == driver.CUgraphDependencyType.CU_GRAPH_DEPENDENCY_TYPE_PROGRAMMATIC, ed.type
         assert ed.from_port == driver.CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC, ed.from_port
 
@@ -777,8 +780,8 @@ def test_pdl_primary_secondary_overlap_graph_capture(init_cuda):
     """Primary + secondary PDL via GraphBuilder stream capture can overlap on Hopper+.
 
     Same kernels / overlap protocol as test_pdl_primary_secondary_overlap_same_stream,
-    but launches are captured into a CUDA graph (Programming Guide §4.5.3 stream-capture
-    path). Overlap is opportunistic → miss is xfail.
+    but launches are captured into a CUDA graph (see CUDA Programming Guide,
+    Programmatic Dependent Launch). Overlap is opportunistic → miss is xfail.
     """
     dev = Device()
     if dev.compute_capability < (9, 0):
