@@ -30,9 +30,20 @@ the same on Windows and Linux.
 from __future__ import annotations
 
 import os
+import sys
 import time
 
 from cuda.bindings import driver
+
+if sys.platform == "win32":
+    from helpers import win_address_space
+else:
+    # No Linux counterpart on purpose; see helpers/win_address_space.py.
+    win_address_space = None
+
+# Holes smaller than this are noise in the layout dump.
+LAYOUT_MIN_HOLE = 1024 * 1024 * 1024
+LAYOUT_MAX_HOLES = 6
 
 MIB = 1024 * 1024
 GIB = 1024 * MIB
@@ -130,6 +141,44 @@ def format_bytes(value: int | None) -> str:
     return f"{value / GIB:.2f} GiB"
 
 
+def free_holes() -> list[tuple[int, int]] | None:
+    """Unallocated holes as ``(size, base)``, largest first. None off Windows."""
+    if win_address_space is None:
+        return None
+    return win_address_space.free_regions(LAYOUT_MIN_HOLE)
+
+
+def pool_capacity(holes, pool_bytes) -> int | None:
+    """How many driver pools the free holes could hold between them.
+
+    This is the number that decides the outcome, and it is neither the largest
+    hole nor the count of holes that clear one pool. A reservation has to fit
+    within a single hole, but a hole twice the size takes two -- the driver
+    packs them from its low end, so a lone 800 GiB hole hosts both pools just
+    as well as two 400 GiB ones. Summing each hole's capacity covers both.
+    """
+    if holes is None or not pool_bytes:
+        return None
+    return sum(size // pool_bytes for size, _base in holes)
+
+
+def layout_lines(holes, pool_bytes, label, detail: bool = True) -> list[str]:
+    """Render the hole structure. Base addresses show whether it is randomized."""
+    if holes is None:
+        return []
+    capacity = pool_capacity(holes, pool_bytes)
+    headline = f"free holes {label}: {len(holes)} >= {format_bytes(LAYOUT_MIN_HOLE)}"
+    if capacity is not None:
+        headline += f", room for {capacity} pool(s) of {format_bytes(pool_bytes)}"
+    out = [headline]
+    if detail:
+        for size, base in holes[:LAYOUT_MAX_HOLES]:
+            out.append(f"  {format_bytes(size):>14}  @ {base:#018x}")
+        if len(holes) > LAYOUT_MAX_HOLES:
+            out.append(f"  ... and {len(holes) - LAYOUT_MAX_HOLES} smaller")
+    return out
+
+
 class Reservation:
     """One driver-managed pool that has to be materialized."""
 
@@ -211,7 +260,16 @@ class ReservationReport:
     """What the early reservations cost, for the terminal."""
 
     def __init__(
-        self, device_name, device_memory, before, after, reservations, measured, seconds=0.0, unsupported=False
+        self,
+        device_name,
+        device_memory,
+        before,
+        after,
+        reservations,
+        measured,
+        seconds=0.0,
+        unsupported=False,
+        holes_before=None,
     ):
         self.device_name = device_name
         self.device_memory = device_memory
@@ -221,6 +279,7 @@ class ReservationReport:
         self.measured = measured
         self.seconds = seconds
         self.unsupported = unsupported
+        self.holes_before = holes_before
 
     @property
     def failed(self) -> list[Reservation]:
@@ -264,6 +323,11 @@ class ReservationReport:
                     f"remaining headroom: {self.after // pool_bytes} more pool-sized "
                     f"({format_bytes(pool_bytes)}) reservations  [{self.seconds:.1f}s measuring]"
                 )
+        # Just the counts here. They are what makes a successful session
+        # comparable with a failed one, since the hole count is what decides the
+        # outcome. The addresses behind them are only worth printing when a
+        # reservation is actually refused; see build_failure_message.
+        out += layout_lines(self.holes_before, self.pool_reservation_bytes, "at session start", detail=False)
         return out
 
 
@@ -284,6 +348,14 @@ def build_failure_message(report: ReservationReport) -> str:
     ]
     for item in report.failed:
         lines.append(f"  {item.name} ({item.detail}): {item.error}")
+
+    # Each pool needs a hole of its own, so the hole structure -- not the total
+    # free -- is what decides this. Included here because it is the first thing
+    # anyone diagnosing a refusal will want.
+    layout = layout_lines(report.holes_before, pool_bytes, "at session start")
+    if layout:
+        lines.append("")
+        lines += [f"  {line}" for line in layout]
 
     return "\n".join(lines)
 
@@ -307,6 +379,7 @@ def reserve_driver_pools(device, measure: bool = True) -> ReservationReport:
     started = time.perf_counter()
     before = largest_reservable() if measured else None
     elapsed = time.perf_counter() - started
+    holes_before = free_holes()
 
     reservations = reservations_for(device)
     for item in reservations:
@@ -315,4 +388,13 @@ def reserve_driver_pools(device, measure: bool = True) -> ReservationReport:
     started = time.perf_counter()
     after = largest_reservable() if measured else None
     elapsed += time.perf_counter() - started
-    return ReservationReport(device.name, device_memory, before, after, reservations, measured, elapsed)
+    return ReservationReport(
+        device.name,
+        device_memory,
+        before,
+        after,
+        reservations,
+        measured,
+        elapsed,
+        holes_before=holes_before,
+    )
