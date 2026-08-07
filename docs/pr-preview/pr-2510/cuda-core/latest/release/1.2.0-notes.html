@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=64466ad7"></script>
+    <script src="../_static/documentation_options.js?v=fcf8a034"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev30';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -629,6 +629,14 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.ExecutableGraphNode.html">cuda.core.graph.ExecutableGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.ExecutableKernelNode.html">cuda.core.graph.ExecutableKernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.ExecutableMemcpyNode.html">cuda.core.graph.ExecutableMemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.ExecutableMemsetNode.html">cuda.core.graph.ExecutableMemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.ExecutableHostCallbackNode.html">cuda.core.graph.ExecutableHostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.ExecutableChildGraphNode.html">cuda.core.graph.ExecutableChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.ExecutableEventRecordNode.html">cuda.core.graph.ExecutableEventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.graph.ExecutableEventWaitNode.html">cuda.core.graph.ExecutableEventWaitNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -766,27 +774,32 @@ parameters used by future graph instantiations without affecting existing
 executable graphs. This feature requires CUDA driver and <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
 versions 12.2 or newer.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2352">#2352</a>)</p></li>
-</ul>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
-- The default-stream singletons <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> and</p>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code> no longer cache the first context and device
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">graph[node]</span></code> views for updating nodes in an executable graph.
+Kernel, memcpy, memset, child-graph, event, and host-callback parameters can
+be replaced without reinstantiating the graph. Kernel, memcpy, and memset
+nodes can also be enabled or disabled. Resources introduced by these updates
+remain alive through in-flight launches. Superseded resources stay retained
+until a successful whole-graph update or executable graph destruction. This
+feature requires CUDA driver and <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions 12.2 or newer.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2353">#2353</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2354">#2354</a>)</p></li>
+<li><p>The default-stream singletons <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> and
+<code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code> no longer cache the first context and device
 they observe. A default-stream token refers to whatever context is current,
 so <code class="docutils literal notranslate"><span class="pre">Stream.context</span></code>, <code class="docutils literal notranslate"><span class="pre">Stream.device</span></code>, <code class="docutils literal notranslate"><span class="pre">Stream.resources</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">Stream.record()</span></code> now resolve against the current context on every call.
 Previously the first query pinned the singleton to one context for the
 lifetime of the process, which also kept that context alive.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2485">#2485</a>)</p>
-</div></blockquote>
-<blockquote>
-<div><p>(12.0–12.2) is installed. These versions do not export the unversioned
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2485">#2485</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker.which_backend" title="cuda.core.Linker.which_backend"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Linker.which_backend()</span></code></a> and constructing a <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> no longer
+raise <code class="docutils literal notranslate"><span class="pre">FunctionNotFoundError</span></code> when an nvJitLink older than 12.3
+(12.0–12.2) is installed. These versions do not export the unversioned
 <code class="docutils literal notranslate"><span class="pre">nvJitLinkVersion</span></code> symbol, so probing the version crashed instead of
 falling back. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now warns and falls back to the driver
 (<code class="docutils literal notranslate"><span class="pre">cuLink</span></code>) backend, restoring the pre-0.7.0 behavior.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2409">#2409</a>,
-closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2408">#2408</a>)</p>
-</div></blockquote>
-<p>&gt;&gt;&gt;&gt;&gt;&gt;&gt; origin/main</p>
+closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2408">#2408</a>)</p></li>
+</ul>
 </section>
 <section id="deprecation-notices">
 <h2>Deprecation Notices<a class="headerlink" href="#deprecation-notices" title="Link to this heading">#</a></h2>
