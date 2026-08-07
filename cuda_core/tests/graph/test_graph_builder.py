@@ -773,7 +773,7 @@ def test_pdl_launch_graph_capture(init_cuda):
 
 @skipif_need_cuda_headers
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_pdl_primary_secondary_overlap_graph_capture():
+def test_pdl_primary_secondary_overlap_graph_capture(init_cuda):
     """Primary + secondary PDL via GraphBuilder stream capture can overlap on Hopper+.
 
     Same kernels / overlap protocol as test_pdl_primary_secondary_overlap_same_stream,
@@ -783,7 +783,6 @@ def test_pdl_primary_secondary_overlap_graph_capture():
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
-    dev.set_current()
     stream = dev.create_stream(options={"nonblocking": True})
 
     # clock64 budgets are in GPU cycles; keep the post-trigger window long enough
