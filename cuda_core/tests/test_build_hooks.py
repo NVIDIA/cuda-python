@@ -165,3 +165,58 @@ class TestGetCudaMajorVersion:
             pytest.raises(RuntimeError, match="CUDA_PATH or CUDA_HOME"),
         ):
             build_hooks._determine_cuda_major_version()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+class TestGetCudaBindingsRequire:
+    """Tests for cuda-bindings build dependency selection."""
+
+    def test_default_requirement_uses_cuda_major(self, monkeypatch):
+        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+        monkeypatch.delenv("CUDA_CORE_BUILD_BINDINGS_WHEEL_DIR", raising=False)
+        build_hooks._determine_cuda_major_version.cache_clear()
+
+        assert build_hooks._get_cuda_bindings_require() == ["cuda-bindings==13.*"]
+
+    def test_local_wheel_requirement_uses_matching_major(self, monkeypatch, tmp_path):
+        wheel_dir = tmp_path / "wheel directory"
+        wheel_dir.mkdir()
+        matching_wheel = wheel_dir / "cuda_bindings-13.3.2.dev1+gabc123.d20260731-py3-none-any.whl"
+        matching_wheel.touch()
+        (wheel_dir / "cuda_bindings-12.9.2-py3-none-any.whl").touch()
+
+        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+        monkeypatch.setenv("CUDA_CORE_BUILD_BINDINGS_WHEEL_DIR", str(wheel_dir))
+        build_hooks._determine_cuda_major_version.cache_clear()
+
+        assert build_hooks._get_cuda_bindings_require() == [f"cuda-bindings @ {matching_wheel.resolve().as_uri()}"]
+
+    def test_local_wheel_directory_must_not_be_empty(self, monkeypatch):
+        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+        monkeypatch.setenv("CUDA_CORE_BUILD_BINDINGS_WHEEL_DIR", "")
+        build_hooks._determine_cuda_major_version.cache_clear()
+
+        with pytest.raises(RuntimeError, match="CUDA_CORE_BUILD_BINDINGS_WHEEL_DIR must not be empty"):
+            build_hooks._get_cuda_bindings_require()
+
+    @pytest.mark.parametrize(
+        "wheel_names",
+        [
+            (),
+            (
+                "cuda_bindings-13.3.2.dev1-py3-none-any.whl",
+                "cuda_bindings-13.3.2.dev2-py3-none-any.whl",
+            ),
+        ],
+        ids=["missing", "ambiguous"],
+    )
+    def test_local_wheel_requirement_requires_exactly_one_match(self, monkeypatch, tmp_path, wheel_names):
+        for wheel_name in wheel_names:
+            (tmp_path / wheel_name).touch()
+
+        monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
+        monkeypatch.setenv("CUDA_CORE_BUILD_BINDINGS_WHEEL_DIR", str(tmp_path))
+        build_hooks._determine_cuda_major_version.cache_clear()
+
+        with pytest.raises(RuntimeError, match="Expected exactly one CUDA 13 cuda-bindings wheel"):
+            build_hooks._get_cuda_bindings_require()

@@ -124,6 +124,8 @@ def _determine_cuda_major_version() -> str:
 # used later by setup()
 _extensions = None
 
+_CUDA_BINDINGS_WHEEL_DIR_ENV_VAR = "CUDA_CORE_BUILD_BINDINGS_WHEEL_DIR"
+
 
 def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
@@ -338,7 +340,32 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 
 def _get_cuda_bindings_require():
+    """Return the cuda-bindings requirement for an isolated cuda.core build."""
     cuda_major = _determine_cuda_major_version()
+
+    # A direct reference prevents pip from ranking the CI artifact against index candidates.
+    wheel_dir_value = os.environ.get(_CUDA_BINDINGS_WHEEL_DIR_ENV_VAR)
+    if wheel_dir_value is not None:
+        if not wheel_dir_value:
+            raise RuntimeError(f"{_CUDA_BINDINGS_WHEEL_DIR_ENV_VAR} must not be empty")
+
+        wheel_dir = Path(wheel_dir_value)
+        wheel_pattern = f"cuda_bindings-{cuda_major}.*-*.whl"
+        wheels = sorted(path for path in wheel_dir.glob(wheel_pattern) if path.is_file()) if wheel_dir.is_dir() else []
+        if len(wheels) != 1:
+            available = (
+                sorted(path.name for path in wheel_dir.glob("cuda_bindings-*.whl")) if wheel_dir.is_dir() else []
+            )
+            raise RuntimeError(
+                f"Expected exactly one CUDA {cuda_major} cuda-bindings wheel in {wheel_dir} "
+                f"via {_CUDA_BINDINGS_WHEEL_DIR_ENV_VAR}, found {len(wheels)}. "
+                f"Available cuda-bindings wheels: {available}"
+            )
+
+        wheel = wheels[0].resolve()
+        print(f"Using local cuda-bindings build dependency: {wheel}", file=sys.stderr)
+        return [f"cuda-bindings @ {wheel.as_uri()}"]
+
     return [f"cuda-bindings=={cuda_major}.*"]
 
 
