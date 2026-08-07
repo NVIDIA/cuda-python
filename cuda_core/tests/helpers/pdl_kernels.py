@@ -3,10 +3,10 @@
 
 """Shared helpers for Programmatic Dependent Launch overlap tests."""
 
-import helpers
 import numpy as np
 import pytest
 
+import helpers
 from cuda.core import LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, launch
 
 
