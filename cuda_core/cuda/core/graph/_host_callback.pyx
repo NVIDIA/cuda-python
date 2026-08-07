@@ -15,20 +15,14 @@ from cuda.core._resource_handles cimport (
 )
 
 import sys
-import _ctypes
 import ctypes as ct
 
 
 # CUhostFn is `void (CUDA_CB *)(void*)`. CUDA_CB is __stdcall on Windows and
-# empty elsewhere, so ctypes.WINFUNCTYPE (stdcall) is the literal match on
-# Windows and ctypes.CFUNCTYPE (cdecl) is the match everywhere else. Modern
-# Windows (x64 and ARM64) has a single calling convention, where the two are
-# interchangeable, and cuda.core callers already pass CFUNCTYPE; Windows
-# therefore accepts either.
-_FUNCFLAG_CDECL = getattr(ct, "_FUNCFLAG_CDECL", 0x1)
-_FUNCFLAG_STDCALL = getattr(_ctypes, "FUNCFLAG_STDCALL", 0x2)
-_FUNCFLAG_PYTHONAPI = getattr(ct, "_FUNCFLAG_PYTHONAPI", 0x4)
-
+# empty elsewhere, but ctypes only honors that distinction when it builds a
+# callback on 32-bit x86 Windows, which cuda.core does not support: on win-64
+# and ARM64 both CFUNCTYPE and WINFUNCTYPE produce a FFI_DEFAULT_ABI thunk. The
+# declared result and argument types are all that remain worth checking.
 _CUHOSTFN_HINT = (
     "ctypes.CFUNCTYPE(None, ctypes.c_void_p)"
     if sys.platform != "win32"
@@ -49,33 +43,16 @@ def _cuhostfn_type_error(detail):
 def _validate_ctypes_host_callback(fn):
     """Reject ctypes callbacks whose declared prototype is not CUhostFn.
 
-    Only the ctypes type's ``_restype_`` / ``_argtypes_`` / ``_flags_`` are
-    checked: that is the ABI the wrapper claims. Instance ``restype`` /
-    ``argtypes`` overrides are ignored because CUDA invokes the function
-    pointer directly.
+    ``restype`` and ``argtypes`` are the prototype the caller declared, and are
+    what CUDA calls through. A function pointer taken from a shared library
+    keeps ctypes' defaults -- a ``c_int`` result and unspecified arguments --
+    until the caller declares otherwise, so it must be declared to be accepted.
     """
-    proto = type(fn)
-    restype = getattr(proto, "_restype_", None)
-    argtypes = getattr(proto, "_argtypes_", None)
-    flags = int(getattr(proto, "_flags_", 0))
-
-    if restype is not None or argtypes != (ct.c_void_p,):
+    restype = fn.restype
+    argtypes = fn.argtypes
+    if restype is not None or argtypes is None or tuple(argtypes) != (ct.c_void_p,):
         raise _cuhostfn_type_error(
             f"has prototype restype={restype!r}, argtypes={argtypes!r}")
-
-    if flags & _FUNCFLAG_PYTHONAPI:
-        raise _cuhostfn_type_error(
-            "was declared with ctypes.PYFUNCTYPE, which uses the Python-API "
-            "calling convention")
-
-    if sys.platform == "win32":
-        if not (flags & (_FUNCFLAG_CDECL | _FUNCFLAG_STDCALL)):
-            raise _cuhostfn_type_error("uses an unrecognized calling convention")
-    elif flags & _FUNCFLAG_STDCALL:
-        raise _cuhostfn_type_error(
-            "uses the stdcall calling convention, which applies only to Windows")
-    elif not (flags & _FUNCFLAG_CDECL):
-        raise _cuhostfn_type_error("uses an unrecognized calling convention")
 
 
 cdef void _py_host_trampoline(void* data) noexcept with gil:

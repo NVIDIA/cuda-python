@@ -2,14 +2,8 @@
 
 from __future__ import annotations
 
-import ctypes as ct
 import sys
 
-import _ctypes
-
-_FUNCFLAG_CDECL = getattr(ct, '_FUNCFLAG_CDECL', 1)
-_FUNCFLAG_STDCALL = getattr(_ctypes, 'FUNCFLAG_STDCALL', 2)
-_FUNCFLAG_PYTHONAPI = getattr(ct, '_FUNCFLAG_PYTHONAPI', 4)
 _CUHOSTFN_HINT = 'ctypes.CFUNCTYPE(None, ctypes.c_void_p)' if sys.platform != 'win32' else 'ctypes.CFUNCTYPE(None, ctypes.c_void_p) or ctypes.WINFUNCTYPE(None, ctypes.c_void_p)'
 
 def _cuhostfn_type_error(detail):
@@ -18,8 +12,8 @@ def _cuhostfn_type_error(detail):
 def _validate_ctypes_host_callback(fn):
     """Reject ctypes callbacks whose declared prototype is not CUhostFn.
 
-    Only the ctypes type's ``_restype_`` / ``_argtypes_`` / ``_flags_`` are
-    checked: that is the ABI the wrapper claims. Instance ``restype`` /
-    ``argtypes`` overrides are ignored because CUDA invokes the function
-    pointer directly.
+    ``restype`` and ``argtypes`` are the prototype the caller declared, and are
+    what CUDA calls through. A function pointer taken from a shared library
+    keeps ctypes' defaults -- a ``c_int`` result and unspecified arguments --
+    until the caller declares otherwise, so it must be declared to be accepted.
     """

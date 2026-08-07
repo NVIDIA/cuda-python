@@ -1166,6 +1166,13 @@ _INCOMPATIBLE_CTYPES_HOST_CALLBACKS = [
     pytest.param(ctypes.CFUNCTYPE(None, ctypes.c_int), id="bad-argtype"),
     pytest.param(ctypes.CFUNCTYPE(None), id="missing-arg"),
     pytest.param(ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p), id="extra-arg"),
+]
+
+# Prototypes that declare CUhostFn but differ in ctypes bookkeeping. ctypes
+# builds the same thunk for all of them, so all must be accepted.
+_COMPATIBLE_CTYPES_HOST_CALLBACKS = [
+    pytest.param(ctypes.CFUNCTYPE(None, ctypes.c_void_p), id="cfunctype"),
+    pytest.param(ctypes.CFUNCTYPE(None, ctypes.c_void_p, use_errno=True), id="use-errno"),
     pytest.param(ctypes.PYFUNCTYPE(None, ctypes.c_void_p), id="pyfunctype"),
 ]
 
@@ -1191,6 +1198,27 @@ def test_host_callback_ctypes_update_rejects_incompatible_signature(sample_graph
     node = sample_graphdef.callback(good)
     with pytest.raises(TypeError, match="CUhostFn"):
         node.update(bad_type(0))
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("callback_type", _COMPATIBLE_CTYPES_HOST_CALLBACKS)
+def test_host_callback_ctypes_accepts_equivalent_prototypes(sample_graphdef, callback_type):
+    """Prototypes that declare CUhostFn are accepted and run."""
+    called = [False]
+
+    @callback_type
+    def raw_fn(data):
+        called[0] = True
+
+    sample_graphdef.callback(raw_fn)
+    graph = sample_graphdef.instantiate()
+
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    assert called[0]
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
