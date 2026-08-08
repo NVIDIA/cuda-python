@@ -15,7 +15,7 @@ cuda-version = ["12.*", "13.3.*"]
 [feature.test.dependencies]
 cuda-core = { path = "." }
 ml_dtypes = "*"
-pytest = "*"
+pytest = ">=9.0"
 
 [feature.test.pypi-dependencies]
 cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
