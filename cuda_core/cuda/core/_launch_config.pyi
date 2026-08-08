@@ -35,9 +35,13 @@ class LaunchConfig:
         (Default to size 0)
     is_cooperative : bool, optional
         Whether this config can be used to launch a cooperative kernel.
+    programmatic_stream_serialization : bool, optional
+        Whether to allow programmatic stream serialization (PDL). When True,
+        the kernel may overlap with a previous kernel in the same stream that
+        signals completion via programmatic means.
     """
 
-    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False) -> None:
+    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters
@@ -52,6 +56,8 @@ class LaunchConfig:
             Dynamic shared memory size in bytes (default: 0)
         is_cooperative : bool, optional
             Whether to launch as cooperative kernel (default: False)
+        programmatic_stream_serialization : bool, optional
+            Whether to allow programmatic stream serialization / PDL (default: False)
         """
 
     def _identity(self) -> tuple[Any, ...]:
@@ -65,7 +71,8 @@ class LaunchConfig:
 
     def __hash__(self) -> int:
         ...
-_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative')
+_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization')
+__all__ = ['LaunchConfig']
 
 def _to_native_launch_config(config: LaunchConfig) -> object:
     """Convert LaunchConfig to native driver CUlaunchConfig.

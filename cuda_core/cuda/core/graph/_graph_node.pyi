@@ -94,6 +94,9 @@ class GraphNode:
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
 
+        Clustered and cooperative launch configurations are not currently
+        supported for graph kernel nodes.
+
         .. warning::
 
             Use caution when a retained kernel argument directly or indirectly
@@ -330,10 +333,12 @@ class GraphNode:
         - **Python callable**: Pass any callable. The GIL is acquired
           automatically. The callable must take no arguments; use closures
           or ``functools.partial`` to bind state.
-        - **ctypes function pointer**: Pass a ``ctypes.CFUNCTYPE`` instance.
-          The function receives a single ``void*`` argument (the
-          ``user_data``). The caller must keep the ctypes wrapper alive
-          for the lifetime of the graph.
+        - **ctypes function pointer**: The function receives a single
+          ``void*`` argument (the ``user_data``), and the caller must keep
+          the ctypes wrapper alive for the lifetime of the graph. Its
+          declared prototype must match the driver's ``CUhostFn``
+          (``void (*)(void*)``): ``ctypes.CFUNCTYPE(None, ctypes.c_void_p)``,
+          or ``ctypes.WINFUNCTYPE(None, ctypes.c_void_p)`` on Windows.
 
         .. warning::
 
@@ -358,6 +363,14 @@ class GraphNode:
         -------
         HostCallbackNode
             A new HostCallbackNode representing the callback.
+
+        Raises
+        ------
+        TypeError
+            If ``fn`` is a ctypes function pointer whose declared prototype
+            does not match ``CUhostFn``.
+        ValueError
+            If ``user_data`` is given for a Python callable.
         """
 
     def if_then(self, condition: GraphCondition) -> IfNode:

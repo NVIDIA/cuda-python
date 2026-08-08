@@ -14,15 +14,16 @@ import platform
 import re
 
 import pytest
-from helpers import IS_WINDOWS, supports_ipc_mempool
-from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
-
 from conftest import (
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
     skip_if_managed_memory_unsupported,
     skip_if_pinned_memory_unsupported,
 )
+from helpers import supports_ipc_mempool
+from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
+from helpers.constants import POOL_SIZE
+
 from cuda.core import (
     Buffer,
     Device,
@@ -42,7 +43,7 @@ from cuda.core import (
     system as ccx_system,
 )
 from cuda.core._dlpack import DLDeviceType
-from cuda.core._memory import IPCBufferDescriptor
+from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.typing import (
     ManagedMemoryLocationType,
@@ -53,8 +54,7 @@ from cuda.core.typing import (
     VirtualMemoryLocationType,
 )
 from cuda.core.utils import StridedMemoryView
-
-POOL_SIZE = 2097152  # 2MB size
+from cuda_python_test_helpers import IS_WINDOWS
 
 
 def _allocate_pinned_buffer_or_xfail(mr, size, *, device):
@@ -136,8 +136,6 @@ def test_package_contents():
         "DeviceMemoryResource",
         "DeviceMemoryResourceOptions",
         "GraphMemoryResource",
-        "IPCAllocationHandle",
-        "IPCBufferDescriptor",
         "LegacyPinnedMemoryResource",
         "ManagedBuffer",
         "ManagedMemoryResource",
@@ -751,6 +749,26 @@ def test_pinned_memory_resource_initialization(init_cuda):
     assert buffer.memory_resource == mr
     assert buffer.is_device_accessible
     buffer.close()
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
+    """allocate() must fail on devices without host memory pool support (see #2486)."""
+    device = init_cuda
+    if device.properties.host_memory_pools_supported:
+        pytest.skip("Device supports host memory pools")
+
+    try:
+        mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE))
+    except CUDAError as exc:
+        if "CUDA_ERROR_NOT_SUPPORTED" in str(exc):
+            pytest.skip("PinnedMemoryResource is not supported on this platform/device")
+        raise
+    try:
+        with pytest.raises(RuntimeError, match="does not support.*LegacyPinnedMemoryResource"):
+            mr.allocate(1024, stream=device.default_stream)
+    finally:
+        mr.close()
 
 
 def test_managed_memory_resource_initialization(init_cuda):
@@ -1454,11 +1472,13 @@ def test_pinned_mr_numa_id_default_no_ipc(init_cuda):
     device = Device()
     skip_if_pinned_memory_unsupported(device)
 
-    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(), xfail_device=device)
+    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(max_size=POOL_SIZE), xfail_device=device)
     assert mr.numa_id == -1
     mr.close()
 
-    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(ipc_enabled=False), xfail_device=device)
+    mr = create_pinned_memory_resource_or_xfail(
+        PinnedMemoryResourceOptions(ipc_enabled=False, max_size=POOL_SIZE), xfail_device=device
+    )
     assert mr.numa_id == -1
     mr.close()
 
@@ -1493,7 +1513,9 @@ def test_pinned_mr_numa_id_explicit(init_cuda):
     if host_numa_id < 0:
         pytest.skip("System does not support NUMA")
 
-    mr = create_pinned_memory_resource_or_xfail(PinnedMemoryResourceOptions(numa_id=host_numa_id), xfail_device=device)
+    mr = create_pinned_memory_resource_or_xfail(
+        PinnedMemoryResourceOptions(numa_id=host_numa_id, max_size=POOL_SIZE), xfail_device=device
+    )
     assert mr.numa_id == host_numa_id
     mr.close()
 
@@ -1516,9 +1538,11 @@ def test_pinned_mr_numa_id_negative_error(init_cuda):
     skip_if_pinned_memory_unsupported(device)
 
     with pytest.raises(ValueError, match="numa_id must be >= 0"):
+        # uncapped-pool-ok: numa_id is validated before the pool is created
         PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-1))
 
     with pytest.raises(ValueError, match="numa_id must be >= 0"):
+        # uncapped-pool-ok: numa_id is validated before the pool is created
         PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-42))
 
 
@@ -1851,6 +1875,23 @@ def test_vmm_options_handle_type_win32_raises():
         VirtualMemoryResourceOptions._handle_type_to_driver("win32")
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("location_type", ["host", "host_numa", "host_numa_current"])
+def test_vmm_host_location_types_report_host_accessible(location_type):
+    """Every host-backed location type reports is_host_accessible.
+
+    __init__ classifies "host", "host_numa" and "host_numa_current" alike when
+    deciding the resource is not bound to a device, so is_host_accessible must
+    agree; otherwise a NUMA-located resource claims to be neither host- nor
+    device-accessible.
+    """
+    device = Device()
+    device.set_current()
+    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+    assert mr.device is None
+    assert mr.is_host_accessible is True
+
+
 def test_device_memory_resource_peer_accessible_by_non_owned(mempool_device):
     """peer_accessible_by on a non-owned (default) DMR queries the driver live."""
     dev = mempool_device
@@ -1899,3 +1940,74 @@ def test_dmr_peer_accessible_by_setter_empty(mempool_device):
     assert set(mr.peer_accessible_by) == set()
     mr.peer_accessible_by = []
     assert set(mr.peer_accessible_by) == set()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_mempool_attributes_cannot_instantiate_directly():
+    """_MemPoolAttributes cannot be instantiated directly."""
+    from cuda.core._memory._memory_pool import _MemPoolAttributes
+
+    with pytest.raises(RuntimeError, match="cannot be instantiated directly"):
+        _MemPoolAttributes()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_dmr_handle_and_ownership(mempool_device):
+    """An options-created pool is handle-owning with a live handle; wrapping the device's current pool is non-owning."""
+    owned = DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    assert owned.is_handle_owned is True
+    handle = owned.handle
+    assert handle is not None
+    assert int(handle) != 0
+
+    non_owned = DeviceMemoryResource(mempool_device)
+    assert non_owned.is_handle_owned is False
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_dmr_deallocate_frees_pool_pointer(mempool_device):
+    """Closing a Buffer.from_handle(..., mr=mr) view frees the pointer via the Python
+    _MemPool.deallocate path; the pool's in-use bytes drop back."""
+    dev = mempool_device
+    stream = dev.default_stream
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    size = 256
+    # Raw pool allocation owned by nobody else, so exactly one owner frees it (no
+    # double free); a Buffer.from_handle view then routes teardown through the
+    # Python deallocate path that mr.allocate()'s C++-direct free would skip.
+    ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, mr.handle, stream.handle))
+    stream.sync()
+    used_after_alloc = mr.attributes.used_mem_current
+    assert used_after_alloc >= size
+    buf = Buffer.from_handle(int(ptr), size, mr=mr)
+    buf.close(stream)
+    stream.sync()
+    assert int(buf.handle) == 0
+    # In-use bytes fell back, so the pointer was actually returned (buf.handle == 0
+    # alone wouldn't prove it: the deleter callback swallows a failed free).
+    assert mr.attributes.used_mem_current < used_after_alloc
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_dmr_close_is_idempotent(mempool_device):
+    """Closing an owned DeviceMemoryResource twice is safe (the second close is a no-op)."""
+    mr = DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    assert mr.is_handle_owned is True
+    assert int(mr.handle) != 0
+    mr.close()
+    # First close releases the pool handle itself, not just ownership.
+    assert int(mr.handle) == 0
+    assert mr.is_handle_owned is False
+    mr.close()  # no-op on the now-null handle
+    assert int(mr.handle) == 0
+    assert mr.is_handle_owned is False
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_dmr_ipc_enabled_unsupported_raises(mempool_device):
+    """Requesting an IPC-enabled pool where memory IPC is unsupported raises RuntimeError."""
+    if not IS_WINDOWS:
+        pytest.skip("memory IPC is supported on this platform; unsupported-raise path is Windows-only")
+    with pytest.raises(RuntimeError, match="IPC is not available"):
+        # uncapped-pool-ok: IPC support is checked before the pool is created
+        DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(ipc_enabled=True))

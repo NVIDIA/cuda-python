@@ -23,6 +23,7 @@ Python owners via ``make_opaque_py`` are not covered here -- use
 """
 
 from cuda.core._memory._buffer cimport Buffer
+from cuda.core.graph._graph_definition cimport GraphDefinition
 from cuda.core._resource_handles cimport OpaqueHandle
 
 
@@ -85,11 +86,19 @@ cdef WeakHandle _weak_from_buffer(Buffer buf):
     return _weak_from_opaque(h)
 
 
+cdef WeakHandle _weak_from_graph_definition(GraphDefinition graph):
+    cdef OpaqueHandle h = graph._h_graph
+    if not h:
+        raise ValueError("GraphDefinition has no active graph")
+    return _weak_from_opaque(h)
+
+
 def weak_handle(obj):
     """Return a :class:`WeakHandle` observing the resource behind ``obj``.
 
-    Currently supports :class:`~cuda.core.Buffer` (device allocation handle).
-    See the module docstring for how to add more types.
+    Currently supports :class:`~cuda.core.Buffer` (allocation handle) and
+    :class:`~cuda.core.graph.GraphDefinition` (graph hierarchy handle). See
+    the module docstring for how to add more types.
 
     Raises
     ------
@@ -100,7 +109,9 @@ def weak_handle(obj):
     """
     if isinstance(obj, Buffer):
         return _weak_from_buffer(obj)
+    if isinstance(obj, GraphDefinition):
+        return _weak_from_graph_definition(obj)
     raise TypeError(
         f"weak_handle() does not support {type(obj).__name__!r}; "
-        "supported types: Buffer"
+        "supported types: Buffer, GraphDefinition"
     )
