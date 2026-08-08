@@ -179,6 +179,11 @@ commit` workflow.  To resolve this, you can either:
 2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
    be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
 
+## Secret Scanning
+
+The `secret-scan-trufflehog` pre-commit hook scans staged files and installs TruffleHog on first run (use Git Bash on Windows). If it flags a secret, remove it before committing, or contact a maintainer if it's a false positive. Secrets are also scanned server-side in CI.
+
+
 ## Signing Your Work
 
 Contributions to files licensed under Apache 2.0 must be certified under the
