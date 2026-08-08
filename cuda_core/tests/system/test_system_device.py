@@ -113,7 +113,8 @@ def test_affinity(subtests):
                 affinity_scope=scope.value,
                 affinity_api="get_memory_affinity",
             ):
-                affinity = device.get_memory_affinity(scope)
+                with unsupported_before(device, typing.DeviceArch.KEPLER):
+                    affinity = device.get_memory_affinity(scope)
                 assert isinstance(affinity, list)
 
 
