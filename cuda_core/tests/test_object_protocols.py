@@ -750,7 +750,7 @@ def test_hash_distinct_same_type(a_name, b_name, request):
     assert hash(obj_a) != hash(obj_b)  # extremely unlikely
 
 
-@pytest.mark.parametrize("a_name,b_name", itertools.combinations(HASH_TYPES, 2))
+@pytest.mark.parametrize("a_name,b_name", list(itertools.combinations(HASH_TYPES, 2)))
 def test_hash_distinct_cross_type(a_name, b_name, request):
     """Distinct objects of different types have different hashes."""
     obj_a = request.getfixturevalue(a_name)
@@ -774,7 +774,7 @@ def test_equality_basic(fixture_name, request):
         assert obj != obj.handle
 
 
-@pytest.mark.parametrize("a_name,b_name", itertools.combinations(EQ_TYPES, 2))
+@pytest.mark.parametrize("a_name,b_name", list(itertools.combinations(EQ_TYPES, 2)))
 def test_no_cross_type_equality(a_name, b_name, request):
     """No two distinct objects of different types should compare equal."""
     obj_a = request.getfixturevalue(a_name)

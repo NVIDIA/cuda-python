@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import textwrap
+from pathlib import Path
 
 import pytest
 
@@ -431,7 +432,7 @@ def test_resolve_ctk_root_via_canary_none_when_probe_fails(mocker):
 def test_resolve_ctk_root_via_canary_none_when_unrecognized(mocker):
     mocker.patch(
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
-        return_value=os.path.join(os.sep, "weird", "path", "libcudart.so.13"),
+        return_value=str(Path(os.sep, "weird", "path", "libcudart.so.13")),
     )
     assert resolve_ctk_root_via_canary("cudart") is None
 

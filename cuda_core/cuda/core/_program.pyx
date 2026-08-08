@@ -298,6 +298,7 @@ class ProgramOptions:
     ----------
     name : str, optional
         Name of the program. If the compilation succeeds, the name is passed down to the generated :class:`ObjectCode`.
+        When set to `None`, ``"default_program"`` is used.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
@@ -523,6 +524,9 @@ class ProgramOptions:
     numba_debug: bool | None = None  # Custom option for Numba debugging
 
     def __post_init__(self) -> None:
+        # Set name to default if not provided
+        if self.name is None:
+            self.name = "default_program"
         self._name = self.name.encode()
         # Set arch to default if not provided
         if self.arch is None:

@@ -751,6 +751,26 @@ def test_pinned_memory_resource_initialization(init_cuda):
     buffer.close()
 
 
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
+    """allocate() must fail on devices without host memory pool support (see #2486)."""
+    device = init_cuda
+    if device.properties.host_memory_pools_supported:
+        pytest.skip("Device supports host memory pools")
+
+    try:
+        mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE))
+    except CUDAError as exc:
+        if "CUDA_ERROR_NOT_SUPPORTED" in str(exc):
+            pytest.skip("PinnedMemoryResource is not supported on this platform/device")
+        raise
+    try:
+        with pytest.raises(RuntimeError, match="does not support.*LegacyPinnedMemoryResource"):
+            mr.allocate(1024, stream=device.default_stream)
+    finally:
+        mr.close()
+
+
 def test_managed_memory_resource_initialization(init_cuda):
     device = Device()
     skip_if_managed_memory_unsupported(device)
@@ -1853,6 +1873,23 @@ def test_vmm_options_handle_type_win32_raises():
     """_handle_type_to_driver raises NotImplementedError for 'win32'."""
     with pytest.raises(NotImplementedError, match="win32 is currently not supported"):
         VirtualMemoryResourceOptions._handle_type_to_driver("win32")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("location_type", ["host", "host_numa", "host_numa_current"])
+def test_vmm_host_location_types_report_host_accessible(location_type):
+    """Every host-backed location type reports is_host_accessible.
+
+    __init__ classifies "host", "host_numa" and "host_numa_current" alike when
+    deciding the resource is not bound to a device, so is_host_accessible must
+    agree; otherwise a NUMA-located resource claims to be neither host- nor
+    device-accessible.
+    """
+    device = Device()
+    device.set_current()
+    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+    assert mr.device is None
+    assert mr.is_host_accessible is True
 
 
 def test_device_memory_resource_peer_accessible_by_non_owned(mempool_device):

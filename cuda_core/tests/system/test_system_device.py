@@ -684,6 +684,7 @@ def test_cooler():
         assert all(isinstance(t, typing.CoolerTarget) for t in target)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_temperature():
     for device in system.Device.get_all_devices():
         temperature = device.temperature
@@ -695,6 +696,9 @@ def test_temperature():
 
         # By docs, should be supported on KEPLER or newer, but experimentally,
         # is also unsupported on other hardware.
+        # get_threshold emits DeprecationWarning for some thresholds on Ada+;
+        # that behaviour is tested separately in
+        # test_temperature_threshold_unrecognized_device_arch.
         with unsupported_before(device, None):
             for threshold in list(typing.TemperatureThresholds):
                 t = temperature.get_threshold(threshold)
