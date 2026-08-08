@@ -199,23 +199,23 @@ cdef class Buffer:
         self._mem_attrs_inited.store(False)
         return self
 
-    @staticmethod
-    def _reduce_helper(mr, ipc_descriptor):
+    @classmethod
+    def _reduce_helper(cls, mr, ipc_descriptor):
         # The parent process's stream is not portable across processes, so the
         # pickle path cannot thread an explicit stream through. Seed the
         # imported buffer's deallocation with the current context's default
         # stream; the receiver can override via buffer.close(stream).
-        return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
+        return cls.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self) -> tuple[object, ...]:
         # Unpickling performs a live CUDA IPC import from descriptor bytes in the
         # pickle stream. Only deserialize Buffers from a trusted principal.
         # Must not serialize the parent's stream!
-        return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
+        return type(self)._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
-    @staticmethod
+    @classmethod
     def from_handle(
-        ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
+        cls, ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         owner: object | None = None,
     ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
@@ -241,7 +241,7 @@ cdef class Buffer:
         non-owning reference.  The pointer will NOT be freed when the
         :class:`Buffer` is closed or garbage collected.
         """
-        return Buffer._init(ptr, size, mr=mr, owner=owner)
+        return cls._init(ptr, size, mr=mr, owner=owner)
 
     @classmethod
     def from_ipc_descriptor(
