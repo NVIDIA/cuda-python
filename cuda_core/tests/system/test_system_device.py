@@ -715,8 +715,9 @@ def test_temperature(subtests):
         device_index = device.index
         temperature = None
         with subtests.test(device_index=device_index, temperature_api="temperature"):
-            temperature = device.temperature
-            assert isinstance(temperature, _device.Temperature)
+            value = device.temperature
+            assert isinstance(value, _device.Temperature)
+            temperature = value
         if temperature is None:
             continue
 
@@ -750,8 +751,9 @@ def test_temperature(subtests):
         thermals = None
         with subtests.test(device_index=device_index, temperature_api="get_thermal_settings"):
             with unsupported_before(device, None):
-                thermals = temperature.get_thermal_settings(typing.ThermalTarget.ALL)
-            assert isinstance(thermals, _device.ThermalSettings)
+                value = temperature.get_thermal_settings(typing.ThermalTarget.ALL)
+            assert isinstance(value, _device.ThermalSettings)
+            thermals = value
         if thermals is None:
             continue
 
@@ -874,7 +876,10 @@ def test_nvlink(subtests):
             subtests.test(device_index=device_index, nvlink_api="get_nvlink_count"),
             unsupported_before(device, None),
         ):
-            link_count = device.get_nvlink_count()
+            value = device.get_nvlink_count()
+            assert isinstance(value, int)
+            assert value >= 0
+            link_count = value
 
         for link in range(link_count):
             with subtests.test(device_index=device_index, nvlink_api="get_nvlink", link_index=link):
