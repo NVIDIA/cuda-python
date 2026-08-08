@@ -66,6 +66,21 @@ requirements are current.
 
 ---
 
+## Refresh frozen fallback explanation tables
+
+When this release adds support for a new CUDA Toolkit version, check
+whether the CTK release added any new `CUresult` or `cudaError_t` codes.
+If so, update the frozen fallback tables so error messages stay
+informative for consumers on older `cuda-bindings` versions:
+
+- `cuda_core/cuda/core/_utils/driver_cu_result_explanations_frozen.py`
+- `cuda_core/cuda/core/_utils/runtime_cuda_error_explanations_frozen.py`
+
+The corresponding tests in `test_utils_enum_explanations_helpers.py`
+will fail if an entry is missing.
+
+---
+
 ## Finalize the doc update, including release notes
 
 Review every PR included in the release. For each one, check whether new
