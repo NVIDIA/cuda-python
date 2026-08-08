@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=cb002a5e"></script>
+    <script src="../_static/documentation_options.js?v=7b131722"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev33';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev39';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -799,6 +799,24 @@ falling back. <code class="docutils literal notranslate"><span class="pre">cuda.
 (<code class="docutils literal notranslate"><span class="pre">cuLink</span></code>) backend, restoring the pre-0.7.0 behavior.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2409">#2409</a>,
 closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2408">#2408</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core.ProgramOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProgramOptions</span></code></a> now accepts <code class="docutils literal notranslate"><span class="pre">name=None</span></code> and falls back to the
+documented default <code class="docutils literal notranslate"><span class="pre">&quot;default_program&quot;</span></code>. Previously the annotated and
+documented <code class="docutils literal notranslate"><span class="pre">None</span></code> raised <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> during construction.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2517">#2517</a>,
+closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2516">#2516</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now checks ctypes host callbacks against the driver’s
+<code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code> signature (<code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">(*)(void*)</span></code>) before passing the function
+pointer to CUDA. <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.callback" title="cuda.core.graph.GraphNode.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.callback()</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.callback" title="cuda.core.graph.GraphBuilder.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.callback()</span></code></a>, and the host-callback <code class="docutils literal notranslate"><span class="pre">update()</span></code>
+methods raise <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> for a mismatched prototype, rather than leaving
+the driver to call through an incompatible signature, which is undefined
+behavior. Declarations that previously reached the driver, such as
+<code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE(ctypes.c_int,</span> <span class="pre">ctypes.c_void_p)</span></code>, are now rejected at the
+call site. A function pointer obtained from a shared library keeps ctypes’
+default <code class="docutils literal notranslate"><span class="pre">c_int</span></code> result type until it is declared, so set its <code class="docutils literal notranslate"><span class="pre">restype</span></code>
+and <code class="docutils literal notranslate"><span class="pre">argtypes</span></code> (or cast it to the prototype above) before passing it. On
+Windows, both <code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE</span></code> and <code class="docutils literal notranslate"><span class="pre">ctypes.WINFUNCTYPE</span></code> are accepted.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2439">#2439</a>)</p></li>
 </ul>
 </section>
 <section id="deprecation-notices">
