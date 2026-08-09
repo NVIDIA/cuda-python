@@ -291,7 +291,7 @@ def _option_is_set(options: ProgramOptions, name: str) -> bool:
         # (which is ``isinstance(v, Sequence)``). We therefore accept any
         # ``collections.abc.Sequence`` (range, deque, user subclass, etc.),
         # not just list/tuple.
-        if isinstance(value, (str, os.PathLike)):
+        if isinstance(value, str | os.PathLike):
             return True
         if isinstance(value, collections.abc.Sequence):
             return len(value) > 0

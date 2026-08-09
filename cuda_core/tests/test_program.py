@@ -773,6 +773,17 @@ def test_program_options_non_path_values_are_left_alone():
     assert options.use_pch is False
 
 
+def test_program_options_empty_path_option_is_not_coerced():
+    """``Path("")`` is ``Path(".")``, so coercing an empty string would turn
+    ``--include-path=`` into ``--include-path=.`` and start searching the
+    working directory. Leave it as the empty string so the emitted flag is
+    unchanged."""
+    options = ProgramOptions(arch="sm_80", include_path="")
+    assert options.include_path == ""
+    assert b"--include-path=" in options.as_bytes("nvrtc")
+    assert b"--include-path=." not in options.as_bytes("nvrtc")
+
+
 def test_program_options_as_bytes_invalid_backend():
     """Test ProgramOptions.as_bytes() with invalid backend"""
     options = ProgramOptions(arch="sm_80")

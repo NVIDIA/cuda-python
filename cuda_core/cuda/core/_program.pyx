@@ -673,11 +673,16 @@ def _coerce_path_option(value):
     keeping the container type. Anything else is returned unchanged, so the
     "silently ignored at compile time" behavior of non-path values (``False``,
     ``range(...)``, ...) is unaffected.
+
+    The empty string is left alone: ``Path("")`` is ``Path(".")``, so coercing
+    it would turn ``--include-path=`` into ``--include-path=.`` and start
+    searching the working directory. Every other normalization ``Path`` applies
+    (a trailing separator, a doubled separator) names the same directory.
     """
     if isinstance(value, (str, PathLike)):
-        return Path(value)
+        return value if value == "" else Path(value)
     if isinstance(value, (list, tuple)):
-        coerced = [Path(v) if isinstance(v, (str, PathLike)) else v for v in value]
+        coerced = [_coerce_path_option(v) if isinstance(v, (str, PathLike)) else v for v in value]
         return tuple(coerced) if isinstance(value, tuple) else coerced
     return value
 
