@@ -104,9 +104,8 @@ def _rename_architecture_specific_files():
 
 
 def _prep_extensions(sources, libraries, include_dirs, library_dirs, extra_compile_args, extra_link_args):
-    # sources[0] is a glob pattern (or a concrete file), not a directory, so
-    # glob.glob() is still the right tool; str() covers the Path entries that
-    # _rename_architecture_specific_files() produces.
+    # sources[0] is a pattern rooted anywhere, not a directory to search, so
+    # there is no Path.glob() form for it.
     pattern = str(sources[0])
     files = glob.glob(pattern)
     libraries = libraries if libraries else []
