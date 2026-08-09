@@ -63,8 +63,8 @@ def is_post_release(version: str) -> bool:
     return ".post" in version
 
 
-def load_backport_branch(repo_root: str = ".") -> str | None:
-    path = Path(repo_root, "ci", "versions.yml")
+def load_backport_branch(repo_root: Path = Path(".")) -> str | None:
+    path = repo_root / "ci" / "versions.yml"
     try:
         with open(path, encoding="utf-8") as f:
             for line in f:
@@ -89,7 +89,7 @@ def notes_path(package: str, version: str) -> Path:
     return Path(package, "docs", "source", "release", f"{version}-notes.rst")
 
 
-def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> list[tuple[str | Path, str]]:
+def check_release_notes(git_tag: str, component: str, repo_root: Path = Path(".")) -> list[tuple[str | Path, str]]:
     """Return a list of (path, reason) for missing or empty release notes.
 
     ``path`` is the repo-relative notes path, or a ``<placeholder>`` naming the
@@ -109,7 +109,7 @@ def check_release_notes(git_tag: str, component: str, repo_root: str = ".") -> l
         return []
 
     path = notes_path(COMPONENT_TO_PACKAGE[component], version)
-    full = Path(repo_root) / path
+    full = repo_root / path
     if not full.is_file():
         return [(path, "missing")]
     if full.stat().st_size == 0:
@@ -151,7 +151,7 @@ def validate_backport_decision(
     version: str,
     backport_git_tag: str,
     backport_branch: str | None,
-    repo_root: str,
+    repo_root: Path,
 ) -> tuple[int | None, list[tuple[str | Path, str]]]:
     if component not in BACKPORT_PLANNING_COMPONENTS or is_post_release(version):
         return None, []
@@ -209,7 +209,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--git-tag", required=True)
     parser.add_argument("--component", required=True, choices=list(COMPONENT_TO_PACKAGE))
-    parser.add_argument("--repo-root", default=".")
+    parser.add_argument("--repo-root", default=Path("."), type=Path)
     parser.add_argument("--backport-git-tag", default="")
     parser.add_argument("--backport-branch", default="")
     args = parser.parse_args(argv)

@@ -14,7 +14,6 @@ current NVVM IR version detected at runtime.
 """
 
 import binascii
-import os
 import sys
 import textwrap
 from pathlib import Path
@@ -27,7 +26,7 @@ from cuda.bindings import nvvm
 def get_minimal_nvvmir_txt_template():
     cuda_bindings_tests_dir = Path("cuda_bindings/tests")
     assert cuda_bindings_tests_dir.is_dir(), "Please run this helper script from the cuda-python top-level directory."
-    sys.path.insert(0, os.path.abspath(cuda_bindings_tests_dir))
+    sys.path.insert(0, str(cuda_bindings_tests_dir.resolve()))
     import test_nvvm
 
     return test_nvvm.MINIMAL_NVVMIR_TXT_TEMPLATE
