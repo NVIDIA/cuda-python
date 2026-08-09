@@ -34,6 +34,48 @@ get_requires_for_build_editable = _build_meta.get_requires_for_build_editable
 _extensions = None
 
 
+def env_int(name: str, default: int) -> int:
+    """Read an integer build knob from the environment.
+
+    Unset and empty mean the same thing. ``CUDA_PYTHON_COVERAGE= pip install .``
+    (and the equivalent empty value in a Dockerfile ``ENV`` or a CI job spec) is
+    how a variable gets neutralised, and it must not abort the build -- a bare
+    ``int("")`` raises ``ValueError: invalid literal for int() with base 10: ''``
+    from the PEP 517 backend, so the failure arrives with no indication of which
+    variable caused it.
+
+    A value that is set to something non-integer is a typo worth stopping for:
+    silently ignoring ``CUDA_PYTHON_COVERAGE=yes`` would hand back a build with
+    no coverage instrumentation. It is reported with the variable's name rather
+    than as an anonymous ``invalid literal for int()``.
+    """
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        raise ValueError(f"environment variable {name}={os.environ[name]!r} must be an integer") from None
+
+
+def parallel_level() -> int:
+    """Number of parallel jobs requested for the build.
+
+    ``PARALLEL_LEVEL`` is the deprecated spelling of
+    ``CUDA_PYTHON_PARALLEL_LEVEL``. An empty value counts as "not set" for both,
+    so ``PARALLEL_LEVEL=`` neither warns about a variable the caller is not
+    using nor shadows ``CUDA_PYTHON_PARALLEL_LEVEL``.
+    """
+    if os.environ.get("PARALLEL_LEVEL", "").strip():
+        warn(
+            "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return env_int("PARALLEL_LEVEL", 0)
+    return env_int("CUDA_PYTHON_PARALLEL_LEVEL", 0)
+
+
 # Please keep in sync with the copy in cuda_core/build_hooks.py.
 def _import_get_cuda_path_or_home():
     """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
@@ -142,17 +184,9 @@ def _build_cuda_bindings(debug=False):
 
     cuda_path = _get_cuda_path()
 
-    if os.environ.get("PARALLEL_LEVEL") is not None:
-        warn(
-            "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        nthreads = int(os.environ.get("PARALLEL_LEVEL", "0"))
-    else:
-        nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", "0") or "0")
+    nthreads = parallel_level()
 
-    compile_for_coverage = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+    compile_for_coverage = bool(env_int("CUDA_PYTHON_COVERAGE", 0))
 
     # Prepare compile/link arguments
     include_path_list = [os.path.join(cuda_path, "include")]
