@@ -7,7 +7,7 @@ import pytest
 
 import cuda.core
 from cuda.bindings import driver, runtime
-from cuda.core import Device
+from cuda.core import Device, system
 from cuda.core._utils.cuda_utils import ComputeCapability, handle_return
 from cuda.core._utils.version import driver_version
 
@@ -340,14 +340,12 @@ def test_device_equality_reflexive(init_cuda):
 
 def test_device_inequality_different_id(init_cuda):
     """Devices with different device_id should not be equal."""
-    try:
-        dev0 = Device(0)
-        dev1 = Device(1)
-
-        assert dev0 != dev1, "Different devices should not be equal"
-        assert dev0 != dev1, "Different devices should be not-equal"
-    except (ValueError, Exception):
+    if system.get_num_devices() < 2:
         pytest.skip("Test requires at least 2 CUDA devices")
+    dev0 = Device(0)
+    dev1 = Device(1)
+
+    assert dev0 != dev1, "Different devices should not be equal"
 
 
 def test_device_type_safety(init_cuda):
@@ -386,16 +384,14 @@ def test_device_equality_same_id_hash(init_cuda):
 
 def test_device_inequality_different_id_hash(init_cuda):
     """Devices with different device_id should not be equal."""
-    try:
-        # Only run test when two devices are available.
-        dev0 = Device(0)
-        dev1 = Device(1)
-
-        assert dev0 != dev1, "Different devices should not be equal"
-        assert hash(dev0) != hash(dev1), "Different devices should have different hashes"
-    except (ValueError, Exception):
-        # Test is skipped if only one device available
+    # Only run test when two devices are available.
+    if system.get_num_devices() < 2:
         pytest.skip("Test requires at least 2 CUDA devices")
+    dev0 = Device(0)
+    dev1 = Device(1)
+
+    assert dev0 != dev1, "Different devices should not be equal"
+    assert hash(dev0) != hash(dev1), "Different devices should have different hashes"
 
 
 def test_device_dict_key(init_cuda):
