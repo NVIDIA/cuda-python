@@ -27,10 +27,28 @@ author = "NVIDIA"
 release = os.environ["SPHINX_CUDA_CORE_VER"]
 
 
+def _env_flag(name: str) -> bool:
+    """Read a 0/1 docs-build flag from the environment.
+
+    Unset and empty mean the same thing here: the build scripts test these with
+    ``-z "${BUILD_PREVIEW:-}"``, so an exported-but-empty value is already
+    "not set" one layer up. A bare ``int()`` disagreed and raised
+    ``ValueError: invalid literal for int() with base 10: ''``, aborting the
+    docs build from conf.py.
+    """
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return False
+    try:
+        return int(raw) != 0
+    except ValueError:
+        return True
+
+
 def _github_examples_ref():
     if ref := os.environ.get("CUDA_PYTHON_DOCS_GITHUB_REF"):
         return ref
-    if int(os.environ.get("BUILD_PREVIEW", 0)) or int(os.environ.get("BUILD_LATEST", 0)):
+    if _env_flag("BUILD_PREVIEW") or _env_flag("BUILD_LATEST"):
         return "main"
     return f"cuda-core-v{release}"
 
@@ -40,9 +58,9 @@ GITHUB_EXAMPLES_REF = _github_examples_ref()
 
 def _html_baseurl():
     docs_domain = os.environ.get("CUDA_PYTHON_DOCS_DOMAIN", "https://nvidia.github.io/cuda-python")
-    if int(os.environ.get("BUILD_PREVIEW", 0)):
+    if _env_flag("BUILD_PREVIEW"):
         return f"{docs_domain}/pr-preview/pr-{os.environ['PR_NUMBER']}/cuda-core/latest/"
-    if int(os.environ.get("BUILD_LATEST", 0)):
+    if _env_flag("BUILD_LATEST"):
         return f"{docs_domain}/cuda-core/latest/"
     return f"{docs_domain}/cuda-core/{release}/"
 
@@ -103,11 +121,11 @@ html_theme_options = {
     "show_toc_level": 3,
 }
 if os.environ.get("CI"):
-    if int(os.environ.get("BUILD_PREVIEW", 0)):
+    if _env_flag("BUILD_PREVIEW"):
         PR_NUMBER = f"{os.environ['PR_NUMBER']}"
         PR_TEXT = f'<a href="https://github.com/NVIDIA/cuda-python/pull/{PR_NUMBER}">PR {PR_NUMBER}</a>'
         html_theme_options["announcement"] = f"<em>Warning</em>: This documentation is only a preview for {PR_TEXT}!"
-    elif int(os.environ.get("BUILD_LATEST", 0)):
+    elif _env_flag("BUILD_LATEST"):
         html_theme_options["announcement"] = (
             "<em>Warning</em>: This documentation is built from the development branch!"
         )
