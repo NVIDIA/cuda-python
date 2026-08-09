@@ -30,10 +30,15 @@ def _normalize_stub_headers(root: pathlib.Path) -> None:
     for stub in root.rglob("*.pyi"):
         data = stub.read_bytes()
         newline = data.find(b"\n")
+        # ``find`` returns -1 when the stub is a single line with no trailing
+        # newline. Both slices must honour that sentinel: ``data[-1:]`` is the
+        # file's last byte, so the rest-of-file slice would append a duplicate
+        # of it to the rewritten header.
         first_line = data[:newline] if newline != -1 else data
+        rest = data[newline:] if newline != -1 else b""
         if not first_line.startswith(_HEADER_PREFIX) or b"\\" not in first_line:
             continue
-        stub.write_bytes(first_line.replace(b"\\", b"/") + data[newline:])
+        stub.write_bytes(first_line.replace(b"\\", b"/") + rest)
 
 
 def main() -> int:
