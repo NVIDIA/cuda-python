@@ -73,6 +73,13 @@ Fixes and enhancements
   Windows, both ``ctypes.CFUNCTYPE`` and ``ctypes.WINFUNCTYPE`` are accepted.
   (`#2439 <https://github.com/NVIDIA/cuda-python/issues/2439>`__)
 
+- :meth:`ObjectCode.get_kernel` now accepts a ``symbol_mapping`` whose values
+  are ``str``, as :meth:`ObjectCode.from_cubin` and its siblings document
+  (``dict[str, str]``). The mapped name was only encoded on the *miss* path, so
+  a hand-built mapping raised ``TypeError: expected bytes, str found`` for
+  exactly the names it was supposed to translate. Mappings produced by
+  :meth:`Program.compile` are unaffected -- their values are already ``bytes``.
+
 Deprecation Notices
 -------------------
 

@@ -802,8 +802,16 @@ cdef class ObjectCode:
         try:
             name = self._sym_map[name]
         except KeyError:
-            if isinstance(name, str):
-                name = name.encode()
+            pass
+        # Encode after the lookup, not only on the miss path. symbol_mapping is
+        # annotated and documented `dict[str, str]`, but a str mapped value used
+        # to reach `<const char*>` unencoded and raise
+        # "TypeError: expected bytes, str found". Program.compile stores the
+        # lowered names as bytes (nvrtcGetLoweredName), so only the documented
+        # hand-built form was affected -- i.e. the mapping worked only when it
+        # did nothing.
+        if isinstance(name, str):
+            name = name.encode()
 
         cdef KernelHandle h_kernel = create_kernel_handle(self._h_library, <const char*>name)
         if not h_kernel:
