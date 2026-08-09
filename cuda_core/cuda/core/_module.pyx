@@ -636,7 +636,7 @@ cdef class ObjectCode:
         )
 
     @classmethod
-    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
+    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict[str, str | bytes] | None = None) -> ObjectCode:
         assert code_type in _supported_code_type, f"{code_type=} is not supported"
         cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
@@ -651,7 +651,13 @@ cdef class ObjectCode:
             self._module = fspath(module)
         else:
             self._module = module
-        self._sym_map = {} if symbol_mapping is None else symbol_mapping
+        # Normalise here so `_sym_map` is homogeneous: `Program.compile` supplies
+        # bytes (nvrtcGetLoweredName returns const char*), while a hand-built
+        # mapping is documented as str. Storing one type removes the need to
+        # probe the value's type on every `get_kernel` call.
+        self._sym_map = {} if symbol_mapping is None else {
+            k: (v.encode() if isinstance(v, str) else v) for k, v in symbol_mapping.items()
+        }
         self._name = name if name else ""
 
         return self
@@ -664,7 +670,7 @@ cdef class ObjectCode:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
+    def from_cubin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str | bytes] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -683,7 +689,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.CUBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
+    def from_ptx(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str | bytes] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -702,7 +708,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.PTX, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
+    def from_ltoir(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str | bytes] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
@@ -721,7 +727,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.LTOIR, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
+    def from_fatbin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str | bytes] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
@@ -740,7 +746,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.FATBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
+    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str | bytes] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
@@ -758,7 +764,7 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.OBJECT, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
+    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str | bytes] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters
@@ -802,6 +808,8 @@ cdef class ObjectCode:
         try:
             name = self._sym_map[name]
         except KeyError:
+            # Not a mangled-name lookup, so `name` is still whatever the caller
+            # passed and may need encoding before it reaches `<const char*>`.
             if isinstance(name, str):
                 name = name.encode()
 
@@ -845,8 +853,12 @@ cdef class ObjectCode:
         return self._code_type
 
     @property
-    def symbol_mapping(self) -> dict[str, str]:
-        """Return a copy of the symbol mapping dictionary."""
+    def symbol_mapping(self) -> dict[str, bytes]:
+        """Return a copy of the symbol mapping dictionary.
+
+        Values are always ``bytes``: a ``str`` passed to a factory method is
+        encoded when it is stored.
+        """
         return dict(self._sym_map)
 
     @property

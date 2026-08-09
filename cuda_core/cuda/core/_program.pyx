@@ -903,7 +903,12 @@ cdef object _nvrtc_compile_and_extract(
             name_bytes = n.encode() if isinstance(n, str) else n
             name_ptr = <const char*>name_bytes
             HANDLE_RETURN_NVRTC(prog, cynvrtc.nvrtcGetLoweredName(prog, name_ptr, &lowered_name))
-            symbol_mapping[n] = lowered_name if lowered_name != NULL else None
+            if lowered_name == NULL:
+                # HANDLE_RETURN_NVRTC above already raises on failure, so this is
+                # defensive. Storing None would reach <const char*>None in
+                # ObjectCode.get_kernel and segfault, so refuse it here instead.
+                raise RuntimeError(f"nvrtcGetLoweredName returned no lowered name for {n!r}")
+            symbol_mapping[n] = lowered_name
 
     # Get compilation log if requested
     if logs is not None:

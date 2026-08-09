@@ -369,6 +369,27 @@ def test_object_code_load_cubin(get_saxpy_kernel_cubin):
     mod.get_kernel("saxpy<double>")  # force loading
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_object_code_symbol_mapping_accepts_str_values(get_saxpy_kernel_cubin):
+    """``symbol_mapping`` is annotated and documented ``dict[str, str]``.
+
+    ``Program.compile`` stores the lowered names as ``bytes`` (they come from
+    ``nvrtcGetLoweredName``), so every existing test round-trips
+    ``mod.symbol_mapping`` unchanged and the documented ``str`` form is never
+    exercised. On a mapping *hit* the value went straight to ``<const char*>``
+    without being encoded, so a hand-built ``dict[str, str]`` raised
+    ``TypeError: expected bytes, str found`` -- the mapping worked only for
+    names it did not map.
+    """
+    _, mod = get_saxpy_kernel_cubin
+    cubin = mod.code
+    str_sym_map = {k: v.decode() if isinstance(v, bytes) else v for k, v in mod.symbol_mapping.items()}
+    assert all(isinstance(v, str) for v in str_sym_map.values())
+
+    obj = ObjectCode.from_cubin(cubin, symbol_mapping=str_sym_map)
+    obj.get_kernel("saxpy<double>")  # force loading through the mapped name
+
+
 def test_object_code_load_cubin_from_file(get_saxpy_kernel_cubin, tmp_path, convert_path):
     _, mod = get_saxpy_kernel_cubin
     cubin = mod.code
