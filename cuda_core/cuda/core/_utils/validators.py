@@ -28,7 +28,11 @@ def check_str_enum(value, enum_class, *, allow_none=False):
     """
     if allow_none and value is None:
         return
-    if value not in {m.value for m in enum_class}:
+    # Membership is tested against a tuple rather than a set on purpose:
+    # ``x in {...}`` hashes ``x``, so an unhashable argument (a list, a dict,
+    # a bytearray) would raise ``TypeError: unhashable type`` from inside the
+    # check instead of the ValueError this function exists to raise.
+    if value not in tuple(m.value for m in enum_class):
         valid = sorted(m.value for m in enum_class)
         if allow_none:
             valid = [None, *valid]
