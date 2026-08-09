@@ -84,6 +84,53 @@ class TestVersionCompatibilityCheck:
             warn_if_cuda_major_version_mismatch()
             assert len(w) == 0
 
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    @pytest.mark.parametrize(
+        ("raw", "expected"),
+        [
+            pytest.param("0", False, id="zero"),
+            pytest.param(" 0 ", False, id="zero-padded"),
+            pytest.param("", False, id="empty"),
+            pytest.param("   ", False, id="blank"),
+            pytest.param("1", True, id="one"),
+            pytest.param("2", True, id="two"),
+            # Not an integer: keep the old set-means-disabled behaviour so no
+            # one relying on a spelling like `=true` starts seeing the warning
+            # again.
+            pytest.param("true", True, id="true"),
+            pytest.param("yes", True, id="yes"),
+        ],
+    )
+    def test_disable_flag_parsing(self, monkeypatch, raw, expected):
+        monkeypatch.setenv("CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING", raw)
+        assert _version_check._warning_disabled() is expected
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_disable_flag_unset(self, monkeypatch):
+        monkeypatch.delenv("CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING", raising=False)
+        assert _version_check._warning_disabled() is False
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_warning_not_suppressed_when_env_var_is_zero(self):
+        """``=0`` is how a user says "no, keep warning me".
+
+        A bare truthiness test on the raw string made ``=0`` suppress the
+        warning -- the opposite of what the warning itself tells the user to
+        type, and the opposite of the other boolean knobs in this repository
+        (``CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM``,
+        ``CUDA_CORE_DONT_FIX_TAB_COMPLETION``), which both parse with ``int()``.
+        """
+        with (
+            mock.patch.object(driver, "CUDA_VERSION", 13000),
+            mock.patch.object(driver, "cuDriverGetVersion", return_value=(driver.CUresult.CUDA_SUCCESS, 12080)),
+            mock.patch.dict(os.environ, {"CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING": "0"}),
+            warnings.catch_warnings(record=True) as w,
+        ):
+            warnings.simplefilter("always")
+            warn_if_cuda_major_version_mismatch()
+            assert len(w) == 1
+            assert issubclass(w[0].category, UserWarning)
+
     def test_error_when_driver_version_fails(self):
         """Should raise RuntimeError if cuDriverGetVersion fails."""
         with (
