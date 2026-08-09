@@ -16,6 +16,24 @@ VERSIONS_FILE_PATH = ROOT / "ci" / "versions.yml"
 PIXI_FILES = [ROOT / d / "pixi.toml" for d in ("cuda_bindings", "cuda_core")]
 
 
+def parse_build_version(build_version: object) -> tuple[str, str] | None:
+    """Split ``cuda.build.version`` into ``(major, minor)``, or ``None``.
+
+    Returns ``None`` for anything that is not a ``<major>.<minor>[.…]`` string
+    of digits. YAML makes this easy to get wrong: an unquoted ``13.3`` loads as
+    the float ``13.3`` and an unquoted ``13`` as the int ``13``, neither of
+    which has ``.split``. Without this check those -- and a quoted but
+    single-component ``"13"`` -- escaped as a raw traceback from a pre-commit
+    hook whose every other failure path returns a diagnostic exit code.
+    """
+    if not isinstance(build_version, str):
+        return None
+    parts = build_version.split(".")
+    if len(parts) < 2 or not all(part.isdigit() for part in parts[:2]):
+        return None
+    return parts[0], parts[1]
+
+
 def main() -> int:
     """Verify cuda_bindings/cuda_core pixi pins match ci/versions.yml."""
     if not VERSIONS_FILE_PATH.is_file():
@@ -27,7 +45,16 @@ def main() -> int:
         print(f"error: cuda.build.version not found in {VERSIONS_FILE_PATH}", file=sys.stderr)
         return 2
 
-    major, minor, *_ = build_version.split(".")
+    parsed = parse_build_version(build_version)
+    if parsed is None:
+        print(
+            f"error: cuda.build.version={build_version!r} in {VERSIONS_FILE_PATH} is not a "
+            f"'<major>.<minor>[.<patch>]' version string. Quote the value in YAML so it is "
+            f"not loaded as a number (13.3 becomes a float, 13 becomes an int).",
+            file=sys.stderr,
+        )
+        return 2
+    major, minor = parsed
     expected = f"{major}.{minor}.*"
     cuda_feature = f"cu{major}"
 
