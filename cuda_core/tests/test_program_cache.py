@@ -348,6 +348,60 @@ def test_make_program_cache_key_rejects(kwargs, exc_type, match):
         _make_key(**kwargs)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize(
+    "bad",
+    [
+        # 0 is the sharp one: it satisfies every `extra_digest is not None`
+        # guard, and bytes(0) is empty, so the key it produces is identical to
+        # one built with b"" and carries no fingerprint at all.
+        pytest.param(0, id="int-zero"),
+        pytest.param(5, id="int-nonzero"),
+        pytest.param(-1, id="int-negative"),
+        pytest.param(True, id="bool"),
+        pytest.param("abcd", id="str"),
+        pytest.param(1.5, id="float"),
+        pytest.param(["abcd"], id="list"),
+    ],
+)
+def test_make_program_cache_key_rejects_non_bytes_extra_digest(bad):
+    with pytest.raises(TypeError, match="extra_digest must be bytes"):
+        _make_key(extra_digest=bad)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize(
+    "digest",
+    [
+        pytest.param(b"\x01" * 32, id="bytes"),
+        pytest.param(bytearray(b"\x01" * 32), id="bytearray"),
+        pytest.param(memoryview(b"\x01" * 32), id="memoryview"),
+    ],
+)
+def test_make_program_cache_key_accepts_bytes_like_extra_digest(digest):
+    """All three bytes-like spellings are accepted and hash identically."""
+    assert _make_key(extra_digest=digest) == _make_key(extra_digest=b"\x01" * 32)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_non_bytes_extra_digest_cannot_bypass_the_external_content_guard():
+    """The external-content guard asks only whether extra_digest `is not None`.
+
+    A caller passing 0 -- a plausible "no digest yet" sentinel -- used to slip
+    past it and get a persistent key that is blind to the header contents it
+    was supposed to fingerprint, which is exactly what the guard exists to
+    prevent.
+    """
+    with pytest.raises(ValueError, match="without an extra_digest"):
+        _make_key(options=_opts(include_path="/my/headers"))
+
+    with pytest.raises(TypeError, match="extra_digest must be bytes"):
+        _make_key(options=_opts(include_path="/my/headers"), extra_digest=0)
+
+    # A real digest is still the way through.
+    assert isinstance(_make_key(options=_opts(include_path="/my/headers"), extra_digest=b"\x01" * 32), bytes)
+
+
 @pytest.mark.parametrize(
     "code_type, code, target_type",
     [

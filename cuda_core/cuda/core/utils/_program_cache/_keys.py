@@ -669,7 +669,8 @@ def make_program_cache_key(
         ``use_pch``, ``pch_dir``) -- the cache cannot read those files on
         the caller's behalf, so the caller must fingerprint the header /
         PCH surface and pass it here. Callers may pass this for other
-        inputs too (embedded kernels, generated sources, etc.).
+        inputs too (embedded kernels, generated sources, etc.). Must be
+        ``bytes``, ``bytearray``, ``memoryview``, or ``None``.
 
     Returns
     -------
@@ -686,6 +687,8 @@ def make_program_cache_key(
         If ``extra_digest`` is ``None`` while ``options`` sets any option
         whose compilation effect depends on external file content that the
         key cannot otherwise observe.
+    TypeError
+        If ``extra_digest`` is neither ``None`` nor a bytes-like object.
 
     Examples
     --------
@@ -751,6 +754,20 @@ def make_program_cache_key(
     # init and target_type at the top of compile); a caller that passes
     # "PTX" or "C++" must get the same routing and the same cache key as
     # the lowercase form.
+    # Check the digest's type before anything else: every guard below asks
+    # only whether it ``is not None``, so a non-bytes value satisfies the
+    # requirement to supply a digest for options that read external files
+    # while contributing nothing to the key. ``extra_digest=0`` is the worst
+    # shape -- ``bytes(0)`` is empty, so the key is byte-identical to one
+    # built with ``extra_digest=b""`` and is completely blind to the header
+    # content the caller was asked to fingerprint.
+    if extra_digest is not None and not isinstance(extra_digest, bytes | bytearray | memoryview):
+        raise TypeError(
+            f"extra_digest must be bytes, bytearray, memoryview, or None; got "
+            f"{type(extra_digest).__name__}. It satisfies the guards that require a "
+            f"digest for options reading external files, but contributes no digest bytes."
+        )
+
     code_type = code_type.lower() if isinstance(code_type, str) else code_type
     target_type = target_type.lower() if isinstance(target_type, str) else target_type
     check_str_enum(code_type, SourceCodeType)
