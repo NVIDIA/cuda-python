@@ -391,8 +391,20 @@ class FileStreamProgramCache(ProgramCacheResource):
         *,
         max_size_bytes: int | None = None,
     ) -> None:
-        if max_size_bytes is not None and max_size_bytes <= 0:
-            raise ValueError("max_size_bytes must be positive or None (0 would evict every write)")
+        if max_size_bytes is not None and (
+            # bool is an int subclass, so True would sail through as a 1-byte
+            # cap that discards every write while its twin False is rejected.
+            isinstance(max_size_bytes, bool) or not isinstance(max_size_bytes, int) or max_size_bytes <= 0
+        ):
+            raise ValueError(
+                f"max_size_bytes must be a positive int or None (0 would evict every write), got {max_size_bytes!r}"
+            )
+        if path is not None and os.fspath(path) == "":
+            # Path("") is Path("."), so an empty string would quietly root the
+            # cache in the current working directory and create entries/ and
+            # tmp/ there. Callers reach this via os.environ.get("VAR", ""); say
+            # so rather than scribbling in whatever directory they ran from.
+            raise ValueError("path must be a non-empty directory, or None to use the default user cache directory")
         self._root = Path(path) if path is not None else _default_cache_dir()
         self._entries = self._root / _ENTRIES_SUBDIR
         self._tmp = self._root / _TMP_SUBDIR

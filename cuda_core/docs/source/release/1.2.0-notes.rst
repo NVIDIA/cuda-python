@@ -73,6 +73,14 @@ Fixes and enhancements
   Windows, both ``ctypes.CFUNCTYPE`` and ``ctypes.WINFUNCTYPE`` are accepted.
   (`#2439 <https://github.com/NVIDIA/cuda-python/issues/2439>`__)
 
+- The program caches now reject a ``max_size_bytes`` that is not a positive
+  ``int``. ``max_size_bytes=True`` was accepted as a one-byte cap that silently
+  discarded every write, even though ``False`` was rejected, and a ``str`` cap
+  raised ``TypeError`` from the comparison rather than the documented
+  ``ValueError``. :class:`~cuda.core.utils.FileStreamProgramCache` also rejects
+  an empty ``path``: ``Path("")`` is ``Path(".")``, so it used to root the cache
+  in the current working directory.
+
 Deprecation Notices
 -------------------
 

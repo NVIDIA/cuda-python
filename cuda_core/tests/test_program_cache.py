@@ -1512,6 +1512,51 @@ def test_filestream_cache_rejects_non_positive_size_cap(tmp_path, bad):
         FileStreamProgramCache(tmp_path / "fc", max_size_bytes=bad)
 
 
+# Values a bare `<= 0` test lets through. `True` is the sharp one: bool is an
+# int subclass, so it becomes a 1-byte cap that silently discards every write,
+# while its twin `False` is rejected.
+NON_INT_SIZE_CAPS = [
+    pytest.param(True, id="bool-true"),
+    pytest.param(1.5, id="float"),
+    pytest.param("100", id="str"),
+]
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("bad", NON_INT_SIZE_CAPS)
+def test_filestream_cache_rejects_non_int_size_cap(tmp_path, bad):
+    from cuda.core.utils import FileStreamProgramCache
+
+    with pytest.raises(ValueError, match="positive"):
+        FileStreamProgramCache(tmp_path / "fc", max_size_bytes=bad)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_filestream_cache_rejects_an_empty_path(tmp_path, monkeypatch):
+    """`Path("")` is `Path(".")`, so an empty path would root the cache in the
+    current working directory and create entries/ and tmp/ there. Callers reach
+    this through `os.environ.get("VAR", "")`."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ValueError, match="non-empty directory"):
+        FileStreamProgramCache("")
+
+    assert sorted(p.name for p in tmp_path.iterdir()) == []
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_filestream_cache_still_accepts_an_explicit_dot(tmp_path, monkeypatch):
+    """Only the empty string is rejected; an explicit relative path is fine."""
+    from cuda.core.utils import FileStreamProgramCache
+
+    monkeypatch.chdir(tmp_path)
+    with FileStreamProgramCache(".") as cache:
+        cache[b"k"] = b"hello"
+        assert cache[b"k"] == b"hello"
+    assert (tmp_path / "entries").is_dir()
+
+
 def test_default_cache_dir_lives_under_user_cache_root(monkeypatch, tmp_path):
     """The cache root is platform-specific:
 
@@ -2436,6 +2481,15 @@ def test_inmemory_cache_overwrite_replaces_value_and_updates_size():
 
 @pytest.mark.parametrize("bad", [-1, 0])
 def test_inmemory_cache_rejects_non_positive_size_cap(bad):
+    from cuda.core.utils import InMemoryProgramCache
+
+    with pytest.raises(ValueError, match="positive"):
+        InMemoryProgramCache(max_size_bytes=bad)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("bad", NON_INT_SIZE_CAPS)
+def test_inmemory_cache_rejects_non_int_size_cap(bad):
     from cuda.core.utils import InMemoryProgramCache
 
     with pytest.raises(ValueError, match="positive"):
