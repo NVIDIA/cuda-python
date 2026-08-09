@@ -6,6 +6,8 @@ from __future__ import annotations
 import os
 import sys
 
+import pytest
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from check_release_notes import (
     check_release_notes,
@@ -144,6 +146,55 @@ class TestLoadBackportBranch:
         monkeypatch.setenv("GITHUB_REF_NAME", "main")
 
         assert load_backport_branch(str(tmp_path)) is None
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_explicitly_empty_value_is_not_overridden_by_the_environment(self, tmp_path, monkeypatch):
+        """`backport_branch: ""` is a decision, not a missing key.
+
+        The value capture required at least one character, so an empty value
+        matched nothing and was indistinguishable from an absent key -- control
+        fell through to GITHUB_REF_NAME, and a maintainer who blanked the
+        setting to disable backport gating got it re-enabled from whatever
+        branch the workflow happened to run on.
+        """
+        d = tmp_path / "ci"
+        d.mkdir(parents=True)
+        (d / "versions.yml").write_text('backport_branch: ""\n')
+        monkeypatch.setenv("GITHUB_REF_NAME", "12.9.x")
+
+        assert load_backport_branch(str(tmp_path)) is None
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_configured_value_wins_over_the_environment(self, tmp_path, monkeypatch):
+        d = tmp_path / "ci"
+        d.mkdir(parents=True)
+        (d / "versions.yml").write_text('backport_branch: "12.9.x"\n')
+        monkeypatch.setenv("GITHUB_REF_NAME", "11.8.x")
+
+        assert load_backport_branch(str(tmp_path)) == "12.9.x"
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_nested_key_does_not_shadow_the_top_level_one(self, tmp_path, monkeypatch):
+        """Only a column-0 `backport_branch:` is the real setting.
+
+        The line was stripped before matching, so indentation was erased and a
+        `backport_branch:` nested under any other key won on line order.
+        """
+        monkeypatch.delenv("GITHUB_REF_NAME", raising=False)
+        d = tmp_path / "ci"
+        d.mkdir(parents=True)
+        (d / "versions.yml").write_text('cuda:\n  legacy:\n    backport_branch: "11.8.x"\nbackport_branch: "12.9.x"\n')
+
+        assert load_backport_branch(str(tmp_path)) == "12.9.x"
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_commented_out_key_is_ignored(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("GITHUB_REF_NAME", raising=False)
+        d = tmp_path / "ci"
+        d.mkdir(parents=True)
+        (d / "versions.yml").write_text('# backport_branch: "9.9.x"\nbackport_branch: "12.9.x"\n')
+
+        assert load_backport_branch(str(tmp_path)) == "12.9.x"
 
 
 class TestMain:
