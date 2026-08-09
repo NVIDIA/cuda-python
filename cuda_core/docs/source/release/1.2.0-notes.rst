@@ -73,6 +73,14 @@ Fixes and enhancements
   Windows, both ``ctypes.CFUNCTYPE`` and ``ctypes.WINFUNCTYPE`` are accepted.
   (`#2439 <https://github.com/NVIDIA/cuda-python/issues/2439>`__)
 
+- ``key in cache`` on a :class:`~cuda.core.utils.ProgramCacheResource` now
+  raises ``TypeError`` instead of walking the cache as a legacy sequence.
+  The class deliberately provides no ``__contains__``, but defining
+  ``__getitem__`` without ``__iter__`` made ``in`` fall back to
+  ``cache[0], cache[1], ...`` compared against the values. Use
+  :meth:`~cuda.core.utils.ProgramCacheResource.get`, which answers presence and
+  retrieval in one operation.
+
 Deprecation Notices
 -------------------
 
