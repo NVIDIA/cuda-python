@@ -345,6 +345,20 @@ def test_program_init_invalid_code_type():
         Program(code, "FORTRAN")
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_program_init_invalid_code_type_reports_the_code_type():
+    """An unrecognised code_type is the error worth reporting, even when
+    use_libdevice is set.
+
+    The use_libdevice guard used to live in this branch, so a typo'd
+    code_type combined with use_libdevice=True reported
+    "use_libdevice is only supported by the NVVM backend" and never
+    mentioned that the code_type was the actual problem.
+    """
+    with pytest.raises(RuntimeError, match=r"^Unsupported code_type='fortran'"):
+        Program("goto 100", "FORTRAN", ProgramOptions(arch="sm_80", use_libdevice=True))
+
+
 def test_program_init_invalid_code_format():
     code = 12345
     with pytest.raises(TypeError):
@@ -718,6 +732,22 @@ def test_cpp_program_with_extra_sources():
         Program(code, "c++", options)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_cpp_program_with_use_libdevice():
+    """NVRTC has no libdevice loading path.
+
+    The guard used to sit in Program_init's unrecognised-code_type branch, so
+    "c++" accepted use_libdevice=True silently: Program._use_libdevice stays
+    False (it is only set inside the nvvm branch), libdevice is never linked,
+    and the caller finds out from undefined-symbol errors at link time instead
+    of from the up-front ValueError ProgramOptions documents.
+    """
+    code = 'extern "C" __global__ void my_kernel(){}'
+    options = ProgramOptions(use_libdevice=True)
+    with pytest.raises(ValueError, match="use_libdevice is not supported by the NVRTC backend"):
+        Program(code, "c++", options)
+
+
 def test_program_options_as_bytes_nvrtc():
     """Test ProgramOptions.as_bytes() for NVRTC backend"""
     options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)
@@ -828,6 +858,14 @@ def test_ptx_program_extra_sources_unsupported(ptx_code_object):
     """PTX backend raises ValueError when extra_sources is specified."""
     options = ProgramOptions(extra_sources=[("module1", b"data")])
     with pytest.raises(ValueError, match="extra_sources is not supported by the PTX backend"):
+        Program(ptx_code_object.code.decode(), "ptx", options)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_ptx_program_use_libdevice_unsupported(ptx_code_object):
+    """PTX goes through the Linker, which has no libdevice loading path."""
+    options = ProgramOptions(use_libdevice=True)
+    with pytest.raises(ValueError, match="use_libdevice is not supported by the PTX backend"):
         Program(ptx_code_object.code.decode(), "ptx", options)
 
 
