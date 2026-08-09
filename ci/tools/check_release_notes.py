@@ -41,7 +41,10 @@ COMPONENT_TO_TAG_RE: dict[str, re.Pattern[str]] = {
 
 BACKPORT_PLANNING_COMPONENTS = frozenset({"cuda-bindings", "cuda-python"})
 BACKPORT_NOT_PLANNED = "not planned"
-BACKPORT_BRANCH_RE = re.compile(r"""^backport_branch:\s*["']?(?P<branch>[^"'\s#]+)""")
+# The value may legitimately be empty ("no backport branch configured"), so the
+# capture is `*` rather than `+` -- otherwise an explicitly empty value looks
+# exactly like an absent key.
+BACKPORT_BRANCH_RE = re.compile(r"""^backport_branch:\s*["']?(?P<branch>[^"'\s#]*)""")
 BACKPORT_BRANCH_NAME_RE = re.compile(r"^\d+\.\d+\.x$")
 
 
@@ -67,9 +70,16 @@ def load_backport_branch(repo_root: str = ".") -> str | None:
     try:
         with open(path, encoding="utf-8") as f:
             for line in f:
-                m = BACKPORT_BRANCH_RE.match(line.strip())
+                # Match the raw line: the regex is anchored at column 0, so a
+                # `backport_branch:` nested under some other key does not count.
+                # Stripping first erased the indentation and let a nested key
+                # win over the real top-level one.
+                m = BACKPORT_BRANCH_RE.match(line)
                 if m:
-                    return m.group("branch")
+                    # An explicitly empty value means "no backport branch is
+                    # configured". Falling through to GITHUB_REF_NAME here let
+                    # the environment silently override that decision.
+                    return m.group("branch") or None
     except FileNotFoundError:
         pass
     github_ref_name = os.environ.get("GITHUB_REF_NAME", "")
