@@ -26,7 +26,31 @@ prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
 build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 
-COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+
+def env_int(name: str, default: int) -> int:
+    """Read an integer build knob from the environment.
+
+    Unset and empty mean the same thing. ``CUDA_PYTHON_COVERAGE= pip install .``
+    (and the equivalent empty value in a Dockerfile ``ENV`` or a CI job spec) is
+    how a variable gets neutralised, and it must not abort the build -- a bare
+    ``int()`` here raises while the PEP 517 backend module is still being
+    imported, so the failure arrives before any build output.
+
+    A value that is set to something non-integer is a typo worth stopping for:
+    silently ignoring ``CUDA_PYTHON_COVERAGE=yes`` would hand back a build with
+    no coverage instrumentation. It is reported with the variable's name rather
+    than as an anonymous ``invalid literal for int()``.
+    """
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        raise ValueError(f"environment variable {name}={os.environ[name]!r} must be an integer") from None
+
+
+COMPILE_FOR_COVERAGE = bool(env_int("CUDA_PYTHON_COVERAGE", 0))
 
 
 # Please keep in sync with the copy in cuda_bindings/build_hooks.py.
@@ -219,7 +243,9 @@ def _build_cuda_core(debug=False):
         for mod in module_names()
     )
 
-    nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
+    # ``os.cpu_count()`` is documented to return None when it cannot be
+    # determined; fall back to a serial build rather than a TypeError.
+    nthreads = env_int("CUDA_PYTHON_PARALLEL_LEVEL", (os.cpu_count() or 1) // 2)
     compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_determine_cuda_major_version())}
     compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
     _CythonOptions.warning_errors = True

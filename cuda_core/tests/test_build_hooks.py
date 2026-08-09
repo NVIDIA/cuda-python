@@ -165,3 +165,49 @@ class TestGetCudaMajorVersion:
             pytest.raises(RuntimeError, match="CUDA_PATH or CUDA_HOME"),
         ):
             build_hooks._determine_cuda_major_version()
+
+
+class TestEnvInt:
+    """Integer build knobs read from the environment."""
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            pytest.param(None, 7, id="unset"),
+            # `VAR= pip install .` is how a shell neutralizes a variable, and
+            # the same shape appears in Dockerfile ENV and CI job specs.
+            pytest.param("", 7, id="empty"),
+            pytest.param("   ", 7, id="whitespace-only"),
+            pytest.param("0", 0, id="zero"),
+            pytest.param("4", 4, id="positive"),
+            pytest.param(" 4 ", 4, id="padded"),
+        ],
+    )
+    def test_env_int_reads_the_value_or_falls_back(self, value, expected):
+        env = {} if value is None else {"CUDA_PYTHON_TEST_KNOB": value}
+        with mock.patch.dict(os.environ, env, clear=True):
+            assert build_hooks.env_int("CUDA_PYTHON_TEST_KNOB", 7) == expected
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_env_int_names_the_variable_for_a_non_integer(self):
+        with (
+            mock.patch.dict(os.environ, {"CUDA_PYTHON_TEST_KNOB": "yes"}, clear=True),
+            pytest.raises(ValueError, match=r"CUDA_PYTHON_TEST_KNOB='yes' must be an integer"),
+        ):
+            build_hooks.env_int("CUDA_PYTHON_TEST_KNOB", 7)
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    @pytest.mark.parametrize("value", ["", "   "], ids=["empty", "whitespace-only"])
+    def test_backend_imports_with_an_empty_coverage_flag(self, value):
+        """An empty CUDA_PYTHON_COVERAGE must not break the PEP 517 backend.
+
+        COMPILE_FOR_COVERAGE is evaluated at module scope, so a bare int() there
+        raised while the build backend was still being imported -- pip reported
+        `ValueError: invalid literal for int() with base 10: ''` before any
+        build output appeared.
+        """
+        with mock.patch.dict(os.environ, {"CUDA_PYTHON_COVERAGE": value}, clear=True):
+            reloaded = _load_build_hooks()
+
+        assert reloaded.COMPILE_FOR_COVERAGE is False

@@ -10,8 +10,10 @@ from setuptools import setup
 from setuptools.command.build_ext import build_ext as _build_ext
 from setuptools.command.build_py import build_py as _build_py
 
-nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-coverage_mode = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+# Shared with build_hooks so the two build entry points parse these knobs
+# identically (see build_hooks.env_int for why a bare int() is not enough).
+nthreads = build_hooks.env_int("CUDA_PYTHON_PARALLEL_LEVEL", (os.cpu_count() or 1) // 2)
+coverage_mode = bool(build_hooks.env_int("CUDA_PYTHON_COVERAGE", 0))
 _ROOT_DIR = Path(__file__).resolve().parent
 _AOTI_SHIM_DEF_FILE = _ROOT_DIR / "cuda" / "core" / "_include" / "aoti_shim.def"
 _AOTI_SHIM_LIB_FILE = _ROOT_DIR / "build" / "aoti_shim.lib"
