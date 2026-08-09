@@ -756,12 +756,22 @@ class FileStreamProgramCache(ProgramCacheResource):
             # problems -- surface them rather than silently exceed the cap.
             try:
                 _unlink_with_sharing_retry(path)
-                total -= size
             except FileNotFoundError:
+                # Someone else unlinked it between the stat-guard above and
+                # here. The bytes are off disk either way, so credit them --
+                # exactly as the stat-miss branch a few lines up already
+                # does. Leaving ``total`` unchanged keeps it above the cap,
+                # so this pass evicts a live entry that did not need to go,
+                # and then reseeds the tracker with the same overcount, which
+                # makes the next write over-evict again.
                 pass
             except PermissionError as exc:
                 if not _is_windows_sharing_violation(exc):
                     raise
+                # Retry budget exhausted on a Windows sharing violation: the
+                # file is still on disk, so its bytes must stay in ``total``.
+                continue
+            total -= size
         # Reconcile: after the eviction pass, ``total`` reflects what we
         # believe the disk now holds. Re-seed the tracker so the next write
         # accumulates from a fresh baseline.
