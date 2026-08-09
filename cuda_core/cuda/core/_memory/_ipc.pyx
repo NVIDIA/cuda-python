@@ -268,6 +268,8 @@ cdef _MemPool MP_register(_MemPool self, uuid):
     existing = registry.get(uuid)
     if existing is not None:
         return existing
+    if not self.is_ipc_enabled:
+        raise RuntimeError("Memory resource is not IPC-enabled")
     assert self.uuid is None or self.uuid == uuid
     registry[uuid] = self
     self._ipc_data._alloc_handle._uuid = uuid
