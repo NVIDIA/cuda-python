@@ -1233,7 +1233,7 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
     if opts.debug is not None and opts.debug:
         options.append("-g")
     if opts.numba_debug:
-        options.append("--numba-debug")
+        options.append("-numba-debug")
     if opts.device_code_optimize is False:
         options.append("-opt=0")
     elif opts.device_code_optimize is True:
