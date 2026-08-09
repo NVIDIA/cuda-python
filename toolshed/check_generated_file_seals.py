@@ -17,7 +17,10 @@ SUPPORTED_GENERATED_FILE_SEAL_FORMATS = frozenset({1})
 assert GENERATED_FILE_MARKER_FRAGMENT in GENERATED_FILE_SEAL_TOKEN
 _TOKEN_BYTES = GENERATED_FILE_SEAL_TOKEN.encode("ascii")
 _MARKER_REGEX = re.compile(
-    rb"^(?P<prefix>#|\.\.) "
+    # Keep the alternation in sync with the values of _COMMENT_CHARS below:
+    # a prefix that is not matched here can never reach the
+    # expected_comment_prefix() comparison in validate_generated_file_seal().
+    rb"^(?P<prefix>#|\.\.|//) "
     + re.escape(_TOKEN_BYTES)
     + rb" format=(?P<format>[0-9]+); content-sha256=(?P<digest>[0-9a-f]{64})\n$"
 )
