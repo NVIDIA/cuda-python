@@ -47,6 +47,15 @@ class Host:
             raise ValueError("numa_id and is_numa_current are mutually exclusive")
         if numa_id is not None and (isinstance(numa_id, bool) or not isinstance(numa_id, int) or numa_id < 0):
             raise ValueError(f"numa_id must be a non-negative int, got {numa_id!r}")
+        # Require a real bool for the same reason numa_id rejects one: the
+        # value goes straight into the singleton cache key and into the
+        # is_numa_current property. `1` and `True` are the same dict key, so
+        # `Host(is_numa_current=1)` would hand `Host.numa_current()` an
+        # instance whose is_numa_current is the int 1 for the rest of the
+        # process, and any other truthy value would create a second,
+        # non-identical "numa_current" singleton.
+        if not isinstance(is_numa_current, bool):
+            raise ValueError(f"is_numa_current must be a bool, got {is_numa_current!r}")
         return cls._get_or_create(numa_id, is_numa_current)
 
     @classmethod
