@@ -35,12 +35,15 @@ def copy_batch_device(init_cuda):
 def requires_copy_options():
     """Skip when ``CopyOptions`` cannot reach the driver.
 
-    The per-copy ``cuMemcpyAsync`` fallback used on a CUDA 12 build, or on
-    a CUDA 13 build against a CUDA 12 driver, has no way to convey copy
-    attributes, so ``copy_batch`` rejects non-default options there.
+    Options travel only through ``cuMemcpyBatchAsync``. Where that is
+    unavailable, ``copy_batch`` falls back to per-copy ``cuMemcpyAsync``,
+    which cannot convey attributes, so non-default options are rejected.
     """
     if not uses_batch_entry_point():
-        pytest.skip("non-default CopyOptions requires a CUDA 13 build and a CUDA 13 driver")
+        pytest.skip(
+            "non-default CopyOptions requires cuda.core built against CUDA 13, "
+            "cuda.bindings 13.0+, and a driver reporting CUDA 13.0 or newer"
+        )
 
 
 @pytest.fixture

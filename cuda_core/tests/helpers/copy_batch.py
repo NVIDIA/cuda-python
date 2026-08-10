@@ -24,10 +24,11 @@ OVERLAP_WARNING_FILTER = "ignore:overlap_mode:UserWarning"
 def uses_batch_entry_point() -> bool:
     """Whether copy_batch reaches ``cuMemcpyBatchAsync`` on this system.
 
-    Delegates to the implementation's own dispatch predicate rather than
-    re-deriving it, so the tests cannot drift from it. ``copy_batch``
-    itself works either way -- only non-default ``CopyOptions`` need the
-    batched entry point.
+    True only with cuda.core built against CUDA 13, cuda.bindings 13.0+,
+    and a driver reporting CUDA 13.0 or newer. Delegates to the
+    implementation's own dispatch predicate rather than re-deriving it, so
+    the tests cannot drift from it. ``copy_batch`` itself works either way
+    -- only non-default ``CopyOptions`` need the batched entry point.
     """
     return _batch_entry_point_in_use()
 

@@ -18,8 +18,12 @@ New features
   ``Device`` / ``Host`` location hints, and a
   :class:`utils.MemcpyOverlapMode` copy-engine overlap hint. A single
   ``CopyOptions`` applies to every copy; a sequence pairs by index.
-  Batching requires both a CUDA 13 build of ``cuda.core`` and a CUDA 13
-  driver; otherwise the copies fall back to a per-copy loop, and non-default
+  Batching requires ``cuda.core`` built against CUDA 13, ``cuda.bindings``
+  13.0 or newer, and a driver reporting CUDA 13.0 or newer
+  (``cuDriverGetVersion() >= 13000``); ``cuda.bindings`` binds only the CUDA
+  13.0 revision of the entry point, so a driver predating it is refused even
+  where it implements the earlier CUDA 12.8 signature. Short of that, the
+  copies fall back to a per-copy ``cuMemcpyAsync`` loop, and non-default
   options raise ``NotImplementedError`` rather than being silently dropped.
   Batched memcpy has no graph-node form and cannot be captured into a graph;
   use :meth:`graph.GraphNode.memcpy` or :meth:`Buffer.copy_to` there.

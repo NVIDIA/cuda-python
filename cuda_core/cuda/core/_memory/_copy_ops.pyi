@@ -53,13 +53,18 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
 
     Notes
     -----
-    ``cuMemcpyBatchAsync`` needs both a CUDA 13 build of ``cuda.core``
-    and a CUDA 13 driver. Otherwise the copies fall back to a
-    Python-level loop over ``cuMemcpyAsync``, which is semantically
-    equivalent but does not amortize launch overhead. That fallback has
-    no way to convey :class:`CopyOptions` to the driver, so non-default
-    options raise :class:`NotImplementedError` there rather than being
-    silently ignored.
+    Batching through ``cuMemcpyBatchAsync`` requires all three of:
+    ``cuda.core`` built against CUDA 13 headers, ``cuda.bindings`` 13.0 or
+    newer, and a driver reporting CUDA 13.0 or newer
+    (``cuDriverGetVersion() >= 13000``). ``cuda.bindings`` binds only the
+    CUDA 13.0 revision of the entry point, so a driver that predates it is
+    refused even where it implements the earlier CUDA 12.8 signature.
+
+    Short of that, the copies fall back to a Python-level loop over
+    ``cuMemcpyAsync``, which is semantically equivalent but does not
+    amortize launch overhead. The fallback has no way to convey
+    :class:`CopyOptions` to the driver, so non-default options raise
+    :class:`NotImplementedError` there rather than being silently ignored.
 
     Warns
     -----

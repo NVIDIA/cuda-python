@@ -71,8 +71,15 @@ class CopyOptions:
     overlap_mode: MemcpyOverlapMode | str = "default"
 
     def __post_init__(self):
-        # Validate enum fields while still in __init__ (frozen dataclass).
-        # Use __setattr__ because fields are frozen.
+        # Frozen, unlike the other *Options dataclasses in cuda.core, because
+        # the batched-API contract agreed in NVIDIA/cuda-python#1775 specifies
+        # immutable per-call options:
+        # https://github.com/NVIDIA/cuda-python/pull/1775#issuecomment-4355502334
+        #
+        # Normalizing str -> StrEnum therefore has to go through
+        # object.__setattr__; a plain assignment would raise
+        # FrozenInstanceError. Done here rather than at use so that a typo
+        # fails at construction and the field always holds the enum.
         if isinstance(self.src_access_order, str):
             try:
                 object.__setattr__(
@@ -105,11 +112,12 @@ class CopyOptions:
         return _OVERLAP_MODE_TO_DRIVER[MemcpyOverlapMode(self.overlap_mode)]
 
 
-_CUDA13_REQUIRED = "copy attributes require a CUDA 13 build of cuda-bindings"
+_CUDA13_REQUIRED = "copy attributes require cuda.bindings 13.0 or newer"
 
-# CUmemcpySrcAccessOrder and CUmemcpyFlags are CUDA 13 additions, so these
-# maps are empty on a CUDA 12 build. Nothing reaches them there: copy_batch
-# refuses non-default CopyOptions when the batched entry point is absent.
+# CUmemcpySrcAccessOrder and CUmemcpyFlags are exposed by cuda.bindings 13.0+,
+# so these maps are empty when it is older. Nothing reaches them there:
+# copy_batch refuses non-default CopyOptions when the batched entry point is
+# unavailable.
 #
 # Keyed by ``str``: under ``python_version = "3.10"`` mypy resolves StrEnum to
 # the unstubbed backports shim and so infers the members as plain ``str``.

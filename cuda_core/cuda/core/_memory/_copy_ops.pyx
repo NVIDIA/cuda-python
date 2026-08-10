@@ -30,17 +30,26 @@ from cuda.core._memory._managed_location import _coerce_location
 
 _SINGLE_COPY_HINT = "Buffer.copy_to / Buffer.copy_from"
 
-# Attributes reach the driver only through cuMemcpyBatchAsync, which is
-# CUDA 13+. The per-copy cuMemcpyAsync fallback has nowhere to put them,
-# so anything other than the defaults is refused rather than dropped.
+# Attributes reach the driver only through cuMemcpyBatchAsync. The per-copy
+# cuMemcpyAsync fallback has nowhere to put them, so anything other than the
+# defaults is refused rather than dropped.
 _DEFAULT_COPY_OPTIONS = CopyOptions()
 
 
 cdef inline bint _batch_entry_point_available():
     """Whether cuMemcpyBatchAsync can actually be called here.
 
-    Needs a CUDA 13 build (compile time) and a CUDA 13 driver (run time);
-    a CUDA 13 build against a CUDA 12 driver has no such symbol.
+    Requires ``cuda.core`` built against CUDA 13 headers (compile time) and
+    a driver reporting CUDA 13.0 or newer, i.e.
+    ``cuDriverGetVersion() >= 13000`` (run time).
+
+    The run-time bound is set by the binding layer, not by when the driver
+    gained the feature. CUDA 12.8 already exposed a ``cuMemcpyBatchAsync``,
+    but its signature carried a ``failIdx`` out-parameter that CUDA 13.0
+    dropped. ``cuda.bindings`` resolves only the 13.0 revision, via
+    ``cuGetProcAddress_v2('cuMemcpyBatchAsync', ..., 13000, ...)``, so an
+    older driver yields a NULL pointer even though it may implement the
+    earlier entry point.
     """
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         return cy_driver_version() >= (13, 0, 0)
@@ -76,7 +85,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 ELSE:
     cdef inline cydriver.CUmemLocation _to_cumemlocation(object loc):
         raise NotImplementedError(
-            "_to_cumemlocation requires a CUDA 13 build of cuda.core"
+            "_to_cumemlocation requires cuda.core built against CUDA 13 headers"
         )
 
 
@@ -143,13 +152,18 @@ def copy_batch(
 
     Notes
     -----
-    ``cuMemcpyBatchAsync`` needs both a CUDA 13 build of ``cuda.core``
-    and a CUDA 13 driver. Otherwise the copies fall back to a
-    Python-level loop over ``cuMemcpyAsync``, which is semantically
-    equivalent but does not amortize launch overhead. That fallback has
-    no way to convey :class:`CopyOptions` to the driver, so non-default
-    options raise :class:`NotImplementedError` there rather than being
-    silently ignored.
+    Batching through ``cuMemcpyBatchAsync`` requires all three of:
+    ``cuda.core`` built against CUDA 13 headers, ``cuda.bindings`` 13.0 or
+    newer, and a driver reporting CUDA 13.0 or newer
+    (``cuDriverGetVersion() >= 13000``). ``cuda.bindings`` binds only the
+    CUDA 13.0 revision of the entry point, so a driver that predates it is
+    refused even where it implements the earlier CUDA 12.8 signature.
+
+    Short of that, the copies fall back to a Python-level loop over
+    ``cuMemcpyAsync``, which is semantically equivalent but does not
+    amortize launch overhead. The fallback has no way to convey
+    :class:`CopyOptions` to the driver, so non-default options raise
+    :class:`NotImplementedError` there rather than being silently ignored.
 
     Warns
     -----
@@ -217,8 +231,9 @@ def copy_batch(
             if attr_tuple[i] != _DEFAULT_COPY_OPTIONS:
                 raise NotImplementedError(
                     "copy_batch: non-default CopyOptions requires cuMemcpyBatchAsync, "
-                    "which needs both a CUDA 13 build of cuda.core and a CUDA 13 "
-                    "driver; omit options to use the per-copy fallback"
+                    "which needs cuda.core built against CUDA 13, cuda.bindings 13.0+, "
+                    "and a driver reporting CUDA 13.0 or newer; omit options to use the "
+                    "per-copy fallback"
                 )
 
     # Check for overlap_mode warning on non-integrated GPUs
@@ -246,8 +261,9 @@ def copy_batch(
 
 cdef void _do_copy_batch(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tuple):
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        # A CUDA 13 build can still be running against a CUDA 12 driver,
-        # which has no cuMemcpyBatchAsync (see PRs #2054 / #2064).
+        # Building against CUDA 13 headers says nothing about the installed
+        # driver, so the run-time version still has to be checked before
+        # calling a 13.0-only entry point (see PRs #2054 / #2064).
         if _batch_entry_point_available():
             _do_copy_batch_native(src_bufs, dst_bufs, s, attr_tuple)
         else:

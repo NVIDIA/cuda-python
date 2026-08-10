@@ -370,9 +370,10 @@ class TestCopyBatchValidation:
 class TestPerCopyFallback:
     """Behaviour where ``cuMemcpyBatchAsync`` is unavailable.
 
-    Reached on a CUDA 12 build of ``cuda.core`` and on a CUDA 13 build
-    running against a CUDA 12 driver. Skipped when the batched entry
-    point is actually in use.
+    Reached whenever any of the three requirements for
+    ``cuMemcpyBatchAsync`` is unmet: ``cuda.core`` built against CUDA 13,
+    ``cuda.bindings`` 13.0+, and a driver reporting CUDA 13.0 or newer.
+    Skipped when the batched entry point is actually in use.
     """
 
     @pytest.fixture(autouse=True)
