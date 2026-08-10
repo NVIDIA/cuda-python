@@ -19,7 +19,6 @@ from helpers.buffers import (
 from helpers.copy_batch import COPY_BATCH_SIZE
 
 from cuda.core import LegacyPinnedMemoryResource
-from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.utils import copy_batch
 
 
@@ -268,21 +267,22 @@ class TestCopyBatchStreamSemantics:
             other.close()
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_graph_builder_capture_is_unsupported(self, copy_batch_device, device_bufs, copy_stream):
+    def test_graph_builder_is_rejected(self, copy_batch_device, device_bufs, copy_stream):
         """Batched memcpy cannot be captured into a graph.
 
-        ``Stream_accept`` takes a ``GraphBuilder``, so the batch reaches
-        the driver, but ``cuMemcpyBatchAsync`` has no graph-node form and
-        the driver rejects it mid-capture. Pinned here so the limitation
-        is asserted rather than rediscovered; use ``GraphNode.memcpy`` or
-        per-buffer ``Buffer.copy_to`` to build copies into a graph.
+        ``cuMemcpyBatchAsync`` has no graph-node form and the driver
+        rejects it mid-capture, so ``copy_batch`` is typed to take only a
+        ``Stream`` and refuses a ``GraphBuilder`` at the boundary rather
+        than failing later with ``CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED``.
+        Use ``GraphNode.memcpy`` or per-buffer ``Buffer.copy_to`` to build
+        copies into a graph.
         """
         srcs, dsts = device_bufs
         gb = copy_batch_device.create_graph_builder().begin_building()
         try:
-            with pytest.raises(CUDAError, match="STREAM_CAPTURE_UNSUPPORTED"):
+            with pytest.raises(TypeError, match="Argument 'stream' has incorrect type"):
                 copy_batch(gb, srcs, dsts)
         finally:
-            # The rejection leaves the capture intact, so it still ends cleanly.
+            # Nothing was captured, so the builder still ends cleanly.
             gb.end_building()
             gb.close()

@@ -11,12 +11,17 @@ behaviour itself lives in ``test_copy_batch.py``.
 import warnings
 
 import pytest
+
+# Shared with test_managed_ops.py: handles the CUDA 13 requirement, mempool
+# OOM, and CUDA_ERROR_NOT_SUPPORTED (managed pools are unavailable on
+# Windows), so the location-hint tests skip rather than error there.
+from conftest import create_managed_memory_resource_or_skip
 from helpers.buffers import compare_buffer_to_constant, compare_equal_buffers, set_buffer
 from helpers.copy_batch import (
     COPY_BATCH_SIZE,
     OVERLAP_WARNING_FILTER,
     assert_managed_holds,
-    managed_mr_or_skip,
+    uses_batch_entry_point,
 )
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource
@@ -83,7 +88,7 @@ class TestCopyBatchOptions:
             (MemcpySrcAccessOrder.ANY, 33),
         ],
     )
-    def test_src_access_order(self, h2d_bufs, copy_stream, order, marker):
+    def test_src_access_order(self, requires_copy_options, h2d_bufs, copy_stream, order, marker):
         srcs, dsts = h2d_bufs
         for i, src in enumerate(srcs):
             set_buffer(src, i + marker)
@@ -95,7 +100,7 @@ class TestCopyBatchOptions:
             assert compare_buffer_to_constant(dst, i + marker)
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_per_copy_options(self, h2d_bufs, copy_stream):
+    def test_per_copy_options(self, requires_copy_options, h2d_bufs, copy_stream):
         srcs, dsts = h2d_bufs
         for i, src in enumerate(srcs):
             set_buffer(src, i + 40)
@@ -115,7 +120,7 @@ class TestCopyBatchOptions:
             assert compare_buffer_to_constant(dst, i + 40)
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_scalar_options_broadcast(self, copy_batch_device, h2d_bufs, copy_stream):
+    def test_scalar_options_broadcast(self, requires_copy_options, copy_batch_device, h2d_bufs, copy_stream):
         """A scalar option must apply to every copy.
 
         Verified three ways: the scalar collapses to a single driver
@@ -163,9 +168,9 @@ class TestCopyBatchOptions:
         copy_stream.sync()
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_location_hints(self, copy_batch_device, copy_stream):
+    def test_location_hints(self, requires_copy_options, copy_batch_device, copy_stream):
         dev = copy_batch_device
-        mr = managed_mr_or_skip()
+        mr = create_managed_memory_resource_or_skip()
         srcs = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]
         dsts = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]
 
@@ -189,10 +194,10 @@ class TestCopyBatchOptions:
         mr.close()
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_host_numa_location_hint(self, copy_batch_device, copy_stream):
+    def test_host_numa_location_hint(self, requires_copy_options, copy_batch_device, copy_stream):
         """NUMA host hints round-trip on CUDA 13 and are rejected on CUDA 12."""
         dev = copy_batch_device
-        mr = managed_mr_or_skip()
+        mr = create_managed_memory_resource_or_skip()
         srcs = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]
         dsts = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]
         for i, src in enumerate(srcs):
@@ -216,7 +221,7 @@ class TestCopyBatchOptions:
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
     @pytest.mark.filterwarnings(OVERLAP_WARNING_FILTER)
-    def test_overlap_mode_copies_correctly(self, h2d_bufs, copy_stream):
+    def test_overlap_mode_copies_correctly(self, requires_copy_options, h2d_bufs, copy_stream):
         """The overlap hint is advisory and must not change the bytes copied."""
         srcs, dsts = h2d_bufs
         for i, src in enumerate(srcs):
@@ -234,7 +239,9 @@ class TestCopyBatchOptions:
             assert compare_buffer_to_constant(dst, i + 90)
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_overlap_mode_warns_only_on_discrete_gpu(self, copy_batch_device, h2d_bufs, copy_stream):
+    def test_overlap_mode_warns_only_on_discrete_gpu(
+        self, requires_copy_options, copy_batch_device, h2d_bufs, copy_stream
+    ):
         srcs, dsts = h2d_bufs
         options = CopyOptions(overlap_mode=MemcpyOverlapMode.PREFER_OVERLAP_WITH_COMPUTE)
 
@@ -360,23 +367,61 @@ class TestCopyBatchValidation:
             copy_batch(copy_stream, srcs, dsts, options=bad)
 
 
-@pytest.mark.agent_authored(model="Claude Opus 5")
-def test_cuda12_raises_not_implemented(init_cuda):
-    """cuMemcpyBatchAsync is CUDA 13+; single copies use Buffer.copy_to."""
-    if binding_version() >= (13, 0, 0):
-        pytest.skip("Only relevant on CUDA 12 builds")
+class TestPerCopyFallback:
+    """Behaviour where ``cuMemcpyBatchAsync`` is unavailable.
 
-    device = Device()
-    device.set_current()
-    stream = device.create_stream()
-    pinned_mr = LegacyPinnedMemoryResource()
-    src = pinned_mr.allocate(1024)
-    dst = device.memory_resource.allocate(1024, stream=stream)
+    Reached on a CUDA 12 build of ``cuda.core`` and on a CUDA 13 build
+    running against a CUDA 12 driver. Skipped when the batched entry
+    point is actually in use.
+    """
 
-    with pytest.raises(NotImplementedError, match="CUDA 13"):
-        copy_batch(stream, [src], [dst])
+    @pytest.fixture(autouse=True)
+    def _skip_if_batched(self):
+        if uses_batch_entry_point():
+            pytest.skip("cuMemcpyBatchAsync is in use; fallback path not exercised")
 
-    src.close(stream)
-    dst.close(stream)
-    stream.sync()
-    stream.close()
+    @pytest.mark.agent_authored(model="Claude Opus 5")
+    def test_default_options_still_copy(self, init_cuda):
+        """The copies still happen, just one driver call at a time."""
+        device = Device()
+        device.set_current()
+        stream = device.create_stream()
+        pinned_mr = LegacyPinnedMemoryResource()
+        srcs = [pinned_mr.allocate(COPY_BATCH_SIZE) for _ in range(3)]
+        dsts = [device.memory_resource.allocate(COPY_BATCH_SIZE, stream=stream) for _ in srcs]
+        for i, src in enumerate(srcs):
+            set_buffer(src, i + 5)
+
+        copy_batch(stream, srcs, dsts)
+        stream.sync()
+
+        for i, dst in enumerate(dsts):
+            assert compare_buffer_to_constant(dst, i + 5)
+
+        for buf in srcs + dsts:
+            buf.close(stream)
+        stream.sync()
+        stream.close()
+
+    @pytest.mark.agent_authored(model="Claude Opus 5")
+    def test_non_default_options_are_rejected(self, init_cuda):
+        """Options have no per-copy equivalent, so they must not be dropped."""
+        device = Device()
+        device.set_current()
+        stream = device.create_stream()
+        pinned_mr = LegacyPinnedMemoryResource()
+        src = pinned_mr.allocate(1024)
+        dst = device.memory_resource.allocate(1024, stream=stream)
+
+        with pytest.raises(NotImplementedError, match="non-default CopyOptions"):
+            copy_batch(
+                stream,
+                [src],
+                [dst],
+                options=CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY),
+            )
+
+        src.close(stream)
+        dst.close(stream)
+        stream.sync()
+        stream.close()

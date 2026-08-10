@@ -11,7 +11,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
     from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer
+from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -52,31 +52,16 @@ cdef void _require_managed_buffer(Buffer self, str what):
         raise ValueError(f"{what} requires a managed-memory allocation")
 
 
-cdef tuple _coerce_batch_buffers(object buffers, str what):
+_SINGLE_MANAGED_HINT = "the ManagedBuffer instance method"
+
+
+cdef inline tuple _coerce_batch_buffers(object buffers, str what):
     """Coerce ``buffers`` to a tuple[Buffer, ...]; rejects a single Buffer.
 
     For single-buffer operations, use the corresponding ManagedBuffer
     instance method instead.
     """
-    cdef Buffer buf
-    cdef list out
-    if isinstance(buffers, Buffer):
-        raise TypeError(
-            f"{what}: pass a sequence of Buffers; for a single buffer use "
-            f"the ManagedBuffer instance method"
-        )
-    if isinstance(buffers, Sequence):
-        if not buffers:
-            raise ValueError(f"{what}: empty buffers sequence")
-        out = []
-        for t in buffers:
-            buf = <Buffer?>t
-            out.append(buf)
-        return tuple(out)
-    raise TypeError(
-        f"{what}: buffers must be a sequence of Buffer, "
-        f"got {type(buffers).__name__}"
-    )
+    return Buffer_coerce_batch(buffers, what, _SINGLE_MANAGED_HINT)
 
 
 cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, str what):

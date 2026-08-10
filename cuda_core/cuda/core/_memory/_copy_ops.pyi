@@ -5,13 +5,21 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from cuda.core._memory._buffer import Buffer
+from cuda.core._memory._copy_enums import CopyOptions
+from cuda.core._stream import Stream
 
+_SINGLE_COPY_HINT = 'Buffer.copy_to / Buffer.copy_from'
+_DEFAULT_COPY_OPTIONS = CopyOptions()
 
-def copy_batch(stream: object, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *, options: object=None) -> None:
+def _batch_entry_point_in_use() -> bool:
+    """Internal: expose the dispatch predicate so tests can gate on it."""
+
+def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *, options: CopyOptions | Sequence[CopyOptions] | None=None) -> None:
     """Copy a batch of buffers asynchronously.
 
-    Requires CUDA 13+. For a single buffer, use
-    :meth:`Buffer.copy_to` or :meth:`Buffer.copy_from`.
+    Sizes are taken from the source buffers and each destination must
+    match. For a single buffer, use :meth:`Buffer.copy_to` or
+    :meth:`Buffer.copy_from`.
 
     The driver provides no graph-node form of ``cuMemcpyBatchAsync``, so
     this cannot be captured into a graph. Build graph copies with
@@ -20,13 +28,14 @@ def copy_batch(stream: object, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
     Parameters
     ----------
     stream : :class:`~_stream.Stream`
-        Stream for the asynchronous copy. Passing a
-        :class:`~graph.GraphBuilder` raises ``CUDAError``
-        (``CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED``).
+        Stream for the asynchronous copy. First positional and required
+        (mirrors :func:`launch`). Unlike most stream-taking APIs this does
+        not accept a :class:`~graph.GraphBuilder`; one is rejected with
+        ``TypeError`` because the copy cannot be captured.
     srcs : Sequence[:class:`Buffer`]
-        Source buffers.  Must be a sequence, not a single Buffer.
+        Source buffers. Must be a sequence, not a single Buffer.
     dsts : Sequence[:class:`Buffer`]
-        Destination buffers.  Must match ``len(srcs)``.
+        Destination buffers. Must match ``len(srcs)``.
     options : :class:`CopyOptions` | Sequence[:class:`CopyOptions`] | None
         Per-copy options. A single value applies to every copy; a
         sequence pairs by index and must match ``len(srcs)``. ``None``
@@ -34,12 +43,26 @@ def copy_batch(stream: object, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
 
     Raises
     ------
-    NotImplementedError
-        On a CUDA 12 build of ``cuda.core``.
     ValueError
         If lengths or sizes mismatch.
     TypeError
         If a single Buffer is passed instead of a sequence.
+    NotImplementedError
+        If non-default ``options`` are given where
+        ``cuMemcpyBatchAsync`` is unavailable (see Notes).
+
+    Notes
+    -----
+    ``cuMemcpyBatchAsync`` needs both a CUDA 13 build of ``cuda.core``
+    and a CUDA 13 driver. Otherwise the copies fall back to a
+    Python-level loop over ``cuMemcpyAsync``, which is semantically
+    equivalent but does not amortize launch overhead. That fallback has
+    no way to convey :class:`CopyOptions` to the driver, so non-default
+    options raise :class:`NotImplementedError` there rather than being
+    silently ignored.
+
+    Warns
+    -----
     UserWarning
         If ``overlap_mode='prefer_overlap_with_compute'`` is requested
         on a non-integrated (discrete) GPU.

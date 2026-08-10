@@ -8,10 +8,8 @@ Fixtures live in ``tests/memory/conftest.py``; this module holds the
 pieces that tests import by name.
 """
 
-import pytest
-
-from cuda.bindings import driver
-from cuda.core import LegacyPinnedMemoryResource, ManagedMemoryResource
+from cuda.core import LegacyPinnedMemoryResource
+from cuda.core._memory._copy_ops import _batch_entry_point_in_use
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer
 
 COPY_BATCH_SIZE = 4096
@@ -23,18 +21,15 @@ COPY_BATCH_COUNT = 4
 OVERLAP_WARNING_FILTER = "ignore:overlap_mode:UserWarning"
 
 
-def skip_if_copy_batch_unsupported():
-    if not hasattr(driver, "cuMemcpyBatchAsync"):
-        pytest.skip("cuMemcpyBatchAsync unavailable (CUDA 13+ required)")
+def uses_batch_entry_point() -> bool:
+    """Whether copy_batch reaches ``cuMemcpyBatchAsync`` on this system.
 
-
-def managed_mr_or_skip():
-    try:
-        return ManagedMemoryResource()
-    except RuntimeError as exc:
-        if "requires CUDA 13.0" in str(exc) or "managed allocations" in str(exc):
-            pytest.skip("ManagedMemoryResource not available")
-        raise
+    Delegates to the implementation's own dispatch predicate rather than
+    re-deriving it, so the tests cannot drift from it. ``copy_batch``
+    itself works either way -- only non-default ``CopyOptions`` need the
+    batched entry point.
+    """
+    return _batch_entry_point_in_use()
 
 
 def assert_managed_holds(dev, buf, value, *, stream):

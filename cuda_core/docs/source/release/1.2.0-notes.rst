@@ -6,6 +6,25 @@
 ``cuda.core`` 1.2.0 Release Notes
 ==================================
 
+New features
+------------
+
+- Added :func:`utils.copy_batch`, which submits many buffer-to-buffer copies
+  in a single ``cuMemcpyBatchAsync`` call, amortizing the per-copy launch
+  overhead of issuing :meth:`Buffer.copy_to` in a loop. Sizes are taken from
+  the source buffers. Per-copy behavior is expressed with the new
+  :class:`utils.CopyOptions` dataclass, carrying a
+  :class:`utils.MemcpySrcAccessOrder` source access-order hint, optional
+  ``Device`` / ``Host`` location hints, and a
+  :class:`utils.MemcpyOverlapMode` copy-engine overlap hint. A single
+  ``CopyOptions`` applies to every copy; a sequence pairs by index.
+  Batching requires both a CUDA 13 build of ``cuda.core`` and a CUDA 13
+  driver; otherwise the copies fall back to a per-copy loop, and non-default
+  options raise ``NotImplementedError`` rather than being silently dropped.
+  Batched memcpy has no graph-node form and cannot be captured into a graph;
+  use :meth:`graph.GraphNode.memcpy` or :meth:`Buffer.copy_to` there.
+  (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__)
+
 Fixes and enhancements
 ----------------------
 

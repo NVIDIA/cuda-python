@@ -13,42 +13,44 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 
 from libc.string cimport memset
 
-# as_cu, HANDLE_RETURN and _attr_run_starts are referenced only from the
-# CUDA 13 branch of _do_copy_batch. cython-lint does not evaluate
-# compile-time IF blocks, so it needs a pragma to see them as used.
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer
-from cuda.core._resource_handles cimport as_cu  # no-cython-lint
+from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
+from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
-from cuda.core._utils.cuda_utils cimport HANDLE_RETURN  # no-cython-lint
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+
+# cy_driver_version and _attr_run_starts are referenced only from CUDA 13
+# branches. cython-lint does not evaluate compile-time IF blocks, so they need
+# a pragma to be seen as used.
+from cuda.core._utils.version cimport cy_driver_version  # no-cython-lint
 
 from cuda.core._device import Device
 from cuda.core._memory._copy_enums import CopyOptions, _attr_run_starts  # no-cython-lint
 from cuda.core._memory._managed_location import _coerce_location
 
-cdef tuple _coerce_batch_buffers(object buffers, str what):
-    """Coerce ``buffers`` to a tuple[Buffer, ...]; rejects a single Buffer."""
-    cdef list out
-    if isinstance(buffers, Buffer):
-        raise TypeError(
-            f"{what}: pass a sequence of Buffers; for a single buffer use "
-            f"the Buffer.copy_to / Buffer.copy_from instance method"
-        )
-    if isinstance(buffers, Sequence):
-        if not buffers:
-            raise ValueError(f"{what}: empty buffers sequence")
-        out = []
-        for t in buffers:
-            if not isinstance(t, Buffer):
-                raise TypeError(
-                    f"{what}: expected Buffer, got {type(t).__name__}"
-                )
-            out.append(t)
-        return tuple(out)
-    raise TypeError(
-        f"{what}: buffers must be a sequence of Buffer, "
-        f"got {type(buffers).__name__}"
-    )
+_SINGLE_COPY_HINT = "Buffer.copy_to / Buffer.copy_from"
+
+# Attributes reach the driver only through cuMemcpyBatchAsync, which is
+# CUDA 13+. The per-copy cuMemcpyAsync fallback has nowhere to put them,
+# so anything other than the defaults is refused rather than dropped.
+_DEFAULT_COPY_OPTIONS = CopyOptions()
+
+
+cdef inline bint _batch_entry_point_available():
+    """Whether cuMemcpyBatchAsync can actually be called here.
+
+    Needs a CUDA 13 build (compile time) and a CUDA 13 driver (run time);
+    a CUDA 13 build against a CUDA 12 driver has no such symbol.
+    """
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        return cy_driver_version() >= (13, 0, 0)
+    ELSE:
+        return False
+
+
+def _batch_entry_point_in_use() -> bool:
+    """Internal: expose the dispatch predicate so tests can gate on it."""
+    return bool(_batch_entry_point_available())
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
@@ -97,16 +99,17 @@ cdef cydriver.CUmemcpyAttributes _to_cu_memcpy_attributes(object attr):
 
 
 def copy_batch(
-    stream: object,
+    stream: Stream,
     srcs: Sequence[Buffer],
     dsts: Sequence[Buffer],
     *,
-    options: object = None,
+    options: CopyOptions | Sequence[CopyOptions] | None = None,
 ) -> None:
     """Copy a batch of buffers asynchronously.
 
-    Requires CUDA 13+. For a single buffer, use
-    :meth:`Buffer.copy_to` or :meth:`Buffer.copy_from`.
+    Sizes are taken from the source buffers and each destination must
+    match. For a single buffer, use :meth:`Buffer.copy_to` or
+    :meth:`Buffer.copy_from`.
 
     The driver provides no graph-node form of ``cuMemcpyBatchAsync``, so
     this cannot be captured into a graph. Build graph copies with
@@ -115,13 +118,14 @@ def copy_batch(
     Parameters
     ----------
     stream : :class:`~_stream.Stream`
-        Stream for the asynchronous copy. Passing a
-        :class:`~graph.GraphBuilder` raises ``CUDAError``
-        (``CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED``).
+        Stream for the asynchronous copy. First positional and required
+        (mirrors :func:`launch`). Unlike most stream-taking APIs this does
+        not accept a :class:`~graph.GraphBuilder`; one is rejected with
+        ``TypeError`` because the copy cannot be captured.
     srcs : Sequence[:class:`Buffer`]
-        Source buffers.  Must be a sequence, not a single Buffer.
+        Source buffers. Must be a sequence, not a single Buffer.
     dsts : Sequence[:class:`Buffer`]
-        Destination buffers.  Must match ``len(srcs)``.
+        Destination buffers. Must match ``len(srcs)``.
     options : :class:`CopyOptions` | Sequence[:class:`CopyOptions`] | None
         Per-copy options. A single value applies to every copy; a
         sequence pairs by index and must match ``len(srcs)``. ``None``
@@ -129,18 +133,32 @@ def copy_batch(
 
     Raises
     ------
-    NotImplementedError
-        On a CUDA 12 build of ``cuda.core``.
     ValueError
         If lengths or sizes mismatch.
     TypeError
         If a single Buffer is passed instead of a sequence.
+    NotImplementedError
+        If non-default ``options`` are given where
+        ``cuMemcpyBatchAsync`` is unavailable (see Notes).
+
+    Notes
+    -----
+    ``cuMemcpyBatchAsync`` needs both a CUDA 13 build of ``cuda.core``
+    and a CUDA 13 driver. Otherwise the copies fall back to a
+    Python-level loop over ``cuMemcpyAsync``, which is semantically
+    equivalent but does not amortize launch overhead. That fallback has
+    no way to convey :class:`CopyOptions` to the driver, so non-default
+    options raise :class:`NotImplementedError` there rather than being
+    silently ignored.
+
+    Warns
+    -----
     UserWarning
         If ``overlap_mode='prefer_overlap_with_compute'`` is requested
         on a non-integrated (discrete) GPU.
     """
-    cdef tuple src_bufs = _coerce_batch_buffers(srcs, "copy_batch")
-    cdef tuple dst_bufs = _coerce_batch_buffers(dsts, "copy_batch")
+    cdef tuple src_bufs = Buffer_coerce_batch(srcs, "copy_batch", _SINGLE_COPY_HINT)
+    cdef tuple dst_bufs = Buffer_coerce_batch(dsts, "copy_batch", _SINGLE_COPY_HINT)
     cdef Py_ssize_t n = len(src_bufs)
 
     if len(dst_bufs) != n:
@@ -191,6 +209,18 @@ def copy_batch(
             f"CopyOptions, got {type(options).__name__}"
         )
 
+    # Without the batched entry point there is nowhere to put attributes,
+    # so refuse them here rather than dropping them in the fallback. Doing
+    # this before the overlap warning keeps the error the only diagnostic.
+    if not _batch_entry_point_available():
+        for i in range(n):
+            if attr_tuple[i] != _DEFAULT_COPY_OPTIONS:
+                raise NotImplementedError(
+                    "copy_batch: non-default CopyOptions requires cuMemcpyBatchAsync, "
+                    "which needs both a CUDA 13 build of cuda.core and a CUDA 13 "
+                    "driver; omit options to use the per-copy fallback"
+                )
+
     # Check for overlap_mode warning on non-integrated GPUs
     cdef bint any_overlap = False
     cdef object ca_attr
@@ -216,6 +246,41 @@ def copy_batch(
 
 cdef void _do_copy_batch(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tuple):
     IF CUDA_CORE_BUILD_MAJOR >= 13:
+        # A CUDA 13 build can still be running against a CUDA 12 driver,
+        # which has no cuMemcpyBatchAsync (see PRs #2054 / #2064).
+        if _batch_entry_point_available():
+            _do_copy_batch_native(src_bufs, dst_bufs, s, attr_tuple)
+        else:
+            _do_copy_batch_loop(src_bufs, dst_bufs, s)
+    ELSE:
+        _do_copy_batch_loop(src_bufs, dst_bufs, s)
+
+
+cdef void _do_copy_batch_loop(tuple src_bufs, tuple dst_bufs, Stream s):
+    """Per-copy cuMemcpyAsync fallback where the batch entry point is absent.
+
+    Equivalent in effect to the batched call, minus the launch-overhead
+    amortization. Callers guarantee the options are defaults; copy_batch
+    rejects anything else before reaching here.
+    """
+    cdef Py_ssize_t n = len(src_bufs)
+    cdef Py_ssize_t i
+    cdef Buffer src_buf
+    cdef Buffer dst_buf
+    cdef size_t nbytes
+    cdef cydriver.CUstream hstream = as_cu(s._h_stream)
+
+    for i in range(n):
+        src_buf = <Buffer>src_bufs[i]
+        dst_buf = <Buffer>dst_bufs[i]
+        nbytes = src_buf._size
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                as_cu(dst_buf._h_ptr), as_cu(src_buf._h_ptr), nbytes, hstream))
+
+
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    cdef void _do_copy_batch_native(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tuple):
         cdef Py_ssize_t n = len(src_bufs)
         cdef cydriver.CUstream hstream = as_cu(s._h_stream)
         cdef vector[cydriver.CUdeviceptr] dst_ptrs
@@ -260,7 +325,3 @@ cdef void _do_copy_batch(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tu
                 num_attrs,
                 hstream,
             ))
-    ELSE:
-        raise NotImplementedError(
-            "copy_batch requires a CUDA 13 build of cuda.core"
-        )
