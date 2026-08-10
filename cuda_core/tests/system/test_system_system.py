@@ -4,6 +4,8 @@
 
 
 import os
+import subprocess
+import sys
 
 import pytest
 from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported
@@ -80,3 +82,44 @@ def test_get_driver_branch():
     driver_branch = system.get_driver_branch()
     assert isinstance(driver_branch, str)
     assert len(driver_branch) > 0
+
+
+# The NVML-unavailable fallback is decided at import time, so it can only be
+# exercised in a fresh interpreter with cuda.bindings.nvml blocked.
+_NO_NVML_SCRIPT = """
+import sys
+
+
+class _BlockNvml:
+    def find_spec(self, name, path=None, target=None):
+        if name == "cuda.bindings.nvml":
+            raise ImportError("blocked for testing", name=name)
+        return None
+
+
+sys.meta_path.insert(0, _BlockNvml())
+
+# Used to raise ImportError out of this import: the flag was cleared, but the
+# `else` that binds the non-NVML fallbacks belonged to the outer `if`, which
+# had already been evaluated, and _nvml_context (imported unconditionally
+# right after) imports cuda.bindings.nvml itself.
+from cuda.core import system
+from cuda.core.system import _system
+
+assert system.CUDA_BINDINGS_NVML_IS_COMPATIBLE is False, "flag must be cleared when nvml is unimportable"
+for name in ("driver", "handle_return", "runtime"):
+    assert hasattr(_system, name), f"non-NVML fallback {name!r} is not bound"
+print("ok")
+"""
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_system_falls_back_when_nvml_is_unimportable():
+    proc = subprocess.run(  # noqa: S603
+        [sys.executable, "-c", _NO_NVML_SCRIPT],
+        capture_output=True,
+        text=True,
+        timeout=300,
+    )
+    assert proc.returncode == 0, f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
+    assert proc.stdout.strip().endswith("ok")
