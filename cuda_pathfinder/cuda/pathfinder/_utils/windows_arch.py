@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import platform
 import sysconfig
 
 WINDOWS_PE_MACHINE_BY_ARCH = {
@@ -33,6 +34,20 @@ def windows_python_arch() -> str:
         return "x64"
 
     raise UnsupportedArchError(raw_platform_tag)
+
+
+def windows_machine_arch() -> str:
+    """Return the native Windows machine architecture."""
+    raw_machine = platform.machine()
+    machine = raw_machine.lower().replace("_", "-")
+
+    if machine in ("amd64", "x86-64"):
+        return "x64"
+
+    if machine in ("arm64", "aarch64"):
+        return "arm64"
+
+    raise RuntimeError(f"Unsupported Windows machine architecture: {raw_machine!r}")
 
 
 def windows_pe_matches_arch(path: str, target_arch: str) -> bool:

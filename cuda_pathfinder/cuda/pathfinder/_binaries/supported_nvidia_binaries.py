@@ -31,4 +31,10 @@ SITE_PACKAGES_BINDIRS = {
     "nsight-compute": (_NSIGHT_COMPUTE_BIN,),
 }
 
+# Names accepted by the public API that differ from the installed executable.
+WINDOWS_BINARY_ALIASES = {
+    "nsight-sys": "nsys",
+    "nsight-compute": "ncu",
+}
+
 SUPPORTED_BINARIES_ALL = SUPPORTED_BINARIES = tuple(SITE_PACKAGES_BINDIRS.keys())

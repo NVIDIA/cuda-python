@@ -2,13 +2,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import importlib
 import os
+from collections.abc import Iterable
+from typing import Any
 
 from cuda.pathfinder._binaries import supported_nvidia_binaries
 from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.windows_arch import windows_machine_arch
+
+_NSIGHT_REGISTRY_ROOT = r"SOFTWARE\NVIDIA Corporation\Installed Products\Nsight"
+
+_NSYS_TARGET_DIR_BY_ARCH = {
+    "x64": "target-windows-x64",
+    "arm64": "target-windows-armv8",
+}
+
+_NCU_TARGET_DIR_BY_ARCH = {
+    "x64": os.path.join("target", "windows-desktop-win7-x64"),
+    "arm64": os.path.join("target", "windows-desktop-win10-t23x-a64"),
+}
 
 
 class UnsupportedBinaryError(Exception):
@@ -46,6 +62,71 @@ def _ctk_bin_subdirs(root: str) -> list[str]:
     return [os.path.join(root, "bin")]
 
 
+def _resolve_candidate_paths(candidates: Iterable[str]) -> str | None:
+    """Return the first executable candidate, preserving candidate order."""
+    seen: set[str] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        if _is_executable_candidate(candidate):
+            return os.path.abspath(candidate)
+    return None
+
+
+def _find_windows_compute_sanitizer(ctk_root: str) -> str | None:
+    return _resolve_candidate_paths(
+        (
+            os.path.join(ctk_root, "bin", "compute-sanitizer.bat"),
+            os.path.join(ctk_root, "compute-sanitizer", "compute-sanitizer.exe"),
+        )
+    )
+
+
+def _windows_installed_nsight_root(product: str) -> str | None:
+    """Return the active Nsight product installation recorded by its MSI."""
+    # ``winreg`` attributes are absent from the type stubs on non-Windows hosts.
+    winreg: Any = importlib.import_module("winreg")
+
+    access = winreg.KEY_READ | winreg.KEY_WOW64_64KEY
+    product_key_path = rf"{_NSIGHT_REGISTRY_ROOT}\{product}"
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, product_key_path, 0, access) as product_key:
+            current_version, _ = winreg.QueryValueEx(product_key, "CurrentVersion")
+            if not isinstance(current_version, str) or not current_version:
+                raise RuntimeError(f"Invalid CurrentVersion value in {product_key_path!r}")
+            with winreg.OpenKey(product_key, current_version, 0, access) as version_key:
+                install_root, _ = winreg.QueryValueEx(version_key, None)
+    except FileNotFoundError:
+        return None
+
+    if not isinstance(install_root, str) or not install_root:
+        raise RuntimeError(f"Invalid installation directory for {product_key_path!r} version {current_version!r}")
+    return install_root
+
+
+def _find_windows_nsys() -> str | None:
+    install_root = _windows_installed_nsight_root("Systems")
+    if install_root is None:
+        return None
+
+    target_dir = _NSYS_TARGET_DIR_BY_ARCH[windows_machine_arch()]
+    return _resolve_candidate_paths((os.path.join(install_root, target_dir, "nsys.exe"),))
+
+
+def _find_windows_ncu() -> str | None:
+    install_root = _windows_installed_nsight_root("Compute")
+    if install_root is None:
+        return None
+
+    launcher = os.path.join(install_root, "ncu.bat")
+    if (found := _resolve_candidate_paths((launcher,))) is not None:
+        return found
+
+    target_dir = _NCU_TARGET_DIR_BY_ARCH[windows_machine_arch()]
+    return _resolve_candidate_paths((os.path.join(install_root, target_dir, "ncu.exe"),))
+
+
 def _resolve_ctk_root_via_canary() -> str | None:
     from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import resolve_ctk_root_via_canary
 
@@ -66,6 +147,20 @@ def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[str]) -> str | Non
             # Return an absolute path, as the docstring promises (a relative
             # search dir would otherwise leak a relative result).
             return os.path.abspath(candidate)
+    return None
+
+
+def _resolve_names_in_trusted_dirs(candidate_names: tuple[str, ...], dirs: list[str]) -> str | None:
+    """Resolve ordered candidate names within each trusted directory."""
+    seen: set[str] = set()
+    for directory in dirs:
+        if directory in seen:
+            continue
+        assert directory
+        seen.add(directory)
+        found = _resolve_candidate_paths(os.path.join(directory, name) for name in candidate_names)
+        if found is not None:
+            return found
     return None
 
 
@@ -100,15 +195,21 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
              environment variable, which use platform-specific bin directory
              layouts (``Library/bin`` on Windows, ``bin`` on Linux).
 
-        3. **CUDA Toolkit environment variables**
+        3. **Windows Nsight installations**
+
+           - On Windows, locate Nsight Systems and Nsight Compute from their
+             installer registry entries. Select architecture-specific binaries
+             using the native machine architecture, independent of Python.
+
+        4. **CUDA Toolkit environment variables**
 
            - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order), searching
              ``bin/x64``, ``bin/x86_64``, and ``bin`` subdirectories on Windows,
              or just ``bin`` on Linux.
 
-        4. **CTK-root canary fallback**
+        5. **CTK-root canary fallback**
 
-           - Only when steps 1-3 miss: resolve the ``cudart`` library through the
+           - Only when steps 1-4 miss: resolve the ``cudart`` library through the
              OS dynamic loader, derive the CUDA Toolkit root from it, and search
              that root's bin layout.
 
@@ -132,6 +233,10 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     if utility_name not in supported_nvidia_binaries.SUPPORTED_BINARIES:
         raise UnsupportedBinaryError(utility_name)
 
+    resolved_name = (
+        supported_nvidia_binaries.WINDOWS_BINARY_ALIASES.get(utility_name, utility_name) if IS_WINDOWS else utility_name
+    )
+
     # 1. Search in site-packages (NVIDIA wheels)
     candidate_dirs = supported_nvidia_binaries.SITE_PACKAGES_BINDIRS.get(utility_name, ())
     dirs = []
@@ -146,17 +251,34 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         else:
             dirs.append(os.path.join(conda_prefix, "bin"))
 
-    # 3. Search in CUDA Toolkit (CUDA_HOME/CUDA_PATH)
-    if (cuda_home := get_cuda_path_or_home()) is not None:
-        dirs.extend(_ctk_bin_subdirs(cuda_home))
-
-    normalized_name = _normalize_utility_name(utility_name)
-    found = _resolve_in_trusted_dirs(normalized_name, dirs)
+    normalized_name = _normalize_utility_name(resolved_name)
+    if IS_WINDOWS and resolved_name in ("compute-sanitizer", "ncu"):
+        candidate_names = (f"{resolved_name}.bat", normalized_name)
+        found = _resolve_names_in_trusted_dirs(candidate_names, dirs)
+    else:
+        found = _resolve_in_trusted_dirs(normalized_name, dirs)
     if found is not None:
         return found
 
-    # 4. CTK-root canary fallback.
+    # 3. Nsight tools are separate products and are not installed under CTK.
+    if IS_WINDOWS and resolved_name == "nsys":
+        return _find_windows_nsys()
+    if IS_WINDOWS and resolved_name == "ncu":
+        return _find_windows_ncu()
+
+    # 4. Search in CUDA Toolkit (CUDA_HOME/CUDA_PATH).
+    if (cuda_home := get_cuda_path_or_home()) is not None:
+        if IS_WINDOWS and resolved_name == "compute-sanitizer":
+            found = _find_windows_compute_sanitizer(cuda_home)
+        else:
+            found = _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(cuda_home))
+        if found is not None:
+            return found
+
+    # 5. CTK-root canary fallback.
     ctk_root = _resolve_ctk_root_via_canary()
     if ctk_root is not None:
+        if IS_WINDOWS and resolved_name == "compute-sanitizer":
+            return _find_windows_compute_sanitizer(ctk_root)
         return _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(ctk_root))
     return None

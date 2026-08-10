@@ -147,6 +147,25 @@ class TestWindowsPythonArch:
         assert exc_info.value.platform_tag == "custom-win"
 
 
+class TestWindowsMachineArch:
+    @pytest.mark.parametrize(
+        ("reported_machine", "expected"),
+        (("AMD64", "x64"), ("x86_64", "x64"), ("ARM64", "arm64"), ("aarch64", "arm64")),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_normalizes_platform_machine(self, mocker, reported_machine, expected):
+        mocker.patch.object(windows_arch_mod.platform, "machine", return_value=reported_machine)
+
+        assert windows_arch_mod.windows_machine_arch() == expected
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_rejects_unknown_machine(self, mocker):
+        mocker.patch.object(windows_arch_mod.platform, "machine", return_value="mips64")
+
+        with pytest.raises(RuntimeError, match=r"Unsupported Windows machine architecture: 'mips64'"):
+            windows_arch_mod.windows_machine_arch()
+
+
 @pytest.mark.parametrize(
     ("machine", "target_arch", "expected"),
     (
