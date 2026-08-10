@@ -592,7 +592,9 @@ and Nsight Compute.</p></li>
 <dl class="simple">
 <dt>3.1. <strong>Nsight installations</strong>: On Windows, locate Nsight Systems and</dt><dd><p>Nsight Compute from their installer registry entries. Select
 architecture-specific binaries using the native machine
-architecture, independent of Python.</p>
+architecture, independent of Python. Lookup of the standalone
+<code class="docutils literal notranslate"><span class="pre">nsys</span></code> and <code class="docutils literal notranslate"><span class="pre">ncu</span></code> CLIs is terminal; a miss does not fall
+through to CUDA Toolkit locations.</p>
 </dd>
 <dt>3.2. <strong>CUDA Toolkit installation</strong>: Use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code></dt><dd><p>(in that order), searching <code class="docutils literal notranslate"><span class="pre">bin/x64</span></code>, <code class="docutils literal notranslate"><span class="pre">bin/x86_64</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">bin</span></code> subdirectories on Windows, or just <code class="docutils literal notranslate"><span class="pre">bin</span></code> on Linux.</p>
@@ -601,9 +603,9 @@ architecture, independent of Python.</p>
 </li>
 <li><p><strong>CTK-root canary fallback</strong></p>
 <ul class="simple">
-<li><p>Only when steps 1-3 miss: resolve the <code class="docutils literal notranslate"><span class="pre">cudart</span></code> library through the
-OS dynamic loader, derive the CUDA Toolkit root from it, and search
-that root’s bin layout.</p></li>
+<li><p>For utilities that reach this step after the earlier searches miss,
+resolve the <code class="docutils literal notranslate"><span class="pre">cudart</span></code> library through the OS dynamic loader, derive
+the CUDA Toolkit root from it, and search that root’s bin layout.</p></li>
 </ul>
 </li>
 </ol>
