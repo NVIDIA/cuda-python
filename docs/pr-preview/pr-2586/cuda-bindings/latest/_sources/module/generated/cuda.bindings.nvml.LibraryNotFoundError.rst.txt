@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.LibraryNotFoundError
+=======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: LibraryNotFoundError
