@@ -5,18 +5,14 @@
 
 Provides the device, stream and buffer fixtures shared by
 ``test_copy_batch.py`` (data movement) and ``test_copy_batch_options.py``
-(options and validation). Constants and helper functions that tests
-import by name live in ``helpers.copy_batch``.
+(options and validation).
 """
 
 import pytest
-from helpers.copy_batch import (
-    COPY_BATCH_COUNT,
-    COPY_BATCH_SIZE,
-    uses_batch_entry_point,
-)
+from helpers.copy_batch import COPY_BATCH_COUNT, COPY_BATCH_SIZE
 
 from cuda.core import Device, LegacyPinnedMemoryResource
+from cuda.core._memory._copy_ops import _batch_entry_point_in_use
 
 
 @pytest.fixture
@@ -39,7 +35,7 @@ def requires_copy_options():
     unavailable, ``copy_batch`` falls back to per-copy ``cuMemcpyAsync``,
     which cannot convey attributes, so non-default options are rejected.
     """
-    if not uses_batch_entry_point():
+    if not _batch_entry_point_in_use():
         pytest.skip(
             "non-default CopyOptions requires cuda.core built against CUDA 13, "
             "cuda.bindings 13.0+, and a driver reporting CUDA 13.0 or newer"

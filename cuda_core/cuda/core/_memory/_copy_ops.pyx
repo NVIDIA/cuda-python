@@ -62,6 +62,43 @@ def _batch_entry_point_in_use() -> bool:
     return bool(_batch_entry_point_available())
 
 
+def _normalize_copy_options(
+    options: CopyOptions | Sequence[CopyOptions] | None,
+    Py_ssize_t n,
+) -> tuple[CopyOptions, ...]:
+    """Expand ``options`` to exactly one :class:`CopyOptions` per copy.
+
+    ``None`` and a scalar broadcast; a sequence pairs by index and must
+    already have length ``n``.
+
+    Internal, but deliberately importable: options are hints that change
+    how the driver stages a transfer and never the bytes it produces, so
+    this expansion (and the run encoding applied to it) is the only
+    observable evidence that a scalar reached every copy.
+    """
+    if options is None:
+        return (_DEFAULT_COPY_OPTIONS,) * n
+    if isinstance(options, CopyOptions):
+        return (options,) * n
+    if isinstance(options, Sequence):
+        if len(options) != n:
+            raise ValueError(
+                f"copy_batch: options length {len(options)} does not match "
+                f"buffers length {n}"
+            )
+        for a in options:
+            if not isinstance(a, CopyOptions):
+                raise TypeError(
+                    f"copy_batch: each options element must be CopyOptions, "
+                    f"got {type(a).__name__}"
+                )
+        return tuple(options)
+    raise TypeError(
+        f"copy_batch: options must be CopyOptions or a sequence of "
+        f"CopyOptions, got {type(options).__name__}"
+    )
+
+
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     cdef inline cydriver.CUmemLocation _to_cumemlocation(object loc):
         """Convert a _LocSpec dataclass to a cydriver.CUmemLocation struct."""
@@ -195,33 +232,7 @@ def copy_batch(
                 f"(src={src_buf.size}, dst={dst_buf.size})"
             )
 
-    # Expand `options` to one CopyOptions per copy; the encoder below
-    # collapses equal neighbours back into driver attribute runs.
-    cdef tuple attr_tuple
-    if options is None:
-        attr_tuple = (CopyOptions(),) * n
-    elif isinstance(options, CopyOptions):
-        attr_tuple = (options,) * n
-    elif isinstance(options, Sequence):
-        if len(options) != n:
-            raise ValueError(
-                f"copy_batch: options length {len(options)} does not match "
-                f"buffers length {n}"
-            )
-        attr_list = []
-        for a in options:
-            if not isinstance(a, CopyOptions):
-                raise TypeError(
-                    f"copy_batch: each options element must be CopyOptions, "
-                    f"got {type(a).__name__}"
-                )
-            attr_list.append(a)
-        attr_tuple = tuple(attr_list)
-    else:
-        raise TypeError(
-            f"copy_batch: options must be CopyOptions or a sequence of "
-            f"CopyOptions, got {type(options).__name__}"
-        )
+    cdef tuple attr_tuple = _normalize_copy_options(options, n)
 
     # Without the batched entry point there is nowhere to put attributes,
     # so refuse them here rather than dropping them in the fallback. Doing

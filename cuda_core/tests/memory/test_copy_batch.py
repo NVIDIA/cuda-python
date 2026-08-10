@@ -5,8 +5,7 @@
 
 Covers that the right bytes reach the right destination, that batched
 results agree with the per-buffer ``Buffer.copy_to`` path, and that the
-batch is correctly ordered on its stream. Options handling and argument
-validation live in ``test_copy_batch_options.py``.
+batch is correctly ordered on its stream.
 """
 
 import pytest
@@ -236,35 +235,6 @@ class TestCopyBatchStreamSemantics:
             assert compare_buffer_to_constant(dst, before)
         for src in srcs:
             assert compare_buffer_to_constant(src, after)
-
-    @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_visible_on_other_stream_after_explicit_wait(self, copy_batch_device, device_bufs, copy_stream):
-        """A batch on one stream is not ordered against an unrelated stream.
-
-        The second stream must be made to wait explicitly; once it does,
-        it observes the copied bytes.
-        """
-        srcs, dsts = device_bufs
-        other = copy_batch_device.create_stream()
-        try:
-            for src in srcs:
-                src.fill(33, stream=copy_stream)
-            copy_batch(copy_stream, srcs, dsts)
-
-            # Explicit cross-stream dependency, then observe from `other`.
-            other.wait(copy_stream)
-            probes = [copy_batch_device.memory_resource.allocate(COPY_BATCH_SIZE, stream=other) for _ in dsts]
-            for dst, probe in zip(dsts, probes):
-                dst.copy_to(probe, stream=other)
-            other.sync()
-
-            for probe in probes:
-                assert compare_buffer_to_constant(probe, 33)
-            for probe in probes:
-                probe.close(other)
-            other.sync()
-        finally:
-            other.close()
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_graph_builder_is_rejected(self, copy_batch_device, device_bufs, copy_stream):

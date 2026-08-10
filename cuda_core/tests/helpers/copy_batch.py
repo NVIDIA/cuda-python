@@ -9,7 +9,6 @@ pieces that tests import by name.
 """
 
 from cuda.core import LegacyPinnedMemoryResource
-from cuda.core._memory._copy_ops import _batch_entry_point_in_use
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer
 
 COPY_BATCH_SIZE = 4096
@@ -19,18 +18,6 @@ COPY_BATCH_COUNT = 4
 # requested on a discrete GPU. Tests that are not about the warning
 # silence it so they stay green under -W error.
 OVERLAP_WARNING_FILTER = "ignore:overlap_mode:UserWarning"
-
-
-def uses_batch_entry_point() -> bool:
-    """Whether copy_batch reaches ``cuMemcpyBatchAsync`` on this system.
-
-    True only with cuda.core built against CUDA 13, cuda.bindings 13.0+,
-    and a driver reporting CUDA 13.0 or newer. Delegates to the
-    implementation's own dispatch predicate rather than re-deriving it, so
-    the tests cannot drift from it. ``copy_batch`` itself works either way
-    -- only non-default ``CopyOptions`` need the batched entry point.
-    """
-    return _batch_entry_point_in_use()
 
 
 def assert_managed_holds(dev, buf, value, *, stream):

@@ -14,6 +14,18 @@ _DEFAULT_COPY_OPTIONS = CopyOptions()
 def _batch_entry_point_in_use() -> bool:
     """Internal: expose the dispatch predicate so tests can gate on it."""
 
+def _normalize_copy_options(options: CopyOptions | Sequence[CopyOptions] | None, n: int) -> tuple[CopyOptions, ...]:
+    """Expand ``options`` to exactly one :class:`CopyOptions` per copy.
+
+    ``None`` and a scalar broadcast; a sequence pairs by index and must
+    already have length ``n``.
+
+    Internal, but deliberately importable: options are hints that change
+    how the driver stages a transfer and never the bytes it produces, so
+    this expansion (and the run encoding applied to it) is the only
+    observable evidence that a scalar reached every copy.
+    """
+
 def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *, options: CopyOptions | Sequence[CopyOptions] | None=None) -> None:
     """Copy a batch of buffers asynchronously.
 

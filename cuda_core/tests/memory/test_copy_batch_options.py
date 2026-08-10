@@ -4,8 +4,7 @@
 """``CopyOptions`` handling and argument validation for ``copy_batch``.
 
 Covers how options are encoded into the driver's attribute runs, how each
-option field behaves, and every rejection path. The data-movement
-behaviour itself lives in ``test_copy_batch.py``.
+option field behaves, and every rejection path.
 """
 
 import warnings
@@ -16,17 +15,16 @@ import pytest
 # OOM, and CUDA_ERROR_NOT_SUPPORTED (managed pools are unavailable on
 # Windows), so the location-hint tests skip rather than error there.
 from conftest import create_managed_memory_resource_or_skip
-from helpers.buffers import compare_buffer_to_constant, compare_equal_buffers, set_buffer
+from helpers.buffers import compare_buffer_to_constant, set_buffer
 from helpers.copy_batch import (
     COPY_BATCH_SIZE,
     OVERLAP_WARNING_FILTER,
     assert_managed_holds,
-    uses_batch_entry_point,
 )
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource
 from cuda.core._memory._copy_enums import _attr_run_starts
-from cuda.core._utils.version import binding_version
+from cuda.core._memory._copy_ops import _batch_entry_point_in_use, _normalize_copy_options
 from cuda.core.utils import (
     CopyOptions,
     MemcpyOverlapMode,
@@ -35,17 +33,39 @@ from cuda.core.utils import (
 )
 
 
-class TestAttrRunStarts:
-    """Unit tests for the attrsIdxs run-length encoding.
+class TestOptionsEncoding:
+    """How ``options`` becomes the driver's ``attrs`` / ``attrsIdxs`` pair.
 
-    Pure logic, no CUDA: ``attrs[k]`` applies to the copies in
-    ``[starts[k], starts[k + 1])``.
+    Pure logic, no CUDA. This is the only place the effect of ``options``
+    is observable: they are hints that change how the driver stages a
+    transfer, never the bytes it produces, so no data comparison can
+    distinguish an option that was applied from one that was dropped.
     """
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_broadcast_collapses_to_one_run(self):
-        attrs = [CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)] * 4
-        assert _attr_run_starts(attrs) == [0]
+    def test_scalar_broadcasts_to_every_copy(self):
+        """A scalar must reach all N copies, not just the first."""
+        n = 4
+        scalar = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
+
+        # copy_batch expands the scalar to one entry per copy...
+        assert _normalize_copy_options(scalar, n) == (scalar,) * n
+        # ...and the encoder collapses those to a single driver attribute.
+        assert _attr_run_starts(_normalize_copy_options(scalar, n)) == [0]
+
+        # An explicit list of the same option is indistinguishable.
+        assert _normalize_copy_options([scalar] * n, n) == _normalize_copy_options(scalar, n)
+
+    @pytest.mark.agent_authored(model="Claude Opus 5")
+    def test_none_broadcasts_defaults(self):
+        assert _normalize_copy_options(None, 3) == (CopyOptions(),) * 3
+
+    @pytest.mark.agent_authored(model="Claude Opus 5")
+    def test_sequence_is_never_broadcast(self):
+        """A sequence pairs by index, so a short one is an error."""
+        scalar = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
+        with pytest.raises(ValueError, match="options length"):
+            _normalize_copy_options([scalar], 4)
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_equal_but_distinct_instances_collapse(self):
@@ -111,61 +131,13 @@ class TestCopyBatchOptions:
             CopyOptions(src_access_order=MemcpySrcAccessOrder.DURING_API_CALL),
             CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM),
         ]
-        assert _attr_run_starts(per_copy_options) == [0, 1, 2, 3]
-
+        # The encoding itself is covered by TestOptionsEncoding; here the
+        # point is that distinct per-copy options do not corrupt the data.
         copy_batch(copy_stream, srcs, dsts, options=per_copy_options)
         copy_stream.sync()
 
         for i, dst in enumerate(dsts):
             assert compare_buffer_to_constant(dst, i + 40)
-
-    @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_scalar_options_broadcast(self, requires_copy_options, copy_batch_device, h2d_bufs, copy_stream):
-        """A scalar option must apply to every copy.
-
-        Verified three ways: the scalar collapses to a single driver
-        attribute, a scalar and an equivalent explicit per-copy list give
-        identical bytes, and a short list is *not* silently broadcast.
-        """
-        srcs, scalar_dsts = h2d_bufs
-        device_mr = copy_batch_device.memory_resource
-        pinned_mr = LegacyPinnedMemoryResource()
-        n = len(srcs)
-        scalar_option = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
-
-        for i, src in enumerate(srcs):
-            set_buffer(src, i + 95)
-
-        # A scalar is expanded internally to n copies of one option, which
-        # the encoder then collapses back to a single driver entry.
-        assert _attr_run_starts([scalar_option] * n) == [0]
-
-        copy_batch(copy_stream, srcs, scalar_dsts, options=scalar_option)
-
-        listed_dsts = [device_mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in srcs]
-        copy_batch(copy_stream, srcs, listed_dsts, options=[scalar_option] * n)
-        copy_stream.sync()
-
-        # Every copy received the option, and both spellings agree.
-        for i, (scalar_dst, listed_dst) in enumerate(zip(scalar_dsts, listed_dsts)):
-            assert compare_buffer_to_constant(scalar_dst, i + 95)
-            scalar_host = pinned_mr.allocate(COPY_BATCH_SIZE)
-            listed_host = pinned_mr.allocate(COPY_BATCH_SIZE)
-            scalar_dst.copy_to(scalar_host, stream=copy_stream)
-            listed_dst.copy_to(listed_host, stream=copy_stream)
-            copy_stream.sync()
-            assert compare_equal_buffers(scalar_host, listed_host)
-            scalar_host.close(copy_stream)
-            listed_host.close(copy_stream)
-
-        # A sequence is paired by index and never broadcast, so a
-        # one-element list is a length error rather than a scalar.
-        with pytest.raises(ValueError, match="options length"):
-            copy_batch(copy_stream, srcs, listed_dsts, options=[scalar_option])
-
-        for buf in listed_dsts:
-            buf.close(copy_stream)
-        copy_stream.sync()
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_location_hints(self, requires_copy_options, copy_batch_device, copy_stream):
@@ -195,7 +167,12 @@ class TestCopyBatchOptions:
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_host_numa_location_hint(self, requires_copy_options, copy_batch_device, copy_stream):
-        """NUMA host hints round-trip on CUDA 13 and are rejected on CUDA 12."""
+        """A NUMA-specific host hint is accepted and does not corrupt the copy.
+
+        ``requires_copy_options`` already implies CUDA 13, where
+        ``Host(numa_id=...)`` is representable; the CUDA 12 rejection is
+        covered by ``_coerce_location``'s own tests.
+        """
         dev = copy_batch_device
         mr = create_managed_memory_resource_or_skip()
         srcs = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]
@@ -203,16 +180,10 @@ class TestCopyBatchOptions:
         for i, src in enumerate(srcs):
             src.fill(i + 85, stream=copy_stream)
 
-        options = CopyOptions(dst_location_hint=Host(numa_id=0))
-
-        if binding_version() < (13, 0, 0):
-            with pytest.raises(TypeError, match="CUDA 13"):
-                copy_batch(copy_stream, srcs, dsts, options=options)
-        else:
-            copy_batch(copy_stream, srcs, dsts, options=options)
-            copy_stream.sync()
-            for i, dst in enumerate(dsts):
-                assert_managed_holds(dev, dst, i + 85, stream=copy_stream)
+        copy_batch(copy_stream, srcs, dsts, options=CopyOptions(dst_location_hint=Host(numa_id=0)))
+        copy_stream.sync()
+        for i, dst in enumerate(dsts):
+            assert_managed_holds(dev, dst, i + 85, stream=copy_stream)
 
         for buf in srcs + dsts:
             buf.close(copy_stream)
@@ -256,7 +227,6 @@ class TestCopyBatchOptions:
         copy_stream.sync()
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    @pytest.mark.filterwarnings(OVERLAP_WARNING_FILTER)
     def test_default_overlap_mode_does_not_warn(self, h2d_bufs, copy_stream):
         srcs, dsts = h2d_bufs
         with warnings.catch_warnings():
@@ -378,7 +348,7 @@ class TestPerCopyFallback:
 
     @pytest.fixture(autouse=True)
     def _skip_if_batched(self):
-        if uses_batch_entry_point():
+        if _batch_entry_point_in_use():
             pytest.skip("cuMemcpyBatchAsync is in use; fallback path not exercised")
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
