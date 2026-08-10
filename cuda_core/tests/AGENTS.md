@@ -65,3 +65,33 @@ by `cuCtxSynchronize()` before popping the context. Tests should not rely on
 that as a substitute for cleaning up explicitly: prefer context managers for
 resources whose lifetime fits a single scope, and keep pool lifetimes inside
 the test that creates them.
+
+## Shared test code: `conftest.py` vs `tests/helpers/`
+
+`conftest.py` is **not a regular module** — pytest discovers it automatically
+and injects its fixtures; nothing should import it by name with
+`from conftest import ...`. Keeping it off the import path is what allows
+pytest to build the correct fixture hierarchy from multiple `conftest.py` files
+at different directory levels.
+
+Keep the two kinds of shared test code in their proper places:
+
+- **Fixtures and hooks** go in `conftest.py`. Tests receive them through
+  pytest's dependency injection; they never need to import `conftest` directly.
+- **Plain helper functions and constants** go in `tests/helpers/`. Tests that
+  need them import from there explicitly, e.g.
+  `from helpers.memory import create_managed_memory_resource_or_skip`.
+
+### Adding a per-directory `conftest.py`
+
+When you add a `conftest.py` under a subdirectory (e.g. `tests/memory/`),
+pytest automatically makes its fixtures available to tests in that directory
+and propagates fixtures from parent `conftest.py` files downward — no
+`__init__.py` is required for this to work.
+
+The suite uses pytest's default `prepend` import mode. `pytest.ini` sets
+`pythonpath = tests` so that every test file, regardless of how deep it sits,
+can resolve `from helpers.xxx import ...` against the `tests/` root.
+Without that setting, test files in subdirectories without `__init__.py`
+would get their own subdirectory prepended to `sys.path` instead of `tests/`,
+and the `helpers` package would not be found.
