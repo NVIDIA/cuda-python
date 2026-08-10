@@ -235,10 +235,6 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     if utility_name not in supported_nvidia_binaries.SUPPORTED_BINARIES:
         raise UnsupportedBinaryError(utility_name)
 
-    resolved_name = (
-        supported_nvidia_binaries.WINDOWS_BINARY_ALIASES.get(utility_name, utility_name) if IS_WINDOWS else utility_name
-    )
-
     # 1. Search in site-packages (NVIDIA wheels)
     candidate_dirs = supported_nvidia_binaries.SITE_PACKAGES_BINDIRS.get(utility_name, ())
     dirs = []
@@ -253,9 +249,9 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         else:
             dirs.append(os.path.join(conda_prefix, "bin"))
 
-    normalized_name = _normalize_utility_name(resolved_name)
-    if IS_WINDOWS and resolved_name in ("compute-sanitizer", "ncu"):
-        candidate_names = (f"{resolved_name}.bat", normalized_name)
+    normalized_name = _normalize_utility_name(utility_name)
+    if IS_WINDOWS and utility_name in ("compute-sanitizer", "ncu"):
+        candidate_names = (f"{utility_name}.bat", normalized_name)
         found = _resolve_names_in_trusted_dirs(candidate_names, dirs)
     else:
         found = _resolve_in_trusted_dirs(normalized_name, dirs)
@@ -264,14 +260,14 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
 
     # 3. Search library-specific standalone installations.
     # 3.1. Nsight tools are separate products and are not installed under CTK.
-    if IS_WINDOWS and resolved_name == "nsys":
+    if IS_WINDOWS and utility_name == "nsys":
         return _find_windows_nsys()
-    if IS_WINDOWS and resolved_name == "ncu":
+    if IS_WINDOWS and utility_name == "ncu":
         return _find_windows_ncu()
 
     # 3.2. Search in CUDA Toolkit (CUDA_HOME/CUDA_PATH).
     if (cuda_home := get_cuda_path_or_home()) is not None:
-        if IS_WINDOWS and resolved_name == "compute-sanitizer":
+        if IS_WINDOWS and utility_name == "compute-sanitizer":
             found = _find_windows_compute_sanitizer(cuda_home)
         else:
             found = _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(cuda_home))
@@ -281,7 +277,7 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     # 4. CTK-root canary fallback.
     ctk_root = _resolve_ctk_root_via_canary()
     if ctk_root is not None:
-        if IS_WINDOWS and resolved_name == "compute-sanitizer":
+        if IS_WINDOWS and utility_name == "compute-sanitizer":
             return _find_windows_compute_sanitizer(ctk_root)
         return _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(ctk_root))
     return None
