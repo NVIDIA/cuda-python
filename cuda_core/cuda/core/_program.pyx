@@ -1216,7 +1216,7 @@ cdef inline list _prepare_nvrtc_options_impl(object opts):
             f"--instantiate-templates-in-pch={_handle_boolean_option(opts.instantiate_templates_in_pch)}"
         )
     if opts.numba_debug:
-        options.append("--numba-debug")
+        options.append("-numba-debug")
     return [o.encode() for o in options]
 
 

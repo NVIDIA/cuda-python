@@ -93,12 +93,12 @@ def _check_nvvm_arch(arch: str) -> bool:
 
 
 def _check_nvvm_supports_numba_debug() -> bool:
-    """Check if the installed libNVVM recognizes --numba-debug (CTK 13.2+)."""
+    """Check if the installed libNVVM recognizes -numba-debug."""
     if not _has_check_nvvm_compiler_options():
         return False
     from cuda.bindings.utils import check_nvvm_compiler_options
 
-    return check_nvvm_compiler_options(["--numba-debug"])
+    return check_nvvm_compiler_options(["-numba-debug"])
 
 
 @pytest.fixture(scope="session")
@@ -762,18 +762,18 @@ def test_program_options_as_bytes_nvvm_unsupported_option():
 
 @nvvm_available
 def test_nvvm_program_options_as_bytes_numba_debug():
-    """numba_debug must be plumbed through to libNVVM as --numba-debug
+    """numba_debug must be plumbed through to libNVVM as -numba-debug
     (see #1287)."""
     options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
     nvvm_bytes = options.as_bytes("nvvm")
-    assert b"--numba-debug" in nvvm_bytes
+    assert b"-numba-debug" in nvvm_bytes
     assert b"-g" in nvvm_bytes
 
 
 @nvvm_available
 @pytest.mark.skipif(
     not _check_nvvm_supports_numba_debug(),
-    reason="installed libNVVM does not recognize --numba-debug (needs CTK 13.2+)",
+    reason="installed libNVVM does not recognize -numba-debug",
 )
 def test_nvvm_program_numba_debug(init_cuda, nvvm_ir):
     options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)

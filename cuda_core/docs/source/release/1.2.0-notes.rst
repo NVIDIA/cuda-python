@@ -9,6 +9,9 @@
 Fixes and enhancements
 ----------------------
 
+- Fixed ``ProgramOptions(numba_debug=True)`` for the NVVM backend by emitting
+  the single-dash ``-numba-debug`` option accepted by libNVVM.
+
 - Graph node resources are now retained independently across graph clones,
   executable graphs, updates, node deletion, and in-flight launches. Previously,
   modifying a graph definition could release resources still used by an
