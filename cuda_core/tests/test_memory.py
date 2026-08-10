@@ -1329,7 +1329,6 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert ("set_access", new_ptr, aligned_additional, 1) in calls
 
 
-@pytest.mark.agent_authored(model="claude-opus-5")
 def test_vmm_allocator_grow_slow_path_rollback_restores_access(init_cuda, monkeypatch):
     """Fail the slow path after the old range is remapped and check the rollback.
 
