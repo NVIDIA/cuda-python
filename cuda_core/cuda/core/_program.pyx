@@ -771,6 +771,8 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         assert_type(code, str)
         if options.extra_sources is not None:
             raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
+        if options.use_libdevice:
+            raise ValueError("use_libdevice is not supported by the NVRTC backend (C++ code_type)")
 
         # TODO: support pre-loaded headers & include names
         code_bytes = code.encode()
@@ -789,6 +791,8 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         assert_type(code, str)
         if options.extra_sources is not None:
             raise ValueError("extra_sources is not supported by the PTX backend.")
+        if options.use_libdevice:
+            raise ValueError("use_libdevice is not supported by the PTX backend.")
         code_bytes = code.encode()
         self._code = code_bytes
         self._linker = Linker(
@@ -835,9 +839,12 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         self._linker = None
 
     else:
+        # No use_libdevice check here: this branch is only reached for a
+        # code_type that is not a backend at all, and an unrecognised
+        # code_type is the error worth reporting. The per-backend guards
+        # above mirror the extra_sources ones and are what actually
+        # enforce "NVVM only", which is what ProgramOptions documents.
         supported_code_types = tuple(x.value for x in SourceCodeType)
-        if options.use_libdevice:
-            raise ValueError("use_libdevice is only supported by the NVVM backend")
         raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
 
     return 0
