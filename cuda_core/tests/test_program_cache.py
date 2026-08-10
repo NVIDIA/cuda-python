@@ -1784,6 +1784,55 @@ def test_filestream_cache_size_cap_counts_tmp_files(tmp_path):
         assert cache.get(b"c") is not None
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_filestream_size_cap_credits_an_entry_that_vanished_at_unlink(tmp_path):
+    """An entry another process removed mid-pass must be credited to ``total``.
+
+    ``_enforce_size_cap`` already credits an entry that has vanished by the
+    time it re-stats it. The unlink a few lines later is the same "already
+    gone" condition a few microseconds later, but its ``FileNotFoundError``
+    branch left ``total`` unchanged -- so the pass believed it was still over
+    the cap and evicted a second, live entry that did not need to go, then
+    reseeded the tracker with that same overcount, making the *next* write
+    over-evict too.
+    """
+    from cuda.core.utils import FileStreamProgramCache
+    from cuda.core.utils._program_cache import _file_stream
+
+    cap = 100
+    with FileStreamProgramCache(tmp_path / "fc", max_size_bytes=cap) as cache:
+        for i in range(3):
+            time.sleep(0.02)  # distinct atimes so eviction order is deterministic
+            cache[f"k{i}".encode()] = b"X" * 30
+        assert cache._tracked_size_bytes == 90
+
+        real_unlink = _file_stream._unlink_with_sharing_retry
+        raced = []
+
+        def racing_unlink(path):
+            # The first victim of this pass is unlinked by "another process"
+            # in the window between our stat-guard and our own unlink.
+            if not raced:
+                raced.append(path)
+                path.unlink()
+                raise FileNotFoundError(path)
+            real_unlink(path)
+
+        _file_stream._unlink_with_sharing_retry = racing_unlink
+        try:
+            time.sleep(0.02)
+            cache[b"k3"] = b"X" * 30  # 120 > 100 -> eviction pass runs
+        finally:
+            _file_stream._unlink_with_sharing_retry = real_unlink
+
+        assert raced, "the eviction pass never reached an unlink"
+        # 30 bytes had to go to get under the cap and 30 bytes did go, so the
+        # three remaining entries must all survive.
+        assert len(cache) == 3
+        assert cache._compute_total_size() == 90
+        assert cache._tracked_size_bytes == 90
+
+
 def test_filestream_cache_handles_long_keys(tmp_path):
     """Arbitrary-length keys must not overflow per-component filename limits.
     The filename is a fixed-length 256-bit digest; key uniqueness

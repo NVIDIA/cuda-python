@@ -73,6 +73,14 @@ Fixes and enhancements
   Windows, both ``ctypes.CFUNCTYPE`` and ``ctypes.WINFUNCTYPE`` are accepted.
   (`#2439 <https://github.com/NVIDIA/cuda-python/issues/2439>`__)
 
+- :class:`~cuda.core.utils.FileStreamProgramCache` no longer over-evicts when
+  another process removes an entry during a size-cap pass. The eviction loop
+  credited an entry that had already vanished by the time it was re-stat'ed,
+  but not one that vanished a few microseconds later at the ``unlink`` -- so
+  the pass believed it was still over the cap, evicted a live entry that did
+  not need to go, and reseeded the size tracker with the same overcount,
+  making the next write over-evict as well.
+
 Deprecation Notices
 -------------------
 
