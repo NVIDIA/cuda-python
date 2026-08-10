@@ -175,5 +175,13 @@ def find_static_lib(name: str) -> str:
     Raises:
         ValueError: If ``name`` is not a supported static library.
         StaticLibNotFoundError: If the static library cannot be found.
+
+    Windows on ARM (WoA) Note:
+        On Windows, this API aims to return the path to a static library whose
+        architecture matches the Python interpreter architecture. For example,
+        x64 Python running on an Arm64 machine targets the x64 library, while
+        native Arm64 Python targets the Arm64 library. This differs from
+        ``find_nvidia_binary_utility``, which targets the native machine
+        architecture when selecting architecture-specific executables.
     """
     return locate_static_lib(name).abs_path

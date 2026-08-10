@@ -183,6 +183,16 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         UnsupportedBinaryError: If ``utility_name`` is not in the supported set
             (see ``SUPPORTED_BINARY_UTILITIES``).
 
+    Windows on ARM (WoA) Note:
+        Binary utilities execute in separate processes and do not need to match
+        the Python process architecture. When choosing among architecture-specific
+        Windows layouts, this API deliberately targets the native machine
+        architecture rather than the Python interpreter architecture. For
+        example, standalone ``nsys`` and ``ncu`` discovery under x64 Python on an
+        Arm64 machine selects the Arm64 target. This differs from
+        ``load_nvidia_dynamic_lib`` and ``find_static_lib``, which target the
+        Python interpreter architecture.
+
     Search order:
         1. **NVIDIA Python wheels**
 
