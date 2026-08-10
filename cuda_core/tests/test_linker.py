@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import inspect
+import warnings
 
 import pytest
 
@@ -433,6 +434,66 @@ def test_prepare_driver_options_unsupported_raises(driver_binding, kwargs, match
     """Each nvjitlink-only option raises ValueError on the driver backend."""
     opts = LinkerOptions(**kwargs)
     with pytest.raises(ValueError, match=match):
+        opts._prepare_driver_options()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize(
+    ("field", "flag"),
+    [("time", "-time"), ("optimize_unused_variables", "-optimize-unused-variables")],
+)
+def test_valueless_flags_are_gated_on_truthiness(field, flag):
+    """A valueless nvJitLink switch must not be emitted for ``False``.
+
+    Both were gated on ``is not None``, which is only correct for the flags
+    that emit an explicit value (``-ftz=true|false`` and friends). So
+    ``time=False`` turned timing *on*, and ``optimize_unused_variables=False``
+    turned the optimization *on* -- silently changing the linked binary by
+    dropping device variables the caller asked to keep.
+    """
+    assert flag in LinkerOptions(arch=ARCH, **{field: True})._prepare_nvjitlink_options()
+    assert flag not in LinkerOptions(arch=ARCH, **{field: False})._prepare_nvjitlink_options()
+    assert flag not in LinkerOptions(arch=ARCH)._prepare_nvjitlink_options()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize(
+    ("field", "flag"),
+    [("kernels_used", "-kernels-used"), ("variables_used", "-variables-used")],
+)
+@pytest.mark.parametrize("factory", [list, tuple], ids=["list", "tuple"])
+def test_sequence_options_accept_tuples(field, flag, factory):
+    """``str | tuple[str] | list[str]`` must all reach the linker.
+
+    The dispatch tested ``isinstance(..., list)``, so the documented tuple form
+    matched neither branch: no option was emitted and nothing was raised, and
+    the link silently kept every kernel/variable the caller meant to filter.
+    """
+    emitted = LinkerOptions(arch=ARCH, **{field: factory(("A", "B"))})._prepare_nvjitlink_options()
+    assert f"{flag}=A" in emitted
+    assert f"{flag}=B" in emitted
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_linker_options_accepts_name_none():
+    """``name`` is annotated ``str | None``; ``None`` must fall back to the
+    documented default instead of raising ``AttributeError`` from ``.encode()``.
+    Same fix as ProgramOptions received in #2517."""
+    assert LinkerOptions(arch=ARCH, name=None).name == "<default linker>"
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("field", ["time", "optimize_unused_variables"])
+def test_prepare_driver_options_ignores_disabled_flags(driver_binding, field):
+    """An option the caller turned OFF is not an option the driver must support.
+
+    ``time=False`` raised "time option is not supported by the driver API" and
+    ``optimize_unused_variables=False`` emitted a DeprecationWarning, both for
+    a flag that would never have been sent.
+    """
+    opts = LinkerOptions(arch="sm_80", **{field: False})
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         opts._prepare_driver_options()
 
 

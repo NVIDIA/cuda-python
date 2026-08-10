@@ -310,6 +310,11 @@ class LinkerOptions:
 
     def __post_init__(self) -> None:
         _lazy_init()
+        # `name` is annotated `str | None`, so None must fall back to the
+        # documented default instead of raising AttributeError from
+        # `.encode()`. Mirrors the same fix for ProgramOptions (#2517).
+        if self.name is None:
+            self.name = "<default linker>"
         self._name = self.name.encode()
 
     def _prepare_nvjitlink_options(self, as_bytes: bool = False) -> list[bytes] | list[str]:
@@ -321,7 +326,11 @@ class LinkerOptions:
             options.append("-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability))
         if self.max_register_count is not None:
             options.append(f"-maxrregcount={self.max_register_count}")
-        if self.time is not None:
+        # `-time` is a valueless switch, so it must be gated on truthiness
+        # like every other valueless flag here (verbose, -lto, -ptx, -g,
+        # -lineinfo, -no-cache). `is not None` is only right for the flags
+        # that emit an explicit value, e.g. `-ftz=true|false` below.
+        if self.time:
             options.append("-time")
         if self.verbose:
             options.append("-verbose")
@@ -343,19 +352,24 @@ class LinkerOptions:
             options.append(f"-prec-sqrt={'true' if self.prec_sqrt else 'false'}")
         if self.fma is not None:
             options.append(f"-fma={'true' if self.fma else 'false'}")
+        # Accept any sequence, not just `list`: both fields are annotated (and
+        # documented) `str | tuple[str] | list[str]`, and a tuple used to match
+        # neither branch, so it emitted no option and raised nothing.
+        # `ptxas_options` below already gets this right.
         if self.kernels_used is not None:
             if isinstance(self.kernels_used, str):
                 options.append(f"-kernels-used={self.kernels_used}")
-            elif isinstance(self.kernels_used, list):
+            elif is_sequence(self.kernels_used):
                 for kernel in self.kernels_used:
                     options.append(f"-kernels-used={kernel}")
         if self.variables_used is not None:
             if isinstance(self.variables_used, str):
                 options.append(f"-variables-used={self.variables_used}")
-            elif isinstance(self.variables_used, list):
+            elif is_sequence(self.variables_used):
                 for variable in self.variables_used:
                     options.append(f"-variables-used={variable}")
-        if self.optimize_unused_variables is not None:
+        # Valueless switch: see the `-time` note above.
+        if self.optimize_unused_variables:
             options.append("-optimize-unused-variables")
         if self.ptxas_options is not None:
             if isinstance(self.ptxas_options, str):
@@ -398,7 +412,9 @@ class LinkerOptions:
         if self.max_register_count is not None:
             formatted_options.append(self.max_register_count)
             option_keys.append(_driver.CUjit_option.CU_JIT_MAX_REGISTERS)
-        if self.time is not None:
+        # Only an option the caller actually turned ON is unsupported;
+        # `time=False` asks for nothing and must not be rejected.
+        if self.time:
             raise ValueError("time option is not supported by the driver API")
         if self.verbose:
             formatted_options.append(1)

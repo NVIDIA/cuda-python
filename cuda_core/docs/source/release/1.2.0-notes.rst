@@ -73,6 +73,16 @@ Fixes and enhancements
   Windows, both ``ctypes.CFUNCTYPE`` and ``ctypes.WINFUNCTYPE`` are accepted.
   (`#2439 <https://github.com/NVIDIA/cuda-python/issues/2439>`__)
 
+- Four :class:`LinkerOptions` fields now behave as documented.
+  ``time=False`` and ``optimize_unused_variables=False`` no longer *enable*
+  those flags -- both are valueless nvJitLink switches that were gated on
+  ``is not None``, so explicitly disabling them turned them on (and, on the
+  driver backend, ``time=False`` raised "not supported"). ``kernels_used`` and
+  ``variables_used`` now accept the documented ``tuple`` form, which
+  previously matched no branch and emitted nothing at all. ``name=None`` now
+  falls back to the documented default instead of raising ``AttributeError``,
+  matching :class:`ProgramOptions`.
+
 Deprecation Notices
 -------------------
 
