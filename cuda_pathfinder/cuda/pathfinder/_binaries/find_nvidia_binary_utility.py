@@ -195,21 +195,19 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
              environment variable, which use platform-specific bin directory
              layouts (``Library/bin`` on Windows, ``bin`` on Linux).
 
-        3. **Windows Nsight installations**
+        3. **Library-specific standalone installation paths**
 
            - On Windows, locate Nsight Systems and Nsight Compute from their
              installer registry entries. Select architecture-specific binaries
              using the native machine architecture, independent of Python.
-
-        4. **CUDA Toolkit environment variables**
-
-           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order), searching
+           - For utilities delivered with the CUDA Toolkit, use ``CUDA_HOME``
+             or ``CUDA_PATH`` (in that order), searching
              ``bin/x64``, ``bin/x86_64``, and ``bin`` subdirectories on Windows,
              or just ``bin`` on Linux.
 
-        5. **CTK-root canary fallback**
+        4. **CTK-root canary fallback**
 
-           - Only when steps 1-4 miss: resolve the ``cudart`` library through the
+           - Only when steps 1-3 miss: resolve the ``cudart`` library through the
              OS dynamic loader, derive the CUDA Toolkit root from it, and search
              that root's bin layout.
 
