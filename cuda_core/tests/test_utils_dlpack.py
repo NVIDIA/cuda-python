@@ -219,6 +219,47 @@ class _DLManagedTensorVersioned(ctypes.Structure):
     ]
 
 
+_PyCapsule_New = ctypes.pythonapi.PyCapsule_New
+_PyCapsule_New.argtypes = (ctypes.c_void_p, ctypes.c_char_p, ctypes.c_void_p)
+_PyCapsule_New.restype = ctypes.py_object
+
+
+def test_from_dlpack_respects_byte_offset():
+    """Importing a DLPack capsule must include ``DLTensor.byte_offset`` in ptr."""
+    src = np.arange(16, dtype=np.int32)
+    offset = 8
+    shape = (ctypes.c_int64 * 1)(len(src) - offset)
+    strides = (ctypes.c_int64 * 1)(1)
+    managed = _DLManagedTensorVersioned()
+    managed.version = _DLPackVersion(1, 0)
+    managed.manager_ctx = None
+    managed.deleter = None
+    managed.flags = 0
+    managed.dl_tensor = _DLTensor(
+        data=src.ctypes.data,
+        device=_DLDevice(int(DLDeviceType.kDLCPU), 0),
+        ndim=1,
+        dtype=_DLDataType(0, 32, 1),
+        shape=shape,
+        strides=strides,
+        byte_offset=offset * src.itemsize,
+    )
+    capsule = _PyCapsule_New(
+        ctypes.addressof(managed), b"dltensor_versioned", None
+    )
+
+    class _OffsetProducer:
+        def __dlpack_device__(self):
+            return (int(DLDeviceType.kDLCPU), 0)
+
+        def __dlpack__(self, **kwargs):
+            return capsule
+
+    view = StridedMemoryView.from_dlpack(_OffsetProducer(), stream_ptr=-1)
+    assert view.ptr == src.ctypes.data + offset * src.itemsize
+    assert np.array_equal(np.from_dlpack(view), src[offset:])
+
+
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 @pytest.mark.parametrize(
     "max_version, capsule_name, managed_cls",
