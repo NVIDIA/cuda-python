@@ -1102,7 +1102,13 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.dl_tensor = dl_tensor
     buf.metadata = capsule
-    buf.ptr = <intptr_t>(dl_tensor.data)
+    # byte_offset is a mandatory DLTensor field and a producer may leave the
+    # allocation base in ``data`` and encode a slice in ``byte_offset``. It
+    # must be folded into ``ptr`` here (as _smv_from_dlpack_capsule does),
+    # because every consumer -- as_tensor_map(), the __dlpack__ re-export
+    # (which writes ``byte_offset = 0`` and uses ``ptr`` as ``data``), the
+    # alignment checks -- reads ``ptr`` alone.
+    buf.ptr = <intptr_t>(dl_tensor.data) + <intptr_t>(dl_tensor.byte_offset)
     buf.device_id = device_id
     buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly

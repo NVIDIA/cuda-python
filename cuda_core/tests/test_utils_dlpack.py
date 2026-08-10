@@ -251,6 +251,51 @@ def test_from_dlpack_null_deleter_dealloc(max_version, capsule_name, managed_cls
     producer_deleter(dlm)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize(
+    "max_version, capsule_name, managed_cls",
+    [
+        pytest.param(None, b"dltensor", _DLManagedTensor, id="unversioned"),
+        pytest.param((1, 0), b"dltensor_versioned", _DLManagedTensorVersioned, id="versioned"),
+    ],
+)
+def test_from_dlpack_honours_byte_offset(max_version, capsule_name, managed_cls):
+    """``byte_offset`` must be folded into ``ptr``.
+
+    It is a mandatory ``DLTensor`` field, and a producer is free to leave the
+    allocation base in ``data`` and encode a slice in ``byte_offset``. The
+    capsule-consuming helper does add it; the ``__dlpack__``-consuming one used
+    to drop it, so ``ptr`` pointed ``byte_offset`` bytes before the data with
+    no error anywhere -- and every consumer (``as_tensor_map``, the
+    ``__dlpack__`` re-export, the alignment checks) reads ``ptr`` alone.
+    """
+    src = np.arange(8, dtype=np.int32)
+    offset = src.itemsize  # skip exactly one element
+    base = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    capsule = base.__dlpack__(max_version=max_version)
+    dlm = ctypes.cast(_PyCapsule_GetPointer(capsule, capsule_name), ctypes.POINTER(managed_cls))
+    assert dlm.contents.dl_tensor.data == src.ctypes.data
+    assert dlm.contents.dl_tensor.byte_offset == 0
+
+    # Re-describe the same allocation as src[1:], the way a producer that
+    # reports the base pointer plus an offset would.
+    dlm.contents.dl_tensor.byte_offset = offset
+    dlm.contents.dl_tensor.shape[0] = src.size - 1
+
+    class _Export:
+        def __dlpack_device__(self):
+            return base.__dlpack_device__()
+
+        def __dlpack__(self, stream=None, max_version=None, **kwargs):
+            if capsule_name == b"dltensor" and max_version is not None:
+                raise TypeError("force unversioned")
+            return capsule
+
+    view = StridedMemoryView.from_dlpack(_Export(), stream_ptr=-1)
+    assert view.shape == (src.size - 1,)
+    assert view.ptr == src.ctypes.data + offset
+
+
 _FN_FROM_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
 _FN_TO_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
 _FN_DLTENSOR_FROM_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)
