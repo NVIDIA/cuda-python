@@ -3,6 +3,7 @@
 
 import ctypes
 import sys
+import uuid
 
 from cuda.bindings import driver
 
@@ -568,6 +569,24 @@ def test_memory_resource_and_owner_disallowed():
         a = (ctypes.c_byte * 20)()
         ptr = ctypes.addressof(a)
         Buffer.from_handle(ptr, 20, mr=DummyDeviceMemoryResource(Device()), owner=a)
+
+
+@pytest.mark.parametrize("resource_type", [DeviceMemoryResource, PinnedMemoryResource])
+def test_register_without_ipc_raises(init_cuda, resource_type):
+    device = Device()
+    device.set_current()
+
+    if resource_type is DeviceMemoryResource:
+        mr = resource_type(device)
+    else:
+        skip_if_pinned_memory_unsupported(device)
+        mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
+
+    try:
+        with pytest.raises(RuntimeError, match="Memory resource is not IPC-enabled"):
+            mr.register(uuid.uuid4())
+    finally:
+        mr.close()
 
 
 def test_owner_close():

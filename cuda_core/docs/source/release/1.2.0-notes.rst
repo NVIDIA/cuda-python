@@ -9,6 +9,10 @@
 Fixes and enhancements
 ----------------------
 
+- ``DeviceMemoryResource.register()`` and ``PinnedMemoryResource.register()``
+  now raise ``RuntimeError`` when called on a resource without IPC enabled,
+  instead of dereferencing missing IPC state.
+
 - Graph node resources are now retained independently across graph clones,
   executable graphs, updates, node deletion, and in-flight launches. Previously,
   modifying a graph definition could release resources still used by an
