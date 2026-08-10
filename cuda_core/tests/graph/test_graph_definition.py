@@ -633,24 +633,30 @@ def test_succ(nonempty_graph_spec):
         assert actual == spec.expected_succ[name], f"succ mismatch for node {name}"
 
 
-@pytest.mark.agent_authored(model="gpt-5.4")
-def test_large_adjacency_set_is_not_truncated(init_cuda):
+@pytest.mark.parametrize("adjacency_name", ("pred", "succ"))
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_large_adjacency_set_is_not_truncated(init_cuda, adjacency_name):
     """Adjacency queries return and remove edges beyond the old 16-edge buffer."""
     g = GraphDefinition()
     hub = g.empty()
-    successors = [g.empty() for _ in range(20)]
-    hub.succ.update(successors)
+    neighbors = [g.empty() for _ in range(20)]
+    adjacency = getattr(hub, adjacency_name)
+    adjacency.update(neighbors)
 
-    assert len(hub.succ) == 20
-    assert set(hub.succ) == set(successors)
-    assert successors[-1] in hub.succ
+    expected_edges = (
+        {(node, hub) for node in neighbors} if adjacency_name == "pred" else {(hub, node) for node in neighbors}
+    )
+    assert len(adjacency) == 20
+    assert set(adjacency) == set(neighbors)
+    assert neighbors[-1] in adjacency
+    assert g.edges() == expected_edges
 
-    hub.succ.clear()
-    assert len(hub.succ) == 0
+    adjacency.clear()
+    assert len(adjacency) == 0
     assert g.edges() == set()
 
 
-@pytest.mark.agent_authored(model="gpt-5.4")
+@pytest.mark.agent_authored(model="gpt-5.6")
 def test_large_graph_queries_are_not_truncated(init_cuda):
     """Graph queries return nodes and edges beyond the old 128-item buffers."""
     g = GraphDefinition()
@@ -658,8 +664,10 @@ def test_large_graph_queries_are_not_truncated(init_cuda):
     nodes[0].succ.update(nodes[1:])
     nodes[1].succ.add(nodes[2])
 
+    expected_edges = {(nodes[0], node) for node in nodes[1:]}
+    expected_edges.add((nodes[1], nodes[2]))
     assert g.nodes() == set(nodes)
-    assert len(g.edges()) == 130
+    assert g.edges() == expected_edges
 
 
 def test_node_graph_property(nonempty_graph_spec):
