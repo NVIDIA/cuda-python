@@ -140,7 +140,15 @@ class TestCopyBatchOptions:
             assert compare_buffer_to_constant(dst, i + 40)
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_location_hints(self, requires_copy_options, copy_batch_device, copy_stream):
+    def test_location_hints_do_not_corrupt_copy(self, requires_copy_options, copy_batch_device, copy_stream):
+        """Device and host hints are accepted and leave the bytes intact.
+
+        Hints only steer how the driver stages a transfer, so no data
+        comparison can show one was *applied*; what this catches is a hint
+        that errors or corrupts. It is also the only test that drives the
+        ``device`` and ``host`` branches of ``to_cumemlocation`` and the
+        ``src_location_hint`` path through ``copy_batch``.
+        """
         dev = copy_batch_device
         mr = create_managed_memory_resource_or_skip()
         srcs = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]

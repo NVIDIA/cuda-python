@@ -15,6 +15,7 @@ from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
+from cuda.core._memory._location cimport to_cumemlocation
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -99,33 +100,6 @@ def _normalize_copy_options(
     )
 
 
-IF CUDA_CORE_BUILD_MAJOR >= 13:
-    cdef inline cydriver.CUmemLocation _to_cumemlocation(object loc):
-        """Convert a _LocSpec dataclass to a cydriver.CUmemLocation struct."""
-        cdef str kind = loc.kind
-        if kind == "device":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-                id=<int>loc.id)
-        elif kind == "host":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
-                id=0)
-        elif kind == "host_numa":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA,
-                id=<int>loc.id)
-        else:  # host_numa_current
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
-                id=0)
-ELSE:
-    cdef inline cydriver.CUmemLocation _to_cumemlocation(object loc):
-        raise NotImplementedError(
-            "_to_cumemlocation requires cuda.core built against CUDA 13 headers"
-        )
-
-
 cdef cydriver.CUmemcpyAttributes _to_cu_memcpy_attributes(object attr):
     """Convert a CopyOptions to a cydriver.CUmemcpyAttributes struct."""
     cdef cydriver.CUmemcpyAttributes cu_attr
@@ -137,9 +111,9 @@ cdef cydriver.CUmemcpyAttributes _to_cu_memcpy_attributes(object attr):
     cdef object dst_loc = _coerce_location(attr.dst_location_hint, allow_none=True)
 
     if src_loc is not None:
-        cu_attr.srcLocHint = _to_cumemlocation(src_loc)
+        cu_attr.srcLocHint = to_cumemlocation(src_loc)
     if dst_loc is not None:
-        cu_attr.dstLocHint = _to_cumemlocation(dst_loc)
+        cu_attr.dstLocHint = to_cumemlocation(dst_loc)
 
     return cu_attr
 
