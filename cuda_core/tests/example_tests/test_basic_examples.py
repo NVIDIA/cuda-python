@@ -74,8 +74,25 @@ def has_recent_memory_pool_support() -> bool:
 # Specific system requirements for each of the examples.
 
 
+def has_copy_batch_support() -> bool:
+    """Check if cuMemcpyBatchAsync is available (CUDA 13+)."""
+    from cuda.core._utils.version import binding_version
+
+    if binding_version() < (13, 0, 0):
+        return False
+    try:
+        from cuda.bindings import driver
+
+        if not hasattr(driver, "cuMemcpyBatchAsync"):
+            return False
+    except AttributeError:
+        return False
+    return True
+
+
 SYSTEM_REQUIREMENTS = {
     "memory_pool_resources.py": has_recent_memory_pool_support,
+    "batched_memcpy.py": lambda: has_copy_batch_support() and has_recent_memory_pool_support(),
     "gl_interop_plasma.py": has_display,
     "gl_interop_fluid.py": has_display,
     "gl_interop_mipmap_lod.py": has_display,
