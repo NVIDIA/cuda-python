@@ -633,6 +633,35 @@ def test_succ(nonempty_graph_spec):
         assert actual == spec.expected_succ[name], f"succ mismatch for node {name}"
 
 
+@pytest.mark.agent_authored(model="gpt-5.4")
+def test_large_adjacency_set_is_not_truncated(init_cuda):
+    """Adjacency queries return and remove edges beyond the old 16-edge buffer."""
+    g = GraphDefinition()
+    hub = g.empty()
+    successors = [g.empty() for _ in range(20)]
+    hub.succ.update(successors)
+
+    assert len(hub.succ) == 20
+    assert set(hub.succ) == set(successors)
+    assert successors[-1] in hub.succ
+
+    hub.succ.clear()
+    assert len(hub.succ) == 0
+    assert g.edges() == set()
+
+
+@pytest.mark.agent_authored(model="gpt-5.4")
+def test_large_graph_queries_are_not_truncated(init_cuda):
+    """Graph queries return nodes and edges beyond the old 128-item buffers."""
+    g = GraphDefinition()
+    nodes = [g.empty() for _ in range(130)]
+    nodes[0].succ.update(nodes[1:])
+    nodes[1].succ.add(nodes[2])
+
+    assert g.nodes() == set(nodes)
+    assert len(g.edges()) == 130
+
+
 def test_node_graph_property(nonempty_graph_spec):
     """Every node's .graph property returns the parent GraphDefinition."""
     spec = nonempty_graph_spec
