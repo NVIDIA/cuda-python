@@ -1,12 +1,12 @@
 ﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.\_device\_resources.DeviceResources
-=============================================
+cuda.core.graph.ExecutableKernelNode
+====================================
 
-.. currentmodule:: cuda.core._device_resources
+.. currentmodule:: cuda.core.graph
 
-.. autoclass:: DeviceResources
+.. autoclass:: ExecutableKernelNode
 
    
    
@@ -14,6 +14,9 @@ cuda.core.\_device\_resources.DeviceResources
 
    
    .. automethod:: __init__
+   .. automethod:: disable
+   .. automethod:: enable
+   .. automethod:: update
 
    
    
@@ -23,7 +26,6 @@ cuda.core.\_device\_resources.DeviceResources
    .. rubric:: Attributes
 
    
-   .. autoattribute:: sm
-   .. autoattribute:: workqueue
+   .. autoattribute:: is_enabled
    
    
