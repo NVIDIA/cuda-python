@@ -1,11 +1,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Reusable pytest marks for cuda_core tests."""
+"""Reusable pytest marks and skip helpers for CUDA Python test suites."""
 
 import inspect
+import os
 
 import pytest
+
+from cuda.pathfinder import get_cuda_path_or_home
 
 
 def requires_module(module, *args, **kwargs):
@@ -43,3 +46,21 @@ def requires_module(module, *args, **kwargs):
         return pytest.mark.skipif(True, reason=str(exc))
     else:
         return pytest.mark.skipif(False, reason="")
+
+
+def _cuda_headers_available() -> bool:
+    """Return True if CUDA headers are available, False otherwise.
+
+    Returns False if no CUDA path is set or if the CUDA path has no
+    include/ subdirectory (e.g. a sanitizer-only mini-CTK install).
+    """
+    cuda_path = get_cuda_path_or_home()
+    if cuda_path is None:
+        return False
+    return os.path.isdir(os.path.join(cuda_path, "include"))
+
+
+skipif_need_cuda_headers = pytest.mark.skipif(
+    not _cuda_headers_available(),
+    reason="need CUDA header",
+)

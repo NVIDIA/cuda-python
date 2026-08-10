@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -15,6 +15,7 @@ cdef class LaunchConfig:
         public tuple block
         public int shmem_size
         public bint is_cooperative
+        public bint programmatic_stream_serialization
 
         vector[cydriver.CUlaunchAttribute] _attrs
         object __weakref__
