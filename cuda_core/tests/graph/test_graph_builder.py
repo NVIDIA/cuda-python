@@ -4,15 +4,29 @@
 """GraphBuilder stream capture tests."""
 
 import gc
+import time
+import weakref
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
-from helpers.marks import requires_module
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 from cuda.core.graph import GraphBuilder, GraphDefinition
+from cuda.core.graph._graph_builder import (
+    _capture_callback_with_tail_failure_for_testing,
+)
+
+
+def _wait_until(predicate, timeout=5.0):
+    deadline = time.monotonic() + timeout
+    while not predicate():
+        if time.monotonic() >= deadline:
+            raise AssertionError(f"condition not satisfied within {timeout}s")
+        gc.collect()
+        time.sleep(0.02)
 
 
 def test_graph_is_building(init_cuda):
@@ -292,9 +306,24 @@ def test_graph_capture_callback_ctypes(init_cuda):
     assert result[0] == 0xAB
 
 
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+def test_graph_capture_callback_ctypes_rejects_incompatible_signature(init_cuda):
+    """Stream-capture host callbacks use the same ctypes ABI check."""
+    import ctypes
+
+    bad_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+    launch_stream = Device().create_stream()
+    gb = launch_stream.create_graph_builder().begin_building()
+    try:
+        with pytest.raises(TypeError, match="CUhostFn"):
+            gb.callback(bad_type(0))
+    finally:
+        gb.end_building()
+
+
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_graph_capture_callback_python_survives_del(init_cuda):
-    """Captured host callback is retained in the graph slot table after del."""
+    """Captured callback is retained by its graph-node user object after del."""
     called = [False]
 
     def my_callback():
@@ -339,6 +368,34 @@ def test_graph_capture_callback_ctypes_user_data_survives_del(init_cuda):
     launch_stream.sync()
 
     assert result[0] == 0xAB
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_capture_tail_discovery_failure_preserves_callback_attachment(init_cuda):
+    """A committed captured node keeps its owner when discovery fails."""
+    called = [False]
+
+    def callback():
+        called[0] = True
+
+    callback_weak = weakref.ref(callback)
+    stream = Device().create_stream()
+    gb = stream.create_graph_builder().begin_building()
+
+    with pytest.raises(RuntimeError, match="forced capture tail discovery failure"):
+        _capture_callback_with_tail_failure_for_testing(gb, callback)
+
+    del callback
+    gc.collect()
+    assert callback_weak() is not None
+
+    graph = gb.end_building().complete()
+    graph.launch(stream)
+    stream.sync()
+    assert called[0]
+
+    del graph, gb
+    _wait_until(lambda: callback_weak() is None)
 
 
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")

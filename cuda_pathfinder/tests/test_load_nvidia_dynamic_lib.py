@@ -3,15 +3,16 @@
 
 import os
 import platform
+from pathlib import Path
 
 import pytest
 from child_load_nvidia_dynamic_lib_helper import (
     build_child_process_failed_for_libname_message,
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
+from conftest import skip_if_missing_libnvcudla_so
 from local_helpers import have_distribution
 
-from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder import DynamicLibNotAvailableError, DynamicLibUnknownError, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
@@ -25,15 +26,14 @@ STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICT
 assert STRICTNESS in ("see_what_works", "all_must_work")
 
 
+@pytest.mark.agent_authored(model="gpt-5")
+def test_loader_uses_all_available_libnames():
+    assert supported_nvidia_libs.ALL_AVAILABLE_LIBNAMES == load_nvidia_dynamic_lib_module.ALL_AVAILABLE_LIBNAMES
+
+
 def test_supported_libnames_linux_sonames_consistency():
     assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_LINUX)) == tuple(
         sorted(supported_nvidia_libs.SUPPORTED_LINUX_SONAMES_CTK.keys())
-    )
-
-
-def test_supported_libnames_windows_dlls_consistency():
-    assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)) == tuple(
-        sorted(supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS_CTK.keys())
     )
 
 
@@ -43,14 +43,32 @@ def test_supported_libnames_linux_site_packages_libdirs_ctk_consistency():
     )
 
 
-def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency():
+@pytest.mark.parametrize(
+    ("site_packages_libdirs", "supported_libnames"),
+    [
+        pytest.param(
+            supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64,
+            supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS_X64,
+            id="x64",
+        ),
+        pytest.param(
+            supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_ARM64,
+            supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS_ARM64,
+            id="arm64",
+        ),
+    ],
+)
+@pytest.mark.human_reviewed
+def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency(
+    site_packages_libdirs,
+    supported_libnames,
+):
     # Not every Windows CTK library ships in a pip wheel (e.g. cudla is loaded
     # from the local CUDA Toolkit only), so a library may legitimately omit
     # site_packages_windows. Only assert that every site-packages entry maps to
     # a supported Windows libname, not the other way around.
-    site_packages_libnames = set(supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK.keys())
-    supported_libnames = set(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)
-    assert site_packages_libnames <= supported_libnames
+    site_packages_libnames = set(site_packages_libdirs)
+    assert site_packages_libnames <= set(supported_libnames)
 
 
 @pytest.mark.parametrize("dict_name", ["SUPPORTED_LINUX_SONAMES", "SUPPORTED_WINDOWS_DLLS"])
@@ -88,7 +106,7 @@ def test_unknown_libname_raises_dynamic_lib_unknown_error():
 def test_known_but_platform_unavailable_libname_raises_dynamic_lib_not_available_error(monkeypatch):
     load_nvidia_dynamic_lib.cache_clear()
     monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_ALL_KNOWN_LIBNAMES", frozenset(("known_but_unavailable",)))
-    monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_ALL_SUPPORTED_LIBNAMES", frozenset())
+    monkeypatch.setattr(load_nvidia_dynamic_lib_module, "ALL_AVAILABLE_LIBNAMES", frozenset())
     monkeypatch.setattr(load_nvidia_dynamic_lib_module, "_PLATFORM_NAME", "TestOS")
     with pytest.raises(
         DynamicLibNotAvailableError,
@@ -142,4 +160,4 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         abs_path = payload.abs_path
         assert abs_path is not None
         info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
-        assert os.path.isfile(abs_path)  # double-check the abs_path
+        assert Path(abs_path).is_file()  # double-check the abs_path

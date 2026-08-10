@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union
 from warnings import warn
 
+from cuda.pathfinder import DynamicLibNotFoundError
 from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
 from cuda.core._device import Device
 from cuda.core._module import ObjectCode
@@ -544,11 +545,10 @@ cdef inline void Linker_add_code_object(Linker self, object object_code) except 
     cdef cydriver.CUjitInputType c_drv_input_type
     cdef const char* c_data_ptr
     cdef size_t c_data_size
-    cdef const char* c_name_ptr
     cdef const char* c_file_ptr
 
     name_bytes = f"{object_code.name}".encode()
-    c_name_ptr = <const char*>name_bytes
+    cdef const char* c_name_ptr = <const char*>name_bytes
 
     input_types = _nvjitlink_input_types if self._use_nvjitlink else _driver_input_types
     py_input_type = input_types.get(object_code.code_type)
@@ -684,26 +684,30 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    nvjitlink_module = _optional_cuda_import(
-        "cuda.bindings.nvjitlink",
-        probe_function=lambda module: module.version(),  # probe triggers nvJitLink runtime load
-    )
+    nvjitlink_module = _optional_cuda_import("cuda.bindings.nvjitlink")
     if nvjitlink_module is None:
         warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
     else:
         from cuda.bindings._internal import nvjitlink
 
-        if _nvjitlink_has_version_symbol(nvjitlink):
-            _use_nvjitlink_backend = True
-            return False  # Use nvjitlink
-        warn_txt = (
-            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
-            f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
-        )
+        try:
+            has_version_symbol = _nvjitlink_has_version_symbol(nvjitlink)
+        except DynamicLibNotFoundError:
+            warn_txt = (
+                f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
+            )
+        else:
+            if has_version_symbol:
+                _use_nvjitlink_backend = True
+                return False  # Use nvjitlink
+            warn_txt = (
+                f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
+                f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
+            )
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
-    _use_nvjitlink_backend = False
     _driver = driver
+    _use_nvjitlink_backend = False
     return True
 
 

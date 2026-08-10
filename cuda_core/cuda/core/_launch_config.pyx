@@ -13,7 +13,16 @@ from cuda.core._utils.cuda_utils import (
     driver,
 )
 
-_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative')
+_LAUNCH_CONFIG_ATTRS = (
+    'grid',
+    'cluster',
+    'block',
+    'shmem_size',
+    'is_cooperative',
+    'programmatic_stream_serialization',
+)
+
+__all__ = ['LaunchConfig']
 
 
 cdef class LaunchConfig:
@@ -46,6 +55,10 @@ cdef class LaunchConfig:
         (Default to size 0)
     is_cooperative : bool, optional
         Whether this config can be used to launch a cooperative kernel.
+    programmatic_stream_serialization : bool, optional
+        Whether to allow programmatic stream serialization (PDL). When True,
+        the kernel may overlap with a previous kernel in the same stream that
+        signals completion via programmatic means.
     """
 
     # TODO: expand LaunchConfig to include other attributes
@@ -58,6 +71,7 @@ cdef class LaunchConfig:
         block: int | tuple[int, ...] | None = None,
         shmem_size: int | None = None,
         is_cooperative: bool = False,
+        programmatic_stream_serialization: bool = False,
     ) -> None:
         """Initialize LaunchConfig with validation.
 
@@ -73,6 +87,8 @@ cdef class LaunchConfig:
             Dynamic shared memory size in bytes (default: 0)
         is_cooperative : bool, optional
             Whether to launch as cooperative kernel (default: False)
+        programmatic_stream_serialization : bool, optional
+            Whether to allow programmatic stream serialization / PDL (default: False)
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
@@ -99,6 +115,7 @@ cdef class LaunchConfig:
             self.shmem_size = shmem_size
 
         self.is_cooperative = is_cooperative
+        self.programmatic_stream_serialization = programmatic_stream_serialization
 
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
@@ -145,6 +162,11 @@ cdef class LaunchConfig:
         if self.is_cooperative:
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
             attr.value.cooperative = 1
+            self._attrs.push_back(attr)
+
+        if self.programmatic_stream_serialization:
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
+            attr.value.programmaticStreamSerializationAllowed = 1
             self._attrs.push_back(attr)
 
         drv_cfg.numAttrs = self._attrs.size()
@@ -200,6 +222,12 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
         attr.value.cooperative = 1
+        attrs.append(attr)
+
+    if config.programmatic_stream_serialization:
+        attr = driver.CUlaunchAttribute()
+        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
+        attr.value.programmaticStreamSerializationAllowed = 1
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)
