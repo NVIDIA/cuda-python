@@ -203,7 +203,9 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
            3.1. **Nsight installations**: On Windows, locate Nsight Systems and
                 Nsight Compute from their installer registry entries. Select
                 architecture-specific binaries using the native machine
-                architecture, independent of Python.
+                architecture, independent of Python. Lookup of the standalone
+                ``nsys`` and ``ncu`` CLIs is terminal; a miss does not fall
+                through to CUDA Toolkit locations.
 
            3.2. **CUDA Toolkit installation**: Use ``CUDA_HOME`` or ``CUDA_PATH``
                 (in that order), searching ``bin/x64``, ``bin/x86_64``, and
@@ -211,9 +213,9 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
 
         4. **CTK-root canary fallback**
 
-           - Only when steps 1-3 miss: resolve the ``cudart`` library through the
-             OS dynamic loader, derive the CUDA Toolkit root from it, and search
-             that root's bin layout.
+           - For utilities that reach this step after the earlier searches miss,
+             resolve the ``cudart`` library through the OS dynamic loader, derive
+             the CUDA Toolkit root from it, and search that root's bin layout.
 
     Note:
         Results are cached using ``@functools.cache`` for performance. The cache
@@ -259,7 +261,7 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         return found
 
     # 3. Search library-specific standalone installations.
-    # 3.1. Nsight tools are separate products and are not installed under CTK.
+    # 3.1. Standalone Nsight CLI lookup is terminal; CTK does not contain nsys/ncu.
     if IS_WINDOWS and utility_name == "nsys":
         return _find_windows_nsys()
     if IS_WINDOWS and utility_name == "ncu":
