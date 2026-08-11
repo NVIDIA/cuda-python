@@ -425,7 +425,7 @@ jobs:
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}
         run: |
           pushd cuda_core
-          pytest -rxXs -v --durations=0 tests/test_utils.py tests/example_tests/
+          pytest -rxXs -v tests/test_utils.py tests/example_tests/
           popd
 
       - name: Run numba-cuda tests
@@ -485,7 +485,7 @@ jobs:
               --deselect 'tests/numba_cuda_tests/cudadrv/test_nvjitlink.py::TestLinkerDumpAssembly::test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn'
             )
           fi
-          pytest -rxXs -v --durations=0 \
+          pytest -rxXs -v \
             --ignore=tests/benchmarks \
             --ignore=tests/doc_examples \
             "${DESELECTS[@]}" \
@@ -522,7 +522,7 @@ jobs:
               --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]'
             )
           fi
-          pytest -rxXs -v --durations=0 --randomly-dont-reorganize \
+          pytest -rxXs -v --randomly-dont-reorganize \
             "${DESELECTS[@]}" \
             tests/
           popd
