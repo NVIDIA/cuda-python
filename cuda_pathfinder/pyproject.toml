@@ -103,7 +103,7 @@ tag_regex = "^cuda-pathfinder-(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-pathfinder-v*[0-9]*" ]
 
 [tool.pytest.ini_options]
-addopts = "--showlocals"
+addopts = "--showlocals --durations=20"
 thread_unsafe_fixtures = ['mocker']
 # Keep this authorship marker registry in sync across all pytest config roots.
 # Search for "agent_authored(model)" before editing.

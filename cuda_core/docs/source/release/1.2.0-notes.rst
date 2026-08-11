@@ -18,6 +18,73 @@ Fixes and enhancements
   (`#2357 <https://github.com/NVIDIA/cuda-python/pull/2357>`__,
   `#2371 <https://github.com/NVIDIA/cuda-python/pull/2371>`__)
 
+- Added ``update()`` methods to kernel, memcpy, memset, child-graph, event
+  record, event wait, and host-callback graph definition nodes. Updates change
+  parameters used by future graph instantiations without affecting existing
+  executable graphs. This feature requires CUDA driver and ``cuda.bindings``
+  versions 12.2 or newer.
+  (`#2352 <https://github.com/NVIDIA/cuda-python/issues/2352>`__)
+
+- Added ``graph[node]`` views for updating nodes in an executable graph.
+  Kernel, memcpy, memset, child-graph, event, and host-callback parameters can
+  be replaced without reinstantiating the graph. Kernel, memcpy, and memset
+  nodes can also be enabled or disabled. Resources introduced by these updates
+  remain alive through in-flight launches. Superseded resources stay retained
+  until a successful whole-graph update or executable graph destruction. This
+  feature requires CUDA driver and ``cuda.bindings`` versions 12.2 or newer.
+  (`#2353 <https://github.com/NVIDIA/cuda-python/issues/2353>`__,
+  `#2354 <https://github.com/NVIDIA/cuda-python/issues/2354>`__)
+
+- The default-stream singletons ``LEGACY_DEFAULT_STREAM`` and
+  ``PER_THREAD_DEFAULT_STREAM`` no longer cache the first context and device
+  they observe. A default-stream token refers to whatever context is current,
+  so ``Stream.context``, ``Stream.device``, ``Stream.resources``, and
+  ``Stream.record()`` now resolve against the current context on every call.
+  Previously the first query pinned the singleton to one context for the
+  lifetime of the process, which also kept that context alive.
+  (`#2485 <https://github.com/NVIDIA/cuda-python/issues/2485>`__)
+
+- :meth:`Linker.which_backend` and constructing a :class:`Linker` no longer
+  raise ``FunctionNotFoundError`` when an nvJitLink older than 12.3
+  (12.0–12.2) is installed. These versions do not export the unversioned
+  ``nvJitLinkVersion`` symbol, so probing the version crashed instead of
+  falling back. ``cuda.core`` now warns and falls back to the driver
+  (``cuLink``) backend, restoring the pre-0.7.0 behavior.
+  (`#2409 <https://github.com/NVIDIA/cuda-python/pull/2409>`__,
+  closes `#2408 <https://github.com/NVIDIA/cuda-python/issues/2408>`__)
+
+- :class:`ProgramOptions` now accepts ``name=None`` and falls back to the
+  documented default ``"default_program"``. Previously the annotated and
+  documented ``None`` raised ``AttributeError`` during construction.
+  (`#2517 <https://github.com/NVIDIA/cuda-python/pull/2517>`__,
+  closes `#2516 <https://github.com/NVIDIA/cuda-python/issues/2516>`__)
+
+- ``cuda.core`` now checks ctypes host callbacks against the driver's
+  ``CUhostFn`` signature (``void (*)(void*)``) before passing the function
+  pointer to CUDA. :meth:`graph.GraphNode.callback`,
+  :meth:`graph.GraphBuilder.callback`, and the host-callback ``update()``
+  methods raise ``TypeError`` for a mismatched prototype, rather than leaving
+  the driver to call through an incompatible signature, which is undefined
+  behavior. Declarations that previously reached the driver, such as
+  ``ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)``, are now rejected at the
+  call site. A function pointer obtained from a shared library keeps ctypes'
+  default ``c_int`` result type until it is declared, so set its ``restype``
+  and ``argtypes`` (or cast it to the prototype above) before passing it. On
+  Windows, both ``ctypes.CFUNCTYPE`` and ``ctypes.WINFUNCTYPE`` are accepted.
+  (`#2439 <https://github.com/NVIDIA/cuda-python/issues/2439>`__)
+
+- Starting with CUDA 13.4, unconstrained SM-resource discovery through
+  :meth:`SMResource.split` with ``SMResourceOptions(count=None)`` may return
+  every available SM, even when that count is not divisible by the device's
+  :attr:`SMResource.coscheduled_alignment`. CUDA 13.1 through 13.3 returned an
+  aligned subset for the same request. An omitted or zero
+  ``coscheduled_sm_count`` still selects the driver's default internally, but
+  CUDA 13.4 no longer guarantees that the returned :attr:`SMResource.sm_count`
+  is a multiple of that default. A green context created from the discovered
+  group may therefore span the full GPU and leave an empty remainder. Set
+  ``coscheduled_sm_count`` explicitly when an aligned result is required.
+  (`#2389 <https://github.com/NVIDIA/cuda-python/pull/2389>`__)
+
 Deprecation Notices
 -------------------
 

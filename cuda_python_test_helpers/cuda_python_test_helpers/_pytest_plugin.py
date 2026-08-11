@@ -1,25 +1,18 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+"""Pytest plugin registered via the ``pytest11`` entry point.
 
-import os
+Automatically tags collected items with package markers and gates cython
+tests on CUDA header availability.  Loaded by pytest whenever
+``cuda-python-test-helpers`` is installed, and also explicitly via
+``pytest_plugins`` in each subpackage conftest so the fallback sys.path
+install path is covered too.
+"""
 
 import pytest
 
-from cuda.pathfinder import get_cuda_path_or_home
-
-
-# Please keep in sync with the copy in cuda_core/tests/conftest.py.
-def _cuda_headers_available() -> bool:
-    """Return True if CUDA headers are available, False otherwise.
-
-    Returns False if no CUDA path is set or if the CUDA path has no
-    include/ subdirectory (e.g. a sanitizer-only mini-CTK install).
-    """
-    cuda_path = get_cuda_path_or_home()
-    if cuda_path is None:
-        return False
-    return os.path.isdir(os.path.join(cuda_path, "include"))
+from cuda_python_test_helpers.marks import _cuda_headers_available
 
 
 def pytest_collection_modifyitems(config, items):  # noqa: ARG001

@@ -272,8 +272,11 @@ cdef class Buffer:
     @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
+        cdef object ipc_data
         if self._ipc_data is None:
-            self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+            ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+            if self._ipc_data is None:
+                self._ipc_data = ipc_data
         return self._ipc_data.ipc_descriptor
 
     def close(self, stream: Stream | GraphBuilder | None = None) -> None:
@@ -422,8 +425,7 @@ cdef class Buffer:
             if not isinstance(max_version, tuple) or len(max_version) != 2:
                 raise BufferError(f"Expected max_version tuple[int, int], got {max_version}")
             versioned = max_version >= (1, 0)
-        capsule = make_py_capsule(self, versioned)
-        return capsule
+        return make_py_capsule(self, versioned)
 
     def __dlpack_device__(self) -> tuple[int, int]:
         return classify_dl_device(self)
