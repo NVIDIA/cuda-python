@@ -907,6 +907,8 @@ def test_buffer_dunder_dlpack_device_success(DummyMR, expected):
 
 
 def test_buffer_dunder_dlpack_device_failure():
+    # avoids an error capturing the default stream with no context
+    Device().set_current()
     dummy_mr = NullMemoryResource()
     buffer = dummy_mr.allocate(size=1024)
     with pytest.raises(BufferError, match=r"^buffer is neither device-accessible nor host-accessible$"):
@@ -914,6 +916,8 @@ def test_buffer_dunder_dlpack_device_failure():
 
 
 def test_buffer_dlpack_failure_clean_up():
+    # avoids an error capturing the default stream with no context
+    Device().set_current()
     dummy_mr = NullMemoryResource()
     buffer = dummy_mr.allocate(size=1024)
     before = sys.getrefcount(buffer)
