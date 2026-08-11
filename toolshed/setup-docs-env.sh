@@ -47,7 +47,7 @@ conda create -y -n "${ENV_NAME}" \
     pydata-sphinx-theme \
     pytest \
     scipy \
-    "sphinx<8.2.0" \
+    "sphinx>=9,<10" \
     sphinx-copybutton \
     myst-nb \
     enum_tools \
