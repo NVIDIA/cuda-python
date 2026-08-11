@@ -1,6 +1,0 @@
-﻿cuda.pathfinder.find\_bitcode\_lib
-==================================
-
-.. currentmodule:: cuda.pathfinder
-
-.. autofunction:: find_bitcode_lib

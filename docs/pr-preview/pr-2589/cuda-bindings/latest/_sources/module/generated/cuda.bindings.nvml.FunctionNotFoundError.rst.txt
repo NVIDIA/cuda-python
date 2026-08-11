@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.FunctionNotFoundError
-========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoexception:: FunctionNotFoundError
