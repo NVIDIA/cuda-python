@@ -77,7 +77,7 @@ def _resolve_ctk_root_via_canary() -> str | None:
     return ctk_root
 
 
-def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[Path]) -> str | None:
+def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[Path]) -> Path | None:
     """Resolve ``normalized_name`` against ``dirs`` in order."""
     seen: set[Path] = set()
     for directory in dirs:
@@ -92,7 +92,7 @@ def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[Path]) -> str | No
             # search dir would otherwise leak a relative result). os.path.abspath
             # has no pathlib equivalent: Path.absolute() does not normalize and
             # Path.resolve() would also follow symlinks.
-            return os.path.abspath(candidate)
+            return Path(os.path.abspath(candidate))
     return None
 
 
@@ -213,7 +213,8 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         candidate_names = (f"{utility_name}.bat", normalized_name)
         found = _resolve_names_in_trusted_dirs(candidate_names, dirs)
     else:
-        found = _resolve_in_trusted_dirs(normalized_name, dirs)
+        resolved = _resolve_in_trusted_dirs(normalized_name, dirs)
+        found = None if resolved is None else str(resolved)
     if found is not None:
         return found
 
@@ -229,7 +230,8 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         if IS_WINDOWS and utility_name == "compute-sanitizer":
             found = _find_windows_compute_sanitizer(cuda_path)
         else:
-            found = _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(cuda_path))
+            resolved = _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(Path(cuda_path)))
+            found = None if resolved is None else str(resolved)
         if found is not None:
             return found
 
@@ -238,5 +240,6 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     if ctk_root is not None:
         if IS_WINDOWS and utility_name == "compute-sanitizer":
             return _find_windows_compute_sanitizer(ctk_root)
-        return _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(Path(ctk_root)))
+        resolved = _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(Path(ctk_root)))
+        return None if resolved is None else str(resolved)
     return None
