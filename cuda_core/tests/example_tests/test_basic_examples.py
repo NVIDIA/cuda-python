@@ -76,18 +76,11 @@ def has_recent_memory_pool_support() -> bool:
 
 def has_copy_batch_support() -> bool:
     """Check if cuMemcpyBatchAsync is available (CUDA 13+)."""
-    from cuda.core._utils.version import binding_version
+    from cuda.core._memory._copy_ops import (
+        _batch_entry_point_in_use as cu_memcpy_batch_available,
+    )
 
-    if binding_version() < (13, 0, 0):
-        return False
-    try:
-        from cuda.bindings import driver
-
-        if not hasattr(driver, "cuMemcpyBatchAsync"):
-            return False
-    except AttributeError:
-        return False
-    return True
+    return cu_memcpy_batch_available()
 
 
 SYSTEM_REQUIREMENTS = {

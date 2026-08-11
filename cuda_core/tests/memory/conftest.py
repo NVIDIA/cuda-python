@@ -17,11 +17,7 @@ from cuda.core._memory._copy_ops import _batch_entry_point_in_use
 
 @pytest.fixture
 def copy_batch_device(init_cuda):
-    """``copy_batch`` works on every supported toolkit, so this never skips.
-
-    Only non-default ``CopyOptions`` need CUDA 13; those tests take
-    ``requires_copy_options`` as well.
-    """
+    """``copy_batch`` works on every supported toolkit, so this never skips."""
     device = Device()
     device.set_current()
     return device

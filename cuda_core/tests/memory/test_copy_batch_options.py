@@ -24,7 +24,12 @@ from helpers.copy_batch import (
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource
 from cuda.core._memory._copy_enums import _attr_run_starts
-from cuda.core._memory._copy_ops import _batch_entry_point_in_use, _normalize_copy_options
+from cuda.core._memory._copy_ops import (
+    _batch_entry_point_in_use as cu_memcpy_batch_available,
+)
+from cuda.core._memory._copy_ops import (
+    _normalize_copy_options,
+)
 from cuda.core.utils import (
     CopyOptions,
     MemcpyOverlapMode,
@@ -356,7 +361,7 @@ class TestPerCopyFallback:
 
     @pytest.fixture(autouse=True)
     def _skip_if_batched(self):
-        if _batch_entry_point_in_use():
+        if cu_memcpy_batch_available():
             pytest.skip("cuMemcpyBatchAsync is in use; fallback path not exercised")
 
     @pytest.mark.agent_authored(model="Claude Opus 5")

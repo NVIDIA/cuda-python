@@ -18,6 +18,7 @@
 # dependencies = ["cuda_bindings", "cuda_core"]
 # ///
 
+import ctypes
 import sys
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource, ManagedMemoryResource
@@ -29,7 +30,6 @@ def readback(any_buf, pinned_mr, *, stream):
     host_buf = pinned_mr.allocate(any_buf.size)
     any_buf.copy_to(host_buf, stream=stream)
     stream.sync()
-    import ctypes
 
     ptr = ctypes.cast(int(host_buf.handle), ctypes.POINTER(ctypes.c_byte))
     data = ctypes.string_at(ptr, host_buf.size)
