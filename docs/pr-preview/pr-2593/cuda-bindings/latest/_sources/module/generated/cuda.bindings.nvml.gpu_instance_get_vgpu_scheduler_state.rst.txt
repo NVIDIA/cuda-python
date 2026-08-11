@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.gpu\_instance\_get\_vgpu\_scheduler\_state
+=============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: gpu_instance_get_vgpu_scheduler_state
