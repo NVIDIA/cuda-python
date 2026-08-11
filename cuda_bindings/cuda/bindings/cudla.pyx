@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d3ab5c36b7d90b71b6c423f3959f970d0cd8fa1f5c41f3a00e6ab4e881eded84
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3c177b7a0328c0f6f16067c8c9f4e5a002bd019e8c17c017ba9f77af21da8d75
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -68,15 +68,15 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
-cdef int _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
-    cdef void* ptr
+cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
+    cdef intptr_t ptr
     cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
     if not readonly:
         flags |= _cyb_cpython.PyBUF_WRITABLE
     cdef int status = -1
     cdef _cyb_cpython.Py_buffer view
     if isinstance(buf, int):
-        ptr = <void*><_cyb_intptr_t>buf
+        ptr = <intptr_t>buf
     else:
         try:
             status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
@@ -91,7 +91,7 @@ cdef int _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
                 f"buffer, of size {size}"
             ) from e
         else:
-            ptr = view.buf
+            ptr = <intptr_t>view.buf
         finally:
             if status == 0:
                 _cyb_cpython.PyBuffer_Release(&view)
@@ -1790,7 +1790,7 @@ cpdef intptr_t mem_register(intptr_t dev_handle, intptr_t ptr, size_t size, uint
 
 
 cpdef intptr_t module_load_from_memory(intptr_t dev_handle, p_module, size_t module_size, uint32_t flags) except *:
-    cdef void* _p_module_ = _cyb_get_buffer_pointer(p_module, module_size, readonly=True)
+    cdef void* _p_module_ = <void *>_cyb_get_buffer_pointer(p_module, module_size, readonly=True)
     cdef Module h_module
     with nogil:
         __status__ = cudlaModuleLoadFromMemory(<const DevHandle>dev_handle, <const uint8_t* const>_p_module_, <const size_t>module_size, &h_module, <const uint32_t>flags)
