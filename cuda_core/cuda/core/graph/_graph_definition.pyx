@@ -327,8 +327,7 @@ cdef class GraphDefinition:
         """
         from cuda.core.graph._graph_builder import _instantiate_graph
 
-        return _instantiate_graph(
-            driver.CUgraph(as_intptr(self._h_graph)), options)
+        return _instantiate_graph(self, options)
 
     def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None = None) -> None:
         """Write a GraphViz DOT representation of the graph to a file.

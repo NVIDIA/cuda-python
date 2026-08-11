@@ -9,7 +9,7 @@ import cuda.core
 from cuda.bindings import driver, runtime
 from cuda.core import Device
 from cuda.core._utils.cuda_utils import ComputeCapability, handle_return
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import driver_version
 
 
 def test_device_init_disabled():
@@ -299,9 +299,7 @@ cuda_13_properties = [
     ("only_partial_host_native_atomic_supported", bool),
 ]
 
-version = binding_version()
-if version >= (13, 0, 0):
-    cuda_base_properties += cuda_13_properties
+cuda_base_properties += cuda_13_properties
 
 
 @pytest.mark.parametrize("property_name, expected_type", cuda_base_properties)
@@ -315,16 +313,8 @@ def test_device_properties_complete():
     live_props = {attr for attr in dir(device.properties) if not attr.startswith("_")}
     tab_props = {attr for attr, _ in cuda_base_properties}
 
-    excluded_props = set()
-    # Exclude CUDA 13+ specific properties when not available
-    if version < (13, 0, 0):
-        excluded_props.update({prop[0] for prop in cuda_13_properties})
-
-    filtered_tab_props = tab_props - excluded_props
-    filtered_live_props = live_props - excluded_props
-
-    assert len(filtered_tab_props) == len(cuda_base_properties)  # Ensure no duplicates.
-    assert filtered_tab_props == filtered_live_props  # Ensure exact match.
+    assert len(tab_props) == len(cuda_base_properties)  # Ensure no duplicates.
+    assert tab_props == live_props  # Ensure exact match.
 
 
 # ============================================================================
