@@ -3,25 +3,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c62920508a430e4c4fe921907da4b519becae045487a6a8c006484153df9341d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=464151e9be344b663eb001d24b780328f477470afca263a03384394a057b74bd
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cpython as _cyb_cpython
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport intptr_t
 
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 
-cdef int _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
-    cdef void* ptr
+cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
+    cdef intptr_t ptr
     cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
     if not readonly:
         flags |= _cyb_cpython.PyBUF_WRITABLE
     cdef int status = -1
     cdef _cyb_cpython.Py_buffer view
     if isinstance(buf, int):
-        ptr = <void*><_cyb_intptr_t>buf
+        ptr = <intptr_t>buf
     else:
         try:
             status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
@@ -36,7 +36,7 @@ cdef int _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
                 f"buffer, of size {size}"
             ) from e
         else:
-            ptr = view.buf
+            ptr = <intptr_t>view.buf
         finally:
             if status == 0:
                 _cyb_cpython.PyBuffer_Release(&view)
@@ -188,7 +188,7 @@ cpdef add_ptx(intptr_t handle, code, size_t size, arch, identifier, options_cmd_
 
     .. seealso:: `nvFatbinAddPTX`
     """
-    cdef void* _code_ = _cyb_get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(arch, str):
         raise TypeError("arch must be a Python str")
     cdef bytes _temp_arch_ = (<str>arch).encode()
@@ -220,7 +220,7 @@ cpdef add_cubin(intptr_t handle, code, size_t size, arch, identifier):
 
     .. seealso:: `nvFatbinAddCubin`
     """
-    cdef void* _code_ = _cyb_get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(arch, str):
         raise TypeError("arch must be a Python str")
     cdef bytes _temp_arch_ = (<str>arch).encode()
@@ -249,7 +249,7 @@ cpdef add_ltoir(intptr_t handle, code, size_t size, arch, identifier, options_cm
 
     .. seealso:: `nvFatbinAddLTOIR`
     """
-    cdef void* _code_ = _cyb_get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(arch, str):
         raise TypeError("arch must be a Python str")
     cdef bytes _temp_arch_ = (<str>arch).encode()
@@ -294,7 +294,7 @@ cpdef get(intptr_t handle, buffer):
 
     .. seealso:: `nvFatbinGet`
     """
-    cdef void* _buffer_ = _cyb_get_buffer_pointer(buffer, -1, readonly=False)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, -1, readonly=False)
     with nogil:
         __status__ = nvFatbinGet(<Handle>handle, <void*>_buffer_)
     check_status(__status__)
@@ -320,7 +320,7 @@ cpdef tuple version():
 
 
 cpdef add_index(intptr_t handle, code, size_t size, identifier):
-    cdef void* _code_ = _cyb_get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(identifier, str):
         raise TypeError("identifier must be a Python str")
     cdef bytes _temp_identifier_ = (<str>identifier).encode()
@@ -340,7 +340,7 @@ cpdef add_reloc(intptr_t handle, code, size_t size):
 
     .. seealso:: `nvFatbinAddReloc`
     """
-    cdef void* _code_ = _cyb_get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     with nogil:
         __status__ = nvFatbinAddReloc(<Handle>handle, <const void*>_code_, size)
     check_status(__status__)
@@ -359,7 +359,7 @@ cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_li
 
     .. seealso:: `nvFatbinAddTileIR`
     """
-    cdef void* _code_ = _cyb_get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(identifier, str):
         raise TypeError("identifier must be a Python str")
     cdef bytes _temp_identifier_ = (<str>identifier).encode()

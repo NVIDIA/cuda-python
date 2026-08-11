@@ -3,25 +3,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=21e313614dcf7f54f273dcd1ee3bbb5feb1dfff2b40a05bcd9007813856cfea8
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a82258bb2654bea18f6bce657324bdbbee8b8b0b30d2a0021e792ba5f95fa9a4
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cpython as _cyb_cpython
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport intptr_t
 
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 
-cdef int _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
-    cdef void* ptr
+cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
+    cdef intptr_t ptr
     cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
     if not readonly:
         flags |= _cyb_cpython.PyBUF_WRITABLE
     cdef int status = -1
     cdef _cyb_cpython.Py_buffer view
     if isinstance(buf, int):
-        ptr = <void*><_cyb_intptr_t>buf
+        ptr = <intptr_t>buf
     else:
         try:
             status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
@@ -36,7 +36,7 @@ cdef int _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
                 f"buffer, of size {size}"
             ) from e
         else:
-            ptr = view.buf
+            ptr = <intptr_t>view.buf
         finally:
             if status == 0:
                 _cyb_cpython.PyBuffer_Release(&view)
@@ -202,7 +202,7 @@ cpdef add_module_to_program(intptr_t prog, buffer, size_t size, name):
 
     .. seealso:: `nvvmAddModuleToProgram`
     """
-    cdef void* _buffer_ = _cyb_get_buffer_pointer(buffer, size, readonly=True)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, size, readonly=True)
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
@@ -224,7 +224,7 @@ cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name):
 
     .. seealso:: `nvvmLazyAddModuleToProgram`
     """
-    cdef void* _buffer_ = _cyb_get_buffer_pointer(buffer, size, readonly=True)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, size, readonly=True)
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
@@ -310,7 +310,7 @@ cpdef get_compiled_result(intptr_t prog, buffer):
 
     .. seealso:: `nvvmGetCompiledResult`
     """
-    cdef void* _buffer_ = _cyb_get_buffer_pointer(buffer, -1, readonly=False)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, -1, readonly=False)
     with nogil:
         __status__ = nvvmGetCompiledResult(<Program>prog, <char*>_buffer_)
     check_status(__status__)
@@ -344,7 +344,7 @@ cpdef get_program_log(intptr_t prog, buffer):
 
     .. seealso:: `nvvmGetProgramLog`
     """
-    cdef void* _buffer_ = _cyb_get_buffer_pointer(buffer, -1, readonly=False)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, -1, readonly=False)
     with nogil:
         __status__ = nvvmGetProgramLog(<Program>prog, <char*>_buffer_)
     check_status(__status__)
