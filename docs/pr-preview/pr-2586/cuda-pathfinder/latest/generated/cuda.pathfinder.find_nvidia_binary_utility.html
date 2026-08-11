@@ -570,6 +570,15 @@ if the utility cannot be found. The returned path is normalized
 </dd>
 </dl>
 <dl>
+<dt>Windows on ARM (WoA) Note:</dt><dd><p>Binary utilities execute in separate processes and do not need to match
+the Python process architecture. When choosing among architecture-specific
+Windows layouts, this API deliberately targets the native machine
+architecture rather than the Python interpreter architecture. For
+example, standalone <code class="docutils literal notranslate"><span class="pre">nsys</span></code> and <code class="docutils literal notranslate"><span class="pre">ncu</span></code> discovery under x64 Python on an
+Arm64 machine selects the Arm64 target. This differs from
+<code class="docutils literal notranslate"><span class="pre">load_nvidia_dynamic_lib</span></code> and <code class="docutils literal notranslate"><span class="pre">find_static_lib</span></code>, which target the
+Python interpreter architecture.</p>
+</dd>
 <dt>Search order:</dt><dd><ol class="arabic">
 <li><p><strong>NVIDIA Python wheels</strong></p>
 <ul class="simple">
