@@ -118,18 +118,51 @@ jobs:
         run: |
           python -m venv .venv
 
-      - name: Build cuda-pathfinder
-        run: |
-          cd cuda_pathfinder
-          ../.venv/bin/pip install -v . --group test
+      - name: Install pip with build-constraint support
+        run: .venv/bin/python -m pip install "pip>=25.3"
 
-      - name: Build cuda-bindings
+      - name: Build and install cuda-pathfinder wheel
         run: |
-          cd cuda_bindings
-          ../.venv/bin/pip install -v . --group test
+          .venv/bin/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
+          .venv/bin/pip install -v ./wheels/cuda_pathfinder*.whl --group ./cuda_pathfinder/pyproject.toml:test
 
-      - name: Build cuda-core
+      - name: Constrain builds to the local cuda-pathfinder wheel
         run: |
+          pathfinder_wheels=(wheels/cuda_pathfinder-*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          mkdir -p wheel-constraints
+          pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
+          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
+
+      - name: Build and install cuda-bindings wheel
+        run: |
+          export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
+          export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
+          .venv/bin/pip wheel -v --no-deps ./cuda_bindings -w ./wheels/
+          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./cuda_bindings/pyproject.toml:test
+
+      - name: Constrain cuda-core to the local cuda-bindings wheel
+        run: |
+          CUDA_MAJOR="${CUDA_VER%%.*}"
+          pathfinder_wheels=(wheels/cuda_pathfinder-*.whl)
+          bindings_wheels=(wheels/cuda_bindings-"${CUDA_MAJOR}".*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          test -f "${bindings_wheels[0]}"
+          mkdir -p wheel-constraints
+          pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
+          bindings_uri="file://$(realpath "${bindings_wheels[0]}")"
+          {
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
+            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
+          } | tee wheel-constraints/cuda-core.txt
+
+      - name: Build and install cuda-core
+        run: |
+          export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-core.txt"
+          export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
           cd cuda_core
           ../.venv/bin/pip install -v . --group test
 
@@ -225,27 +258,48 @@ jobs:
         run: |
           python -m venv .venv
 
-      - name: Build and install cuda.pathfinder
+      - name: Build cuda.pathfinder wheel
         run: |
-          .venv/Scripts/pip install wheel setuptools Cython
+          .venv/Scripts/python -m pip install "pip>=25.3" wheel setuptools Cython
           .venv/Scripts/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
+
+      - name: Constrain builds to the local cuda.pathfinder wheel
+        run: |
+          pathfinder_wheels=(wheels/cuda_pathfinder-*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          mkdir -p wheel-constraints
+          pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
 
       - name: Build cuda.bindings wheel
         run: |
+          export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
+          export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
           cd cuda_bindings
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
-      # Pin cuda-bindings to the wheel built above; PIP_PRE, which is what makes
-      # that .devN wheel visible, would otherwise let a PyPI pre-release win.
+      - name: Constrain cuda.core to the local cuda.bindings wheel
+        run: |
+          CUDA_MAJOR="${CUDA_VER%%.*}"
+          pathfinder_wheels=(wheels/cuda_pathfinder-*.whl)
+          bindings_wheels=(wheels/cuda_bindings-"${CUDA_MAJOR}".*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          test -f "${bindings_wheels[0]}"
+          mkdir -p wheel-constraints
+          pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+          bindings_uri="file:///$(cygpath -am "${bindings_wheels[0]}")"
+          {
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
+            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
+          } | tee wheel-constraints/cuda-core.txt
+
       - name: Build cuda.core wheel
         run: |
-          export PIP_FIND_LINKS="$(pwd)/wheels"
-          export PIP_PRE=1
-          bindings_whl="$(ls ./wheels/cuda_bindings-*.whl | head -1)"
-          bindings_ver="$(basename "$bindings_whl" | cut -d- -f2)"
-          echo "cuda-bindings==${bindings_ver%%+*}" > "$GITHUB_WORKSPACE/constraints.txt"
-          cat "$GITHUB_WORKSPACE/constraints.txt"
-          export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints.txt"
+          export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-core.txt")"
+          export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
           cd cuda_core
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
