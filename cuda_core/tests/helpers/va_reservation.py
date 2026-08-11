@@ -40,13 +40,18 @@ GIB = 1024 * MIB
 # cuMemAddressReserve wants a power-of-two alignment and a size that is a
 # multiple of it. 2 MiB is the granularity the driver uses for pools.
 VA_ALIGNMENT = 2 * MIB
-# Above any plausible per-process budget, so the descending probe below always
-# starts from a size that fails.
-MAX_PROBE_BYTES = 1 << 46
 
 # Each driver-managed pool reserves about this multiple of installed device
 # memory. Used to express remaining headroom in units of "one more pool".
 POOL_RESERVATION_MULTIPLE = 2
+
+# The probe only has to answer "how much room is left relative to one pool", so
+# it never asks for more than this many pools' worth. An absolute ceiling is the
+# wrong shape: 64 TiB, the previous value, is meaningless on a machine with room
+# to spare and hangs under WSL, where the ask crosses into the host GPU driver.
+PROBE_CEILING_POOLS = 4
+# Used when the device memory size cannot be read.
+DEFAULT_PROBE_CEILING_BYTES = 64 * 1024 * MIB
 
 
 def align_up(size: int) -> int:
@@ -76,8 +81,36 @@ def _reserve_and_release(size: int) -> bool:
     return True
 
 
-def largest_reservable(reserve=None, max_bytes: int = MAX_PROBE_BYTES, refine_steps: int = 4) -> int:
-    """Largest contiguous reservation the driver still grants.
+def pool_bytes_for(device_memory: int | None) -> int | None:
+    """Address space one driver-managed pool reserves, measured at 2x device memory."""
+    if device_memory is None:
+        return None
+    return align_up(POOL_RESERVATION_MULTIPLE * device_memory)
+
+
+def probe_ceiling(device_memory: int | None) -> int:
+    """Largest size the probe is willing to ask for.
+
+    Expressed in pools rather than absolute bytes: past a few pools' worth the
+    exact figure tells nobody anything, and asking for an enormous range is
+    where the cost and the WSL hang live.
+
+    Built by multiplying the *rounded* pool size rather than rounding a multiple
+    of device memory, so that the ceiling is a whole number of pools. Rounding
+    each independently leaves the ceiling a hair under, and the headroom count
+    then reports one pool fewer than it should.
+    """
+    pool = pool_bytes_for(device_memory)
+    if pool is None:
+        return DEFAULT_PROBE_CEILING_BYTES
+    return PROBE_CEILING_POOLS * pool
+
+
+def largest_reservable(max_bytes: int, *, reserve=None, refine_steps: int = 4) -> int:
+    """Largest contiguous reservation the driver still grants, up to ``max_bytes``.
+
+    Returns ``max_bytes`` when even that is granted, so the result is a lower
+    bound rather than the true maximum -- which is the point, see probe_ceiling.
 
     Halves down from ``max_bytes`` rather than doubling up from the granularity,
     because a *refused* reservation allocates nothing and returns immediately
@@ -94,15 +127,20 @@ def largest_reservable(reserve=None, max_bytes: int = MAX_PROBE_BYTES, refine_st
     """
     reserve = _reserve_and_release if reserve is None else reserve
 
-    size = max_bytes
+    # Halving has to re-align: unlike the old power-of-two ceiling, a ceiling
+    # derived from device memory goes odd after a couple of steps, and an
+    # unaligned ask is refused outright -- which would read as no space left.
+    ceiling = align_up(max_bytes)
+    size = ceiling
+    refused = None
     while size >= VA_ALIGNMENT and not reserve(size):
-        size //= 2
+        size, refused = (size // 2 // VA_ALIGNMENT) * VA_ALIGNMENT, size
     if size < VA_ALIGNMENT:
         return 0
-    if size == max_bytes:
-        return size  # nothing was refused, so there is no bracket to narrow
+    if refused is None:
+        return ceiling  # granted at the ceiling, so the answer is a lower bound
 
-    low, high = size, size * 2  # high was refused on the way down
+    low, high = size, refused
     for _ in range(refine_steps):
         middle = ((low + high) // 2 // VA_ALIGNMENT) * VA_ALIGNMENT
         if middle <= low or middle >= high:
@@ -211,7 +249,16 @@ class ReservationReport:
     """What the early reservations cost, for the terminal."""
 
     def __init__(
-        self, device_name, device_memory, before, after, reservations, measured, seconds=0.0, unsupported=False
+        self,
+        device_name,
+        device_memory,
+        before,
+        after,
+        reservations,
+        measured,
+        seconds=0.0,
+        unsupported=False,
+        ceiling=None,
     ):
         self.device_name = device_name
         self.device_memory = device_memory
@@ -221,6 +268,13 @@ class ReservationReport:
         self.measured = measured
         self.seconds = seconds
         self.unsupported = unsupported
+        self.ceiling = ceiling
+
+    def _measured_range(self, value) -> str:
+        """Render a probe result, flagging it as a lower bound when capped."""
+        if value is not None and self.ceiling is not None and value >= self.ceiling:
+            return f">= {format_bytes(value)}"
+        return format_bytes(value)
 
     @property
     def failed(self) -> list[Reservation]:
@@ -228,9 +282,7 @@ class ReservationReport:
 
     @property
     def pool_reservation_bytes(self) -> int | None:
-        if self.device_memory is None:
-            return None
-        return align_up(POOL_RESERVATION_MULTIPLE * self.device_memory)
+        return pool_bytes_for(self.device_memory)
 
     def lines(self) -> list[str]:
         out = [f"device 0: {self.device_name} ({format_bytes(self.device_memory)} device memory)"]
@@ -238,7 +290,7 @@ class ReservationReport:
             out.append("device does not support memory pools; nothing to reserve")
             return out
         if self.measured:
-            out.append(f"largest reservable range before: {format_bytes(self.before)}")
+            out.append(f"largest reservable range before: {self._measured_range(self.before)}")
         else:
             out.append("largest reservable range: not measured (no virtual memory management support)")
 
@@ -247,15 +299,13 @@ class ReservationReport:
             out.append(f"  {item.name:<24} {item.detail:<24} {status}")
 
         if self.measured:
-            # A drop here is a *lower* bound on what was taken: the driver may
-            # carve its reservations out of a region other than the largest
-            # hole, in which case the largest hole does not move at all.
-            change = None if self.before is None or self.after is None else self.before - self.after
-            out.append(f"largest reservable range after:  {format_bytes(self.after)}")
+            out.append(f"largest reservable range after:  {self._measured_range(self.after)}")
             pool_bytes = self.pool_reservation_bytes
             if pool_bytes and self.after is not None:
+                capped = self.ceiling is not None and self.after >= self.ceiling
+                count = f"{self.after // pool_bytes}{'+' if capped else ''}"
                 out.append(
-                    f"remaining headroom: {self.after // pool_bytes} more pool-sized "
+                    f"remaining headroom: {count} more pool-sized "
                     f"({format_bytes(pool_bytes)}) reservations  [{self.seconds:.1f}s measuring]"
                 )
         return out
@@ -273,7 +323,7 @@ def build_failure_message(report: ReservationReport) -> str:
         f"  device 0                        {report.device_name}",
         f"  installed device memory         {format_bytes(report.device_memory)}",
         f"  needed per driver-managed pool  {format_bytes(pool_bytes)} of *virtual address space*",
-        f"  largest range still available   {format_bytes(report.after if report.measured else None)}",
+        f"  largest range still available   {report._measured_range(report.after) if report.measured else 'unknown'}",
         "",
     ]
     for item in report.failed:
@@ -298,8 +348,9 @@ def reserve_driver_pools(device, measure: bool = True) -> ReservationReport:
         return ReservationReport(device.name, device_memory, None, None, [], measured=False, unsupported=True)
 
     measured = measure and vmm_supported(device.device_id)
+    ceiling = probe_ceiling(device_memory)
     started = time.perf_counter()
-    before = largest_reservable() if measured else None
+    before = largest_reservable(ceiling) if measured else None
     elapsed = time.perf_counter() - started
 
     reservations = reservations_for(device)
@@ -307,6 +358,8 @@ def reserve_driver_pools(device, measure: bool = True) -> ReservationReport:
         item.run()
 
     started = time.perf_counter()
-    after = largest_reservable() if measured else None
+    after = largest_reservable(ceiling) if measured else None
     elapsed += time.perf_counter() - started
-    return ReservationReport(device.name, device_memory, before, after, reservations, measured, elapsed)
+    return ReservationReport(
+        device.name, device_memory, before, after, reservations, measured, elapsed, ceiling=ceiling
+    )

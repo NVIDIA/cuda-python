@@ -101,7 +101,7 @@ def _fake_reserve(limit, log=None):
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_va_probe_finds_the_boundary():
     limit = 700 * va_reservation.GIB
-    found = va_reservation.largest_reservable(reserve=_fake_reserve(limit))
+    found = va_reservation.largest_reservable(4000 * va_reservation.GIB, reserve=_fake_reserve(limit))
 
     # Refinement should land within a few percent, never above the real limit.
     assert found <= limit
@@ -114,15 +114,46 @@ def test_va_probe_descends_so_only_one_grant_is_paid_for():
     # nothing. Ascending from the granularity would pay for every rung.
     asked = []
     limit = 700 * va_reservation.GIB
-    va_reservation.largest_reservable(reserve=_fake_reserve(limit, asked), refine_steps=0)
+    ceiling = 4000 * va_reservation.GIB
+    va_reservation.largest_reservable(ceiling, reserve=_fake_reserve(limit, asked), refine_steps=0)
 
     assert sum(1 for size in asked if size <= limit) == 1
-    assert asked[0] == va_reservation.MAX_PROBE_BYTES
+    assert asked[0] == ceiling
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_va_probe_stops_at_the_ceiling():
+    # The answer is a lower bound by design: past a few pools' worth the exact
+    # figure is not worth what an enormous reservation costs to make and release.
+    ceiling = 191 * va_reservation.GIB
+    asked = []
+
+    roomy = 100 * 1024 * va_reservation.GIB
+    found = va_reservation.largest_reservable(ceiling, reserve=_fake_reserve(roomy, asked))
+
+    assert found == ceiling
+    assert asked == [ceiling]  # granted first time, so nothing else is asked
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_probe_ceiling_is_a_whole_number_of_pools():
+    # A fixed byte ceiling is the wrong shape: it is either meaningless on a
+    # roomy machine or too small to see the headroom on a large-memory one.
+    # Rounding the pool size and the ceiling independently leaves the ceiling a
+    # hair short, and the headroom count then loses a pool -- so use a real
+    # device memory figure, which is not a multiple of the 2 MiB granularity.
+    device_memory = 25650855936
+    pool = va_reservation.pool_bytes_for(device_memory)
+    ceiling = va_reservation.probe_ceiling(device_memory)
+
+    assert ceiling // pool == va_reservation.PROBE_CEILING_POOLS
+    assert ceiling % va_reservation.VA_ALIGNMENT == 0
+    assert va_reservation.probe_ceiling(None) == va_reservation.DEFAULT_PROBE_CEILING_BYTES
 
 
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_va_probe_reports_zero_when_nothing_can_be_reserved():
-    assert va_reservation.largest_reservable(reserve=_fake_reserve(0)) == 0
+    assert va_reservation.largest_reservable(4000 * va_reservation.GIB, reserve=_fake_reserve(0)) == 0
 
 
 @pytest.mark.agent_authored(model="claude-opus-5")
@@ -131,7 +162,8 @@ def test_va_probe_only_asks_for_aligned_sizes():
     # ask fails with CUDA_ERROR_INVALID_VALUE at every size -- which would read
     # as an exhausted address space rather than as a bug here.
     asked = []
-    va_reservation.largest_reservable(reserve=_fake_reserve(3 * 25650855936, asked))
+    ceiling = va_reservation.probe_ceiling(25650855936)
+    va_reservation.largest_reservable(ceiling, reserve=_fake_reserve(3 * 25650855936, asked))
 
     assert asked and all(size % va_reservation.VA_ALIGNMENT == 0 for size in asked)
 
@@ -184,5 +216,4 @@ def test_report_lines_cover_both_driver_pools():
     assert report.failed == []
     assert "default device mempool" in text
     assert "graph memory pool" in text
-    assert "shrank by 100.00 GiB" in text
     assert "more pool-sized" in text
