@@ -91,17 +91,30 @@ def _windows_installed_nsight_root(product: str) -> str | None:
     access = winreg.KEY_READ | winreg.KEY_WOW64_64KEY
     product_key_path = rf"{_NSIGHT_REGISTRY_ROOT}\{product}"
     try:
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, product_key_path, 0, access) as product_key:
-            current_version, _ = winreg.QueryValueEx(product_key, "CurrentVersion")
-            if not isinstance(current_version, str) or not current_version:
-                raise RuntimeError(f"Invalid CurrentVersion value in {product_key_path!r}")
-            with winreg.OpenKey(product_key, current_version, 0, access) as version_key:
-                install_root, _ = winreg.QueryValueEx(version_key, None)
+        product_context = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, product_key_path, 0, access)
     except FileNotFoundError:
         return None
 
-    if not isinstance(install_root, str) or not install_root:
-        raise RuntimeError(f"Invalid installation directory for {product_key_path!r} version {current_version!r}")
+    try:
+        with product_context as product_key:
+            current_version, _ = winreg.QueryValueEx(product_key, "CurrentVersion")
+            if not isinstance(current_version, str) or not current_version.strip():
+                raise RuntimeError(
+                    f"Invalid CurrentVersion value {current_version!r} in "
+                    f"Nsight {product!r} registry registration at {product_key_path!r}"
+                )
+            with winreg.OpenKey(product_key, current_version, 0, access) as version_key:
+                install_root, _ = winreg.QueryValueEx(version_key, None)
+    except FileNotFoundError as exc:
+        raise RuntimeError(
+            f"Incomplete Nsight {product!r} registry registration at {product_key_path!r}"
+        ) from exc
+
+    if not isinstance(install_root, str) or not install_root.strip():
+        raise RuntimeError(
+            f"Invalid installation directory {install_root!r} in Nsight {product!r} "
+            f"registry registration at {product_key_path!r} version {current_version!r}"
+        )
     return install_root
 
 
@@ -182,6 +195,9 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     Raises:
         UnsupportedBinaryError: If ``utility_name`` is not in the supported set
             (see ``SUPPORTED_BINARY_UTILITIES``).
+        RuntimeError: If a native Windows architecture needed for an
+            architecture-specific utility layout cannot be determined, or an
+            installed Nsight product has incomplete or invalid registry data.
 
     Windows on ARM (WoA) Note:
         Binary utilities execute in separate processes and do not need to match

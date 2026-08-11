@@ -58,6 +58,15 @@ def _patch_exec_probe(mocker, existing=()):
     return checked
 
 
+def _patch_winreg(mocker):
+    winreg = mocker.MagicMock()
+    winreg.HKEY_LOCAL_MACHINE = object()
+    winreg.KEY_READ = 0x20019
+    winreg.KEY_WOW64_64KEY = 0x0100
+    mocker.patch.object(binary_finder_module.importlib, "import_module", return_value=winreg)
+    return winreg
+
+
 @pytest.mark.usefixtures("clear_find_binary_cache")
 def test_find_binary_search_path_includes_site_packages_conda_cuda(monkeypatch, mocker):
     conda_prefix = os.path.join(os.sep, "conda")
@@ -425,13 +434,9 @@ def test_windows_installed_nsight_root_reads_64_bit_registry(mocker):
     product_context.__enter__.return_value = product_key
     version_context = mocker.MagicMock()
     version_context.__enter__.return_value = version_key
-    winreg = mocker.MagicMock()
-    winreg.HKEY_LOCAL_MACHINE = object()
-    winreg.KEY_READ = 0x20019
-    winreg.KEY_WOW64_64KEY = 0x0100
+    winreg = _patch_winreg(mocker)
     winreg.OpenKey.side_effect = (product_context, version_context)
     winreg.QueryValueEx.side_effect = (("2026.1.3", 1), (install_root, 1))
-    mocker.patch.object(binary_finder_module.importlib, "import_module", return_value=winreg)
 
     assert binary_finder_module._windows_installed_nsight_root("Systems") == install_root
     access = winreg.KEY_READ | winreg.KEY_WOW64_64KEY
@@ -446,6 +451,99 @@ def test_windows_installed_nsight_root_reads_64_bit_registry(mocker):
             mocker.call(product_key, "2026.1.3", 0, access),
         )
     )
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_windows_installed_nsight_root_returns_none_when_product_key_is_absent(mocker):
+    winreg = _patch_winreg(mocker)
+    winreg.OpenKey.side_effect = FileNotFoundError("Nsight Systems is not installed")
+
+    assert binary_finder_module._windows_installed_nsight_root("Systems") is None
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_windows_installed_nsight_root_rejects_missing_current_version(mocker):
+    product_context = mocker.MagicMock()
+    product_context.__enter__.return_value = mocker.MagicMock()
+    winreg = _patch_winreg(mocker)
+    winreg.OpenKey.return_value = product_context
+    winreg.QueryValueEx.side_effect = FileNotFoundError("CurrentVersion is missing")
+
+    with pytest.raises(RuntimeError, match=r"Incomplete Nsight 'Systems' registry registration") as exc_info:
+        binary_finder_module._windows_installed_nsight_root("Systems")
+
+    assert isinstance(exc_info.value.__cause__, FileNotFoundError)
+
+
+@pytest.mark.parametrize("current_version", (None, "", "   ", 2026))
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_windows_installed_nsight_root_rejects_invalid_current_version(mocker, current_version):
+    product_context = mocker.MagicMock()
+    product_context.__enter__.return_value = mocker.MagicMock()
+    winreg = _patch_winreg(mocker)
+    winreg.OpenKey.return_value = product_context
+    winreg.QueryValueEx.return_value = (current_version, 1)
+
+    with pytest.raises(RuntimeError, match=r"Invalid CurrentVersion value .*Nsight 'Systems' registry registration"):
+        binary_finder_module._windows_installed_nsight_root("Systems")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_windows_installed_nsight_root_rejects_missing_version_key(mocker):
+    product_key = mocker.MagicMock()
+    product_context = mocker.MagicMock()
+    product_context.__enter__.return_value = product_key
+    winreg = _patch_winreg(mocker)
+    winreg.OpenKey.side_effect = (product_context, FileNotFoundError("Version key is missing"))
+    winreg.QueryValueEx.return_value = ("2026.1.3", 1)
+
+    with pytest.raises(RuntimeError, match=r"Incomplete Nsight 'Systems' registry registration") as exc_info:
+        binary_finder_module._windows_installed_nsight_root("Systems")
+
+    assert isinstance(exc_info.value.__cause__, FileNotFoundError)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_windows_installed_nsight_root_rejects_missing_installation_directory(mocker):
+    product_context = mocker.MagicMock()
+    product_context.__enter__.return_value = mocker.MagicMock()
+    version_context = mocker.MagicMock()
+    version_context.__enter__.return_value = mocker.MagicMock()
+    winreg = _patch_winreg(mocker)
+    winreg.OpenKey.side_effect = (product_context, version_context)
+    winreg.QueryValueEx.side_effect = (("2026.1.3", 1), FileNotFoundError("Installation directory is missing"))
+
+    with pytest.raises(RuntimeError, match=r"Incomplete Nsight 'Systems' registry registration") as exc_info:
+        binary_finder_module._windows_installed_nsight_root("Systems")
+
+    assert isinstance(exc_info.value.__cause__, FileNotFoundError)
+
+
+@pytest.mark.parametrize("install_root", (None, "", "   ", 2026))
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_windows_installed_nsight_root_rejects_invalid_installation_directory(mocker, install_root):
+    product_context = mocker.MagicMock()
+    product_context.__enter__.return_value = mocker.MagicMock()
+    version_context = mocker.MagicMock()
+    version_context.__enter__.return_value = mocker.MagicMock()
+    winreg = _patch_winreg(mocker)
+    winreg.OpenKey.side_effect = (product_context, version_context)
+    winreg.QueryValueEx.side_effect = (("2026.1.3", 1), (install_root, 1))
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"Invalid installation directory .*Nsight 'Systems' registry registration.*version '2026.1.3'",
+    ):
+        binary_finder_module._windows_installed_nsight_root("Systems")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_windows_installed_nsight_root_propagates_access_errors(mocker):
+    winreg = _patch_winreg(mocker)
+    winreg.OpenKey.side_effect = PermissionError("Registry access denied")
+
+    with pytest.raises(PermissionError, match="Registry access denied"):
+        binary_finder_module._windows_installed_nsight_root("Systems")
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
