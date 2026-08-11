@@ -1,7 +1,9 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=eb8f3c65cb9b34e507ec109b67497ce209248a5e0faf14fb611e2d34b9c51f08
+.. This code was automatically generated with version 12.9.0. Do not modify it directly.
+
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9471dcb7815306c7978746e132235eac637aad52a8d9aca8ee6c1f492a866769
 -------
 runtime
 -------
@@ -3785,7 +3787,7 @@ Data types used by CUDA Runtime
 
         Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error. 
 
-         :cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
+         :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable` can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via :py:obj:`~.cudaLaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see :py:obj:`~.cudaGraphKernelNodeUpdatesApply`. 
 
          Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via :py:obj:`~.cudaGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via :py:obj:`~.cudaGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to :py:obj:`~.cudaGraphExecUpdate`. 
 
@@ -4870,14 +4872,9 @@ Data types used by CUDA Runtime
 
     Indicates that the layered sparse CUDA array or CUDA mipmapped array has a single mip tail region for all layers
 
-.. autoattribute:: cuda.bindings.runtime.CUDART_CB
 .. autoattribute:: cuda.bindings.runtime.cudaMemPoolCreateUsageHwDecompress
 
     This flag, if set, indicates that the memory will be used as a buffer for hardware accelerated decompression.
-
-.. autoattribute:: cuda.bindings.runtime.CU_UUID_HAS_BEEN_DEFINED
-
-    CUDA UUID types
 
 .. autoattribute:: cuda.bindings.runtime.CUDA_IPC_HANDLE_SIZE
 
@@ -4915,14 +4912,11 @@ Data types used by CUDA Runtime
 
     This port activates when all blocks of the kernel have begun execution. See also :py:obj:`~.cudaLaunchAttributeLaunchCompletionEvent`.
 
-.. autoattribute:: cuda.bindings.runtime.cudaStreamAttrID
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributeAccessPolicyWindow
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributeSynchronizationPolicy
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributeMemSyncDomainMap
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributeMemSyncDomain
 .. autoattribute:: cuda.bindings.runtime.cudaStreamAttributePriority
-.. autoattribute:: cuda.bindings.runtime.cudaStreamAttrValue
-.. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttrID
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeAccessPolicyWindow
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeCooperative
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributePriority
@@ -4932,7 +4926,6 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeMemSyncDomain
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributePreferredSharedMemoryCarveout
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode
-.. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttrValue
 .. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1D
 .. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2D
 .. autoattribute:: cuda.bindings.runtime.cudaSurfaceType3D

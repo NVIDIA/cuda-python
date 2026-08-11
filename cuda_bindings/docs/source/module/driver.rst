@@ -1,7 +1,9 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8e10c6e13ee5f533eba6bc00dde11788062fb728155770cbfb7f2e3aab69b54a
+.. This code was automatically generated with version 12.9.0. Do not modify it directly.
+
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3341eb958de99a8a92ef2f17b31e2e2e5a40e5ba4f563a8bb1e4d94239154141
 ------
 driver
 ------
@@ -5974,10 +5976,6 @@ Data types used by CUDA driver
 
     CUDA API version number
 
-.. autoattribute:: cuda.bindings.driver.CU_UUID_HAS_BEEN_DEFINED
-
-    CUDA UUID types
-
 .. autoattribute:: cuda.bindings.driver.CU_IPC_HANDLE_SIZE
 
     CUDA IPC handle size
@@ -6008,7 +6006,6 @@ Data types used by CUDA driver
 
 .. autoattribute:: cuda.bindings.driver.CU_COMPUTE_ACCELERATED_TARGET_BASE
 .. autoattribute:: cuda.bindings.driver.CU_COMPUTE_FAMILY_TARGET_BASE
-.. autoattribute:: cuda.bindings.driver.CUDA_CB
 .. autoattribute:: cuda.bindings.driver.CU_GRAPH_COND_ASSIGN_DEFAULT
 
     Conditional node handle flags Default value is applied when graph is launched.
@@ -7236,7 +7233,6 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 
 .. autoclass:: cuda.bindings.driver.CUdevResourceDesc
 .. autoclass:: cuda.bindings.driver.CUdevSmResource
-.. autofunction:: cuda.bindings.driver._CONCAT_OUTER
 .. autofunction:: cuda.bindings.driver.cuGreenCtxCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxDestroy
 .. autofunction:: cuda.bindings.driver.cuCtxFromGreenCtx
@@ -7251,8 +7247,6 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 .. autofunction:: cuda.bindings.driver.cuGreenCtxStreamCreate
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_VERSION
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_EXTERNAL_BYTES
-.. autoattribute:: cuda.bindings.driver._CONCAT_INNER
-.. autoattribute:: cuda.bindings.driver._CONCAT_OUTER
 
 Error Log Management Functions
 ------------------------------

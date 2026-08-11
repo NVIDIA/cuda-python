@@ -3,9 +3,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.1. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7de7c59ce5ce65a5fccef9b4a9566185b99213e3bb66b87256e52bda1e9cf089
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1bbe75fdca5f5ed1261611bc8833f04be794d2291e1aef2f82d3eec50b246b58
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
 from libc.stdint cimport intptr_t
+from libcpp cimport bool as _cyb_bool
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 from .cycufile cimport *
 

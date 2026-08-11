@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f82fe2e4ea86565b1f096aad374d6d4578d37de77db0518cd7e2c73332dfb78f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6baa85b885ea8a9f8fc01db7ce4c55af185d9080c0856563f15cc15d115db48f
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -45,7 +45,8 @@ cdef extern from "<dlfcn.h>":
     const void * _cyb_RTLD_DEFAULT "RTLD_DEFAULT"
 
 cimport cython as _cyb_cython
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport intptr_t
+from libcpp cimport bool as _cyb_bool
 
 import threading as _cyb_threading
 
@@ -339,97 +340,97 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_cufile()
     cdef dict data = {}
     global __cuFileHandleRegister
-    data["__cuFileHandleRegister"] = <_cyb_intptr_t>__cuFileHandleRegister
+    data["__cuFileHandleRegister"] = <intptr_t>__cuFileHandleRegister
 
     global __cuFileHandleDeregister
-    data["__cuFileHandleDeregister"] = <_cyb_intptr_t>__cuFileHandleDeregister
+    data["__cuFileHandleDeregister"] = <intptr_t>__cuFileHandleDeregister
 
     global __cuFileBufRegister
-    data["__cuFileBufRegister"] = <_cyb_intptr_t>__cuFileBufRegister
+    data["__cuFileBufRegister"] = <intptr_t>__cuFileBufRegister
 
     global __cuFileBufDeregister
-    data["__cuFileBufDeregister"] = <_cyb_intptr_t>__cuFileBufDeregister
+    data["__cuFileBufDeregister"] = <intptr_t>__cuFileBufDeregister
 
     global __cuFileRead
-    data["__cuFileRead"] = <_cyb_intptr_t>__cuFileRead
+    data["__cuFileRead"] = <intptr_t>__cuFileRead
 
     global __cuFileWrite
-    data["__cuFileWrite"] = <_cyb_intptr_t>__cuFileWrite
+    data["__cuFileWrite"] = <intptr_t>__cuFileWrite
 
     global __cuFileDriverOpen
-    data["__cuFileDriverOpen"] = <_cyb_intptr_t>__cuFileDriverOpen
+    data["__cuFileDriverOpen"] = <intptr_t>__cuFileDriverOpen
 
     global __cuFileDriverClose
-    data["__cuFileDriverClose"] = <_cyb_intptr_t>__cuFileDriverClose
+    data["__cuFileDriverClose"] = <intptr_t>__cuFileDriverClose
 
     global __cuFileDriverClose_v2
-    data["__cuFileDriverClose_v2"] = <_cyb_intptr_t>__cuFileDriverClose_v2
+    data["__cuFileDriverClose_v2"] = <intptr_t>__cuFileDriverClose_v2
 
     global __cuFileUseCount
-    data["__cuFileUseCount"] = <_cyb_intptr_t>__cuFileUseCount
+    data["__cuFileUseCount"] = <intptr_t>__cuFileUseCount
 
     global __cuFileDriverGetProperties
-    data["__cuFileDriverGetProperties"] = <_cyb_intptr_t>__cuFileDriverGetProperties
+    data["__cuFileDriverGetProperties"] = <intptr_t>__cuFileDriverGetProperties
 
     global __cuFileDriverSetPollMode
-    data["__cuFileDriverSetPollMode"] = <_cyb_intptr_t>__cuFileDriverSetPollMode
+    data["__cuFileDriverSetPollMode"] = <intptr_t>__cuFileDriverSetPollMode
 
     global __cuFileDriverSetMaxDirectIOSize
-    data["__cuFileDriverSetMaxDirectIOSize"] = <_cyb_intptr_t>__cuFileDriverSetMaxDirectIOSize
+    data["__cuFileDriverSetMaxDirectIOSize"] = <intptr_t>__cuFileDriverSetMaxDirectIOSize
 
     global __cuFileDriverSetMaxCacheSize
-    data["__cuFileDriverSetMaxCacheSize"] = <_cyb_intptr_t>__cuFileDriverSetMaxCacheSize
+    data["__cuFileDriverSetMaxCacheSize"] = <intptr_t>__cuFileDriverSetMaxCacheSize
 
     global __cuFileDriverSetMaxPinnedMemSize
-    data["__cuFileDriverSetMaxPinnedMemSize"] = <_cyb_intptr_t>__cuFileDriverSetMaxPinnedMemSize
+    data["__cuFileDriverSetMaxPinnedMemSize"] = <intptr_t>__cuFileDriverSetMaxPinnedMemSize
 
     global __cuFileBatchIOSetUp
-    data["__cuFileBatchIOSetUp"] = <_cyb_intptr_t>__cuFileBatchIOSetUp
+    data["__cuFileBatchIOSetUp"] = <intptr_t>__cuFileBatchIOSetUp
 
     global __cuFileBatchIOSubmit
-    data["__cuFileBatchIOSubmit"] = <_cyb_intptr_t>__cuFileBatchIOSubmit
+    data["__cuFileBatchIOSubmit"] = <intptr_t>__cuFileBatchIOSubmit
 
     global __cuFileBatchIOGetStatus
-    data["__cuFileBatchIOGetStatus"] = <_cyb_intptr_t>__cuFileBatchIOGetStatus
+    data["__cuFileBatchIOGetStatus"] = <intptr_t>__cuFileBatchIOGetStatus
 
     global __cuFileBatchIOCancel
-    data["__cuFileBatchIOCancel"] = <_cyb_intptr_t>__cuFileBatchIOCancel
+    data["__cuFileBatchIOCancel"] = <intptr_t>__cuFileBatchIOCancel
 
     global __cuFileBatchIODestroy
-    data["__cuFileBatchIODestroy"] = <_cyb_intptr_t>__cuFileBatchIODestroy
+    data["__cuFileBatchIODestroy"] = <intptr_t>__cuFileBatchIODestroy
 
     global __cuFileReadAsync
-    data["__cuFileReadAsync"] = <_cyb_intptr_t>__cuFileReadAsync
+    data["__cuFileReadAsync"] = <intptr_t>__cuFileReadAsync
 
     global __cuFileWriteAsync
-    data["__cuFileWriteAsync"] = <_cyb_intptr_t>__cuFileWriteAsync
+    data["__cuFileWriteAsync"] = <intptr_t>__cuFileWriteAsync
 
     global __cuFileStreamRegister
-    data["__cuFileStreamRegister"] = <_cyb_intptr_t>__cuFileStreamRegister
+    data["__cuFileStreamRegister"] = <intptr_t>__cuFileStreamRegister
 
     global __cuFileStreamDeregister
-    data["__cuFileStreamDeregister"] = <_cyb_intptr_t>__cuFileStreamDeregister
+    data["__cuFileStreamDeregister"] = <intptr_t>__cuFileStreamDeregister
 
     global __cuFileGetVersion
-    data["__cuFileGetVersion"] = <_cyb_intptr_t>__cuFileGetVersion
+    data["__cuFileGetVersion"] = <intptr_t>__cuFileGetVersion
 
     global __cuFileGetParameterSizeT
-    data["__cuFileGetParameterSizeT"] = <_cyb_intptr_t>__cuFileGetParameterSizeT
+    data["__cuFileGetParameterSizeT"] = <intptr_t>__cuFileGetParameterSizeT
 
     global __cuFileGetParameterBool
-    data["__cuFileGetParameterBool"] = <_cyb_intptr_t>__cuFileGetParameterBool
+    data["__cuFileGetParameterBool"] = <intptr_t>__cuFileGetParameterBool
 
     global __cuFileGetParameterString
-    data["__cuFileGetParameterString"] = <_cyb_intptr_t>__cuFileGetParameterString
+    data["__cuFileGetParameterString"] = <intptr_t>__cuFileGetParameterString
 
     global __cuFileSetParameterSizeT
-    data["__cuFileSetParameterSizeT"] = <_cyb_intptr_t>__cuFileSetParameterSizeT
+    data["__cuFileSetParameterSizeT"] = <intptr_t>__cuFileSetParameterSizeT
 
     global __cuFileSetParameterBool
-    data["__cuFileSetParameterBool"] = <_cyb_intptr_t>__cuFileSetParameterBool
+    data["__cuFileSetParameterBool"] = <intptr_t>__cuFileSetParameterBool
 
     global __cuFileSetParameterString
-    data["__cuFileSetParameterString"] = <_cyb_intptr_t>__cuFileSetParameterString
+    data["__cuFileSetParameterString"] = <intptr_t>__cuFileSetParameterString
     _cyb_func_ptrs = data
     return data
 
@@ -562,13 +563,13 @@ cdef CUfileError_t _cuFileDriverGetProperties(CUfileDrvProps_t* props) except?<C
         props)
 
 
-cdef CUfileError_t _cuFileDriverSetPollMode(cpp_bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t _cuFileDriverSetPollMode(_cyb_bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileDriverSetPollMode
     _check_or_init_cufile()
     if __cuFileDriverSetPollMode == NULL:
         with gil:
             raise FunctionNotFoundError("function cuFileDriverSetPollMode is not found")
-    return (<CUfileError_t (*)(cpp_bool, size_t) noexcept nogil>__cuFileDriverSetPollMode)(
+    return (<CUfileError_t (*)(_cyb_bool, size_t) noexcept nogil>__cuFileDriverSetPollMode)(
         poll, poll_threshold_size)
 
 
@@ -713,13 +714,13 @@ cdef CUfileError_t _cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, 
         param, value)
 
 
-cdef CUfileError_t _cuFileGetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t _cuFileGetParameterBool(CUFileBoolConfigParameter_t param, _cyb_bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileGetParameterBool
     _check_or_init_cufile()
     if __cuFileGetParameterBool == NULL:
         with gil:
             raise FunctionNotFoundError("function cuFileGetParameterBool is not found")
-    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, cpp_bool*) noexcept nogil>__cuFileGetParameterBool)(
+    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, _cyb_bool*) noexcept nogil>__cuFileGetParameterBool)(
         param, value)
 
 
@@ -743,13 +744,13 @@ cdef CUfileError_t _cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, 
         param, value)
 
 
-cdef CUfileError_t _cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t _cuFileSetParameterBool(CUFileBoolConfigParameter_t param, _cyb_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileSetParameterBool
     _check_or_init_cufile()
     if __cuFileSetParameterBool == NULL:
         with gil:
             raise FunctionNotFoundError("function cuFileSetParameterBool is not found")
-    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, cpp_bool) noexcept nogil>__cuFileSetParameterBool)(
+    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, _cyb_bool) noexcept nogil>__cuFileSetParameterBool)(
         param, value)
 
 
