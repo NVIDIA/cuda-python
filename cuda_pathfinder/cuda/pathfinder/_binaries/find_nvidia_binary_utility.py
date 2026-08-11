@@ -106,9 +106,7 @@ def _windows_installed_nsight_root(product: str) -> str | None:
             with winreg.OpenKey(product_key, current_version, 0, access) as version_key:
                 install_root, _ = winreg.QueryValueEx(version_key, None)
     except FileNotFoundError as exc:
-        raise RuntimeError(
-            f"Incomplete Nsight {product!r} registry registration at {product_key_path!r}"
-        ) from exc
+        raise RuntimeError(f"Incomplete Nsight {product!r} registry registration at {product_key_path!r}") from exc
 
     if not isinstance(install_root, str) or not install_root.strip():
         raise RuntimeError(

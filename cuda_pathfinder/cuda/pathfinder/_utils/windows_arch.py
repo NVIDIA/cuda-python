@@ -59,7 +59,7 @@ def _windows_native_machine() -> int | None:
 
     try:
         # These ctypes attributes are absent from the type stubs on non-Windows hosts.
-        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)  # type: ignore[attr-defined]
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)  # type: ignore[attr-defined, unused-ignore]
     except OSError as exc:
         raise RuntimeError("Failed to load kernel32 while detecting the native Windows architecture") from exc
 
@@ -85,8 +85,8 @@ def _windows_native_machine() -> int | None:
         ctypes.byref(process_machine),
         ctypes.byref(native_machine),
     ):
-        error_code = ctypes.get_last_error()  # type: ignore[attr-defined]
-        error = ctypes.WinError(error_code)  # type: ignore[attr-defined]
+        error_code = ctypes.get_last_error()  # type: ignore[attr-defined, unused-ignore]
+        error = ctypes.WinError(error_code)  # type: ignore[attr-defined, unused-ignore]
         raise RuntimeError(
             f"IsWow64Process2 failed while detecting the native Windows architecture "
             f"(Windows error {error_code}): {error}"
