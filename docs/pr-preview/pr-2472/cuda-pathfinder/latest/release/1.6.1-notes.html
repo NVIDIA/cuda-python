@@ -559,6 +559,10 @@ architecture-specific locations for cuDLA, NVVM, CUPTI, and cuSPARSELt.
 NVVM binaries found in an unqualified legacy directory are checked for a
 matching PE machine architecture before loading.</p></li>
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">UnsupportedArchError</span></code> for unsupported Windows Python platform tags.</p></li>
+<li><p>Make Windows static-library discovery architecture-aware. Searches now use
+the current Python interpreter architecture to select the matching
+<code class="docutils literal notranslate"><span class="pre">lib/x64</span></code> or <code class="docutils literal notranslate"><span class="pre">lib/arm64</span></code> CUDA Toolkit and wheel directories. CUDA 12
+component-wheel and legacy Conda fallbacks remain x64-only.</p></li>
 </ul>
 </section>
 <section id="internal-maintenance">

@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=356700bc"></script>
+    <script src="_static/documentation_options.js?v=d951c3f4"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev10';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev51';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -630,6 +630,14 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableGraphNode.html">cuda.core.graph.ExecutableGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableKernelNode.html">cuda.core.graph.ExecutableKernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemcpyNode.html">cuda.core.graph.ExecutableMemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemsetNode.html">cuda.core.graph.ExecutableMemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableHostCallbackNode.html">cuda.core.graph.ExecutableHostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableChildGraphNode.html">cuda.core.graph.ExecutableChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventRecordNode.html">cuda.core.graph.ExecutableEventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventWaitNode.html">cuda.core.graph.ExecutableEventWaitNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -1020,6 +1028,53 @@ nodes also cannot currently be constructed explicitly.</p>
 </table>
 </div>
 </section>
+<section id="executable-node-views">
+<h3>Executable node views<a class="headerlink" href="#executable-node-views" title="Link to this heading">#</a></h3>
+<p>Index an executable <a class="reference internal" href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a> with a definition node to update that
+node in the executable, for example
+<code class="docutils literal notranslate"><span class="pre">graph[kernel_node].update(config=config,</span> <span class="pre">kernel=kernel,</span> <span class="pre">args=args)</span></code>.
+The returned view retains the executable and source node, while CUDA validates
+that the node is associated with the executable.</p>
+<p>Executable graphs do not support reading back current node parameters, so
+updates take a complete replacement. Buffer operands, kernels, events, kernel
+arguments, and callback bindings are retained for every future launch that may
+use them. Superseded resources remain retained until a successful whole-graph
+update or executable destruction. Raw integer addresses remain caller-owned.
+Memcpy and memset updates use the current CUDA context, which must match the
+original node context.</p>
+<p>Kernel, memcpy, and memset views also provide <code class="docutils literal notranslate"><span class="pre">is_enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">enable()</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">disable()</span></code>. Executable-node updates require CUDA driver and
+<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> versions 12.2 or newer.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableGraphNode.html#cuda.core.graph.ExecutableGraphNode" title="cuda.core.graph.ExecutableGraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableGraphNode</span></code></a>()</p></td>
+<td><p>A lightweight view pairing an executable graph with a source node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableKernelNode.html#cuda.core.graph.ExecutableKernelNode" title="cuda.core.graph.ExecutableKernelNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableKernelNode</span></code></a></p></td>
+<td><p>An executable kernel-node view.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemcpyNode.html#cuda.core.graph.ExecutableMemcpyNode" title="cuda.core.graph.ExecutableMemcpyNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableMemcpyNode</span></code></a></p></td>
+<td><p>An executable memcpy-node view.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableMemsetNode.html#cuda.core.graph.ExecutableMemsetNode" title="cuda.core.graph.ExecutableMemsetNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableMemsetNode</span></code></a></p></td>
+<td><p>An executable memset-node view.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableHostCallbackNode.html#cuda.core.graph.ExecutableHostCallbackNode" title="cuda.core.graph.ExecutableHostCallbackNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableHostCallbackNode</span></code></a></p></td>
+<td><p>An executable host-callback-node view.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableChildGraphNode.html#cuda.core.graph.ExecutableChildGraphNode" title="cuda.core.graph.ExecutableChildGraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableChildGraphNode</span></code></a></p></td>
+<td><p>An executable child-graph-node view.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventRecordNode.html#cuda.core.graph.ExecutableEventRecordNode" title="cuda.core.graph.ExecutableEventRecordNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableEventRecordNode</span></code></a></p></td>
+<td><p>An executable event-record-node view.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.graph.ExecutableEventWaitNode.html#cuda.core.graph.ExecutableEventWaitNode" title="cuda.core.graph.ExecutableEventWaitNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.ExecutableEventWaitNode</span></code></a></p></td>
+<td><p>An executable event-wait-node view.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 </section>
 <section id="graphics-interoperability">
 <h2>Graphics interoperability<a class="headerlink" href="#graphics-interoperability" title="Link to this heading">#</a></h2>
@@ -1241,6 +1296,7 @@ execution.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-graphs">CUDA graphs</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#node-types">Node types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#executable-node-views">Executable node views</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphics-interoperability">Graphics interoperability</a></li>

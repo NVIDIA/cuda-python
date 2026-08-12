@@ -24,6 +24,11 @@ Highlights
 
 * Add ``UnsupportedArchError`` for unsupported Windows Python platform tags.
 
+* Make Windows static-library discovery architecture-aware. Searches now use
+  the current Python interpreter architecture to select the matching
+  ``lib/x64`` or ``lib/arm64`` CUDA Toolkit and wheel directories. CUDA 12
+  component-wheel and legacy Conda fallbacks remain x64-only.
+
 Internal maintenance
 --------------------
 
