@@ -168,23 +168,24 @@ class TestGetCudaMajorVersion:
 
 
 @pytest.fixture
-def build_tree(tmp_path, monkeypatch):
-    """Run the stamp helpers against a scratch source tree.
+def stamp(tmp_path, monkeypatch):
+    """Redirect the build stamp to a scratch path.
 
-    The stamp path is relative because PEP 517 hooks always run with the
-    package directory as the working directory.
+    _BUILD_MAJOR_STAMP is anchored to build_hooks.py rather than the working
+    directory, so it has to be replaced outright; chdir would not move it, and
+    record_build_major() would write into the real source tree.
     """
-    monkeypatch.chdir(tmp_path)
+    scratch = tmp_path / "build" / ".build-cuda-major"
+    monkeypatch.setattr(build_hooks, "_BUILD_MAJOR_STAMP", scratch)
     monkeypatch.setattr(build_hooks, "force_build_ext", False)
     build_hooks._get_cuda_path.cache_clear()
     build_hooks._determine_cuda_major_version.cache_clear()
     get_cuda_path_or_home.cache_clear()
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
-    return tmp_path
+    return scratch
 
 
-def _write_stamp(build_tree, cuda_major):
-    stamp = build_tree / build_hooks._BUILD_MAJOR_STAMP
+def _write_stamp(stamp, cuda_major):
     stamp.parent.mkdir(parents=True, exist_ok=True)
     stamp.write_text(cuda_major + "\n")
 
@@ -192,20 +193,21 @@ def _write_stamp(build_tree, cuda_major):
 class TestBuildMajorStamp:
     """Tests for _check_build_major() and record_build_major()."""
 
-    def test_first_build_does_not_force(self, build_tree):
-        assert build_hooks._check_build_major() == "13"
-        assert build_hooks.force_build_ext is False
-
-    def test_same_major_does_not_force(self, build_tree):
-        _write_stamp(build_tree, "13")
-        assert build_hooks._check_build_major() == "13"
-        assert build_hooks.force_build_ext is False
-
-    def test_changed_major_forces_rebuild(self, build_tree):
-        _write_stamp(build_tree, "12")
+    def test_missing_stamp_forces_rebuild(self, stamp):
+        # No stamp means the last build's major is unknown, so rebuild.
         assert build_hooks._check_build_major() == "13"
         assert build_hooks.force_build_ext is True
 
-    def test_record_writes_stamp(self, build_tree):
+    def test_same_major_does_not_force(self, stamp):
+        _write_stamp(stamp, "13")
+        assert build_hooks._check_build_major() == "13"
+        assert build_hooks.force_build_ext is False
+
+    def test_changed_major_forces_rebuild(self, stamp):
+        _write_stamp(stamp, "12")
+        assert build_hooks._check_build_major() == "13"
+        assert build_hooks.force_build_ext is True
+
+    def test_record_writes_stamp(self, stamp):
         build_hooks.record_build_major()
-        assert (build_tree / build_hooks._BUILD_MAJOR_STAMP).read_text().strip() == "13"
+        assert stamp.read_text().strip() == "13"

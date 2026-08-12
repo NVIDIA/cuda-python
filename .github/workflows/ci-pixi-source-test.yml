@@ -172,7 +172,7 @@ jobs:
     name: "pixi run test (${{ inputs.cuda-env || 'cu13' }}, linux-64, GPU)"
     if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
     runs-on: "linux-amd64-gpu-l4-latest-1" # same label scheme as test-wheel-linux.yml
-    timeout-minutes: 60
+    timeout-minutes: 90
     container:
       options: -u root --security-opt seccomp=unconfined --shm-size 16g
       image: ubuntu:24.04

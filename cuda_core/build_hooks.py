@@ -124,9 +124,13 @@ def _determine_cuda_major_version() -> str:
 # used later by setup()
 _extensions = None
 
+# Where per-configuration build artifacts live. Anchored to this file rather
+# than the cwd, since a project can be built from anywhere.
+_BUILD_DIR = Path(__file__).parent / "build"
+
 # Records the CUDA major of the last completed build, so setup.py can force
 # build_ext when it changes. Written by record_build_major().
-_BUILD_MAJOR_STAMP = os.path.join("build", ".build-cuda-major")
+_BUILD_MAJOR_STAMP = _BUILD_DIR / ".build-cuda-major"
 
 force_build_ext = False
 
@@ -147,13 +151,14 @@ def _check_build_major() -> str:
 
     cuda_major = _determine_cuda_major_version()
     try:
-        with open(_BUILD_MAJOR_STAMP, encoding="utf-8") as f:
-            previous = f.read().strip()
+        previous = _BUILD_MAJOR_STAMP.read_text(encoding="utf-8").strip()
     except FileNotFoundError:
         previous = None
 
-    if previous is not None and previous != cuda_major:
-        print(f"CUDA major changed ({previous} -> {cuda_major}); forcing a full rebuild")
+    # A missing stamp means the last build's major is unknown, so force too.
+    # On a first build that costs nothing: there are no artifacts to reuse.
+    if previous != cuda_major:
+        print(f"CUDA major of last build: {previous} (building {cuda_major}); forcing a full rebuild")
         force_build_ext = True
 
     return cuda_major
@@ -165,9 +170,8 @@ def record_build_major() -> None:
     setup.py calls this after build_ext succeeds, so that a build which failed
     partway through does not claim outputs it never produced.
     """
-    os.makedirs(os.path.dirname(_BUILD_MAJOR_STAMP), exist_ok=True)
-    with open(_BUILD_MAJOR_STAMP, "w", encoding="utf-8") as f:
-        f.write(_determine_cuda_major_version() + "\n")
+    _BUILD_MAJOR_STAMP.parent.mkdir(parents=True, exist_ok=True)
+    _BUILD_MAJOR_STAMP.write_text(_determine_cuda_major_version() + "\n", encoding="utf-8")
 
 
 def _build_cuda_core(debug=False):
@@ -180,8 +184,6 @@ def _build_cuda_core(debug=False):
 
     # Resolve CUDA first so the pathfinder import repairs PEP 517 namespace shadowing before importing bindings.
     cuda_path = _get_cuda_path()
-
-    cuda_major = _check_build_major()
 
     # Add cuda-bindings to sys.path so Cython can find .pxd files
     # This is needed for editable installs where meta path finders don't work for Cython
@@ -266,6 +268,11 @@ def _build_cuda_core(debug=False):
         for mod in module_names()
     )
 
+    # Deliberately after the cuda.bindings import above: this re-enters
+    # _get_cuda_path() and reads cuda.h, which must not run before the
+    # pathfinder import has repaired PEP 517 namespace shadowing.
+    cuda_major = _check_build_major()
+
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
     compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(cuda_major)}
     compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
@@ -277,8 +284,9 @@ def _build_cuda_core(debug=False):
         verbose=True,
         language_level=3,
         # CUDA_PYTHON_COVERAGE deliberately generates in-tree so the sources can
-        # be packaged; every other build gets its own per-configuration cache.
-        build_dir="." if COMPILE_FOR_COVERAGE else f"build/cython/cu{cuda_major}",
+        # be packaged; every other build gets its own per-configuration cache,
+        # anchored alongside the stamp so both resolve the same from any cwd.
+        build_dir="." if COMPILE_FOR_COVERAGE else str(_BUILD_DIR / "cython" / f"cu{cuda_major}"),
         nthreads=nthreads,
         compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,
