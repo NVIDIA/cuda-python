@@ -13,12 +13,12 @@ conftest.py which imports cuda.core modules:
 
     pytest tests/test_build_hooks.py -v --noconftest
 
-These tests require Cython to be installed (build_hooks.py imports it).
+These tests require scikit-build-core to be installed (build_hooks.py wraps it).
 """
 
-import builtins
 import importlib.util
 import os
+import sys
 import tempfile
 from pathlib import Path
 from unittest import mock
@@ -27,9 +27,8 @@ import pytest
 
 from cuda.pathfinder import get_cuda_path_or_home
 
-# build_hooks.py imports Cython and setuptools at the top level, so skip if not available
-pytest.importorskip("Cython")
-pytest.importorskip("setuptools")
+# build_hooks.py imports scikit-build-core at the top level, so skip if not available.
+pytest.importorskip("scikit_build_core")
 
 
 def _load_build_hooks():
@@ -52,32 +51,76 @@ build_hooks = _load_build_hooks()
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_cuda_path_is_resolved_before_importing_bindings(monkeypatch):
-    """PEP 517 namespace repair runs before cuda.bindings is imported."""
-    events = []
+@pytest.mark.parametrize(
+    "hook_name",
+    ["get_requires_for_build_wheel", "get_requires_for_build_editable"],
+)
+def test_binary_build_requirements_include_matching_bindings(monkeypatch, hook_name):
+    """Binary hooks preserve backend requirements and append CUDA-matched bindings."""
+    backend_hook = mock.Mock(return_value=["backend-requirement"])
+    monkeypatch.setattr(build_hooks._build_backend, hook_name, backend_hook)
+    monkeypatch.setattr(build_hooks, "_configured_cuda_major", lambda _settings: "13")
+    config_settings = {"cmake.define.SENTINEL": "value"}
 
-    class StopBuildError(Exception):
-        pass
+    requirements = getattr(build_hooks, hook_name)(config_settings)
 
-    def get_cuda_path():
-        events.append("cuda-path")
-        return "/cuda"
+    assert requirements == ["backend-requirement", "cuda-bindings==13.*"]
+    expected_settings = dict(config_settings)
+    if hook_name == "get_requires_for_build_editable":
+        expected_settings["cmake.build-type"] = "Release" if sys.platform == "win32" else "Debug"
+    backend_hook.assert_called_once_with(expected_settings)
 
-    original_import = builtins.__import__
 
-    def stop_at_bindings_import(name, *args, **kwargs):
-        if name == "cuda.bindings":
-            events.append("cuda-bindings")
-            raise StopBuildError
-        return original_import(name, *args, **kwargs)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_sdist_requirements_are_delegated_directly():
+    """The sdist hook is delegated directly and remains toolkit-independent."""
+    assert build_hooks.get_requires_for_build_sdist is build_hooks._build_backend.get_requires_for_build_sdist
 
-    monkeypatch.setattr(build_hooks, "_get_cuda_path", get_cuda_path)
-    monkeypatch.setattr(builtins, "__import__", stop_at_bindings_import)
 
-    with pytest.raises(StopBuildError):
-        build_hooks._build_cuda_core()
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize(
+    ("debug", "expected"),
+    [("true", "Debug"), ("false", "Release"), (True, "Debug"), (False, "Release")],
+)
+def test_legacy_debug_setting_maps_to_cmake_build_type(monkeypatch, debug, expected):
+    monkeypatch.setattr(sys, "platform", "linux")
+    settings = build_hooks._translate_config_settings({"debug": debug}, editable=False)
 
-    assert events == ["cuda-path", "cuda-bindings"]
+    assert settings == {"cmake.build-type": expected}
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize(("platform", "expected"), [("linux", "Debug"), ("win32", "Release")])
+def test_editable_build_uses_platform_default(monkeypatch, platform, expected):
+    monkeypatch.setattr(sys, "platform", platform)
+
+    settings = build_hooks._translate_config_settings({}, editable=True)
+
+    assert settings == {"cmake.build-type": expected}
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_debug_build_is_rejected_on_windows(monkeypatch):
+    monkeypatch.setattr(sys, "platform", "win32")
+
+    with pytest.raises(RuntimeError, match="not supported on Windows"):
+        build_hooks._translate_config_settings({"debug": "true"}, editable=False)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_build_config_forwards_cuda_and_coverage(monkeypatch):
+    monkeypatch.setattr(build_hooks, "_configured_cuda_root", lambda _settings: "/cuda")
+    monkeypatch.setattr(build_hooks, "_configured_cuda_major", lambda _settings: "13")
+    monkeypatch.setenv("CUDA_PYTHON_COVERAGE", "1")
+
+    settings = build_hooks._build_config_settings({"debug": "false"}, editable=False)
+
+    assert settings == {
+        "cmake.build-type": "Release",
+        "cmake.define.CUDA_CORE_CUDA_ROOT": "/cuda",
+        "cmake.define.CUDA_CORE_BUILD_MAJOR": "13",
+        "cmake.define.CUDA_PYTHON_COVERAGE": "1",
+    }
 
 
 def _check_version_detection(

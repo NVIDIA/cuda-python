@@ -35,6 +35,8 @@ on:
       - "**/pixi.lock"
       - "cuda_bindings/build_hooks.py"
       - "cuda_core/build_hooks.py"
+      - "cuda_core/CMakeLists.txt"
+      - "cuda_core/pyproject.toml"
       - "cuda_bindings/cuda/bindings/**" # generated bindings sources
       - "cuda_bindings/tests/cython/**"
       - "cuda_core/tests/cython/**"
