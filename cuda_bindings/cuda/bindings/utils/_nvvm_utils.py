@@ -1,7 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import importlib
 from typing import Sequence
+
+_NVVM_MODULE_NAME = "cuda.bindings.nvvm"
 
 _PRECHECK_NVVM_IR = """target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
@@ -51,15 +54,24 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
     True
     """
     try:
-        from cuda.bindings import nvvm
+        nvvm = importlib.import_module(_NVVM_MODULE_NAME)
     except ModuleNotFoundError as exc:
-        if exc.name == "nvvm":
-            return False
-        raise
+        if exc.name != _NVVM_MODULE_NAME:
+            # A dependency of cuda.bindings.nvvm is missing, not the module
+            # itself. Never mask that: it is a real problem worth reporting.
+            raise
+        return False
 
     from cuda.bindings._internal.nvvm import _inspect_function_pointer
+    from cuda.pathfinder import DynamicLibNotFoundError
 
-    if _inspect_function_pointer("__nvvmCreateProgram") == 0:
+    try:
+        if _inspect_function_pointer("__nvvmCreateProgram") == 0:
+            return False
+    except DynamicLibNotFoundError:
+        # A zero function pointer means libNVVM is loaded but does not export
+        # the symbol. When libNVVM is not installed at all, the lazy loader
+        # behind _inspect_function_pointer raises instead.
         return False
 
     program = nvvm.create_program()
