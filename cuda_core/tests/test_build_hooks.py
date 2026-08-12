@@ -226,6 +226,9 @@ def _capture_cythonize_build_dir(monkeypatch, cuda_major):
         captured.update(kwargs)
         return []
 
+    # Builds resolve the CTK for include dirs; stub it so the test runs
+    # where no toolkit is installed (e.g. the wheels CI jobs).
+    monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
     monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", cuda_major)
     build_hooks._determine_cuda_major_version.cache_clear()
