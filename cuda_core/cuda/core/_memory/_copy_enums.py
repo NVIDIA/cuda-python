@@ -23,9 +23,19 @@ __all__ = ["CopyOptions", "MemcpyOverlapMode", "MemcpySrcAccessOrder"]
 class MemcpySrcAccessOrder(StrEnum):
     """Source access order hint for batched memcpy operations.
 
-    Maps to ``CUmemcpySrcAccessOrder``. The ``INVALID`` and ``MAX``
-    sentinel values from the driver enum are excluded from the public
-    Python surface.
+    Maps to ``CUmemcpySrcAccessOrder``.
+
+    ``STREAM``
+        Source reads follow stream order. Earlier stream work may still be
+        accessing the source when the copy is enqueued.
+    ``DURING_API_CALL``
+        The driver may read the source out of stream order, but all reads
+        are complete before :func:`copy_batch` returns. No earlier stream
+        work may be accessing the source at the time of the call.
+    ``ANY``
+        The driver may read the source after the call returns. The caller
+        must keep the source unchanged until the copy completes in stream
+        order. No earlier stream work may be accessing the source.
     """
 
     STREAM = "stream"
@@ -36,9 +46,14 @@ class MemcpySrcAccessOrder(StrEnum):
 class MemcpyOverlapMode(StrEnum):
     """Overlap mode hint for batched memcpy operations.
 
-    Maps to ``CUmemcpyFlags``. Renamed from "flags" to "overlap_mode"
-    for clarity; the only non-default flag is CE/compute overlap
-    (Tegra).
+    Maps to ``CUmemcpyFlags``.
+
+    ``DEFAULT``
+        No overlap preference; the driver uses its default scheduling.
+    ``PREFER_OVERLAP_WITH_COMPUTE``
+        Hint that the copy should preferably overlap with concurrent
+        compute work. This is advisory and may be ignored depending on
+        the platform and copy parameters.
     """
 
     DEFAULT = "default"
@@ -55,9 +70,15 @@ class CopyOptions:
         Hint describing how the source will be accessed.
         Default is ``"stream"`` (stream-ordered access).
     src_location_hint : :class:`cuda.core.Device` | :class:`cuda.core.Host` | None
-        Hint for the source memory location. ``None`` means no hint.
+        Hint for the source memory location. Honored only for managed
+        memory on devices with concurrent managed access and for
+        system-allocated pageable memory on devices with pageable memory
+        access; ignored for all other memory types. Does not prefetch
+        memory and does not set persistent memory advice.
+        ``None`` means no hint.
     dst_location_hint : :class:`cuda.core.Device` | :class:`cuda.core.Host` | None
-        Hint for the destination memory location. ``None`` means no hint.
+        Hint for the destination memory location. Same semantics and
+        restrictions as ``src_location_hint``. ``None`` means no hint.
     overlap_mode : :class:`MemcpyOverlapMode` or str
         Hint requesting that the copy overlap with concurrent compute work.
         This is advisory; it has an effect only on devices that support it.
