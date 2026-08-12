@@ -339,25 +339,23 @@ class Transaction:
         self._on_exit.clear()
         return self._stack.__exit__(exc_type, exc, tb)
 
-    def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
-        """
-        Register a failure callback (runs if the with-block exits without commit()).
-        Values are bound now via partial so late mutations don't bite you.
-        """
+    def _register(self, callback: Callable[[], Any], on_commit: bool) -> None:
         if not self._entered:
-            raise RuntimeError("Transaction must be entered before on_failure()")
-        self._stack.callback(partial(fn, *args, **kwargs))
+            raise RuntimeError("Transaction must be entered before registering callbacks")
+        # The ExitStack copy runs on rollback (LIFO, interleaved with the failure
+        # callbacks); the _on_exit copy runs at commit(). commit() disarms the stack
+        # before running _on_exit, so exactly one of the two ever fires.
+        self._stack.callback(callback)
+        if on_commit:
+            self._on_exit.append(callback)
+
+    def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
+        """Register a failure callback (runs if the with-block exits without commit())."""
+        self._register(partial(fn, *args, **kwargs), on_commit=False)
 
     def on_exit(self, fn: Callable[..., Any], /, *args: Any, **kwargs: Any) -> None:
-        """
-        Register an exit callback (runs exactly once, on rollback or during commit()).
-        Values are bound now via partial so late mutations don't bite you.
-        """
-        if not self._entered:
-            raise RuntimeError("Transaction must be entered before on_exit()")
-        callback = partial(fn, *args, **kwargs)
-        self._stack.callback(callback)
-        self._on_exit.append(callback)
+        """Register an exit callback (runs exactly once, on rollback or during commit())."""
+        self._register(partial(fn, *args, **kwargs), on_commit=True)
 
     def commit(self) -> None:
         """

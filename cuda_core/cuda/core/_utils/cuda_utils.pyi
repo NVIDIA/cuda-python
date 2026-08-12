@@ -46,17 +46,14 @@ class Transaction:
     def __exit__(self, exc_type, exc, tb):
         ...
 
+    def _register(self, callback: Callable[[], Any], on_commit: bool) -> None:
+        ...
+
     def on_failure(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
-        """
-        Register a failure callback (runs if the with-block exits without commit()).
-        Values are bound now via partial so late mutations don't bite you.
-        """
+        """Register a failure callback (runs if the with-block exits without commit())."""
 
     def on_exit(self, fn: Callable[..., Any], /, *args: Any, **kwargs) -> None:
-        """
-        Register an exit callback (runs exactly once, on rollback or during commit()).
-        Values are bound now via partial so late mutations don't bite you.
-        """
+        """Register an exit callback (runs exactly once, on rollback or during commit())."""
 
     def commit(self) -> None:
         """
