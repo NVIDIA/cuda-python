@@ -100,23 +100,23 @@ class CopyOptions:
         # object.__setattr__; a plain assignment would raise
         # FrozenInstanceError. Done here rather than at use so that a typo
         # fails at construction and the field always holds the enum.
-        if isinstance(self.src_access_order, str):
+        if not isinstance(self.src_access_order, MemcpySrcAccessOrder):
             try:
                 object.__setattr__(
                     self,
                     "src_access_order",
                     MemcpySrcAccessOrder(self.src_access_order),
                 )
-            except ValueError as exc:
+            except (ValueError, TypeError) as exc:
                 raise ValueError(f"invalid src_access_order: {self.src_access_order!r}") from exc
-        if isinstance(self.overlap_mode, str):
+        if not isinstance(self.overlap_mode, MemcpyOverlapMode):
             try:
                 object.__setattr__(
                     self,
                     "overlap_mode",
                     MemcpyOverlapMode(self.overlap_mode),
                 )
-            except ValueError as exc:
+            except (ValueError, TypeError) as exc:
                 raise ValueError(f"invalid overlap_mode: {self.overlap_mode!r}") from exc
 
     def _to_driver_enum(self) -> int:
