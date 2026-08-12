@@ -206,8 +206,12 @@ def copy_batch(
         )
 
     cdef cydriver.CUstreamCaptureStatus _cap_status
-    HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &_cap_status,
-                                                  NULL, NULL, NULL, NULL, NULL))
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &_cap_status,
+                                                      NULL, NULL, NULL, NULL, NULL))
+    ELSE:
+        HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &_cap_status,
+                                                      NULL, NULL, NULL, NULL))
     if _cap_status == cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
         raise TypeError(
             "copy_batch does not support graph capture; "
