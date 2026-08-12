@@ -99,6 +99,12 @@ _SYSTEM_EVENT_TYPE_MAPPING = {nvml.SystemEventType.GPU_DRIVER_UNBIND: SystemEven
 _SYSTEM_EVENT_TYPE_INV_MAPPING = {v: k for k, v in _SYSTEM_EVENT_TYPE_MAPPING.items()}
 __all__ = ['register_events']
 
+def _pci_bus_id_from_gpu_id(gpu_id: int) -> str:
+    """
+    Decode a packed NVML ``gpu_id`` (``domain[31:16] | bus[15:8] | device[7:0]``)
+    into an NVML-style PCI bus ID (``NVML_DEVICE_PCI_BUS_ID_FMT``).
+    """
+
 def register_events(events: SystemEventType | str | list[SystemEventType | str]) -> RegisteredSystemEvents:
     """
     Starts recording of events on test system.
