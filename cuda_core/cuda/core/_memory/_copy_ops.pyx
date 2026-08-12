@@ -131,16 +131,20 @@ def copy_batch(
     buffer, use :meth:`Buffer.copy_to` or :meth:`Buffer.copy_from`.
 
     The driver provides no graph-node form of ``cuMemcpyBatchAsync``, so
-    this cannot be captured into a graph. Build graph copies with
+    this cannot be captured into a graph. Both passing a
+    :class:`~graph.GraphBuilder` and passing its underlying
+    :attr:`~graph.GraphBuilder.stream` while capture is active are
+    rejected. Build graph copies with
     :meth:`graph.GraphNode.memcpy` or per-buffer :meth:`Buffer.copy_to`.
 
     Parameters
     ----------
     stream : :class:`~_stream.Stream`
         Stream for the asynchronous copy. First positional and required
-        (mirrors :func:`launch`). Unlike most stream-taking APIs this does
-        not accept a :class:`~graph.GraphBuilder`; one is rejected with
-        ``TypeError`` because the copy cannot be captured.
+        (mirrors :func:`launch`). Does not accept a capturing stream
+        (including a :class:`~graph.GraphBuilder`\'s underlying stream); use
+        :meth:`graph.GraphNode.memcpy` or per-buffer
+        :meth:`Buffer.copy_to` to build copies into a graph.
     srcs : Sequence[:class:`Buffer`]
         Source buffers. Must be a sequence, not a single Buffer.
     dsts : Sequence[:class:`Buffer`]
@@ -155,10 +159,10 @@ def copy_batch(
     ValueError
         If lengths or sizes mismatch.
     TypeError
-        If a single Buffer is passed instead of a sequence, or if a
+        If a single Buffer is passed instead of a sequence, if a
         default-stream token (``LEGACY_DEFAULT_STREAM`` /
-        ``PER_THREAD_DEFAULT_STREAM``) is passed instead of an explicit
-        stream.
+        ``PER_THREAD_DEFAULT_STREAM``) is passed, or if the stream is
+        currently in graph capture mode.
     NotImplementedError
         If non-default ``options`` are given where
         ``cuMemcpyBatchAsync`` is unavailable (see Notes).
@@ -207,6 +211,15 @@ def copy_batch(
             "copy_batch does not accept a default-stream token "
             "(LEGACY_DEFAULT_STREAM / PER_THREAD_DEFAULT_STREAM); "
             "pass an explicit stream"
+        )
+
+    cdef cydriver.CUstreamCaptureStatus _cap_status
+    HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &_cap_status,
+                                                  NULL, NULL, NULL, NULL, NULL))
+    if _cap_status == cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
+        raise TypeError(
+            "copy_batch does not support graph capture; "
+            "use GraphNode.memcpy or per-buffer Buffer.copy_to instead"
         )
 
     cdef Buffer src_buf

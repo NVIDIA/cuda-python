@@ -259,6 +259,22 @@ class TestCopyBatchStreamSemantics:
             gb.close()
 
     @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    def test_capturing_stream_is_rejected(self, copy_batch_device, device_bufs):
+        """Passing the GraphBuilder's underlying stream must also be rejected.
+
+        The GraphBuilder type check is bypassed when the caller passes
+        ``gb.stream`` directly; the capture-status check closes that loophole.
+        """
+        srcs, dsts = device_bufs
+        gb = copy_batch_device.create_graph_builder().begin_building()
+        try:
+            with pytest.raises(TypeError, match="graph capture"):
+                copy_batch(gb.stream, srcs, dsts)
+        finally:
+            gb.end_building()
+            gb.close()
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
     @pytest.mark.parametrize(
         "default_stream",
         [LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM],
