@@ -563,6 +563,11 @@ matching PE machine architecture before loading.</p></li>
 the current Python interpreter architecture to select the matching
 <code class="docutils literal notranslate"><span class="pre">lib/x64</span></code> or <code class="docutils literal notranslate"><span class="pre">lib/arm64</span></code> CUDA Toolkit and wheel directories. CUDA 12
 component-wheel and legacy Conda fallbacks remain x64-only.</p></li>
+<li><p>Fix Windows binary-utility discovery for CUDA 13.4 Arm64 layouts. Prefer the
+Compute Sanitizer launcher, locate standalone Nsight Systems and Nsight
+Compute through their installer registry entries, and select
+architecture-specific executable targets using the native Windows machine
+architecture.</p></li>
 </ul>
 </section>
 <section id="internal-maintenance">
