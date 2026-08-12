@@ -28,11 +28,11 @@ pytestmark = pytest.mark.thread_unsafe(reason="OpenGL context not threadable")
 # ---------------------------------------------------------------------------
 
 
-@contextlib.contextmanager
-def _gl_context_and_buffer(nbytes=1024):
-    """
-    Create a hidden GL context and a GL buffer of *nbytes* bytes.
-    Yields ``(gl_buffer_name, nbytes)`` or skips if GL is unavailable.
+def _make_gl_context():
+    """Make a hidden (or headless) GL context current.
+
+    Returns the window, or ``None`` on the headless path. Skips if pyglet or a
+    usable display/EGL runtime is missing; raises on any pyglet/GL failure.
     """
     pyglet = pytest.importorskip("pyglet")
 
@@ -41,29 +41,57 @@ def _gl_context_and_buffer(nbytes=1024):
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
 
+    if not pyglet.options.get("headless"):
+        from pyglet import gl
+
+        config = gl.Config(double_buffer=False)
+        win = pyglet.window.Window(visible=False, config=config)
+        win.switch_to()
+        return win
+
+    from pyglet.gl import headless  # noqa: F401
+
+    return None
+
+
+def _create_gl_buffer(nbytes):
+    """Create a GL context plus a buffer of *nbytes* bytes.
+
+    Returns ``(win, buf_id)``. Raises on any pyglet/GL failure.
+    """
+    win = _make_gl_context()
+
+    from pyglet.gl import gl as _gl
+
+    buf_id = _gl.GLuint(0)
+    _gl.glGenBuffers(1, ctypes.byref(buf_id))
+    _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
+    _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
+    return win, buf_id
+
+
+@contextlib.contextmanager
+def _gl_context_and_buffer(nbytes=1024):
+    """
+    Create a hidden GL context and a GL buffer of *nbytes* bytes.
+    Yields ``(gl_buffer_name, nbytes)`` or skips if GL is unavailable.
+    """
     win = None
     buf_id = None
     try:
-        if not pyglet.options.get("headless"):
-            from pyglet import gl
-
-            config = gl.Config(double_buffer=False)
-            win = pyglet.window.Window(visible=False, config=config)
-            win.switch_to()
-        else:
-            from pyglet.gl import headless  # noqa: F401
-
-        from pyglet.gl import gl as _gl
-
-        buf_id = _gl.GLuint(0)
-        _gl.glGenBuffers(1, ctypes.byref(buf_id))
-        _gl.glBindBuffer(_gl.GL_ARRAY_BUFFER, buf_id.value)
-        _gl.glBufferData(_gl.GL_ARRAY_BUFFER, nbytes, None, _gl.GL_DYNAMIC_DRAW)
+        try:
+            win, buf_id = _create_gl_buffer(nbytes)
+        except Exception as e:
+            # Only a *creation* failure is an environment problem worth
+            # skipping for. The yield below is deliberately outside this
+            # handler: @contextmanager re-throws the with-body's exception at
+            # the yield, so catching there turned a failed assertion -- or a
+            # CUDAError from the code under test -- into
+            # "Could not create GL context/buffer", and these tests could
+            # never fail.
+            pytest.skip(f"Could not create GL context/buffer: {type(e).__name__}: {e}")
 
         yield int(buf_id.value), nbytes
-
-    except Exception as e:
-        pytest.skip(f"Could not create GL context/buffer: {type(e).__name__}: {e}")
     finally:
         try:
             from pyglet.gl import gl as _gl
@@ -79,55 +107,52 @@ def _gl_context_and_buffer(nbytes=1024):
             pass
 
 
+def _create_gl_texture(width, height):
+    """Create a GL context plus a ``width`` x ``height`` texture.
+
+    Returns ``(win, tex_id, target)``. Raises on any pyglet/GL failure.
+    """
+    win = _make_gl_context()
+
+    from pyglet.gl import gl as _gl
+
+    tex_id = _gl.GLuint(0)
+    _gl.glGenTextures(1, ctypes.byref(tex_id))
+    target = _gl.GL_TEXTURE_2D
+    _gl.glBindTexture(target, tex_id.value)
+    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
+    _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
+    _gl.glTexImage2D(
+        target,
+        0,
+        _gl.GL_RGBA8,
+        width,
+        height,
+        0,
+        _gl.GL_RGBA,
+        _gl.GL_UNSIGNED_BYTE,
+        None,
+    )
+    return win, tex_id, target
+
+
 @contextlib.contextmanager
 def _gl_context_and_texture(width=16, height=16):
     """
     Create a hidden GL context and a GL texture.
     Yields ``(tex_id, tex_target)``.
     """
-    pyglet = pytest.importorskip("pyglet")
-
-    if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
-        if ctypes.util.find_library("EGL") is None:
-            pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
-        pyglet.options["headless"] = True
-
     win = None
     tex_id = None
     try:
-        if not pyglet.options.get("headless"):
-            from pyglet import gl
-
-            config = gl.Config(double_buffer=False)
-            win = pyglet.window.Window(visible=False, config=config)
-            win.switch_to()
-        else:
-            from pyglet.gl import headless  # noqa: F401
-
-        from pyglet.gl import gl as _gl
-
-        tex_id = _gl.GLuint(0)
-        _gl.glGenTextures(1, ctypes.byref(tex_id))
-        target = _gl.GL_TEXTURE_2D
-        _gl.glBindTexture(target, tex_id.value)
-        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MIN_FILTER, _gl.GL_NEAREST)
-        _gl.glTexParameteri(target, _gl.GL_TEXTURE_MAG_FILTER, _gl.GL_NEAREST)
-        _gl.glTexImage2D(
-            target,
-            0,
-            _gl.GL_RGBA8,
-            width,
-            height,
-            0,
-            _gl.GL_RGBA,
-            _gl.GL_UNSIGNED_BYTE,
-            None,
-        )
+        try:
+            win, tex_id, target = _create_gl_texture(width, height)
+        except Exception as e:
+            # See _gl_context_and_buffer: the yield must stay out of this
+            # handler or a failing test body is reported as a skip.
+            pytest.skip(f"Could not create GL context/texture: {type(e).__name__}: {e}")
 
         yield int(tex_id.value), int(target)
-
-    except Exception as e:
-        pytest.skip(f"Could not create GL context/texture: {type(e).__name__}: {e}")
     finally:
         try:
             from pyglet.gl import gl as _gl
