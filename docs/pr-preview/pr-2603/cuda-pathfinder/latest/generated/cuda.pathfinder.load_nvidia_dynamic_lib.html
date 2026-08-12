@@ -586,6 +586,14 @@ it, leading to crashes or subtle failures.</p>
 </dd>
 </dl>
 <dl>
+<dt>Windows on ARM (WoA) Note:</dt><dd><p>On Windows, this API aims to load a dynamic library whose architecture
+matches the Python interpreter architecture. For example, x64 Python
+running on an Arm64 machine targets an x64 DLL, while native Arm64 Python
+targets an Arm64 DLL. A library loaded into the Python process must be
+compatible with that process. This differs from
+<code class="docutils literal notranslate"><span class="pre">find_nvidia_binary_utility</span></code>, which targets the native machine
+architecture when selecting architecture-specific executables.</p>
+</dd>
 <dt>Search order:</dt><dd><ol class="arabic" start="0">
 <li><p><strong>Already loaded in the current process</strong></p>
 <ul class="simple">
