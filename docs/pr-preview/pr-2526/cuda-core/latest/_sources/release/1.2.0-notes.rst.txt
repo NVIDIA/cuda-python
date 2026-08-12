@@ -92,6 +92,18 @@ Fixes and enhancements
   Windows, both ``ctypes.CFUNCTYPE`` and ``ctypes.WINFUNCTYPE`` are accepted.
   (`#2439 <https://github.com/NVIDIA/cuda-python/issues/2439>`__)
 
+- Starting with CUDA 13.4, unconstrained SM-resource discovery through
+  :meth:`SMResource.split` with ``SMResourceOptions(count=None)`` may return
+  every available SM, even when that count is not divisible by the device's
+  :attr:`SMResource.coscheduled_alignment`. CUDA 13.1 through 13.3 returned an
+  aligned subset for the same request. An omitted or zero
+  ``coscheduled_sm_count`` still selects the driver's default internally, but
+  CUDA 13.4 no longer guarantees that the returned :attr:`SMResource.sm_count`
+  is a multiple of that default. A green context created from the discovered
+  group may therefore span the full GPU and leave an empty remainder. Set
+  ``coscheduled_sm_count`` explicitly when an aligned result is required.
+  (`#2389 <https://github.com/NVIDIA/cuda-python/pull/2389>`__)
+
 Deprecation Notices
 -------------------
 
