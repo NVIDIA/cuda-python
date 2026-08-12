@@ -127,9 +127,8 @@ def copy_batch(
 ) -> None:
     """Copy a batch of buffers asynchronously.
 
-    Sizes are taken from the source buffers and each destination must
-    match. For a single buffer, use :meth:`Buffer.copy_to` or
-    :meth:`Buffer.copy_from`.
+    Source buffer and destination buffer sizes must match. For a single
+    buffer, use :meth:`Buffer.copy_to` or :meth:`Buffer.copy_from`.
 
     The driver provides no graph-node form of ``cuMemcpyBatchAsync``, so
     this cannot be captured into a graph. Build graph copies with
@@ -170,11 +169,18 @@ def copy_batch(
     CUDA 13.0 revision of the entry point, so a driver that predates it is
     refused even where it implements the earlier CUDA 12.8 signature.
 
-    Short of that, the copies fall back to a Python-level loop over
-    ``cuMemcpyAsync``, which is semantically equivalent but does not
-    amortize launch overhead. The fallback has no way to convey
-    :class:`CopyOptions` to the driver, so non-default options raise
-    :class:`NotImplementedError` there rather than being silently ignored.
+    The driver may execute batch items concurrently and in any order.
+    A batch must therefore not contain copies where the source range of
+    one copy overlaps the destination range of another; such aliasing
+    produces undefined results. Detecting overlaps at runtime is
+    impractical; callers are responsible for ensuring no aliasing exists.
+
+    On pre-CUDA 13 installs the copies fall back to a Python-level loop
+    over ``cuMemcpyAsync``, so the potential performance benefit of
+    asynchronous batched copies is not realized. The fallback has no way
+    to convey :class:`CopyOptions` to the driver, so non-default options
+    raise :class:`NotImplementedError` there rather than being silently
+    ignored.
 
     Warns
     -----
@@ -260,8 +266,8 @@ cdef void _do_copy_batch(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tu
 cdef void _do_copy_batch_loop(tuple src_bufs, tuple dst_bufs, Stream s):
     """Per-copy cuMemcpyAsync fallback where the batch entry point is absent.
 
-    Equivalent in effect to the batched call, minus the launch-overhead
-    amortization. Callers guarantee the options are defaults; copy_batch
+    Issues copies one at a time, so the performance benefit of batching is
+    not realized. Callers guarantee the options are defaults; copy_batch
     rejects anything else before reaching here.
     """
     cdef Py_ssize_t n = len(src_bufs)

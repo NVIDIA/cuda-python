@@ -29,9 +29,8 @@ def _normalize_copy_options(options: CopyOptions | Sequence[CopyOptions] | None,
 def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *, options: CopyOptions | Sequence[CopyOptions] | None=None) -> None:
     """Copy a batch of buffers asynchronously.
 
-    Sizes are taken from the source buffers and each destination must
-    match. For a single buffer, use :meth:`Buffer.copy_to` or
-    :meth:`Buffer.copy_from`.
+    Source buffer and destination buffer sizes must match. For a single
+    buffer, use :meth:`Buffer.copy_to` or :meth:`Buffer.copy_from`.
 
     The driver provides no graph-node form of ``cuMemcpyBatchAsync``, so
     this cannot be captured into a graph. Build graph copies with
@@ -72,11 +71,18 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
     CUDA 13.0 revision of the entry point, so a driver that predates it is
     refused even where it implements the earlier CUDA 12.8 signature.
 
-    Short of that, the copies fall back to a Python-level loop over
-    ``cuMemcpyAsync``, which is semantically equivalent but does not
-    amortize launch overhead. The fallback has no way to convey
-    :class:`CopyOptions` to the driver, so non-default options raise
-    :class:`NotImplementedError` there rather than being silently ignored.
+    The driver may execute batch items concurrently and in any order.
+    A batch must therefore not contain copies where the source range of
+    one copy overlaps the destination range of another; such aliasing
+    produces undefined results. Detecting overlaps at runtime is
+    impractical; callers are responsible for ensuring no aliasing exists.
+
+    On pre-CUDA 13 installs the copies fall back to a Python-level loop
+    over ``cuMemcpyAsync``, so the potential performance benefit of
+    asynchronous batched copies is not realized. The fallback has no way
+    to convey :class:`CopyOptions` to the driver, so non-default options
+    raise :class:`NotImplementedError` there rather than being silently
+    ignored.
 
     Warns
     -----
