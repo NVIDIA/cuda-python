@@ -25,6 +25,11 @@ mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
 Use a larger value only if a test genuinely requires it, and prefer adding a
 shared constant to `helpers/constants.py` over redefining one per module.
 
+`max_size=0` does not cap anything: it is the default, and it asks the driver
+for a system-dependent size. `DeviceMemoryResourceOptions(max_size=0)` creates
+exactly the same uncapped pool as `DeviceMemoryResourceOptions()`, so it is
+reported the same way.
+
 ### Passing no options is different from passing empty options
 
 `DeviceMemoryResource(dev)` with no options does **not** create a pool. It
