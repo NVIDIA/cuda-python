@@ -12,7 +12,6 @@ import pytest
 from helpers.copy_batch import COPY_BATCH_COUNT, COPY_BATCH_SIZE
 
 from cuda.core import Device, LegacyPinnedMemoryResource
-from cuda.core._memory._copy_ops import _batch_entry_point_in_use
 
 
 @pytest.fixture
@@ -21,21 +20,6 @@ def copy_batch_device(init_cuda):
     device = Device()
     device.set_current()
     return device
-
-
-@pytest.fixture
-def requires_copy_options():
-    """Skip when ``CopyOptions`` cannot reach the driver.
-
-    Options travel only through ``cuMemcpyBatchAsync``. Where that is
-    unavailable, ``copy_batch`` falls back to per-copy ``cuMemcpyAsync``
-    which silently ignores them.
-    """
-    if not _batch_entry_point_in_use():
-        pytest.skip(
-            "non-default CopyOptions requires cuda.core built against CUDA 13, "
-            "cuda.bindings 13.0+, and a driver reporting CUDA 13.0 or newer"
-        )
 
 
 @pytest.fixture

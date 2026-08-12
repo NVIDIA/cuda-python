@@ -19,11 +19,8 @@ from helpers.copy_batch import (
     assert_managed_holds,
 )
 
-from cuda.core import Device, Host, LegacyPinnedMemoryResource
+from cuda.core import Host, LegacyPinnedMemoryResource
 from cuda.core._memory._copy_enums import _attr_run_starts
-from cuda.core._memory._copy_ops import (
-    _batch_entry_point_in_use as cu_memcpy_batch_available,
-)
 from cuda.core._memory._copy_ops import (
     _normalize_copy_options,
 )
@@ -110,7 +107,7 @@ class TestCopyBatchOptions:
             (MemcpySrcAccessOrder.ANY, 33),
         ],
     )
-    def test_src_access_order(self, requires_copy_options, h2d_bufs, copy_stream, order, marker):
+    def test_src_access_order(self, h2d_bufs, copy_stream, order, marker):
         srcs, dsts = h2d_bufs
         for i, src in enumerate(srcs):
             set_buffer(src, i + marker)
@@ -122,7 +119,7 @@ class TestCopyBatchOptions:
             assert compare_buffer_to_constant(dst, i + marker)
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_per_copy_options(self, requires_copy_options, h2d_bufs, copy_stream):
+    def test_per_copy_options(self, h2d_bufs, copy_stream):
         srcs, dsts = h2d_bufs
         for i, src in enumerate(srcs):
             set_buffer(src, i + 40)
@@ -142,7 +139,7 @@ class TestCopyBatchOptions:
             assert compare_buffer_to_constant(dst, i + 40)
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_location_hints_do_not_corrupt_copy(self, requires_copy_options, copy_batch_device, copy_stream):
+    def test_location_hints_do_not_corrupt_copy(self, copy_batch_device, copy_stream):
         """Device and host hints are accepted and leave the bytes intact.
 
         Hints only steer how the driver stages a transfer, so no data
@@ -176,13 +173,8 @@ class TestCopyBatchOptions:
         mr.close()
 
     @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-    def test_host_numa_location_hint(self, requires_copy_options, copy_batch_device, copy_stream):
-        """A NUMA-specific host hint is accepted and does not corrupt the copy.
-
-        ``requires_copy_options`` already implies CUDA 13, where
-        ``Host(numa_id=...)`` is representable; the CUDA 12 rejection is
-        covered by ``_coerce_location``'s own tests.
-        """
+    def test_host_numa_location_hint(self, copy_batch_device, copy_stream):
+        """A NUMA-specific host hint is accepted and does not corrupt the copy."""
         dev = copy_batch_device
         numa_id = dev.properties.host_numa_id
         if numa_id < 0:
@@ -204,7 +196,7 @@ class TestCopyBatchOptions:
         mr.close()
 
     @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-    def test_host_numa_current_location_hint(self, requires_copy_options, copy_batch_device, copy_stream):
+    def test_host_numa_current_location_hint(self, copy_batch_device, copy_stream):
         """Host.numa_current() as a location hint is accepted and does not corrupt the copy."""
         dev = copy_batch_device
         if dev.properties.host_numa_id < 0:
@@ -226,7 +218,7 @@ class TestCopyBatchOptions:
         mr.close()
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_overlap_mode_copies_correctly(self, requires_copy_options, h2d_bufs, copy_stream):
+    def test_overlap_mode_copies_correctly(self, h2d_bufs, copy_stream):
         """The overlap hint is advisory and must not change the bytes copied."""
         srcs, dsts = h2d_bufs
         for i, src in enumerate(srcs):
@@ -357,40 +349,3 @@ class TestCopyBatchValidation:
 
         with pytest.raises(TypeError, match="each options element must be CopyOptions"):
             copy_batch(copy_stream, srcs, dsts, options=bad)
-
-
-class TestPerCopyFallback:
-    """Behaviour where ``cuMemcpyBatchAsync`` is unavailable.
-
-    Reached whenever any of the three requirements for
-    ``cuMemcpyBatchAsync`` is unmet: ``cuda.core`` built against CUDA 13,
-    ``cuda.bindings`` 13.0+, and a driver reporting CUDA 13.0 or newer.
-    Skipped when the batched entry point is actually in use.
-    """
-
-    @pytest.fixture(autouse=True)
-    def _skip_if_batched(self):
-        if cu_memcpy_batch_available():
-            pytest.skip("cuMemcpyBatchAsync is in use; fallback path not exercised")
-
-    @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_default_options_still_copy(self, init_cuda):
-        device = Device()
-        device.set_current()
-        stream = device.create_stream()
-        pinned_mr = LegacyPinnedMemoryResource()
-        srcs = [pinned_mr.allocate(COPY_BATCH_SIZE) for _ in range(3)]
-        dsts = [device.memory_resource.allocate(COPY_BATCH_SIZE, stream=stream) for _ in srcs]
-        for i, src in enumerate(srcs):
-            set_buffer(src, i + 5)
-
-        copy_batch(stream, srcs, dsts)
-        stream.sync()
-
-        for i, dst in enumerate(dsts):
-            assert compare_buffer_to_constant(dst, i + 5)
-
-        for buf in srcs + dsts:
-            buf.close(stream)
-        stream.sync()
-        stream.close()

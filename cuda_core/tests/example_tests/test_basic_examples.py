@@ -74,18 +74,9 @@ def has_recent_memory_pool_support() -> bool:
 # Specific system requirements for each of the examples.
 
 
-def has_copy_batch_support() -> bool:
-    """Check if cuMemcpyBatchAsync is available (CUDA 13+)."""
-    from cuda.core._memory._copy_ops import (
-        _batch_entry_point_in_use as cu_memcpy_batch_available,
-    )
-
-    return cu_memcpy_batch_available()
-
-
 SYSTEM_REQUIREMENTS = {
     "memory_pool_resources.py": has_recent_memory_pool_support,
-    "batched_memcpy.py": lambda: has_copy_batch_support() and has_recent_memory_pool_support(),
+    "batched_memcpy.py": has_recent_memory_pool_support,
     "gl_interop_plasma.py": has_display,
     "gl_interop_fluid.py": has_display,
     "gl_interop_mipmap_lod.py": has_display,

@@ -50,11 +50,6 @@ cdef inline bint _batch_entry_point_available():
         return False
 
 
-def _batch_entry_point_in_use() -> bool:
-    """Internal: expose the dispatch predicate so tests can gate on it."""
-    return bool(_batch_entry_point_available())
-
-
 def _normalize_copy_options(
     options: CopyOptions | Sequence[CopyOptions] | None,
     Py_ssize_t n,

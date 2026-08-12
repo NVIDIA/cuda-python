@@ -10,9 +10,6 @@ from cuda.core._stream import Stream
 
 _SINGLE_COPY_HINT = 'Buffer.copy_to / Buffer.copy_from'
 
-def _batch_entry_point_in_use() -> bool:
-    """Internal: expose the dispatch predicate so tests can gate on it."""
-
 def _normalize_copy_options(options: CopyOptions | Sequence[CopyOptions] | None, n: int) -> tuple[CopyOptions, ...]:
     """Expand ``options`` to exactly one :class:`CopyOptions` per copy.
 
