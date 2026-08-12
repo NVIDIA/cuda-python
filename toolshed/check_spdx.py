@@ -2,11 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
-import os
 import re
 import subprocess
 import sys
-from pathlib import PureWindowsPath
+from pathlib import Path, PureWindowsPath
 
 import pathspec
 
@@ -39,7 +38,7 @@ SPDX_IGNORE_FILENAME = ".spdx-ignore"
 
 
 def load_spdx_ignore():
-    if os.path.exists(SPDX_IGNORE_FILENAME):
+    if Path(SPDX_IGNORE_FILENAME).exists():
         with open(SPDX_IGNORE_FILENAME, encoding="utf-8") as f:
             lines = f.readlines()
     else:
