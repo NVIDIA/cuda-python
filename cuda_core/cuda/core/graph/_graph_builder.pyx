@@ -931,11 +931,14 @@ cdef inline void GB_callback(
         if fail_tail_discovery_for_testing:
             raise RuntimeError("forced capture tail discovery failure")
         host_node = _capture_tail_node(c_stream)
-    except:
+    except BaseException as orig_exc:
         # CUDA added the callback, but its node cannot be identified.
         # Retain its owners anonymously to prevent dangling pointers.
         commit_status = graph_commit_attachment(prepared, NULL)
-        HANDLE_RETURN(commit_status)
+        try:
+            HANDLE_RETURN(commit_status)
+        except Exception as commit_exc:
+            raise commit_exc from orig_exc
         raise
     HANDLE_RETURN(graph_commit_attachment(prepared, host_node))
 
