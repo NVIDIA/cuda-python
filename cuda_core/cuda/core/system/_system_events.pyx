@@ -22,10 +22,23 @@ _SYSTEM_EVENT_TYPE_MAPPING = {
 _SYSTEM_EVENT_TYPE_INV_MAPPING = {v: k for k, v in _SYSTEM_EVENT_TYPE_MAPPING.items()}
 
 
+def _pci_bus_id_from_gpu_id(gpu_id: int) -> str:
+    """
+    Decode a packed NVML ``gpu_id`` (``domain[31:16] | bus[15:8] | device[7:0]``)
+    into an NVML-style PCI bus ID (``NVML_DEVICE_PCI_BUS_ID_FMT``).
+    """
+    domain = (gpu_id >> 16) & 0xFFFF
+    bus = (gpu_id >> 8) & 0xFF
+    device = gpu_id & 0xFF
+    return f"{domain:08X}:{bus:02X}:{device:02X}.0"
+
+
 cdef class SystemEvent:
     """
     Data about a collection of system events.
     """
+    cdef object _event_data
+
     def __init__(self, event_data: nvml.SystemEventData_v1):
         assert len(event_data) == 1
         self._event_data = event_data
@@ -49,13 +62,15 @@ cdef class SystemEvent:
         """
         The :obj:`~_device.Device` associated with this event.
         """
-        return _device.Device(pci_bus_id=self.gpu_id)
+        return _device.Device(pci_bus_id=_pci_bus_id_from_gpu_id(self.gpu_id))
 
 
 cdef class SystemEvents:
     """
     Data about a collection of system events.
     """
+    cdef object _event_data
+
     def __init__(self, event_data: nvml.SystemEventData_v1):
         self._event_data = event_data
 
