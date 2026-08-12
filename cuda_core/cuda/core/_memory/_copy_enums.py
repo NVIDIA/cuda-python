@@ -6,16 +6,12 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Sequence
-from typing import TYPE_CHECKING
 
+from cuda.core._device import Device
+from cuda.core._host import Host
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._utils.pycompat import StrEnum
 from cuda.core._utils.version import binding_version
-
-if TYPE_CHECKING:
-    from cuda.core._device import Device
-    from cuda.core._host import Host
-
 
 __all__ = ["CopyOptions", "MemcpyOverlapMode", "MemcpySrcAccessOrder"]
 

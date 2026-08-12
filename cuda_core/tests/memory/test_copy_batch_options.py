@@ -253,6 +253,13 @@ class TestCopyBatchOptions:
 class TestCopyOptionsValidation:
     """``CopyOptions`` rejects invalid enum values at construction."""
 
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    def test_type_hints_resolvable(self):
+        """All annotations on CopyOptions must resolve without NameError."""
+        import typing
+
+        typing.get_type_hints(CopyOptions)
+
     @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_invalid_access_order(self):
         with pytest.raises(ValueError, match="invalid src_access_order"):
