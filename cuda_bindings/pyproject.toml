@@ -4,7 +4,7 @@
 requires = [
     "setuptools>=80.0.0",
     "setuptools_scm[simple]>=8,!=10.1",
-    "cython>=3.2,<3.3",
+    "cython>=3.2.5,<3.3",
     "cuda-pathfinder>=1.5",
 ]
 build-backend = "build_hooks"
@@ -44,11 +44,12 @@ all = [
 
 [dependency-groups]
 test = [
-    "cython>=3.2,<3.3",
+    "cython>=3.2.5,<3.3",
     "setuptools>=80.0.0",
     # TODO: remove the Python 3.15 guard once 3.15 is officially supported
     "matplotlib>=3.5.0,<=3.10.9; python_version < '3.15'",
-    "numpy>=1.21.1,<=2.5.0",
+    # <=2.6.0.dev0 admits scientific-python nightlies (for Python 3.15)
+    "numpy>=1.21.1,<=2.6.0.dev0",
     "pytest==9.1.0",
     "pytest-benchmark==5.2.3",
     "pytest-repeat==0.9.4",
@@ -88,7 +89,7 @@ repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wh
 
 [tool.pytest.ini_options]
 required_plugins = "pytest-benchmark"
-addopts = "--benchmark-disable --showlocals"
+addopts = "--benchmark-disable --showlocals --durations=20"
 norecursedirs = ["tests/cython", "examples"]
 xfail_strict = true
 # Keep this authorship marker registry in sync across all pytest config roots.

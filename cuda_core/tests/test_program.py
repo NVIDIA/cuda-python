@@ -351,6 +351,16 @@ def test_program_init_invalid_code_format():
         Program(code, "c++")
 
 
+# arch is passed explicitly so the current device is not queried.
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("name", [None, "my_program"])
+def test_program_options_name_accepts_none(name):
+    options = ProgramOptions(name=name, arch="sm_90")
+    expected = "default_program" if name is None else name
+    assert options.name == expected
+    assert options._name == expected.encode()
+
+
 # This is tested against the current device's arch
 def test_program_compile_valid_target_type(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'

@@ -7,8 +7,8 @@ import ctypes
 
 import numpy as np
 import pytest
-
 from conftest import xfail_on_graph_mempool_oom
+
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core.graph import GraphDefinition

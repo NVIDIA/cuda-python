@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import textwrap
+from pathlib import Path
 
 import pytest
 
@@ -80,7 +81,11 @@ def _create_nvvm_in_ctk(ctk_root):
 def _create_cudart_in_ctk(ctk_root):
     """Create a fake cudart lib in the platform-appropriate CTK subdirectory."""
     if IS_WINDOWS:
-        lib_dir = ctk_root / "bin"
+        # Native ARM64 uses bin/arm64 only.
+        if windows_python_arch() == "arm64":
+            lib_dir = ctk_root / "bin" / "arm64"
+        else:
+            lib_dir = ctk_root / "bin"
         lib_dir.mkdir(parents=True)
         lib_file = lib_dir / "cudart64_12.dll"
     else:
@@ -427,7 +432,7 @@ def test_resolve_ctk_root_via_canary_none_when_probe_fails(mocker):
 def test_resolve_ctk_root_via_canary_none_when_unrecognized(mocker):
     mocker.patch(
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
-        return_value=os.path.join(os.sep, "weird", "path", "libcudart.so.13"),
+        return_value=str(Path(os.sep, "weird", "path", "libcudart.so.13")),
     )
     assert resolve_ctk_root_via_canary("cudart") is None
 

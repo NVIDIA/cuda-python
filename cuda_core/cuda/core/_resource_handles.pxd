@@ -77,6 +77,14 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         PreparedChildGraphUpdateState
     ] PreparedChildGraphUpdate
 
+    cppclass PreparedExecAttachmentState:
+        pass
+    cppclass PreparedExecAttachmentDeleter:
+        pass
+    ctypedef unique_ptr[
+        PreparedExecAttachmentState, PreparedExecAttachmentDeleter
+    ] PreparedExecAttachment
+
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
     cydriver.CUgreenCtx as_cu(GreenCtxHandle h) noexcept nogil
@@ -85,6 +93,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUmemoryPool as_cu(MemoryPoolHandle h) noexcept nogil
     cydriver.CUdeviceptr as_cu(DevicePtrHandle h) noexcept nogil
     cydriver.CUlibrary as_cu(LibraryHandle h) noexcept nogil
+    cydriver.CUmodule as_cu(cydriver.CUmodule h) noexcept nogil
     cydriver.CUkernel as_cu(KernelHandle h) noexcept nogil
     cydriver.CUgraph as_cu(GraphHandle h) noexcept nogil
     cydriver.CUgraphExec as_cu(GraphExecHandle h) noexcept nogil
@@ -107,6 +116,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(MemoryPoolHandle h) noexcept nogil
     intptr_t as_intptr(DevicePtrHandle h) noexcept nogil
     intptr_t as_intptr(LibraryHandle h) noexcept nogil
+    intptr_t as_intptr(const cydriver.CUmodule& h) noexcept nogil
     intptr_t as_intptr(KernelHandle h) noexcept nogil
     intptr_t as_intptr(GraphHandle h) noexcept nogil
     intptr_t as_intptr(GraphExecHandle h) noexcept nogil
@@ -130,6 +140,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(MemoryPoolHandle h)
     object as_py(DevicePtrHandle h)
     object as_py(LibraryHandle h)
+    object as_py(const cydriver.CUmodule& h)
     object as_py(KernelHandle h)
     object as_py(GraphHandle h)
     object as_py(GraphExecHandle h)
@@ -269,7 +280,20 @@ cdef void invalidate_child_graph_state(
     const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
 # Graph exec handles
-cdef GraphExecHandle create_graph_exec_handle(cydriver.CUgraphExec graph_exec) except+ nogil
+cdef GraphExecHandle create_graph_exec_handle(
+    const GraphHandle& h_source,
+    cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS* params) except+
+cdef cydriver.CUresult graph_exec_update(
+    const GraphExecHandle& h_exec,
+    const GraphHandle& h_source,
+    cydriver.CUgraphExecUpdateResultInfo* result_info) except+
+cdef cydriver.CUresult graph_prepare_exec_attachment(
+    const GraphExecHandle& h_exec,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedExecAttachment* out_prepared) except+
+cdef void graph_commit_exec_attachment(
+    PreparedExecAttachment& prepared) noexcept
 
 # Graph node handles
 cdef GraphNodeHandle create_graph_node_handle(cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
