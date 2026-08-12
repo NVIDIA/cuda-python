@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d951c3f4"></script>
+    <script src="../_static/documentation_options.js?v=43f93952"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev51';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev62';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -766,19 +766,22 @@
 <dt class="sig sig-object py" id="cuda.core.utils.copy_batch">
 <span class="sig-prename descclassname"><span class="pre">cuda.core.utils.</span></span><span class="sig-name descname"><span class="pre">copy_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream,</span> <span class="pre">srcs:</span> <span class="pre">Sequence[Buffer],</span> <span class="pre">dsts:</span> <span class="pre">Sequence[Buffer],</span> <span class="pre">*,</span> <span class="pre">options:</span> <span class="pre">CopyOptions</span> <span class="pre">|</span> <span class="pre">Sequence[CopyOptions]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.utils.copy_batch" title="Link to this definition">#</a></dt>
 <dd><p>Copy a batch of buffers asynchronously.</p>
-<p>Sizes are taken from the source buffers and each destination must
-match. For a single buffer, use <code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code> or
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code>.</p>
+<p>Source buffer and destination buffer sizes must match. For a single
+buffer, use <code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code> or <code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code>.</p>
 <p>The driver provides no graph-node form of <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code>, so
-this cannot be captured into a graph. Build graph copies with
+this cannot be captured into a graph. Both passing a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code> and passing its underlying
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">stream</span></code> while capture is active are
+rejected. Build graph copies with
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.memcpy()</span></code> or per-buffer <code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream for the asynchronous copy. First positional and required
-(mirrors <code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code>). Unlike most stream-taking APIs this does
-not accept a <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code>; one is rejected with
-<code class="docutils literal notranslate"><span class="pre">TypeError</span></code> because the copy cannot be captured.</p></li>
+(mirrors <code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code>). Does not accept a capturing stream
+(including a <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code>’s underlying stream); use
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.memcpy()</span></code> or per-buffer
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code> to build copies into a graph.</p></li>
 <li><p><strong>srcs</strong> (Sequence[<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>]) – Source buffers. Must be a sequence, not a single Buffer.</p></li>
 <li><p><strong>dsts</strong> (Sequence[<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>]) – Destination buffers. Must match <code class="docutils literal notranslate"><span class="pre">len(srcs)</span></code>.</p></li>
 <li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a> | Sequence[<a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a>] | None) – Per-copy options. A single value applies to every copy; a
@@ -789,9 +792,10 @@ uses stream-ordered defaults.</p></li>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If lengths or sizes mismatch.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If a single Buffer is passed instead of a sequence.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – If non-default <code class="docutils literal notranslate"><span class="pre">options</span></code> are given where
-    <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> is unavailable (see Notes).</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If a single Buffer is passed instead of a sequence, if a
+    default-stream token (<code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> /
+    <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code>) is passed, or if the stream is
+    currently in graph capture mode.</p></li>
 </ul>
 </dd>
 </dl>
@@ -802,17 +806,15 @@ newer, and a driver reporting CUDA 13.0 or newer
 (<code class="docutils literal notranslate"><span class="pre">cuDriverGetVersion()</span> <span class="pre">&gt;=</span> <span class="pre">13000</span></code>). <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> binds only the
 CUDA 13.0 revision of the entry point, so a driver that predates it is
 refused even where it implements the earlier CUDA 12.8 signature.</p>
-<p>Short of that, the copies fall back to a Python-level loop over
-<code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code>, which is semantically equivalent but does not
-amortize launch overhead. The fallback has no way to convey
-<a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a> to the driver, so non-default options raise
-<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> there rather than being silently ignored.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Warns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>UserWarning</strong> – If <code class="docutils literal notranslate"><span class="pre">overlap_mode='prefer_overlap_with_compute'</span></code> is requested
-on a non-integrated (discrete) GPU.</p>
-</dd>
-</dl>
+<p>The driver may execute batch items concurrently and in any order.
+A batch must therefore not contain copies where the source range of
+one copy overlaps the destination range of another; such aliasing
+produces undefined results. Detecting overlaps at runtime is
+impractical; callers are responsible for ensuring no aliasing exists.</p>
+<p>On pre-CUDA 13 installs the copies fall back to a Python-level loop
+over <code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code>, so the potential performance benefit of
+asynchronous batched copies is not realized. <a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a> are
+silently ignored on the fallback path.</p>
 </dd></dl>
 
 </section>

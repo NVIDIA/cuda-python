@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d951c3f4"></script>
+    <script src="../_static/documentation_options.js?v=43f93952"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev51';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev62';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -765,23 +765,12 @@
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.utils.copy_batch.html#cuda.core.utils.copy_batch" title="cuda.core.utils.copy_batch"><code class="xref py py-func docutils literal notranslate"><span class="pre">utils.copy_batch()</span></code></a>, which submits many buffer-to-buffer copies
-in a single <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> call, amortizing the per-copy launch
-overhead of issuing <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to" title="cuda.core.Buffer.copy_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a> in a loop. Sizes are taken from
-the source buffers. Per-copy behavior is expressed with the new
-<a class="reference internal" href="../generated/cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.CopyOptions</span></code></a> dataclass, carrying a
-<a class="reference internal" href="../generated/cuda.core.utils.MemcpySrcAccessOrder.html#cuda.core.utils.MemcpySrcAccessOrder" title="cuda.core.utils.MemcpySrcAccessOrder"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.MemcpySrcAccessOrder</span></code></a> source access-order hint, optional
-<code class="docutils literal notranslate"><span class="pre">Device</span></code> / <code class="docutils literal notranslate"><span class="pre">Host</span></code> location hints, and a
-<a class="reference internal" href="../generated/cuda.core.utils.MemcpyOverlapMode.html#cuda.core.utils.MemcpyOverlapMode" title="cuda.core.utils.MemcpyOverlapMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.MemcpyOverlapMode</span></code></a> copy-engine overlap hint. A single
-<code class="docutils literal notranslate"><span class="pre">CopyOptions</span></code> applies to every copy; a sequence pairs by index.
-Batching requires <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> built against CUDA 13, <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
-13.0 or newer, and a driver reporting CUDA 13.0 or newer
-(<code class="docutils literal notranslate"><span class="pre">cuDriverGetVersion()</span> <span class="pre">&gt;=</span> <span class="pre">13000</span></code>); <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> binds only the CUDA
-13.0 revision of the entry point, so a driver predating it is refused even
-where it implements the earlier CUDA 12.8 signature. Short of that, the
-copies fall back to a per-copy <code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code> loop, and non-default
-options raise <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code> rather than being silently dropped.
-Batched memcpy has no graph-node form and cannot be captured into a graph;
-use <a class="reference internal" href="../generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.memcpy" title="cuda.core.graph.GraphNode.memcpy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.memcpy()</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to" title="cuda.core.Buffer.copy_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a> there.
+in a single <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> call. Per-copy behavior is controlled
+by the new <a class="reference internal" href="../generated/cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.CopyOptions</span></code></a> dataclass. Requires <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>
+built against CUDA 13, <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 13.0+, and a driver reporting
+CUDA 13.0 or newer; otherwise falls back to a per-copy <code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code>
+loop with options silently ignored. Graph capture and default-stream tokens
+are rejected. Copies within a batch must not alias.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1333">#1333</a>)</p></li>
 </ul>
 </section>

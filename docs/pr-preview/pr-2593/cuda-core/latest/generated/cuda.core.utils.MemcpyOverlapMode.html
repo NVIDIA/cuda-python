@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d951c3f4"></script>
+    <script src="../_static/documentation_options.js?v=43f93952"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev51';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev62';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -779,21 +779,35 @@
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.utils.MemcpyOverlapMode" title="Link to this definition">#</a></dt>
 <dd><p>Overlap mode hint for batched memcpy operations.</p>
-<p>Maps to <code class="docutils literal notranslate"><span class="pre">CUmemcpyFlags</span></code>. Renamed from “flags” to “overlap_mode”
-for clarity; the only non-default flag is CE/compute overlap
-(Tegra).</p>
+<p>Maps to <code class="docutils literal notranslate"><span class="pre">CUmemcpyFlags</span></code>.</p>
 <dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code></dt><dd><p>No overlap preference; the driver uses its default scheduling.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">PREFER_OVERLAP_WITH_COMPUTE</span></code></dt><dd><p>Hint that the copy should preferably overlap with concurrent
+compute work. This is advisory and may be ignored depending on
+the platform and copy parameters.</p>
+</dd>
 <dt><strong>DEFAULT</strong>: default</dt><dd><p>Overlap mode hint for batched memcpy operations.
 
-    Maps to <code class="docutils literal notranslate"><span class="pre">CUmemcpyFlags</span></code>. Renamed from “flags” to “overlap_mode”
-    for clarity; the only non-default flag is CE/compute overlap
-    (Tegra).</p>
+    Maps to <code class="docutils literal notranslate"><span class="pre">CUmemcpyFlags</span></code>.
+
+    <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>
+        No overlap preference; the driver uses its default scheduling.
+    <code class="docutils literal notranslate"><span class="pre">PREFER_OVERLAP_WITH_COMPUTE</span></code>
+        Hint that the copy should preferably overlap with concurrent
+        compute work. This is advisory and may be ignored depending on
+        the platform and copy parameters.</p>
 </dd>
 <dt><strong>PREFER_OVERLAP_WITH_COMPUTE</strong>: prefer_overlap_with_compute</dt><dd><p>Overlap mode hint for batched memcpy operations.
 
-    Maps to <code class="docutils literal notranslate"><span class="pre">CUmemcpyFlags</span></code>. Renamed from “flags” to “overlap_mode”
-    for clarity; the only non-default flag is CE/compute overlap
-    (Tegra).</p>
+    Maps to <code class="docutils literal notranslate"><span class="pre">CUmemcpyFlags</span></code>.
+
+    <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>
+        No overlap preference; the driver uses its default scheduling.
+    <code class="docutils literal notranslate"><span class="pre">PREFER_OVERLAP_WITH_COMPUTE</span></code>
+        Hint that the copy should preferably overlap with concurrent
+        compute work. This is advisory and may be ignored depending on
+        the platform and copy parameters.</p>
 </dd>
 </dl>
 </dd></dl>
