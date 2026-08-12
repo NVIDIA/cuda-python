@@ -178,7 +178,7 @@ class TestCopyBatchOptions:
         copy_stream.sync()
         mr.close()
 
-    @pytest.mark.agent_authored(model="Claude Opus 5")
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
     def test_host_numa_location_hint(self, requires_copy_options, copy_batch_device, copy_stream):
         """A NUMA-specific host hint is accepted and does not corrupt the copy.
 
@@ -187,16 +187,41 @@ class TestCopyBatchOptions:
         covered by ``_coerce_location``'s own tests.
         """
         dev = copy_batch_device
+        numa_id = dev.properties.host_numa_id
+        if numa_id < 0:
+            pytest.skip("System does not report a host NUMA node for this device")
         mr = create_managed_memory_resource_or_skip()
         srcs = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]
         dsts = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]
         for i, src in enumerate(srcs):
             src.fill(i + 85, stream=copy_stream)
 
-        copy_batch(copy_stream, srcs, dsts, options=CopyOptions(dst_location_hint=Host(numa_id=0)))
+        copy_batch(copy_stream, srcs, dsts, options=CopyOptions(dst_location_hint=Host(numa_id=numa_id)))
         copy_stream.sync()
         for i, dst in enumerate(dsts):
             assert_managed_holds(dev, dst, i + 85, stream=copy_stream)
+
+        for buf in srcs + dsts:
+            buf.close(copy_stream)
+        copy_stream.sync()
+        mr.close()
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    def test_host_numa_current_location_hint(self, requires_copy_options, copy_batch_device, copy_stream):
+        """Host.numa_current() as a location hint is accepted and does not corrupt the copy."""
+        dev = copy_batch_device
+        if dev.properties.host_numa_id < 0:
+            pytest.skip("System does not report a host NUMA node for this device")
+        mr = create_managed_memory_resource_or_skip()
+        srcs = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]
+        dsts = [mr.allocate(COPY_BATCH_SIZE, stream=copy_stream) for _ in range(2)]
+        for i, src in enumerate(srcs):
+            src.fill(i + 86, stream=copy_stream)
+
+        copy_batch(copy_stream, srcs, dsts, options=CopyOptions(dst_location_hint=Host.numa_current()))
+        copy_stream.sync()
+        for i, dst in enumerate(dsts):
+            assert_managed_holds(dev, dst, i + 86, stream=copy_stream)
 
         for buf in srcs + dsts:
             buf.close(copy_stream)

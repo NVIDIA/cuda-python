@@ -111,9 +111,9 @@ cdef cydriver.CUmemcpyAttributes _to_cu_memcpy_attributes(object attr):
     cdef object dst_loc = _coerce_location(attr.dst_location_hint, allow_none=True)
 
     if src_loc is not None:
-        cu_attr.srcLocHint = to_cumemlocation(src_loc)
+        cu_attr.srcLocHint = to_cumemlocation(src_loc.kind, src_loc.id)
     if dst_loc is not None:
-        cu_attr.dstLocHint = to_cumemlocation(dst_loc)
+        cu_attr.dstLocHint = to_cumemlocation(dst_loc.kind, dst_loc.id)
 
     return cu_attr
 

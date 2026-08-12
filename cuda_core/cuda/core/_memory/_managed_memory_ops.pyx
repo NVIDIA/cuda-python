@@ -197,7 +197,7 @@ cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint al
                 type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
                 id=0)
         else:
-            cu_loc = to_cumemlocation(loc)
+            cu_loc = to_cumemlocation(loc.kind, loc.id)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemAdvise(cu_ptr, nbytes, advice_enum, cu_loc))
     ELSE:
@@ -261,7 +261,7 @@ cdef void _do_single_prefetch(Buffer buf, object loc, Stream s):
     cdef size_t nbytes = buf._size
     cdef cydriver.CUstream hstream = as_cu(s._h_stream)
     IF CUDA_CORE_BUILD_MAJOR >= 13:
-        cdef cydriver.CUmemLocation cu_loc = to_cumemlocation(loc)
+        cdef cydriver.CUmemLocation cu_loc = to_cumemlocation(loc.kind, loc.id)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPrefetchAsync(cu_ptr, nbytes, cu_loc, 0, hstream))
     ELSE:
@@ -330,11 +330,13 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         loc_indices.resize(n)
         cdef Buffer buf
         cdef Py_ssize_t i
+        cdef object loc_spec
         for i in range(n):
             buf = <Buffer>bufs[i]
             ptrs[i] = as_cu(buf._h_ptr)
             sizes[i] = buf._size
-            loc_arr[i] = to_cumemlocation(locs[i])
+            loc_spec = locs[i]
+            loc_arr[i] = to_cumemlocation(loc_spec.kind, loc_spec.id)
             loc_indices[i] = <size_t>i
         with nogil:
             HANDLE_RETURN(fn(

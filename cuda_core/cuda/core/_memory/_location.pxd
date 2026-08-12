@@ -14,12 +14,11 @@ from cuda.bindings cimport cydriver
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    cdef inline cydriver.CUmemLocation to_cumemlocation(object loc):
-        cdef str kind = loc.kind
+    cdef inline cydriver.CUmemLocation to_cumemlocation(str kind, int loc_id):
         if kind == "device":
             return cydriver.CUmemLocation(
                 type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-                id=<int>loc.id)
+                id=loc_id)
         elif kind == "host":
             return cydriver.CUmemLocation(
                 type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
@@ -27,13 +26,15 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         elif kind == "host_numa":
             return cydriver.CUmemLocation(
                 type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA,
-                id=<int>loc.id)
-        else:  # host_numa_current
+                id=loc_id)
+        elif kind == "host_numa_current":
             return cydriver.CUmemLocation(
                 type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
                 id=0)
+        else:
+            raise ValueError(f"unknown location kind: {kind!r}")
 ELSE:
-    cdef inline cydriver.CUmemLocation to_cumemlocation(object loc):
+    cdef inline cydriver.CUmemLocation to_cumemlocation(str kind, int loc_id):
         raise NotImplementedError(
             "CUmemLocation requires cuda.core built against CUDA 13 headers"
         )
