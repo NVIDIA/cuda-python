@@ -19,6 +19,7 @@ These tests require Cython to be installed (build_hooks.py imports it).
 import builtins
 import importlib.util
 import os
+import sys
 import tempfile
 from pathlib import Path
 from unittest import mock
@@ -211,3 +212,99 @@ class TestBuildMajorStamp:
     def test_record_writes_stamp(self, stamp):
         build_hooks.record_build_major()
         assert stamp.read_text().strip() == "13"
+
+
+def _capture_cythonize_build_dir(monkeypatch, cuda_major):
+    """Run the cythonize setup for one CUDA major and report its build_dir.
+
+    cythonize() is replaced, so nothing is generated or compiled: this only
+    observes which directory the build was about to write into.
+    """
+    captured = {}
+
+    def fake_cythonize(ext_modules, **kwargs):
+        captured.update(kwargs)
+        return []
+
+    monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
+    monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", cuda_major)
+    build_hooks._determine_cuda_major_version.cache_clear()
+    # _build_cuda_core() globs cuda/core/**/*.pyx relative to the cwd.
+    monkeypatch.chdir(Path(__file__).parent.parent)
+    # It also prepends cuda_bindings/ to sys.path; swap in a copy so the
+    # mutation lands there and the real list is restored on teardown.
+    monkeypatch.setattr(sys, "path", list(sys.path))
+
+    build_hooks._build_cuda_core()
+    return Path(captured["build_dir"])
+
+
+class TestGeneratedSourceDirIsKeyed:
+    """Generated C++ must not be shared between CUDA majors.
+
+    Cython's up-to-date check does not hash compile_time_env, so without a
+    per-major directory a cu13 build's generated sources are handed to a cu12
+    compiler (and vice versa).
+    """
+
+    def test_majors_use_different_dirs(self, monkeypatch):
+        dir_12 = _capture_cythonize_build_dir(monkeypatch, "12")
+        dir_13 = _capture_cythonize_build_dir(monkeypatch, "13")
+
+        assert dir_12 != dir_13
+        assert dir_12.name == "cu12"
+        assert dir_13.name == "cu13"
+
+    def test_dir_is_anchored_not_relative_to_cwd(self, monkeypatch):
+        # Anchored to build_hooks.py, so it must agree with the stamp
+        # regardless of where the build was invoked from.
+        build_dir = _capture_cythonize_build_dir(monkeypatch, "13")
+
+        assert build_dir.is_absolute()
+        assert build_dir.parent.parent == build_hooks._BUILD_MAJOR_STAMP.parent
+
+
+def _load_setup_py(monkeypatch):
+    """Import setup.py for its command classes.
+
+    Importing rather than running is only possible because setup() is guarded
+    by __name__ == "__main__"; setuptools invokes the file as a script, so the
+    guard does not affect real builds.
+
+    setup.py does a bare ``import build_hooks``, which resolves to
+    cuda_bindings' copy if that directory is on sys.path. Pin cuda_core's, so
+    the flag the test sets is the one setup.py reads.
+    """
+    monkeypatch.setitem(sys.modules, "build_hooks", build_hooks)
+    setup_path = Path(__file__).parent.parent / "setup.py"
+    spec = importlib.util.spec_from_file_location("cuda_core_setup", setup_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class TestForceReachesBuildExt:
+    """The rebuild decision must actually be handed to setuptools.
+
+    _check_build_major() only sets a flag; if build_ext does not read it, a
+    stale extension is silently kept because its mtime looks newer than the
+    regenerated sources.
+    """
+
+    @staticmethod
+    def _finalized_build_ext(force_flag, monkeypatch):
+        from setuptools.dist import Distribution
+
+        setup_py = _load_setup_py(monkeypatch)
+        assert setup_py.build_hooks is build_hooks
+        monkeypatch.setattr(build_hooks, "force_build_ext", force_flag)
+
+        cmd = setup_py.build_ext(Distribution({"name": "cuda-core", "version": "0"}))
+        cmd.finalize_options()
+        return cmd
+
+    def test_flag_set_forces_rebuild(self, monkeypatch):
+        assert self._finalized_build_ext(True, monkeypatch).force
+
+    def test_flag_clear_leaves_default(self, monkeypatch):
+        assert not self._finalized_build_ext(False, monkeypatch).force
