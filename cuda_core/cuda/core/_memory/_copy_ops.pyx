@@ -28,11 +28,6 @@ from cuda.core._memory._managed_location import _coerce_location
 
 _SINGLE_COPY_HINT = "Buffer.copy_to / Buffer.copy_from"
 
-# Attributes reach the driver only through cuMemcpyBatchAsync. The per-copy
-# cuMemcpyAsync fallback has nowhere to put them, so anything other than the
-# defaults is refused rather than dropped.
-_DEFAULT_COPY_OPTIONS = CopyOptions()
-
 
 cdef inline bint _batch_entry_point_available():
     """Whether cuMemcpyBatchAsync can actually be called here.
@@ -75,7 +70,7 @@ def _normalize_copy_options(
     observable evidence that a scalar reached every copy.
     """
     if options is None:
-        return (_DEFAULT_COPY_OPTIONS,) * n
+        return (CopyOptions(),) * n
     if isinstance(options, CopyOptions):
         return (options,) * n
     if isinstance(options, Sequence):
@@ -160,9 +155,6 @@ def copy_batch(
         default-stream token (``LEGACY_DEFAULT_STREAM`` /
         ``PER_THREAD_DEFAULT_STREAM``) is passed, or if the stream is
         currently in graph capture mode.
-    NotImplementedError
-        If non-default ``options`` are given where
-        ``cuMemcpyBatchAsync`` is unavailable (see Notes).
 
     Notes
     -----
@@ -181,10 +173,8 @@ def copy_batch(
 
     On pre-CUDA 13 installs the copies fall back to a Python-level loop
     over ``cuMemcpyAsync``, so the potential performance benefit of
-    asynchronous batched copies is not realized. The fallback has no way
-    to convey :class:`CopyOptions` to the driver, so non-default options
-    raise :class:`NotImplementedError` there rather than being silently
-    ignored.
+    asynchronous batched copies is not realized. :class:`CopyOptions` are
+    silently ignored on the fallback path.
 
     """
     cdef tuple src_bufs = Buffer_coerce_batch(srcs, "copy_batch", _SINGLE_COPY_HINT)
@@ -232,19 +222,6 @@ def copy_batch(
             )
 
     cdef tuple attr_tuple = _normalize_copy_options(options, n)
-
-    # Without the batched entry point there is nowhere to put attributes,
-    # so refuse them here rather than dropping them in the fallback. Doing
-    # this before the overlap warning keeps the error the only diagnostic.
-    if not _batch_entry_point_available():
-        for i in range(n):
-            if attr_tuple[i] != _DEFAULT_COPY_OPTIONS:
-                raise NotImplementedError(
-                    "copy_batch: non-default CopyOptions requires cuMemcpyBatchAsync, "
-                    "which needs cuda.core built against CUDA 13, cuda.bindings 13.0+, "
-                    "and a driver reporting CUDA 13.0 or newer; omit options to use the "
-                    "per-copy fallback"
-                )
 
     _do_copy_batch(src_bufs, dst_bufs, s, attr_tuple)
 

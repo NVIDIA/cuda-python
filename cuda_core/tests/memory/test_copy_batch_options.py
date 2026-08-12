@@ -375,7 +375,6 @@ class TestPerCopyFallback:
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_default_options_still_copy(self, init_cuda):
-        """The copies still happen, just one driver call at a time."""
         device = Device()
         device.set_current()
         stream = device.create_stream()
@@ -393,28 +392,5 @@ class TestPerCopyFallback:
 
         for buf in srcs + dsts:
             buf.close(stream)
-        stream.sync()
-        stream.close()
-
-    @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_non_default_options_are_rejected(self, init_cuda):
-        """Options have no per-copy equivalent, so they must not be dropped."""
-        device = Device()
-        device.set_current()
-        stream = device.create_stream()
-        pinned_mr = LegacyPinnedMemoryResource()
-        src = pinned_mr.allocate(1024)
-        dst = device.memory_resource.allocate(1024, stream=stream)
-
-        with pytest.raises(NotImplementedError, match="non-default CopyOptions"):
-            copy_batch(
-                stream,
-                [src],
-                [dst],
-                options=CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY),
-            )
-
-        src.close(stream)
-        dst.close(stream)
         stream.sync()
         stream.close()

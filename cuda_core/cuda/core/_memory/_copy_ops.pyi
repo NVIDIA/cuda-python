@@ -9,7 +9,6 @@ from cuda.core._memory._copy_enums import CopyOptions
 from cuda.core._stream import Stream
 
 _SINGLE_COPY_HINT = 'Buffer.copy_to / Buffer.copy_from'
-_DEFAULT_COPY_OPTIONS = CopyOptions()
 
 def _batch_entry_point_in_use() -> bool:
     """Internal: expose the dispatch predicate so tests can gate on it."""
@@ -65,9 +64,6 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
         default-stream token (``LEGACY_DEFAULT_STREAM`` /
         ``PER_THREAD_DEFAULT_STREAM``) is passed, or if the stream is
         currently in graph capture mode.
-    NotImplementedError
-        If non-default ``options`` are given where
-        ``cuMemcpyBatchAsync`` is unavailable (see Notes).
 
     Notes
     -----
@@ -86,9 +82,7 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
 
     On pre-CUDA 13 installs the copies fall back to a Python-level loop
     over ``cuMemcpyAsync``, so the potential performance benefit of
-    asynchronous batched copies is not realized. The fallback has no way
-    to convey :class:`CopyOptions` to the driver, so non-default options
-    raise :class:`NotImplementedError` there rather than being silently
-    ignored.
+    asynchronous batched copies is not realized. :class:`CopyOptions` are
+    silently ignored on the fallback path.
 
     """

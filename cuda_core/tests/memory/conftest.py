@@ -28,8 +28,8 @@ def requires_copy_options():
     """Skip when ``CopyOptions`` cannot reach the driver.
 
     Options travel only through ``cuMemcpyBatchAsync``. Where that is
-    unavailable, ``copy_batch`` falls back to per-copy ``cuMemcpyAsync``,
-    which cannot convey attributes, so non-default options are rejected.
+    unavailable, ``copy_batch`` falls back to per-copy ``cuMemcpyAsync``
+    which silently ignores them.
     """
     if not _batch_entry_point_in_use():
         pytest.skip(
