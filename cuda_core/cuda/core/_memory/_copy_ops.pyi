@@ -57,7 +57,10 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
     ValueError
         If lengths or sizes mismatch.
     TypeError
-        If a single Buffer is passed instead of a sequence.
+        If a single Buffer is passed instead of a sequence, or if a
+        default-stream token (``LEGACY_DEFAULT_STREAM`` /
+        ``PER_THREAD_DEFAULT_STREAM``) is passed instead of an explicit
+        stream.
     NotImplementedError
         If non-default ``options`` are given where
         ``cuMemcpyBatchAsync`` is unavailable (see Notes).

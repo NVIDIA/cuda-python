@@ -18,6 +18,7 @@ from helpers.buffers import (
 from helpers.copy_batch import COPY_BATCH_SIZE
 
 from cuda.core import LegacyPinnedMemoryResource
+from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
 from cuda.core.utils import copy_batch
 
 
@@ -256,3 +257,15 @@ class TestCopyBatchStreamSemantics:
             # Nothing was captured, so the builder still ends cleanly.
             gb.end_building()
             gb.close()
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    @pytest.mark.parametrize(
+        "default_stream",
+        [LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM],
+        ids=["legacy", "per_thread"],
+    )
+    def test_default_stream_token_is_rejected(self, init_cuda, h2d_bufs, default_stream):
+        """Default-stream tokens must be rejected with a clear TypeError."""
+        srcs, dsts = h2d_bufs
+        with pytest.raises(TypeError, match="default-stream token"):
+            copy_batch(default_stream, srcs, dsts)

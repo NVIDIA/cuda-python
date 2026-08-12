@@ -17,7 +17,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
 from cuda.core._memory._location cimport to_cumemlocation
 from cuda.core._resource_handles cimport as_cu
-from cuda.core._stream cimport Stream, Stream_accept
+from cuda.core._stream cimport Stream, Stream_accept, Stream_is_default_token
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 # cy_driver_version and _attr_run_starts are referenced only from CUDA 13
@@ -155,7 +155,10 @@ def copy_batch(
     ValueError
         If lengths or sizes mismatch.
     TypeError
-        If a single Buffer is passed instead of a sequence.
+        If a single Buffer is passed instead of a sequence, or if a
+        default-stream token (``LEGACY_DEFAULT_STREAM`` /
+        ``PER_THREAD_DEFAULT_STREAM``) is passed instead of an explicit
+        stream.
     NotImplementedError
         If non-default ``options`` are given where
         ``cuMemcpyBatchAsync`` is unavailable (see Notes).
@@ -198,6 +201,13 @@ def copy_batch(
         )
 
     cdef Stream s = Stream_accept(stream)
+
+    if Stream_is_default_token(s):
+        raise TypeError(
+            "copy_batch does not accept a default-stream token "
+            "(LEGACY_DEFAULT_STREAM / PER_THREAD_DEFAULT_STREAM); "
+            "pass an explicit stream"
+        )
 
     cdef Buffer src_buf
     cdef Buffer dst_buf
