@@ -59,9 +59,8 @@ class CopyOptions:
     dst_location_hint : :class:`cuda.core.Device` | :class:`cuda.core.Host` | None
         Hint for the destination memory location. ``None`` means no hint.
     overlap_mode : :class:`MemcpyOverlapMode` or str
-        Hint for copy-engine / compute overlap.  Only meaningful on
-        integrated (Tegra) GPUs; on discrete GPUs the driver silently
-        ignores it and a :class:`UserWarning` is emitted.
+        Hint requesting that the copy overlap with concurrent compute work.
+        This is advisory; it has an effect only on devices that support it.
         Default is ``"default"``.
     """
 

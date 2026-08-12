@@ -91,9 +91,4 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
     raise :class:`NotImplementedError` there rather than being silently
     ignored.
 
-    Warns
-    -----
-    UserWarning
-        If ``overlap_mode='prefer_overlap_with_compute'`` is requested
-        on a non-integrated (discrete) GPU.
     """

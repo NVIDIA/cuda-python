@@ -14,11 +14,6 @@ from helpers.buffers import compare_equal_buffers, make_scratch_buffer
 COPY_BATCH_SIZE = 4096
 COPY_BATCH_COUNT = 4
 
-# Matches the UserWarning raised when prefer_overlap_with_compute is
-# requested on a discrete GPU. Tests that are not about the warning
-# silence it so they stay green under -W error.
-OVERLAP_WARNING_FILTER = "ignore:overlap_mode:UserWarning"
-
 
 def assert_managed_holds(dev, buf, value, *, stream):
     """Assert a managed buffer holds ``value``.

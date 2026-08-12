@@ -6,8 +6,6 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-import warnings
-
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     from libcpp.vector cimport vector
 
@@ -25,7 +23,6 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 # a pragma to be seen as used.
 from cuda.core._utils.version cimport cy_driver_version  # no-cython-lint
 
-from cuda.core._device import Device
 from cuda.core._memory._copy_enums import CopyOptions, _attr_run_starts  # no-cython-lint
 from cuda.core._memory._managed_location import _coerce_location
 
@@ -189,11 +186,6 @@ def copy_batch(
     raise :class:`NotImplementedError` there rather than being silently
     ignored.
 
-    Warns
-    -----
-    UserWarning
-        If ``overlap_mode='prefer_overlap_with_compute'`` is requested
-        on a non-integrated (discrete) GPU.
     """
     cdef tuple src_bufs = Buffer_coerce_batch(srcs, "copy_batch", _SINGLE_COPY_HINT)
     cdef tuple dst_bufs = Buffer_coerce_batch(dsts, "copy_batch", _SINGLE_COPY_HINT)
@@ -249,26 +241,6 @@ def copy_batch(
                     "and a driver reporting CUDA 13.0 or newer; omit options to use the "
                     "per-copy fallback"
                 )
-
-    # Check for overlap_mode warning on non-integrated GPUs
-    cdef bint any_overlap = False
-    cdef object ca_attr
-    for i in range(n):
-        ca_attr = attr_tuple[i]
-        if ca_attr.overlap_mode != "default":
-            any_overlap = True
-            break
-
-    if any_overlap:
-        device = Device()
-        if not device.properties.integrated:
-            warnings.warn(
-                "overlap_mode='prefer_overlap_with_compute' has no effect on "
-                "non-integrated (non-Tegra) GPUs; the transfer will use "
-                "default copy behavior.",
-                UserWarning,
-                stacklevel=2,
-            )
 
     _do_copy_batch(src_bufs, dst_bufs, s, attr_tuple)
 

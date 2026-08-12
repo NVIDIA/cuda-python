@@ -7,8 +7,6 @@ Covers how options are encoded into the driver's attribute runs, how each
 option field behaves, and every rejection path.
 """
 
-import warnings
-
 import pytest
 
 # Shared with test_managed_ops.py: handles the CUDA 13 requirement, mempool
@@ -18,7 +16,6 @@ from conftest import create_managed_memory_resource_or_skip
 from helpers.buffers import compare_buffer_to_constant, set_buffer
 from helpers.copy_batch import (
     COPY_BATCH_SIZE,
-    OVERLAP_WARNING_FILTER,
     assert_managed_holds,
 )
 
@@ -229,7 +226,6 @@ class TestCopyBatchOptions:
         mr.close()
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    @pytest.mark.filterwarnings(OVERLAP_WARNING_FILTER)
     def test_overlap_mode_copies_correctly(self, requires_copy_options, h2d_bufs, copy_stream):
         """The overlap hint is advisory and must not change the bytes copied."""
         srcs, dsts = h2d_bufs
@@ -248,28 +244,9 @@ class TestCopyBatchOptions:
             assert compare_buffer_to_constant(dst, i + 90)
 
     @pytest.mark.agent_authored(model="Claude Opus 5")
-    def test_overlap_mode_warns_only_on_discrete_gpu(
-        self, requires_copy_options, copy_batch_device, h2d_bufs, copy_stream
-    ):
-        srcs, dsts = h2d_bufs
-        options = CopyOptions(overlap_mode=MemcpyOverlapMode.PREFER_OVERLAP_WITH_COMPUTE)
-
-        if copy_batch_device.properties.integrated:
-            # Tegra honours the hint, so no warning should be emitted.
-            with warnings.catch_warnings():
-                warnings.simplefilter("error", UserWarning)
-                copy_batch(copy_stream, srcs, dsts, options=options)
-        else:
-            with pytest.warns(UserWarning, match="non-integrated"):
-                copy_batch(copy_stream, srcs, dsts, options=options)
-        copy_stream.sync()
-
-    @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_default_overlap_mode_does_not_warn(self, h2d_bufs, copy_stream):
         srcs, dsts = h2d_bufs
-        with warnings.catch_warnings():
-            warnings.simplefilter("error", UserWarning)
-            copy_batch(copy_stream, srcs, dsts, options=CopyOptions())
+        copy_batch(copy_stream, srcs, dsts, options=CopyOptions())
         copy_stream.sync()
 
 
