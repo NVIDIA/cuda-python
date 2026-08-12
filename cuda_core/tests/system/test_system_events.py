@@ -52,7 +52,8 @@ def test_pci_bus_id_from_gpu_id(gpu_id, expected):
 
 @pytest.mark.agent_authored(model="claude-opus-4.7")
 def test_system_event_device_resolves_pci_bus_id():
-    # Pack live PCI data as RM does, then resolve it through SystemEvent.device.
+    # Round-trip: pack pci_info with the inverse of _pci_bus_id_from_gpu_id,
+    # then resolve Device through SystemEvent.device.
     if system.get_num_devices() == 0:
         pytest.skip("No GPUs available")
 
