@@ -840,9 +840,10 @@ def test_filestream_cache_eviction_propagates_windows_non_sharing_eacces(tmp_pat
         # Non-list/tuple Sequence: the compiler iterates it via ``is_sequence``
         # (``isinstance(v, Sequence)``), so the guard must too.
         pytest.param({"include_path": range(1)}, id="include_path_nonempty_range"),
-        # Empty-string path-like options -- NVRTC still emits a flag
-        # (``--use-pch=``, ``--pch-dir=``, ``--pre-include=``) so the guard
-        # must fire for them too.
+        # Empty-string path-like options -- ``ProgramOptions`` normalizes
+        # these to ``Path("")`` (i.e. ``Path(".")``) and NVRTC still emits a
+        # flag (``--use-pch=.``, ``--pch-dir=.``, ``--pre-include=.``), so the
+        # guard must fire for them too.
         pytest.param({"use_pch": ""}, id="use_pch_empty_string"),
         pytest.param({"pch_dir": ""}, id="pch_dir_empty_string"),
         pytest.param({"pre_include": ""}, id="pre_include_empty_string"),

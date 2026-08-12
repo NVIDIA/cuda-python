@@ -26,8 +26,8 @@
 # dependencies = ["cuda_bindings", "cuda_core>0.6.0", "cupy-cuda13x"]
 # ///
 
-import os
 import sys
+from pathlib import Path
 
 import cupy as cp
 import numpy as np
@@ -113,14 +113,14 @@ def _get_cccl_include_paths():
         print("This example requires CUDA_PATH or CUDA_HOME to point to a CUDA toolkit.", file=sys.stderr)
         sys.exit(1)
 
-    cuda_include = os.path.join(cuda_path, "include")
-    if not os.path.isdir(cuda_include):
+    cuda_include = Path(cuda_path, "include")
+    if not cuda_include.is_dir():
         print(f"CUDA include directory not found: {cuda_include}", file=sys.stderr)
         sys.exit(1)
 
     include_path = [cuda_include]
-    cccl_include = os.path.join(cuda_include, "cccl")
-    if os.path.isdir(cccl_include):
+    cccl_include = cuda_include / "cccl"
+    if cccl_include.is_dir():
         include_path.insert(0, cccl_include)
     return include_path
 

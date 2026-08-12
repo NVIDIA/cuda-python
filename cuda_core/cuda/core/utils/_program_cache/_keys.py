@@ -14,6 +14,7 @@ from __future__ import annotations
 import abc
 import collections.abc
 import hashlib
+import os
 from typing import Any, Callable, Sequence
 
 # Mutual-dependency contract: this module imports ProgramOptions from
@@ -269,7 +270,8 @@ def _option_is_set(options: ProgramOptions, name: str) -> bool:
 
     - Boolean flags (``pch``): truthy only.
     - str-or-sequence fields (``include_path``, ``pre_include``): ``str``
-      (including empty) or a non-empty ``collections.abc.Sequence`` (list,
+      (including empty), ``os.PathLike`` (``ProgramOptions`` normalizes both
+      to ``pathlib.Path``), or a non-empty ``collections.abc.Sequence`` (list,
       tuple, range, user subclass, ...); everything else (``False``, ``int``,
       empty sequence, ``None``) is ignored by the compiler and must not
       trigger a cache-time guard.
@@ -284,11 +286,12 @@ def _option_is_set(options: ProgramOptions, name: str) -> bool:
     if name in _BOOLEAN_OPTION_FIELDS:
         return bool(value)
     if name in _STR_OR_SEQUENCE_OPTION_FIELDS:
-        # Mirror ``_prepare_nvrtc_options_impl``: it checks ``isinstance(v, str)``
-        # first, then ``is_sequence(v)`` (which is ``isinstance(v, Sequence)``).
-        # We therefore accept any ``collections.abc.Sequence`` (range, deque,
-        # user subclass, etc.), not just list/tuple.
-        if isinstance(value, str):
+        # Mirror ``_prepare_nvrtc_options_impl``: it checks
+        # ``isinstance(v, (str, os.PathLike))`` first, then ``is_sequence(v)``
+        # (which is ``isinstance(v, Sequence)``). We therefore accept any
+        # ``collections.abc.Sequence`` (range, deque, user subclass, etc.),
+        # not just list/tuple.
+        if isinstance(value, str | os.PathLike):
             return True
         if isinstance(value, collections.abc.Sequence):
             return len(value) > 0
