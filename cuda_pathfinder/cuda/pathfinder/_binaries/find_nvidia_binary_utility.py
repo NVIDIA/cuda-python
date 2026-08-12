@@ -231,7 +231,7 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
                 ``nsys`` and ``ncu`` CLIs is terminal; a miss does not fall
                 through to CUDA Toolkit locations.
 
-           3.2. **CUDA Toolkit installation**: Use ``CUDA_HOME`` or ``CUDA_PATH``
+           3.2. **CUDA Toolkit installation**: Use ``CUDA_PATH`` or ``CUDA_HOME``
                 (in that order), searching ``bin/x64``, ``bin/x86_64``, and
                 ``bin`` subdirectories on Windows, or just ``bin`` on Linux.
 
@@ -291,12 +291,12 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
     if IS_WINDOWS and utility_name == "ncu":
         return _find_windows_ncu()
 
-    # 3.2. Search in CUDA Toolkit (CUDA_HOME/CUDA_PATH).
-    if (cuda_home := get_cuda_path_or_home()) is not None:
+    # 3.2. Search in CUDA Toolkit (CUDA_PATH/CUDA_HOME).
+    if (cuda_path := get_cuda_path_or_home()) is not None:
         if IS_WINDOWS and utility_name == "compute-sanitizer":
-            found = _find_windows_compute_sanitizer(cuda_home)
+            found = _find_windows_compute_sanitizer(cuda_path)
         else:
-            found = _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(cuda_home))
+            found = _resolve_in_trusted_dirs(normalized_name, _ctk_bin_subdirs(cuda_path))
         if found is not None:
             return found
 
