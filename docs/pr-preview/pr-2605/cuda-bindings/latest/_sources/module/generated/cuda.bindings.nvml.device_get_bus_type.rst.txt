@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_bus\_type
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_bus_type
