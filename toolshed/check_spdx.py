@@ -50,7 +50,7 @@ def load_spdx_ignore():
 
 COPYRIGHT_REGEX = (
     rb"Copyright \(c\) (?P<years>[0-9]{4}(-[0-9]{4})?) "
-    rb"(?P<affiliation>NVIDIA CORPORATION( & AFFILIATES\. All rights reserved\.)?)"
+    rb"(?P<affiliation>NVIDIA CORPORATION & AFFILIATES\. All rights reserved\.)"
 )
 COPYRIGHT_SUB = r"Copyright (c) {} \g<affiliation>"
 CURRENT_YEAR = str(datetime.datetime.now(tz=datetime.timezone.utc).year)
