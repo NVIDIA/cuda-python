@@ -9,7 +9,7 @@ Runtime Requirements
 
 ``cuda.pathfinder`` is a pure-Python package with no runtime dependencies:
 
-* Linux (x86-64, arm64) and Windows (x86-64)
+* Linux (x86-64, arm64) and Windows (x86-64, arm64)
 * Python 3.10 - 3.14
 
 Installing from PyPI
