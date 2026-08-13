@@ -16,6 +16,7 @@ import shutil
 import sys
 import sysconfig
 import tempfile
+from pathlib import Path
 from warnings import warn
 
 from setuptools import build_meta as _build_meta
@@ -50,9 +51,9 @@ def _import_get_cuda_path_or_home():
             cuda = None
 
         for p in sys.path:
-            sp_cuda = os.path.join(p, "cuda")
-            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
-                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+            sp_cuda = Path(p) / "cuda"
+            if (sp_cuda / "pathfinder").is_dir():
+                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
                 break
         else:
             raise ModuleNotFoundError(
@@ -61,6 +62,11 @@ def _import_get_cuda_path_or_home():
             )
         import cuda.pathfinder
 
+    pathfinder_dir = Path(cuda.pathfinder.__file__).parent
+    print(
+        f"Using cuda-pathfinder {cuda.pathfinder.__version__} from {pathfinder_dir}",
+        file=sys.stderr,
+    )
     return cuda.pathfinder.get_cuda_path_or_home
 
 

@@ -4,6 +4,7 @@
 import pytest
 from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch_buffer
 from helpers.collection_interface_testers import assert_single_member_mutable_set_interface
+from helpers.constants import POOL_SIZE
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, system
 from cuda.core._memory import _peer_access_utils
@@ -11,6 +12,8 @@ from cuda.core._memory._peer_access_utils import PeerAccessibleBySetProxy
 from cuda.core._utils.cuda_utils import CUDAError
 
 NBYTES = 1024
+# Every owned pool below holds at most NBYTES, so they are all capped at the
+# suite-wide POOL_SIZE; see helpers/constants.py for why that matters.
 
 pytestmark = pytest.mark.thread_unsafe(reason="peer access tests mutate process-global CUDA memory-pool access state")
 
@@ -22,7 +25,7 @@ def test_peer_access_basic(mempool_device_x2):
     one_on_dev0 = make_scratch_buffer(dev0, 1, NBYTES)
     stream_on_dev0 = dev0.create_stream()
     # Use owned pool to ensure clean initial state (no stale peer access).
-    dmr_on_dev1 = DeviceMemoryResource(dev1, DeviceMemoryResourceOptions())
+    dmr_on_dev1 = DeviceMemoryResource(dev1, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
     buf_on_dev1 = dmr_on_dev1.allocate(NBYTES, stream=dev1.default_stream)
 
     # No access at first.
@@ -73,7 +76,7 @@ def test_peer_access_transitions(mempool_device_x3):
     pgens = [PatternGen(devs[i], NBYTES, streams[i]) for i in range(3)]
     # Use owned pools (with options) to ensure clean initial state.
     # Default pools are shared and may have stale peer access from prior tests.
-    dmrs = [DeviceMemoryResource(dev, DeviceMemoryResourceOptions()) for dev in devs]
+    dmrs = [DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE)) for dev in devs]
     bufs = [dmr.allocate(NBYTES, stream=dev.default_stream) for dmr, dev in zip(dmrs, devs)]
 
     def verify_state(state, pattern_seed):
@@ -163,7 +166,7 @@ def isolated_dmr_x2(mempool_device_x2):
     proxy tests are not polluted by other tests sharing a default pool.
     """
     dev0, dev1 = mempool_device_x2
-    dmr = DeviceMemoryResource(dev0, DeviceMemoryResourceOptions())
+    dmr = DeviceMemoryResource(dev0, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
     dmr.peer_accessible_by = []
     return dmr, dev0, dev1
 
@@ -273,7 +276,7 @@ def test_peer_accessible_by_no_cache_across_proxies(mempool_device_x2):
 def test_peer_accessible_by_iteration_order_is_sorted(mempool_device_x2):
     """``__iter__`` yields peers in ascending device-ordinal order."""
     dev0, dev1 = mempool_device_x2
-    dmr = DeviceMemoryResource(dev0, DeviceMemoryResourceOptions())
+    dmr = DeviceMemoryResource(dev0, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
     dmr.peer_accessible_by = [dev1]
     devices = list(dmr.peer_accessible_by)
     ids = [d.device_id for d in devices]

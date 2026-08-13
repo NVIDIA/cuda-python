@@ -20,9 +20,9 @@ import sys
 from pathlib import Path
 
 import pytest
+from conftest import skip_if_missing_libnvcudla_so
 
 import cuda.pathfinder._headers.find_nvidia_headers as find_nvidia_headers_module
-from conftest import skip_if_missing_libnvcudla_so
 from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, locate_nvidia_header_directory
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _resolve_system_loaded_abs_path_in_subprocess,
@@ -138,12 +138,12 @@ def test_locate_non_ctk_headers(info_summary_append, libname):
     info_summary_append(f"{hdr_dir=!r}")
     if hdr_dir:
         _located_hdr_dir_asserts(located_hdr_dir)
-        assert os.path.isdir(hdr_dir)
-        assert os.path.isfile(os.path.join(hdr_dir, SUPPORTED_HEADERS_NON_CTK[libname]))
+        hdr_dir_path = Path(hdr_dir)
+        assert hdr_dir_path.is_dir()
+        assert (hdr_dir_path / SUPPORTED_HEADERS_NON_CTK[libname]).is_file()
     if have_distribution_for(libname):
         assert hdr_dir is not None
-        hdr_dir_parts = hdr_dir.split(os.path.sep)
-        assert "site-packages" in hdr_dir_parts
+        assert "site-packages" in Path(hdr_dir).parts
     elif STRICTNESS == "all_must_work":
         assert hdr_dir is not None
         if conda_prefix := os.environ.get("CONDA_PREFIX"):
@@ -152,6 +152,8 @@ def test_locate_non_ctk_headers(info_summary_append, libname):
             inst_dirs = SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname)
             if inst_dirs is not None:
                 for inst_dir in inst_dirs:
+                    # Absolute glob pattern: Path.glob needs a separate base dir,
+                    # and the wildcard is not pinned to the last component.
                     globbed = glob.glob(inst_dir)
                     if hdr_dir in globbed:
                         break
@@ -172,9 +174,10 @@ def test_locate_ctk_headers(info_summary_append, libname):
     info_summary_append(f"{hdr_dir=!r}")
     if hdr_dir:
         _located_hdr_dir_asserts(located_hdr_dir)
-        assert os.path.isdir(hdr_dir)
+        hdr_dir_path = Path(hdr_dir)
+        assert hdr_dir_path.is_dir()
         h_filename = SUPPORTED_HEADERS_CTK[libname]
-        assert os.path.isfile(os.path.join(hdr_dir, h_filename))
+        assert (hdr_dir_path / h_filename).is_file()
     if STRICTNESS == "all_must_work":
         if libname == "cudla":
             skip_if_missing_libnvcudla_so(libname, timeout=30)

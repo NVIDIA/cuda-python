@@ -320,6 +320,11 @@ class HostCallbackNode(GraphNode):
     def update(self, fn, *, user_data=None) -> None:
         """Replace the callback and user-data binding for this node.
 
+        ``fn`` accepts the same forms as :meth:`~graph.GraphNode.callback`: a
+        Python callable, or a ctypes function pointer whose declared prototype
+        matches ``CUhostFn`` (``void (*)(void*)``). A mismatched ctypes
+        prototype raises ``TypeError``.
+
         .. warning::
 
             Callbacks must not call CUDA API functions. Doing so may
@@ -416,4 +421,105 @@ class SwitchNode(ConditionalNode):
 
     def __repr__(self) -> str:
         ...
-__all__ = ['AllocNode', 'ChildGraphNode', 'ConditionalNode', 'EmptyNode', 'EventRecordNode', 'EventWaitNode', 'FreeNode', 'HostCallbackNode', 'IfElseNode', 'IfNode', 'KernelNode', 'MemcpyNode', 'MemsetNode', 'SwitchNode', 'WhileNode']
+
+class ExecutableGraphNode:
+    """A lightweight view pairing an executable graph with a source node.
+
+    Create executable-node views with ``graph[node]``. CUDA validates that the
+    node identifies a node in the executable graph when an operation is
+    performed.
+    """
+
+    def __init__(self):
+        ...
+
+    def __repr__(self) -> str:
+        ...
+
+class ExecutableKernelNode(ExecutableGraphNode):
+    """An executable kernel-node view."""
+
+    def update(self, *, config: LaunchConfig, kernel: Kernel, args) -> None:
+        """Replace all kernel launch parameters for future launches.
+
+        ``args`` must contain the complete argument sequence; use ``args=()``
+        for a no-argument kernel. Clustered and cooperative launch
+        configurations are not supported.
+        """
+
+    @property
+    def is_enabled(self) -> bool:
+        """Whether this node is enabled in the executable graph."""
+
+    def enable(self) -> None:
+        """Enable this node in the executable graph."""
+
+    def disable(self) -> None:
+        """Disable this node in the executable graph."""
+
+class ExecutableMemsetNode(ExecutableGraphNode):
+    """An executable memset-node view."""
+
+    def update(self, *, dst: Buffer | int, value, width: int, height: int=1, pitch: int=0) -> None:
+        """Replace all memset parameters for future launches."""
+
+    @property
+    def is_enabled(self) -> bool:
+        """Whether this node is enabled in the executable graph."""
+
+    def enable(self) -> None:
+        """Enable this node in the executable graph."""
+
+    def disable(self) -> None:
+        """Disable this node in the executable graph."""
+
+class ExecutableMemcpyNode(ExecutableGraphNode):
+    """An executable memcpy-node view."""
+
+    def update(self, *, dst: Buffer | int, src: Buffer | int, size: int) -> None:
+        """Replace all one-dimensional memcpy parameters for future launches."""
+
+    @property
+    def is_enabled(self) -> bool:
+        """Whether this node is enabled in the executable graph."""
+
+    def enable(self) -> None:
+        """Enable this node in the executable graph."""
+
+    def disable(self) -> None:
+        """Disable this node in the executable graph."""
+
+class ExecutableChildGraphNode(ExecutableGraphNode):
+    """An executable child-graph-node view."""
+
+    def update(self, child: GraphDefinition) -> None:
+        """Replace the embedded graph parameters for future launches."""
+
+class ExecutableEventRecordNode(ExecutableGraphNode):
+    """An executable event-record-node view."""
+
+    def update(self, event: Event) -> None:
+        """Replace the event recorded by future launches."""
+
+class ExecutableEventWaitNode(ExecutableGraphNode):
+    """An executable event-wait-node view."""
+
+    def update(self, event: Event) -> None:
+        """Replace the event waited on by future launches."""
+
+class ExecutableHostCallbackNode(ExecutableGraphNode):
+    """An executable host-callback-node view."""
+
+    def update(self, fn, *, user_data=None) -> None:
+        """Replace the callback and user-data binding for future launches.
+
+        ``fn`` may be a Python callable, or a ctypes function pointer whose
+        declared prototype matches ``CUhostFn`` (``void (*)(void*)``); a
+        mismatched prototype raises ``TypeError``.
+
+        .. warning::
+
+            Callbacks must not call CUDA API functions. Doing so may deadlock
+            or corrupt driver state.
+        """
+__all__ = ['AllocNode', 'ChildGraphNode', 'ConditionalNode', 'EmptyNode', 'EventRecordNode', 'EventWaitNode', 'ExecutableChildGraphNode', 'ExecutableEventRecordNode', 'ExecutableEventWaitNode', 'ExecutableGraphNode', 'ExecutableHostCallbackNode', 'ExecutableKernelNode', 'ExecutableMemcpyNode', 'ExecutableMemsetNode', 'FreeNode', 'HostCallbackNode', 'IfElseNode', 'IfNode', 'KernelNode', 'MemcpyNode', 'MemsetNode', 'SwitchNode', 'WhileNode']

@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import textwrap
+from pathlib import Path
 
 import pytest
 
@@ -19,6 +20,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _try_ctk_root_canary,
     resolve_ctk_root_via_canary,
 )
+from cuda.pathfinder._dynamic_libs.search_platform import WindowsSearchPlatform
 from cuda.pathfinder._dynamic_libs.search_steps import (
     SearchContext,
     _derive_ctk_root_linux,
@@ -32,6 +34,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     MODE_CANARY,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.windows_arch import windows_python_arch
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
 _STEPS_MODULE = "cuda.pathfinder._dynamic_libs.search_steps"
@@ -60,18 +63,29 @@ def _create_nvvm_in_ctk(ctk_root):
         nvvm_dir = ctk_root / "nvvm" / "bin"
         nvvm_dir.mkdir(parents=True)
         nvvm_lib = nvvm_dir / "nvvm64.dll"
+        machine = {"x64": 0x8664, "arm64": 0xAA64}[windows_python_arch()]
+        image = bytearray(0x86)
+        image[:2] = b"MZ"
+        image[0x3C:0x40] = (0x80).to_bytes(4, "little")
+        image[0x80:0x84] = b"PE\0\0"
+        image[0x84:0x86] = machine.to_bytes(2, "little")
+        nvvm_lib.write_bytes(image)
     else:
         nvvm_dir = ctk_root / "nvvm" / "lib64"
         nvvm_dir.mkdir(parents=True)
         nvvm_lib = nvvm_dir / "libnvvm.so"
-    nvvm_lib.write_bytes(b"fake")
+        nvvm_lib.write_bytes(b"fake")
     return nvvm_lib
 
 
 def _create_cudart_in_ctk(ctk_root):
     """Create a fake cudart lib in the platform-appropriate CTK subdirectory."""
     if IS_WINDOWS:
-        lib_dir = ctk_root / "bin"
+        # Native ARM64 uses bin/arm64 only.
+        if windows_python_arch() == "arm64":
+            lib_dir = ctk_root / "bin" / "arm64"
+        else:
+            lib_dir = ctk_root / "bin"
         lib_dir.mkdir(parents=True)
         lib_file = lib_dir / "cudart64_12.dll"
     else:
@@ -124,6 +138,12 @@ def test_derive_ctk_root_linux_targets_lib():
 def test_derive_ctk_root_windows_ctk13():
     path = r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0\bin\x64\cudart64_13.dll"
     assert _derive_ctk_root_windows(path) == r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0"
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_derive_ctk_root_windows_ctk13_arm64():
+    path = r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.4\bin\arm64\cudart64_13.dll"
+    assert _derive_ctk_root_windows(path) == r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.4"
 
 
 def test_derive_ctk_root_windows_ctk12():
@@ -187,6 +207,24 @@ def test_try_via_ctk_root_regular_lib(tmp_path):
     result = find_via_ctk_root(_ctx("cudart"), str(ctk_root))
     assert result is not None
     assert result.abs_path == str(cudart_lib)
+    assert result.found_via == "system-ctk-root"
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_try_via_ctk_root_windows_arm64_prefers_arch_dir(tmp_path):
+    ctk_root = tmp_path / "cuda-13"
+    x64_dir = ctk_root / "bin" / "x64"
+    arm64_dir = ctk_root / "bin" / "arm64"
+    x64_dir.mkdir(parents=True)
+    arm64_dir.mkdir(parents=True)
+    (x64_dir / "cudart64_13.dll").write_bytes(b"fake")
+    arm64_lib = arm64_dir / "cudart64_13.dll"
+    arm64_lib.write_bytes(b"fake")
+
+    ctx = SearchContext(LIB_DESCRIPTORS["cudart"], platform=WindowsSearchPlatform(target_arch="arm64"))
+    result = find_via_ctk_root(ctx, str(ctk_root))
+    assert result is not None
+    assert result.abs_path == str(arm64_lib)
     assert result.found_via == "system-ctk-root"
 
 
@@ -394,7 +432,7 @@ def test_resolve_ctk_root_via_canary_none_when_probe_fails(mocker):
 def test_resolve_ctk_root_via_canary_none_when_unrecognized(mocker):
     mocker.patch(
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
-        return_value=os.path.join(os.sep, "weird", "path", "libcudart.so.13"),
+        return_value=str(Path(os.sep, "weird", "path", "libcudart.so.13")),
     )
     assert resolve_ctk_root_via_canary("cudart") is None
 

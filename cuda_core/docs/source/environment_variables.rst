@@ -24,3 +24,10 @@ Runtime Environment Variables
   warnings about CUDA major version mismatches between ``cuda-bindings`` and
   the installed driver. This warning occurs when ``cuda-bindings`` was built
   for a newer CUDA major version than the installed driver supports.
+
+- ``CUDA_CORE_DONT_FIX_TAB_COMPLETION`` : When set to 1, ``import cuda.core``
+  does not patch the standard library's :mod:`rlcompleter` module. The patch
+  works around a CPython bug (fixed in Python 3.13.13, 3.14.6 and 3.15) that
+  makes tab completion fail on Cython properties, and it changes global
+  interpreter state; set this variable to opt out. Unset, empty, and ``0``
+  leave the patch enabled; any other value disables it.

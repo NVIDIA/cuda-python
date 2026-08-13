@@ -6,7 +6,6 @@ from __future__ import annotations
 
 cimport cython
 from libc.stddef cimport size_t
-from libc.stdint cimport intptr_t
 from libcpp.mutex cimport py_safe_call_once
 
 from collections import namedtuple
@@ -301,7 +300,7 @@ cdef class KernelOccupancy:
 
         Parameters
         ----------
-            dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize]
+            dynamic_shared_memory_needed: int | driver.CUoccupancyB2DSize
                 The amount of dynamic shared memory in bytes needed by block.
                 Use `0` if block does not need shared memory. Use C-callable
                 represented by :obj:`~driver.CUoccupancyB2DSize` to encode
@@ -670,13 +669,13 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str, os.PathLike]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory cubin to load, or
             a file path object (or its string representation) pointing to the
             on-disk cubin to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -689,13 +688,13 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str, os.PathLike]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory ptx code to load, or
             a file path object (or its string representation) pointing to the
             on-disk ptx file to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -708,13 +707,13 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str, os.PathLike]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory ltoir code to load,
             or a file path object (or its string representation) pointing to the
             on-disk ltoir file to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -727,13 +726,13 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str, os.PathLike]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory fatbin to load, or
             or a file path object (or its string representation) pointing to the
             on-disk fatbin to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -746,12 +745,12 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory object code to load, or
             a file path string pointing to the on-disk object code to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -764,12 +763,12 @@ cdef class ObjectCode:
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory library to load, or
             a file path string pointing to the on-disk library to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -811,7 +810,7 @@ cdef class ObjectCode:
             HANDLE_RETURN(get_last_error())
         return Kernel._from_handle(h_kernel)
 
-    def get_module(self) -> object:
+    def get_module(self) -> driver.CUmodule:
         """Return a context-dependent :obj:`~driver.CUmodule` for legacy interop.
 
         Bridges the native :obj:`~driver.CUlibrary` (see :attr:`handle`) to a
@@ -828,7 +827,7 @@ cdef class ObjectCode:
         cdef cydriver.CUmodule mod
         with nogil:
             HANDLE_RETURN(cydriver.cuLibraryGetModule(&mod, as_cu(self._h_library)))
-        return driver.CUmodule(<intptr_t>mod)
+        return as_py(mod)
 
     @property
     def code(self) -> CodeTypeT:
