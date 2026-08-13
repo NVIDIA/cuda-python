@@ -481,9 +481,7 @@ def test_mr_deallocate_called_on_close():
     """Buffer.from_handle(mr=mr) calls mr.deallocate() on close (issue #1619)."""
     device = Device()
     device.set_current()
-    TrackingMR, telemetry = make_instrumented_memory_resource(
-        DummyDeviceMemoryResource, track_active=True
-    )
+    TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
     mr = TrackingMR(device)
     buf = mr.allocate(1024)
     assert len(telemetry["active"]) == 1
@@ -497,9 +495,7 @@ def test_mr_deallocate_called_on_gc():
 
     device = Device()
     device.set_current()
-    TrackingMR, telemetry = make_instrumented_memory_resource(
-        DummyDeviceMemoryResource, track_active=True
-    )
+    TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
     mr = TrackingMR(device)
     buf = mr.allocate(1024)
     assert len(telemetry["active"]) == 1
@@ -513,9 +509,7 @@ def test_mr_deallocate_receives_stream():
     device = Device()
     device.set_current()
     stream = device.create_stream()
-    CapturingMR, telemetry = make_instrumented_memory_resource(
-        DummyDeviceMemoryResource, record_streams=True
-    )
+    CapturingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, record_streams=True)
     mr = CapturingMR(device)
     buf = mr.allocate(1024)
     buf.close(stream)
@@ -643,9 +637,7 @@ def test_mr_deallocation_failure_warns(capfd):
     """Destructor-path MR failures are contained and reported."""
     device = Device()
     device.set_current()
-    FailingMR, _ = make_instrumented_memory_resource(
-        deallocate_error=RuntimeError("expected deallocation failure")
-    )
+    FailingMR, _ = make_instrumented_memory_resource(deallocate_error=RuntimeError("expected deallocation failure"))
     buf = Buffer.from_handle(1, 1024, mr=FailingMR(device))
     buf.close()
 
@@ -658,9 +650,7 @@ def test_mr_deallocation_failure_warns(capfd):
 @pytest.mark.parametrize("replace_stream", [False, True])
 def test_mr_deallocation_without_current_context(init_cuda, capsys, replace_stream):
     """MR-backed Buffer teardown activates the recorded context when none is current."""
-    TrackingMR, telemetry = make_instrumented_memory_resource(
-        DummyDeviceMemoryResource, track_active=True
-    )
+    TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
     mr = TrackingMR(init_cuda)
     buf = mr.allocate(1024)
     stream = init_cuda.create_stream() if replace_stream else None
@@ -689,9 +679,7 @@ def test_mr_deallocation_with_foreign_context(capsys, replace_stream):
 
     alloc_dev = Device(0)
     alloc_dev.set_current()
-    TrackingMR, telemetry = make_instrumented_memory_resource(
-        DummyDeviceMemoryResource, track_active=True
-    )
+    TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
     mr = TrackingMR(alloc_dev)
     buf = mr.allocate(1024)
     stream = alloc_dev.create_stream() if replace_stream else None

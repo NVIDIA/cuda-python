@@ -78,9 +78,7 @@ def make_instrumented_memory_resource(
 
             def deallocate(self, ptr, size, *, stream=None):
                 if record_streams:
-                    telemetry["deallocations"].append(
-                        {"ptr": int(ptr), "size": size, "stream": stream}
-                    )
+                    telemetry["deallocations"].append({"ptr": int(ptr), "size": size, "stream": stream})
                 if deallocate_error is not None:
                     raise deallocate_error
                 super().deallocate(ptr, size, stream=stream)
