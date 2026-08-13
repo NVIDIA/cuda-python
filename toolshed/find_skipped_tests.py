@@ -36,7 +36,10 @@ WORKFLOWS: tuple[tuple[str, str], ...] = (
 
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-9;]*[A-Za-z]")
 PYTEST_NODE_ID = re.compile(r"tests/\S+\.py::\S+")
-PYTEST_TEST_OUTCOME = re.compile(r"(tests/\S+\.py::\S+)\s+(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)\b")
+PYTEST_TEST_OUTCOME = re.compile(
+    r"(tests/\S+\.py::\S+)\s+"
+    r"(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS|SUBPASSED|SUBFAILED|SUBERROR|SUBSKIPPED|SUBXFAIL|SUBXPASS)\b"
+)
 
 # GHA log format markers used to identify which test suite is active.
 # `gh api` logs: ##[group]<step-name> opens a section, ##[endgroup] closes it.
@@ -194,6 +197,8 @@ def extract_test_status_sets(text: str) -> tuple[set[str], set[str], dict[str, s
     """Parse pytest output and return (skipped, non_skipped, test_id->suite)."""
     skipped: set[str] = set()
     non_skipped: set[str] = set()
+    passed: set[str] = set()
+    subtest_seen: set[str] = set()
     test_suites: dict[str, str] = {}
     current_suite = ""
 
@@ -216,10 +221,20 @@ def extract_test_status_sets(text: str) -> tuple[set[str], set[str], dict[str, s
 
         # Parse per-test outcomes first so PASS/FAIL lines disqualify tests.
         for test_id, outcome in PYTEST_TEST_OUTCOME.findall(line):
-            if outcome == "SKIPPED":
+            if outcome.startswith("SUB"):
+                subtest_seen.add(test_id)
+                if outcome == "SUBSKIPPED":
+                    skipped.add(test_id)
+                    if current_suite:
+                        test_suites.setdefault(test_id, current_suite)
+                else:
+                    non_skipped.add(test_id)
+            elif outcome == "SKIPPED":
                 skipped.add(test_id)
                 if current_suite:
                     test_suites.setdefault(test_id, current_suite)
+            elif outcome == "PASSED":
+                passed.add(test_id)
             else:
                 non_skipped.add(test_id)
 
@@ -232,6 +247,11 @@ def extract_test_status_sets(text: str) -> tuple[set[str], set[str], dict[str, s
             skipped.add(test_id)
             if current_suite:
                 test_suites.setdefault(test_id, current_suite)
+
+    # Pytest reports a passing parent after its subtests even when every
+    # subtest skipped. Only treat that parent pass as execution evidence when
+    # the test did not emit subtest outcomes of its own.
+    non_skipped.update(passed - subtest_seen)
 
     return skipped, non_skipped, test_suites
 
