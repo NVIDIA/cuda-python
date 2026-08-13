@@ -45,6 +45,7 @@ from cuda.core import (
 )
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory._ipc import IPCBufferDescriptor
+from cuda.core._stream import Stream_accept, default_stream
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.typing import (
     ManagedMemoryLocationType,
@@ -514,15 +515,14 @@ def test_mr_deallocate_receives_stream():
     assert received["stream"].handle == stream.handle
 
 
-def test_from_handle_mr_records_default_stream():
-    """When a Buffer is minted via :meth:`Buffer.from_handle` with ``mr`` but
-    without an explicit ``stream=``, the deallocation stream is recorded at
+@pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
+def test_from_handle_mr_records_default_stream(buffer_type):
+    """When a Buffer/ManagedBuffer is minted via :meth:`from_handle` with ``mr``
+    but without an explicit ``stream=``, the deallocation stream is recorded at
     creation as ``default_stream()`` (not chosen later in the destructor).
     See `#2497`.
     """
     import gc
-
-    from cuda.core._stream import Stream_accept, default_stream
 
     device = Device()
     device.set_current()
@@ -551,7 +551,7 @@ def test_from_handle_mr_records_default_stream():
 
     mr = StrictCapturingMR()
     # ptr=1 is fine because StrictCapturingMR.deallocate does not free.
-    buf = Buffer.from_handle(1, 1024, mr=mr)
+    buf = buffer_type.from_handle(1, 1024, mr=mr)
     del buf
     gc.collect()
 
@@ -560,11 +560,10 @@ def test_from_handle_mr_records_default_stream():
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
-def test_from_handle_mr_records_explicit_stream():
-    """Buffer.from_handle(..., mr=mr, stream=s) stores s for teardown."""
+@pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
+def test_from_handle_mr_records_explicit_stream(buffer_type):
+    """Buffer/ManagedBuffer.from_handle(..., mr=mr, stream=s) stores s for teardown."""
     import gc
-
-    from cuda.core._stream import Stream_accept
 
     device = Device()
     device.set_current()
@@ -591,7 +590,7 @@ def test_from_handle_mr_records_explicit_stream():
             captured["stream"] = Stream_accept(stream)
 
     mr = StrictCapturingMR()
-    buf = Buffer.from_handle(1, 1024, mr=mr, stream=stream)
+    buf = buffer_type.from_handle(1, 1024, mr=mr, stream=stream)
     del buf
     gc.collect()
 
@@ -599,12 +598,60 @@ def test_from_handle_mr_records_explicit_stream():
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
-def test_from_handle_stream_requires_mr():
+@pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
+def test_from_handle_stream_requires_mr(buffer_type):
     device = Device()
     device.set_current()
     stream = device.create_stream()
     with pytest.raises(ValueError, match="stream requires a memory resource"):
-        Buffer.from_handle(1, 1024, stream=stream)
+        buffer_type.from_handle(1, 1024, stream=stream)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+def test_close_with_default_stream_requires_context():
+    """Buffer.close(stream=default_stream()) raises when no context is current.
+
+    ``default_stream()`` has no bound context, so the close path must find
+    a current context to anchor the free.  Without one it should raise rather
+    than silently record an unusable stream handle.
+    """
+    device = Device()
+    device.set_current()
+    stream = device.create_stream()
+
+    class NoopMR(MemoryResource):
+        @property
+        def is_device_accessible(self):
+            return True
+
+        @property
+        def is_host_accessible(self):
+            return False
+
+        @property
+        def device_id(self):
+            return device.device_id
+
+        def allocate(self, size, *, stream):
+            raise NotImplementedError
+
+        def deallocate(self, ptr, size, *, stream):
+            pass
+
+    mr = NoopMR()
+    # Use a real stream at creation so _init succeeds without a current context later.
+    buf = Buffer.from_handle(1, 1024, mr=mr, stream=stream)
+
+    previous = handle_return(driver.cuCtxPopCurrent())
+    assert int(previous) != 0
+    try:
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+        with pytest.raises(RuntimeError, match="no CUDA context is current"):
+            buf.close(stream=default_stream())
+    finally:
+        handle_return(driver.cuCtxSetCurrent(previous))
+
+    buf.close()  # clean up using the recorded stream (which carries a context)
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
@@ -648,8 +695,6 @@ def test_from_handle_mr_default_stream_requires_context(buffer_type):
 @pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
 def test_from_handle_mr_explicit_stream_without_current_context(buffer_type):
     """A context-bound stream makes owning from_handle context-independent."""
-    from cuda.core._stream import Stream_accept
-
     device = Device()
     device.set_current()
     stream = device.create_stream()

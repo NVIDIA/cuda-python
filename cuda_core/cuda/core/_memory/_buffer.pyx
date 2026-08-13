@@ -23,7 +23,6 @@ from cuda.core._resource_handles cimport (
     as_intptr,
     as_cu,
     get_current_context,
-    get_stream_context,
     set_deallocation_stream,
 )
 from cuda.core.typing import DevicePointerType
@@ -75,19 +74,21 @@ cdef void _mr_dealloc_callback(
 register_mr_dealloc_callback(_mr_dealloc_callback)
 
 
-cdef inline void _require_deallocation_stream_context(Stream s) except *:
-    """Default-stream tokens need a current context to pin into the free recipe."""
-    cdef ContextHandle h_ctx
-    if get_stream_context(s._h_stream):
-        return
-    h_ctx = get_current_context()
-    if h_ctx:
-        return
-    raise RuntimeError(
-        "Cannot record a default deallocation stream when no CUDA context is "
-        "current. Call Device.set_current() first, or pass stream= with a "
-        "non-default Stream."
-    )
+cdef inline void _apply_deallocation_stream(
+        const DevicePtrHandle& h_ptr, const StreamHandle& h_stream) except *:
+    """Record h_stream as the deallocation stream for h_ptr.
+
+    Translates CUDA_ERROR_INVALID_CONTEXT (default-stream token with no current
+    context) into a descriptive RuntimeError instead of a raw CUDAError.
+    """
+    cdef cydriver.CUresult status = set_deallocation_stream(h_ptr, h_stream)
+    if status == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+        raise RuntimeError(
+            "Cannot record a default deallocation stream when no CUDA context is "
+            "current. Call Device.set_current() first, or pass stream= with a "
+            "non-default Stream."
+        )
+    HANDLE_RETURN(status)
 
 
 __all__ = ['Buffer', 'MemoryResource']
@@ -214,9 +215,8 @@ cdef class Buffer:
         cdef Stream s
         if mr is not None:
             s = Stream_accept(default_stream() if stream is None else stream)
-            _require_deallocation_stream_context(s)
             self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
-            HANDLE_RETURN(set_deallocation_stream(self._h_ptr, s._h_stream))
+            _apply_deallocation_stream(self._h_ptr, s._h_stream)
         else:
             self._h_ptr = deviceptr_create_with_owner(c_ptr, owner)
         self._size = size
@@ -675,8 +675,7 @@ cdef inline void Buffer_close(Buffer self, object stream):
     # Update deallocation stream if provided
     if stream is not None:
         s = Stream_accept(stream)
-        _require_deallocation_stream_context(s)
-        HANDLE_RETURN(set_deallocation_stream(self._h_ptr, s._h_stream))
+        _apply_deallocation_stream(self._h_ptr, s._h_stream)
     # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
     self._h_ptr.reset()
     self._size = 0
