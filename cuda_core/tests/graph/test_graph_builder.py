@@ -747,8 +747,7 @@ def test_pdl_launch_graph_capture(init_cuda):
         assert ed.from_port == driver.CU_GRAPH_KERNEL_NODE_PORT_PROGRAMMATIC, ed.from_port
 
     mod = compile_common_kernels()
-    producer = mod.get_kernel("add_one")
-    consumer = mod.get_kernel("add_one")
+    dummy_kernel = mod.get_kernel("add_one")
 
     stream = Device().create_stream()
     mr = LegacyPinnedMemoryResource()
@@ -760,8 +759,8 @@ def test_pdl_launch_graph_capture(init_cuda):
     pdl = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
 
     gb = stream.create_graph_builder().begin_building()
-    launch(gb, cfg, producer, arr.ctypes.data)
-    launch(gb, pdl, consumer, arr.ctypes.data)
+    launch(gb, cfg, dummy_kernel, arr.ctypes.data)
+    launch(gb, pdl, dummy_kernel, arr.ctypes.data)
     gb.end_building()
     _assert_programmatic_dependency_edge(gb.graph_definition)
     graph = gb.complete()
