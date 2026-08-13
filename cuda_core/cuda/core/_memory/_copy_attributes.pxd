@@ -7,7 +7,14 @@
 # without either depending on the other.
 
 from cuda.bindings cimport cydriver
+from cuda.core._utils.version cimport cy_binding_version, cy_driver_version  # no-cython-lint
 
 
-cdef bint _with_attributes_available()
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    cdef inline bint _with_attributes_available():
+        return cy_driver_version() >= (13, 2, 0) and cy_binding_version() >= (13, 2, 0)
+ELSE:
+    cdef inline bint _with_attributes_available():
+        return False
+
 cdef cydriver.CUmemcpyAttributes _to_cu_memcpy_attributes(object attr)

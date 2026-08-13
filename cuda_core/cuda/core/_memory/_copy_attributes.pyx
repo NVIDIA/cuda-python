@@ -6,21 +6,8 @@ from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._location cimport to_cumemlocation
-from cuda.core._utils.version cimport cy_binding_version, cy_driver_version  # no-cython-lint
 
 from cuda.core._memory._managed_location import _coerce_location
-
-
-cdef bint _with_attributes_available():
-    """Whether cuMemcpyWithAttributesAsync is callable here.
-
-    Requires cuda.core built against CUDA 13 headers and both cuda.bindings
-    and the driver reporting CUDA 13.2 or newer.
-    """
-    IF CUDA_CORE_BUILD_MAJOR >= 13:
-        return cy_driver_version() >= (13, 2, 0) and cy_binding_version() >= (13, 2, 0)
-    ELSE:
-        return False
 
 
 cdef cydriver.CUmemcpyAttributes _to_cu_memcpy_attributes(object attr):
