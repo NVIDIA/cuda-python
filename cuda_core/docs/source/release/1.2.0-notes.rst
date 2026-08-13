@@ -6,6 +6,18 @@
 ``cuda.core`` 1.2.0 Release Notes
 ==================================
 
+New features
+------------
+
+- Added :func:`utils.copy_batch`, which submits many buffer-to-buffer copies
+  in a single ``cuMemcpyBatchAsync`` call. Per-copy behavior is controlled
+  by the new :class:`utils.CopyOptions` dataclass. Requires ``cuda.core``
+  built against CUDA 13, ``cuda.bindings`` 13.0+, and a driver reporting
+  CUDA 13.0 or newer; otherwise falls back to a per-copy ``cuMemcpyAsync``
+  loop with options silently ignored. Graph capture and default-stream tokens
+  are rejected. Copies within a batch must not alias.
+  (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__)
+
 Fixes and enhancements
 ----------------------
 

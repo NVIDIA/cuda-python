@@ -29,6 +29,7 @@ from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from cuda.core._utils.pycompat import BufferProtocol
@@ -617,6 +618,32 @@ cdef Buffer Buffer_from_deviceptr_handle(
     buf._owner = None
     buf._mem_attrs_inited.store(False)
     return buf
+
+
+cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint):
+    """Coerce ``buffers`` to a ``tuple[Buffer, ...]``; reject a bare Buffer.
+
+    Shared by the batched free functions. Passing one Buffer is rejected
+    rather than treated as a one-element batch so that the per-buffer API
+    named by ``single_hint`` stays the single obvious way to do it.
+    """
+    cdef list out
+    if isinstance(buffers, Buffer):
+        raise TypeError(
+            f"{what}: pass a sequence of Buffers; for a single buffer use {single_hint}"
+        )
+    if not isinstance(buffers, Sequence):
+        raise TypeError(
+            f"{what}: buffers must be a sequence of Buffer, got {type(buffers).__name__}"
+        )
+    if not buffers:
+        raise ValueError(f"{what}: empty buffers sequence")
+    out = []
+    for item in buffers:
+        if not isinstance(item, Buffer):
+            raise TypeError(f"{what}: expected Buffer, got {type(item).__name__}")
+        out.append(item)
+    return tuple(out)
 
 
 cdef inline void Buffer_close(Buffer self, object stream):
