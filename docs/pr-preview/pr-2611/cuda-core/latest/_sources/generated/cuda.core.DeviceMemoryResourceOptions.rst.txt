@@ -1,6 +1,0 @@
-﻿cuda.core.DeviceMemoryResourceOptions
-=====================================
-
-.. currentmodule:: cuda.core
-
-.. autoclass:: DeviceMemoryResourceOptions
