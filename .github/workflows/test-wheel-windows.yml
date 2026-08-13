@@ -354,21 +354,37 @@ jobs:
         if: ${{ inputs.test-mode == 'standard' && inputs.test-python && env.BINDINGS_SOURCE == 'main' }}
         run: |
           # Package suites install their own dependencies. A metapackage-only
-          # run has no preceding suite, so resolve its exact cuda-bindings pin
-          # from this run while allowing its released cuda-core pin from PyPI.
+          # run has no preceding suite, so install the exact local internal
+          # wheels in one transaction while resolving released dependencies
+          # such as cuda-core from the package index.
           if ('${{ inputs.test-bindings || inputs.test-core }}' -eq 'true') {
             $dependencyArgs = @('--no-deps')
           } else {
-            $dependencyArgs = @(
-              '--find-links', './cuda_pathfinder',
-              '--find-links', $env:CUDA_BINDINGS_ARTIFACTS_DIR
-            )
+            $pathfinderWheels = @(Get-ChildItem -Path ./cuda_pathfinder -Filter cuda_pathfinder-*.whl -File)
+            $bindingsWheels = @(Get-ChildItem -Path $env:CUDA_BINDINGS_ARTIFACTS_DIR -Filter cuda_bindings-*.whl -File)
+            if ($pathfinderWheels.Count -ne 1) {
+              throw "Expected exactly one cuda-pathfinder wheel, found $($pathfinderWheels.Count)"
+            }
+            if ($bindingsWheels.Count -ne 1) {
+              throw "Expected exactly one cuda-bindings wheel, found $($bindingsWheels.Count)"
+            }
+            $pathfinderWheel = $pathfinderWheels[0].FullName
+            $bindingsWheel = $bindingsWheels[0].FullName
+            if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
+              $dependencyArgs = @($pathfinderWheel, $bindingsWheel)
+            } else {
+              $dependencyArgs = @($pathfinderWheel, "${bindingsWheel}[all]")
+            }
           }
-          $wheel = (Get-ChildItem -Filter cuda_python*.whl).FullName
+          $pythonWheels = @(Get-ChildItem -Filter cuda_python*.whl -File)
+          if ($pythonWheels.Count -ne 1) {
+            throw "Expected exactly one cuda-python wheel, found $($pythonWheels.Count)"
+          }
+          $pythonWheel = $pythonWheels[0].FullName
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            pip install --only-binary=:all: @dependencyArgs $wheel
+            pip install --only-binary=:all: @dependencyArgs $pythonWheel
           } else {
-            pip install --only-binary=:all: @dependencyArgs "$wheel[all]"
+            pip install --only-binary=:all: @dependencyArgs "${pythonWheel}[all]"
           }
 
       - name: Install cuda.pathfinder extra wheels for testing

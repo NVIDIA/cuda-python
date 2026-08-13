@@ -384,21 +384,31 @@ jobs:
         if: ${{ inputs.test-mode == 'standard' && inputs.test-python && env.BINDINGS_SOURCE == 'main' }}
         run: |
           # Package suites install their own dependencies. A metapackage-only
-          # run has no preceding suite, so resolve its exact cuda-bindings pin
-          # from this run while allowing its released cuda-core pin from PyPI.
+          # run has no preceding suite, so install the exact local internal
+          # wheels in one transaction while resolving released dependencies
+          # such as cuda-core from the package index.
           if ${{ inputs.test-bindings || inputs.test-core }}; then
             dependency_args=(--no-deps)
           else
-            dependency_args=(
-              --find-links ./cuda_pathfinder
-              --find-links "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-            )
+            pathfinder_wheels=(./cuda_pathfinder/cuda_pathfinder-*.whl)
+            bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-*.whl)
+            test "${#pathfinder_wheels[@]}" -eq 1
+            test "${#bindings_wheels[@]}" -eq 1
+            test -f "${pathfinder_wheels[0]}"
+            test -f "${bindings_wheels[0]}"
+            if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
+              dependency_args=("${pathfinder_wheels[0]}" "${bindings_wheels[0]}")
+            else
+              dependency_args=("${pathfinder_wheels[0]}" "${bindings_wheels[0]}[all]")
+            fi
           fi
-          wheel=$(ls cuda_python*.whl)
+          python_wheels=(cuda_python*.whl)
+          test "${#python_wheels[@]}" -eq 1
+          test -f "${python_wheels[0]}"
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install --only-binary=:all: "${dependency_args[@]}" "${wheel}"
+            pip install --only-binary=:all: "${dependency_args[@]}" "${python_wheels[0]}"
           else
-            pip install --only-binary=:all: "${dependency_args[@]}" "${wheel}[all]"
+            pip install --only-binary=:all: "${dependency_args[@]}" "${python_wheels[0]}[all]"
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
