@@ -213,10 +213,23 @@ cdef class Buffer:
         cdef Buffer self = Buffer.__new__(cls)
         cdef uintptr_t c_ptr = <uintptr_t>(int(ptr))
         cdef Stream s
+        cdef cydriver.CUresult _ds_status
         if mr is not None:
             s = Stream_accept(default_stream() if stream is None else stream)
             self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
-            _apply_deallocation_stream(self._h_ptr, s._h_stream)
+            _ds_status = set_deallocation_stream(self._h_ptr, s._h_stream)
+            if _ds_status != cydriver.CUresult.CUDA_SUCCESS:
+                # Reset before raising: the DevicePtrHandle destructor would otherwise
+                # invoke _mr_dealloc_callback, which catches any inner exception and
+                # clears the exception state, swallowing the error we're about to raise.
+                self._h_ptr.reset()
+                if _ds_status == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+                    raise RuntimeError(
+                        "Cannot record a default deallocation stream when no CUDA context is "
+                        "current. Call Device.set_current() first, or pass stream= with a "
+                        "non-default Stream."
+                    )
+                HANDLE_RETURN(_ds_status)
         else:
             self._h_ptr = deviceptr_create_with_owner(c_ptr, owner)
         self._size = size
