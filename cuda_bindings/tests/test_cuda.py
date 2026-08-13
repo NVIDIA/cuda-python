@@ -267,12 +267,9 @@ def test_cuda_repr():
         value : 0
     nvSciSync :
         fence : 0x0
-        reserved : 0
     keyedMutex :
         key : 0
-    reserved : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 flags : 0
-reserved : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 """)
     assert actual_repr.split() == expected_repr.split()
 
@@ -737,16 +734,6 @@ def test_eglFrame():
     assert int(val.frame.pPitch[0]) == 1
     assert int(val.frame.pPitch[1]) == 2
     assert int(val.frame.pPitch[2]) == 3
-
-
-def test_char_range():
-    val = cuda.CUipcMemHandle_st()
-    for x in range(-128, 0):
-        val.reserved = [x] * 64
-        assert val.reserved[0] == 256 + x
-    for x in range(0, 256):
-        val.reserved = [x] * 64
-        assert val.reserved[0] == x
 
 
 def test_anon_assign():

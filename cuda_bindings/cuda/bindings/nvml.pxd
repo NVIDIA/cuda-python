@@ -3,9 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b6fe9a4efd0077f8c09ef4f826880ad0a54100455d4465953c4127d3de8c4d91
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=eb901f46ca6b6930935726541c32b3ea04f7f46b6090c4c2ad9cb62386c2028b
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
 from libc.stdint cimport intptr_t
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 from .cynvml cimport *
 
@@ -53,14 +60,10 @@ ctypedef nvmlMask255_t Mask255
 ctypedef nvmlHostname_v1_t Hostname_v1
 ctypedef nvmlUnrepairableMemoryStatus_v1_t UnrepairableMemoryStatus_v1
 ctypedef nvmlRusdSettings_v1_t RusdSettings_v1
-ctypedef nvmlBBXTimeData_v1_t BBXTimeData_v1
-ctypedef nvmlRemappedRowsInfo_v2_t RemappedRowsInfo_v2
-ctypedef nvmlAccountingStats_v2_t AccountingStats_v2
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuTypeMaxInstance_v1_t VgpuTypeMaxInstance_v1
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
 ctypedef nvmlGpuFabricInfo_t GpuFabricInfo
-ctypedef nvmlCPERCursor_v1_t CPERCursor_v1
 ctypedef nvmlSystemEventSetCreateRequest_v1_t SystemEventSetCreateRequest_v1
 ctypedef nvmlSystemEventSetFreeRequest_v1_t SystemEventSetFreeRequest_v1
 ctypedef nvmlSystemRegisterEventRequest_v1_t SystemRegisterEventRequest_v1
@@ -72,7 +75,6 @@ ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t WorkloadPowerProfileCurren
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t WorkloadPowerProfileRequestedProfiles_v1
 ctypedef nvmlWorkloadPowerProfileUpdateProfiles_v1_t WorkloadPowerProfileUpdateProfiles_v1
 ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
-ctypedef nvmlGetCPER_v1_t GetCPER_v1
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
 ctypedef nvmlPRMCounterList_v1_t PRMCounterList_v1
@@ -432,3 +434,7 @@ cpdef object device_get_vgpu_scheduler_log_v2(intptr_t device)
 cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance)
 cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_state)
 cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p_scheduler_state)
+cpdef object system_get_cper_v1()
+cpdef object device_get_bbx_time_data_v1(intptr_t device)
+cpdef object device_get_accounting_stats_v2(intptr_t device)
+cpdef object device_get_remapped_rows_v2(intptr_t device)

@@ -4,11 +4,10 @@
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6f38dbbe253af1c7868b30481f9caa6a927ecff257c6d62a5b704fdbda0a07d5
-from libc.stdint cimport uint32_t, uint64_t
 
 
 # ENUMS
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=399fa22cff463d0f3b9a99ef5af1a65f711aee777f6afb0776203f71c10c1c32
 cdef extern from 'nvrtc.h':
     ctypedef enum nvrtcResult "nvrtcResult":
         NVRTC_SUCCESS
