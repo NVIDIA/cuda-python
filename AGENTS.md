@@ -14,83 +14,16 @@ guide for package-specific conventions and workflows.
 
 # Pull requests
 
-## Remote-write policy
+**Never push branches or commits to the canonical upstream repository. Treat
+it as read-only.** Branch creation and pushes for pull-request work must go to
+an approved fork associated with the contributor. The fork may be owned by the
+contributor's personal account or by an organization.
 
-Do not push branches or commits, create or update a pull request, or perform
-any other remote write unless the user directly requests that specific action
-in the current conversation. Finishing work, committing it locally, or
-finding a suitable fork does not imply authorization. This rule overrides the
-general autonomy and persistence guidance elsewhere in this file.
-
-A request to push a branch does not authorize creating a pull request. A
-direct request to create a pull request authorizes only the fork push needed
-for that pull request, if one is required, and creation of the pull request
-itself. Ask before performing any other remote write.
-
-Treat the canonical repository used as the pull-request base as read-only.
-Never push branches or commits to it. If a workflow must be tested from a
-branch in the canonical repository, explain that requirement and leave the
-upstream push to the user.
-
-The technical instructions below apply only after the user has authorized the
-corresponding remote action. They explain how to perform that action; they do
-not grant permission or define when to perform it.
-
-## Technical procedure after authorization
-
-### Selecting a fork
-
-For an explicitly requested push, use an approved fork, which may be owned by
-either a personal account or an organization. Before pushing:
-
-- Run `git remote -v` and resolve the complete `OWNER/REPOSITORY` names of the
-  base repository and intended fork. Do not rely on remote names such as
-  `origin` or `upstream`.
-- Confirm that the push target is a fork of the base repository and is not the
-  base repository itself. Compare complete repository names; the owner alone
-  is not sufficient to distinguish them.
-- Push using the explicit fork remote and branch, for example
-  `git push <fork-remote> <branch>`.
-
-### Creating a requested pull request
-
-Follow this procedure only when the user has directly requested creation of a
-pull request. Follow the repository's pull-request template when preparing the
-body.
-
-Use `gh pr create` when it can identify the fork unambiguously. Always select
-the base repository explicitly with `--repo <base-owner>/<base-repository>`.
-
-[GitHub CLI issue cli/cli#10093](https://github.com/cli/cli/issues/10093)
-tracks the inability of `gh pr create` to select some organization-owned forks
-whose repository name differs from the base repository. The link lets
-maintainers check whether the workaround is still necessary.
-
-When `gh pr create` cannot identify such a fork, use the GraphQL
-`createPullRequest` mutation and supply `headRepositoryId` explicitly. Resolve
-the base and head repository node IDs with:
-
-```
-gh api "repos/<base-owner>/<base-repository>" --jq '.node_id'
-gh api "repos/<fork-owner>/<fork-repository>" --jq '.node_id'
-```
-
-Pass the base repository ID as `repositoryId`, the fork ID as
-`headRepositoryId`, and provide `baseRefName`, `headRefName`, `title`, `body`,
-and `draft`. Request the created pull request's number and URL in the mutation
-result. The GraphQL API does not populate the pull-request template
-automatically, so prepare the complete body before creating the pull request.
-
-Every pull request must have at least one assignee, one label, and a milestone,
-regardless of how it was created. CI enforces this via the
-`pr-metadata-check` workflow. With `gh pr create`, use the `--assignee`,
-`--label`, and `--milestone` flags. After the GraphQL fallback, add the same
-metadata with `gh pr edit <pr-number> --repo <base-owner>/<base-repository>`.
-
-If required metadata is unclear, do not guess. Inspect the available labels
-with `gh label list --repo <base-owner>/<base-repository>` and milestones with
-`gh api "repos/<base-owner>/<base-repository>/milestones" --jq '.[].title'`,
-then ask the user to choose.
+Before pushing, run `git remote -v` and confirm that the intended push remote
+points to a fork of the pull-request base, not to the base repository itself.
+Compare complete `OWNER/REPOSITORY` names; do not rely on remote names such as
+`origin` or `upstream`, or on the owner alone. Do not use `git push upstream`
+or any command that writes to the upstream remote.
 
 
 # General
