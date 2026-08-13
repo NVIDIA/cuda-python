@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.SUPPORTED\_BINARY\_UTILITIES
+============================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autodata:: SUPPORTED_BINARY_UTILITIES
