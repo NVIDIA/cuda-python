@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_conf\_compute\_mem\_size\_info
+==============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_conf_compute_mem_size_info
