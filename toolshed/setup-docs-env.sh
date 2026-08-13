@@ -56,7 +56,7 @@ conda create -y -n "${ENV_NAME}" \
 
 conda activate "${ENV_NAME}"
 python -m pip install --upgrade pip
-python -m pip install nvidia-sphinx-theme
+python -m pip install nvidia-sphinx-theme "sphinx-toolbox>=4.2.0"
 
 echo
 echo "✅ Environment '${ENV_NAME}' is ready."
