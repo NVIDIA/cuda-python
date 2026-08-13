@@ -377,6 +377,7 @@ Utility functions
    :toctree: generated/
 
    utils.args_viewable_as_strided_memory
+   utils.copy_batch
    utils.prefetch_batch
    utils.discard_batch
    utils.discard_prefetch_batch
@@ -384,3 +385,20 @@ Utility functions
    :template: autosummary/cyclass.rst
 
    utils.StridedMemoryView
+
+Data transfer options
+`````````````````````
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: dataclass.rst
+
+   utils.CopyOptions
+
+   :template: class.rst
+
+   utils.MemcpySrcAccessOrder
+   utils.MemcpyOverlapMode
