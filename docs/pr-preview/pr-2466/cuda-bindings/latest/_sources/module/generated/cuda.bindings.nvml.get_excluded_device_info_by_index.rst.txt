@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.get\_excluded\_device\_info\_by\_index
+=========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: get_excluded_device_info_by_index
