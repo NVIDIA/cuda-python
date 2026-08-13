@@ -296,7 +296,8 @@ jobs:
           allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
 
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
-        if: ${{ (inputs.test-bindings || inputs.test-core) && startsWith(matrix.PY_VER, '3.15') }}
+        if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
+                startsWith(matrix.PY_VER, '3.15') }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
