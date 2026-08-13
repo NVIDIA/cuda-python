@@ -21,6 +21,7 @@ TOP_LEVEL_FILE_LICENSE_IDENTIFIER = "Apache-2.0"
 # Every top-level directory needs to have an entry here, so new paths
 # can't slip in without a reviewed license decision.
 TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
+    ".agents": "Apache-2.0",
     ".github": "Apache-2.0",
     "benchmarks": "Apache-2.0",
     "ci": "Apache-2.0",
