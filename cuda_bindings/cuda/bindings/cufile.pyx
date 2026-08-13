@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1ca8c2d672c5799154a85a73ac7f0f3661943ece8f4d7c1d2e11649a0a537c81
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=df46a6921d93f83249134c7705b2809f57145b6fb72f6f40c4657ecd1b443b81
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -74,7 +74,7 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
 
 cimport cython  # NOQA
 from libc cimport errno
-from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
+from ._internal.utils cimport (get_nested_resource_ptr,
                                nested_resource)
 
 import cython
