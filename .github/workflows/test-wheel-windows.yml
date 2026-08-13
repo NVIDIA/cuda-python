@@ -360,32 +360,16 @@ jobs:
           if ('${{ inputs.test-bindings || inputs.test-core }}' -eq 'true') {
             $dependencyArgs = @('--no-deps')
           } else {
-            $pathfinderWheels = @(Get-ChildItem -Path ./cuda_pathfinder -Filter cuda_pathfinder-*.whl -File)
-            $bindingsWheels = @(Get-ChildItem -Path $env:CUDA_BINDINGS_ARTIFACTS_DIR -Filter cuda_bindings-*.whl -File)
-            if ($pathfinderWheels.Count -ne 1) {
-              throw "Expected exactly one cuda-pathfinder wheel, found $($pathfinderWheels.Count)"
-            }
-            if ($bindingsWheels.Count -ne 1) {
-              throw "Expected exactly one cuda-bindings wheel, found $($bindingsWheels.Count)"
-            }
-            $pathfinderWheel = $pathfinderWheels[0].FullName
-            $bindingsWheel = $bindingsWheels[0].FullName
-            if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-              $dependencyArgs = @($pathfinderWheel, $bindingsWheel)
-            } else {
-              $dependencyArgs = @($pathfinderWheel, "${bindingsWheel}[all]")
-            }
+            $dependencyArgs = @(
+              (Get-Item ./cuda_pathfinder/cuda_pathfinder-*.whl).FullName
+              (Get-Item "$env:CUDA_BINDINGS_ARTIFACTS_DIR/cuda_bindings-*.whl").FullName
+            )
           }
-          $pythonWheels = @(Get-ChildItem -Filter cuda_python*.whl -File)
-          if ($pythonWheels.Count -ne 1) {
-            throw "Expected exactly one cuda-python wheel, found $($pythonWheels.Count)"
+          $pythonRequirements = @((Get-Item ./cuda_python*.whl).FullName)
+          if ('${{ matrix.LOCAL_CTK }}' -ne '1') {
+            $pythonRequirements = @($pythonRequirements | ForEach-Object { "$($_)[all]" })
           }
-          $pythonWheel = $pythonWheels[0].FullName
-          if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            pip install --only-binary=:all: @dependencyArgs $pythonWheel
-          } else {
-            pip install --only-binary=:all: @dependencyArgs "${pythonWheel}[all]"
-          }
+          pip install --only-binary=:all: @dependencyArgs @pythonRequirements
 
       - name: Install cuda.pathfinder extra wheels for testing
         if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}

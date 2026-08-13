@@ -390,26 +390,16 @@ jobs:
           if ${{ inputs.test-bindings || inputs.test-core }}; then
             dependency_args=(--no-deps)
           else
-            pathfinder_wheels=(./cuda_pathfinder/cuda_pathfinder-*.whl)
-            bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-*.whl)
-            test "${#pathfinder_wheels[@]}" -eq 1
-            test "${#bindings_wheels[@]}" -eq 1
-            test -f "${pathfinder_wheels[0]}"
-            test -f "${bindings_wheels[0]}"
-            if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-              dependency_args=("${pathfinder_wheels[0]}" "${bindings_wheels[0]}")
-            else
-              dependency_args=("${pathfinder_wheels[0]}" "${bindings_wheels[0]}[all]")
-            fi
+            dependency_args=(
+              ./cuda_pathfinder/cuda_pathfinder-*.whl
+              "${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-*.whl
+            )
           fi
-          python_wheels=(cuda_python*.whl)
-          test "${#python_wheels[@]}" -eq 1
-          test -f "${python_wheels[0]}"
-          if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install --only-binary=:all: "${dependency_args[@]}" "${python_wheels[0]}"
-          else
-            pip install --only-binary=:all: "${dependency_args[@]}" "${python_wheels[0]}[all]"
+          python_requirements=(cuda_python*.whl)
+          if [[ "${{ matrix.LOCAL_CTK }}" != 1 ]]; then
+            python_requirements=("${python_requirements[@]/%/[all]}")
           fi
+          pip install --only-binary=:all: "${dependency_args[@]}" "${python_requirements[@]}"
 
       - name: Install cuda.pathfinder extra wheels for testing
         if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
