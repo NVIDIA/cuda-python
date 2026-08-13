@@ -7,15 +7,15 @@ import gc
 import time
 import weakref
 
+import helpers
 import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
 from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 from helpers.misc import try_create_condition
-from helpers.pdl_kernels import run_pdl_overlap_check
 
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
+from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, launch
 from cuda.core.graph import GraphBuilder, GraphDefinition
 from cuda.core.graph._graph_builder import (
     _capture_callback_with_tail_failure_for_testing,
@@ -778,4 +778,68 @@ def test_pdl_launch_graph_capture(init_cuda):
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_pdl_same_stream_primary_secondary_overlap_via_graph(init_cuda):
     """Same-stream PDL overlap via GraphBuilder stream capture on Hopper+."""
-    run_pdl_overlap_check(Device(), via_graph=True)
+    dev = Device()
+    if dev.compute_capability < (9, 0):
+        pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
+
+    code = r"""
+    #include <cuda_device_runtime_api.h>
+
+    extern "C" __global__ void primary_kernel(int* secondary_started, int* overlapped) {
+        cudaTriggerProgrammaticLaunchCompletion();
+
+        const long long deadline = clock64() + 100000000LL;  // ~50ms @ ~2GHz
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            while (clock64() < deadline) {
+                if (atomicAdd(secondary_started, 0) != 0) {
+                    atomicExch(overlapped, 1);
+                    return;
+                }
+                __nanosleep(1000);
+            }
+        }
+    }
+
+    extern "C" __global__ void secondary_kernel(int* secondary_started) {
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            atomicExch(secondary_started, 1);
+        }
+    }
+    """
+
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    options = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CUDA_INCLUDE_PATH)
+    module = Program(code, code_type="c++", options=options).compile("cubin")
+    primary = module.get_kernel("primary_kernel")
+    secondary = module.get_kernel("secondary_kernel")
+
+    stream = dev.create_stream(options={"nonblocking": True})
+    mr = LegacyPinnedMemoryResource()
+    secondary_started = np.from_dlpack(mr.allocate(4)).view(np.int32)
+    overlapped = np.from_dlpack(mr.allocate(4)).view(np.int32)
+    primary_cfg = LaunchConfig(grid=1, block=1)
+    secondary_cfg = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
+
+    saw_overlap = False
+    for _ in range(5):
+        secondary_started[0] = 0
+        overlapped[0] = 0
+
+        gb = stream.create_graph_builder().begin_building()
+        launch(gb, primary_cfg, primary, secondary_started.ctypes.data, overlapped.ctypes.data)
+        launch(gb, secondary_cfg, secondary, secondary_started.ctypes.data)
+        graph = gb.end_building().complete()
+        graph.launch(stream)
+        stream.sync()
+        graph.close()
+        gb.close()
+
+        if overlapped[0] == 1:
+            saw_overlap = True
+            break
+
+    if not saw_overlap:
+        pytest.xfail(
+            "PDL (Programmatic Dependent Launch) graph overlap was not observed. "
+            "If this keeps xfailing in CI, manually re-check on a quiet Hopper+ GPU."
+        )

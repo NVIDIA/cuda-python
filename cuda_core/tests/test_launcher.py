@@ -6,7 +6,6 @@ import ctypes
 import helpers
 from cuda_python_test_helpers.marks import requires_module
 from helpers.misc import StreamWrapper
-from helpers.pdl_kernels import run_pdl_overlap_check
 
 try:
     import cupy as cp
@@ -204,19 +203,95 @@ def test_to_native_launch_config_pdl():
 
 
 @skipif_need_cuda_headers
-@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_pdl_same_stream_primary_secondary_overlap(init_cuda):
-    """Same-stream primary + secondary PDL launch can overlap on Hopper+.
+def test_pdl_primary_secondary_overlap_same_stream():
+    """Primary + secondary PDL launch on one stream can overlap on Hopper+.
 
     Secondary is launched with ``programmatic_stream_serialization=True``. After
     the primary triggers completion, it spins until it observes a flag written by
     the secondary's independent preamble — proving both grids were resident at
-    once. Without PDL, same-stream kernels stay serialized.
+    once. Without PDL, the secondary cannot start until the primary exits.
 
     Note concurrency is opportunistic, so a missing overlap execution is reported as
     an expected failure.
     """
-    run_pdl_overlap_check(Device(), via_graph=False)
+    dev = Device()
+    if dev.compute_capability < (9, 0):
+        pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
+    dev.set_current()
+    stream = dev.create_stream(options={"nonblocking": True})
+
+    # clock64 budgets are in GPU cycles; keep the post-trigger window long enough
+    # for the secondary to boot, but short enough for a unit test.
+    code = r"""
+    #include <cuda_device_runtime_api.h>
+
+    extern "C" __global__ void primary_kernel(int* secondary_started, int* overlapped) {
+        cudaTriggerProgrammaticLaunchCompletion();
+
+        const long long deadline = clock64() + 100000000LL;  // ~50ms @ ~2GHz
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            while (clock64() < deadline) {
+                if (atomicAdd(secondary_started, 0) != 0) {
+                    atomicExch(overlapped, 1);
+                    return;
+                }
+                __nanosleep(1000);
+            }
+        }
+    }
+
+    extern "C" __global__ void secondary_kernel(int* secondary_started) {
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            atomicExch(secondary_started, 1);
+        }
+    }
+    """
+
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CUDA_INCLUDE_PATH)
+    prog = Program(code, code_type="c++", options=pro_opts)
+    mod = prog.compile("cubin")
+    primary = mod.get_kernel("primary_kernel")
+    secondary = mod.get_kernel("secondary_kernel")
+
+    mr = LegacyPinnedMemoryResource()
+    secondary_started = np.from_dlpack(mr.allocate(4)).view(np.int32)
+    overlapped = np.from_dlpack(mr.allocate(4)).view(np.int32)
+
+    primary_cfg = LaunchConfig(grid=1, block=1)
+    secondary_cfg = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
+    secondary_serial_cfg = LaunchConfig(grid=1, block=1)
+
+    def _run(secondary_launch_cfg: LaunchConfig) -> int:
+        secondary_started[0] = 0
+        overlapped[0] = 0
+        launch(stream, primary_cfg, primary, secondary_started.ctypes.data, overlapped.ctypes.data)
+        launch(stream, secondary_launch_cfg, secondary, secondary_started.ctypes.data)
+        stream.sync()
+        return int(overlapped[0])
+
+    # Without the PDL attribute, same-stream kernels stay serialized.
+    assert _run(secondary_serial_cfg) == 0, "Expected no overlap when programmatic_stream_serialization is False"
+
+    # PDL overlap is opportunistic; retry a few times on a quiet GPU.
+    saw_overlap = False
+    for _ in range(5):
+        if _run(secondary_cfg) == 1:
+            saw_overlap = True
+            break
+
+    if not saw_overlap:
+        # Overlap is never guaranteed by the driver, so a miss is reported as an
+        # expected failure rather than turning a busy GPU into a red CI run.
+        pytest.xfail(
+            "PDL (Programmatic Dependent Launch) overlap was not observed. "
+            "If this keeps xfailing in CI, manually re-check on a quiet Hopper+ GPU."
+        )
+
+    print(
+        f"PDL (Programmatic Dependent Launch) overlap verified on {dev.name} compute capability {dev.compute_capability}",
+        flush=True,
+    )
 
 
 def test_launch_config_cluster_accepts_hopper_cc(monkeypatch):
