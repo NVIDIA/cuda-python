@@ -10,14 +10,18 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
+from cuda.core._memory._buffer cimport (
+    Buffer,
+    Buffer_from_deviceptr_handle,
+    MemoryResource,
+    deviceptr_create_owned_by_mr,
+)
 from cuda.core._memory cimport _ipc
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._resource_handles cimport (
     MemoryPoolHandle,
     DevicePtrHandle,
     create_mempool_handle,
-    deviceptr_alloc_from_pool,
     get_last_error,
     as_cu,
     as_py,
@@ -330,18 +334,12 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = Buffer):
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
+    cdef cydriver.CUdeviceptr ptr
     cdef DevicePtrHandle h_ptr
     with nogil:
         check_not_capturing(s)
-        h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
-    if not h_ptr:
-        HANDLE_RETURN(get_last_error())
-        raise RuntimeError(
-            f"Failed to allocate {size} bytes from {self.__class__.__name__}: "
-            "cuda-core returned an empty allocation handle without recording a CUDA error. "
-            "This is an internal cuda-core error; please report it with your CUDA driver, "
-            "CUDA Toolkit, and cuda-python versions."
-        )
+        HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&ptr, size, as_cu(self._h_pool), s))
+    h_ptr = deviceptr_create_owned_by_mr(ptr, size, self, stream)
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None, cls)
 
 

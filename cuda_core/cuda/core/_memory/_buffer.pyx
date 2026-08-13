@@ -92,6 +92,22 @@ cdef inline void _apply_deallocation_stream(
     HANDLE_RETURN(status)
 
 
+cdef DevicePtrHandle deviceptr_create_owned_by_mr(
+    cydriver.CUdeviceptr ptr,
+    size_t size,
+    object mr,
+    Stream stream,
+) except *:
+    """Create an MR-owned device pointer handle with a recorded deallocation stream."""
+    cdef DevicePtrHandle h_ptr = deviceptr_create_with_mr(ptr, size, mr)
+    try:
+        _apply_deallocation_stream(h_ptr, stream._h_stream)
+    except BaseException:
+        h_ptr.reset()
+        raise
+    return h_ptr
+
+
 __all__ = ['Buffer', 'MemoryResource']
 
 
