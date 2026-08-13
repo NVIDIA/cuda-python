@@ -101,9 +101,15 @@ def main():
     # h_C contains the result in host memory
     check_cuda_errors(cuda.cuMemcpyDtoH(h_c, d_c, nbytes))
 
+    # A completed C `for` loop leaves i == n, which is why the C sample can
+    # test `i == N` for success. A completed Python loop leaves i == n - 1, so
+    # a flag is needed: `i + 1 != n` is also what `break` at the last index
+    # produces, and a wrong value in h_c[n - 1] would be reported as a pass.
+    mismatch = False
     for i in range(n):
         sum_all = h_a[i] + h_b[i]
         if math.fabs(h_c[i] - sum_all) > 1e-7:
+            mismatch = True
             break
 
     # Free device memory
@@ -112,7 +118,7 @@ def main():
     check_cuda_errors(cuda.cuMemFree(d_c))
 
     check_cuda_errors(cuda.cuCtxDestroy(cu_context))
-    if i + 1 != n:
+    if mismatch:
         print("Result = FAIL", file=sys.stderr)
         sys.exit(1)
 
