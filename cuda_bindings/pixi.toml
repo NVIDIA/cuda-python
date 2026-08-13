@@ -84,6 +84,7 @@ docs = { features = ["cu13", "docs"], solve-group = "docs" }
 
 [feature.docs.pypi-dependencies]
 nvidia-sphinx-theme = "*"
+sphinx-toolbox = ">=4.2.0"
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
