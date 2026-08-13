@@ -19,7 +19,7 @@ dependencies:
   - sphinx-copybutton
   - myst-nb
   - enum_tools
-  - sphinx-toolbox
   - pyclibrary
   - pip:
     - nvidia-sphinx-theme
+    - sphinx-toolbox>=4.2.0
