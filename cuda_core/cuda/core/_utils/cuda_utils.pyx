@@ -63,26 +63,12 @@ def cast_to_3_tuple(label: str, cfg: int | tuple[int, ...]) -> tuple[int, int, i
     return cfg + (1,) * (3 - len(cfg))
 
 
-cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil:
-    if err != cydriver.CUresult.CUDA_SUCCESS:
-        return _check_driver_error(err)
-    return 0
-
-
 cdef int _get_current_device_id() except? -1:
     """Return the current thread's bound CUdevice ordinal."""
     cdef cydriver.CUdevice dev
     with nogil:
         HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
     return <int>dev
-
-
-cdef int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except?-1 nogil:
-    """Handle NVRTC result codes, raising NVRTCError with program log on failure."""
-    if err == cynvrtc.nvrtcResult.NVRTC_SUCCESS:
-        return 0
-    with gil:
-        _raise_nvrtc_error(prog, err)
 
 
 cdef int _raise_nvrtc_error(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except -1:
@@ -103,14 +89,6 @@ cdef int _raise_nvrtc_error(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) 
     raise NVRTCError(err_msg)
 
 
-cdef int HANDLE_RETURN_NVVM(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except?-1 nogil:
-    """Handle NVVM result codes, raising nvvmError with program log on failure."""
-    if err == cynvvm.nvvmResult.NVVM_SUCCESS:
-        return 0
-    with gil:
-        _raise_nvvm_error(prog, err)
-
-
 cdef int _raise_nvvm_error(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except -1:
     """Raise nvvmError annotated with the program log."""
     cdef size_t logsize = 0
@@ -126,15 +104,6 @@ cdef int _raise_nvvm_error(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) excep
     if log_str:
         exc.args = (exc.args[0] + f"\nNVVM program log: {log_str}", *exc.args[1:])
     raise exc
-
-
-cdef int HANDLE_RETURN_NVJITLINK(
-        cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except?-1 nogil:
-    """Handle nvJitLink result codes, raising nvJitLinkError with error log on failure."""
-    if err == cynvjitlink.nvJitLinkResult.NVJITLINK_SUCCESS:
-        return 0
-    with gil:
-        _raise_nvjitlink_error(handle, err)
 
 
 cdef int _raise_nvjitlink_error(
