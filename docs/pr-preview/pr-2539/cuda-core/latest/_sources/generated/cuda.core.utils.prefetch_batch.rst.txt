@@ -1,6 +1,0 @@
-﻿cuda.core.utils.prefetch\_batch
-===============================
-
-.. currentmodule:: cuda.core.utils
-
-.. autofunction:: prefetch_batch
