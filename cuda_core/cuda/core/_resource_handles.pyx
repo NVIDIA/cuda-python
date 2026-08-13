@@ -62,6 +62,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void py_object_user_object_destroy "cuda_core::py_object_user_object_destroy" (
         void* py_object) noexcept nogil
     void initialize_deferred_cleanup "cuda_core::initialize_deferred_cleanup" () except+
+    void retry_deferred_cleanup "cuda_core::retry_deferred_cleanup" () noexcept
     ContextHandle get_stream_context "cuda_core::get_stream_context" (
         const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () except+ nogil
@@ -149,19 +150,47 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Graph handles
     GraphHandle create_graph_handle "cuda_core::create_graph_handle" (
         cydriver.CUgraph graph) except+ nogil
-    GraphHandle create_graph_handle_ref "cuda_core::create_graph_handle_ref" (
-        cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
+    GraphHandle create_child_graph_handle "cuda_core::create_child_graph_handle" (
+        cydriver.CUgraph child_graph, const GraphHandle& h_parent,
+        cydriver.CUgraphNode owner_node) except+ nogil
 
-    # Graph slot attachments
+    # Graph node attachments
     OpaqueHandle make_opaque_py "cuda_core::make_opaque_py" (object obj) except+
     OpaqueHandle make_opaque_malloc "cuda_core::make_opaque_malloc" (void* buf) except+
-    cydriver.CUresult graph_set_slot "cuda_core::graph_set_slot" (
+    cydriver.CUresult graph_get_attachment "cuda_core::graph_get_attachment" (
         const GraphHandle& h_graph, cydriver.CUgraphNode node,
-        unsigned int slot, OpaqueHandle owner) except+
+        OpaqueHandle* owner0, OpaqueHandle* owner1) except+
+    cydriver.CUresult graph_prepare_attachment "cuda_core::graph_prepare_attachment" (
+        const GraphHandle& h_graph, OpaqueHandle owner0, OpaqueHandle owner1,
+        PreparedAttachment* out_prepared) except+
+    cydriver.CUresult graph_commit_attachment "cuda_core::graph_commit_attachment" (
+        PreparedAttachment& prepared, cydriver.CUgraphNode node) except+
+    cydriver.CUresult graph_clone_attachments "cuda_core::graph_clone_attachments" (
+        const GraphHandle& h_clone, const GraphHandle& h_source) except+
+    cydriver.CUresult graph_prepare_child_graph_update "cuda_core::graph_prepare_child_graph_update" (
+        const GraphHandle& h_parent, const GraphHandle& h_old_child,
+        cydriver.CUgraphNode owner_node, const GraphHandle& h_source,
+        PreparedChildGraphUpdate* out_prepared) except+
+    cydriver.CUresult graph_commit_child_graph_update "cuda_core::graph_commit_child_graph_update" (
+        PreparedChildGraphUpdate& prepared, GraphHandle* out_child) except+
+    void invalidate_child_graph_state "cuda_core::invalidate_child_graph_state" (
+        const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
     # Graph exec handles
     GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (
-        cydriver.CUgraphExec graph_exec) except+ nogil
+        const GraphHandle& h_source,
+        cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS* params) except+
+    cydriver.CUresult graph_exec_update "cuda_core::graph_exec_update" (
+        const GraphExecHandle& h_exec,
+        const GraphHandle& h_source,
+        cydriver.CUgraphExecUpdateResultInfo* result_info) except+
+    cydriver.CUresult graph_prepare_exec_attachment "cuda_core::graph_prepare_exec_attachment" (
+        const GraphExecHandle& h_exec,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1,
+        PreparedExecAttachment* out_prepared) except+
+    void graph_commit_exec_attachment "cuda_core::graph_commit_exec_attachment" (
+        PreparedExecAttachment& prepared) noexcept
 
     # Graph node handles
     GraphNodeHandle create_graph_node_handle "cuda_core::create_graph_node_handle" (
@@ -311,10 +340,15 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Graph
     void* p_cuGraphDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphDestroy)"
+    void* p_cuGraphInstantiateWithParams "reinterpret_cast<void*&>(cuda_core::p_cuGraphInstantiateWithParams)"
+    void* p_cuGraphExecUpdate "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecUpdate)"
     void* p_cuGraphExecDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecDestroy)"
     void* p_cuUserObjectCreate "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectCreate)"
     void* p_cuUserObjectRelease "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectRelease)"
     void* p_cuGraphRetainUserObject "reinterpret_cast<void*&>(cuda_core::p_cuGraphRetainUserObject)"
+    void* p_cuGraphReleaseUserObject "reinterpret_cast<void*&>(cuda_core::p_cuGraphReleaseUserObject)"
+    void* p_cuGraphNodeFindInClone "reinterpret_cast<void*&>(cuda_core::p_cuGraphNodeFindInClone)"
+    void* p_cuGraphChildGraphNodeGetGraph "reinterpret_cast<void*&>(cuda_core::p_cuGraphChildGraphNodeGetGraph)"
 
     # Linker
     void* p_cuLinkDestroy "reinterpret_cast<void*&>(cuda_core::p_cuLinkDestroy)"
@@ -374,8 +408,11 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuMemFreeAsync, p_cuMemFree, p_cuMemFreeHost
     global p_cuMemPoolImportPointer
     global p_cuLibraryLoadFromFile, p_cuLibraryLoadData, p_cuLibraryUnload, p_cuLibraryGetKernel
-    global p_cuGraphDestroy, p_cuGraphExecDestroy
-    global p_cuUserObjectCreate, p_cuUserObjectRelease, p_cuGraphRetainUserObject
+    global p_cuGraphDestroy, p_cuGraphInstantiateWithParams
+    global p_cuGraphExecUpdate, p_cuGraphExecDestroy
+    global p_cuUserObjectCreate, p_cuUserObjectRelease
+    global p_cuGraphRetainUserObject, p_cuGraphReleaseUserObject
+    global p_cuGraphNodeFindInClone, p_cuGraphChildGraphNodeGetGraph
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
     global p_cuDevSmResourceSplit
@@ -435,10 +472,15 @@ cdef void _init_driver_fn_pointers() noexcept:
 
     # Graph
     p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
+    p_cuGraphInstantiateWithParams = _get_driver_fn("cuGraphInstantiateWithParams")
+    p_cuGraphExecUpdate = _get_driver_fn("cuGraphExecUpdate")
     p_cuGraphExecDestroy = _get_driver_fn("cuGraphExecDestroy")
     p_cuUserObjectCreate = _get_driver_fn("cuUserObjectCreate")
     p_cuUserObjectRelease = _get_driver_fn("cuUserObjectRelease")
     p_cuGraphRetainUserObject = _get_driver_fn("cuGraphRetainUserObject")
+    p_cuGraphReleaseUserObject = _get_driver_fn("cuGraphReleaseUserObject")
+    p_cuGraphNodeFindInClone = _get_driver_fn("cuGraphNodeFindInClone")
+    p_cuGraphChildGraphNodeGetGraph = _get_driver_fn("cuGraphChildGraphNodeGetGraph")
 
     # Linker
     p_cuLinkDestroy = _get_driver_fn("cuLinkDestroy")

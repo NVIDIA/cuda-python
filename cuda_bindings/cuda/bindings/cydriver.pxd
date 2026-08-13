@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cccb0572002cd20232f2b9f5c7acf559c92813d33dfc364136d57c8f453e50c6
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3d716616a92d8ac919b59eccac24b84cb45d655dfb75436b7f9714c71d6f39e6
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -3715,6 +3715,7 @@ cdef enum: CUDA_NVSCISYNC_ATTR_WAIT = 2
 cdef enum: CU_MEM_CREATE_USAGE_TILE_POOL = 1
 
 cdef enum: CU_MEM_CREATE_USAGE_HW_DECOMPRESS = 2
+
 
 cdef enum: CU_MEM_POOL_CREATE_USAGE_HW_DECOMPRESS = 2
 

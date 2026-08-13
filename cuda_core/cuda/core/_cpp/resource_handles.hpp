@@ -108,10 +108,15 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
 // Graph
 extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
+extern decltype(&cuGraphInstantiateWithParams) p_cuGraphInstantiateWithParams;
+extern decltype(&cuGraphExecUpdate) p_cuGraphExecUpdate;
 extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
 extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
 extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
 extern decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject;
+extern decltype(&cuGraphReleaseUserObject) p_cuGraphReleaseUserObject;
+extern decltype(&cuGraphNodeFindInClone) p_cuGraphNodeFindInClone;
+extern decltype(&cuGraphChildGraphNodeGetGraph) p_cuGraphChildGraphNodeGetGraph;
 
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
@@ -259,6 +264,7 @@ void py_object_user_object_destroy(void* py_object) noexcept;
 // Initialize the process-lifetime CUDA user-object cleanup queue. Called once
 // from module initialization while Python is fully initialized.
 void initialize_deferred_cleanup();
+void retry_deferred_cleanup() noexcept;
 
 // Return the context dependency associated with a stream handle, if any.
 ContextHandle get_stream_context(const StreamHandle& h) noexcept;
@@ -462,26 +468,28 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
 // Graph handle functions
 // ============================================================================
 
-// Wrap an externally-created CUgraph with RAII cleanup.
-// When the last reference is released, cuGraphDestroy is called automatically.
-// The caller must have already created the graph via cuGraphCreate.
+// Create the owning handle for a root graph and its hierarchy.
 GraphHandle create_graph_handle(CUgraph graph);
 
-// Create a non-owning graph handle that keeps h_parent alive.
-// Use for graphs owned by a child/conditional node in a parent graph.
-// The child graph will NOT be destroyed when this handle is released,
-// but h_parent will be prevented from destruction while this handle exists.
-GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
+// Create the canonical handle for a graph whose CUDA lifetime is owned by a
+// node in h_parent.
+GraphHandle create_child_graph_handle(
+    CUgraph child_graph, const GraphHandle& h_parent, CUgraphNode owner_node);
 
 // ============================================================================
-// Graph slot attachments
+// Graph node attachments
 //
-// A graph carries a side table that keeps resources used by its nodes (kernel
-// arguments, host callbacks, events, ...) alive for as long as the graph can
-// execute. The table is created on first use and retained on the CUgraph as a
-// user object, so the driver releases it -- and everything attached through it
-// -- when the graph is destroyed. The table layout is an internal detail;
-// callers use the abstract API below.
+// Each resource-bearing node has one attachment with an immutable owner bundle,
+// retained on its CUgraph as a CUDA user object.
+//
+// Attachment mutations use prepare -> CUDA mutation -> commit. Preparation
+// graph-retains a replacement and preallocates its map entry when needed; an
+// empty replacement stages removal. Dropping an uncommitted PreparedAttachment
+// rolls back any staged retain. Commit updates metadata before releasing the
+// previous graph reference.
+// graph_get_attachment lets callers carry unchanged owners into partial
+// updates. The clone and invalidation helpers synchronize non-owning metadata
+// after CUDA copies or destroys graph state.
 // ============================================================================
 
 // Type-erased shared owner of an attached resource. Typed handles such as
@@ -497,22 +505,124 @@ OpaqueHandle make_opaque_py(PyObject* obj);
 // Build an OpaqueHandle from a malloc'd buffer: std::free on release.
 OpaqueHandle make_opaque_malloc(void* buf);
 
-// Attach owner to one of node's fixed slots on h_graph, replacing whatever was
-// there. The graph's slot table is created on first use. A null owner is a
-// no-op (returns CUDA_SUCCESS without creating the table), so callers need not
-// guard optional owners. Returns CUDA_SUCCESS, or an error if slot is out of
-// range or the graph cannot hold a table (e.g. the driver lacks user-object
-// support).
-CUresult graph_set_slot(const GraphHandle& h_graph, CUgraphNode node,
-                        unsigned int slot, OpaqueHandle owner);
+struct PreparedAttachmentState;
+using PreparedAttachmentRollback =
+    void (*)(PreparedAttachmentState*) noexcept;
+struct PreparedAttachmentDeleter {
+    PreparedAttachmentRollback rollback = nullptr;
+
+    void operator()(PreparedAttachmentState* state) const noexcept {
+        rollback(state);
+    }
+};
+using PreparedAttachment =
+    std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
+
+struct PreparedChildGraphUpdateState;
+// Opaque unpublished hierarchy transaction; releasing it discards staged
+// metadata unless graph_commit_child_graph_update publishes the replacement.
+using PreparedChildGraphUpdate =
+    std::shared_ptr<PreparedChildGraphUpdateState>;
+
+struct PreparedExecAttachmentState;
+using PreparedExecAttachmentRollback =
+    void (*)(PreparedExecAttachmentState*) noexcept;
+struct PreparedExecAttachmentDeleter {
+    PreparedExecAttachmentRollback rollback = nullptr;
+
+    void operator()(PreparedExecAttachmentState* state) const noexcept {
+        rollback(state);
+    }
+};
+// Opaque append transaction. Releasing it rolls back newly appended owners
+// unless graph_commit_exec_attachment has kept them.
+using PreparedExecAttachment =
+    std::unique_ptr<PreparedExecAttachmentState, PreparedExecAttachmentDeleter>;
+
+// Copy requested owners from node's current attachment. Pass nullptr to ignore
+// either owner; a missing attachment produces empty handles.
+CUresult graph_get_attachment(
+    const GraphHandle& h_graph,
+    CUgraphNode node,
+    OpaqueHandle* owner0,
+    OpaqueHandle* owner1);
+
+// Create and graph-retain a replacement attachment before a CUDA mutation.
+// Destruction rolls the prepared attachment back unless it is committed.
+CUresult graph_prepare_attachment(
+    const GraphHandle& h_graph,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedAttachment* out_prepared);
+
+// Publish a prepared attachment after the CUDA mutation succeeds. A null node
+// retains the attachment anonymously without publishing node metadata.
+CUresult graph_commit_attachment(
+    PreparedAttachment& prepared,
+    CUgraphNode node);
+
+// Copy attachment metadata from a source graph hierarchy into its CUDA clone.
+CUresult graph_clone_attachments(
+    const GraphHandle& h_clone,
+    const GraphHandle& h_source);
+
+// Stage a complete metadata replacement before CUDA replaces an embedded
+// graph. Dropping the prepared state leaves the current hierarchy unchanged.
+CUresult graph_prepare_child_graph_update(
+    const GraphHandle& h_parent,
+    const GraphHandle& h_old_child,
+    CUgraphNode owner_node,
+    const GraphHandle& h_source,
+    PreparedChildGraphUpdate* out_prepared);
+
+// Rekey staged metadata to CUDA's replacement clone, retire the old embedded
+// hierarchy, and publish the replacement handle.
+CUresult graph_commit_child_graph_update(
+    PreparedChildGraphUpdate& prepared,
+    GraphHandle* out_child);
+
+// Invalidate cuda.core state for child graphs CUDA destroyed with owner_node.
+void invalidate_child_graph_state(
+    const GraphHandle& h_parent,
+    CUgraphNode owner_node) noexcept;
 
 // ============================================================================
 // Graph exec handle functions
 // ============================================================================
 
-// Wrap an externally-created CUgraphExec with RAII cleanup.
-// When the last reference is released, cuGraphExecDestroy is called automatically.
-GraphExecHandle create_graph_exec_handle(CUgraphExec graph_exec);
+// Create an owning exec handle by calling cuGraphInstantiateWithParams.
+// A fresh attachment accumulator is retained on h_source first, because CUDA
+// propagates user object references only at instantiation; an exec cannot
+// receive them afterwards. The exec is the sole owner once this returns.
+// When the last reference is released, cuGraphExecDestroy is called
+// automatically.
+// Returns empty handle on error (caller must check). The caller reads
+// params->result_out for the specific instantiation failure and
+// get_last_error() for a driver status.
+GraphExecHandle create_graph_exec_handle(
+    const GraphHandle& h_source,
+    CUDA_GRAPH_INSTANTIATE_PARAMS* params);
+
+// Update h_exec in place by calling cuGraphExecUpdate, and publish a fresh
+// accumulator when CUDA accepts the update. Writes result_info for the caller.
+CUresult graph_exec_update(
+    const GraphExecHandle& h_exec,
+    const GraphHandle& h_source,
+    CUgraphExecUpdateResultInfo* result_info);
+
+// Append owners before an executable-node mutation. The accumulator grows
+// because CUDA cannot attach user objects to an exec after instantiation, so
+// old owners stay reachable. Dropping the transaction restores the accumulator
+// to its original size.
+CUresult graph_prepare_exec_attachment(
+    const GraphExecHandle& h_exec,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedExecAttachment* out_prepared);
+
+// Keep the owners added by graph_prepare_exec_attachment.
+void graph_commit_exec_attachment(
+    PreparedExecAttachment& prepared) noexcept;
 
 // ============================================================================
 // Graph node handle functions
@@ -691,6 +801,10 @@ inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUmodule as_cu(const CUmodule& h) noexcept {
+    return h;
+}
+
 inline CUkernel as_cu(const KernelHandle& h) noexcept {
     return h ? *h : nullptr;
 }
@@ -772,6 +886,10 @@ inline std::intptr_t as_intptr(const DevicePtrHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const CUmodule& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -903,6 +1021,10 @@ inline PyObject* as_py(const DevicePtrHandle& h) noexcept {
 
 inline PyObject* as_py(const LibraryHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUlibrary", as_intptr(h));
+}
+
+inline PyObject* as_py(const CUmodule& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUmodule", as_intptr(h));
 }
 
 inline PyObject* as_py(const KernelHandle& h) noexcept {

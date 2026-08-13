@@ -43,8 +43,9 @@ class WeakHandle:
 def weak_handle(obj):
     """Return a :class:`WeakHandle` observing the resource behind ``obj``.
 
-    Currently supports :class:`~cuda.core.Buffer` (device allocation handle).
-    See the module docstring for how to add more types.
+    Currently supports :class:`~cuda.core.Buffer` (allocation handle) and
+    :class:`~cuda.core.graph.GraphDefinition` (graph hierarchy handle). See
+    the module docstring for how to add more types.
 
     Raises
     ------

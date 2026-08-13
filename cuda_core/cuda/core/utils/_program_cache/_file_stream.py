@@ -397,9 +397,19 @@ class FileStreamProgramCache(ProgramCacheResource):
         self._entries = self._root / _ENTRIES_SUBDIR
         self._tmp = self._root / _TMP_SUBDIR
         self._max_size_bytes = max_size_bytes
+        # Permissions (see PR #2399):
+        # root/ and entries/ use default permissions so a shared cache (e.g. one
+        # a group shares on a cluster) keeps working. The cached files themselves
+        # are still private: each is written to tmp/ as owner-only and moved into
+        # entries/, which keeps its permissions. tmp/ is made owner-only so no one
+        # can read or swap a file while it's being written. We don't chmod, so an
+        # existing directory is left as-is.
+        # Trade-off: if a group deliberately shares a writable entries/, a member
+        # could replace a cached file. Blocking that needs a check at load time,
+        # not just permissions, and is out of scope here.
         self._root.mkdir(parents=True, exist_ok=True)
         self._entries.mkdir(exist_ok=True)
-        self._tmp.mkdir(exist_ok=True)
+        self._tmp.mkdir(exist_ok=True, mode=0o700)
         # Opportunistic startup sweep of orphaned temp files left by any
         # crashed writers. Age-based so concurrent in-flight writes from
         # other processes are preserved.

@@ -9,12 +9,20 @@ ci:
     autoupdate_branch: ''
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: quarterly
-    skip: [lychee, check-precommit-installed]
+    skip: [lychee, check-precommit-installed, secret-scan-trufflehog]
     submodules: false
 
 # Please update the rev: SHAs below with this command:
 # pre-commit autoupdate --freeze
 repos:
+  # Runs first so a leaked credential blocks the commit before any formatter runs.
+  # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on
+  # first use (no manual install). Skipped on pre-commit.ci; Pulse CI enforces server-side.
+  - repo: https://github.com/NVIDIA/security-workflows
+    rev: 711025b090f2aa728da576700750b195d1e816dc  # frozen: v0.3.0
+    hooks:
+      - id: secret-scan-trufflehog
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: c60c980e561ed3e73101667fe8365c609d19a438  # frozen: v0.15.9
     hooks:
@@ -50,6 +58,20 @@ repos:
         files: ^cuda_bindings/
         types: [text]
 
+      - id: check-pixi-cuda-version
+        name: Check pixi cuda-version pins track ci/versions.yml
+        entry: python ./ci/tools/check_pixi_cuda_version.py
+        language: python
+        additional_dependencies: [pyyaml==6.0.3]
+        files: '^(ci/versions\.yml|cuda_bindings/pixi\.toml|cuda_core/pixi\.toml)$'
+        pass_filenames: false
+
+      - id: check-mempool-hygiene
+        name: Check tests do not create uncapped memory pools
+        entry: python ./ci/tools/check_mempool_hygiene.py
+        language: python
+        files: '^cuda_core/tests/.*\.py$'
+
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
@@ -61,13 +83,13 @@ repos:
 
       - id: stubgen-pyx-cuda-core
         name: Generate .pyi stubs for cuda_core
-        entry: stubgen-pyx cuda_core/cuda --continue-on-error --include-private
+        entry: python ./toolshed/run_stubgen_pyx.py
         language: python
         files: ^cuda_core/cuda/.*\.(pyx|pxd)$
         pass_filenames: false
         additional_dependencies:
           - stubgen-pyx==0.2.6
-          - Cython==3.2.4
+          - Cython==3.2.9
 
   # Link checking for authored documentation files
   - repo: https://github.com/lycheeverse/lychee
@@ -95,7 +117,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import functools
 import math
 
 # TODO: replace optional imports with pytest.importorskip
@@ -26,7 +27,7 @@ except ImportError:
     ml_dtypes = None
 import numpy as np
 import pytest
-from helpers.marks import requires_module
+from cuda_python_test_helpers.marks import requires_module
 
 from cuda.core import Device
 from cuda.core._dlpack import DLDeviceType
@@ -676,20 +677,26 @@ def test_from_array_interface_unsupported_strides(init_cuda):
         StridedMemoryView.from_array_interface(b)
 
 
-def _make_cuda_array_interface_obj(*, shape, strides, typestr="<f8", data=(0, False), version=3):
-    return type(
-        "SyntheticCAI",
-        (),
-        {
-            "__cuda_array_interface__": {
-                "shape": shape,
-                "strides": strides,
-                "typestr": typestr,
-                "data": data,
-                "version": version,
-            }
-        },
-    )()
+def _make_interface_obj(attr_name, *, shape, strides, typestr="<f8", data=(0, False), version=3, **extra):
+    """Create an object exposing an array-interface dict as ``attr_name``.
+
+    ``version=None`` omits the key entirely, so tests can exercise interfaces
+    that don't declare a version. Extra kwargs are added to the interface dict.
+    """
+    iface = {
+        "shape": shape,
+        "strides": strides,
+        "typestr": typestr,
+        "data": data,
+    }
+    if version is not None:
+        iface["version"] = version
+    iface.update(extra)
+    return type(f"Synthetic{attr_name}", (), {attr_name: iface})()
+
+
+_make_cuda_array_interface_obj = functools.partial(_make_interface_obj, "__cuda_array_interface__")
+_make_array_interface_obj = functools.partial(_make_interface_obj, "__array_interface__")
 
 
 def test_from_cuda_array_interface_unsupported_strides(init_cuda):
@@ -902,54 +909,12 @@ def test_dlpack_export_unsupported_dtype_raises():
         bad_view.__dlpack__()
 
 
-class _FakeCAIv2:
-    """Object with CUDA Array Interface v2 (unsupported)."""
-
-    def __init__(self):
-        self.__cuda_array_interface__ = {
-            "version": 2,
-            "shape": (5,),
-            "typestr": "<f4",
-            "data": (0, False),
-        }
-
-
-class _FakeCAIWithMask:
-    """Object with CUDA Array Interface that has a mask."""
-
-    def __init__(self):
-        self.__cuda_array_interface__ = {
-            "version": 3,
-            "shape": (5,),
-            "typestr": "<f4",
-            "data": (0, False),
-            "mask": np.ones(5, dtype=bool),
-        }
-
-
-class _FakeArrayInterfacev2:
-    """Object with NumPy Array Interface v2 (unsupported)."""
-
-    def __init__(self, arr):
-        iface = dict(arr.__array_interface__)
-        iface["version"] = 2
-        self.__array_interface__ = iface
-
-
-class _FakeArrayInterfaceWithMask:
-    """Object with NumPy Array Interface that has a mask."""
-
-    def __init__(self, arr):
-        iface = dict(arr.__array_interface__)
-        iface["mask"] = np.ones(arr.shape, dtype=bool)
-        self.__array_interface__ = iface
-
-
-def test_cai_v2_rejected():
-    """CUDA Array Interface v2 raises BufferError."""
+@pytest.mark.parametrize("version", [2, None])
+def test_cai_version_rejected(version):
+    """CUDA Array Interface below v3 (or missing version) raises BufferError."""
     from cuda.core._memoryview import view_as_cai
 
-    obj = _FakeCAIv2()
+    obj = _make_cuda_array_interface_obj(shape=(5,), strides=None, version=version)
     with pytest.raises(BufferError, match="v3 or above"):
         view_as_cai(obj, stream_ptr=-1)
 
@@ -958,38 +923,26 @@ def test_cai_mask_rejected():
     """CUDA Array Interface with mask raises BufferError."""
     from cuda.core._memoryview import view_as_cai
 
-    obj = _FakeCAIWithMask()
+    obj = _make_cuda_array_interface_obj(shape=(5,), strides=None, mask=np.ones(5, dtype=bool))
     with pytest.raises(BufferError, match="mask is not supported"):
         view_as_cai(obj, stream_ptr=-1)
-
-
-class _FakeCAIv3:
-    """Valid CUDA Array Interface v3 object (for stream=None test)."""
-
-    def __init__(self):
-        self.__cuda_array_interface__ = {
-            "version": 3,
-            "shape": (5,),
-            "typestr": "<f4",
-            "data": (0, False),
-        }
 
 
 def test_cai_stream_none_rejected():
     """CUDA Array Interface with stream=None raises BufferError."""
     from cuda.core._memoryview import view_as_cai
 
-    obj = _FakeCAIv3()
+    obj = _make_cuda_array_interface_obj(shape=(5,), strides=None)
     with pytest.raises(BufferError, match="stream=None is ambiguous"):
         view_as_cai(obj, stream_ptr=None)
 
 
-def test_array_interface_v2_rejected():
-    """NumPy Array Interface v2 raises BufferError."""
+@pytest.mark.parametrize("version", [2, None])
+def test_array_interface_version_rejected(version):
+    """NumPy Array Interface below v3 (or missing version) raises BufferError."""
     from cuda.core._memoryview import view_as_array_interface
 
-    arr = np.zeros(5, dtype=np.float32)
-    obj = _FakeArrayInterfacev2(arr)
+    obj = _make_array_interface_obj(shape=(5,), strides=None, version=version)
     with pytest.raises(BufferError, match="v3 or above"):
         view_as_array_interface(obj)
 
@@ -998,8 +951,7 @@ def test_array_interface_mask_rejected():
     """NumPy Array Interface with mask raises BufferError."""
     from cuda.core._memoryview import view_as_array_interface
 
-    arr = np.zeros(5, dtype=np.float32)
-    obj = _FakeArrayInterfaceWithMask(arr)
+    obj = _make_array_interface_obj(shape=(5,), strides=None, mask=np.ones(5, dtype=bool))
     with pytest.raises(BufferError, match="mask is not supported"):
         view_as_array_interface(obj)
 

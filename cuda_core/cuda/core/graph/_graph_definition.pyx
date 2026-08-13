@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from libc.stddef cimport size_t
+from libc.stdint cimport uintptr_t
 
 from libcpp.vector cimport vector
 
@@ -105,6 +106,12 @@ cdef class GraphDefinition:
     A GraphDefinition is used to construct a graph explicitly by adding nodes
     and specifying dependencies. Once construction is complete, call
     instantiate() to obtain an executable Graph.
+
+    Notes
+    -----
+    Definitions that view the same root, child, or conditional graph hierarchy
+    share underlying graph state. Mutations anywhere in that hierarchy must be
+    externally synchronized.
     """
 
     def __init__(self):
@@ -127,10 +134,13 @@ cdef class GraphDefinition:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GraphDefinition):
             return NotImplemented
-        return as_intptr(self._h_graph) == as_intptr((<GraphDefinition>other)._h_graph)
+        return (
+            <uintptr_t>self._h_graph.get()
+            == <uintptr_t>(<GraphDefinition>other)._h_graph.get()
+        )
 
     def __hash__(self) -> int:
-        return hash(as_intptr(self._h_graph))
+        return hash(<uintptr_t>self._h_graph.get())
 
     @property
     def _entry(self) -> GraphNode:
@@ -317,8 +327,7 @@ cdef class GraphDefinition:
         """
         from cuda.core.graph._graph_builder import _instantiate_graph
 
-        return _instantiate_graph(
-            driver.CUgraph(as_intptr(self._h_graph)), options)
+        return _instantiate_graph(self, options)
 
     def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None = None) -> None:
         """Write a GraphViz DOT representation of the graph to a file.
@@ -352,19 +361,17 @@ cdef class GraphDefinition:
             All nodes in the graph.
         """
         cdef vector[cydriver.CUgraphNode] nodes_vec
-        nodes_vec.resize(128)
-        cdef size_t num_nodes = 128
+        cdef size_t num_nodes = 0
 
         with nogil:
-            HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
+            HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), NULL, &num_nodes))
 
         if num_nodes == 0:
             return set()
 
-        if num_nodes > 128:
-            nodes_vec.resize(num_nodes)
-            with nogil:
-                HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
+        nodes_vec.resize(num_nodes)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphGetNodes(as_cu(self._h_graph), nodes_vec.data(), &num_nodes))
 
         return {GraphNode._create(self._h_graph, nodes_vec[i]) for i in range(num_nodes)}
 
@@ -379,10 +386,21 @@ cdef class GraphDefinition:
         """
         cdef vector[cydriver.CUgraphNode] from_nodes
         cdef vector[cydriver.CUgraphNode] to_nodes
-        from_nodes.resize(128)
-        to_nodes.resize(128)
-        cdef size_t num_edges = 128
+        cdef size_t num_edges = 0
 
+        with nogil:
+            IF CUDA_CORE_BUILD_MAJOR >= 13:
+                HANDLE_RETURN(cydriver.cuGraphGetEdges(
+                    as_cu(self._h_graph), NULL, NULL, NULL, &num_edges))
+            ELSE:
+                HANDLE_RETURN(cydriver.cuGraphGetEdges(
+                    as_cu(self._h_graph), NULL, NULL, &num_edges))
+
+        if num_edges == 0:
+            return set()
+
+        from_nodes.resize(num_edges)
+        to_nodes.resize(num_edges)
         with nogil:
             IF CUDA_CORE_BUILD_MAJOR >= 13:
                 HANDLE_RETURN(cydriver.cuGraphGetEdges(
@@ -390,20 +408,6 @@ cdef class GraphDefinition:
             ELSE:
                 HANDLE_RETURN(cydriver.cuGraphGetEdges(
                     as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), &num_edges))
-
-        if num_edges == 0:
-            return set()
-
-        if num_edges > 128:
-            from_nodes.resize(num_edges)
-            to_nodes.resize(num_edges)
-            with nogil:
-                IF CUDA_CORE_BUILD_MAJOR >= 13:
-                    HANDLE_RETURN(cydriver.cuGraphGetEdges(
-                        as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), NULL, &num_edges))
-                ELSE:
-                    HANDLE_RETURN(cydriver.cuGraphGetEdges(
-                        as_cu(self._h_graph), from_nodes.data(), to_nodes.data(), &num_edges))
 
         return {
             (GraphNode._create(self._h_graph, from_nodes[i]),
