@@ -26,6 +26,16 @@ New features
   (`#2456 <https://github.com/NVIDIA/cuda-python/pull/2456>`__,
   `#1334 <https://github.com/NVIDIA/cuda-python/issues/1334>`__)
 
+- :meth:`Buffer.copy_to` and :meth:`Buffer.copy_from` now accept an optional
+  ``options`` keyword argument (:class:`~utils.CopyOptions`). When both
+  ``cuda.bindings`` and the driver are CUDA 13.2 or newer and the stream is
+  not under graph capture, the copy is submitted via
+  ``cuMemcpyWithAttributesAsync``. On older installs, or when the stream is
+  capturing, a :class:`UserWarning` is emitted and the copy falls back to
+  ``cuMemcpyAsync``; ``options=None`` (the default) always uses
+  ``cuMemcpyAsync`` with no warning.
+  (`#2365 <https://github.com/NVIDIA/cuda-python/issues/2365>`__)
+
 Fixes and enhancements
 ----------------------
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import cython
+from cuda.core._memory._copy_enums import CopyOptions
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._memory._pinned_memory_resource import PinnedMemoryResource
@@ -170,7 +171,7 @@ class Buffer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         ...
 
-    def copy_to(self, dst: Buffer | None=None, *, stream: Stream | GraphBuilder) -> Buffer:
+    def copy_to(self, dst: Buffer | None=None, *, stream: Stream | GraphBuilder, options: CopyOptions | None=None) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -185,10 +186,16 @@ class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
+        options : :class:`~utils.CopyOptions`, optional
+            Transfer hints (source access order, location hints, overlap mode).
+            Honored only when both cuda.bindings and the driver are CUDA 13.2+
+            and the stream is not under graph capture; otherwise a
+            :class:`UserWarning` is emitted and the copy falls back to
+            ``cuMemcpyAsync``.
 
         """
 
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder) -> None:
+    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder, options: CopyOptions | None=None) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
@@ -198,6 +205,12 @@ class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
+        options : :class:`~utils.CopyOptions`, optional
+            Transfer hints (source access order, location hints, overlap mode).
+            Honored only when both cuda.bindings and the driver are CUDA 13.2+
+            and the stream is not under graph capture; otherwise a
+            :class:`UserWarning` is emitted and the copy falls back to
+            ``cuMemcpyAsync``.
 
         """
 

@@ -27,13 +27,17 @@ from cuda.core._resource_handles cimport (
 )
 from cuda.core.typing import DevicePointerType
 
-from cuda.core._stream cimport Stream, Stream_accept, default_stream
+from cuda.core._memory._copy_attributes cimport _with_attributes_available
+from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-cython-lint
+from cuda.core._stream cimport Stream, Stream_accept, Stream_is_default_token, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
+import warnings
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
+from cuda.core._memory._copy_enums import CopyOptions
 from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
@@ -157,6 +161,29 @@ cdef inline void _init_memory_attrs(Buffer self):
     if not self._mem_attrs_inited.load(memory_order_acquire):
         _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
         self._mem_attrs_inited.store(True, memory_order_release)
+
+
+cdef bint _stream_is_capturing(Stream s):
+    cdef cydriver.CUstreamCaptureStatus cap_status
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &cap_status,
+                                                     NULL, NULL, NULL, NULL, NULL))
+    ELSE:
+        HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &cap_status,
+                                                     NULL, NULL, NULL, NULL))
+    return cap_status == cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE
+
+
+cdef void _do_copy_with_attributes(
+    cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t nbytes,
+    object options, cydriver.CUstream hstream,
+):
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef cydriver.CUmemcpyAttributes cu_attr = _to_cu_memcpy_attributes(options)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyWithAttributesAsync(dst, src, nbytes, &cu_attr, hstream))
+    ELSE:
+        pass  # unreachable: _with_attributes_available() is always False on CUDA 12
 
 
 cdef class Buffer:
@@ -393,7 +420,8 @@ cdef class Buffer:
         self.close()
         return False
 
-    def copy_to(self, dst: Buffer | None = None, *, stream: Stream | GraphBuilder) -> Buffer:
+    def copy_to(self, dst: Buffer | None = None, *, stream: Stream | GraphBuilder,
+                options: CopyOptions | None = None) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -408,6 +436,12 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
+        options : :class:`~utils.CopyOptions`, optional
+            Transfer hints (source access order, location hints, overlap mode).
+            Honored only when both cuda.bindings and the driver are CUDA 13.2+
+            and the stream is not under graph capture; otherwise a
+            :class:`UserWarning` is emitted and the copy falls back to
+            ``cuMemcpyAsync``.
 
         """
         cdef Stream s = Stream_accept(stream)
@@ -424,12 +458,27 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
+        if options is None:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                    as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
+        elif _with_attributes_available() and not Stream_is_default_token(s) and not _stream_is_capturing(s):
+            _do_copy_with_attributes(
+                as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, options, as_cu(s._h_stream))
+        else:
+            warnings.warn(
+                "copy_to: CopyOptions are not honored (requires CUDA 13.2+ driver and "
+                "cuda.bindings, and a non-capturing, non-default stream); falling back to cuMemcpyAsync",
+                UserWarning,
+                stacklevel=2,
+            )
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                    as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
         return dst
 
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder) -> None:
+    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder,
+                  options: CopyOptions | None = None) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
@@ -439,6 +488,12 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
+        options : :class:`~utils.CopyOptions`, optional
+            Transfer hints (source access order, location hints, overlap mode).
+            Honored only when both cuda.bindings and the driver are CUDA 13.2+
+            and the stream is not under graph capture; otherwise a
+            :class:`UserWarning` is emitted and the copy falls back to
+            ``cuMemcpyAsync``.
 
         """
         cdef Stream s = Stream_accept(stream)
@@ -449,9 +504,23 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
+        if options is None:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                    as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
+        elif _with_attributes_available() and not Stream_is_default_token(s) and not _stream_is_capturing(s):
+            _do_copy_with_attributes(
+                as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, options, as_cu(s._h_stream))
+        else:
+            warnings.warn(
+                "copy_from: CopyOptions are not honored (requires CUDA 13.2+ driver and "
+                "cuda.bindings, and a non-capturing, non-default stream); falling back to cuMemcpyAsync",
+                UserWarning,
+                stacklevel=2,
+            )
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                    as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:
         """Fill this buffer with a repeating byte pattern.
