@@ -77,7 +77,7 @@ class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
-    def __init__(self, options=None) -> None:
+    def __init__(self, options: ManagedMemoryResourceOptions | None=None) -> None:
         ...
 
     def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> ManagedBuffer:

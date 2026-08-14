@@ -103,7 +103,7 @@ cdef class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
-    def __init__(self, options=None) -> None:
+    def __init__(self, options: PinnedMemoryResourceOptions | dict[str, object] | None = None) -> None:  # stub: options: PinnedMemoryResourceOptions | None
         _PMR_init(self, options)
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
