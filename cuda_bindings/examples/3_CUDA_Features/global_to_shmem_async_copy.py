@@ -799,6 +799,11 @@ def matrix_multiply(dims_a, dims_b, kernel_number):
     grid_shared_state_kernel = cudart.dim3()
     grid_shared_state_kernel.x = dims_b.x / threads_shared_state_kernel.x
     grid_shared_state_kernel.y = dims_a.y / threads_shared_state_kernel.x
+    # C++ dim3 defaults every component to 1; cudart.dim3 wraps a
+    # zero-initialised struct, so .z must be set explicitly or the two
+    # cuLaunchKernel calls below pass gridDimZ=0 and fail with
+    # CUDA_ERROR_INVALID_VALUE.
+    grid_shared_state_kernel.z = 1
 
     print(f"Running kernel = {kernel_number} - {kernel_names[kernel_number.value]}")
     # Create and start timer
