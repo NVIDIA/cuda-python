@@ -186,6 +186,29 @@ cdef void _do_copy_with_attributes(
         pass  # unreachable: _with_attributes_available() is always False on CUDA 12
 
 
+cdef void _dispatch_buffer_copy(
+    cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t nbytes,
+    Stream s, object options, str method_name,
+):
+    """Submit a single copy, honoring CopyOptions when the attributes path is usable."""
+    if options is None:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(dst, src, nbytes, as_cu(s._h_stream)))
+    elif _with_attributes_available() and not Stream_is_default_token(s) and not _stream_is_capturing(s):
+        _do_copy_with_attributes(dst, src, nbytes, options, as_cu(s._h_stream))
+    else:
+        # Cython cdef frames are invisible on the Python stack, so stacklevel=2
+        # still attributes the warning to the caller of copy_to / copy_from.
+        warnings.warn(
+            f"{method_name}: CopyOptions are not honored (requires CUDA 13.2+ driver and "
+            "cuda.bindings, and a non-capturing, non-default stream); falling back to cuMemcpyAsync",
+            UserWarning,
+            stacklevel=2,
+        )
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(dst, src, nbytes, as_cu(s._h_stream)))
+
+
 cdef class Buffer:
     """Represent a handle to allocated memory.
 
@@ -458,23 +481,8 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        if options is None:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                    as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
-        elif _with_attributes_available() and not Stream_is_default_token(s) and not _stream_is_capturing(s):
-            _do_copy_with_attributes(
-                as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, options, as_cu(s._h_stream))
-        else:
-            warnings.warn(
-                "copy_to: CopyOptions are not honored (requires CUDA 13.2+ driver and "
-                "cuda.bindings, and a non-capturing, non-default stream); falling back to cuMemcpyAsync",
-                UserWarning,
-                stacklevel=2,
-            )
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                    as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
+        _dispatch_buffer_copy(
+            as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, s, options, "copy_to")
         return dst
 
     def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder,
@@ -504,23 +512,8 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        if options is None:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                    as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
-        elif _with_attributes_available() and not Stream_is_default_token(s) and not _stream_is_capturing(s):
-            _do_copy_with_attributes(
-                as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, options, as_cu(s._h_stream))
-        else:
-            warnings.warn(
-                "copy_from: CopyOptions are not honored (requires CUDA 13.2+ driver and "
-                "cuda.bindings, and a non-capturing, non-default stream); falling back to cuMemcpyAsync",
-                UserWarning,
-                stacklevel=2,
-            )
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                    as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
+        _dispatch_buffer_copy(
+            as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, s, options, "copy_from")
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:
         """Fill this buffer with a repeating byte pattern.
