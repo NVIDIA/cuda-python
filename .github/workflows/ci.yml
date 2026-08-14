@@ -86,8 +86,8 @@ jobs:
   # downstream module. A change to cuda_bindings forces rebuild of cuda_core.
   # A change to cuda_core alone skips rebuilding/retesting cuda_bindings and
   # cuda_pathfinder, but still retests the downstream cuda-python metapackage.
-  # CI/filter changes are shared by design, so this implementation runs the
-  # full pipeline; exercise selective cases in follow-up package-only PRs.
+  # Shared build/orchestration changes run the full pipeline; test-only CI
+  # infrastructure runs every test suite without rebuilding package wheels.
   # On push to main, tag refs, schedule, or workflow_dispatch events we
   # unconditionally run everything because there is no meaningful "changed
   # paths" baseline for those events.
@@ -102,6 +102,7 @@ jobs:
       core: >-
         ${{ steps.baseline.outputs.available != 'true' ||
             steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.force_all == 'true' ||
             steps.filter.outputs.core_source == 'true' }}
       build_pathfinder: >-
         ${{ steps.baseline.outputs.available != 'true' ||
@@ -133,12 +134,14 @@ jobs:
         ${{ steps.baseline.outputs.available != 'true' ||
             steps.filter.outputs.changes == '' ||
             steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.all_tests == 'true' ||
             steps.filter.outputs.pathfinder_source == 'true' ||
             steps.filter.outputs.pathfinder_tests == 'true' }}
       test_bindings: >-
         ${{ steps.baseline.outputs.available != 'true' ||
             steps.filter.outputs.changes == '' ||
             steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.all_tests == 'true' ||
             steps.filter.outputs.pathfinder_source == 'true' ||
             steps.filter.outputs.bindings_source == 'true' ||
             steps.filter.outputs.bindings_tests == 'true' ||
@@ -147,6 +150,7 @@ jobs:
         ${{ steps.baseline.outputs.available != 'true' ||
             steps.filter.outputs.changes == '' ||
             steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.all_tests == 'true' ||
             steps.filter.outputs.pathfinder_source == 'true' ||
             steps.filter.outputs.bindings_source == 'true' ||
             steps.filter.outputs.core_source == 'true' ||
@@ -157,6 +161,7 @@ jobs:
         ${{ steps.baseline.outputs.available != 'true' ||
             steps.filter.outputs.changes == '' ||
             steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.all_tests == 'true' ||
             steps.filter.outputs.pathfinder_source == 'true' ||
             steps.filter.outputs.bindings_source == 'true' ||
             steps.filter.outputs.core_source == 'true' ||
@@ -228,39 +233,79 @@ jobs:
               - '!cuda_pathfinder/docs/**'
               - '!cuda_pathfinder/tests/**'
               - '!cuda_pathfinder/examples/**'
+              - '!cuda_pathfinder/pixi.lock'
+              - '!cuda_pathfinder/pixi.toml'
+              - '!cuda_pathfinder/AGENTS.md'
+              - '!cuda_pathfinder/CLAUDE.md'
             bindings_source:
               - 'cuda_bindings/**'
               - '!cuda_bindings/docs/**'
               - '!cuda_bindings/tests/**'
               - '!cuda_bindings/examples/**'
+              - '!cuda_bindings/pixi.lock'
+              - '!cuda_bindings/pixi.toml'
+              - '!cuda_bindings/AGENTS.md'
+              - '!cuda_bindings/CLAUDE.md'
             core_source:
               - 'cuda_core/**'
               - '!cuda_core/docs/**'
               - '!cuda_core/tests/**'
               - '!cuda_core/examples/**'
+              - '!cuda_core/pixi.lock'
+              - '!cuda_core/pixi.toml'
+              - '!cuda_core/pytest.ini'
+              - '!cuda_core/AGENTS.md'
+              - '!cuda_core/CLAUDE.md'
             python_source:
               - 'cuda_python/**'
               - '!cuda_python/docs/**'
               - '!cuda_python/tests/**'
               - '!cuda_python/examples/**'
+              - '!cuda_python/AGENTS.md'
+              - '!cuda_python/CLAUDE.md'
+              # cuda_python/README.md is a symlink to this packaging input.
+              - 'README.md'
             pathfinder_tests:
               - 'cuda_pathfinder/tests/**'
               - 'cuda_pathfinder/examples/**'
+              - '!cuda_pathfinder/**/AGENTS.md'
+              - '!cuda_pathfinder/**/CLAUDE.md'
             bindings_tests:
               - 'cuda_bindings/tests/**'
               - 'cuda_bindings/examples/**'
               - 'benchmarks/cuda_bindings/**'
+              - '!benchmarks/cuda_bindings/pixi.lock'
+              - '!benchmarks/cuda_bindings/pixi.toml'
+              - '!cuda_bindings/**/AGENTS.md'
+              - '!cuda_bindings/**/CLAUDE.md'
             core_tests:
               - 'cuda_core/tests/**'
               - 'cuda_core/examples/**'
+              - 'cuda_core/pytest.ini'
+              - '!cuda_core/**/AGENTS.md'
+              - '!cuda_core/**/CLAUDE.md'
             python_tests:
               - 'cuda_python/tests/**'
               - 'cuda_python/examples/**'
+              - '!cuda_python/**/AGENTS.md'
+              - '!cuda_python/**/CLAUDE.md'
             test_helpers:
-              - 'cuda_python_test_helpers/**'
+              - 'cuda_python_test_helpers/cuda_python_test_helpers/**'
+            # These files configure or implement wheel tests, but do not
+            # change any package artifact.
+            all_tests:
+              - '.github/workflows/test-wheel-linux.yml'
+              - '.github/workflows/test-wheel-windows.yml'
+              - 'ci/test-matrix.yml'
+              - 'ci/tools/configure_driver_mode.ps1'
+              - 'ci/tools/guess_latest.sh'
+              - 'ci/tools/install_gpu_driver.ps1'
+              - 'ci/tools/install_gpu_driver.sh'
+              - 'ci/tools/run-tests'
+              - 'ci/tools/setup-sanitizer'
             # Shared infrastructure and unknown paths run the full pipeline.
-            # Exclude only paths whose narrower behavior is defined above or
-            # repository policy/prose files known not to affect artifacts.
+            # Exclude paths classified above and paths consumed only by an
+            # independent or unconditional CI job.
             force_all:
               - '**'
               - '!cuda_pathfinder/**'
@@ -269,15 +314,67 @@ jobs:
               - '!cuda_python/**'
               - '!cuda_python_test_helpers/**'
               - '!benchmarks/cuda_bindings/**'
-              - '!.git-blame-ignore-revs'
+              - '!benchmarks/cuda_core/**'
+              - '!.agents/**'
+              - '!.coveragerc'
               - '!.gitignore'
+              - '!.pre-commit-config.yaml'
+              - '!.spdx-ignore'
               - '!AGENTS.md'
-              - '!CHANGELOG.md'
-              - '!CODE_OF_CONDUCT.md'
+              - '!CLAUDE.md'
               - '!CONTRIBUTING.md'
               - '!LICENSE'
               - '!README.md'
               - '!SECURITY.md'
+              - '!context7.json'
+              - '!greptile.json'
+              - '!pixi.lock'
+              - '!pixi.toml'
+              - '!pytest.ini'
+              - '!ruff.toml'
+              - '!toolshed/**'
+              - '!.github/ISSUE_TEMPLATE/**'
+              - '!.github/PULL_REQUEST_TEMPLATE.md'
+              - '!.github/RELEASE-core.md'
+              - '!.github/actionlint.yaml'
+              - '!.github/actions/doc_preview/**'
+              - '!.github/actions/get_pr_number/**'
+              - '!.github/copy-pr-bot.yaml'
+              - '!.github/dependabot.yml'
+              - '!.github/labeler.yml'
+              - '!.github/workflows/backport.yml'
+              - '!.github/workflows/bandit.yml'
+              - '!.github/workflows/build-docs.yml'
+              - '!.github/workflows/ci-nightly.yml'
+              - '!.github/workflows/ci-pixi-source-test.yml'
+              - '!.github/workflows/cleanup-pr-previews.yml'
+              - '!.github/workflows/coverage.yml'
+              - '!.github/workflows/pr-auto-label.yml'
+              - '!.github/workflows/pr-metadata-check.yml'
+              - '!.github/workflows/release-cuda-pathfinder.yml'
+              - '!.github/workflows/release-upload.yml'
+              - '!.github/workflows/release.yml'
+              - '!.github/workflows/security-suite.yml'
+              - '!.github/workflows/test-wheel-linux.yml'
+              - '!.github/workflows/test-wheel-windows.yml'
+              - '!.github/workflows/triagelabel.yml'
+              - '!ci/.ci-pipeline-regen.md'
+              - '!ci/ci-pipeline.svg'
+              - '!ci/cleanup-pr-previews'
+              - '!ci/test-matrix.yml'
+              - '!ci/tools/check_mempool_hygiene.py'
+              - '!ci/tools/check_pixi_cuda_version.py'
+              - '!ci/tools/check_release_notes.py'
+              - '!ci/tools/configure_driver_mode.ps1'
+              - '!ci/tools/download-wheels'
+              - '!ci/tools/guess_latest.sh'
+              - '!ci/tools/install_gpu_driver.ps1'
+              - '!ci/tools/install_gpu_driver.sh'
+              - '!ci/tools/run-tests'
+              - '!ci/tools/run_pytest_with_stack.py'
+              - '!ci/tools/setup-sanitizer'
+              - '!ci/tools/tests/**'
+              - '!ci/tools/validate-release-wheels'
 
       - name: Resolve reusable base artifacts
         id: baseline
