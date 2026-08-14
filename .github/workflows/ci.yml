@@ -86,7 +86,7 @@ jobs:
   # downstream module. A change to cuda_bindings forces rebuild of cuda_core.
   # A change to cuda_core alone skips rebuilding/retesting cuda_bindings and
   # cuda_pathfinder, but still retests the downstream cuda-python metapackage.
-  # CI/planner changes are shared by design, so this implementation runs the
+  # CI/filter changes are shared by design, so this implementation runs the
   # full pipeline; exercise selective cases in follow-up package-only PRs.
   # On push to main, tag refs, schedule, or workflow_dispatch events we
   # unconditionally run everything because there is no meaningful "changed
@@ -98,43 +98,98 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
-      bindings: ${{ steps.compose.outputs.bindings }}
-      core: ${{ steps.compose.outputs.core }}
-      pathfinder: ${{ steps.compose.outputs.pathfinder }}
-      python_meta: ${{ steps.compose.outputs.python_meta }}
-      test_helpers: ${{ steps.compose.outputs.test_helpers }}
-      shared: ${{ steps.compose.outputs.shared }}
-      build_bindings: ${{ steps.compose.outputs.build_bindings }}
-      build_core: ${{ steps.compose.outputs.build_core }}
-      build_pathfinder: ${{ steps.compose.outputs.build_pathfinder }}
-      build_python: ${{ steps.compose.outputs.build_python }}
-      test_bindings: ${{ steps.compose.outputs.test_bindings }}
-      test_core: ${{ steps.compose.outputs.test_core }}
-      test_pathfinder: ${{ steps.compose.outputs.test_pathfinder }}
-      pr_merge_base: ${{ steps.filter.outputs.merge_base }}
-      test_python: ${{ steps.compose.outputs.test_python }}
-      baseline_run_id: ${{ steps.compose.outputs.baseline_run_id }}
-      baseline_sha: ${{ steps.compose.outputs.baseline_sha }}
+      # Missing base artifacts or a skipped path filter fail open to the full pipeline.
+      core: >-
+        ${{ steps.baseline.outputs.available != 'true' ||
+            steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.core_source == 'true' }}
+      build_pathfinder: >-
+        ${{ steps.baseline.outputs.available != 'true' ||
+            steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.pathfinder_source == 'true' }}
+      build_bindings: >-
+        ${{ steps.baseline.outputs.available != 'true' ||
+            steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.pathfinder_source == 'true' ||
+            steps.filter.outputs.bindings_source == 'true' ||
+            steps.filter.outputs.python_source == 'true' }}
+      build_core: >-
+        ${{ steps.baseline.outputs.available != 'true' ||
+            steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.pathfinder_source == 'true' ||
+            steps.filter.outputs.bindings_source == 'true' ||
+            steps.filter.outputs.core_source == 'true' }}
+      build_python: >-
+        ${{ steps.baseline.outputs.available != 'true' ||
+            steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.pathfinder_source == 'true' ||
+            steps.filter.outputs.bindings_source == 'true' ||
+            steps.filter.outputs.python_source == 'true' }}
+      test_pathfinder: >-
+        ${{ steps.baseline.outputs.available != 'true' ||
+            steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.pathfinder_source == 'true' ||
+            steps.filter.outputs.pathfinder_tests == 'true' }}
+      test_bindings: >-
+        ${{ steps.baseline.outputs.available != 'true' ||
+            steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.pathfinder_source == 'true' ||
+            steps.filter.outputs.bindings_source == 'true' ||
+            steps.filter.outputs.bindings_tests == 'true' ||
+            steps.filter.outputs.test_helpers == 'true' }}
+      test_core: >-
+        ${{ steps.baseline.outputs.available != 'true' ||
+            steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.pathfinder_source == 'true' ||
+            steps.filter.outputs.bindings_source == 'true' ||
+            steps.filter.outputs.core_source == 'true' ||
+            steps.filter.outputs.core_tests == 'true' ||
+            steps.filter.outputs.test_helpers == 'true' }}
+      pr_merge_base: ${{ steps.merge-base.outputs.sha }}
+      test_python: >-
+        ${{ steps.baseline.outputs.available != 'true' ||
+            steps.filter.outputs.changes == '' ||
+            steps.filter.outputs.force_all == 'true' ||
+            steps.filter.outputs.pathfinder_source == 'true' ||
+            steps.filter.outputs.bindings_source == 'true' ||
+            steps.filter.outputs.core_source == 'true' ||
+            steps.filter.outputs.python_source == 'true' ||
+            steps.filter.outputs.python_tests == 'true' }}
+      baseline_run_id: >-
+        ${{ steps.filter.outputs.changes != '' &&
+            steps.baseline.outputs.available == 'true' &&
+            steps.baseline.outputs.run_id || '' }}
+      baseline_sha: >-
+        ${{ steps.filter.outputs.changes != '' &&
+            steps.baseline.outputs.available == 'true' &&
+            steps.baseline.outputs.sha || '' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
-          # Treeless clone: commit graph is needed for `git merge-base` and
-          # `git diff --name-only` below, but historical blobs aren't.
+          # Treeless clone: the commit graph is needed to resolve the PR merge
+          # base and classify its changed paths, but historical blobs aren't.
           fetch-depth: 0
           filter: blob:none
 
       # copy-pr-bot pushes every PR (whether it targets main or a backport
       # branch such as 12.9.x) to pull-request/<N>, so the base branch
       # cannot be inferred from github.ref_name. Look it up via the
-      # upstream PR metadata so the diff below is rooted at the right place.
+      # upstream PR metadata so change detection is rooted at the right place.
       - name: Resolve PR base branch
         id: pr-info
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         uses: nv-gha-runners/get-pr-info@main
 
-      - name: Detect changed paths
-        id: filter
+      - name: Resolve PR merge base
+        id: merge-base
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         env:
           # GitHub Actions evaluates step-level `env:` expressions eagerly —
@@ -153,25 +208,83 @@ jobs:
             exit 1
           fi
 
-          # Diff against the merge base with the PR's actual target branch.
-          # Disabling rename detection reports both sides of a cross-package
-          # move, which prevents the source package from being skipped.
           base=$(git merge-base HEAD "origin/${BASE_REF}")
-          git diff --no-renames --name-only -z "$base"...HEAD > changed-paths
-          python ci/tools/compute_ci_plan.py changed-paths >> "$GITHUB_OUTPUT"
-          echo "merge_base=${base}" >> "$GITHUB_OUTPUT"
+          echo "sha=${base}" >> "$GITHUB_OUTPUT"
 
-          {
-            echo "### Selective CI changed paths"
-            echo
-            tr '\0' '\n' < changed-paths | sed 's/^/- `/' | sed 's/$/`/'
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Classify changed paths
+        id: filter
+        if: ${{ startsWith(github.ref_name, 'pull-request/') }}
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d  # v4.0.3
+        with:
+          # The workflow runs on copy-pr-bot push branches, so compare the
+          # checked-out PR head against the base resolved from PR metadata.
+          base: ${{ steps.merge-base.outputs.sha }}
+          ref: ${{ github.sha }}
+          token: ''
+          predicate-quantifier: some-with-excludes
+          filters: |
+            pathfinder_source:
+              - 'cuda_pathfinder/**'
+              - '!cuda_pathfinder/docs/**'
+              - '!cuda_pathfinder/tests/**'
+              - '!cuda_pathfinder/examples/**'
+            bindings_source:
+              - 'cuda_bindings/**'
+              - '!cuda_bindings/docs/**'
+              - '!cuda_bindings/tests/**'
+              - '!cuda_bindings/examples/**'
+            core_source:
+              - 'cuda_core/**'
+              - '!cuda_core/docs/**'
+              - '!cuda_core/tests/**'
+              - '!cuda_core/examples/**'
+            python_source:
+              - 'cuda_python/**'
+              - '!cuda_python/docs/**'
+              - '!cuda_python/tests/**'
+              - '!cuda_python/examples/**'
+            pathfinder_tests:
+              - 'cuda_pathfinder/tests/**'
+              - 'cuda_pathfinder/examples/**'
+            bindings_tests:
+              - 'cuda_bindings/tests/**'
+              - 'cuda_bindings/examples/**'
+              - 'benchmarks/cuda_bindings/**'
+            core_tests:
+              - 'cuda_core/tests/**'
+              - 'cuda_core/examples/**'
+            python_tests:
+              - 'cuda_python/tests/**'
+              - 'cuda_python/examples/**'
+            test_helpers:
+              - 'cuda_python_test_helpers/**'
+            # Shared infrastructure and unknown paths run the full pipeline.
+            # Exclude only paths whose narrower behavior is defined above or
+            # repository policy/prose files known not to affect artifacts.
+            force_all:
+              - '**'
+              - '!cuda_pathfinder/**'
+              - '!cuda_bindings/**'
+              - '!cuda_core/**'
+              - '!cuda_python/**'
+              - '!cuda_python_test_helpers/**'
+              - '!benchmarks/cuda_bindings/**'
+              - '!.git-blame-ignore-revs'
+              - '!.gitignore'
+              - '!AGENTS.md'
+              - '!CHANGELOG.md'
+              - '!CODE_OF_CONDUCT.md'
+              - '!CONTRIBUTING.md'
+              - '!LICENSE'
+              - '!README.md'
+              - '!SECURITY.md'
 
       - name: Resolve reusable base artifacts
         id: baseline
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         env:
           BASE_REF: ${{ steps.pr-info.outputs.pr-info && fromJSON(steps.pr-info.outputs.pr-info).base.ref || '' }}
+          MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
@@ -186,7 +299,10 @@ jobs:
             unavailable
           fi
 
-          merge_base=$(git merge-base HEAD "origin/${BASE_REF}")
+          merge_base="${MERGE_BASE}"
+          if [[ -z "${merge_base}" ]]; then
+            unavailable
+          fi
           if ! runs=$(gh run list \
             --repo "${{ github.repository }}" \
             --branch "${BASE_REF}" \
@@ -254,118 +370,6 @@ jobs:
           {
             echo
             echo "Reusable artifacts: run \`${run_id}\` at \`${baseline_sha}\` on \`${BASE_REF}\`."
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Compose gating outputs
-        id: compose
-        env:
-          IS_PR: ${{ startsWith(github.ref_name, 'pull-request/') }}
-          BASELINE_AVAILABLE: ${{ steps.baseline.outputs.available || 'false' }}
-          BASELINE_RUN_ID: ${{ steps.baseline.outputs.run_id }}
-          BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
-          BINDINGS: ${{ steps.filter.outputs.bindings_source }}
-          CORE: ${{ steps.filter.outputs.core_source }}
-          PATHFINDER: ${{ steps.filter.outputs.pathfinder_source }}
-          PYTHON_META: ${{ steps.filter.outputs.python_source }}
-          TEST_HELPERS: ${{ steps.filter.outputs.test_helpers }}
-          SHARED: ${{ steps.filter.outputs.shared }}
-          BUILD_BINDINGS: ${{ steps.filter.outputs.build_bindings }}
-          BUILD_CORE: ${{ steps.filter.outputs.build_core }}
-          BUILD_PATHFINDER: ${{ steps.filter.outputs.build_pathfinder }}
-          BUILD_PYTHON: ${{ steps.filter.outputs.build_python }}
-          TEST_BINDINGS: ${{ steps.filter.outputs.test_bindings }}
-          TEST_CORE: ${{ steps.filter.outputs.test_core }}
-          TEST_PATHFINDER: ${{ steps.filter.outputs.test_pathfinder }}
-          TEST_PYTHON: ${{ steps.filter.outputs.test_python }}
-        run: |
-          set -euxo pipefail
-          planner_valid=true
-          if [[ "${IS_PR}" == "true" ]]; then
-            for value in \
-              "${BINDINGS}" "${CORE}" "${PATHFINDER}" "${PYTHON_META}" \
-              "${TEST_HELPERS}" "${SHARED}" \
-              "${BUILD_BINDINGS}" "${BUILD_CORE}" "${BUILD_PATHFINDER}" "${BUILD_PYTHON}" \
-              "${TEST_BINDINGS}" "${TEST_CORE}" "${TEST_PATHFINDER}" "${TEST_PYTHON}"; do
-              if [[ "${value}" != "true" && "${value}" != "false" ]]; then
-                planner_valid=false
-              fi
-            done
-            if [[ "${BASELINE_AVAILABLE}" == "true" &&
-                  ( -z "${BASELINE_RUN_ID}" || -z "${BASELINE_SHA}" ) ]]; then
-              planner_valid=false
-            fi
-          fi
-
-          # Non-PR events produce the complete trusted artifact set. PRs also
-          # run everything when the trusted base artifact inventory is absent
-          # or the planner did not emit a complete boolean result.
-          if [[ "${IS_PR}" != "true" ||
-                "${BASELINE_AVAILABLE}" != "true" ||
-                "${planner_valid}" != "true" ]]; then
-            bindings=true
-            core=true
-            pathfinder=true
-            python_meta=true
-            test_helpers=true
-            shared=true
-            build_bindings=true
-            build_core=true
-            build_pathfinder=true
-            build_python=true
-            test_bindings=true
-            test_core=true
-            test_pathfinder=true
-            test_python=true
-            baseline_run_id=""
-            baseline_sha=""
-          else
-            bindings="${BINDINGS}"
-            core="${CORE}"
-            pathfinder="${PATHFINDER}"
-            python_meta="${PYTHON_META}"
-            test_helpers="${TEST_HELPERS}"
-            shared="${SHARED}"
-            build_bindings="${BUILD_BINDINGS}"
-            build_core="${BUILD_CORE}"
-            build_pathfinder="${BUILD_PATHFINDER}"
-            build_python="${BUILD_PYTHON}"
-            test_bindings="${TEST_BINDINGS}"
-            test_core="${TEST_CORE}"
-            test_pathfinder="${TEST_PATHFINDER}"
-            test_python="${TEST_PYTHON}"
-            baseline_run_id="${BASELINE_RUN_ID}"
-            baseline_sha="${BASELINE_SHA}"
-          fi
-
-          {
-            echo "bindings=${bindings}"
-            echo "core=${core}"
-            echo "pathfinder=${pathfinder}"
-            echo "python_meta=${python_meta}"
-            echo "test_helpers=${test_helpers}"
-            echo "shared=${shared}"
-            echo "build_bindings=${build_bindings}"
-            echo "build_core=${build_core}"
-            echo "build_pathfinder=${build_pathfinder}"
-            echo "build_python=${build_python}"
-            echo "test_bindings=${test_bindings}"
-            echo "test_core=${test_core}"
-            echo "test_pathfinder=${test_pathfinder}"
-            echo "test_python=${test_python}"
-            echo "baseline_run_id=${baseline_run_id}"
-            echo "baseline_sha=${baseline_sha}"
-          } >> "$GITHUB_OUTPUT"
-
-          {
-            echo
-            echo "### Effective package plan"
-            echo
-            echo "| Package | Build | Test |"
-            echo "| --- | --- | --- |"
-            echo "| cuda-pathfinder | ${build_pathfinder} | ${test_pathfinder} |"
-            echo "| cuda-bindings | ${build_bindings} | ${test_bindings} |"
-            echo "| cuda-core | ${build_core} | ${test_core} |"
-            echo "| cuda-python | ${build_python} | ${test_python} |"
           } >> "$GITHUB_STEP_SUMMARY"
 
   api-check-core-vs-release:
@@ -834,7 +838,7 @@ jobs:
                               needs.detect-changes.outputs.test_bindings == 'true' ||
                               needs.detect-changes.outputs.test_core == 'true' ||
                               needs.detect-changes.outputs.test_python == 'true' }}"
-          core_changed="${{ needs.detect-changes.outputs.core == 'true' }}"
+          run_core_api_check="${{ needs.detect-changes.outputs.core == 'true' }}"
           is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
           status="success"
           check_result() {
@@ -880,13 +884,14 @@ jobs:
           check_result "test-linux-aarch64" "$expected" "${{ needs.test-linux-aarch64.result }}"
           check_result "test-windows"       "$expected" "${{ needs.test-windows.result }}"
 
-          # API compatibility checks only run for cuda_core source changes.
+          # API compatibility checks run for cuda_core source changes and for
+          # conservative full runs when reusable base artifacts are unavailable.
           expected="skipped"
-          if [[ "$core_changed" == "true" ]]; then expected="success"; fi
+          if [[ "$run_core_api_check" == "true" ]]; then expected="success"; fi
           check_result "api-check-core-vs-release" "$expected" "${{ needs.api-check-core-vs-release.result }}"
 
           expected="skipped"
-          if [[ "$is_pr" == "true" && "$core_changed" == "true" ]]; then expected="success"; fi
+          if [[ "$is_pr" == "true" && "$run_core_api_check" == "true" ]]; then expected="success"; fi
           check_result "api-check-core-vs-base" "$expected" "${{ needs.api-check-core-vs-base.result }}"
 
           [[ "$status" == "success" ]]
