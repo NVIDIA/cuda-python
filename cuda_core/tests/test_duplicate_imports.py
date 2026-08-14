@@ -7,6 +7,7 @@
 import sys
 
 from cuda import bindings
+from cuda.core import *  # NOQA
 
 cuda_major = bindings.__version__.split(".")[0]
 
@@ -15,8 +16,6 @@ def test_typing_module_imports():
     """
     Importing cuda.core.system should not also import cuda.core.cuXX.system
     """
-
-    from cuda.core import *  # NOQA
 
     assert "cuda.core.system" in sys.modules
     assert f"cuda.core.cu{cuda_major}" not in sys.modules
