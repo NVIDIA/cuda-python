@@ -734,9 +734,14 @@ def test_pdl_launch_graph_capture(init_cuda):
         from cuda.bindings import driver
 
         h_graph = graph_definition.handle
-        err, _, _, _, num_edges = driver.cuGraphGetEdges(h_graph)
+        if driver.CUDA_VERSION >= 13000:
+            get_edges = driver.cuGraphGetEdges
+        else:
+            get_edges = driver.cuGraphGetEdges_v2
+
+        err, _, _, _, num_edges = get_edges(h_graph)
         assert err == driver.CUresult.CUDA_SUCCESS, err
-        err, _, _, edge_data, num_edges = driver.cuGraphGetEdges(h_graph, num_edges)
+        err, _, _, edge_data, num_edges = get_edges(h_graph, num_edges)
         assert err == driver.CUresult.CUDA_SUCCESS, err
         assert num_edges == 1, f"expected 1 edge, got {num_edges}"
         ed = edge_data[0]
