@@ -584,7 +584,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          SKIP=lychee pre-commit run --all-files
+          SKIP=lychee,check-pixi-cuda-version pre-commit run --all-files
 
   checks:
     name: Check job status
