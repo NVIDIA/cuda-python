@@ -21,7 +21,12 @@ from conftest import (
     skip_if_pinned_memory_unsupported,
 )
 from helpers import supports_ipc_mempool
-from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
+from helpers.buffers import (
+    DummyDeviceMemoryResource,
+    DummyUnifiedMemoryResource,
+    StubMemoryResource,
+    make_instrumented_memory_resource,
+)
 from helpers.constants import POOL_SIZE
 
 from cuda.core import (
@@ -45,7 +50,7 @@ from cuda.core import (
 )
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory._ipc import IPCBufferDescriptor
-from cuda.core._stream import Stream_accept, default_stream
+from cuda.core._stream import default_stream
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.typing import (
     ManagedMemoryLocationType,
@@ -476,11 +481,12 @@ def test_mr_deallocate_called_on_close():
     """Buffer.from_handle(mr=mr) calls mr.deallocate() on close (issue #1619)."""
     device = Device()
     device.set_current()
-    mr = TrackingMR()
+    TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
+    mr = TrackingMR(device)
     buf = mr.allocate(1024)
-    assert len(mr.active) == 1
+    assert len(telemetry["active"]) == 1
     buf.close()
-    assert len(mr.active) == 0
+    assert len(telemetry["active"]) == 0
 
 
 def test_mr_deallocate_called_on_gc():
@@ -489,12 +495,13 @@ def test_mr_deallocate_called_on_gc():
 
     device = Device()
     device.set_current()
-    mr = TrackingMR()
+    TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
+    mr = TrackingMR(device)
     buf = mr.allocate(1024)
-    assert len(mr.active) == 1
+    assert len(telemetry["active"]) == 1
     del buf
     gc.collect()
-    assert len(mr.active) == 0
+    assert len(telemetry["active"]) == 0
 
 
 def test_mr_deallocate_receives_stream():
@@ -502,17 +509,11 @@ def test_mr_deallocate_receives_stream():
     device = Device()
     device.set_current()
     stream = device.create_stream()
-    received = {}
-
-    class StreamCaptureMR(TrackingMR):
-        def deallocate(self, ptr, size, *, stream=None):
-            received["stream"] = stream
-            super().deallocate(ptr, size, stream=stream)
-
-    mr = StreamCaptureMR()
+    CapturingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, record_streams=True)
+    mr = CapturingMR(device)
     buf = mr.allocate(1024)
     buf.close(stream)
-    assert received["stream"].handle == stream.handle
+    assert telemetry["deallocations"][-1]["stream"].handle == stream.handle
 
 
 @pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
@@ -526,37 +527,15 @@ def test_from_handle_mr_records_default_stream(buffer_type):
 
     device = Device()
     device.set_current()
-    captured = {}
-
-    class StrictCapturingMR(MemoryResource):
-        # Models a stream-ordered MR: deallocate validates the stream
-        # the same way DeviceMemoryResource.deallocate does.
-        @property
-        def is_device_accessible(self):
-            return True
-
-        @property
-        def is_host_accessible(self):
-            return False
-
-        @property
-        def device_id(self):
-            return device.device_id
-
-        def allocate(self, size, *, stream):
-            raise NotImplementedError  # not used; we use from_handle below
-
-        def deallocate(self, ptr, size, *, stream):
-            captured["stream"] = Stream_accept(stream)
-
-    mr = StrictCapturingMR()
-    # ptr=1 is fine because StrictCapturingMR.deallocate does not free.
+    CapturingMR, telemetry = make_instrumented_memory_resource(record_streams=True)
+    mr = CapturingMR(device)
+    # ptr=1 is fine because StubMemoryResource.deallocate does not free.
     buf = buffer_type.from_handle(1, 1024, mr=mr)
     del buf
     gc.collect()
 
-    assert "stream" in captured, "deallocate was not invoked (callback raised and leaked)"
-    assert captured["stream"].handle == default_stream().handle
+    assert telemetry["deallocations"], "deallocate was not invoked (callback raised and leaked)"
+    assert telemetry["deallocations"][-1]["stream"].handle == default_stream().handle
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
@@ -568,33 +547,13 @@ def test_from_handle_mr_records_explicit_stream(buffer_type):
     device = Device()
     device.set_current()
     stream = device.create_stream()
-    captured = {}
-
-    class StrictCapturingMR(MemoryResource):
-        @property
-        def is_device_accessible(self):
-            return True
-
-        @property
-        def is_host_accessible(self):
-            return False
-
-        @property
-        def device_id(self):
-            return device.device_id
-
-        def allocate(self, size, *, stream):
-            raise NotImplementedError
-
-        def deallocate(self, ptr, size, *, stream):
-            captured["stream"] = Stream_accept(stream)
-
-    mr = StrictCapturingMR()
+    CapturingMR, telemetry = make_instrumented_memory_resource(record_streams=True)
+    mr = CapturingMR(device)
     buf = buffer_type.from_handle(1, 1024, mr=mr, stream=stream)
     del buf
     gc.collect()
 
-    assert captured["stream"].handle == stream.handle
+    assert telemetry["deallocations"][-1]["stream"].handle == stream.handle
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
@@ -618,27 +577,7 @@ def test_close_with_default_stream_requires_context():
     device = Device()
     device.set_current()
     stream = device.create_stream()
-
-    class NoopMR(MemoryResource):
-        @property
-        def is_device_accessible(self):
-            return True
-
-        @property
-        def is_host_accessible(self):
-            return False
-
-        @property
-        def device_id(self):
-            return device.device_id
-
-        def allocate(self, size, *, stream):
-            raise NotImplementedError
-
-        def deallocate(self, ptr, size, *, stream):
-            pass
-
-    mr = NoopMR()
+    mr = StubMemoryResource(device)
     # Use a real stream at creation so _init succeeds without a current context later.
     buf = Buffer.from_handle(1, 1024, mr=mr, stream=stream)
 
@@ -660,27 +599,7 @@ def test_from_handle_mr_default_stream_requires_context(buffer_type):
     """Owning from_handle with the default stream needs a current context."""
     device = Device()
     device.set_current()
-
-    class StrictCapturingMR(MemoryResource):
-        @property
-        def is_device_accessible(self):
-            return True
-
-        @property
-        def is_host_accessible(self):
-            return False
-
-        @property
-        def device_id(self):
-            return device.device_id
-
-        def allocate(self, size, *, stream):
-            raise NotImplementedError
-
-        def deallocate(self, ptr, size, *, stream):
-            pass
-
-    mr = StrictCapturingMR()
+    mr = StubMemoryResource(device)
     previous = handle_return(driver.cuCtxPopCurrent())
     assert int(previous) != 0
     try:
@@ -698,28 +617,8 @@ def test_from_handle_mr_explicit_stream_without_current_context(buffer_type):
     device = Device()
     device.set_current()
     stream = device.create_stream()
-    captured = {}
-
-    class StrictCapturingMR(MemoryResource):
-        @property
-        def is_device_accessible(self):
-            return True
-
-        @property
-        def is_host_accessible(self):
-            return False
-
-        @property
-        def device_id(self):
-            return device.device_id
-
-        def allocate(self, size, *, stream):
-            raise NotImplementedError
-
-        def deallocate(self, ptr, size, *, stream):
-            captured["stream"] = Stream_accept(stream)
-
-    mr = StrictCapturingMR()
+    CapturingMR, telemetry = make_instrumented_memory_resource(record_streams=True)
+    mr = CapturingMR(device)
     previous = handle_return(driver.cuCtxPopCurrent())
     assert int(previous) != 0
     try:
@@ -730,7 +629,7 @@ def test_from_handle_mr_explicit_stream_without_current_context(buffer_type):
     finally:
         handle_return(driver.cuCtxSetCurrent(previous))
 
-    assert captured["stream"].handle == stream.handle
+    assert telemetry["deallocations"][-1]["stream"].handle == stream.handle
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -738,27 +637,8 @@ def test_mr_deallocation_failure_warns(capfd):
     """Destructor-path MR failures are contained and reported."""
     device = Device()
     device.set_current()
-
-    class FailingMR(MemoryResource):
-        @property
-        def is_device_accessible(self):
-            return True
-
-        @property
-        def is_host_accessible(self):
-            return False
-
-        @property
-        def device_id(self):
-            return device.device_id
-
-        def allocate(self, size, *, stream):
-            raise NotImplementedError
-
-        def deallocate(self, ptr, size, *, stream):
-            raise RuntimeError("expected deallocation failure")
-
-    buf = Buffer.from_handle(1, 1024, mr=FailingMR())
+    FailingMR, _ = make_instrumented_memory_resource(deallocate_error=RuntimeError("expected deallocation failure"))
+    buf = Buffer.from_handle(1, 1024, mr=FailingMR(device))
     buf.close()
 
     assert (
@@ -770,10 +650,11 @@ def test_mr_deallocation_failure_warns(capfd):
 @pytest.mark.parametrize("replace_stream", [False, True])
 def test_mr_deallocation_without_current_context(init_cuda, capsys, replace_stream):
     """MR-backed Buffer teardown activates the recorded context when none is current."""
-    mr = TrackingMR()
+    TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
+    mr = TrackingMR(init_cuda)
     buf = mr.allocate(1024)
     stream = init_cuda.create_stream() if replace_stream else None
-    assert len(mr.active) == 1
+    assert len(telemetry["active"]) == 1
 
     previous = handle_return(driver.cuCtxPopCurrent())
     assert int(previous) != 0
@@ -782,7 +663,7 @@ def test_mr_deallocation_without_current_context(init_cuda, capsys, replace_stre
 
         buf.close(stream)
 
-        assert len(mr.active) == 0
+        assert len(telemetry["active"]) == 0
         assert int(handle_return(driver.cuCtxGetCurrent())) == 0
         assert "mr.deallocate() failed" not in capsys.readouterr().err
     finally:
@@ -798,10 +679,11 @@ def test_mr_deallocation_with_foreign_context(capsys, replace_stream):
 
     alloc_dev = Device(0)
     alloc_dev.set_current()
-    mr = TrackingMR()
+    TrackingMR, telemetry = make_instrumented_memory_resource(DummyDeviceMemoryResource, track_active=True)
+    mr = TrackingMR(alloc_dev)
     buf = mr.allocate(1024)
     stream = alloc_dev.create_stream() if replace_stream else None
-    assert len(mr.active) == 1
+    assert len(telemetry["active"]) == 1
     alloc_ctx = int(handle_return(driver.cuCtxGetCurrent()))
 
     foreign_dev = Device(1)
@@ -813,7 +695,7 @@ def test_mr_deallocation_with_foreign_context(capsys, replace_stream):
     try:
         buf.close(stream)
 
-        assert len(mr.active) == 0
+        assert len(telemetry["active"]) == 0
         assert int(handle_return(driver.cuCtxGetCurrent())) == foreign_ctx
         assert "mr.deallocate() failed" not in capsys.readouterr().err
     finally:
