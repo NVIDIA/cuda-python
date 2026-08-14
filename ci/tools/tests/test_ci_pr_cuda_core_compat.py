@@ -57,11 +57,13 @@ def test_pr_cuda_core_job_gated_on_bindings_changes(test_cuda_core_job: str) -> 
 
 
 @pytest.mark.agent_authored(model="composer-2.5-fast")
-def test_pr_cuda_core_job_skips_standard_module_tests(test_cuda_core_job: str) -> None:
+def test_pr_cuda_core_job_skips_standard_core_and_meta_tests(test_cuda_core_job: str) -> None:
+    # pathfinder/bindings downloads stay enabled (defaults) so nightly-cuda-core
+    # can install PR-built wheels; only skip standard cuda-core/meta pytest.
     assert "test-core: false" in test_cuda_core_job
-    assert "test-bindings: false" in test_cuda_core_job
-    assert "test-pathfinder: false" in test_cuda_core_job
     assert "test-python: false" in test_cuda_core_job
+    assert "test-bindings: false" not in test_cuda_core_job
+    assert "test-pathfinder: false" not in test_cuda_core_job
 
 
 @pytest.mark.agent_authored(model="composer-2.5-fast")

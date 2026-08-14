@@ -462,8 +462,6 @@ jobs:
       test-mode: nightly-cuda-core
       matrix_filter: 'map(select(.ENV.MODE == "nightly-cuda-core"))'
       test-core: false
-      test-bindings: false
-      test-pathfinder: false
       test-python: false
 
   # See test-linux-64 for why test jobs are split by platform.
