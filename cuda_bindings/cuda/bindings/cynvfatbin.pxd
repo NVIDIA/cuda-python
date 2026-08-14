@@ -4,9 +4,6 @@
 #
 # This code was automatically generated across versions from 12.4.1 to 13.4.0. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=350ce092394c88b497887fcb76999a31e960cb7c395fbc50aadd7d5ce174ffc7
-from libc.stdint cimport intptr_t, uint32_t
 
 
 ###############################################################################
@@ -14,6 +11,8 @@ from libc.stdint cimport intptr_t, uint32_t
 ###############################################################################
 
 # enums
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=15a32de9a2c28520e84759f8eb508b8ca7dd4f3e5b462d70ed9b252240a4ac55
 ctypedef enum nvFatbinResult "nvFatbinResult":
     NVFATBIN_SUCCESS "NVFATBIN_SUCCESS" = 0
     NVFATBIN_ERROR_INTERNAL "NVFATBIN_ERROR_INTERNAL"

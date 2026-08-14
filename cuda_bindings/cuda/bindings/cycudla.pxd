@@ -3,12 +3,21 @@
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.0. Do not modify it directly.
 # This layer exposes the C header to Cython as-is.
-
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f24f3dc6fe7d137fe1753e5eb4ebb613d631f984996f6dbb859befed8211c73b
-from libc.stdint cimport int8_t, int16_t, int32_t, int64_t
-from libc.stdint cimport uint8_t, uint16_t, uint32_t, uint64_t
-from libc.stdint cimport intptr_t, uintptr_t
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ba14530d880001870d344c52df77dcaaede52ae6421387f08cac4624003f683e
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    uint32_t,
+    uint64_t,
+    uint8_t,
+)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 from libc.stddef cimport size_t
 
 

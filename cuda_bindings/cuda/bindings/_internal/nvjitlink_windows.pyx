@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d90e50b8ffd6f1d66aa26e5a0d38b9e3a3c7a801114de8feabe626d622d50f81
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=aba925fa52cf3b835f062b3c99d60fe59165d177075696a46f0f7c4b42ead221
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -45,7 +45,11 @@ cdef extern from "<windows.h>":
     ctypedef void* HMODULE
     void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport (
+    intptr_t,
+    uint32_t,
+    uintptr_t,
+)
 
 import threading as _cyb_threading
 
@@ -154,52 +158,52 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvjitlink()
     cdef dict data = {}
     global __nvJitLinkCreate
-    data["__nvJitLinkCreate"] = <_cyb_intptr_t>__nvJitLinkCreate
+    data["__nvJitLinkCreate"] = <intptr_t>__nvJitLinkCreate
 
     global __nvJitLinkDestroy
-    data["__nvJitLinkDestroy"] = <_cyb_intptr_t>__nvJitLinkDestroy
+    data["__nvJitLinkDestroy"] = <intptr_t>__nvJitLinkDestroy
 
     global __nvJitLinkAddData
-    data["__nvJitLinkAddData"] = <_cyb_intptr_t>__nvJitLinkAddData
+    data["__nvJitLinkAddData"] = <intptr_t>__nvJitLinkAddData
 
     global __nvJitLinkAddFile
-    data["__nvJitLinkAddFile"] = <_cyb_intptr_t>__nvJitLinkAddFile
+    data["__nvJitLinkAddFile"] = <intptr_t>__nvJitLinkAddFile
 
     global __nvJitLinkComplete
-    data["__nvJitLinkComplete"] = <_cyb_intptr_t>__nvJitLinkComplete
+    data["__nvJitLinkComplete"] = <intptr_t>__nvJitLinkComplete
 
     global __nvJitLinkGetLinkedCubinSize
-    data["__nvJitLinkGetLinkedCubinSize"] = <_cyb_intptr_t>__nvJitLinkGetLinkedCubinSize
+    data["__nvJitLinkGetLinkedCubinSize"] = <intptr_t>__nvJitLinkGetLinkedCubinSize
 
     global __nvJitLinkGetLinkedCubin
-    data["__nvJitLinkGetLinkedCubin"] = <_cyb_intptr_t>__nvJitLinkGetLinkedCubin
+    data["__nvJitLinkGetLinkedCubin"] = <intptr_t>__nvJitLinkGetLinkedCubin
 
     global __nvJitLinkGetLinkedPtxSize
-    data["__nvJitLinkGetLinkedPtxSize"] = <_cyb_intptr_t>__nvJitLinkGetLinkedPtxSize
+    data["__nvJitLinkGetLinkedPtxSize"] = <intptr_t>__nvJitLinkGetLinkedPtxSize
 
     global __nvJitLinkGetLinkedPtx
-    data["__nvJitLinkGetLinkedPtx"] = <_cyb_intptr_t>__nvJitLinkGetLinkedPtx
+    data["__nvJitLinkGetLinkedPtx"] = <intptr_t>__nvJitLinkGetLinkedPtx
 
     global __nvJitLinkGetErrorLogSize
-    data["__nvJitLinkGetErrorLogSize"] = <_cyb_intptr_t>__nvJitLinkGetErrorLogSize
+    data["__nvJitLinkGetErrorLogSize"] = <intptr_t>__nvJitLinkGetErrorLogSize
 
     global __nvJitLinkGetErrorLog
-    data["__nvJitLinkGetErrorLog"] = <_cyb_intptr_t>__nvJitLinkGetErrorLog
+    data["__nvJitLinkGetErrorLog"] = <intptr_t>__nvJitLinkGetErrorLog
 
     global __nvJitLinkGetInfoLogSize
-    data["__nvJitLinkGetInfoLogSize"] = <_cyb_intptr_t>__nvJitLinkGetInfoLogSize
+    data["__nvJitLinkGetInfoLogSize"] = <intptr_t>__nvJitLinkGetInfoLogSize
 
     global __nvJitLinkGetInfoLog
-    data["__nvJitLinkGetInfoLog"] = <_cyb_intptr_t>__nvJitLinkGetInfoLog
+    data["__nvJitLinkGetInfoLog"] = <intptr_t>__nvJitLinkGetInfoLog
 
     global __nvJitLinkVersion
-    data["__nvJitLinkVersion"] = <_cyb_intptr_t>__nvJitLinkVersion
+    data["__nvJitLinkVersion"] = <intptr_t>__nvJitLinkVersion
 
     global __nvJitLinkGetLinkedLTOIRSize
-    data["__nvJitLinkGetLinkedLTOIRSize"] = <_cyb_intptr_t>__nvJitLinkGetLinkedLTOIRSize
+    data["__nvJitLinkGetLinkedLTOIRSize"] = <intptr_t>__nvJitLinkGetLinkedLTOIRSize
 
     global __nvJitLinkGetLinkedLTOIR
-    data["__nvJitLinkGetLinkedLTOIR"] = <_cyb_intptr_t>__nvJitLinkGetLinkedLTOIR
+    data["__nvJitLinkGetLinkedLTOIR"] = <intptr_t>__nvJitLinkGetLinkedLTOIR
     _cyb_func_ptrs = data
     return data
 

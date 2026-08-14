@@ -3,7 +3,7 @@
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e076e29e87500d2bdc0a65891978259cc1be746831c7b7177427daf7a970708e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a4196ca097125be37ac917ca487c74884fb6fec2c011c21e2a7af60f4d1b35bf
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -44,7 +44,13 @@ cdef extern from "<windows.h>":
     ctypedef void* HMODULE
     void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport (
+    intptr_t,
+    uint32_t,
+    uint64_t,
+    uint8_t,
+    uintptr_t,
+)
 
 import threading as _cyb_threading
 
@@ -146,43 +152,43 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_cudla()
     cdef dict data = {}
     global __cudlaGetVersion
-    data["__cudlaGetVersion"] = <_cyb_intptr_t>__cudlaGetVersion
+    data["__cudlaGetVersion"] = <intptr_t>__cudlaGetVersion
 
     global __cudlaDeviceGetCount
-    data["__cudlaDeviceGetCount"] = <_cyb_intptr_t>__cudlaDeviceGetCount
+    data["__cudlaDeviceGetCount"] = <intptr_t>__cudlaDeviceGetCount
 
     global __cudlaCreateDevice
-    data["__cudlaCreateDevice"] = <_cyb_intptr_t>__cudlaCreateDevice
+    data["__cudlaCreateDevice"] = <intptr_t>__cudlaCreateDevice
 
     global __cudlaMemRegister
-    data["__cudlaMemRegister"] = <_cyb_intptr_t>__cudlaMemRegister
+    data["__cudlaMemRegister"] = <intptr_t>__cudlaMemRegister
 
     global __cudlaModuleLoadFromMemory
-    data["__cudlaModuleLoadFromMemory"] = <_cyb_intptr_t>__cudlaModuleLoadFromMemory
+    data["__cudlaModuleLoadFromMemory"] = <intptr_t>__cudlaModuleLoadFromMemory
 
     global __cudlaModuleGetAttributes
-    data["__cudlaModuleGetAttributes"] = <_cyb_intptr_t>__cudlaModuleGetAttributes
+    data["__cudlaModuleGetAttributes"] = <intptr_t>__cudlaModuleGetAttributes
 
     global __cudlaModuleUnload
-    data["__cudlaModuleUnload"] = <_cyb_intptr_t>__cudlaModuleUnload
+    data["__cudlaModuleUnload"] = <intptr_t>__cudlaModuleUnload
 
     global __cudlaSubmitTask
-    data["__cudlaSubmitTask"] = <_cyb_intptr_t>__cudlaSubmitTask
+    data["__cudlaSubmitTask"] = <intptr_t>__cudlaSubmitTask
 
     global __cudlaDeviceGetAttribute
-    data["__cudlaDeviceGetAttribute"] = <_cyb_intptr_t>__cudlaDeviceGetAttribute
+    data["__cudlaDeviceGetAttribute"] = <intptr_t>__cudlaDeviceGetAttribute
 
     global __cudlaMemUnregister
-    data["__cudlaMemUnregister"] = <_cyb_intptr_t>__cudlaMemUnregister
+    data["__cudlaMemUnregister"] = <intptr_t>__cudlaMemUnregister
 
     global __cudlaGetLastError
-    data["__cudlaGetLastError"] = <_cyb_intptr_t>__cudlaGetLastError
+    data["__cudlaGetLastError"] = <intptr_t>__cudlaGetLastError
 
     global __cudlaDestroyDevice
-    data["__cudlaDestroyDevice"] = <_cyb_intptr_t>__cudlaDestroyDevice
+    data["__cudlaDestroyDevice"] = <intptr_t>__cudlaDestroyDevice
 
     global __cudlaSetTaskTimeoutInMs
-    data["__cudlaSetTaskTimeoutInMs"] = <_cyb_intptr_t>__cudlaSetTaskTimeoutInMs
+    data["__cudlaSetTaskTimeoutInMs"] = <intptr_t>__cudlaSetTaskTimeoutInMs
     _cyb_func_ptrs = data
     return data
 

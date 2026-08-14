@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=10e6cb1d192514ece92e863cbebdde5c60b94cdc58d27a8c2e4cf9af1a27c968
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f8ac1d1064f1a58e57afc40dda00cd9d33f82f2cb25ca246244019324d14e1aa
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -45,7 +45,10 @@ cdef extern from "<windows.h>":
     ctypedef void* HMODULE
     void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport (
+    intptr_t,
+    uintptr_t,
+)
 
 import threading as _cyb_threading
 
@@ -1570,1114 +1573,1114 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvml()
     cdef dict data = {}
     global __nvmlInit_v2
-    data["__nvmlInit_v2"] = <_cyb_intptr_t>__nvmlInit_v2
+    data["__nvmlInit_v2"] = <intptr_t>__nvmlInit_v2
 
     global __nvmlInitWithFlags
-    data["__nvmlInitWithFlags"] = <_cyb_intptr_t>__nvmlInitWithFlags
+    data["__nvmlInitWithFlags"] = <intptr_t>__nvmlInitWithFlags
 
     global __nvmlShutdown
-    data["__nvmlShutdown"] = <_cyb_intptr_t>__nvmlShutdown
+    data["__nvmlShutdown"] = <intptr_t>__nvmlShutdown
 
     global __nvmlErrorString
-    data["__nvmlErrorString"] = <_cyb_intptr_t>__nvmlErrorString
+    data["__nvmlErrorString"] = <intptr_t>__nvmlErrorString
 
     global __nvmlSystemGetDriverVersion
-    data["__nvmlSystemGetDriverVersion"] = <_cyb_intptr_t>__nvmlSystemGetDriverVersion
+    data["__nvmlSystemGetDriverVersion"] = <intptr_t>__nvmlSystemGetDriverVersion
 
     global __nvmlSystemGetNVMLVersion
-    data["__nvmlSystemGetNVMLVersion"] = <_cyb_intptr_t>__nvmlSystemGetNVMLVersion
+    data["__nvmlSystemGetNVMLVersion"] = <intptr_t>__nvmlSystemGetNVMLVersion
 
     global __nvmlSystemGetCudaDriverVersion
-    data["__nvmlSystemGetCudaDriverVersion"] = <_cyb_intptr_t>__nvmlSystemGetCudaDriverVersion
+    data["__nvmlSystemGetCudaDriverVersion"] = <intptr_t>__nvmlSystemGetCudaDriverVersion
 
     global __nvmlSystemGetCudaDriverVersion_v2
-    data["__nvmlSystemGetCudaDriverVersion_v2"] = <_cyb_intptr_t>__nvmlSystemGetCudaDriverVersion_v2
+    data["__nvmlSystemGetCudaDriverVersion_v2"] = <intptr_t>__nvmlSystemGetCudaDriverVersion_v2
 
     global __nvmlSystemGetProcessName
-    data["__nvmlSystemGetProcessName"] = <_cyb_intptr_t>__nvmlSystemGetProcessName
+    data["__nvmlSystemGetProcessName"] = <intptr_t>__nvmlSystemGetProcessName
 
     global __nvmlSystemGetHicVersion
-    data["__nvmlSystemGetHicVersion"] = <_cyb_intptr_t>__nvmlSystemGetHicVersion
+    data["__nvmlSystemGetHicVersion"] = <intptr_t>__nvmlSystemGetHicVersion
 
     global __nvmlSystemGetTopologyGpuSet
-    data["__nvmlSystemGetTopologyGpuSet"] = <_cyb_intptr_t>__nvmlSystemGetTopologyGpuSet
+    data["__nvmlSystemGetTopologyGpuSet"] = <intptr_t>__nvmlSystemGetTopologyGpuSet
 
     global __nvmlSystemGetDriverBranch
-    data["__nvmlSystemGetDriverBranch"] = <_cyb_intptr_t>__nvmlSystemGetDriverBranch
+    data["__nvmlSystemGetDriverBranch"] = <intptr_t>__nvmlSystemGetDriverBranch
 
     global __nvmlUnitGetCount
-    data["__nvmlUnitGetCount"] = <_cyb_intptr_t>__nvmlUnitGetCount
+    data["__nvmlUnitGetCount"] = <intptr_t>__nvmlUnitGetCount
 
     global __nvmlUnitGetHandleByIndex
-    data["__nvmlUnitGetHandleByIndex"] = <_cyb_intptr_t>__nvmlUnitGetHandleByIndex
+    data["__nvmlUnitGetHandleByIndex"] = <intptr_t>__nvmlUnitGetHandleByIndex
 
     global __nvmlUnitGetUnitInfo
-    data["__nvmlUnitGetUnitInfo"] = <_cyb_intptr_t>__nvmlUnitGetUnitInfo
+    data["__nvmlUnitGetUnitInfo"] = <intptr_t>__nvmlUnitGetUnitInfo
 
     global __nvmlUnitGetLedState
-    data["__nvmlUnitGetLedState"] = <_cyb_intptr_t>__nvmlUnitGetLedState
+    data["__nvmlUnitGetLedState"] = <intptr_t>__nvmlUnitGetLedState
 
     global __nvmlUnitGetPsuInfo
-    data["__nvmlUnitGetPsuInfo"] = <_cyb_intptr_t>__nvmlUnitGetPsuInfo
+    data["__nvmlUnitGetPsuInfo"] = <intptr_t>__nvmlUnitGetPsuInfo
 
     global __nvmlUnitGetTemperature
-    data["__nvmlUnitGetTemperature"] = <_cyb_intptr_t>__nvmlUnitGetTemperature
+    data["__nvmlUnitGetTemperature"] = <intptr_t>__nvmlUnitGetTemperature
 
     global __nvmlUnitGetFanSpeedInfo
-    data["__nvmlUnitGetFanSpeedInfo"] = <_cyb_intptr_t>__nvmlUnitGetFanSpeedInfo
+    data["__nvmlUnitGetFanSpeedInfo"] = <intptr_t>__nvmlUnitGetFanSpeedInfo
 
     global __nvmlUnitGetDevices
-    data["__nvmlUnitGetDevices"] = <_cyb_intptr_t>__nvmlUnitGetDevices
+    data["__nvmlUnitGetDevices"] = <intptr_t>__nvmlUnitGetDevices
 
     global __nvmlDeviceGetCount_v2
-    data["__nvmlDeviceGetCount_v2"] = <_cyb_intptr_t>__nvmlDeviceGetCount_v2
+    data["__nvmlDeviceGetCount_v2"] = <intptr_t>__nvmlDeviceGetCount_v2
 
     global __nvmlDeviceGetAttributes_v2
-    data["__nvmlDeviceGetAttributes_v2"] = <_cyb_intptr_t>__nvmlDeviceGetAttributes_v2
+    data["__nvmlDeviceGetAttributes_v2"] = <intptr_t>__nvmlDeviceGetAttributes_v2
 
     global __nvmlDeviceGetHandleByIndex_v2
-    data["__nvmlDeviceGetHandleByIndex_v2"] = <_cyb_intptr_t>__nvmlDeviceGetHandleByIndex_v2
+    data["__nvmlDeviceGetHandleByIndex_v2"] = <intptr_t>__nvmlDeviceGetHandleByIndex_v2
 
     global __nvmlDeviceGetHandleBySerial
-    data["__nvmlDeviceGetHandleBySerial"] = <_cyb_intptr_t>__nvmlDeviceGetHandleBySerial
+    data["__nvmlDeviceGetHandleBySerial"] = <intptr_t>__nvmlDeviceGetHandleBySerial
 
     global __nvmlDeviceGetHandleByUUID
-    data["__nvmlDeviceGetHandleByUUID"] = <_cyb_intptr_t>__nvmlDeviceGetHandleByUUID
+    data["__nvmlDeviceGetHandleByUUID"] = <intptr_t>__nvmlDeviceGetHandleByUUID
 
     global __nvmlDeviceGetHandleByUUIDV
-    data["__nvmlDeviceGetHandleByUUIDV"] = <_cyb_intptr_t>__nvmlDeviceGetHandleByUUIDV
+    data["__nvmlDeviceGetHandleByUUIDV"] = <intptr_t>__nvmlDeviceGetHandleByUUIDV
 
     global __nvmlDeviceGetHandleByPciBusId_v2
-    data["__nvmlDeviceGetHandleByPciBusId_v2"] = <_cyb_intptr_t>__nvmlDeviceGetHandleByPciBusId_v2
+    data["__nvmlDeviceGetHandleByPciBusId_v2"] = <intptr_t>__nvmlDeviceGetHandleByPciBusId_v2
 
     global __nvmlDeviceGetName
-    data["__nvmlDeviceGetName"] = <_cyb_intptr_t>__nvmlDeviceGetName
+    data["__nvmlDeviceGetName"] = <intptr_t>__nvmlDeviceGetName
 
     global __nvmlDeviceGetBrand
-    data["__nvmlDeviceGetBrand"] = <_cyb_intptr_t>__nvmlDeviceGetBrand
+    data["__nvmlDeviceGetBrand"] = <intptr_t>__nvmlDeviceGetBrand
 
     global __nvmlDeviceGetIndex
-    data["__nvmlDeviceGetIndex"] = <_cyb_intptr_t>__nvmlDeviceGetIndex
+    data["__nvmlDeviceGetIndex"] = <intptr_t>__nvmlDeviceGetIndex
 
     global __nvmlDeviceGetSerial
-    data["__nvmlDeviceGetSerial"] = <_cyb_intptr_t>__nvmlDeviceGetSerial
+    data["__nvmlDeviceGetSerial"] = <intptr_t>__nvmlDeviceGetSerial
 
     global __nvmlDeviceGetModuleId
-    data["__nvmlDeviceGetModuleId"] = <_cyb_intptr_t>__nvmlDeviceGetModuleId
+    data["__nvmlDeviceGetModuleId"] = <intptr_t>__nvmlDeviceGetModuleId
 
     global __nvmlDeviceGetC2cModeInfoV
-    data["__nvmlDeviceGetC2cModeInfoV"] = <_cyb_intptr_t>__nvmlDeviceGetC2cModeInfoV
+    data["__nvmlDeviceGetC2cModeInfoV"] = <intptr_t>__nvmlDeviceGetC2cModeInfoV
 
     global __nvmlDeviceGetMemoryAffinity
-    data["__nvmlDeviceGetMemoryAffinity"] = <_cyb_intptr_t>__nvmlDeviceGetMemoryAffinity
+    data["__nvmlDeviceGetMemoryAffinity"] = <intptr_t>__nvmlDeviceGetMemoryAffinity
 
     global __nvmlDeviceGetCpuAffinityWithinScope
-    data["__nvmlDeviceGetCpuAffinityWithinScope"] = <_cyb_intptr_t>__nvmlDeviceGetCpuAffinityWithinScope
+    data["__nvmlDeviceGetCpuAffinityWithinScope"] = <intptr_t>__nvmlDeviceGetCpuAffinityWithinScope
 
     global __nvmlDeviceGetCpuAffinity
-    data["__nvmlDeviceGetCpuAffinity"] = <_cyb_intptr_t>__nvmlDeviceGetCpuAffinity
+    data["__nvmlDeviceGetCpuAffinity"] = <intptr_t>__nvmlDeviceGetCpuAffinity
 
     global __nvmlDeviceSetCpuAffinity
-    data["__nvmlDeviceSetCpuAffinity"] = <_cyb_intptr_t>__nvmlDeviceSetCpuAffinity
+    data["__nvmlDeviceSetCpuAffinity"] = <intptr_t>__nvmlDeviceSetCpuAffinity
 
     global __nvmlDeviceClearCpuAffinity
-    data["__nvmlDeviceClearCpuAffinity"] = <_cyb_intptr_t>__nvmlDeviceClearCpuAffinity
+    data["__nvmlDeviceClearCpuAffinity"] = <intptr_t>__nvmlDeviceClearCpuAffinity
 
     global __nvmlDeviceGetNumaNodeId
-    data["__nvmlDeviceGetNumaNodeId"] = <_cyb_intptr_t>__nvmlDeviceGetNumaNodeId
+    data["__nvmlDeviceGetNumaNodeId"] = <intptr_t>__nvmlDeviceGetNumaNodeId
 
     global __nvmlDeviceGetTopologyCommonAncestor
-    data["__nvmlDeviceGetTopologyCommonAncestor"] = <_cyb_intptr_t>__nvmlDeviceGetTopologyCommonAncestor
+    data["__nvmlDeviceGetTopologyCommonAncestor"] = <intptr_t>__nvmlDeviceGetTopologyCommonAncestor
 
     global __nvmlDeviceGetTopologyNearestGpus
-    data["__nvmlDeviceGetTopologyNearestGpus"] = <_cyb_intptr_t>__nvmlDeviceGetTopologyNearestGpus
+    data["__nvmlDeviceGetTopologyNearestGpus"] = <intptr_t>__nvmlDeviceGetTopologyNearestGpus
 
     global __nvmlDeviceGetP2PStatus
-    data["__nvmlDeviceGetP2PStatus"] = <_cyb_intptr_t>__nvmlDeviceGetP2PStatus
+    data["__nvmlDeviceGetP2PStatus"] = <intptr_t>__nvmlDeviceGetP2PStatus
 
     global __nvmlDeviceGetUUID
-    data["__nvmlDeviceGetUUID"] = <_cyb_intptr_t>__nvmlDeviceGetUUID
+    data["__nvmlDeviceGetUUID"] = <intptr_t>__nvmlDeviceGetUUID
 
     global __nvmlDeviceGetMinorNumber
-    data["__nvmlDeviceGetMinorNumber"] = <_cyb_intptr_t>__nvmlDeviceGetMinorNumber
+    data["__nvmlDeviceGetMinorNumber"] = <intptr_t>__nvmlDeviceGetMinorNumber
 
     global __nvmlDeviceGetBoardPartNumber
-    data["__nvmlDeviceGetBoardPartNumber"] = <_cyb_intptr_t>__nvmlDeviceGetBoardPartNumber
+    data["__nvmlDeviceGetBoardPartNumber"] = <intptr_t>__nvmlDeviceGetBoardPartNumber
 
     global __nvmlDeviceGetInforomVersion
-    data["__nvmlDeviceGetInforomVersion"] = <_cyb_intptr_t>__nvmlDeviceGetInforomVersion
+    data["__nvmlDeviceGetInforomVersion"] = <intptr_t>__nvmlDeviceGetInforomVersion
 
     global __nvmlDeviceGetInforomImageVersion
-    data["__nvmlDeviceGetInforomImageVersion"] = <_cyb_intptr_t>__nvmlDeviceGetInforomImageVersion
+    data["__nvmlDeviceGetInforomImageVersion"] = <intptr_t>__nvmlDeviceGetInforomImageVersion
 
     global __nvmlDeviceGetInforomConfigurationChecksum
-    data["__nvmlDeviceGetInforomConfigurationChecksum"] = <_cyb_intptr_t>__nvmlDeviceGetInforomConfigurationChecksum
+    data["__nvmlDeviceGetInforomConfigurationChecksum"] = <intptr_t>__nvmlDeviceGetInforomConfigurationChecksum
 
     global __nvmlDeviceValidateInforom
-    data["__nvmlDeviceValidateInforom"] = <_cyb_intptr_t>__nvmlDeviceValidateInforom
+    data["__nvmlDeviceValidateInforom"] = <intptr_t>__nvmlDeviceValidateInforom
 
     global __nvmlDeviceGetLastBBXFlushTime
-    data["__nvmlDeviceGetLastBBXFlushTime"] = <_cyb_intptr_t>__nvmlDeviceGetLastBBXFlushTime
+    data["__nvmlDeviceGetLastBBXFlushTime"] = <intptr_t>__nvmlDeviceGetLastBBXFlushTime
 
     global __nvmlDeviceGetDisplayMode
-    data["__nvmlDeviceGetDisplayMode"] = <_cyb_intptr_t>__nvmlDeviceGetDisplayMode
+    data["__nvmlDeviceGetDisplayMode"] = <intptr_t>__nvmlDeviceGetDisplayMode
 
     global __nvmlDeviceGetDisplayActive
-    data["__nvmlDeviceGetDisplayActive"] = <_cyb_intptr_t>__nvmlDeviceGetDisplayActive
+    data["__nvmlDeviceGetDisplayActive"] = <intptr_t>__nvmlDeviceGetDisplayActive
 
     global __nvmlDeviceGetPersistenceMode
-    data["__nvmlDeviceGetPersistenceMode"] = <_cyb_intptr_t>__nvmlDeviceGetPersistenceMode
+    data["__nvmlDeviceGetPersistenceMode"] = <intptr_t>__nvmlDeviceGetPersistenceMode
 
     global __nvmlDeviceGetPciInfoExt
-    data["__nvmlDeviceGetPciInfoExt"] = <_cyb_intptr_t>__nvmlDeviceGetPciInfoExt
+    data["__nvmlDeviceGetPciInfoExt"] = <intptr_t>__nvmlDeviceGetPciInfoExt
 
     global __nvmlDeviceGetPciInfo_v3
-    data["__nvmlDeviceGetPciInfo_v3"] = <_cyb_intptr_t>__nvmlDeviceGetPciInfo_v3
+    data["__nvmlDeviceGetPciInfo_v3"] = <intptr_t>__nvmlDeviceGetPciInfo_v3
 
     global __nvmlDeviceGetMaxPcieLinkGeneration
-    data["__nvmlDeviceGetMaxPcieLinkGeneration"] = <_cyb_intptr_t>__nvmlDeviceGetMaxPcieLinkGeneration
+    data["__nvmlDeviceGetMaxPcieLinkGeneration"] = <intptr_t>__nvmlDeviceGetMaxPcieLinkGeneration
 
     global __nvmlDeviceGetGpuMaxPcieLinkGeneration
-    data["__nvmlDeviceGetGpuMaxPcieLinkGeneration"] = <_cyb_intptr_t>__nvmlDeviceGetGpuMaxPcieLinkGeneration
+    data["__nvmlDeviceGetGpuMaxPcieLinkGeneration"] = <intptr_t>__nvmlDeviceGetGpuMaxPcieLinkGeneration
 
     global __nvmlDeviceGetMaxPcieLinkWidth
-    data["__nvmlDeviceGetMaxPcieLinkWidth"] = <_cyb_intptr_t>__nvmlDeviceGetMaxPcieLinkWidth
+    data["__nvmlDeviceGetMaxPcieLinkWidth"] = <intptr_t>__nvmlDeviceGetMaxPcieLinkWidth
 
     global __nvmlDeviceGetCurrPcieLinkGeneration
-    data["__nvmlDeviceGetCurrPcieLinkGeneration"] = <_cyb_intptr_t>__nvmlDeviceGetCurrPcieLinkGeneration
+    data["__nvmlDeviceGetCurrPcieLinkGeneration"] = <intptr_t>__nvmlDeviceGetCurrPcieLinkGeneration
 
     global __nvmlDeviceGetCurrPcieLinkWidth
-    data["__nvmlDeviceGetCurrPcieLinkWidth"] = <_cyb_intptr_t>__nvmlDeviceGetCurrPcieLinkWidth
+    data["__nvmlDeviceGetCurrPcieLinkWidth"] = <intptr_t>__nvmlDeviceGetCurrPcieLinkWidth
 
     global __nvmlDeviceGetPcieThroughput
-    data["__nvmlDeviceGetPcieThroughput"] = <_cyb_intptr_t>__nvmlDeviceGetPcieThroughput
+    data["__nvmlDeviceGetPcieThroughput"] = <intptr_t>__nvmlDeviceGetPcieThroughput
 
     global __nvmlDeviceGetPcieReplayCounter
-    data["__nvmlDeviceGetPcieReplayCounter"] = <_cyb_intptr_t>__nvmlDeviceGetPcieReplayCounter
+    data["__nvmlDeviceGetPcieReplayCounter"] = <intptr_t>__nvmlDeviceGetPcieReplayCounter
 
     global __nvmlDeviceGetClockInfo
-    data["__nvmlDeviceGetClockInfo"] = <_cyb_intptr_t>__nvmlDeviceGetClockInfo
+    data["__nvmlDeviceGetClockInfo"] = <intptr_t>__nvmlDeviceGetClockInfo
 
     global __nvmlDeviceGetMaxClockInfo
-    data["__nvmlDeviceGetMaxClockInfo"] = <_cyb_intptr_t>__nvmlDeviceGetMaxClockInfo
+    data["__nvmlDeviceGetMaxClockInfo"] = <intptr_t>__nvmlDeviceGetMaxClockInfo
 
     global __nvmlDeviceGetGpcClkVfOffset
-    data["__nvmlDeviceGetGpcClkVfOffset"] = <_cyb_intptr_t>__nvmlDeviceGetGpcClkVfOffset
+    data["__nvmlDeviceGetGpcClkVfOffset"] = <intptr_t>__nvmlDeviceGetGpcClkVfOffset
 
     global __nvmlDeviceGetClock
-    data["__nvmlDeviceGetClock"] = <_cyb_intptr_t>__nvmlDeviceGetClock
+    data["__nvmlDeviceGetClock"] = <intptr_t>__nvmlDeviceGetClock
 
     global __nvmlDeviceGetMaxCustomerBoostClock
-    data["__nvmlDeviceGetMaxCustomerBoostClock"] = <_cyb_intptr_t>__nvmlDeviceGetMaxCustomerBoostClock
+    data["__nvmlDeviceGetMaxCustomerBoostClock"] = <intptr_t>__nvmlDeviceGetMaxCustomerBoostClock
 
     global __nvmlDeviceGetSupportedMemoryClocks
-    data["__nvmlDeviceGetSupportedMemoryClocks"] = <_cyb_intptr_t>__nvmlDeviceGetSupportedMemoryClocks
+    data["__nvmlDeviceGetSupportedMemoryClocks"] = <intptr_t>__nvmlDeviceGetSupportedMemoryClocks
 
     global __nvmlDeviceGetSupportedGraphicsClocks
-    data["__nvmlDeviceGetSupportedGraphicsClocks"] = <_cyb_intptr_t>__nvmlDeviceGetSupportedGraphicsClocks
+    data["__nvmlDeviceGetSupportedGraphicsClocks"] = <intptr_t>__nvmlDeviceGetSupportedGraphicsClocks
 
     global __nvmlDeviceGetAutoBoostedClocksEnabled
-    data["__nvmlDeviceGetAutoBoostedClocksEnabled"] = <_cyb_intptr_t>__nvmlDeviceGetAutoBoostedClocksEnabled
+    data["__nvmlDeviceGetAutoBoostedClocksEnabled"] = <intptr_t>__nvmlDeviceGetAutoBoostedClocksEnabled
 
     global __nvmlDeviceGetFanSpeed
-    data["__nvmlDeviceGetFanSpeed"] = <_cyb_intptr_t>__nvmlDeviceGetFanSpeed
+    data["__nvmlDeviceGetFanSpeed"] = <intptr_t>__nvmlDeviceGetFanSpeed
 
     global __nvmlDeviceGetFanSpeed_v2
-    data["__nvmlDeviceGetFanSpeed_v2"] = <_cyb_intptr_t>__nvmlDeviceGetFanSpeed_v2
+    data["__nvmlDeviceGetFanSpeed_v2"] = <intptr_t>__nvmlDeviceGetFanSpeed_v2
 
     global __nvmlDeviceGetFanSpeedRPM
-    data["__nvmlDeviceGetFanSpeedRPM"] = <_cyb_intptr_t>__nvmlDeviceGetFanSpeedRPM
+    data["__nvmlDeviceGetFanSpeedRPM"] = <intptr_t>__nvmlDeviceGetFanSpeedRPM
 
     global __nvmlDeviceGetTargetFanSpeed
-    data["__nvmlDeviceGetTargetFanSpeed"] = <_cyb_intptr_t>__nvmlDeviceGetTargetFanSpeed
+    data["__nvmlDeviceGetTargetFanSpeed"] = <intptr_t>__nvmlDeviceGetTargetFanSpeed
 
     global __nvmlDeviceGetMinMaxFanSpeed
-    data["__nvmlDeviceGetMinMaxFanSpeed"] = <_cyb_intptr_t>__nvmlDeviceGetMinMaxFanSpeed
+    data["__nvmlDeviceGetMinMaxFanSpeed"] = <intptr_t>__nvmlDeviceGetMinMaxFanSpeed
 
     global __nvmlDeviceGetFanControlPolicy_v2
-    data["__nvmlDeviceGetFanControlPolicy_v2"] = <_cyb_intptr_t>__nvmlDeviceGetFanControlPolicy_v2
+    data["__nvmlDeviceGetFanControlPolicy_v2"] = <intptr_t>__nvmlDeviceGetFanControlPolicy_v2
 
     global __nvmlDeviceGetNumFans
-    data["__nvmlDeviceGetNumFans"] = <_cyb_intptr_t>__nvmlDeviceGetNumFans
+    data["__nvmlDeviceGetNumFans"] = <intptr_t>__nvmlDeviceGetNumFans
 
     global __nvmlDeviceGetCoolerInfo
-    data["__nvmlDeviceGetCoolerInfo"] = <_cyb_intptr_t>__nvmlDeviceGetCoolerInfo
+    data["__nvmlDeviceGetCoolerInfo"] = <intptr_t>__nvmlDeviceGetCoolerInfo
 
     global __nvmlDeviceGetTemperatureV
-    data["__nvmlDeviceGetTemperatureV"] = <_cyb_intptr_t>__nvmlDeviceGetTemperatureV
+    data["__nvmlDeviceGetTemperatureV"] = <intptr_t>__nvmlDeviceGetTemperatureV
 
     global __nvmlDeviceGetTemperatureThreshold
-    data["__nvmlDeviceGetTemperatureThreshold"] = <_cyb_intptr_t>__nvmlDeviceGetTemperatureThreshold
+    data["__nvmlDeviceGetTemperatureThreshold"] = <intptr_t>__nvmlDeviceGetTemperatureThreshold
 
     global __nvmlDeviceGetMarginTemperature
-    data["__nvmlDeviceGetMarginTemperature"] = <_cyb_intptr_t>__nvmlDeviceGetMarginTemperature
+    data["__nvmlDeviceGetMarginTemperature"] = <intptr_t>__nvmlDeviceGetMarginTemperature
 
     global __nvmlDeviceGetThermalSettings
-    data["__nvmlDeviceGetThermalSettings"] = <_cyb_intptr_t>__nvmlDeviceGetThermalSettings
+    data["__nvmlDeviceGetThermalSettings"] = <intptr_t>__nvmlDeviceGetThermalSettings
 
     global __nvmlDeviceGetPerformanceState
-    data["__nvmlDeviceGetPerformanceState"] = <_cyb_intptr_t>__nvmlDeviceGetPerformanceState
+    data["__nvmlDeviceGetPerformanceState"] = <intptr_t>__nvmlDeviceGetPerformanceState
 
     global __nvmlDeviceGetCurrentClocksEventReasons
-    data["__nvmlDeviceGetCurrentClocksEventReasons"] = <_cyb_intptr_t>__nvmlDeviceGetCurrentClocksEventReasons
+    data["__nvmlDeviceGetCurrentClocksEventReasons"] = <intptr_t>__nvmlDeviceGetCurrentClocksEventReasons
 
     global __nvmlDeviceGetSupportedClocksEventReasons
-    data["__nvmlDeviceGetSupportedClocksEventReasons"] = <_cyb_intptr_t>__nvmlDeviceGetSupportedClocksEventReasons
+    data["__nvmlDeviceGetSupportedClocksEventReasons"] = <intptr_t>__nvmlDeviceGetSupportedClocksEventReasons
 
     global __nvmlDeviceGetPowerState
-    data["__nvmlDeviceGetPowerState"] = <_cyb_intptr_t>__nvmlDeviceGetPowerState
+    data["__nvmlDeviceGetPowerState"] = <intptr_t>__nvmlDeviceGetPowerState
 
     global __nvmlDeviceGetDynamicPstatesInfo
-    data["__nvmlDeviceGetDynamicPstatesInfo"] = <_cyb_intptr_t>__nvmlDeviceGetDynamicPstatesInfo
+    data["__nvmlDeviceGetDynamicPstatesInfo"] = <intptr_t>__nvmlDeviceGetDynamicPstatesInfo
 
     global __nvmlDeviceGetMemClkVfOffset
-    data["__nvmlDeviceGetMemClkVfOffset"] = <_cyb_intptr_t>__nvmlDeviceGetMemClkVfOffset
+    data["__nvmlDeviceGetMemClkVfOffset"] = <intptr_t>__nvmlDeviceGetMemClkVfOffset
 
     global __nvmlDeviceGetMinMaxClockOfPState
-    data["__nvmlDeviceGetMinMaxClockOfPState"] = <_cyb_intptr_t>__nvmlDeviceGetMinMaxClockOfPState
+    data["__nvmlDeviceGetMinMaxClockOfPState"] = <intptr_t>__nvmlDeviceGetMinMaxClockOfPState
 
     global __nvmlDeviceGetSupportedPerformanceStates
-    data["__nvmlDeviceGetSupportedPerformanceStates"] = <_cyb_intptr_t>__nvmlDeviceGetSupportedPerformanceStates
+    data["__nvmlDeviceGetSupportedPerformanceStates"] = <intptr_t>__nvmlDeviceGetSupportedPerformanceStates
 
     global __nvmlDeviceGetGpcClkMinMaxVfOffset
-    data["__nvmlDeviceGetGpcClkMinMaxVfOffset"] = <_cyb_intptr_t>__nvmlDeviceGetGpcClkMinMaxVfOffset
+    data["__nvmlDeviceGetGpcClkMinMaxVfOffset"] = <intptr_t>__nvmlDeviceGetGpcClkMinMaxVfOffset
 
     global __nvmlDeviceGetMemClkMinMaxVfOffset
-    data["__nvmlDeviceGetMemClkMinMaxVfOffset"] = <_cyb_intptr_t>__nvmlDeviceGetMemClkMinMaxVfOffset
+    data["__nvmlDeviceGetMemClkMinMaxVfOffset"] = <intptr_t>__nvmlDeviceGetMemClkMinMaxVfOffset
 
     global __nvmlDeviceGetClockOffsets
-    data["__nvmlDeviceGetClockOffsets"] = <_cyb_intptr_t>__nvmlDeviceGetClockOffsets
+    data["__nvmlDeviceGetClockOffsets"] = <intptr_t>__nvmlDeviceGetClockOffsets
 
     global __nvmlDeviceSetClockOffsets
-    data["__nvmlDeviceSetClockOffsets"] = <_cyb_intptr_t>__nvmlDeviceSetClockOffsets
+    data["__nvmlDeviceSetClockOffsets"] = <intptr_t>__nvmlDeviceSetClockOffsets
 
     global __nvmlDeviceGetPerformanceModes
-    data["__nvmlDeviceGetPerformanceModes"] = <_cyb_intptr_t>__nvmlDeviceGetPerformanceModes
+    data["__nvmlDeviceGetPerformanceModes"] = <intptr_t>__nvmlDeviceGetPerformanceModes
 
     global __nvmlDeviceGetCurrentClockFreqs
-    data["__nvmlDeviceGetCurrentClockFreqs"] = <_cyb_intptr_t>__nvmlDeviceGetCurrentClockFreqs
+    data["__nvmlDeviceGetCurrentClockFreqs"] = <intptr_t>__nvmlDeviceGetCurrentClockFreqs
 
     global __nvmlDeviceGetPowerManagementLimit
-    data["__nvmlDeviceGetPowerManagementLimit"] = <_cyb_intptr_t>__nvmlDeviceGetPowerManagementLimit
+    data["__nvmlDeviceGetPowerManagementLimit"] = <intptr_t>__nvmlDeviceGetPowerManagementLimit
 
     global __nvmlDeviceGetPowerManagementLimitConstraints
-    data["__nvmlDeviceGetPowerManagementLimitConstraints"] = <_cyb_intptr_t>__nvmlDeviceGetPowerManagementLimitConstraints
+    data["__nvmlDeviceGetPowerManagementLimitConstraints"] = <intptr_t>__nvmlDeviceGetPowerManagementLimitConstraints
 
     global __nvmlDeviceGetPowerManagementDefaultLimit
-    data["__nvmlDeviceGetPowerManagementDefaultLimit"] = <_cyb_intptr_t>__nvmlDeviceGetPowerManagementDefaultLimit
+    data["__nvmlDeviceGetPowerManagementDefaultLimit"] = <intptr_t>__nvmlDeviceGetPowerManagementDefaultLimit
 
     global __nvmlDeviceGetPowerUsage
-    data["__nvmlDeviceGetPowerUsage"] = <_cyb_intptr_t>__nvmlDeviceGetPowerUsage
+    data["__nvmlDeviceGetPowerUsage"] = <intptr_t>__nvmlDeviceGetPowerUsage
 
     global __nvmlDeviceGetTotalEnergyConsumption
-    data["__nvmlDeviceGetTotalEnergyConsumption"] = <_cyb_intptr_t>__nvmlDeviceGetTotalEnergyConsumption
+    data["__nvmlDeviceGetTotalEnergyConsumption"] = <intptr_t>__nvmlDeviceGetTotalEnergyConsumption
 
     global __nvmlDeviceGetEnforcedPowerLimit
-    data["__nvmlDeviceGetEnforcedPowerLimit"] = <_cyb_intptr_t>__nvmlDeviceGetEnforcedPowerLimit
+    data["__nvmlDeviceGetEnforcedPowerLimit"] = <intptr_t>__nvmlDeviceGetEnforcedPowerLimit
 
     global __nvmlDeviceGetGpuOperationMode
-    data["__nvmlDeviceGetGpuOperationMode"] = <_cyb_intptr_t>__nvmlDeviceGetGpuOperationMode
+    data["__nvmlDeviceGetGpuOperationMode"] = <intptr_t>__nvmlDeviceGetGpuOperationMode
 
     global __nvmlDeviceGetMemoryInfo_v2
-    data["__nvmlDeviceGetMemoryInfo_v2"] = <_cyb_intptr_t>__nvmlDeviceGetMemoryInfo_v2
+    data["__nvmlDeviceGetMemoryInfo_v2"] = <intptr_t>__nvmlDeviceGetMemoryInfo_v2
 
     global __nvmlDeviceGetComputeMode
-    data["__nvmlDeviceGetComputeMode"] = <_cyb_intptr_t>__nvmlDeviceGetComputeMode
+    data["__nvmlDeviceGetComputeMode"] = <intptr_t>__nvmlDeviceGetComputeMode
 
     global __nvmlDeviceGetCudaComputeCapability
-    data["__nvmlDeviceGetCudaComputeCapability"] = <_cyb_intptr_t>__nvmlDeviceGetCudaComputeCapability
+    data["__nvmlDeviceGetCudaComputeCapability"] = <intptr_t>__nvmlDeviceGetCudaComputeCapability
 
     global __nvmlDeviceGetDramEncryptionMode
-    data["__nvmlDeviceGetDramEncryptionMode"] = <_cyb_intptr_t>__nvmlDeviceGetDramEncryptionMode
+    data["__nvmlDeviceGetDramEncryptionMode"] = <intptr_t>__nvmlDeviceGetDramEncryptionMode
 
     global __nvmlDeviceSetDramEncryptionMode
-    data["__nvmlDeviceSetDramEncryptionMode"] = <_cyb_intptr_t>__nvmlDeviceSetDramEncryptionMode
+    data["__nvmlDeviceSetDramEncryptionMode"] = <intptr_t>__nvmlDeviceSetDramEncryptionMode
 
     global __nvmlDeviceGetEccMode
-    data["__nvmlDeviceGetEccMode"] = <_cyb_intptr_t>__nvmlDeviceGetEccMode
+    data["__nvmlDeviceGetEccMode"] = <intptr_t>__nvmlDeviceGetEccMode
 
     global __nvmlDeviceGetDefaultEccMode
-    data["__nvmlDeviceGetDefaultEccMode"] = <_cyb_intptr_t>__nvmlDeviceGetDefaultEccMode
+    data["__nvmlDeviceGetDefaultEccMode"] = <intptr_t>__nvmlDeviceGetDefaultEccMode
 
     global __nvmlDeviceGetBoardId
-    data["__nvmlDeviceGetBoardId"] = <_cyb_intptr_t>__nvmlDeviceGetBoardId
+    data["__nvmlDeviceGetBoardId"] = <intptr_t>__nvmlDeviceGetBoardId
 
     global __nvmlDeviceGetMultiGpuBoard
-    data["__nvmlDeviceGetMultiGpuBoard"] = <_cyb_intptr_t>__nvmlDeviceGetMultiGpuBoard
+    data["__nvmlDeviceGetMultiGpuBoard"] = <intptr_t>__nvmlDeviceGetMultiGpuBoard
 
     global __nvmlDeviceGetTotalEccErrors
-    data["__nvmlDeviceGetTotalEccErrors"] = <_cyb_intptr_t>__nvmlDeviceGetTotalEccErrors
+    data["__nvmlDeviceGetTotalEccErrors"] = <intptr_t>__nvmlDeviceGetTotalEccErrors
 
     global __nvmlDeviceGetMemoryErrorCounter
-    data["__nvmlDeviceGetMemoryErrorCounter"] = <_cyb_intptr_t>__nvmlDeviceGetMemoryErrorCounter
+    data["__nvmlDeviceGetMemoryErrorCounter"] = <intptr_t>__nvmlDeviceGetMemoryErrorCounter
 
     global __nvmlDeviceGetUtilizationRates
-    data["__nvmlDeviceGetUtilizationRates"] = <_cyb_intptr_t>__nvmlDeviceGetUtilizationRates
+    data["__nvmlDeviceGetUtilizationRates"] = <intptr_t>__nvmlDeviceGetUtilizationRates
 
     global __nvmlDeviceGetEncoderUtilization
-    data["__nvmlDeviceGetEncoderUtilization"] = <_cyb_intptr_t>__nvmlDeviceGetEncoderUtilization
+    data["__nvmlDeviceGetEncoderUtilization"] = <intptr_t>__nvmlDeviceGetEncoderUtilization
 
     global __nvmlDeviceGetEncoderCapacity
-    data["__nvmlDeviceGetEncoderCapacity"] = <_cyb_intptr_t>__nvmlDeviceGetEncoderCapacity
+    data["__nvmlDeviceGetEncoderCapacity"] = <intptr_t>__nvmlDeviceGetEncoderCapacity
 
     global __nvmlDeviceGetEncoderStats
-    data["__nvmlDeviceGetEncoderStats"] = <_cyb_intptr_t>__nvmlDeviceGetEncoderStats
+    data["__nvmlDeviceGetEncoderStats"] = <intptr_t>__nvmlDeviceGetEncoderStats
 
     global __nvmlDeviceGetEncoderSessions
-    data["__nvmlDeviceGetEncoderSessions"] = <_cyb_intptr_t>__nvmlDeviceGetEncoderSessions
+    data["__nvmlDeviceGetEncoderSessions"] = <intptr_t>__nvmlDeviceGetEncoderSessions
 
     global __nvmlDeviceGetDecoderUtilization
-    data["__nvmlDeviceGetDecoderUtilization"] = <_cyb_intptr_t>__nvmlDeviceGetDecoderUtilization
+    data["__nvmlDeviceGetDecoderUtilization"] = <intptr_t>__nvmlDeviceGetDecoderUtilization
 
     global __nvmlDeviceGetJpgUtilization
-    data["__nvmlDeviceGetJpgUtilization"] = <_cyb_intptr_t>__nvmlDeviceGetJpgUtilization
+    data["__nvmlDeviceGetJpgUtilization"] = <intptr_t>__nvmlDeviceGetJpgUtilization
 
     global __nvmlDeviceGetOfaUtilization
-    data["__nvmlDeviceGetOfaUtilization"] = <_cyb_intptr_t>__nvmlDeviceGetOfaUtilization
+    data["__nvmlDeviceGetOfaUtilization"] = <intptr_t>__nvmlDeviceGetOfaUtilization
 
     global __nvmlDeviceGetFBCStats
-    data["__nvmlDeviceGetFBCStats"] = <_cyb_intptr_t>__nvmlDeviceGetFBCStats
+    data["__nvmlDeviceGetFBCStats"] = <intptr_t>__nvmlDeviceGetFBCStats
 
     global __nvmlDeviceGetFBCSessions
-    data["__nvmlDeviceGetFBCSessions"] = <_cyb_intptr_t>__nvmlDeviceGetFBCSessions
+    data["__nvmlDeviceGetFBCSessions"] = <intptr_t>__nvmlDeviceGetFBCSessions
 
     global __nvmlDeviceGetDriverModel_v2
-    data["__nvmlDeviceGetDriverModel_v2"] = <_cyb_intptr_t>__nvmlDeviceGetDriverModel_v2
+    data["__nvmlDeviceGetDriverModel_v2"] = <intptr_t>__nvmlDeviceGetDriverModel_v2
 
     global __nvmlDeviceGetVbiosVersion
-    data["__nvmlDeviceGetVbiosVersion"] = <_cyb_intptr_t>__nvmlDeviceGetVbiosVersion
+    data["__nvmlDeviceGetVbiosVersion"] = <intptr_t>__nvmlDeviceGetVbiosVersion
 
     global __nvmlDeviceGetBridgeChipInfo
-    data["__nvmlDeviceGetBridgeChipInfo"] = <_cyb_intptr_t>__nvmlDeviceGetBridgeChipInfo
+    data["__nvmlDeviceGetBridgeChipInfo"] = <intptr_t>__nvmlDeviceGetBridgeChipInfo
 
     global __nvmlDeviceGetComputeRunningProcesses_v3
-    data["__nvmlDeviceGetComputeRunningProcesses_v3"] = <_cyb_intptr_t>__nvmlDeviceGetComputeRunningProcesses_v3
+    data["__nvmlDeviceGetComputeRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetComputeRunningProcesses_v3
 
     global __nvmlDeviceGetGraphicsRunningProcesses_v3
-    data["__nvmlDeviceGetGraphicsRunningProcesses_v3"] = <_cyb_intptr_t>__nvmlDeviceGetGraphicsRunningProcesses_v3
+    data["__nvmlDeviceGetGraphicsRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetGraphicsRunningProcesses_v3
 
     global __nvmlDeviceGetMPSComputeRunningProcesses_v3
-    data["__nvmlDeviceGetMPSComputeRunningProcesses_v3"] = <_cyb_intptr_t>__nvmlDeviceGetMPSComputeRunningProcesses_v3
+    data["__nvmlDeviceGetMPSComputeRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetMPSComputeRunningProcesses_v3
 
     global __nvmlDeviceGetRunningProcessDetailList
-    data["__nvmlDeviceGetRunningProcessDetailList"] = <_cyb_intptr_t>__nvmlDeviceGetRunningProcessDetailList
+    data["__nvmlDeviceGetRunningProcessDetailList"] = <intptr_t>__nvmlDeviceGetRunningProcessDetailList
 
     global __nvmlDeviceOnSameBoard
-    data["__nvmlDeviceOnSameBoard"] = <_cyb_intptr_t>__nvmlDeviceOnSameBoard
+    data["__nvmlDeviceOnSameBoard"] = <intptr_t>__nvmlDeviceOnSameBoard
 
     global __nvmlDeviceGetAPIRestriction
-    data["__nvmlDeviceGetAPIRestriction"] = <_cyb_intptr_t>__nvmlDeviceGetAPIRestriction
+    data["__nvmlDeviceGetAPIRestriction"] = <intptr_t>__nvmlDeviceGetAPIRestriction
 
     global __nvmlDeviceGetSamples
-    data["__nvmlDeviceGetSamples"] = <_cyb_intptr_t>__nvmlDeviceGetSamples
+    data["__nvmlDeviceGetSamples"] = <intptr_t>__nvmlDeviceGetSamples
 
     global __nvmlDeviceGetBAR1MemoryInfo
-    data["__nvmlDeviceGetBAR1MemoryInfo"] = <_cyb_intptr_t>__nvmlDeviceGetBAR1MemoryInfo
+    data["__nvmlDeviceGetBAR1MemoryInfo"] = <intptr_t>__nvmlDeviceGetBAR1MemoryInfo
 
     global __nvmlDeviceGetIrqNum
-    data["__nvmlDeviceGetIrqNum"] = <_cyb_intptr_t>__nvmlDeviceGetIrqNum
+    data["__nvmlDeviceGetIrqNum"] = <intptr_t>__nvmlDeviceGetIrqNum
 
     global __nvmlDeviceGetNumGpuCores
-    data["__nvmlDeviceGetNumGpuCores"] = <_cyb_intptr_t>__nvmlDeviceGetNumGpuCores
+    data["__nvmlDeviceGetNumGpuCores"] = <intptr_t>__nvmlDeviceGetNumGpuCores
 
     global __nvmlDeviceGetPowerSource
-    data["__nvmlDeviceGetPowerSource"] = <_cyb_intptr_t>__nvmlDeviceGetPowerSource
+    data["__nvmlDeviceGetPowerSource"] = <intptr_t>__nvmlDeviceGetPowerSource
 
     global __nvmlDeviceGetMemoryBusWidth
-    data["__nvmlDeviceGetMemoryBusWidth"] = <_cyb_intptr_t>__nvmlDeviceGetMemoryBusWidth
+    data["__nvmlDeviceGetMemoryBusWidth"] = <intptr_t>__nvmlDeviceGetMemoryBusWidth
 
     global __nvmlDeviceGetPcieLinkMaxSpeed
-    data["__nvmlDeviceGetPcieLinkMaxSpeed"] = <_cyb_intptr_t>__nvmlDeviceGetPcieLinkMaxSpeed
+    data["__nvmlDeviceGetPcieLinkMaxSpeed"] = <intptr_t>__nvmlDeviceGetPcieLinkMaxSpeed
 
     global __nvmlDeviceGetPcieSpeed
-    data["__nvmlDeviceGetPcieSpeed"] = <_cyb_intptr_t>__nvmlDeviceGetPcieSpeed
+    data["__nvmlDeviceGetPcieSpeed"] = <intptr_t>__nvmlDeviceGetPcieSpeed
 
     global __nvmlDeviceGetAdaptiveClockInfoStatus
-    data["__nvmlDeviceGetAdaptiveClockInfoStatus"] = <_cyb_intptr_t>__nvmlDeviceGetAdaptiveClockInfoStatus
+    data["__nvmlDeviceGetAdaptiveClockInfoStatus"] = <intptr_t>__nvmlDeviceGetAdaptiveClockInfoStatus
 
     global __nvmlDeviceGetBusType
-    data["__nvmlDeviceGetBusType"] = <_cyb_intptr_t>__nvmlDeviceGetBusType
+    data["__nvmlDeviceGetBusType"] = <intptr_t>__nvmlDeviceGetBusType
 
     global __nvmlDeviceGetGpuFabricInfoV
-    data["__nvmlDeviceGetGpuFabricInfoV"] = <_cyb_intptr_t>__nvmlDeviceGetGpuFabricInfoV
+    data["__nvmlDeviceGetGpuFabricInfoV"] = <intptr_t>__nvmlDeviceGetGpuFabricInfoV
 
     global __nvmlSystemGetConfComputeCapabilities
-    data["__nvmlSystemGetConfComputeCapabilities"] = <_cyb_intptr_t>__nvmlSystemGetConfComputeCapabilities
+    data["__nvmlSystemGetConfComputeCapabilities"] = <intptr_t>__nvmlSystemGetConfComputeCapabilities
 
     global __nvmlSystemGetConfComputeState
-    data["__nvmlSystemGetConfComputeState"] = <_cyb_intptr_t>__nvmlSystemGetConfComputeState
+    data["__nvmlSystemGetConfComputeState"] = <intptr_t>__nvmlSystemGetConfComputeState
 
     global __nvmlDeviceGetConfComputeMemSizeInfo
-    data["__nvmlDeviceGetConfComputeMemSizeInfo"] = <_cyb_intptr_t>__nvmlDeviceGetConfComputeMemSizeInfo
+    data["__nvmlDeviceGetConfComputeMemSizeInfo"] = <intptr_t>__nvmlDeviceGetConfComputeMemSizeInfo
 
     global __nvmlSystemGetConfComputeGpusReadyState
-    data["__nvmlSystemGetConfComputeGpusReadyState"] = <_cyb_intptr_t>__nvmlSystemGetConfComputeGpusReadyState
+    data["__nvmlSystemGetConfComputeGpusReadyState"] = <intptr_t>__nvmlSystemGetConfComputeGpusReadyState
 
     global __nvmlDeviceGetConfComputeProtectedMemoryUsage
-    data["__nvmlDeviceGetConfComputeProtectedMemoryUsage"] = <_cyb_intptr_t>__nvmlDeviceGetConfComputeProtectedMemoryUsage
+    data["__nvmlDeviceGetConfComputeProtectedMemoryUsage"] = <intptr_t>__nvmlDeviceGetConfComputeProtectedMemoryUsage
 
     global __nvmlDeviceGetConfComputeGpuCertificate
-    data["__nvmlDeviceGetConfComputeGpuCertificate"] = <_cyb_intptr_t>__nvmlDeviceGetConfComputeGpuCertificate
+    data["__nvmlDeviceGetConfComputeGpuCertificate"] = <intptr_t>__nvmlDeviceGetConfComputeGpuCertificate
 
     global __nvmlDeviceGetConfComputeGpuAttestationReport
-    data["__nvmlDeviceGetConfComputeGpuAttestationReport"] = <_cyb_intptr_t>__nvmlDeviceGetConfComputeGpuAttestationReport
+    data["__nvmlDeviceGetConfComputeGpuAttestationReport"] = <intptr_t>__nvmlDeviceGetConfComputeGpuAttestationReport
 
     global __nvmlSystemGetConfComputeKeyRotationThresholdInfo
-    data["__nvmlSystemGetConfComputeKeyRotationThresholdInfo"] = <_cyb_intptr_t>__nvmlSystemGetConfComputeKeyRotationThresholdInfo
+    data["__nvmlSystemGetConfComputeKeyRotationThresholdInfo"] = <intptr_t>__nvmlSystemGetConfComputeKeyRotationThresholdInfo
 
     global __nvmlDeviceSetConfComputeUnprotectedMemSize
-    data["__nvmlDeviceSetConfComputeUnprotectedMemSize"] = <_cyb_intptr_t>__nvmlDeviceSetConfComputeUnprotectedMemSize
+    data["__nvmlDeviceSetConfComputeUnprotectedMemSize"] = <intptr_t>__nvmlDeviceSetConfComputeUnprotectedMemSize
 
     global __nvmlSystemSetConfComputeGpusReadyState
-    data["__nvmlSystemSetConfComputeGpusReadyState"] = <_cyb_intptr_t>__nvmlSystemSetConfComputeGpusReadyState
+    data["__nvmlSystemSetConfComputeGpusReadyState"] = <intptr_t>__nvmlSystemSetConfComputeGpusReadyState
 
     global __nvmlSystemSetConfComputeKeyRotationThresholdInfo
-    data["__nvmlSystemSetConfComputeKeyRotationThresholdInfo"] = <_cyb_intptr_t>__nvmlSystemSetConfComputeKeyRotationThresholdInfo
+    data["__nvmlSystemSetConfComputeKeyRotationThresholdInfo"] = <intptr_t>__nvmlSystemSetConfComputeKeyRotationThresholdInfo
 
     global __nvmlSystemGetConfComputeSettings
-    data["__nvmlSystemGetConfComputeSettings"] = <_cyb_intptr_t>__nvmlSystemGetConfComputeSettings
+    data["__nvmlSystemGetConfComputeSettings"] = <intptr_t>__nvmlSystemGetConfComputeSettings
 
     global __nvmlDeviceGetGspFirmwareVersion
-    data["__nvmlDeviceGetGspFirmwareVersion"] = <_cyb_intptr_t>__nvmlDeviceGetGspFirmwareVersion
+    data["__nvmlDeviceGetGspFirmwareVersion"] = <intptr_t>__nvmlDeviceGetGspFirmwareVersion
 
     global __nvmlDeviceGetGspFirmwareMode
-    data["__nvmlDeviceGetGspFirmwareMode"] = <_cyb_intptr_t>__nvmlDeviceGetGspFirmwareMode
+    data["__nvmlDeviceGetGspFirmwareMode"] = <intptr_t>__nvmlDeviceGetGspFirmwareMode
 
     global __nvmlDeviceGetSramEccErrorStatus
-    data["__nvmlDeviceGetSramEccErrorStatus"] = <_cyb_intptr_t>__nvmlDeviceGetSramEccErrorStatus
+    data["__nvmlDeviceGetSramEccErrorStatus"] = <intptr_t>__nvmlDeviceGetSramEccErrorStatus
 
     global __nvmlDeviceGetAccountingMode
-    data["__nvmlDeviceGetAccountingMode"] = <_cyb_intptr_t>__nvmlDeviceGetAccountingMode
+    data["__nvmlDeviceGetAccountingMode"] = <intptr_t>__nvmlDeviceGetAccountingMode
 
     global __nvmlDeviceGetAccountingStats
-    data["__nvmlDeviceGetAccountingStats"] = <_cyb_intptr_t>__nvmlDeviceGetAccountingStats
+    data["__nvmlDeviceGetAccountingStats"] = <intptr_t>__nvmlDeviceGetAccountingStats
 
     global __nvmlDeviceGetAccountingPids
-    data["__nvmlDeviceGetAccountingPids"] = <_cyb_intptr_t>__nvmlDeviceGetAccountingPids
+    data["__nvmlDeviceGetAccountingPids"] = <intptr_t>__nvmlDeviceGetAccountingPids
 
     global __nvmlDeviceGetAccountingBufferSize
-    data["__nvmlDeviceGetAccountingBufferSize"] = <_cyb_intptr_t>__nvmlDeviceGetAccountingBufferSize
+    data["__nvmlDeviceGetAccountingBufferSize"] = <intptr_t>__nvmlDeviceGetAccountingBufferSize
 
     global __nvmlDeviceGetRetiredPages
-    data["__nvmlDeviceGetRetiredPages"] = <_cyb_intptr_t>__nvmlDeviceGetRetiredPages
+    data["__nvmlDeviceGetRetiredPages"] = <intptr_t>__nvmlDeviceGetRetiredPages
 
     global __nvmlDeviceGetRetiredPages_v2
-    data["__nvmlDeviceGetRetiredPages_v2"] = <_cyb_intptr_t>__nvmlDeviceGetRetiredPages_v2
+    data["__nvmlDeviceGetRetiredPages_v2"] = <intptr_t>__nvmlDeviceGetRetiredPages_v2
 
     global __nvmlDeviceGetRetiredPagesPendingStatus
-    data["__nvmlDeviceGetRetiredPagesPendingStatus"] = <_cyb_intptr_t>__nvmlDeviceGetRetiredPagesPendingStatus
+    data["__nvmlDeviceGetRetiredPagesPendingStatus"] = <intptr_t>__nvmlDeviceGetRetiredPagesPendingStatus
 
     global __nvmlDeviceGetRemappedRows
-    data["__nvmlDeviceGetRemappedRows"] = <_cyb_intptr_t>__nvmlDeviceGetRemappedRows
+    data["__nvmlDeviceGetRemappedRows"] = <intptr_t>__nvmlDeviceGetRemappedRows
 
     global __nvmlDeviceGetRowRemapperHistogram
-    data["__nvmlDeviceGetRowRemapperHistogram"] = <_cyb_intptr_t>__nvmlDeviceGetRowRemapperHistogram
+    data["__nvmlDeviceGetRowRemapperHistogram"] = <intptr_t>__nvmlDeviceGetRowRemapperHistogram
 
     global __nvmlDeviceGetArchitecture
-    data["__nvmlDeviceGetArchitecture"] = <_cyb_intptr_t>__nvmlDeviceGetArchitecture
+    data["__nvmlDeviceGetArchitecture"] = <intptr_t>__nvmlDeviceGetArchitecture
 
     global __nvmlDeviceGetClkMonStatus
-    data["__nvmlDeviceGetClkMonStatus"] = <_cyb_intptr_t>__nvmlDeviceGetClkMonStatus
+    data["__nvmlDeviceGetClkMonStatus"] = <intptr_t>__nvmlDeviceGetClkMonStatus
 
     global __nvmlDeviceGetProcessUtilization
-    data["__nvmlDeviceGetProcessUtilization"] = <_cyb_intptr_t>__nvmlDeviceGetProcessUtilization
+    data["__nvmlDeviceGetProcessUtilization"] = <intptr_t>__nvmlDeviceGetProcessUtilization
 
     global __nvmlDeviceGetProcessesUtilizationInfo
-    data["__nvmlDeviceGetProcessesUtilizationInfo"] = <_cyb_intptr_t>__nvmlDeviceGetProcessesUtilizationInfo
+    data["__nvmlDeviceGetProcessesUtilizationInfo"] = <intptr_t>__nvmlDeviceGetProcessesUtilizationInfo
 
     global __nvmlDeviceGetPlatformInfo
-    data["__nvmlDeviceGetPlatformInfo"] = <_cyb_intptr_t>__nvmlDeviceGetPlatformInfo
+    data["__nvmlDeviceGetPlatformInfo"] = <intptr_t>__nvmlDeviceGetPlatformInfo
 
     global __nvmlUnitSetLedState
-    data["__nvmlUnitSetLedState"] = <_cyb_intptr_t>__nvmlUnitSetLedState
+    data["__nvmlUnitSetLedState"] = <intptr_t>__nvmlUnitSetLedState
 
     global __nvmlDeviceSetPersistenceMode
-    data["__nvmlDeviceSetPersistenceMode"] = <_cyb_intptr_t>__nvmlDeviceSetPersistenceMode
+    data["__nvmlDeviceSetPersistenceMode"] = <intptr_t>__nvmlDeviceSetPersistenceMode
 
     global __nvmlDeviceSetComputeMode
-    data["__nvmlDeviceSetComputeMode"] = <_cyb_intptr_t>__nvmlDeviceSetComputeMode
+    data["__nvmlDeviceSetComputeMode"] = <intptr_t>__nvmlDeviceSetComputeMode
 
     global __nvmlDeviceSetEccMode
-    data["__nvmlDeviceSetEccMode"] = <_cyb_intptr_t>__nvmlDeviceSetEccMode
+    data["__nvmlDeviceSetEccMode"] = <intptr_t>__nvmlDeviceSetEccMode
 
     global __nvmlDeviceClearEccErrorCounts
-    data["__nvmlDeviceClearEccErrorCounts"] = <_cyb_intptr_t>__nvmlDeviceClearEccErrorCounts
+    data["__nvmlDeviceClearEccErrorCounts"] = <intptr_t>__nvmlDeviceClearEccErrorCounts
 
     global __nvmlDeviceSetDriverModel
-    data["__nvmlDeviceSetDriverModel"] = <_cyb_intptr_t>__nvmlDeviceSetDriverModel
+    data["__nvmlDeviceSetDriverModel"] = <intptr_t>__nvmlDeviceSetDriverModel
 
     global __nvmlDeviceSetGpuLockedClocks
-    data["__nvmlDeviceSetGpuLockedClocks"] = <_cyb_intptr_t>__nvmlDeviceSetGpuLockedClocks
+    data["__nvmlDeviceSetGpuLockedClocks"] = <intptr_t>__nvmlDeviceSetGpuLockedClocks
 
     global __nvmlDeviceResetGpuLockedClocks
-    data["__nvmlDeviceResetGpuLockedClocks"] = <_cyb_intptr_t>__nvmlDeviceResetGpuLockedClocks
+    data["__nvmlDeviceResetGpuLockedClocks"] = <intptr_t>__nvmlDeviceResetGpuLockedClocks
 
     global __nvmlDeviceSetMemoryLockedClocks
-    data["__nvmlDeviceSetMemoryLockedClocks"] = <_cyb_intptr_t>__nvmlDeviceSetMemoryLockedClocks
+    data["__nvmlDeviceSetMemoryLockedClocks"] = <intptr_t>__nvmlDeviceSetMemoryLockedClocks
 
     global __nvmlDeviceResetMemoryLockedClocks
-    data["__nvmlDeviceResetMemoryLockedClocks"] = <_cyb_intptr_t>__nvmlDeviceResetMemoryLockedClocks
+    data["__nvmlDeviceResetMemoryLockedClocks"] = <intptr_t>__nvmlDeviceResetMemoryLockedClocks
 
     global __nvmlDeviceSetAutoBoostedClocksEnabled
-    data["__nvmlDeviceSetAutoBoostedClocksEnabled"] = <_cyb_intptr_t>__nvmlDeviceSetAutoBoostedClocksEnabled
+    data["__nvmlDeviceSetAutoBoostedClocksEnabled"] = <intptr_t>__nvmlDeviceSetAutoBoostedClocksEnabled
 
     global __nvmlDeviceSetDefaultAutoBoostedClocksEnabled
-    data["__nvmlDeviceSetDefaultAutoBoostedClocksEnabled"] = <_cyb_intptr_t>__nvmlDeviceSetDefaultAutoBoostedClocksEnabled
+    data["__nvmlDeviceSetDefaultAutoBoostedClocksEnabled"] = <intptr_t>__nvmlDeviceSetDefaultAutoBoostedClocksEnabled
 
     global __nvmlDeviceSetDefaultFanSpeed_v2
-    data["__nvmlDeviceSetDefaultFanSpeed_v2"] = <_cyb_intptr_t>__nvmlDeviceSetDefaultFanSpeed_v2
+    data["__nvmlDeviceSetDefaultFanSpeed_v2"] = <intptr_t>__nvmlDeviceSetDefaultFanSpeed_v2
 
     global __nvmlDeviceSetFanControlPolicy
-    data["__nvmlDeviceSetFanControlPolicy"] = <_cyb_intptr_t>__nvmlDeviceSetFanControlPolicy
+    data["__nvmlDeviceSetFanControlPolicy"] = <intptr_t>__nvmlDeviceSetFanControlPolicy
 
     global __nvmlDeviceSetTemperatureThreshold
-    data["__nvmlDeviceSetTemperatureThreshold"] = <_cyb_intptr_t>__nvmlDeviceSetTemperatureThreshold
+    data["__nvmlDeviceSetTemperatureThreshold"] = <intptr_t>__nvmlDeviceSetTemperatureThreshold
 
     global __nvmlDeviceSetGpuOperationMode
-    data["__nvmlDeviceSetGpuOperationMode"] = <_cyb_intptr_t>__nvmlDeviceSetGpuOperationMode
+    data["__nvmlDeviceSetGpuOperationMode"] = <intptr_t>__nvmlDeviceSetGpuOperationMode
 
     global __nvmlDeviceSetAPIRestriction
-    data["__nvmlDeviceSetAPIRestriction"] = <_cyb_intptr_t>__nvmlDeviceSetAPIRestriction
+    data["__nvmlDeviceSetAPIRestriction"] = <intptr_t>__nvmlDeviceSetAPIRestriction
 
     global __nvmlDeviceSetFanSpeed_v2
-    data["__nvmlDeviceSetFanSpeed_v2"] = <_cyb_intptr_t>__nvmlDeviceSetFanSpeed_v2
+    data["__nvmlDeviceSetFanSpeed_v2"] = <intptr_t>__nvmlDeviceSetFanSpeed_v2
 
     global __nvmlDeviceSetAccountingMode
-    data["__nvmlDeviceSetAccountingMode"] = <_cyb_intptr_t>__nvmlDeviceSetAccountingMode
+    data["__nvmlDeviceSetAccountingMode"] = <intptr_t>__nvmlDeviceSetAccountingMode
 
     global __nvmlDeviceClearAccountingPids
-    data["__nvmlDeviceClearAccountingPids"] = <_cyb_intptr_t>__nvmlDeviceClearAccountingPids
+    data["__nvmlDeviceClearAccountingPids"] = <intptr_t>__nvmlDeviceClearAccountingPids
 
     global __nvmlDeviceSetPowerManagementLimit_v2
-    data["__nvmlDeviceSetPowerManagementLimit_v2"] = <_cyb_intptr_t>__nvmlDeviceSetPowerManagementLimit_v2
+    data["__nvmlDeviceSetPowerManagementLimit_v2"] = <intptr_t>__nvmlDeviceSetPowerManagementLimit_v2
 
     global __nvmlDeviceGetNvLinkState
-    data["__nvmlDeviceGetNvLinkState"] = <_cyb_intptr_t>__nvmlDeviceGetNvLinkState
+    data["__nvmlDeviceGetNvLinkState"] = <intptr_t>__nvmlDeviceGetNvLinkState
 
     global __nvmlDeviceGetNvLinkVersion
-    data["__nvmlDeviceGetNvLinkVersion"] = <_cyb_intptr_t>__nvmlDeviceGetNvLinkVersion
+    data["__nvmlDeviceGetNvLinkVersion"] = <intptr_t>__nvmlDeviceGetNvLinkVersion
 
     global __nvmlDeviceGetNvLinkCapability
-    data["__nvmlDeviceGetNvLinkCapability"] = <_cyb_intptr_t>__nvmlDeviceGetNvLinkCapability
+    data["__nvmlDeviceGetNvLinkCapability"] = <intptr_t>__nvmlDeviceGetNvLinkCapability
 
     global __nvmlDeviceGetNvLinkRemotePciInfo_v2
-    data["__nvmlDeviceGetNvLinkRemotePciInfo_v2"] = <_cyb_intptr_t>__nvmlDeviceGetNvLinkRemotePciInfo_v2
+    data["__nvmlDeviceGetNvLinkRemotePciInfo_v2"] = <intptr_t>__nvmlDeviceGetNvLinkRemotePciInfo_v2
 
     global __nvmlDeviceGetNvLinkErrorCounter
-    data["__nvmlDeviceGetNvLinkErrorCounter"] = <_cyb_intptr_t>__nvmlDeviceGetNvLinkErrorCounter
+    data["__nvmlDeviceGetNvLinkErrorCounter"] = <intptr_t>__nvmlDeviceGetNvLinkErrorCounter
 
     global __nvmlDeviceResetNvLinkErrorCounters
-    data["__nvmlDeviceResetNvLinkErrorCounters"] = <_cyb_intptr_t>__nvmlDeviceResetNvLinkErrorCounters
+    data["__nvmlDeviceResetNvLinkErrorCounters"] = <intptr_t>__nvmlDeviceResetNvLinkErrorCounters
 
     global __nvmlDeviceGetNvLinkRemoteDeviceType
-    data["__nvmlDeviceGetNvLinkRemoteDeviceType"] = <_cyb_intptr_t>__nvmlDeviceGetNvLinkRemoteDeviceType
+    data["__nvmlDeviceGetNvLinkRemoteDeviceType"] = <intptr_t>__nvmlDeviceGetNvLinkRemoteDeviceType
 
     global __nvmlDeviceSetNvLinkDeviceLowPowerThreshold
-    data["__nvmlDeviceSetNvLinkDeviceLowPowerThreshold"] = <_cyb_intptr_t>__nvmlDeviceSetNvLinkDeviceLowPowerThreshold
+    data["__nvmlDeviceSetNvLinkDeviceLowPowerThreshold"] = <intptr_t>__nvmlDeviceSetNvLinkDeviceLowPowerThreshold
 
     global __nvmlSystemSetNvlinkBwMode
-    data["__nvmlSystemSetNvlinkBwMode"] = <_cyb_intptr_t>__nvmlSystemSetNvlinkBwMode
+    data["__nvmlSystemSetNvlinkBwMode"] = <intptr_t>__nvmlSystemSetNvlinkBwMode
 
     global __nvmlSystemGetNvlinkBwMode
-    data["__nvmlSystemGetNvlinkBwMode"] = <_cyb_intptr_t>__nvmlSystemGetNvlinkBwMode
+    data["__nvmlSystemGetNvlinkBwMode"] = <intptr_t>__nvmlSystemGetNvlinkBwMode
 
     global __nvmlDeviceGetNvlinkSupportedBwModes
-    data["__nvmlDeviceGetNvlinkSupportedBwModes"] = <_cyb_intptr_t>__nvmlDeviceGetNvlinkSupportedBwModes
+    data["__nvmlDeviceGetNvlinkSupportedBwModes"] = <intptr_t>__nvmlDeviceGetNvlinkSupportedBwModes
 
     global __nvmlDeviceGetNvlinkBwMode
-    data["__nvmlDeviceGetNvlinkBwMode"] = <_cyb_intptr_t>__nvmlDeviceGetNvlinkBwMode
+    data["__nvmlDeviceGetNvlinkBwMode"] = <intptr_t>__nvmlDeviceGetNvlinkBwMode
 
     global __nvmlDeviceSetNvlinkBwMode
-    data["__nvmlDeviceSetNvlinkBwMode"] = <_cyb_intptr_t>__nvmlDeviceSetNvlinkBwMode
+    data["__nvmlDeviceSetNvlinkBwMode"] = <intptr_t>__nvmlDeviceSetNvlinkBwMode
 
     global __nvmlEventSetCreate
-    data["__nvmlEventSetCreate"] = <_cyb_intptr_t>__nvmlEventSetCreate
+    data["__nvmlEventSetCreate"] = <intptr_t>__nvmlEventSetCreate
 
     global __nvmlDeviceRegisterEvents
-    data["__nvmlDeviceRegisterEvents"] = <_cyb_intptr_t>__nvmlDeviceRegisterEvents
+    data["__nvmlDeviceRegisterEvents"] = <intptr_t>__nvmlDeviceRegisterEvents
 
     global __nvmlDeviceGetSupportedEventTypes
-    data["__nvmlDeviceGetSupportedEventTypes"] = <_cyb_intptr_t>__nvmlDeviceGetSupportedEventTypes
+    data["__nvmlDeviceGetSupportedEventTypes"] = <intptr_t>__nvmlDeviceGetSupportedEventTypes
 
     global __nvmlEventSetWait_v2
-    data["__nvmlEventSetWait_v2"] = <_cyb_intptr_t>__nvmlEventSetWait_v2
+    data["__nvmlEventSetWait_v2"] = <intptr_t>__nvmlEventSetWait_v2
 
     global __nvmlEventSetFree
-    data["__nvmlEventSetFree"] = <_cyb_intptr_t>__nvmlEventSetFree
+    data["__nvmlEventSetFree"] = <intptr_t>__nvmlEventSetFree
 
     global __nvmlSystemEventSetCreate
-    data["__nvmlSystemEventSetCreate"] = <_cyb_intptr_t>__nvmlSystemEventSetCreate
+    data["__nvmlSystemEventSetCreate"] = <intptr_t>__nvmlSystemEventSetCreate
 
     global __nvmlSystemEventSetFree
-    data["__nvmlSystemEventSetFree"] = <_cyb_intptr_t>__nvmlSystemEventSetFree
+    data["__nvmlSystemEventSetFree"] = <intptr_t>__nvmlSystemEventSetFree
 
     global __nvmlSystemRegisterEvents
-    data["__nvmlSystemRegisterEvents"] = <_cyb_intptr_t>__nvmlSystemRegisterEvents
+    data["__nvmlSystemRegisterEvents"] = <intptr_t>__nvmlSystemRegisterEvents
 
     global __nvmlSystemEventSetWait
-    data["__nvmlSystemEventSetWait"] = <_cyb_intptr_t>__nvmlSystemEventSetWait
+    data["__nvmlSystemEventSetWait"] = <intptr_t>__nvmlSystemEventSetWait
 
     global __nvmlDeviceModifyDrainState
-    data["__nvmlDeviceModifyDrainState"] = <_cyb_intptr_t>__nvmlDeviceModifyDrainState
+    data["__nvmlDeviceModifyDrainState"] = <intptr_t>__nvmlDeviceModifyDrainState
 
     global __nvmlDeviceQueryDrainState
-    data["__nvmlDeviceQueryDrainState"] = <_cyb_intptr_t>__nvmlDeviceQueryDrainState
+    data["__nvmlDeviceQueryDrainState"] = <intptr_t>__nvmlDeviceQueryDrainState
 
     global __nvmlDeviceRemoveGpu_v2
-    data["__nvmlDeviceRemoveGpu_v2"] = <_cyb_intptr_t>__nvmlDeviceRemoveGpu_v2
+    data["__nvmlDeviceRemoveGpu_v2"] = <intptr_t>__nvmlDeviceRemoveGpu_v2
 
     global __nvmlDeviceDiscoverGpus
-    data["__nvmlDeviceDiscoverGpus"] = <_cyb_intptr_t>__nvmlDeviceDiscoverGpus
+    data["__nvmlDeviceDiscoverGpus"] = <intptr_t>__nvmlDeviceDiscoverGpus
 
     global __nvmlDeviceGetFieldValues
-    data["__nvmlDeviceGetFieldValues"] = <_cyb_intptr_t>__nvmlDeviceGetFieldValues
+    data["__nvmlDeviceGetFieldValues"] = <intptr_t>__nvmlDeviceGetFieldValues
 
     global __nvmlDeviceClearFieldValues
-    data["__nvmlDeviceClearFieldValues"] = <_cyb_intptr_t>__nvmlDeviceClearFieldValues
+    data["__nvmlDeviceClearFieldValues"] = <intptr_t>__nvmlDeviceClearFieldValues
 
     global __nvmlDeviceGetVirtualizationMode
-    data["__nvmlDeviceGetVirtualizationMode"] = <_cyb_intptr_t>__nvmlDeviceGetVirtualizationMode
+    data["__nvmlDeviceGetVirtualizationMode"] = <intptr_t>__nvmlDeviceGetVirtualizationMode
 
     global __nvmlDeviceGetHostVgpuMode
-    data["__nvmlDeviceGetHostVgpuMode"] = <_cyb_intptr_t>__nvmlDeviceGetHostVgpuMode
+    data["__nvmlDeviceGetHostVgpuMode"] = <intptr_t>__nvmlDeviceGetHostVgpuMode
 
     global __nvmlDeviceSetVirtualizationMode
-    data["__nvmlDeviceSetVirtualizationMode"] = <_cyb_intptr_t>__nvmlDeviceSetVirtualizationMode
+    data["__nvmlDeviceSetVirtualizationMode"] = <intptr_t>__nvmlDeviceSetVirtualizationMode
 
     global __nvmlDeviceGetVgpuHeterogeneousMode
-    data["__nvmlDeviceGetVgpuHeterogeneousMode"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuHeterogeneousMode
+    data["__nvmlDeviceGetVgpuHeterogeneousMode"] = <intptr_t>__nvmlDeviceGetVgpuHeterogeneousMode
 
     global __nvmlDeviceSetVgpuHeterogeneousMode
-    data["__nvmlDeviceSetVgpuHeterogeneousMode"] = <_cyb_intptr_t>__nvmlDeviceSetVgpuHeterogeneousMode
+    data["__nvmlDeviceSetVgpuHeterogeneousMode"] = <intptr_t>__nvmlDeviceSetVgpuHeterogeneousMode
 
     global __nvmlVgpuInstanceGetPlacementId
-    data["__nvmlVgpuInstanceGetPlacementId"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetPlacementId
+    data["__nvmlVgpuInstanceGetPlacementId"] = <intptr_t>__nvmlVgpuInstanceGetPlacementId
 
     global __nvmlDeviceGetVgpuTypeSupportedPlacements
-    data["__nvmlDeviceGetVgpuTypeSupportedPlacements"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuTypeSupportedPlacements
+    data["__nvmlDeviceGetVgpuTypeSupportedPlacements"] = <intptr_t>__nvmlDeviceGetVgpuTypeSupportedPlacements
 
     global __nvmlDeviceGetVgpuTypeCreatablePlacements
-    data["__nvmlDeviceGetVgpuTypeCreatablePlacements"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuTypeCreatablePlacements
+    data["__nvmlDeviceGetVgpuTypeCreatablePlacements"] = <intptr_t>__nvmlDeviceGetVgpuTypeCreatablePlacements
 
     global __nvmlVgpuTypeGetGspHeapSize
-    data["__nvmlVgpuTypeGetGspHeapSize"] = <_cyb_intptr_t>__nvmlVgpuTypeGetGspHeapSize
+    data["__nvmlVgpuTypeGetGspHeapSize"] = <intptr_t>__nvmlVgpuTypeGetGspHeapSize
 
     global __nvmlVgpuTypeGetFbReservation
-    data["__nvmlVgpuTypeGetFbReservation"] = <_cyb_intptr_t>__nvmlVgpuTypeGetFbReservation
+    data["__nvmlVgpuTypeGetFbReservation"] = <intptr_t>__nvmlVgpuTypeGetFbReservation
 
     global __nvmlVgpuInstanceGetRuntimeStateSize
-    data["__nvmlVgpuInstanceGetRuntimeStateSize"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetRuntimeStateSize
+    data["__nvmlVgpuInstanceGetRuntimeStateSize"] = <intptr_t>__nvmlVgpuInstanceGetRuntimeStateSize
 
     global __nvmlDeviceSetVgpuCapabilities
-    data["__nvmlDeviceSetVgpuCapabilities"] = <_cyb_intptr_t>__nvmlDeviceSetVgpuCapabilities
+    data["__nvmlDeviceSetVgpuCapabilities"] = <intptr_t>__nvmlDeviceSetVgpuCapabilities
 
     global __nvmlDeviceGetGridLicensableFeatures_v4
-    data["__nvmlDeviceGetGridLicensableFeatures_v4"] = <_cyb_intptr_t>__nvmlDeviceGetGridLicensableFeatures_v4
+    data["__nvmlDeviceGetGridLicensableFeatures_v4"] = <intptr_t>__nvmlDeviceGetGridLicensableFeatures_v4
 
     global __nvmlGetVgpuDriverCapabilities
-    data["__nvmlGetVgpuDriverCapabilities"] = <_cyb_intptr_t>__nvmlGetVgpuDriverCapabilities
+    data["__nvmlGetVgpuDriverCapabilities"] = <intptr_t>__nvmlGetVgpuDriverCapabilities
 
     global __nvmlDeviceGetVgpuCapabilities
-    data["__nvmlDeviceGetVgpuCapabilities"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuCapabilities
+    data["__nvmlDeviceGetVgpuCapabilities"] = <intptr_t>__nvmlDeviceGetVgpuCapabilities
 
     global __nvmlDeviceGetSupportedVgpus
-    data["__nvmlDeviceGetSupportedVgpus"] = <_cyb_intptr_t>__nvmlDeviceGetSupportedVgpus
+    data["__nvmlDeviceGetSupportedVgpus"] = <intptr_t>__nvmlDeviceGetSupportedVgpus
 
     global __nvmlDeviceGetCreatableVgpus
-    data["__nvmlDeviceGetCreatableVgpus"] = <_cyb_intptr_t>__nvmlDeviceGetCreatableVgpus
+    data["__nvmlDeviceGetCreatableVgpus"] = <intptr_t>__nvmlDeviceGetCreatableVgpus
 
     global __nvmlVgpuTypeGetClass
-    data["__nvmlVgpuTypeGetClass"] = <_cyb_intptr_t>__nvmlVgpuTypeGetClass
+    data["__nvmlVgpuTypeGetClass"] = <intptr_t>__nvmlVgpuTypeGetClass
 
     global __nvmlVgpuTypeGetName
-    data["__nvmlVgpuTypeGetName"] = <_cyb_intptr_t>__nvmlVgpuTypeGetName
+    data["__nvmlVgpuTypeGetName"] = <intptr_t>__nvmlVgpuTypeGetName
 
     global __nvmlVgpuTypeGetGpuInstanceProfileId
-    data["__nvmlVgpuTypeGetGpuInstanceProfileId"] = <_cyb_intptr_t>__nvmlVgpuTypeGetGpuInstanceProfileId
+    data["__nvmlVgpuTypeGetGpuInstanceProfileId"] = <intptr_t>__nvmlVgpuTypeGetGpuInstanceProfileId
 
     global __nvmlVgpuTypeGetDeviceID
-    data["__nvmlVgpuTypeGetDeviceID"] = <_cyb_intptr_t>__nvmlVgpuTypeGetDeviceID
+    data["__nvmlVgpuTypeGetDeviceID"] = <intptr_t>__nvmlVgpuTypeGetDeviceID
 
     global __nvmlVgpuTypeGetFramebufferSize
-    data["__nvmlVgpuTypeGetFramebufferSize"] = <_cyb_intptr_t>__nvmlVgpuTypeGetFramebufferSize
+    data["__nvmlVgpuTypeGetFramebufferSize"] = <intptr_t>__nvmlVgpuTypeGetFramebufferSize
 
     global __nvmlVgpuTypeGetNumDisplayHeads
-    data["__nvmlVgpuTypeGetNumDisplayHeads"] = <_cyb_intptr_t>__nvmlVgpuTypeGetNumDisplayHeads
+    data["__nvmlVgpuTypeGetNumDisplayHeads"] = <intptr_t>__nvmlVgpuTypeGetNumDisplayHeads
 
     global __nvmlVgpuTypeGetResolution
-    data["__nvmlVgpuTypeGetResolution"] = <_cyb_intptr_t>__nvmlVgpuTypeGetResolution
+    data["__nvmlVgpuTypeGetResolution"] = <intptr_t>__nvmlVgpuTypeGetResolution
 
     global __nvmlVgpuTypeGetLicense
-    data["__nvmlVgpuTypeGetLicense"] = <_cyb_intptr_t>__nvmlVgpuTypeGetLicense
+    data["__nvmlVgpuTypeGetLicense"] = <intptr_t>__nvmlVgpuTypeGetLicense
 
     global __nvmlVgpuTypeGetFrameRateLimit
-    data["__nvmlVgpuTypeGetFrameRateLimit"] = <_cyb_intptr_t>__nvmlVgpuTypeGetFrameRateLimit
+    data["__nvmlVgpuTypeGetFrameRateLimit"] = <intptr_t>__nvmlVgpuTypeGetFrameRateLimit
 
     global __nvmlVgpuTypeGetMaxInstances
-    data["__nvmlVgpuTypeGetMaxInstances"] = <_cyb_intptr_t>__nvmlVgpuTypeGetMaxInstances
+    data["__nvmlVgpuTypeGetMaxInstances"] = <intptr_t>__nvmlVgpuTypeGetMaxInstances
 
     global __nvmlVgpuTypeGetMaxInstancesPerVm
-    data["__nvmlVgpuTypeGetMaxInstancesPerVm"] = <_cyb_intptr_t>__nvmlVgpuTypeGetMaxInstancesPerVm
+    data["__nvmlVgpuTypeGetMaxInstancesPerVm"] = <intptr_t>__nvmlVgpuTypeGetMaxInstancesPerVm
 
     global __nvmlVgpuTypeGetBAR1Info
-    data["__nvmlVgpuTypeGetBAR1Info"] = <_cyb_intptr_t>__nvmlVgpuTypeGetBAR1Info
+    data["__nvmlVgpuTypeGetBAR1Info"] = <intptr_t>__nvmlVgpuTypeGetBAR1Info
 
     global __nvmlDeviceGetActiveVgpus
-    data["__nvmlDeviceGetActiveVgpus"] = <_cyb_intptr_t>__nvmlDeviceGetActiveVgpus
+    data["__nvmlDeviceGetActiveVgpus"] = <intptr_t>__nvmlDeviceGetActiveVgpus
 
     global __nvmlVgpuInstanceGetVmID
-    data["__nvmlVgpuInstanceGetVmID"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetVmID
+    data["__nvmlVgpuInstanceGetVmID"] = <intptr_t>__nvmlVgpuInstanceGetVmID
 
     global __nvmlVgpuInstanceGetUUID
-    data["__nvmlVgpuInstanceGetUUID"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetUUID
+    data["__nvmlVgpuInstanceGetUUID"] = <intptr_t>__nvmlVgpuInstanceGetUUID
 
     global __nvmlVgpuInstanceGetVmDriverVersion
-    data["__nvmlVgpuInstanceGetVmDriverVersion"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetVmDriverVersion
+    data["__nvmlVgpuInstanceGetVmDriverVersion"] = <intptr_t>__nvmlVgpuInstanceGetVmDriverVersion
 
     global __nvmlVgpuInstanceGetFbUsage
-    data["__nvmlVgpuInstanceGetFbUsage"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetFbUsage
+    data["__nvmlVgpuInstanceGetFbUsage"] = <intptr_t>__nvmlVgpuInstanceGetFbUsage
 
     global __nvmlVgpuInstanceGetLicenseStatus
-    data["__nvmlVgpuInstanceGetLicenseStatus"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetLicenseStatus
+    data["__nvmlVgpuInstanceGetLicenseStatus"] = <intptr_t>__nvmlVgpuInstanceGetLicenseStatus
 
     global __nvmlVgpuInstanceGetType
-    data["__nvmlVgpuInstanceGetType"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetType
+    data["__nvmlVgpuInstanceGetType"] = <intptr_t>__nvmlVgpuInstanceGetType
 
     global __nvmlVgpuInstanceGetFrameRateLimit
-    data["__nvmlVgpuInstanceGetFrameRateLimit"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetFrameRateLimit
+    data["__nvmlVgpuInstanceGetFrameRateLimit"] = <intptr_t>__nvmlVgpuInstanceGetFrameRateLimit
 
     global __nvmlVgpuInstanceGetEccMode
-    data["__nvmlVgpuInstanceGetEccMode"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetEccMode
+    data["__nvmlVgpuInstanceGetEccMode"] = <intptr_t>__nvmlVgpuInstanceGetEccMode
 
     global __nvmlVgpuInstanceGetEncoderCapacity
-    data["__nvmlVgpuInstanceGetEncoderCapacity"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetEncoderCapacity
+    data["__nvmlVgpuInstanceGetEncoderCapacity"] = <intptr_t>__nvmlVgpuInstanceGetEncoderCapacity
 
     global __nvmlVgpuInstanceSetEncoderCapacity
-    data["__nvmlVgpuInstanceSetEncoderCapacity"] = <_cyb_intptr_t>__nvmlVgpuInstanceSetEncoderCapacity
+    data["__nvmlVgpuInstanceSetEncoderCapacity"] = <intptr_t>__nvmlVgpuInstanceSetEncoderCapacity
 
     global __nvmlVgpuInstanceGetEncoderStats
-    data["__nvmlVgpuInstanceGetEncoderStats"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetEncoderStats
+    data["__nvmlVgpuInstanceGetEncoderStats"] = <intptr_t>__nvmlVgpuInstanceGetEncoderStats
 
     global __nvmlVgpuInstanceGetEncoderSessions
-    data["__nvmlVgpuInstanceGetEncoderSessions"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetEncoderSessions
+    data["__nvmlVgpuInstanceGetEncoderSessions"] = <intptr_t>__nvmlVgpuInstanceGetEncoderSessions
 
     global __nvmlVgpuInstanceGetFBCStats
-    data["__nvmlVgpuInstanceGetFBCStats"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetFBCStats
+    data["__nvmlVgpuInstanceGetFBCStats"] = <intptr_t>__nvmlVgpuInstanceGetFBCStats
 
     global __nvmlVgpuInstanceGetFBCSessions
-    data["__nvmlVgpuInstanceGetFBCSessions"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetFBCSessions
+    data["__nvmlVgpuInstanceGetFBCSessions"] = <intptr_t>__nvmlVgpuInstanceGetFBCSessions
 
     global __nvmlVgpuInstanceGetGpuInstanceId
-    data["__nvmlVgpuInstanceGetGpuInstanceId"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetGpuInstanceId
+    data["__nvmlVgpuInstanceGetGpuInstanceId"] = <intptr_t>__nvmlVgpuInstanceGetGpuInstanceId
 
     global __nvmlVgpuInstanceGetGpuPciId
-    data["__nvmlVgpuInstanceGetGpuPciId"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetGpuPciId
+    data["__nvmlVgpuInstanceGetGpuPciId"] = <intptr_t>__nvmlVgpuInstanceGetGpuPciId
 
     global __nvmlVgpuTypeGetCapabilities
-    data["__nvmlVgpuTypeGetCapabilities"] = <_cyb_intptr_t>__nvmlVgpuTypeGetCapabilities
+    data["__nvmlVgpuTypeGetCapabilities"] = <intptr_t>__nvmlVgpuTypeGetCapabilities
 
     global __nvmlVgpuInstanceGetMdevUUID
-    data["__nvmlVgpuInstanceGetMdevUUID"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetMdevUUID
+    data["__nvmlVgpuInstanceGetMdevUUID"] = <intptr_t>__nvmlVgpuInstanceGetMdevUUID
 
     global __nvmlGpuInstanceGetCreatableVgpus
-    data["__nvmlGpuInstanceGetCreatableVgpus"] = <_cyb_intptr_t>__nvmlGpuInstanceGetCreatableVgpus
+    data["__nvmlGpuInstanceGetCreatableVgpus"] = <intptr_t>__nvmlGpuInstanceGetCreatableVgpus
 
     global __nvmlVgpuTypeGetMaxInstancesPerGpuInstance
-    data["__nvmlVgpuTypeGetMaxInstancesPerGpuInstance"] = <_cyb_intptr_t>__nvmlVgpuTypeGetMaxInstancesPerGpuInstance
+    data["__nvmlVgpuTypeGetMaxInstancesPerGpuInstance"] = <intptr_t>__nvmlVgpuTypeGetMaxInstancesPerGpuInstance
 
     global __nvmlGpuInstanceGetActiveVgpus
-    data["__nvmlGpuInstanceGetActiveVgpus"] = <_cyb_intptr_t>__nvmlGpuInstanceGetActiveVgpus
+    data["__nvmlGpuInstanceGetActiveVgpus"] = <intptr_t>__nvmlGpuInstanceGetActiveVgpus
 
     global __nvmlGpuInstanceSetVgpuSchedulerState
-    data["__nvmlGpuInstanceSetVgpuSchedulerState"] = <_cyb_intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState
+    data["__nvmlGpuInstanceSetVgpuSchedulerState"] = <intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState
 
     global __nvmlGpuInstanceGetVgpuSchedulerState
-    data["__nvmlGpuInstanceGetVgpuSchedulerState"] = <_cyb_intptr_t>__nvmlGpuInstanceGetVgpuSchedulerState
+    data["__nvmlGpuInstanceGetVgpuSchedulerState"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerState
 
     global __nvmlGpuInstanceGetVgpuSchedulerLog
-    data["__nvmlGpuInstanceGetVgpuSchedulerLog"] = <_cyb_intptr_t>__nvmlGpuInstanceGetVgpuSchedulerLog
+    data["__nvmlGpuInstanceGetVgpuSchedulerLog"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerLog
 
     global __nvmlGpuInstanceGetVgpuTypeCreatablePlacements
-    data["__nvmlGpuInstanceGetVgpuTypeCreatablePlacements"] = <_cyb_intptr_t>__nvmlGpuInstanceGetVgpuTypeCreatablePlacements
+    data["__nvmlGpuInstanceGetVgpuTypeCreatablePlacements"] = <intptr_t>__nvmlGpuInstanceGetVgpuTypeCreatablePlacements
 
     global __nvmlGpuInstanceGetVgpuHeterogeneousMode
-    data["__nvmlGpuInstanceGetVgpuHeterogeneousMode"] = <_cyb_intptr_t>__nvmlGpuInstanceGetVgpuHeterogeneousMode
+    data["__nvmlGpuInstanceGetVgpuHeterogeneousMode"] = <intptr_t>__nvmlGpuInstanceGetVgpuHeterogeneousMode
 
     global __nvmlGpuInstanceSetVgpuHeterogeneousMode
-    data["__nvmlGpuInstanceSetVgpuHeterogeneousMode"] = <_cyb_intptr_t>__nvmlGpuInstanceSetVgpuHeterogeneousMode
+    data["__nvmlGpuInstanceSetVgpuHeterogeneousMode"] = <intptr_t>__nvmlGpuInstanceSetVgpuHeterogeneousMode
 
     global __nvmlVgpuInstanceGetMetadata
-    data["__nvmlVgpuInstanceGetMetadata"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetMetadata
+    data["__nvmlVgpuInstanceGetMetadata"] = <intptr_t>__nvmlVgpuInstanceGetMetadata
 
     global __nvmlDeviceGetVgpuMetadata
-    data["__nvmlDeviceGetVgpuMetadata"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuMetadata
+    data["__nvmlDeviceGetVgpuMetadata"] = <intptr_t>__nvmlDeviceGetVgpuMetadata
 
     global __nvmlGetVgpuCompatibility
-    data["__nvmlGetVgpuCompatibility"] = <_cyb_intptr_t>__nvmlGetVgpuCompatibility
+    data["__nvmlGetVgpuCompatibility"] = <intptr_t>__nvmlGetVgpuCompatibility
 
     global __nvmlDeviceGetPgpuMetadataString
-    data["__nvmlDeviceGetPgpuMetadataString"] = <_cyb_intptr_t>__nvmlDeviceGetPgpuMetadataString
+    data["__nvmlDeviceGetPgpuMetadataString"] = <intptr_t>__nvmlDeviceGetPgpuMetadataString
 
     global __nvmlDeviceGetVgpuSchedulerLog
-    data["__nvmlDeviceGetVgpuSchedulerLog"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuSchedulerLog
+    data["__nvmlDeviceGetVgpuSchedulerLog"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerLog
 
     global __nvmlDeviceGetVgpuSchedulerState
-    data["__nvmlDeviceGetVgpuSchedulerState"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuSchedulerState
+    data["__nvmlDeviceGetVgpuSchedulerState"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerState
 
     global __nvmlDeviceGetVgpuSchedulerCapabilities
-    data["__nvmlDeviceGetVgpuSchedulerCapabilities"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuSchedulerCapabilities
+    data["__nvmlDeviceGetVgpuSchedulerCapabilities"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerCapabilities
 
     global __nvmlDeviceSetVgpuSchedulerState
-    data["__nvmlDeviceSetVgpuSchedulerState"] = <_cyb_intptr_t>__nvmlDeviceSetVgpuSchedulerState
+    data["__nvmlDeviceSetVgpuSchedulerState"] = <intptr_t>__nvmlDeviceSetVgpuSchedulerState
 
     global __nvmlGetVgpuVersion
-    data["__nvmlGetVgpuVersion"] = <_cyb_intptr_t>__nvmlGetVgpuVersion
+    data["__nvmlGetVgpuVersion"] = <intptr_t>__nvmlGetVgpuVersion
 
     global __nvmlSetVgpuVersion
-    data["__nvmlSetVgpuVersion"] = <_cyb_intptr_t>__nvmlSetVgpuVersion
+    data["__nvmlSetVgpuVersion"] = <intptr_t>__nvmlSetVgpuVersion
 
     global __nvmlDeviceGetVgpuUtilization
-    data["__nvmlDeviceGetVgpuUtilization"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuUtilization
+    data["__nvmlDeviceGetVgpuUtilization"] = <intptr_t>__nvmlDeviceGetVgpuUtilization
 
     global __nvmlDeviceGetVgpuInstancesUtilizationInfo
-    data["__nvmlDeviceGetVgpuInstancesUtilizationInfo"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuInstancesUtilizationInfo
+    data["__nvmlDeviceGetVgpuInstancesUtilizationInfo"] = <intptr_t>__nvmlDeviceGetVgpuInstancesUtilizationInfo
 
     global __nvmlDeviceGetVgpuProcessUtilization
-    data["__nvmlDeviceGetVgpuProcessUtilization"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuProcessUtilization
+    data["__nvmlDeviceGetVgpuProcessUtilization"] = <intptr_t>__nvmlDeviceGetVgpuProcessUtilization
 
     global __nvmlDeviceGetVgpuProcessesUtilizationInfo
-    data["__nvmlDeviceGetVgpuProcessesUtilizationInfo"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuProcessesUtilizationInfo
+    data["__nvmlDeviceGetVgpuProcessesUtilizationInfo"] = <intptr_t>__nvmlDeviceGetVgpuProcessesUtilizationInfo
 
     global __nvmlVgpuInstanceGetAccountingMode
-    data["__nvmlVgpuInstanceGetAccountingMode"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetAccountingMode
+    data["__nvmlVgpuInstanceGetAccountingMode"] = <intptr_t>__nvmlVgpuInstanceGetAccountingMode
 
     global __nvmlVgpuInstanceGetAccountingPids
-    data["__nvmlVgpuInstanceGetAccountingPids"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetAccountingPids
+    data["__nvmlVgpuInstanceGetAccountingPids"] = <intptr_t>__nvmlVgpuInstanceGetAccountingPids
 
     global __nvmlVgpuInstanceGetAccountingStats
-    data["__nvmlVgpuInstanceGetAccountingStats"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetAccountingStats
+    data["__nvmlVgpuInstanceGetAccountingStats"] = <intptr_t>__nvmlVgpuInstanceGetAccountingStats
 
     global __nvmlVgpuInstanceClearAccountingPids
-    data["__nvmlVgpuInstanceClearAccountingPids"] = <_cyb_intptr_t>__nvmlVgpuInstanceClearAccountingPids
+    data["__nvmlVgpuInstanceClearAccountingPids"] = <intptr_t>__nvmlVgpuInstanceClearAccountingPids
 
     global __nvmlVgpuInstanceGetLicenseInfo_v2
-    data["__nvmlVgpuInstanceGetLicenseInfo_v2"] = <_cyb_intptr_t>__nvmlVgpuInstanceGetLicenseInfo_v2
+    data["__nvmlVgpuInstanceGetLicenseInfo_v2"] = <intptr_t>__nvmlVgpuInstanceGetLicenseInfo_v2
 
     global __nvmlGetExcludedDeviceCount
-    data["__nvmlGetExcludedDeviceCount"] = <_cyb_intptr_t>__nvmlGetExcludedDeviceCount
+    data["__nvmlGetExcludedDeviceCount"] = <intptr_t>__nvmlGetExcludedDeviceCount
 
     global __nvmlGetExcludedDeviceInfoByIndex
-    data["__nvmlGetExcludedDeviceInfoByIndex"] = <_cyb_intptr_t>__nvmlGetExcludedDeviceInfoByIndex
+    data["__nvmlGetExcludedDeviceInfoByIndex"] = <intptr_t>__nvmlGetExcludedDeviceInfoByIndex
 
     global __nvmlDeviceSetMigMode
-    data["__nvmlDeviceSetMigMode"] = <_cyb_intptr_t>__nvmlDeviceSetMigMode
+    data["__nvmlDeviceSetMigMode"] = <intptr_t>__nvmlDeviceSetMigMode
 
     global __nvmlDeviceGetMigMode
-    data["__nvmlDeviceGetMigMode"] = <_cyb_intptr_t>__nvmlDeviceGetMigMode
+    data["__nvmlDeviceGetMigMode"] = <intptr_t>__nvmlDeviceGetMigMode
 
     global __nvmlDeviceGetGpuInstanceProfileInfoV
-    data["__nvmlDeviceGetGpuInstanceProfileInfoV"] = <_cyb_intptr_t>__nvmlDeviceGetGpuInstanceProfileInfoV
+    data["__nvmlDeviceGetGpuInstanceProfileInfoV"] = <intptr_t>__nvmlDeviceGetGpuInstanceProfileInfoV
 
     global __nvmlDeviceGetGpuInstancePossiblePlacements_v2
-    data["__nvmlDeviceGetGpuInstancePossiblePlacements_v2"] = <_cyb_intptr_t>__nvmlDeviceGetGpuInstancePossiblePlacements_v2
+    data["__nvmlDeviceGetGpuInstancePossiblePlacements_v2"] = <intptr_t>__nvmlDeviceGetGpuInstancePossiblePlacements_v2
 
     global __nvmlDeviceGetGpuInstanceRemainingCapacity
-    data["__nvmlDeviceGetGpuInstanceRemainingCapacity"] = <_cyb_intptr_t>__nvmlDeviceGetGpuInstanceRemainingCapacity
+    data["__nvmlDeviceGetGpuInstanceRemainingCapacity"] = <intptr_t>__nvmlDeviceGetGpuInstanceRemainingCapacity
 
     global __nvmlDeviceCreateGpuInstance
-    data["__nvmlDeviceCreateGpuInstance"] = <_cyb_intptr_t>__nvmlDeviceCreateGpuInstance
+    data["__nvmlDeviceCreateGpuInstance"] = <intptr_t>__nvmlDeviceCreateGpuInstance
 
     global __nvmlDeviceCreateGpuInstanceWithPlacement
-    data["__nvmlDeviceCreateGpuInstanceWithPlacement"] = <_cyb_intptr_t>__nvmlDeviceCreateGpuInstanceWithPlacement
+    data["__nvmlDeviceCreateGpuInstanceWithPlacement"] = <intptr_t>__nvmlDeviceCreateGpuInstanceWithPlacement
 
     global __nvmlGpuInstanceDestroy
-    data["__nvmlGpuInstanceDestroy"] = <_cyb_intptr_t>__nvmlGpuInstanceDestroy
+    data["__nvmlGpuInstanceDestroy"] = <intptr_t>__nvmlGpuInstanceDestroy
 
     global __nvmlDeviceGetGpuInstances
-    data["__nvmlDeviceGetGpuInstances"] = <_cyb_intptr_t>__nvmlDeviceGetGpuInstances
+    data["__nvmlDeviceGetGpuInstances"] = <intptr_t>__nvmlDeviceGetGpuInstances
 
     global __nvmlDeviceGetGpuInstanceById
-    data["__nvmlDeviceGetGpuInstanceById"] = <_cyb_intptr_t>__nvmlDeviceGetGpuInstanceById
+    data["__nvmlDeviceGetGpuInstanceById"] = <intptr_t>__nvmlDeviceGetGpuInstanceById
 
     global __nvmlGpuInstanceGetInfo
-    data["__nvmlGpuInstanceGetInfo"] = <_cyb_intptr_t>__nvmlGpuInstanceGetInfo
+    data["__nvmlGpuInstanceGetInfo"] = <intptr_t>__nvmlGpuInstanceGetInfo
 
     global __nvmlGpuInstanceGetComputeInstanceProfileInfoV
-    data["__nvmlGpuInstanceGetComputeInstanceProfileInfoV"] = <_cyb_intptr_t>__nvmlGpuInstanceGetComputeInstanceProfileInfoV
+    data["__nvmlGpuInstanceGetComputeInstanceProfileInfoV"] = <intptr_t>__nvmlGpuInstanceGetComputeInstanceProfileInfoV
 
     global __nvmlGpuInstanceGetComputeInstanceRemainingCapacity
-    data["__nvmlGpuInstanceGetComputeInstanceRemainingCapacity"] = <_cyb_intptr_t>__nvmlGpuInstanceGetComputeInstanceRemainingCapacity
+    data["__nvmlGpuInstanceGetComputeInstanceRemainingCapacity"] = <intptr_t>__nvmlGpuInstanceGetComputeInstanceRemainingCapacity
 
     global __nvmlGpuInstanceGetComputeInstancePossiblePlacements
-    data["__nvmlGpuInstanceGetComputeInstancePossiblePlacements"] = <_cyb_intptr_t>__nvmlGpuInstanceGetComputeInstancePossiblePlacements
+    data["__nvmlGpuInstanceGetComputeInstancePossiblePlacements"] = <intptr_t>__nvmlGpuInstanceGetComputeInstancePossiblePlacements
 
     global __nvmlGpuInstanceCreateComputeInstance
-    data["__nvmlGpuInstanceCreateComputeInstance"] = <_cyb_intptr_t>__nvmlGpuInstanceCreateComputeInstance
+    data["__nvmlGpuInstanceCreateComputeInstance"] = <intptr_t>__nvmlGpuInstanceCreateComputeInstance
 
     global __nvmlGpuInstanceCreateComputeInstanceWithPlacement
-    data["__nvmlGpuInstanceCreateComputeInstanceWithPlacement"] = <_cyb_intptr_t>__nvmlGpuInstanceCreateComputeInstanceWithPlacement
+    data["__nvmlGpuInstanceCreateComputeInstanceWithPlacement"] = <intptr_t>__nvmlGpuInstanceCreateComputeInstanceWithPlacement
 
     global __nvmlComputeInstanceDestroy
-    data["__nvmlComputeInstanceDestroy"] = <_cyb_intptr_t>__nvmlComputeInstanceDestroy
+    data["__nvmlComputeInstanceDestroy"] = <intptr_t>__nvmlComputeInstanceDestroy
 
     global __nvmlGpuInstanceGetComputeInstances
-    data["__nvmlGpuInstanceGetComputeInstances"] = <_cyb_intptr_t>__nvmlGpuInstanceGetComputeInstances
+    data["__nvmlGpuInstanceGetComputeInstances"] = <intptr_t>__nvmlGpuInstanceGetComputeInstances
 
     global __nvmlGpuInstanceGetComputeInstanceById
-    data["__nvmlGpuInstanceGetComputeInstanceById"] = <_cyb_intptr_t>__nvmlGpuInstanceGetComputeInstanceById
+    data["__nvmlGpuInstanceGetComputeInstanceById"] = <intptr_t>__nvmlGpuInstanceGetComputeInstanceById
 
     global __nvmlComputeInstanceGetInfo_v2
-    data["__nvmlComputeInstanceGetInfo_v2"] = <_cyb_intptr_t>__nvmlComputeInstanceGetInfo_v2
+    data["__nvmlComputeInstanceGetInfo_v2"] = <intptr_t>__nvmlComputeInstanceGetInfo_v2
 
     global __nvmlDeviceIsMigDeviceHandle
-    data["__nvmlDeviceIsMigDeviceHandle"] = <_cyb_intptr_t>__nvmlDeviceIsMigDeviceHandle
+    data["__nvmlDeviceIsMigDeviceHandle"] = <intptr_t>__nvmlDeviceIsMigDeviceHandle
 
     global __nvmlDeviceGetGpuInstanceId
-    data["__nvmlDeviceGetGpuInstanceId"] = <_cyb_intptr_t>__nvmlDeviceGetGpuInstanceId
+    data["__nvmlDeviceGetGpuInstanceId"] = <intptr_t>__nvmlDeviceGetGpuInstanceId
 
     global __nvmlDeviceGetComputeInstanceId
-    data["__nvmlDeviceGetComputeInstanceId"] = <_cyb_intptr_t>__nvmlDeviceGetComputeInstanceId
+    data["__nvmlDeviceGetComputeInstanceId"] = <intptr_t>__nvmlDeviceGetComputeInstanceId
 
     global __nvmlDeviceGetMaxMigDeviceCount
-    data["__nvmlDeviceGetMaxMigDeviceCount"] = <_cyb_intptr_t>__nvmlDeviceGetMaxMigDeviceCount
+    data["__nvmlDeviceGetMaxMigDeviceCount"] = <intptr_t>__nvmlDeviceGetMaxMigDeviceCount
 
     global __nvmlDeviceGetMigDeviceHandleByIndex
-    data["__nvmlDeviceGetMigDeviceHandleByIndex"] = <_cyb_intptr_t>__nvmlDeviceGetMigDeviceHandleByIndex
+    data["__nvmlDeviceGetMigDeviceHandleByIndex"] = <intptr_t>__nvmlDeviceGetMigDeviceHandleByIndex
 
     global __nvmlDeviceGetDeviceHandleFromMigDeviceHandle
-    data["__nvmlDeviceGetDeviceHandleFromMigDeviceHandle"] = <_cyb_intptr_t>__nvmlDeviceGetDeviceHandleFromMigDeviceHandle
+    data["__nvmlDeviceGetDeviceHandleFromMigDeviceHandle"] = <intptr_t>__nvmlDeviceGetDeviceHandleFromMigDeviceHandle
 
     global __nvmlDeviceGetCapabilities
-    data["__nvmlDeviceGetCapabilities"] = <_cyb_intptr_t>__nvmlDeviceGetCapabilities
+    data["__nvmlDeviceGetCapabilities"] = <intptr_t>__nvmlDeviceGetCapabilities
 
     global __nvmlDevicePowerSmoothingActivatePresetProfile
-    data["__nvmlDevicePowerSmoothingActivatePresetProfile"] = <_cyb_intptr_t>__nvmlDevicePowerSmoothingActivatePresetProfile
+    data["__nvmlDevicePowerSmoothingActivatePresetProfile"] = <intptr_t>__nvmlDevicePowerSmoothingActivatePresetProfile
 
     global __nvmlDevicePowerSmoothingUpdatePresetProfileParam
-    data["__nvmlDevicePowerSmoothingUpdatePresetProfileParam"] = <_cyb_intptr_t>__nvmlDevicePowerSmoothingUpdatePresetProfileParam
+    data["__nvmlDevicePowerSmoothingUpdatePresetProfileParam"] = <intptr_t>__nvmlDevicePowerSmoothingUpdatePresetProfileParam
 
     global __nvmlDevicePowerSmoothingSetState
-    data["__nvmlDevicePowerSmoothingSetState"] = <_cyb_intptr_t>__nvmlDevicePowerSmoothingSetState
+    data["__nvmlDevicePowerSmoothingSetState"] = <intptr_t>__nvmlDevicePowerSmoothingSetState
 
     global __nvmlDeviceGetAddressingMode
-    data["__nvmlDeviceGetAddressingMode"] = <_cyb_intptr_t>__nvmlDeviceGetAddressingMode
+    data["__nvmlDeviceGetAddressingMode"] = <intptr_t>__nvmlDeviceGetAddressingMode
 
     global __nvmlDeviceGetRepairStatus
-    data["__nvmlDeviceGetRepairStatus"] = <_cyb_intptr_t>__nvmlDeviceGetRepairStatus
+    data["__nvmlDeviceGetRepairStatus"] = <intptr_t>__nvmlDeviceGetRepairStatus
 
     global __nvmlDeviceGetPowerMizerMode_v1
-    data["__nvmlDeviceGetPowerMizerMode_v1"] = <_cyb_intptr_t>__nvmlDeviceGetPowerMizerMode_v1
+    data["__nvmlDeviceGetPowerMizerMode_v1"] = <intptr_t>__nvmlDeviceGetPowerMizerMode_v1
 
     global __nvmlDeviceSetPowerMizerMode_v1
-    data["__nvmlDeviceSetPowerMizerMode_v1"] = <_cyb_intptr_t>__nvmlDeviceSetPowerMizerMode_v1
+    data["__nvmlDeviceSetPowerMizerMode_v1"] = <intptr_t>__nvmlDeviceSetPowerMizerMode_v1
 
     global __nvmlDeviceGetPdi
-    data["__nvmlDeviceGetPdi"] = <_cyb_intptr_t>__nvmlDeviceGetPdi
+    data["__nvmlDeviceGetPdi"] = <intptr_t>__nvmlDeviceGetPdi
 
     global __nvmlDeviceSetHostname_v1
-    data["__nvmlDeviceSetHostname_v1"] = <_cyb_intptr_t>__nvmlDeviceSetHostname_v1
+    data["__nvmlDeviceSetHostname_v1"] = <intptr_t>__nvmlDeviceSetHostname_v1
 
     global __nvmlDeviceGetHostname_v1
-    data["__nvmlDeviceGetHostname_v1"] = <_cyb_intptr_t>__nvmlDeviceGetHostname_v1
+    data["__nvmlDeviceGetHostname_v1"] = <intptr_t>__nvmlDeviceGetHostname_v1
 
     global __nvmlDeviceGetNvLinkInfo
-    data["__nvmlDeviceGetNvLinkInfo"] = <_cyb_intptr_t>__nvmlDeviceGetNvLinkInfo
+    data["__nvmlDeviceGetNvLinkInfo"] = <intptr_t>__nvmlDeviceGetNvLinkInfo
 
     global __nvmlDeviceReadWritePRM_v1
-    data["__nvmlDeviceReadWritePRM_v1"] = <_cyb_intptr_t>__nvmlDeviceReadWritePRM_v1
+    data["__nvmlDeviceReadWritePRM_v1"] = <intptr_t>__nvmlDeviceReadWritePRM_v1
 
     global __nvmlDeviceGetGpuInstanceProfileInfoByIdV
-    data["__nvmlDeviceGetGpuInstanceProfileInfoByIdV"] = <_cyb_intptr_t>__nvmlDeviceGetGpuInstanceProfileInfoByIdV
+    data["__nvmlDeviceGetGpuInstanceProfileInfoByIdV"] = <intptr_t>__nvmlDeviceGetGpuInstanceProfileInfoByIdV
 
     global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
-    data["__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts"] = <_cyb_intptr_t>__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
+    data["__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts"] = <intptr_t>__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
 
     global __nvmlDeviceGetUnrepairableMemoryFlag_v1
-    data["__nvmlDeviceGetUnrepairableMemoryFlag_v1"] = <_cyb_intptr_t>__nvmlDeviceGetUnrepairableMemoryFlag_v1
+    data["__nvmlDeviceGetUnrepairableMemoryFlag_v1"] = <intptr_t>__nvmlDeviceGetUnrepairableMemoryFlag_v1
 
     global __nvmlDeviceReadPRMCounters_v1
-    data["__nvmlDeviceReadPRMCounters_v1"] = <_cyb_intptr_t>__nvmlDeviceReadPRMCounters_v1
+    data["__nvmlDeviceReadPRMCounters_v1"] = <intptr_t>__nvmlDeviceReadPRMCounters_v1
 
     global __nvmlDeviceSetRusdSettings_v1
-    data["__nvmlDeviceSetRusdSettings_v1"] = <_cyb_intptr_t>__nvmlDeviceSetRusdSettings_v1
+    data["__nvmlDeviceSetRusdSettings_v1"] = <intptr_t>__nvmlDeviceSetRusdSettings_v1
 
     global __nvmlDeviceVgpuForceGspUnload
-    data["__nvmlDeviceVgpuForceGspUnload"] = <_cyb_intptr_t>__nvmlDeviceVgpuForceGspUnload
+    data["__nvmlDeviceVgpuForceGspUnload"] = <intptr_t>__nvmlDeviceVgpuForceGspUnload
 
     global __nvmlDeviceGetVgpuSchedulerState_v2
-    data["__nvmlDeviceGetVgpuSchedulerState_v2"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuSchedulerState_v2
+    data["__nvmlDeviceGetVgpuSchedulerState_v2"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerState_v2
 
     global __nvmlGpuInstanceGetVgpuSchedulerState_v2
-    data["__nvmlGpuInstanceGetVgpuSchedulerState_v2"] = <_cyb_intptr_t>__nvmlGpuInstanceGetVgpuSchedulerState_v2
+    data["__nvmlGpuInstanceGetVgpuSchedulerState_v2"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerState_v2
 
     global __nvmlDeviceGetVgpuSchedulerLog_v2
-    data["__nvmlDeviceGetVgpuSchedulerLog_v2"] = <_cyb_intptr_t>__nvmlDeviceGetVgpuSchedulerLog_v2
+    data["__nvmlDeviceGetVgpuSchedulerLog_v2"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerLog_v2
 
     global __nvmlGpuInstanceGetVgpuSchedulerLog_v2
-    data["__nvmlGpuInstanceGetVgpuSchedulerLog_v2"] = <_cyb_intptr_t>__nvmlGpuInstanceGetVgpuSchedulerLog_v2
+    data["__nvmlGpuInstanceGetVgpuSchedulerLog_v2"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerLog_v2
 
     global __nvmlDeviceSetVgpuSchedulerState_v2
-    data["__nvmlDeviceSetVgpuSchedulerState_v2"] = <_cyb_intptr_t>__nvmlDeviceSetVgpuSchedulerState_v2
+    data["__nvmlDeviceSetVgpuSchedulerState_v2"] = <intptr_t>__nvmlDeviceSetVgpuSchedulerState_v2
 
     global __nvmlGpuInstanceSetVgpuSchedulerState_v2
-    data["__nvmlGpuInstanceSetVgpuSchedulerState_v2"] = <_cyb_intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState_v2
+    data["__nvmlGpuInstanceSetVgpuSchedulerState_v2"] = <intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState_v2
 
     global __nvmlSystemGetCPER_v1
-    data["__nvmlSystemGetCPER_v1"] = <_cyb_intptr_t>__nvmlSystemGetCPER_v1
+    data["__nvmlSystemGetCPER_v1"] = <intptr_t>__nvmlSystemGetCPER_v1
 
     global __nvmlDeviceGetBBXTimeData_v1
-    data["__nvmlDeviceGetBBXTimeData_v1"] = <_cyb_intptr_t>__nvmlDeviceGetBBXTimeData_v1
+    data["__nvmlDeviceGetBBXTimeData_v1"] = <intptr_t>__nvmlDeviceGetBBXTimeData_v1
 
     global __nvmlDeviceGetAccountingStats_v2
-    data["__nvmlDeviceGetAccountingStats_v2"] = <_cyb_intptr_t>__nvmlDeviceGetAccountingStats_v2
+    data["__nvmlDeviceGetAccountingStats_v2"] = <intptr_t>__nvmlDeviceGetAccountingStats_v2
 
     global __nvmlDeviceGetRemappedRows_v2
-    data["__nvmlDeviceGetRemappedRows_v2"] = <_cyb_intptr_t>__nvmlDeviceGetRemappedRows_v2
+    data["__nvmlDeviceGetRemappedRows_v2"] = <intptr_t>__nvmlDeviceGetRemappedRows_v2
 
     global __nvmlDeviceSetAdaptiveTgpMode_v1
-    data["__nvmlDeviceSetAdaptiveTgpMode_v1"] = <_cyb_intptr_t>__nvmlDeviceSetAdaptiveTgpMode_v1
+    data["__nvmlDeviceSetAdaptiveTgpMode_v1"] = <intptr_t>__nvmlDeviceSetAdaptiveTgpMode_v1
 
     global __nvmlDeviceGetAdaptiveTgpModeInfo_v1
-    data["__nvmlDeviceGetAdaptiveTgpModeInfo_v1"] = <_cyb_intptr_t>__nvmlDeviceGetAdaptiveTgpModeInfo_v1
+    data["__nvmlDeviceGetAdaptiveTgpModeInfo_v1"] = <intptr_t>__nvmlDeviceGetAdaptiveTgpModeInfo_v1
 
     global __nvmlDeviceSetMemoryLimits_v1
-    data["__nvmlDeviceSetMemoryLimits_v1"] = <_cyb_intptr_t>__nvmlDeviceSetMemoryLimits_v1
+    data["__nvmlDeviceSetMemoryLimits_v1"] = <intptr_t>__nvmlDeviceSetMemoryLimits_v1
 
     global __nvmlDeviceGetMemoryLimits_v1
-    data["__nvmlDeviceGetMemoryLimits_v1"] = <_cyb_intptr_t>__nvmlDeviceGetMemoryLimits_v1
+    data["__nvmlDeviceGetMemoryLimits_v1"] = <intptr_t>__nvmlDeviceGetMemoryLimits_v1
 
     global __nvmlDeviceGetGpuFabricInfo_v4
-    data["__nvmlDeviceGetGpuFabricInfo_v4"] = <_cyb_intptr_t>__nvmlDeviceGetGpuFabricInfo_v4
+    data["__nvmlDeviceGetGpuFabricInfo_v4"] = <intptr_t>__nvmlDeviceGetGpuFabricInfo_v4
 
     global __nvmlDevicePerfMetricsGetSamples_v1
-    data["__nvmlDevicePerfMetricsGetSamples_v1"] = <_cyb_intptr_t>__nvmlDevicePerfMetricsGetSamples_v1
+    data["__nvmlDevicePerfMetricsGetSamples_v1"] = <intptr_t>__nvmlDevicePerfMetricsGetSamples_v1
 
     global __nvmlDeviceSetNvlinkBwModeAsync_v1
-    data["__nvmlDeviceSetNvlinkBwModeAsync_v1"] = <_cyb_intptr_t>__nvmlDeviceSetNvlinkBwModeAsync_v1
+    data["__nvmlDeviceSetNvlinkBwModeAsync_v1"] = <intptr_t>__nvmlDeviceSetNvlinkBwModeAsync_v1
 
     global __nvmlDeviceGetNvLinkTelemetrySamples_v1
-    data["__nvmlDeviceGetNvLinkTelemetrySamples_v1"] = <_cyb_intptr_t>__nvmlDeviceGetNvLinkTelemetrySamples_v1
+    data["__nvmlDeviceGetNvLinkTelemetrySamples_v1"] = <intptr_t>__nvmlDeviceGetNvLinkTelemetrySamples_v1
 
     global __nvmlEventSetRegisterGpuOperationalEvents_v1
-    data["__nvmlEventSetRegisterGpuOperationalEvents_v1"] = <_cyb_intptr_t>__nvmlEventSetRegisterGpuOperationalEvents_v1
+    data["__nvmlEventSetRegisterGpuOperationalEvents_v1"] = <intptr_t>__nvmlEventSetRegisterGpuOperationalEvents_v1
 
     global __nvmlEventSetWait_v3
-    data["__nvmlEventSetWait_v3"] = <_cyb_intptr_t>__nvmlEventSetWait_v3
+    data["__nvmlEventSetWait_v3"] = <intptr_t>__nvmlEventSetWait_v3
 
     global __nvmlEventSetGetContextCount_v1
-    data["__nvmlEventSetGetContextCount_v1"] = <_cyb_intptr_t>__nvmlEventSetGetContextCount_v1
+    data["__nvmlEventSetGetContextCount_v1"] = <intptr_t>__nvmlEventSetGetContextCount_v1
 
     global __nvmlEventSetGetContextInfo_v1
-    data["__nvmlEventSetGetContextInfo_v1"] = <_cyb_intptr_t>__nvmlEventSetGetContextInfo_v1
+    data["__nvmlEventSetGetContextInfo_v1"] = <intptr_t>__nvmlEventSetGetContextInfo_v1
 
     global __nvmlEventSetGetContextData_v1
-    data["__nvmlEventSetGetContextData_v1"] = <_cyb_intptr_t>__nvmlEventSetGetContextData_v1
+    data["__nvmlEventSetGetContextData_v1"] = <intptr_t>__nvmlEventSetGetContextData_v1
 
     global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
-    data["__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1"] = <_cyb_intptr_t>__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
+    data["__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1"] = <intptr_t>__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
 
     global __nvmlDeviceGetBankRemapperStatus_v1
-    data["__nvmlDeviceGetBankRemapperStatus_v1"] = <_cyb_intptr_t>__nvmlDeviceGetBankRemapperStatus_v1
+    data["__nvmlDeviceGetBankRemapperStatus_v1"] = <intptr_t>__nvmlDeviceGetBankRemapperStatus_v1
     _cyb_func_ptrs = data
     return data
 

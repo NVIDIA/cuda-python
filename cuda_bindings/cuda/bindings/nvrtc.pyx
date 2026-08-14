@@ -3,7 +3,7 @@
 
 # This code was automatically generated with version 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9dcd9e24a5962a3fa156378497290ef95c84fb433d2c31c6e2a5da5528391fe8
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d5cf00b9db7880e26f7f555cc4d96bc106638d06f9470281879fee44d0fcd767
 from typing import Any, Optional
 import cython
 import ctypes
@@ -45,8 +45,10 @@ ctypedef unsigned long long float_ptr
 ctypedef unsigned long long double_ptr
 ctypedef unsigned long long void_ptr
 
-#: Flags for nvrtcInstallBundledHeaders.Skip installation if version marker
-#: exists and version matches. This is the default behavior when flags=0.
+#: Flags for nvrtcInstallBundledHeaders.
+#:
+#: Skip installation if version marker exists and version matches. This is
+#: the default behavior when flags=0.
 NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS = cynvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS
 
 #: Clear existing directory contents before installation. Guarantees
