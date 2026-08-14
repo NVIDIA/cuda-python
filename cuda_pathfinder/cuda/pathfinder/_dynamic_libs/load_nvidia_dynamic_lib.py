@@ -231,6 +231,15 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         DynamicLibNotFoundError: If the library cannot be found or loaded.
         RuntimeError: If Python is not 64-bit.
 
+    Windows on ARM (WoA) Note:
+        On Windows, this API aims to load a dynamic library whose architecture
+        matches the Python interpreter architecture. For example, x64 Python
+        running on an Arm64 machine targets an x64 DLL, while native Arm64 Python
+        targets an Arm64 DLL. A library loaded into the Python process must be
+        compatible with that process. This differs from
+        ``find_nvidia_binary_utility``, which targets the native machine
+        architecture when selecting architecture-specific executables.
+
     Search order:
         0. **Already loaded in the current process**
 

@@ -151,6 +151,13 @@ a `StrEnum` is accepted as an argument, a `str` should also be acceptable.  An
 invalid value should raise an exception.  When a function returns a `str` drawn
 from a small number of values, return a `StrEnum` subclass instead.
 
+For `__post_init__` validation in frozen dataclasses, use the
+`not isinstance(value, EnumType) → try EnumType(value) except (ValueError,
+TypeError)` pattern (modelled on `_normalize_enum` in
+`cuda/core/texture/_texture.pyx`). This accepts the enum itself or a valid
+string, and raises `ValueError` eagerly for any other type rather than
+silently storing it.
+
 ### Exception handling
 
 Raising exceptions is preferred over a C-style return code that must be checked

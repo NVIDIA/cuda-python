@@ -179,6 +179,8 @@ def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
     except RuntimeError as e:
         if "requires CUDA 13.0" in str(e):
             pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+        if "concurrent managed access is not available" in str(e).lower():
+            pytest.skip("Device does not support concurrent managed memory access")
         raise
 
 
