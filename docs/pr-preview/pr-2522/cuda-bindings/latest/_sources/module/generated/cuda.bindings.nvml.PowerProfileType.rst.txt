@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.PowerProfileType
-===================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: PowerProfileType
