@@ -20,6 +20,7 @@ cuda.core.Buffer
    .. automethod:: fill
    .. automethod:: from_handle
    .. automethod:: from_ipc_descriptor
+   .. automethod:: set_deallocation_stream
 
    
    

@@ -35,6 +35,10 @@ Fixes and enhancements
   free recipe can pin that context.
   (`#2497 <https://github.com/NVIDIA/cuda-python/issues/2497>`__)
 
+- Added :meth:`Buffer.set_deallocation_stream` to change the stream that orders
+  a buffer's eventual deallocation without closing the buffer.
+  (`#2600 <https://github.com/NVIDIA/cuda-python/issues/2600>`__)
+
 - Explicit calls to ``deallocate()`` on pool-backed memory resources and
   :class:`GraphMemoryResource` now propagate errors from the underlying CUDA
   free operation. Previously, these errors could be suppressed. Automatic
