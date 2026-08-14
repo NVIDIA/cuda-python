@@ -516,30 +516,6 @@ def test_mr_deallocate_receives_stream():
     assert telemetry["deallocations"][-1]["stream"].handle == stream.handle
 
 
-class _StreamCaptureMemoryResource(MemoryResource):
-    def __init__(self, device):
-        self.device = device
-        self.deallocation_streams = []
-
-    @property
-    def is_device_accessible(self):
-        return True
-
-    @property
-    def is_host_accessible(self):
-        return False
-
-    @property
-    def device_id(self):
-        return self.device.device_id
-
-    def allocate(self, size, *, stream):
-        raise NotImplementedError
-
-    def deallocate(self, ptr, size, *, stream):
-        self.deallocation_streams.append(stream)
-
-
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.parametrize(
     ("configuration", "destruction"),
@@ -559,7 +535,8 @@ def test_buffer_deallocation_stream_configuration_paths(configuration, destructi
     device.set_current()
     initial_stream = device.create_stream()
     target_stream = device.create_stream()
-    mr = _StreamCaptureMemoryResource(device)
+    CapturingMR, telemetry = make_instrumented_memory_resource(record_streams=True)
+    mr = CapturingMR(device)
 
     stream = target_stream if configuration == "initialization" else initial_stream
     buf = Buffer.from_handle(1, 1024, mr=mr, stream=stream)
@@ -575,8 +552,8 @@ def test_buffer_deallocation_stream_configuration_paths(configuration, destructi
         del buf
         gc.collect()
 
-    assert len(mr.deallocation_streams) == 1
-    assert mr.deallocation_streams[0].handle == target_stream.handle
+    assert len(telemetry["deallocations"]) == 1
+    assert telemetry["deallocations"][0]["stream"].handle == target_stream.handle
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -584,7 +561,7 @@ def test_set_deallocation_stream_rejects_none_and_closed_buffer():
     device = Device()
     device.set_current()
     stream = device.create_stream()
-    mr = _StreamCaptureMemoryResource(device)
+    mr = StubMemoryResource(device)
     buf = Buffer.from_handle(1, 1024, mr=mr, stream=stream)
 
     with pytest.raises(TypeError, match="stream is required"):
