@@ -745,10 +745,9 @@ cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint):
 
 cdef inline void Buffer_set_deallocation_stream(Buffer self, object stream):
     """Validate and replace a live buffer's deallocation recipe."""
-    cdef Stream s
     if not self._h_ptr:
         raise RuntimeError("Cannot set the deallocation stream on a closed Buffer")
-    s = Stream_accept(stream)
+    cdef Stream s = Stream_accept(stream)
     _apply_deallocation_stream(self._h_ptr, s._h_stream)
 
 
