@@ -174,6 +174,20 @@ set(_cuda_core_modules
   texture/_texture
 )
 
+file(
+  GLOB_RECURSE _cuda_core_module_sources
+  CONFIGURE_DEPENDS
+  RELATIVE "${_cuda_core_source_root}"
+  "${_cuda_core_source_root}/*.pyx"
+)
+list(TRANSFORM _cuda_core_module_sources REPLACE "\\.pyx$" "")
+set(_cuda_core_listed_modules ${_cuda_core_modules})
+list(SORT _cuda_core_module_sources)
+list(SORT _cuda_core_listed_modules)
+if(NOT "${_cuda_core_module_sources}" STREQUAL "${_cuda_core_listed_modules}")
+  message(FATAL_ERROR "Update _cuda_core_modules to match the cuda.core .pyx files")
+endif()
+
 # Stage regular wheels through CMake to keep them independent of ignored,
 # in-place extension artifacts. Editable builds map these files to the live
 # source tree instead.
