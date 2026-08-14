@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.AdaptiveClockingInfoStatus
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: AdaptiveClockingInfoStatus

@@ -1,0 +1,37 @@
+﻿cuda.bindings.nvml.VgpuInstanceUtilizationSample
+================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuInstanceUtilizationSample
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuInstanceUtilizationSample.__init__
+      ~VgpuInstanceUtilizationSample.from_buffer
+      ~VgpuInstanceUtilizationSample.from_data
+      ~VgpuInstanceUtilizationSample.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuInstanceUtilizationSample.dec_util
+      ~VgpuInstanceUtilizationSample.enc_util
+      ~VgpuInstanceUtilizationSample.mem_util
+      ~VgpuInstanceUtilizationSample.ptr
+      ~VgpuInstanceUtilizationSample.sm_util
+      ~VgpuInstanceUtilizationSample.time_stamp
+      ~VgpuInstanceUtilizationSample.vgpu_instance
+   
+   
