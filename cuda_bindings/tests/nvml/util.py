@@ -22,5 +22,5 @@ def supports_ecc(device):
 
 def supports_nvlink(device):
     fields = nvml.FieldValue(1)
-    fields[0].field_id = nvml.FI.DEV_NVLINK_GET_STATE
+    fields[0].field_id = nvml.FieldId.DEV_NVLINK_GET_STATE
     return nvml.device_get_field_values(device, fields)[0].nvml_return == nvml.Return.SUCCESS

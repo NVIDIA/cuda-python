@@ -22,13 +22,18 @@ on:
       nruns:
         type: number
         default: 1
-      # When true, cuda.bindings tests (and the Cython tests that depend on
-      # them) are skipped even when CTK majors match. Callers set this based
-      # on the output of the detect-changes job in ci.yml so PRs that only
-      # touch unrelated modules avoid the expensive bindings test suite.
-      skip-bindings-test:
+      test-pathfinder:
         type: boolean
-        default: false
+        default: true
+      test-bindings:
+        type: boolean
+        default: true
+      test-core:
+        type: boolean
+        default: true
+      test-python:
+        type: boolean
+        default: true
       run-id:
         description: >
           Workflow run ID to download artifacts from.
@@ -146,7 +151,7 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
           PY_VER: ${{ matrix.PY_VER }}
           SHA: ${{ inputs.sha || github.sha }}
-          SKIP_BINDINGS_TEST_OVERRIDE: ${{ inputs.skip-bindings-test && '1' || '0' }}
+          SKIP_BINDINGS_TEST_OVERRIDE: ${{ !inputs.test-bindings && '1' || '0' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: ./ci/tools/env-vars test
 
@@ -158,6 +163,7 @@ jobs:
         run: echo "$MATRIX_ENV" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
 
       - name: Download cuda-pathfinder build artifacts
+        if: ${{ inputs.test-pathfinder || inputs.test-bindings || inputs.test-core || inputs.test-python }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
@@ -166,7 +172,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python build artifacts
-        if: ${{ env.BINDINGS_SOURCE == 'main' }}
+        if: ${{ inputs.test-python && env.BINDINGS_SOURCE == 'main' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-python-wheel
@@ -175,7 +181,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda.bindings build artifacts
-        if: ${{ env.BINDINGS_SOURCE == 'main' }}
+        if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
+                env.BINDINGS_SOURCE == 'main' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
@@ -184,7 +191,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
-        if: ${{ env.BINDINGS_SOURCE == 'backport' }}
+        if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
+                env.BINDINGS_SOURCE == 'backport' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -200,25 +208,28 @@ jobs:
           mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
           rmdir $OLD_BASENAME
 
-          gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
-          ls -al cuda-python-wheel
-          mv cuda-python-wheel/*.whl .
-          rmdir cuda-python-wheel
+          if ${{ inputs.test-python }}; then
+            gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
+            ls -al cuda-python-wheel
+            mv cuda-python-wheel/*.whl .
+            rmdir cuda-python-wheel
+          fi
 
       - name: Display structure of downloaded cuda-python artifacts
-        if: ${{ env.BINDINGS_SOURCE != 'published' }}
+        if: ${{ inputs.test-python && env.BINDINGS_SOURCE != 'published' }}
         run: |
           Get-Location
           Get-ChildItem cuda_python*.whl | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
-        if: ${{ env.BINDINGS_SOURCE != 'published' }}
+        if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
+                env.BINDINGS_SOURCE != 'published' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.bindings Cython tests
-        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-bindings && env.SKIP_CYTHON_TEST == '0' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
@@ -227,12 +238,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
-        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-bindings && env.SKIP_CYTHON_TEST == '0' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core build artifacts
+        if: ${{ inputs.test-core }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
@@ -241,12 +253,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core build artifacts
+        if: ${{ inputs.test-core }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core Cython tests
-        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-core && env.SKIP_CYTHON_TEST == '0' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
@@ -255,12 +268,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core Cython tests
-        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-core && env.SKIP_CYTHON_TEST == '0' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core test binaries
+        if: ${{ inputs.test-core }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
@@ -269,6 +283,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core test binaries
+        if: ${{ inputs.test-core }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_TEST_BINARIES_DIR | Select-Object Mode, LastWriteTime, Length, FullName
@@ -281,7 +296,8 @@ jobs:
           allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
 
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
-        if: ${{ startsWith(matrix.PY_VER, '3.15') }}
+        if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
+                startsWith(matrix.PY_VER, '3.15') }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
@@ -310,7 +326,7 @@ jobs:
 
       # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
-        if: ${{ inputs.test-mode == 'standard' }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
@@ -319,7 +335,7 @@ jobs:
         run: run-tests pathfinder
 
       - name: Run cuda.bindings tests
-        if: ${{ inputs.test-mode == 'standard' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-bindings && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
@@ -327,7 +343,7 @@ jobs:
         run: run-tests bindings
 
       - name: Run cuda.core tests
-        if: ${{ inputs.test-mode == 'standard' }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-core }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
@@ -335,18 +351,28 @@ jobs:
         run: run-tests core
 
       - name: Ensure cuda-python installable
-        if: ${{ inputs.test-mode == 'standard' && env.BINDINGS_SOURCE == 'main' }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-python && env.BINDINGS_SOURCE == 'main' }}
         run: |
-          # Subpackages are already installed from CI artifacts; --no-deps keeps
-          # tag-release cuda-core wheels from being replaced by PyPI pins.
-          if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            pip install --only-binary=:all: --no-deps (Get-ChildItem -Filter cuda_python*.whl).FullName
+          # Package suites install their own dependencies. A metapackage-only
+          # run has no preceding suite, so install the exact local internal
+          # wheels in one transaction while resolving released dependencies
+          # such as cuda-core from the package index.
+          if ('${{ inputs.test-bindings || inputs.test-core }}' -eq 'true') {
+            $dependencyArgs = @('--no-deps')
           } else {
-            pip install --only-binary=:all: --no-deps "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
+            $dependencyArgs = @(
+              (Get-Item ./cuda_pathfinder/cuda_pathfinder-*.whl).FullName
+              (Get-Item "$env:CUDA_BINDINGS_ARTIFACTS_DIR/cuda_bindings-*.whl").FullName
+            )
           }
+          $pythonRequirements = @((Get-Item ./cuda_python*.whl).FullName)
+          if ('${{ matrix.LOCAL_CTK }}' -ne '1') {
+            $pythonRequirements = @($pythonRequirements | ForEach-Object { "$($_)[all]" })
+          }
+          pip install --only-binary=:all: @dependencyArgs @pythonRequirements
 
       - name: Install cuda.pathfinder extra wheels for testing
-        if: ${{ inputs.test-mode == 'standard' }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
@@ -355,7 +381,7 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
-        if: ${{ inputs.test-mode == 'standard' }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
