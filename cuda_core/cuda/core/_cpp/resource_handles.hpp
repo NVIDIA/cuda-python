@@ -67,6 +67,7 @@ void clear_last_error() noexcept;
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
 extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
 extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
@@ -423,7 +424,10 @@ DevicePtrHandle deviceptr_import_ipc(
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
+// Returns CUDA_ERROR_INVALID_CONTEXT when a default-stream token cannot be
+// bound because no CUDA context is current.
+CUresult set_deallocation_stream(
+    const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
 
 // ============================================================================
 // Library handle functions

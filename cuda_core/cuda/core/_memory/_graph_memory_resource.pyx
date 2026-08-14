@@ -225,7 +225,7 @@ cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream 
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
-cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:
+cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) except *:
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:

@@ -39,12 +39,15 @@ class Buffer:
         ...
 
     @classmethod
-    def _init(cls, ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, ipc_descriptor: IPCBufferDescriptor | None=None, owner: object | None=None) -> Buffer:
+    def _init(cls, ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, ipc_descriptor: IPCBufferDescriptor | None=None, owner: object | None=None, *, stream: Stream | GraphBuilder | None=None) -> Buffer:
         """Create a Buffer from a raw pointer.
 
         When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
         is called when the buffer is closed or garbage collected.  When ``owner``
         is provided, the owner is kept alive but no deallocation is performed.
+        When ``mr`` is provided, a deallocation stream is recorded at creation
+        (``stream`` if given, otherwise ``default_stream()``). Recording a
+        default-stream token requires a CUDA context to be current.
         """
 
     @staticmethod
@@ -55,7 +58,7 @@ class Buffer:
         ...
 
     @staticmethod
-    def from_handle(ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, owner: object | None=None) -> Buffer:
+    def from_handle(ptr: DevicePointerType, size: int, mr: MemoryResource | None=None, owner: object | None=None, *, stream: Stream | GraphBuilder | None=None) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
         Parameters
@@ -72,6 +75,13 @@ class Buffer:
             An object holding external allocation that the ``ptr`` points to.
             The reference is kept as long as the buffer is alive.
             The ``owner`` and ``mr`` cannot be specified together.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
+            Keyword-only. The stream used to order the buffer's deallocation
+            when ``mr`` owns the pointer. Defaults to ``default_stream()``.
+            Recording a default-stream token requires a CUDA context to be
+            current. If the buffer may be freed from a different host thread,
+            pass a stream other than the per-thread default stream, which
+            refers to a different stream on each thread.
 
         Note
         ----
@@ -264,7 +274,12 @@ class MemoryResource:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword-only. The stream on which to perform the allocation
             asynchronously. Must be passed explicitly; pass
-            ``device.default_stream`` to use the default stream.
+            ``device.default_stream`` to use the default stream. For subclasses
+            that support stream-ordered deallocation, this stream also orders
+            the buffer's eventual deallocation, so if the buffer may be freed
+            from a different host thread, prefer a stream other than the
+            per-thread default stream, which refers to a different stream on
+            each thread.
 
         Returns
         -------
