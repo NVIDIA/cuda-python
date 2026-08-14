@@ -516,6 +516,62 @@ def test_mr_deallocate_receives_stream():
     assert telemetry["deallocations"][-1]["stream"].handle == stream.handle
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize(
+    ("configuration", "destruction"),
+    [
+        ("initialization", "close"),
+        ("initialization", "gc"),
+        ("setter", "close"),
+        ("setter", "gc"),
+        ("close", "close"),
+    ],
+)
+def test_buffer_deallocation_stream_configuration_paths(configuration, destruction):
+    """Creation, mutation, and close overrides use the requested stream."""
+    import gc
+
+    device = Device()
+    device.set_current()
+    initial_stream = device.create_stream()
+    target_stream = device.create_stream()
+    CapturingMR, telemetry = make_instrumented_memory_resource(record_streams=True)
+    mr = CapturingMR(device)
+
+    stream = target_stream if configuration == "initialization" else initial_stream
+    buf = Buffer.from_handle(1, 1024, mr=mr, stream=stream)
+    if configuration == "setter":
+        handle = buf.handle
+        buf.set_deallocation_stream(target_stream)
+        assert buf.handle == handle
+        assert buf.size == 1024
+
+    if destruction == "close":
+        buf.close(stream=target_stream if configuration == "close" else None)
+    else:
+        del buf
+        gc.collect()
+
+    assert len(telemetry["deallocations"]) == 1
+    assert telemetry["deallocations"][0]["stream"].handle == target_stream.handle
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_set_deallocation_stream_rejects_none_and_closed_buffer():
+    device = Device()
+    device.set_current()
+    stream = device.create_stream()
+    mr = StubMemoryResource(device)
+    buf = Buffer.from_handle(1, 1024, mr=mr, stream=stream)
+
+    with pytest.raises(TypeError, match="stream is required"):
+        buf.set_deallocation_stream(None)
+
+    buf.close()
+    with pytest.raises(RuntimeError, match="closed Buffer"):
+        buf.set_deallocation_stream(stream)
+
+
 @pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
 def test_from_handle_mr_records_default_stream(buffer_type):
     """When a Buffer/ManagedBuffer is minted via :meth:`from_handle` with ``mr``

@@ -252,7 +252,7 @@ cdef class Buffer:
         # The parent process's stream is not portable across processes, so the
         # pickle path cannot thread an explicit stream through. Seed the
         # imported buffer's deallocation with the current context's default
-        # stream; the receiver can override via buffer.close(stream).
+        # stream; the receiver can override it before or during close.
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self) -> tuple[object, ...]:
@@ -347,8 +347,44 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream object to use for asynchronous deallocation. If None,
             the deallocation stream stored in the handle is used.
+
+        See Also
+        --------
+        set_deallocation_stream
+            Change the deallocation stream without closing the buffer.
         """
         Buffer_close(self, stream)
+
+    def set_deallocation_stream(self, stream: Stream | GraphBuilder) -> None:
+        """Change the stream that orders this buffer's eventual deallocation.
+
+        The buffer remains open and usable. A later :meth:`close` without a
+        stream, garbage collection, or release of the final retained device
+        pointer handle uses the replacement stream.
+
+        This method does not synchronize streams or establish dependencies.
+        The caller must ensure that allocation and all accesses are ordered
+        before the deallocation on ``stream``.
+
+        Parameters
+        ----------
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            The stream to use for eventual asynchronous deallocation.
+
+        Raises
+        ------
+        RuntimeError
+            If the buffer is already closed, or if a default-stream token
+            cannot be bound because no CUDA context is current.
+        TypeError
+            If ``stream`` is ``None`` or is not an accepted stream object.
+
+        Notes
+        -----
+        Synchronizing concurrent mutation and destruction of the same buffer
+        is the caller's responsibility.
+        """
+        Buffer_set_deallocation_stream(self, stream)
 
     def __enter__(self):
         return self
@@ -707,15 +743,21 @@ cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint):
     return tuple(out)
 
 
+cdef inline void Buffer_set_deallocation_stream(Buffer self, object stream):
+    """Validate and replace a live buffer's deallocation recipe."""
+    if not self._h_ptr:
+        raise RuntimeError("Cannot set the deallocation stream on a closed Buffer")
+    cdef Stream s = Stream_accept(stream)
+    _apply_deallocation_stream(self._h_ptr, s._h_stream)
+
+
 cdef inline void Buffer_close(Buffer self, object stream):
     """Close a buffer, freeing its memory."""
-    cdef Stream s
     if not self._h_ptr:
         return
     # Update deallocation stream if provided
     if stream is not None:
-        s = Stream_accept(stream)
-        _apply_deallocation_stream(self._h_ptr, s._h_stream)
+        Buffer_set_deallocation_stream(self, stream)
     # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
     self._h_ptr.reset()
     self._size = 0
