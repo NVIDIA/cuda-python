@@ -607,6 +607,15 @@ cdef class MemoryResource:
     returned by the :meth:`allocate` method would hold a reference to self, the
     buffer properties are retrieved simply by looking up the underlying memory
     resource's respective property.)
+
+    Notes
+    -----
+    Python subclasses of pool-backed memory resources
+    (:class:`~_memory.DeviceMemoryResource`, :class:`~_memory.PinnedMemoryResource`,
+    :class:`~_memory.ManagedMemoryResource`) and :class:`~_memory.GraphMemoryResource`
+    route buffer teardown through :meth:`deallocate`, including for buffers
+    returned by :meth:`allocate`. Built-in resource types use a direct C++
+    deallocation path that bypasses Python during interpreter shutdown.
     """
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
@@ -653,6 +662,11 @@ cdef class MemoryResource:
             Keyword-only. The stream on which to perform the deallocation
             asynchronously. Must be passed explicitly; pass
             ``device.default_stream`` to use the default stream.
+
+        Notes
+        -----
+        For memory resources that own buffer pointers, this method is also
+        invoked when a :class:`Buffer` is closed or garbage-collected.
         """
         raise TypeError("MemoryResource.deallocate must be implemented by subclasses.")
 
