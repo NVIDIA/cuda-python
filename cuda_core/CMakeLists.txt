@@ -16,7 +16,6 @@ include(UseCython)
 
 set(CUDA_CORE_CUDA_ROOT "" CACHE PATH "CUDA Toolkit root used to compile cuda-core")
 set(CUDA_CORE_BUILD_MAJOR "" CACHE STRING "CUDA major version for Cython compile-time conditionals")
-set(CUDA_BINDINGS_CYTHON_ROOT "" CACHE PATH "Optional physical cuda-bindings package root for Cython")
 set(CUDA_PYTHON_COVERAGE "$ENV{CUDA_PYTHON_COVERAGE}" CACHE STRING "Build Cython line tracing support")
 
 if(NOT CUDA_CORE_CUDA_ROOT)
@@ -28,6 +27,17 @@ if(NOT CUDA_CORE_CUDA_ROOT)
 endif()
 if(NOT CUDA_CORE_CUDA_ROOT)
   message(FATAL_ERROR "CUDA_CORE_CUDA_ROOT, CUDA_HOME, or CUDA_PATH must point to a CUDA Toolkit installation")
+endif()
+
+# Keep the legacy environment override per-configure. Unlike an explicit -D
+# setting, it must not persist when the wheel build directory is reused for a
+# different CUDA major.
+if(
+  NOT CUDA_CORE_BUILD_MAJOR
+  AND DEFINED ENV{CUDA_CORE_BUILD_MAJOR}
+  AND NOT "$ENV{CUDA_CORE_BUILD_MAJOR}" STREQUAL ""
+)
+  set(CUDA_CORE_BUILD_MAJOR "$ENV{CUDA_CORE_BUILD_MAJOR}")
 endif()
 
 cmake_path(ABSOLUTE_PATH CUDA_CORE_CUDA_ROOT NORMALIZE)
@@ -55,16 +65,6 @@ elseif(NOT "${CUDA_CORE_BUILD_MAJOR}" STREQUAL "${_cuda_header_major}")
   )
 endif()
 message(STATUS "Building cuda-core for CUDA ${CUDA_CORE_BUILD_MAJOR} using ${CUDA_CORE_CUDA_ROOT}")
-
-if(CUDA_BINDINGS_CYTHON_ROOT)
-  cmake_path(ABSOLUTE_PATH CUDA_BINDINGS_CYTHON_ROOT NORMALIZE)
-  if(NOT EXISTS "${CUDA_BINDINGS_CYTHON_ROOT}/cuda/bindings/cydriver.pxd")
-    message(
-      FATAL_ERROR
-      "CUDA_BINDINGS_CYTHON_ROOT=${CUDA_BINDINGS_CYTHON_ROOT} does not contain cuda/bindings/cydriver.pxd"
-    )
-  endif()
-endif()
 
 if(WIN32)
   execute_process(
@@ -103,9 +103,6 @@ set(_cython_common_args
   -I "${CMAKE_CURRENT_SOURCE_DIR}"
   ${_coverage_directive}
 )
-if(CUDA_BINDINGS_CYTHON_ROOT)
-  list(APPEND _cython_common_args -I "${CUDA_BINDINGS_CYTHON_ROOT}")
-endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT WIN32)
   list(APPEND _cython_common_args --gdb)
@@ -211,25 +208,12 @@ if(NOT SKBUILD_STATE STREQUAL "editable")
         PATTERN "*.pyx"
     )
   endif()
-else()
-  # Resolve the declarations in the final environment rather than persisting
-  # a potentially temporary path from the isolated editable build environment.
-  set(_cuda_bindings_cython_pth "${CMAKE_CURRENT_BINARY_DIR}/_cuda_core_cython_include.pth")
-  file(
-    WRITE "${_cuda_bindings_cython_pth}"
-    "import _cuda_core_cython_path; _cuda_core_cython_path.add_editable_cuda_bindings_path()\n"
-  )
-  install(
-    FILES
-      "${CMAKE_CURRENT_SOURCE_DIR}/_cuda_core_cython_path.py"
-      "${_cuda_bindings_cython_pth}"
-    DESTINATION "."
-  )
 endif()
 
 if(MSVC)
   set(_aoti_shim_def "${_cuda_core_source_root}/_include/aoti_shim.def")
   set(_aoti_shim_lib "${CMAKE_CURRENT_BINARY_DIR}/aoti_shim.lib")
+  set(_aoti_shim_exp "${CMAKE_CURRENT_BINARY_DIR}/aoti_shim.exp")
   if(CMAKE_GENERATOR_PLATFORM MATCHES "^(ARM64|arm64)$" OR CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|arm64|aarch64)$")
     set(_aoti_machine ARM64)
   else()
@@ -237,6 +221,7 @@ if(MSVC)
   endif()
   add_custom_command(
     OUTPUT "${_aoti_shim_lib}"
+    BYPRODUCTS "${_aoti_shim_exp}"
     COMMAND
       "${CMAKE_AR}"
       "/DEF:${_aoti_shim_def}"
@@ -246,7 +231,10 @@ if(MSVC)
     COMMENT "Generating the AOTI shim import library"
     VERBATIM
   )
-  add_custom_target(cuda_core_aoti_shim DEPENDS "${_aoti_shim_lib}")
+  add_custom_target(cuda_core_aoti_shim_generation DEPENDS "${_aoti_shim_lib}")
+  add_library(cuda_core_aoti_shim SHARED IMPORTED)
+  set_target_properties(cuda_core_aoti_shim PROPERTIES IMPORTED_IMPLIB "${_aoti_shim_lib}")
+  add_dependencies(cuda_core_aoti_shim cuda_core_aoti_shim_generation)
 endif()
 
 function(cuda_core_add_cython_module module_path)
@@ -304,8 +292,7 @@ function(cuda_core_add_cython_module module_path)
   endif()
 
   if(MSVC AND module_path STREQUAL "_tensor_bridge")
-    add_dependencies("${target_name}" cuda_core_aoti_shim)
-    target_link_libraries("${target_name}" PRIVATE "${_aoti_shim_lib}")
+    target_link_libraries("${target_name}" PRIVATE cuda_core_aoti_shim)
   endif()
 
   install(TARGETS "${target_name}" LIBRARY DESTINATION "${install_directory}" RUNTIME DESTINATION "${install_directory}")

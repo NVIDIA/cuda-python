@@ -8,7 +8,6 @@ requires = [
     "setuptools-scm>=8,!=10.1",
     "Cython>=3.2.5,<3.3",
     "cython-cmake>=0.2.2,<0.4",
-    "cuda-pathfinder>=1.5"
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -120,17 +119,27 @@ wheel.exclude = [
     "**/*.pyx",
 ]
 sdist.include = [
-    "_cuda_core_cython_path.py",
     "cuda/core/_version.py",
 ]
 sdist.reproducible = true
 sdist.exclude = [
+    "**/__pycache__/**",
     "**/*.dll",
     "**/*.dylib",
+    "**/*.o",
+    "**/*.pyc",
     "**/*.pyd",
     "**/*.so",
     "cython_debug/**",
+    "tests/cython/*.cpp",
+    "tests/cython/build/**",
 ]
+
+[tool.scikit-build.cmake.define]
+CUDA_PYTHON_COVERAGE = { env = "CUDA_PYTHON_COVERAGE", default = "0" }
+
+[tool.scikit-build.env]
+CMAKE_BUILD_PARALLEL_LEVEL = { env = "CUDA_PYTHON_PARALLEL_LEVEL" }
 
 [[tool.scikit-build.overrides]]
 if.env.CUDA_PYTHON_COVERAGE = true
@@ -142,6 +151,12 @@ wheel.exclude = [
 [[tool.scikit-build.overrides]]
 if.state = "editable"
 wheel.packages = ["cuda"]
+cmake.build-type = "Debug"
+
+[[tool.scikit-build.overrides]]
+if.state = "editable"
+if.platform-system = "^win32"
+cmake.build-type = "Release"
 
 [tool.setuptools_scm]
 root = ".."

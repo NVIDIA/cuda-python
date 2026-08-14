@@ -11,15 +11,12 @@ scikit-build-core.
 
 from __future__ import annotations
 
-import functools
 import os
 import re
 import sys
-from collections.abc import Callable, Mapping
-from pathlib import Path
+from collections.abc import Mapping
 from typing import Any
 
-import _cuda_core_cython_path
 import scikit_build_core.build as _build_backend
 
 build_sdist = _build_backend.build_sdist
@@ -27,56 +24,18 @@ get_requires_for_build_sdist = _build_backend.get_requires_for_build_sdist
 
 _ConfigSettings = Mapping[str, str | list[str] | bool] | None
 _MISSING = object()
+_CUDA_ROOT_SETTING = "cmake.define.CUDA_CORE_CUDA_ROOT"
+_CUDA_ROOT_SETTING_ALIAS = "skbuild.cmake.define.CUDA_CORE_CUDA_ROOT"
+_CUDA_MAJOR_SETTING = "cmake.define.CUDA_CORE_BUILD_MAJOR"
+_CUDA_MAJOR_SETTING_ALIAS = "skbuild.cmake.define.CUDA_CORE_BUILD_MAJOR"
+_BUILD_TYPE_SETTINGS = ("cmake.build-type", "skbuild.cmake.build-type")
 
 
-# Please keep in sync with the copy in cuda_bindings/build_hooks.py.
-def _import_get_cuda_path_or_home():
-    """Import get_cuda_path_or_home, working around PEP 517 namespace shadowing.
-
-    See https://github.com/NVIDIA/cuda-python/issues/1824 for why this helper is needed.
-    """
-    try:
-        import cuda.pathfinder
-    except ModuleNotFoundError as exc:
-        if exc.name not in ("cuda", "cuda.pathfinder"):
-            raise
-        try:
-            import cuda
-        except ModuleNotFoundError:
-            cuda = None
-
-        for p in sys.path:
-            sp_cuda = Path(p) / "cuda"
-            if (sp_cuda / "pathfinder").is_dir():
-                if cuda is None:
-                    raise ModuleNotFoundError(
-                        "The cuda namespace package is unavailable even though cuda-pathfinder was found."
-                    ) from exc
-                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
-                break
-        else:
-            raise ModuleNotFoundError(
-                "cuda-pathfinder is not installed in the build environment. "
-                "Ensure 'cuda-pathfinder>=1.5' is in build-system.requires."
-            ) from exc
-        import cuda.pathfinder
-
-    pathfinder_dir = Path(cuda.pathfinder.__file__).parent
-    print(
-        f"Using cuda-pathfinder {cuda.pathfinder.__version__} from {pathfinder_dir}",
-        file=sys.stderr,
-    )
-    return cuda.pathfinder.get_cuda_path_or_home
-
-
-@functools.cache
 def _get_cuda_path() -> str:
-    get_cuda_path_or_home = _import_get_cuda_path_or_home()
-    cuda_path = get_cuda_path_or_home()
-    if not cuda_path:
-        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    print("CUDA path:", cuda_path)
-    return os.fspath(cuda_path)
+    cuda_path = os.environ.get("CUDA_PATH") or os.environ.get("CUDA_HOME")
+    if cuda_path:
+        return cuda_path
+    raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
 
 
 def _cuda_major_from_headers(cuda_path: str) -> str:
@@ -98,7 +57,6 @@ def _cuda_major_from_headers(cuda_path: str) -> str:
     )
 
 
-@functools.cache
 def _determine_cuda_major_version(cuda_path: str | None = None) -> str:
     """Determine the CUDA major used for build requirements and Cython."""
     cuda_major = os.environ.get("CUDA_CORE_BUILD_MAJOR")
@@ -119,34 +77,19 @@ def _setting_value(config_settings: _ConfigSettings, *names: str) -> str | bool 
         value = config_settings.get(name)
         if isinstance(value, list):
             if not value:
-                return None
+                continue
             value = value[-1]
         if value is not None:
             return value
     return None
 
 
-def _configured_cuda_root(config_settings: _ConfigSettings) -> str:
-    cuda_root = _setting_value(
-        config_settings,
-        "cmake.define.CUDA_CORE_CUDA_ROOT",
-        "skbuild.cmake.define.CUDA_CORE_CUDA_ROOT",
-    )
-    return os.fspath(cuda_root) if cuda_root is not None else _get_cuda_path()
-
-
 def _configured_cuda_major(config_settings: _ConfigSettings) -> str:
-    cuda_major = _setting_value(
-        config_settings,
-        "cmake.define.CUDA_CORE_BUILD_MAJOR",
-        "skbuild.cmake.define.CUDA_CORE_BUILD_MAJOR",
-    )
+    # Match scikit-build-core's precedence when both accepted spellings are
+    # supplied: the explicitly prefixed spelling wins.
+    cuda_major = _setting_value(config_settings, _CUDA_MAJOR_SETTING_ALIAS, _CUDA_MAJOR_SETTING)
     if cuda_major is None:
-        configured_root = _setting_value(
-            config_settings,
-            "cmake.define.CUDA_CORE_CUDA_ROOT",
-            "skbuild.cmake.define.CUDA_CORE_CUDA_ROOT",
-        )
+        configured_root = _setting_value(config_settings, _CUDA_ROOT_SETTING_ALIAS, _CUDA_ROOT_SETTING)
         return _determine_cuda_major_version(os.fspath(configured_root) if configured_root is not None else None)
 
     cuda_major = str(cuda_major)
@@ -166,12 +109,11 @@ def _parse_bool(value: str | bool, *, setting: str) -> bool:
     raise ValueError(f"{setting} must be a boolean value, got {value!r}")
 
 
-def _translate_config_settings(config_settings: _ConfigSettings, *, editable: bool) -> dict[str, Any]:
+def _translate_config_settings(config_settings: _ConfigSettings) -> dict[str, Any]:
     settings = dict(config_settings or {})
     debug = settings.pop("debug", _MISSING)
-    build_type_keys = ("cmake.build-type", "skbuild.cmake.build-type")
 
-    if debug is not _MISSING and any(key in settings for key in build_type_keys):
+    if debug is not _MISSING and any(key in settings for key in _BUILD_TYPE_SETTINGS):
         raise ValueError("debug and cmake.build-type cannot both be specified")
 
     if debug is not _MISSING:
@@ -183,81 +125,28 @@ def _translate_config_settings(config_settings: _ConfigSettings, *, editable: bo
         if debug_enabled and sys.platform == "win32":
             raise RuntimeError("Debuggable builds are not supported on Windows.")
         settings["cmake.build-type"] = "Debug" if debug_enabled else "Release"
-    elif editable and not any(key in settings for key in build_type_keys):
-        # Preserve the setuptools backend's developer-friendly editable default.
-        settings["cmake.build-type"] = "Release" if sys.platform == "win32" else "Debug"
 
     return settings
-
-
-def _set_cmake_define(settings: dict[str, Any], name: str, value: str) -> None:
-    keys = (f"cmake.define.{name}", f"skbuild.cmake.define.{name}")
-    if not any(key in settings for key in keys):
-        settings[keys[0]] = value
-
-
-def _has_cmake_define(settings: Mapping[str, Any], name: str) -> bool:
-    return any(key in settings for key in (f"cmake.define.{name}", f"skbuild.cmake.define.{name}"))
-
-
-def _build_config_settings(config_settings: _ConfigSettings, *, editable: bool) -> dict[str, Any]:
-    settings = _translate_config_settings(config_settings, editable=editable)
-    cuda_root = _configured_cuda_root(settings)
-    cuda_major = _configured_cuda_major(settings)
-    coverage = _parse_bool(os.environ.get("CUDA_PYTHON_COVERAGE", "0"), setting="CUDA_PYTHON_COVERAGE")
-
-    _set_cmake_define(settings, "CUDA_CORE_CUDA_ROOT", cuda_root)
-    _set_cmake_define(settings, "CUDA_CORE_BUILD_MAJOR", cuda_major)
-    _set_cmake_define(settings, "CUDA_PYTHON_COVERAGE", "1" if coverage else "0")
-
-    if not _has_cmake_define(settings, "CUDA_BINDINGS_CYTHON_ROOT"):
-        cython_root = _cuda_core_cython_path.find_cuda_bindings_cython_root()
-        # The build directory is persistent, so explicitly clear a root cached
-        # by an earlier editable build when the current environment needs none.
-        _set_cmake_define(settings, "CUDA_BINDINGS_CYTHON_ROOT", cython_root or "")
-    return settings
-
-
-def _call_build_hook(hook: Callable[..., str], *args: Any, **kwargs: Any) -> str:
-    parallel_level = os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL")
-    old_parallel_level = os.environ.get("CMAKE_BUILD_PARALLEL_LEVEL", _MISSING)
-    if parallel_level is not None and old_parallel_level is _MISSING:
-        os.environ["CMAKE_BUILD_PARALLEL_LEVEL"] = parallel_level
-    try:
-        return hook(*args, **kwargs)
-    finally:
-        if parallel_level is not None and old_parallel_level is _MISSING:
-            os.environ.pop("CMAKE_BUILD_PARALLEL_LEVEL", None)
 
 
 def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
-    settings = _translate_config_settings(config_settings, editable=False)
+    settings = _translate_config_settings(config_settings)
     return _build_backend.prepare_metadata_for_build_wheel(metadata_directory, settings)
 
 
 def prepare_metadata_for_build_editable(metadata_directory, config_settings=None):
-    settings = _translate_config_settings(config_settings, editable=True)
+    settings = _translate_config_settings(config_settings)
     return _build_backend.prepare_metadata_for_build_editable(metadata_directory, settings)
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    settings = _build_config_settings(config_settings, editable=False)
-    return _call_build_hook(
-        _build_backend.build_wheel,
-        wheel_directory,
-        settings,
-        metadata_directory,
-    )
+    settings = _translate_config_settings(config_settings)
+    return _build_backend.build_wheel(wheel_directory, settings, metadata_directory)
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    settings = _build_config_settings(config_settings, editable=True)
-    return _call_build_hook(
-        _build_backend.build_editable,
-        wheel_directory,
-        settings,
-        metadata_directory,
-    )
+    settings = _translate_config_settings(config_settings)
+    return _build_backend.build_editable(wheel_directory, settings, metadata_directory)
 
 
 def _get_cuda_bindings_require(config_settings: _ConfigSettings = None) -> list[str]:
@@ -266,10 +155,10 @@ def _get_cuda_bindings_require(config_settings: _ConfigSettings = None) -> list[
 
 
 def get_requires_for_build_wheel(config_settings=None):
-    settings = _translate_config_settings(config_settings, editable=False)
+    settings = _translate_config_settings(config_settings)
     return _build_backend.get_requires_for_build_wheel(settings) + _get_cuda_bindings_require(settings)
 
 
 def get_requires_for_build_editable(config_settings=None):
-    settings = _translate_config_settings(config_settings, editable=True)
+    settings = _translate_config_settings(config_settings)
     return _build_backend.get_requires_for_build_editable(settings) + _get_cuda_bindings_require(settings)
