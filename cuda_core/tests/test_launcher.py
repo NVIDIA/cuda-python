@@ -221,7 +221,7 @@ def test_to_native_launch_config_synchronization_policy(policy, expected_value):
     from cuda.core._launch_config import _to_native_launch_config
 
     config = LaunchConfig(grid=1, block=1, synchronization_policy=policy)
-    assert config.synchronization_policy is SynchronizationPolicyType(int(expected_value))
+    assert config.synchronization_policy == SynchronizationPolicyType(int(expected_value))
 
     native = _to_native_launch_config(config)
     assert native.numAttrs == 1
@@ -290,12 +290,19 @@ def test_to_native_launch_config_synchronization_policy_with_cooperative(monkeyp
 )
 def test_launch_with_synchronization_policy(init_cuda, policy):
     """Driver accepts per-launch synchronization policies on a real kernel launch."""
+    import cuda.bindings
+    from cuda.core._utils.version import driver_version
+
+    if int(cuda.bindings.__version__.split(".")[0]) >= 13 and driver_version()[0] < 13:
+        pytest.skip("CUDA 13 bindings produce modules incompatible with CUDA 12 drivers")
+
     dev = Device()
     dev.set_current()
     stream = dev.create_stream()
 
     code = 'extern "C" __global__ void noop() {}'
-    program = Program(code, SourceCodeType.CXX)
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    program = Program(code, SourceCodeType.CXX, options=ProgramOptions(arch=f"sm_{arch}"))
     mod = program.compile(ObjectCodeFormatType.CUBIN)
     ker = mod.get_kernel("noop")
 

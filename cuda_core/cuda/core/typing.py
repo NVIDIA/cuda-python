@@ -129,7 +129,8 @@ class PCHStatusType(StrEnum):
 class SynchronizationPolicyType(IntEnum):
     """CPU wait policy for host-side stream synchronization after a launch.
 
-    Maps to ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY``.
+    Maps to ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY`` and
+    ``cuda.bindings.driver.CUsynchronizationPolicy``.
 
     * ``AUTO`` — inherit the stream's synchronization policy.
     * ``SPIN`` — busy-wait on the CPU (lowest latency).
@@ -137,10 +138,10 @@ class SynchronizationPolicyType(IntEnum):
     * ``BLOCKING_SYNC`` — block in the OS scheduler while waiting.
     """
 
-    AUTO = 0
-    SPIN = 1
-    YIELD = 2
-    BLOCKING_SYNC = 3
+    AUTO = driver.CUsynchronizationPolicy.CU_SYNC_POLICY_AUTO
+    SPIN = driver.CUsynchronizationPolicy.CU_SYNC_POLICY_SPIN
+    YIELD = driver.CUsynchronizationPolicy.CU_SYNC_POLICY_YIELD
+    BLOCKING_SYNC = driver.CUsynchronizationPolicy.CU_SYNC_POLICY_BLOCKING_SYNC
 
 
 class GraphConditionalType(StrEnum):
