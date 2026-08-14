@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_gpu\_instance\_possible\_placements\_v2
-=======================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_gpu_instance_possible_placements_v2
