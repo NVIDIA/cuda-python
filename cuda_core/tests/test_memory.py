@@ -605,7 +605,8 @@ def test_closed_deallocation_stream_does_not_mutate_buffer():
     device.set_current()
     initial_stream = device.create_stream()
     closed_stream = device.create_stream()
-    mr = _StreamCaptureMemoryResource(device)
+    CapturingMR, telemetry = make_instrumented_memory_resource(record_streams=True)
+    mr = CapturingMR(device)
     buf = Buffer.from_handle(1, 1024, mr=mr, stream=initial_stream)
     closed_stream.close()
 
@@ -618,8 +619,8 @@ def test_closed_deallocation_stream_does_not_mutate_buffer():
     assert buf
 
     buf.close()
-    assert len(mr.deallocation_streams) == 1
-    assert mr.deallocation_streams[0].handle == initial_stream.handle
+    assert len(telemetry["deallocations"]) == 1
+    assert telemetry["deallocations"][0]["stream"].handle == initial_stream.handle
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
