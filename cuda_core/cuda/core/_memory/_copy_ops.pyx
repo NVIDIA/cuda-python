@@ -9,11 +9,9 @@ from collections.abc import Sequence
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     from libcpp.vector cimport vector
 
-from libc.string cimport memset
-
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
-from cuda.core._memory._location cimport to_cumemlocation
+from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-cython-lint
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept, Stream_is_default_token
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -24,7 +22,6 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.version cimport cy_driver_version  # no-cython-lint
 
 from cuda.core._memory._copy_enums import CopyOptions, _attr_run_starts  # no-cython-lint
-from cuda.core._memory._managed_location import _coerce_location
 
 _SINGLE_COPY_HINT = "Buffer.copy_to / Buffer.copy_from"
 
@@ -85,24 +82,6 @@ def _normalize_copy_options(
         f"copy_batch: options must be CopyOptions or a sequence of "
         f"CopyOptions, got {type(options).__name__}"
     )
-
-
-cdef cydriver.CUmemcpyAttributes _to_cu_memcpy_attributes(object attr):
-    """Convert a CopyOptions to a cydriver.CUmemcpyAttributes struct."""
-    cdef cydriver.CUmemcpyAttributes cu_attr
-    memset(&cu_attr, 0, sizeof(cydriver.CUmemcpyAttributes))
-    cu_attr.srcAccessOrder = <cydriver.CUmemcpySrcAccessOrder>(<int>attr._to_driver_enum())
-    cu_attr.flags = <unsigned int>(<int>attr._to_driver_flags())
-
-    cdef object src_loc = _coerce_location(attr.src_location_hint, allow_none=True)
-    cdef object dst_loc = _coerce_location(attr.dst_location_hint, allow_none=True)
-
-    if src_loc is not None:
-        cu_attr.srcLocHint = to_cumemlocation(src_loc.kind, src_loc.id)
-    if dst_loc is not None:
-        cu_attr.dstLocHint = to_cumemlocation(dst_loc.kind, dst_loc.id)
-
-    return cu_attr
 
 
 def copy_batch(
