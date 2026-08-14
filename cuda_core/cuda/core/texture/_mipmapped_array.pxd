@@ -18,3 +18,6 @@ cdef class MipmappedArray:
         bint _surface_load_store
 
     cpdef close(self)
+
+
+cdef int MipmappedArray_check_open(MipmappedArray self) except -1

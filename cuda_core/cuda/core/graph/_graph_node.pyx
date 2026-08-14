@@ -17,12 +17,16 @@ from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._event cimport Event
+from cuda.core._event cimport Event, Event_check_open
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
-from cuda.core._memory._buffer cimport Buffer
+from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
 from cuda.core._module cimport Kernel
-from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
+from cuda.core.graph._graph_definition cimport (
+    GraphCondition,
+    GraphDefinition,
+    GD_check_valid,
+)
 from cuda.core.graph._subclasses cimport (
     AllocNode,
     ChildGraphNode,
@@ -101,8 +105,15 @@ cdef class GraphNode:
     def __repr__(self) -> str:
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         if node == NULL:
-            return "<GraphNode entry>"
+            if self._is_entry and self:
+                return "<GraphNode entry>"
+            return "<GraphNode destroyed>"
         return f"<GraphNode handle=0x{<uintptr_t>node:x}>"
+
+    def __bool__(self) -> bool:
+        if self._is_entry:
+            return as_intptr(graph_node_get_graph(self._h_node)) != 0
+        return as_intptr(self._h_node) != 0
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GraphNode):
@@ -153,7 +164,7 @@ cdef class GraphNode:
 
         Returns ``False`` after :meth:`destroy` has been called.
         """
-        return as_intptr(self._h_node) != 0
+        return bool(self)
 
     def destroy(self) -> None:
         """Destroy this node and remove all its edges from the parent graph.
@@ -164,7 +175,7 @@ cdef class GraphNode:
         """
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         cdef PreparedAttachment prepared
-        if node == NULL:
+        if self._is_entry or node == NULL:
             return
 
         cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
@@ -231,6 +242,7 @@ cdef class GraphNode:
         KernelNode
             A new KernelNode representing the kernel launch.
         """
+        GN_check_valid(self)
         return GN_launch(self, config, <Kernel>kernel, ParamHolder(args))
 
     def join(self, *nodes: GraphNode) -> EmptyNode:
@@ -358,6 +370,7 @@ cdef class GraphNode:
         ValueError
             If ``dst_owner`` is given together with a :class:`Buffer` ``dst``.
         """
+        GN_check_valid(self)
         cdef cydriver.CUdeviceptr c_dst
         cdef unsigned int val
         cdef unsigned int elem_size
@@ -422,6 +435,7 @@ cdef class GraphNode:
             If ``dst_owner`` or ``src_owner`` is given together with a
             :class:`Buffer` ``dst`` or ``src`` respectively.
         """
+        GN_check_valid(self)
         cdef cydriver.CUdeviceptr c_dst
         cdef cydriver.CUdeviceptr c_src
         cdef OpaqueHandle dst_attachment_owner = _resolve_memcpy_operand(
@@ -621,6 +635,7 @@ cdef inline ConditionalNode _make_conditional_node(
         cydriver.CUgraphConditionalNodeType cond_type,
         unsigned int size,
         type node_cls):
+    GN_check_valid(pred)
     if not isinstance(condition, GraphCondition):
         raise TypeError(
             f"condition must be a GraphCondition object (from "
@@ -681,6 +696,7 @@ cdef inline GraphNode GN_create(GraphHandle h_graph, cydriver.CUgraphNode node):
     if node == NULL:
         n = GraphNode.__new__(GraphNode)
         (<GraphNode>n)._h_node = h_node
+        (<GraphNode>n)._is_entry = True
         return n
 
     # Return a registered object or create and register a new one.
@@ -724,6 +740,14 @@ cdef inline GraphNode GN_create_impl(GraphNodeHandle h_node):
         return n
 
 
+cdef int GN_check_valid(GraphNode self) except -1:
+    if as_intptr(graph_node_get_graph(self._h_node)) == 0:
+        raise RuntimeError("GraphNode belongs to an invalid GraphDefinition")
+    if not self._is_entry and as_intptr(self._h_node) == 0:
+        raise RuntimeError("GraphNode has been destroyed")
+    return 0
+
+
 cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, ParamHolder ker_args):
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
@@ -733,6 +757,7 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     cdef OpaqueHandle args_owner
     cdef PreparedAttachment prepared
 
+    GN_check_valid(self)
     if conf.cluster is not None or conf.is_cooperative:
         raise NotImplementedError(
             "clustered or cooperative graph kernel nodes are not supported")
@@ -786,9 +811,11 @@ cdef inline EmptyNode GN_join(GraphNode self, tuple nodes):
     cdef size_t num_deps = 0
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps.push_back(pred_node)
     for other in nodes:
+        GN_check_valid(other)
         if as_cu((<GraphNode>other)._h_node) != NULL:
             deps.push_back(as_cu((<GraphNode>other)._h_node))
 
@@ -808,6 +835,7 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
     cdef int device_id
     cdef cydriver.CUdevice dev
 
+    GN_check_valid(self)
     if device is None:
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
@@ -885,6 +913,7 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
     cdef cydriver.CUgraphNode* deps = NULL
     cdef size_t num_deps = 0
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -898,8 +927,7 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
 
 cdef inline OpaqueHandle _buffer_attachment_owner(Buffer buf, str label):
     """Copy a Buffer's device-pointer handle into an attachment owner."""
-    if not buf._h_ptr:
-        raise ValueError(f"{label} Buffer has no active allocation")
+    Buffer_check_open(buf)
     # The local is required: Cython permits the DevicePtrHandle -> OpaqueHandle
     # conversion on assignment, but not directly in a return statement.
     cdef OpaqueHandle attachment_owner = buf._h_ptr
@@ -954,6 +982,7 @@ cdef inline MemsetNode GN_memset(
     cdef size_t num_deps = 0
     cdef PreparedAttachment prepared
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -1041,6 +1070,7 @@ cdef inline MemcpyNode GN_memcpy(
     cdef size_t num_deps = 0
     cdef PreparedAttachment prepared
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -1071,6 +1101,8 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
     cdef size_t num_deps = 0
     cdef cydriver.CUresult rollback_status
 
+    GN_check_valid(self)
+    GD_check_valid(child_def)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -1101,6 +1133,8 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
 
 
 cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
+    GN_check_valid(self)
+    Event_check_open(ev)
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
@@ -1127,6 +1161,8 @@ cdef inline EventRecordNode GN_record_event(GraphNode self, Event ev):
 
 
 cdef inline EventWaitNode GN_wait_event(GraphNode self, Event ev):
+    GN_check_valid(self)
+    Event_check_open(ev)
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)
     cdef cydriver.CUgraphNode pred_node = as_cu(self._h_node)
@@ -1162,6 +1198,7 @@ cdef inline HostCallbackNode GN_callback(GraphNode self, object fn, object user_
     cdef OpaqueHandle fn_owner, data_owner
     cdef PreparedAttachment prepared
 
+    GN_check_valid(self)
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1

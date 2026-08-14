@@ -82,11 +82,18 @@ cdef class Program:
 
     def close(self) -> None:
         """Destroy this program."""
-        if self._linker:
+        if self._linker is not None:
             self._linker.close()
         # Reset handles - the C++ shared_ptr destructor handles cleanup
         self._h_nvrtc.reset()
         self._h_nvvm.reset()
+
+    def __bool__(self) -> bool:
+        if self._backend == "NVRTC":
+            return self._h_nvrtc.get() != NULL
+        if self._backend == "NVVM":
+            return self._h_nvvm.get() != NULL
+        return self._linker is not None and bool(self._linker)
 
     def compile(
         self,
@@ -143,6 +150,8 @@ cdef class Program:
         :class:`~cuda.core.ObjectCode`
             The compiled object code.
         """
+        if not self:
+            raise RuntimeError("Program has been closed")
         # Mirror Program_init's code_type normalization so callers can pass
         # ``ObjectCodeFormatType.PTX`` or ``"PTX"`` and get the same routing
         # / cache key as the lowercase string. ``Program_compile_nvrtc``

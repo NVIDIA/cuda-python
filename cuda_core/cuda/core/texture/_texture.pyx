@@ -8,15 +8,15 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core.texture._array cimport OpaqueArray
+from cuda.core.texture._array cimport OpaqueArray, OpaqueArray_check_open
 from cuda.core.texture._array import (
     _ARRAYFORMAT_TO_CU,
     _CU_TO_ARRAYFORMAT,
     _FORMAT_ELEM_SIZE,
     _validate_format_channels,
 )
-from cuda.core._memory._buffer cimport Buffer
-from cuda.core.texture._mipmapped_array cimport MipmappedArray
+from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
+from cuda.core.texture._mipmapped_array cimport MipmappedArray, MipmappedArray_check_open
 from cuda.core.texture._mipmapped_array import MipmappedArray as _PyMipmappedArray
 from cuda.core._resource_handles cimport (
     TexObjectHandle,
@@ -112,6 +112,7 @@ class ResourceDescriptor:
         """Build a resource descriptor backed by a :class:`OpaqueArray`."""
         if not isinstance(array, OpaqueArray):
             raise TypeError(f"array must be a OpaqueArray, got {type(array).__name__}")
+        OpaqueArray_check_open(<OpaqueArray>array)
         self = cls.__new__(cls)
         self._kind = "array"
         self._source = array
@@ -137,6 +138,7 @@ class ResourceDescriptor:
                 f"mipmapped_array must be a MipmappedArray, got "
                 f"{type(mipmapped_array).__name__}"
             )
+        MipmappedArray_check_open(<MipmappedArray>mipmapped_array)
         self = cls.__new__(cls)
         self._kind = "mipmapped_array"
         self._source = mipmapped_array
@@ -174,6 +176,7 @@ class ResourceDescriptor:
         """
         if not isinstance(buffer, Buffer):
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
+        Buffer_check_open(<Buffer>buffer)
         fmt = _validate_format_channels(format, num_channels)
         cu_format = _ARRAYFORMAT_TO_CU[fmt]
 
@@ -235,6 +238,7 @@ class ResourceDescriptor:
         """
         if not isinstance(buffer, Buffer):
             raise TypeError(f"buffer must be a Buffer, got {type(buffer).__name__}")
+        Buffer_check_open(<Buffer>buffer)
         fmt = _validate_format_channels(format, num_channels)
         cu_format = _ARRAYFORMAT_TO_CU[fmt]
 
@@ -430,6 +434,9 @@ cdef class TextureObject:
         """The underlying ``CUtexObject`` as an integer (64-bit kernel arg)."""
         return as_intptr(self._handle)
 
+    def __bool__(self) -> bool:
+        return self._handle.get() != NULL
+
     @property
     def resource(self):
         """The :class:`ResourceDescriptor` this texture was built from."""
@@ -493,14 +500,17 @@ def _create_texture_object(resource, options):
     cdef intptr_t devptr
     if resource.kind == "array":
         arr = <OpaqueArray>resource.source
+        OpaqueArray_check_open(arr)
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_ARRAY
         res_desc.res.array.hArray = as_cu(arr._handle)
     elif resource.kind == "mipmapped_array":
         mip = <MipmappedArray>resource.source
+        MipmappedArray_check_open(mip)
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY
         res_desc.res.mipmap.hMipmappedArray = as_cu(mip._handle)
     elif resource.kind == "linear":
         buf = <Buffer>resource.source
+        Buffer_check_open(buf)
         devptr = int(buf.handle)
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_LINEAR
         res_desc.res.linear.devPtr = <cydriver.CUdeviceptr>devptr
@@ -509,6 +519,7 @@ def _create_texture_object(resource, options):
         res_desc.res.linear.sizeInBytes = <size_t>resource._size_bytes
     elif resource.kind == "pitch2d":
         buf = <Buffer>resource.source
+        Buffer_check_open(buf)
         devptr = int(buf.handle)
         res_desc.resType = cydriver.CU_RESOURCE_TYPE_PITCH2D
         res_desc.res.pitch2D.devPtr = <cydriver.CUdeviceptr>devptr

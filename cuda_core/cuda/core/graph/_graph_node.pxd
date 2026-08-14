@@ -11,10 +11,14 @@ from cuda.core._resource_handles cimport GraphHandle, GraphNodeHandle, OpaqueHan
 cdef class GraphNode:
     cdef:
         GraphNodeHandle _h_node
+        bint _is_entry
         object __weakref__
 
     @staticmethod
     cdef GraphNode _create(GraphHandle h_graph, cydriver.CUgraphNode node)
+
+
+cdef int GN_check_valid(GraphNode self) except -1
 
 
 cdef OpaqueHandle _resolve_memcpy_operand(

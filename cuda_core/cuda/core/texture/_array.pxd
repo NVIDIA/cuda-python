@@ -21,6 +21,9 @@ cdef class OpaqueArray:
     cpdef close(self)
 
 
+cdef int OpaqueArray_check_open(OpaqueArray self) except -1
+
+
 # Wrap an existing OpaqueArrayHandle as a OpaqueArray, querying the driver for the
 # array's shape/format/channels/surface-flag metadata. Used by get_level and
 # the graphics-interop _from_handle path.

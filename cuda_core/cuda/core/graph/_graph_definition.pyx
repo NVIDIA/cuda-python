@@ -142,11 +142,16 @@ cdef class GraphDefinition:
     def __hash__(self) -> int:
         return hash(<uintptr_t>self._h_graph.get())
 
+    def __bool__(self) -> bool:
+        return as_intptr(self._h_graph) != 0
+
     @property
     def _entry(self) -> GraphNode:
         """Return the internal entry-point GraphNode (no dependencies)."""
+        GD_check_valid(self)
         cdef GraphNode n = GraphNode.__new__(GraphNode)
         n._h_node = create_graph_node_handle(<cydriver.CUgraphNode>NULL, self._h_graph)
+        n._is_entry = True
         return n
 
     def allocate(self, size_t size, *, device: Device | int | None = None,
@@ -268,6 +273,7 @@ cdef class GraphDefinition:
         GraphCondition
             A condition variable for controlling conditional execution.
         """
+        GD_check_valid(self)
         cdef cydriver.CUgraphConditionalHandle c_handle
         cdef unsigned int flags = 0
         cdef unsigned int default_val = 0
@@ -325,6 +331,7 @@ cdef class GraphDefinition:
         Graph
             An executable graph that can be launched on a stream.
         """
+        GD_check_valid(self)
         from cuda.core.graph._graph_builder import _instantiate_graph
 
         return _instantiate_graph(self, options)
@@ -339,6 +346,7 @@ cdef class GraphDefinition:
         options : GraphDebugPrintOptions, optional
             Customizable options for the debug print.
         """
+        GD_check_valid(self)
         from cuda.core.graph._graph_builder import GraphDebugPrintOptions
 
         cdef unsigned int flags = 0
@@ -360,6 +368,7 @@ cdef class GraphDefinition:
         set of GraphNode
             All nodes in the graph.
         """
+        GD_check_valid(self)
         cdef vector[cydriver.CUgraphNode] nodes_vec
         cdef size_t num_nodes = 0
 
@@ -384,6 +393,7 @@ cdef class GraphDefinition:
             Each element is a (from_node, to_node) pair representing
             a dependency edge in the graph.
         """
+        GD_check_valid(self)
         cdef vector[cydriver.CUgraphNode] from_nodes
         cdef vector[cydriver.CUgraphNode] to_nodes
         cdef size_t num_edges = 0
@@ -419,3 +429,9 @@ cdef class GraphDefinition:
     def handle(self) -> driver.CUgraph:
         """Return the underlying driver CUgraph handle."""
         return as_py(self._h_graph)
+
+
+cdef int GD_check_valid(GraphDefinition self) except -1:
+    if as_intptr(self._h_graph) == 0:
+        raise RuntimeError("GraphDefinition is no longer valid")
+    return 0

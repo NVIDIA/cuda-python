@@ -22,3 +22,6 @@ cdef class GraphDefinition:
 
     @staticmethod
     cdef GraphDefinition _from_handle(GraphHandle h_graph)
+
+
+cdef int GD_check_valid(GraphDefinition self) except -1

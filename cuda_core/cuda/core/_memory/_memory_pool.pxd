@@ -35,6 +35,7 @@ cdef int MP_init_current_pool(
 ) except? -1
 
 cdef int MP_raise_release_threshold(_MemPool self) except? -1
+cdef int MP_check_open(_MemPool self) except -1
 
 
 # Allocate from this pool, returning an instance of `cls` (defaulting to

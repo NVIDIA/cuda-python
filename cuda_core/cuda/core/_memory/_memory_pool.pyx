@@ -133,6 +133,9 @@ cdef class _MemPool(MemoryResource):
         """
         _MP_close(self)
 
+    def __bool__(self) -> bool:
+        return self._h_pool.get() != NULL
+
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 
@@ -151,6 +154,7 @@ cdef class _MemPool(MemoryResource):
             The allocated buffer object, which is accessible on the device that this memory
             resource was created for.
         """
+        MP_check_open(self)
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
@@ -183,6 +187,7 @@ cdef class _MemPool(MemoryResource):
     @cython.critical_section
     def attributes(self) -> _MemPoolAttributes:
         """Memory pool attributes."""
+        MP_check_open(self)
         cdef _MemPoolAttributes attributes
         if self._attributes is None:
             attributes = _MemPoolAttributes._init(self._h_pool)
@@ -299,6 +304,7 @@ cdef int MP_raise_release_threshold(_MemPool self) except? -1:
     the OS as soon as there are no active suballocations.  Setting it to
     ULLONG_MAX avoids repeated OS round-trips.
     """
+    MP_check_open(self)
     cdef cydriver.cuuint64_t current_threshold
     cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
     with nogil:
@@ -329,6 +335,7 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 
 cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = Buffer):
+    MP_check_open(self)
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef DevicePtrHandle h_ptr
     with nogil:
@@ -352,6 +359,12 @@ cdef inline void _MP_deallocate(
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
+
+
+cdef int MP_check_open(_MemPool self) except -1:
+    if not self._h_pool:
+        raise RuntimeError(f"{self.__class__.__name__} has been closed")
+    return 0
 
 
 cdef inline _MP_close(_MemPool self):

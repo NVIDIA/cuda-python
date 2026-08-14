@@ -215,7 +215,9 @@ class TestFromGLBuffer:
     def test_close_is_idempotent(self):
         with _gl_context_and_buffer() as (gl_buf, nbytes):
             resource = GraphicsResource.from_gl_buffer(gl_buf)
+            assert resource
             resource.close()
+            assert not resource
             resource.close()  # Should not raise
 
 

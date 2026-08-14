@@ -81,6 +81,11 @@ cdef class Linker:
     def __init__(self, *object_codes: ObjectCode, options: LinkerOptions | None = None):
         Linker_init(self, object_codes, options)
 
+    def __bool__(self) -> bool:
+        if self._use_nvjitlink:
+            return self._nvjitlink_handle.get() != NULL
+        return self._culink_handle.get() != NULL
+
     def link(self, target_type: ObjectCodeFormatType | str) -> ObjectCode:
         """Link the provided object codes into a single output of the specified target type.
 
@@ -99,6 +104,8 @@ cdef class Linker:
             Ensure that input object codes were compiled with appropriate
             flags for linking (e.g., relocatable device code enabled).
         """
+        if not self:
+            raise RuntimeError("Linker has been closed")
         return Linker_link(self, str(target_type))
 
     def get_error_log(self) -> str:
@@ -112,6 +119,8 @@ cdef class Linker:
         # After link(), the decoded log is cached here.
         if self._error_log is not None:
             return self._error_log
+        if not self:
+            raise RuntimeError("Linker has been closed")
         cdef cynvjitlink.nvJitLinkHandle c_h
         cdef size_t c_log_size = 0
         cdef char* c_log_ptr
@@ -138,6 +147,8 @@ cdef class Linker:
         # After link(), the decoded log is cached here.
         if self._info_log is not None:
             return self._info_log
+        if not self:
+            raise RuntimeError("Linker has been closed")
         cdef cynvjitlink.nvJitLinkHandle c_h
         cdef size_t c_log_size = 0
         cdef char* c_log_ptr

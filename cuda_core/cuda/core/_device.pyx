@@ -1281,6 +1281,8 @@ class Device:
         if ctx is not None:
             # TODO: revisit once Context is cythonized
             assert_type(ctx, Context)
+            if not ctx:
+                raise RuntimeError("Context has been closed")
             if ctx._device_id != self._device_id:
                 raise RuntimeError(
                     "the provided context was created on the device with"

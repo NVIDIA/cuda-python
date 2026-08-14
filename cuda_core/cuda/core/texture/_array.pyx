@@ -9,7 +9,7 @@ from libc.stdint cimport intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer
+from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
 from cuda.core._resource_handles cimport (
     OpaqueArrayHandle,
     as_cu,
@@ -248,6 +248,7 @@ cdef int _fill_linear_endpoint(
     cdef intptr_t ptr
     cdef size_t required = width_bytes * height * depth
     if isinstance(obj, Buffer):
+        Buffer_check_open(<Buffer>obj)
         if <size_t>(<Buffer>obj).size < required:
             raise ValueError(
                 f"Buffer size ({(<Buffer>obj).size} bytes) is smaller than "
@@ -369,6 +370,9 @@ cdef class OpaqueArray:
         """The underlying ``CUarray`` as an integer."""
         return as_intptr(self._handle)
 
+    def __bool__(self) -> bool:
+        return self._handle.get() != NULL
+
     @property
     def shape(self):
         """Allocation shape, in elements."""
@@ -424,6 +428,7 @@ cdef class OpaqueArray:
             Stream to issue the copy on. A :class:`~cuda.core.graph.GraphBuilder`
             is accepted so the copy can be captured into a graph.
         """
+        OpaqueArray_check_open(self)
         _copy3d(self, src, Stream_accept(stream), to_array=True)
 
     def copy_to(self, dst, *, stream):
@@ -442,6 +447,7 @@ cdef class OpaqueArray:
         -------
         The ``dst`` object, for parity with :meth:`Buffer.copy_to`.
         """
+        OpaqueArray_check_open(self)
         _copy3d(self, dst, Stream_accept(stream), to_array=False)
         return dst
 
@@ -475,6 +481,12 @@ cdef class OpaqueArray:
             f"format={_CU_TO_ARRAYFORMAT[self._format].name}, "
             f"num_channels={self._num_channels})"
         )
+
+
+cdef int OpaqueArray_check_open(OpaqueArray self) except -1:
+    if not self._handle:
+        raise RuntimeError("OpaqueArray has been closed")
+    return 0
 
 
 cdef OpaqueArray _array_from_handle(OpaqueArrayHandle h, int device_id):

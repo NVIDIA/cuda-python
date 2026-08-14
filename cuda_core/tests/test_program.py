@@ -430,6 +430,17 @@ def test_program_close():
     program.close()
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_program_rejects_compile():
+    program = Program('extern "C" __global__ void my_kernel() {}', "c++")
+    assert program
+    program.close()
+
+    assert not program
+    with pytest.raises(RuntimeError, match="Program has been closed"):
+        program.compile("ptx")
+
+
 @nvvm_available
 def test_nvvm_deferred_import():
     """Test that our deferred NVVM import works correctly"""

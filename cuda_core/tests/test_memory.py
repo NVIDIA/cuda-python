@@ -595,8 +595,80 @@ def test_set_deallocation_stream_rejects_none_and_closed_buffer():
         buf.set_deallocation_stream(None)
 
     buf.close()
-    with pytest.raises(RuntimeError, match="closed Buffer"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         buf.set_deallocation_stream(stream)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_deallocation_stream_does_not_mutate_buffer():
+    device = Device()
+    device.set_current()
+    initial_stream = device.create_stream()
+    closed_stream = device.create_stream()
+    mr = _StreamCaptureMemoryResource(device)
+    buf = Buffer.from_handle(1, 1024, mr=mr, stream=initial_stream)
+    closed_stream.close()
+
+    with pytest.raises(RuntimeError, match="Stream has been closed"):
+        buf.set_deallocation_stream(closed_stream)
+    assert buf
+
+    with pytest.raises(RuntimeError, match="Stream has been closed"):
+        buf.close(stream=closed_stream)
+    assert buf
+
+    buf.close()
+    assert len(mr.deallocation_streams) == 1
+    assert mr.deallocation_streams[0].handle == initial_stream.handle
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_buffer_rejected_before_active_operations():
+    device = Device()
+    device.set_current()
+    stream = device.create_stream()
+    closed = Buffer.from_handle(1, 16, owner=object())
+    live = Buffer.from_handle(2, 16, owner=object())
+    closed.close()
+
+    for operation in (
+        lambda: closed.copy_to(live, stream=stream),
+        lambda: closed.copy_from(live, stream=stream),
+        lambda: closed.fill(0, stream=stream),
+        closed.__dlpack__,
+        closed.__dlpack_device__,
+        lambda: closed.device_id,
+        lambda: closed.is_device_accessible,
+        lambda: closed.is_host_accessible,
+        lambda: closed.is_managed,
+        lambda: closed.ipc_descriptor,
+    ):
+        with pytest.raises(RuntimeError, match="Buffer has been closed"):
+            operation()
+
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
+        live.copy_to(closed, stream=stream)
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
+        live.copy_from(closed, stream=stream)
+    live.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_memory_pool_rejected_before_active_operations(mempool_device):
+    mr = DeviceMemoryResource(mempool_device)
+    peer_access = mr.peer_accessible_by
+    mr.close()
+
+    assert not mr
+    for operation in (
+        lambda: mr.allocate(16, stream=mempool_device.default_stream),
+        lambda: mr.attributes,
+        lambda: mr.peer_accessible_by,
+        lambda: len(peer_access),
+        lambda: mr.allocation_handle,
+    ):
+        with pytest.raises(RuntimeError, match="DeviceMemoryResource has been closed"):
+            operation()
 
 
 @pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])

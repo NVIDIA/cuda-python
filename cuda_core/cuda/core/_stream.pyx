@@ -9,7 +9,7 @@ from libc.stdlib cimport strtol, getenv
 
 from cuda.bindings cimport cydriver
 
-from cuda.core._event cimport Event as cyEvent
+from cuda.core._event cimport Event as cyEvent, Event_accept
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
@@ -201,10 +201,16 @@ cdef class Stream:
         underlying CUDA stream. For borrowed streams, this releases the
         reference and allows the Python owner to be GC'd.
         """
+        if self._h_stream and Stream_is_default_token(self):
+            return
         self._h_stream.reset()
+
+    def __bool__(self) -> bool:
+        return self._h_stream.get() != NULL
 
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
+        Stream_check_open(self)
         return (0, as_intptr(self._h_stream))
 
     def __hash__(self) -> int:
@@ -217,6 +223,8 @@ cdef class Stream:
 
     def __repr__(self) -> str:
         cdef ContextHandle h_context
+        if not self._h_stream:
+            return "<Stream handle=0x0 context=0x0>"
         Stream_get_ctx(self, &h_context)
         return f"<Stream handle={as_intptr(self._h_stream):#x} context={as_intptr(h_context):#x}>"
 
@@ -234,6 +242,7 @@ cdef class Stream:
     @property
     def is_nonblocking(self) -> bool:
         """Return True if this is a nonblocking stream, otherwise False."""
+        Stream_check_open(self)
         cdef unsigned int flags
         if self._nonblocking == -1:
             with nogil:
@@ -244,6 +253,7 @@ cdef class Stream:
     @property
     def priority(self) -> int:
         """Return the stream priority."""
+        Stream_check_open(self)
         cdef int prio
         if self._priority == INT32_MIN:
             with nogil:
@@ -253,6 +263,7 @@ cdef class Stream:
 
     def sync(self) -> None:
         """Synchronize the stream."""
+        Stream_check_open(self)
         with nogil:
             HANDLE_RETURN(cydriver.cuStreamSynchronize(as_cu(self._h_stream)))
 
@@ -285,21 +296,25 @@ cdef class Stream:
         # Create an Event object (or reusing the given one) by recording
         # on the stream. Event flags such as disabling timing, nonblocking,
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
+        Stream_check_open(self)
         cdef ContextHandle h_context
         cdef int device_id
+        cdef cyEvent event_obj
         if event is None:
             Stream_get_ctx_device(self, &h_context, &device_id)
-            event = cyEvent._init(cyEvent, device_id, h_context, options, False)
-        elif event.is_ipc_enabled:
+            event_obj = cyEvent._init(cyEvent, device_id, h_context, options, False)
+        else:
+            event_obj = Event_accept(event)
+        if event is not None and event_obj.is_ipc_enabled:
             raise TypeError(
                 "IPC-enabled events should not be re-recorded, instead create a "
                 "new event by supplying options."
             )
 
-        cdef cydriver.CUevent e = as_cu((<cyEvent?>(event))._h_event)
+        cdef cydriver.CUevent e = as_cu(event_obj._h_event)
         with nogil:
             HANDLE_RETURN(cydriver.cuEventRecord(e, as_cu(self._h_stream)))
-        return event
+        return event_obj
 
     def wait(self, event_or_stream: Event | Stream) -> None:
         """Wait for a CUDA event or a CUDA stream.
@@ -318,20 +333,24 @@ cdef class Stream:
             streams.
 
         """
+        Stream_check_open(self)
         cdef Stream stream
+        cdef cyEvent event
         cdef EventHandle h_event
 
         # Handle Event directly
         if isinstance(event_or_stream, Event):
+            event = Event_accept(event_or_stream)
             with nogil:
                 # TODO: support flags other than 0?
                 HANDLE_RETURN(cydriver.cuStreamWaitEvent(
-                    as_cu(self._h_stream), as_cu((<cyEvent>event_or_stream)._h_event), 0))
+                    as_cu(self._h_stream), as_cu(event._h_event), 0))
             return
 
         # Convert to Stream if needed
         if isinstance(event_or_stream, Stream):
             stream = <Stream>event_or_stream
+            Stream_check_open(stream)
         else:
             try:
                 stream = Stream._init(obj=event_or_stream)
@@ -364,6 +383,7 @@ cdef class Stream:
         set current after the stream is created.
 
         """
+        Stream_check_open(self)
         from cuda.core._device import Device  # avoid circular import
         cdef ContextHandle h_context
         cdef int device_id
@@ -382,6 +402,7 @@ cdef class Stream:
         context at call time.
 
         """
+        Stream_check_open(self)
         cdef ContextHandle h_context
         cdef int device_id
         Stream_get_ctx_device(self, &h_context, &device_id)
@@ -403,6 +424,7 @@ cdef class Stream:
         context at call time.
 
         """
+        Stream_check_open(self)
         cdef ContextHandle h_context
         cdef int device_id
         Stream_get_ctx_device(self, &h_context, &device_id)
@@ -450,6 +472,7 @@ cdef class Stream:
             Newly created graph builder object.
 
         """
+        Stream_check_open(self)
         from cuda.core.graph._graph_builder import GraphBuilder
 
         return GraphBuilder._init(self)
@@ -481,6 +504,12 @@ cpdef Stream default_stream():
         return PER_THREAD_DEFAULT_STREAM
     else:
         return LEGACY_DEFAULT_STREAM
+
+
+cdef int Stream_check_open(Stream self) except -1:
+    if not self._h_stream:
+        raise RuntimeError("Stream has been closed")
+    return 0
 
 
 cdef inline bint Stream_is_default_token(Stream self) noexcept nogil:
@@ -557,7 +586,8 @@ cdef inline int Stream_get_ctx_device(Stream self, ContextHandle* h_context, int
 
 cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
     if isinstance(obj, Stream):
-        return <cydriver.CUstream><uintptr_t>(obj.handle)
+        Stream_check_open(<Stream>obj)
+        return as_cu((<Stream>obj)._h_stream)
 
     try:
         cuda_stream_attr = obj.__cuda_stream__
@@ -594,15 +624,22 @@ cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
 cpdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
     from cuda.core.graph._graph_builder import GraphBuilder
 
+    cdef Stream stream
     if arg is None:
         raise TypeError(
             "stream is required and must not be None; "
             "pass device.default_stream explicitly to use the default stream."
         )
     if isinstance(arg, Stream):
-        return <Stream>(arg)
+        stream = <Stream>arg
+        Stream_check_open(stream)
+        return stream
     elif isinstance(arg, GraphBuilder):
-        return <Stream>(arg.stream)
+        if not arg:
+            raise RuntimeError("GraphBuilder has been closed")
+        stream = <Stream>arg.stream
+        Stream_check_open(stream)
+        return stream
     elif allow_stream_protocol and hasattr(arg, "__cuda_stream__"):
         stream = Stream._init(arg)
         warnings.warn(
@@ -612,5 +649,5 @@ cpdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
             stacklevel=2,
             category=DeprecationWarning,
         )
-        return <Stream>(stream)
+        return stream
     raise TypeError(f"Stream or GraphBuilder expected, got {type(arg).__name__}")

@@ -717,6 +717,50 @@ REPR_PATTERNS = [
 ]
 
 
+# Types whose truth value reflects whether close() has released their resource.
+CLOSEABLE_TYPES = [
+    "sample_stream",
+    "sample_event",
+    "sample_buffer",
+    "sample_program_nvrtc",
+]
+
+
+# =============================================================================
+# Resource state tests
+# =============================================================================
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize("fixture_name", CLOSEABLE_TYPES)
+def test_closeable_object_truth_and_safe_inspection(fixture_name, request):
+    """Closing is idempotent, changes truthiness, and leaves inspection safe."""
+    obj = request.getfixturevalue(fixture_name)
+    assert obj
+
+    obj.close()
+    assert not obj
+    repr(obj)
+    if hasattr(obj, "handle"):
+        _ = obj.handle
+
+    obj.close()
+    assert not obj
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_graph_object_truth_tracks_invalid_state(sample_graphdef):
+    """Virtual entry nodes are live, while destroyed nodes are false."""
+    assert sample_graphdef
+    assert sample_graphdef._entry
+
+    node = sample_graphdef.empty()
+    assert node
+    node.destroy()
+    assert not node
+    assert repr(node)
+
+
 # =============================================================================
 # Weak reference tests
 # =============================================================================

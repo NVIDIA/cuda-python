@@ -1335,6 +1335,8 @@ cdef inline int view_buffer_strided(
     object dtype,
     bint is_readonly,
 ) except -1:
+    if isinstance(buffer, Buffer) and not buffer:
+        raise RuntimeError("Buffer has been closed")
     if dtype is not None:
         dtype = numpy.dtype(dtype)
         if dtype.itemsize != layout.itemsize:

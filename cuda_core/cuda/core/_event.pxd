@@ -20,3 +20,7 @@ cdef class Event:
     cdef Event _from_handle(EventHandle h_event)
 
     cpdef close(self)
+
+
+cdef Event Event_accept(object arg)
+cdef int Event_check_open(Event self) except -1

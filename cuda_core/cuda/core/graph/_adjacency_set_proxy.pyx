@@ -52,13 +52,16 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
         if not isinstance(value, GraphNode):
             raise TypeError(
                 f"expected GraphNode, got {type(value).__name__}")
+        (<_AdjacencySetCore>self._core).check_mutation(value)
         if value in self:
             return
         (<_AdjacencySetCore>self._core).add_edge(<GraphNode>value)
 
     def discard(self, value: GraphNode) -> None:
+        (<_AdjacencySetCore>self._core).check_owner_mutable()
         if not isinstance(value, GraphNode):
             return
+        (<_AdjacencySetCore>self._core).check_mutation(value)
         if value not in self:
             return
         (<_AdjacencySetCore>self._core).remove_edge(<GraphNode>value)
@@ -67,12 +70,14 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
 
     def clear(self) -> None:
         """Remove all edges in a single driver call."""
+        (<_AdjacencySetCore>self._core).check_owner_mutable()
         members = (<_AdjacencySetCore>self._core).query()
         if members:
             (<_AdjacencySetCore>self._core).remove_edges(members)
 
     def __isub__(self, it: Set[Any]) -> "AdjacencySetProxy":
         """Remove edges to all nodes in *it* in a single driver call."""
+        (<_AdjacencySetCore>self._core).check_owner_mutable()
         if it is self:
             self.clear()
         else:
@@ -83,6 +88,7 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
 
     def update(self, *others) -> None:
         """Add edges to multiple nodes at once."""
+        (<_AdjacencySetCore>self._core).check_owner_mutable()
         nodes = []
         for other in others:
             if isinstance(other, GraphNode):
@@ -93,6 +99,8 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
                         raise TypeError(
                             f"expected GraphNode, got {type(n).__name__}")
                     nodes.append(n)
+        for n in nodes:
+            (<_AdjacencySetCore>self._core).check_mutation(n)
         if not nodes:
             return
         new = [n for n in nodes if n not in self]
@@ -139,6 +147,21 @@ cdef class _AdjacencySetCore:
         else:
             c_from[0] = as_cu(other._h_node)
             c_to[0] = as_cu(self._h_node)
+
+    cdef inline void check_owner_mutable(self) except *:
+        if as_cu(self._h_graph) == NULL:
+            raise RuntimeError("GraphDefinition is no longer valid")
+        if as_cu(self._h_node) == NULL:
+            raise RuntimeError("GraphNode has been destroyed")
+
+    cdef inline void check_mutation(self, GraphNode other) except *:
+        self.check_owner_mutable()
+        if not other:
+            raise RuntimeError("GraphNode has been destroyed")
+        if other._is_entry:
+            raise ValueError("The virtual graph entry node cannot be used in an edge")
+        if as_cu(graph_node_get_graph(other._h_node)) != as_cu(self._h_graph):
+            raise ValueError("Graph nodes must belong to the same GraphDefinition")
 
     cdef list query(self):
         cdef cydriver.CUgraphNode c_node = as_cu(self._h_node)

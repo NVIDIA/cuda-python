@@ -235,6 +235,17 @@ def test_context_handle_alias_and_closed_queries(init_cuda, sm_resource):
         _ = ctx.resources
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_set_current_rejects_closed_context(init_cuda, sm_resource):
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    ctx = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
+    ctx.close()
+
+    assert not ctx
+    with pytest.raises(RuntimeError, match="Context has been closed"):
+        init_cuda.set_current(ctx)
+
+
 # ---------------------------------------------------------------------------
 # SM resource query
 # ---------------------------------------------------------------------------

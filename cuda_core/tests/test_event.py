@@ -354,3 +354,30 @@ def test_event_set_membership(init_cuda):
     # Same event should not add duplicate
     event_set.add(e1)
     assert len(event_set) == 2
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_event_rejected_before_operations(init_cuda):
+    device = Device()
+    stream = device.create_stream()
+    event = device.create_event()
+    other = device.create_event()
+    event.close()
+
+    assert not event
+    for operation in (
+        event.sync,
+        lambda: event.is_done,
+        lambda: event.is_ipc_enabled,
+        lambda: event.is_timing_enabled,
+        lambda: event.is_blocking_sync,
+        lambda: event.ipc_descriptor,
+        lambda: event.device,
+        lambda: event.context,
+        lambda: stream.record(event),
+        lambda: stream.wait(event),
+        lambda: event - other,
+        lambda: other - event,
+    ):
+        with pytest.raises(RuntimeError, match="Event has been closed"):
+            operation()

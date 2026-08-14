@@ -9,8 +9,12 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 
-from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
-from cuda.core.graph._graph_node cimport GraphNode
+from cuda.core.graph._graph_definition cimport (
+    GraphCondition,
+    GraphDefinition,
+    GD_check_valid,
+)
+from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
 from cuda.core.graph._host_callback cimport _resolve_host_callback
 from cuda.core.graph._subclasses cimport (
     ExecutableGraphNode,
@@ -31,7 +35,7 @@ from cuda.core._resource_handles cimport (
     invalidate_child_graph_state,
     retry_deferred_cleanup,
 )
-from cuda.core._stream cimport Stream
+from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
 
@@ -174,8 +178,10 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
     cdef GraphExecHandle h_exec
 
     if isinstance(source, GraphBuilder):
+        GB_check_open(<GraphBuilder>source)
         h_graph = (<GraphBuilder>source)._h_graph
     elif isinstance(source, GraphDefinition):
+        GD_check_valid(<GraphDefinition>source)
         h_graph = (<GraphDefinition>source)._h_graph
     else:
         raise TypeError(
@@ -191,9 +197,9 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
         flags = 0
         if options.auto_free_on_launch:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
-        if options.upload_stream:
+        if options.upload_stream is not None:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD
-            params.hUploadStream = as_cu((<Stream>options.upload_stream)._h_stream)
+            params.hUploadStream = as_cu(Stream_accept(options.upload_stream)._h_stream)
         if options.device_launch:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_DEVICE_LAUNCH
         if options.use_node_priority:
@@ -315,9 +321,13 @@ cdef class GraphBuilder:
         self._state = CLOSED
         self._stream = None
 
+    def __bool__(self) -> bool:
+        return self._state != CLOSED
+
     @property
     def stream(self) -> Stream:
         """Returns the stream associated with the graph builder."""
+        GB_check_open(self)
         return self._stream
 
     @property
@@ -574,6 +584,8 @@ cdef class GraphBuilder:
             raise TypeError("All arguments must be GraphBuilder instances")
         if len(graph_builders) < 2:
             raise ValueError("Must join with at least two graph builders")
+        for builder in graph_builders:
+            GB_check_open(builder)
 
         # Discover the root builder others should join
         root_idx = 0
@@ -799,6 +811,7 @@ cdef class GraphBuilder:
             The child graph builder. Must have finished building.
         """
         GB_check_open(self)
+        GB_check_open(child)
         if child._state != CAPTURE_ENDED:
             raise ValueError("Child graph has not finished building.")
 
@@ -1106,6 +1119,9 @@ cdef class Graph:
         self._h_graph_exec.reset()
         retry_deferred_cleanup()
 
+    def __bool__(self) -> bool:
+        return self._h_graph_exec.get() != NULL
+
     @property
     def handle(self) -> driver.CUgraphExec:
         """Return the underlying ``CUgraphExec`` object.
@@ -1126,6 +1142,8 @@ cdef class Graph:
         node's parameters for future launches. Kernel, memcpy, and memset
         views also support enabling and disabling the node.
         """
+        Graph_check_open(self)
+        GN_check_valid(node)
         return create_executable_node_view(
             self._h_graph_exec, node)
 
@@ -1141,15 +1159,16 @@ cdef class Graph:
             finished building.
 
         """
+        Graph_check_open(self)
         cdef GraphHandle h_source
 
         if isinstance(source, GraphBuilder):
-            if (<GraphBuilder>source)._state == CLOSED:
-                raise ValueError("Source graph builder has been closed.")
+            GB_check_open(<GraphBuilder>source)
             if (<GraphBuilder>source)._state != CAPTURE_ENDED:
                 raise ValueError("Graph has not finished building.")
             h_source = (<GraphBuilder>source)._h_graph
         elif isinstance(source, GraphDefinition):
+            GD_check_valid(<GraphDefinition>source)
             h_source = (<GraphDefinition>source)._h_graph
         else:
             raise TypeError(
@@ -1173,8 +1192,10 @@ cdef class Graph:
             The stream in which to upload the graph
 
         """
+        Graph_check_open(self)
+        cdef Stream s = Stream_accept(stream)
         cdef cydriver.CUgraphExec c_exec = as_cu(self._h_graph_exec)
-        cdef cydriver.CUstream c_stream = <cydriver.CUstream><intptr_t>int(stream.handle)
+        cdef cydriver.CUstream c_stream = as_cu(s._h_stream)
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphUpload(c_exec, c_stream))
 
@@ -1187,7 +1208,15 @@ cdef class Graph:
             The stream in which to launch the graph.
 
         """
+        Graph_check_open(self)
+        cdef Stream s = Stream_accept(stream)
         cdef cydriver.CUgraphExec c_exec = as_cu(self._h_graph_exec)
-        cdef cydriver.CUstream c_stream = <cydriver.CUstream><intptr_t>int(stream.handle)
+        cdef cydriver.CUstream c_stream = as_cu(s._h_stream)
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphLaunch(c_exec, c_stream))
+
+
+cdef int Graph_check_open(Graph self) except -1:
+    if not self._h_graph_exec:
+        raise RuntimeError("Graph has been closed")
+    return 0

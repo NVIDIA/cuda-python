@@ -347,6 +347,9 @@ cdef class GraphicsResource:
         """The raw ``CUgraphicsResource`` handle as a Python int."""
         return as_intptr(self._handle)
 
+    def __bool__(self) -> bool:
+        return self._handle.get() != NULL
+
     @property
     def resource_handle(self) -> int:
         """Alias for :attr:`handle`."""

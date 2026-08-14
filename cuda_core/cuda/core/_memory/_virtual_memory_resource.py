@@ -229,6 +229,10 @@ class VirtualMemoryResource(MemoryResource):
         Buffer
             The same buffer with updated size and properties, preserving the original pointer
         """
+        if not isinstance(buf, Buffer):
+            raise TypeError(f"buf must be a Buffer, got {type(buf).__name__}")
+        if not buf:
+            raise RuntimeError("Buffer has been closed")
         if config is not None:
             self.config = config
 

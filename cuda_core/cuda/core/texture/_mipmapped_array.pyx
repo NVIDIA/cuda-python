@@ -108,6 +108,7 @@ cdef class MipmappedArray:
             returned :class:`OpaqueArray`; the underlying storage is released only
             when this :class:`MipmappedArray` is destroyed.
         """
+        MipmappedArray_check_open(self)
         lvl = int(level)
         if lvl < 0:
             raise ValueError(f"level must be >= 0, got {lvl}")
@@ -128,6 +129,9 @@ cdef class MipmappedArray:
     def handle(self):
         """The underlying ``CUmipmappedArray`` as an integer."""
         return as_intptr(self._handle)
+
+    def __bool__(self) -> bool:
+        return self._handle.get() != NULL
 
     @property
     def shape(self):
@@ -184,6 +188,12 @@ cdef class MipmappedArray:
             f"num_channels={self._num_channels}, "
             f"num_levels={self._num_levels})"
         )
+
+
+cdef int MipmappedArray_check_open(MipmappedArray self) except -1:
+    if not self._handle:
+        raise RuntimeError("MipmappedArray has been closed")
+    return 0
 
 
 def _create_mipmapped_array(options):
