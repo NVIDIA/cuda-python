@@ -137,6 +137,8 @@ set(_cuda_core_modules
   _layout
   _linker
   _memory/_buffer
+  _memory/_copy_attributes
+  _memory/_copy_ops
   _memory/_device_memory_resource
   _memory/_graph_memory_resource
   _memory/_ipc
