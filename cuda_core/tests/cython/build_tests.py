@@ -2,12 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 """Build cuda_core Cython test extensions in-place.
 
-pixi-build's editable install exposes the `cuda` namespace package via a
-PEP 660 finder hook. Python's import machinery honors the hook, but
-Cython's filesystem .pxd resolver only walks real directories on sys.path,
-so `cimport cuda.bindings.*` fails to locate the .pxd files. We resolve
-the namespace package's source root from `cuda.bindings.__file__` and pass
-it via `include_path=` so cythonize finds the .pxd tree on every platform.
+The build intentionally provides no explicit Cython include path. Editable
+installs must expose their ``.pxd`` trees through physical ``sys.path`` entries
+so downstream Cython consumers work without repository-specific setup.
 """
 
 from __future__ import annotations
@@ -19,18 +16,6 @@ from pathlib import Path
 from Cython.Build import cythonize
 from setuptools import setup
 
-import cuda.bindings
-
-
-def _bindings_source_root() -> Path:
-    # cuda.bindings.__file__ -> .../<root>/cuda/bindings/__init__.py
-    root = Path(cuda.bindings.__file__).resolve().parents[2]
-    if not (root / "cuda" / "bindings").is_dir():
-        raise RuntimeError(
-            f"cuda.bindings source tree not found at {root}; pixi-build editable install layout may have changed."
-        )
-    return root
-
 
 def main() -> None:
     script_dir = Path(__file__).resolve().parent
@@ -41,7 +26,6 @@ def main() -> None:
     ext_modules = cythonize(
         pyx_files,
         language_level=3,
-        include_path=[str(_bindings_source_root())],
         compiler_directives={"freethreading_compatible": True},
     )
 

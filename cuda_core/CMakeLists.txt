@@ -14,19 +14,16 @@ find_package(
 find_package(Cython 3.2.5...<3.3 MODULE REQUIRED)
 include(UseCython)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 set(CUDA_CORE_CUDA_ROOT "" CACHE PATH "CUDA Toolkit root used to compile cuda-core")
 set(CUDA_CORE_BUILD_MAJOR "" CACHE STRING "CUDA major version for Cython compile-time conditionals")
+set(CUDA_BINDINGS_CYTHON_ROOT "" CACHE PATH "Optional physical cuda-bindings package root for Cython")
 set(CUDA_PYTHON_COVERAGE "$ENV{CUDA_PYTHON_COVERAGE}" CACHE STRING "Build Cython line tracing support")
 
 if(NOT CUDA_CORE_CUDA_ROOT)
-  if(DEFINED ENV{CUDA_HOME} AND NOT "$ENV{CUDA_HOME}" STREQUAL "")
-    set(CUDA_CORE_CUDA_ROOT "$ENV{CUDA_HOME}")
-  elseif(DEFINED ENV{CUDA_PATH} AND NOT "$ENV{CUDA_PATH}" STREQUAL "")
+  if(DEFINED ENV{CUDA_PATH} AND NOT "$ENV{CUDA_PATH}" STREQUAL "")
     set(CUDA_CORE_CUDA_ROOT "$ENV{CUDA_PATH}")
+  elseif(DEFINED ENV{CUDA_HOME} AND NOT "$ENV{CUDA_HOME}" STREQUAL "")
+    set(CUDA_CORE_CUDA_ROOT "$ENV{CUDA_HOME}")
   endif()
 endif()
 if(NOT CUDA_CORE_CUDA_ROOT)
@@ -39,36 +36,35 @@ if(NOT EXISTS "${_cuda_header}")
   message(FATAL_ERROR "CUDA header not found: ${_cuda_header}")
 endif()
 
-if(NOT CUDA_CORE_BUILD_MAJOR)
-  file(STRINGS "${_cuda_header}" _cuda_version_line REGEX "^#[ \t]*define[ \t]+CUDA_VERSION[ \t]+[0-9]+[ \t]*$")
-  if(NOT _cuda_version_line)
-    message(FATAL_ERROR "Cannot determine CUDA major version from ${_cuda_header}; set CUDA_CORE_BUILD_MAJOR")
-  endif()
-  string(REGEX MATCH "[0-9]+" _cuda_version "${_cuda_version_line}")
-  math(EXPR CUDA_CORE_BUILD_MAJOR "${_cuda_version} / 1000")
+file(STRINGS "${_cuda_header}" _cuda_version_line REGEX "^#[ \t]*define[ \t]+CUDA_VERSION[ \t]+[0-9]+[ \t]*$")
+if(NOT _cuda_version_line)
+  message(FATAL_ERROR "Cannot determine CUDA major version from ${_cuda_header}")
 endif()
-if(NOT CUDA_CORE_BUILD_MAJOR MATCHES "^[0-9]+$")
+string(REGEX MATCH "[0-9]+" _cuda_version "${_cuda_version_line}")
+math(EXPR _cuda_header_major "${_cuda_version} / 1000")
+
+if("${CUDA_CORE_BUILD_MAJOR}" STREQUAL "")
+  set(CUDA_CORE_BUILD_MAJOR "${_cuda_header_major}")
+elseif(NOT CUDA_CORE_BUILD_MAJOR MATCHES "^[0-9]+$")
   message(FATAL_ERROR "CUDA_CORE_BUILD_MAJOR must be an integer, got ${CUDA_CORE_BUILD_MAJOR}")
+elseif(NOT "${CUDA_CORE_BUILD_MAJOR}" STREQUAL "${_cuda_header_major}")
+  message(
+    FATAL_ERROR
+    "CUDA_CORE_BUILD_MAJOR=${CUDA_CORE_BUILD_MAJOR} does not match CUDA ${_cuda_header_major} "
+    "reported by ${_cuda_header}"
+  )
 endif()
 message(STATUS "Building cuda-core for CUDA ${CUDA_CORE_BUILD_MAJOR} using ${CUDA_CORE_CUDA_ROOT}")
 
-execute_process(
-  COMMAND
-    "${Python_EXECUTABLE}" -c
-    "from pathlib import Path; import cuda.bindings; print(Path(cuda.bindings.__file__).resolve().parents[2])"
-  RESULT_VARIABLE _cuda_bindings_result
-  OUTPUT_VARIABLE _cuda_bindings_package_root
-  ERROR_VARIABLE _cuda_bindings_error
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-if(NOT _cuda_bindings_result STREQUAL "0" OR NOT EXISTS "${_cuda_bindings_package_root}/cuda/bindings")
-  message(
-    FATAL_ERROR
-    "Could not resolve the physical cuda.bindings package root needed by Cython. "
-    "Ensure the CUDA-major-compatible cuda-bindings build dependency is installed.\n${_cuda_bindings_error}"
-  )
+if(CUDA_BINDINGS_CYTHON_ROOT)
+  cmake_path(ABSOLUTE_PATH CUDA_BINDINGS_CYTHON_ROOT NORMALIZE)
+  if(NOT EXISTS "${CUDA_BINDINGS_CYTHON_ROOT}/cuda/bindings/cydriver.pxd")
+    message(
+      FATAL_ERROR
+      "CUDA_BINDINGS_CYTHON_ROOT=${CUDA_BINDINGS_CYTHON_ROOT} does not contain cuda/bindings/cydriver.pxd"
+    )
+  endif()
 endif()
-message(STATUS "Using cuda-bindings Cython declarations from ${_cuda_bindings_package_root}")
 
 if(WIN32)
   execute_process(
@@ -98,7 +94,6 @@ endif()
 
 set(_cuda_core_source_root "${CMAKE_CURRENT_SOURCE_DIR}/cuda/core")
 set(_cython_common_args
-  --cplus
   -3
   -Werror
   -X embedsignature=True
@@ -106,19 +101,89 @@ set(_cython_common_args
   -X freethreading_compatible=True
   -E CUDA_CORE_BUILD_MAJOR=${CUDA_CORE_BUILD_MAJOR}
   -I "${CMAKE_CURRENT_SOURCE_DIR}"
-  -I "${_cuda_bindings_package_root}"
   ${_coverage_directive}
 )
+if(CUDA_BINDINGS_CYTHON_ROOT)
+  list(APPEND _cython_common_args -I "${CUDA_BINDINGS_CYTHON_ROOT}")
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT WIN32)
   list(APPEND _cython_common_args --gdb)
 endif()
 
-file(
-  GLOB_RECURSE _cuda_core_pyx_files
-  CONFIGURE_DEPENDS
-  RELATIVE "${_cuda_core_source_root}"
-  "${_cuda_core_source_root}/*.pyx"
+add_library(cuda_core_extension_settings INTERFACE)
+target_include_directories(
+  cuda_core_extension_settings
+  INTERFACE
+    "${_cuda_core_source_root}"
+    "${_cuda_core_source_root}/_include"
+    "${CUDA_CORE_CUDA_ROOT}/include"
+)
+target_compile_definitions(
+  cuda_core_extension_settings
+  INTERFACE
+    "$<$<AND:$<CONFIG:Debug>,$<PLATFORM_ID:Linux>,$<CXX_COMPILER_ID:GNU,Clang>>:_GLIBCXX_ASSERTIONS>"
+)
+if(CUDA_PYTHON_COVERAGE)
+  target_compile_definitions(
+    cuda_core_extension_settings
+    INTERFACE
+      CYTHON_TRACE_NOGIL=1
+      CYTHON_USE_SYS_MONITORING=0
+  )
+endif()
+if(WIN32 AND _python_freethreaded)
+  # Windows shares Python headers between GIL and free-threaded builds, so
+  # extension builds must supply the ABI selection macro themselves.
+  target_compile_definitions(cuda_core_extension_settings INTERFACE Py_GIL_DISABLED=1)
+endif()
+
+set(_cuda_core_modules
+  _context
+  _device
+  _device_resources
+  _dlpack
+  _event
+  _graphics
+  _kernel_arg_handler
+  _launch_config
+  _launcher
+  _layout
+  _linker
+  _memory/_buffer
+  _memory/_device_memory_resource
+  _memory/_graph_memory_resource
+  _memory/_ipc
+  _memory/_managed_memory_ops
+  _memory/_managed_memory_resource
+  _memory/_memory_pool
+  _memory/_peer_access_utils
+  _memory/_pinned_memory_resource
+  _memoryview
+  _module
+  _program
+  _resource_handles
+  _stream
+  _tensor_bridge
+  _tensor_map
+  _utils/_weak_handles
+  _utils/_wsl_locale
+  _utils/cuda_utils
+  _utils/version
+  graph/_adjacency_set_proxy
+  graph/_graph_builder
+  graph/_graph_definition
+  graph/_graph_node
+  graph/_host_callback
+  graph/_subclasses
+  system/_device
+  system/_nvml_context
+  system/_system
+  system/_system_events
+  texture/_array
+  texture/_mipmapped_array
+  texture/_surface
+  texture/_texture
 )
 
 # Stage regular wheels through CMake to keep them independent of ignored,
@@ -147,12 +212,19 @@ if(NOT SKBUILD_STATE STREQUAL "editable")
     )
   endif()
 else()
-  # Cython resolves external .pxd files from physical sys.path entries, not
-  # PEP 660 meta-path finders. Preserve the bindings declaration path for
-  # downstream Cython consumers of an editable cuda-core installation.
+  # Resolve the declarations in the final environment rather than persisting
+  # a potentially temporary path from the isolated editable build environment.
   set(_cuda_bindings_cython_pth "${CMAKE_CURRENT_BINARY_DIR}/_cuda_core_cython_include.pth")
-  file(WRITE "${_cuda_bindings_cython_pth}" "${_cuda_bindings_package_root}\n")
-  install(FILES "${_cuda_bindings_cython_pth}" DESTINATION ".")
+  file(
+    WRITE "${_cuda_bindings_cython_pth}"
+    "import _cuda_core_cython_path; _cuda_core_cython_path.add_editable_cuda_bindings_path()\n"
+  )
+  install(
+    FILES
+      "${CMAKE_CURRENT_SOURCE_DIR}/_cuda_core_cython_path.py"
+      "${_cuda_bindings_cython_pth}"
+    DESTINATION "."
+  )
 endif()
 
 if(MSVC)
@@ -205,10 +277,10 @@ function(cuda_core_add_cython_module module_path)
   )
 
   set(module_sources "${generated_cpp}")
-  string(REGEX REPLACE "^_" "" helper_cpp_path "${module_path}")
-  set(extra_cpp "${_cuda_core_source_root}/_cpp/${helper_cpp_path}.cpp")
-  if(EXISTS "${extra_cpp}")
-    list(APPEND module_sources "${extra_cpp}")
+  if(module_path STREQUAL "_resource_handles")
+    list(APPEND module_sources "${_cuda_core_source_root}/_cpp/resource_handles.cpp")
+  elseif(module_path STREQUAL "_tensor_map")
+    list(APPEND module_sources "${_cuda_core_source_root}/_cpp/tensor_map.cpp")
   endif()
 
   python_add_library("${target_name}" MODULE WITH_SOABI ${module_sources})
@@ -216,46 +288,19 @@ function(cuda_core_add_cython_module module_path)
     "${target_name}"
     PROPERTIES
       ARCHIVE_OUTPUT_DIRECTORY "${module_output_directory}"
+      CXX_STANDARD 17
+      CXX_STANDARD_REQUIRED YES
+      CXX_EXTENSIONS OFF
+      CXX_VISIBILITY_PRESET hidden
       LIBRARY_OUTPUT_DIRECTORY "${module_output_directory}"
       OUTPUT_NAME "${module_filename}"
       RUNTIME_OUTPUT_DIRECTORY "${module_output_directory}"
+      VISIBILITY_INLINES_HIDDEN YES
   )
-  target_include_directories(
-    "${target_name}"
-    PRIVATE
-      "${_cuda_core_source_root}"
-      "${_cuda_core_source_root}/_include"
-      "${_cuda_core_source_root}/_cpp"
-      "${CUDA_CORE_CUDA_ROOT}/include"
-  )
-
-  if(MSVC)
-    target_compile_options("${target_name}" PRIVATE /std:c++17)
-  else()
-    target_compile_options(
-      "${target_name}"
-      PRIVATE
-        $<$<CONFIG:Debug>:-g;-O0>
-        $<$<NOT:$<CONFIG:Debug>>:-O2>
-    )
-    target_compile_definitions("${target_name}" PRIVATE $<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS>)
-    target_link_options("${target_name}" PRIVATE $<$<NOT:$<CONFIG:Debug>>:-Wl,--strip-all>)
-  endif()
+  target_link_libraries("${target_name}" PRIVATE cuda_core_extension_settings)
 
   if(CUDA_PYTHON_COVERAGE)
-    target_compile_definitions(
-      "${target_name}"
-      PRIVATE
-        CYTHON_TRACE_NOGIL=1
-        CYTHON_USE_SYS_MONITORING=0
-    )
     install(FILES "${generated_cpp}" DESTINATION "${install_directory}")
-  endif()
-
-  if(WIN32 AND _python_freethreaded)
-    # Windows shares Python headers between GIL and free-threaded builds, so
-    # extension builds must supply the ABI selection macro themselves.
-    target_compile_definitions("${target_name}" PRIVATE Py_GIL_DISABLED=1)
   endif()
 
   if(MSVC AND module_path STREQUAL "_tensor_bridge")
@@ -266,8 +311,7 @@ function(cuda_core_add_cython_module module_path)
   install(TARGETS "${target_name}" LIBRARY DESTINATION "${install_directory}" RUNTIME DESTINATION "${install_directory}")
 endfunction()
 
-foreach(pyx_file IN LISTS _cuda_core_pyx_files)
-  string(REGEX REPLACE "\\.pyx$" "" module_path "${pyx_file}")
+foreach(module_path IN LISTS _cuda_core_modules)
   if(WIN32 AND module_path STREQUAL "_utils/_wsl_locale")
     continue()
   endif()

@@ -19,6 +19,7 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
+import _cuda_core_cython_path
 import scikit_build_core.build as _build_backend
 
 build_sdist = _build_backend.build_sdist
@@ -195,6 +196,10 @@ def _set_cmake_define(settings: dict[str, Any], name: str, value: str) -> None:
         settings[keys[0]] = value
 
 
+def _has_cmake_define(settings: Mapping[str, Any], name: str) -> bool:
+    return any(key in settings for key in (f"cmake.define.{name}", f"skbuild.cmake.define.{name}"))
+
+
 def _build_config_settings(config_settings: _ConfigSettings, *, editable: bool) -> dict[str, Any]:
     settings = _translate_config_settings(config_settings, editable=editable)
     cuda_root = _configured_cuda_root(settings)
@@ -204,6 +209,12 @@ def _build_config_settings(config_settings: _ConfigSettings, *, editable: bool) 
     _set_cmake_define(settings, "CUDA_CORE_CUDA_ROOT", cuda_root)
     _set_cmake_define(settings, "CUDA_CORE_BUILD_MAJOR", cuda_major)
     _set_cmake_define(settings, "CUDA_PYTHON_COVERAGE", "1" if coverage else "0")
+
+    if not _has_cmake_define(settings, "CUDA_BINDINGS_CYTHON_ROOT"):
+        cython_root = _cuda_core_cython_path.find_cuda_bindings_cython_root()
+        # The build directory is persistent, so explicitly clear a root cached
+        # by an earlier editable build when the current environment needs none.
+        _set_cmake_define(settings, "CUDA_BINDINGS_CYTHON_ROOT", cython_root or "")
     return settings
 
 

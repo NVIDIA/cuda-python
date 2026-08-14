@@ -17,6 +17,7 @@ These tests require scikit-build-core to be installed (build_hooks.py wraps it).
 """
 
 import importlib.util
+import json
 import os
 import sys
 import tempfile
@@ -40,9 +41,23 @@ def _load_build_hooks():
     that could shadow the installed package).
     """
     build_hooks_path = Path(__file__).parent.parent / "build_hooks.py"
+    helper_name = "_cuda_core_cython_path"
+    helper_path = build_hooks_path.with_name(f"{helper_name}.py")
+    helper_spec = importlib.util.spec_from_file_location(helper_name, helper_path)
+    helper_module = importlib.util.module_from_spec(helper_spec)
+    previous_helper = sys.modules.get(helper_name)
+    sys.modules[helper_name] = helper_module
+    helper_spec.loader.exec_module(helper_module)
+
     spec = importlib.util.spec_from_file_location("build_hooks", build_hooks_path)
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if previous_helper is None:
+            del sys.modules[helper_name]
+        else:
+            sys.modules[helper_name] = previous_helper
     return module
 
 
@@ -111,16 +126,179 @@ def test_debug_build_is_rejected_on_windows(monkeypatch):
 def test_build_config_forwards_cuda_and_coverage(monkeypatch):
     monkeypatch.setattr(build_hooks, "_configured_cuda_root", lambda _settings: "/cuda")
     monkeypatch.setattr(build_hooks, "_configured_cuda_major", lambda _settings: "13")
+    bindings_root = mock.Mock(return_value=None)
+    monkeypatch.setattr(build_hooks._cuda_core_cython_path, "find_cuda_bindings_cython_root", bindings_root)
     monkeypatch.setenv("CUDA_PYTHON_COVERAGE", "1")
 
-    settings = build_hooks._build_config_settings({"debug": "false"}, editable=False)
+    settings = build_hooks._build_config_settings(
+        {
+            "debug": "false",
+            "cmake.define.CUDA_BINDINGS_CYTHON_ROOT": "/bindings",
+            "cmake.define.SENTINEL": "value",
+        },
+        editable=False,
+    )
 
     assert settings == {
         "cmake.build-type": "Release",
+        "cmake.define.CUDA_BINDINGS_CYTHON_ROOT": "/bindings",
+        "cmake.define.SENTINEL": "value",
         "cmake.define.CUDA_CORE_CUDA_ROOT": "/cuda",
         "cmake.define.CUDA_CORE_BUILD_MAJOR": "13",
         "cmake.define.CUDA_PYTHON_COVERAGE": "1",
     }
+    bindings_root.assert_not_called()
+
+
+class _DirectUrlDistribution:
+    def __init__(self, direct_url):
+        self._direct_url = direct_url
+
+    def read_text(self, filename):
+        assert filename == "direct_url.json"
+        return self._direct_url if isinstance(self._direct_url, str) else json.dumps(self._direct_url)
+
+
+def _write_bindings_declaration(root):
+    declaration = root / "cuda" / "bindings" / "cydriver.pxd"
+    declaration.parent.mkdir(parents=True)
+    declaration.touch()
+
+
+def _mock_cuda_build_settings(monkeypatch):
+    monkeypatch.setattr(build_hooks, "_configured_cuda_root", lambda _settings: "/cuda")
+    monkeypatch.setattr(build_hooks, "_configured_cuda_major", lambda _settings: "13")
+    monkeypatch.setenv("CUDA_PYTHON_COVERAGE", "0")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_physical_bindings_wheel_clears_cached_cmake_root(tmp_path, monkeypatch):
+    site_packages = tmp_path / "site-packages"
+    _write_bindings_declaration(site_packages)
+    monkeypatch.setattr(sys, "path", [str(site_packages)])
+    _mock_cuda_build_settings(monkeypatch)
+
+    settings = build_hooks._build_config_settings({}, editable=False)
+
+    assert settings["cmake.define.CUDA_BINDINGS_CYTHON_ROOT"] == ""
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_editable_meta_finder_passes_verified_physical_roots(tmp_path, monkeypatch):
+    project_root = tmp_path / "cuda-bindings"
+    source_root = project_root / "src"
+    _write_bindings_declaration(source_root)
+    direct_url = {
+        "url": project_root.as_uri(),
+        "dir_info": {"editable": True},
+    }
+    find_spec = mock.Mock(
+        return_value=mock.Mock(
+            origin=str(source_root / "cuda" / "bindings" / "__init__.py"),
+            submodule_search_locations=[str(source_root / "cuda" / "bindings")],
+        )
+    )
+    monkeypatch.setattr(sys, "path", [str(tmp_path / "build-site-packages")])
+    monkeypatch.setattr(
+        build_hooks._cuda_core_cython_path.importlib.metadata,
+        "distribution",
+        lambda _name: _DirectUrlDistribution(direct_url),
+    )
+    monkeypatch.setattr(build_hooks._cuda_core_cython_path.importlib.util, "find_spec", find_spec)
+    _mock_cuda_build_settings(monkeypatch)
+
+    expected = str(source_root.resolve())
+    settings = build_hooks._build_config_settings({}, editable=True)
+
+    assert settings["cmake.define.CUDA_BINDINGS_CYTHON_ROOT"] == expected
+    find_spec.assert_called_once_with("cuda.bindings")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_editable_runtime_exposes_bindings_source_root(tmp_path, monkeypatch):
+    source_root = tmp_path / "cuda-bindings"
+    _write_bindings_declaration(source_root)
+    direct_url = {
+        "url": source_root.as_uri(),
+        "dir_info": {"editable": True},
+    }
+    runtime_sys_path = [str(tmp_path / "site-packages")]
+    monkeypatch.setattr(sys, "path", runtime_sys_path)
+    monkeypatch.setattr(
+        build_hooks._cuda_core_cython_path.importlib.metadata,
+        "distribution",
+        lambda _name: _DirectUrlDistribution(direct_url),
+    )
+
+    build_hooks._cuda_core_cython_path.add_editable_cuda_bindings_path()
+
+    assert sys.path == [runtime_sys_path[0], str(source_root.resolve())]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_editable_runtime_uses_spec_without_direct_url(tmp_path, monkeypatch):
+    source_root = tmp_path / "cuda-bindings"
+    _write_bindings_declaration(source_root)
+    runtime_sys_path = [str(tmp_path / "site-packages")]
+    find_spec = mock.Mock(
+        return_value=mock.Mock(
+            origin=str(source_root / "cuda" / "bindings" / "__init__.py"),
+            submodule_search_locations=[str(source_root / "cuda" / "bindings")],
+        )
+    )
+    distribution = mock.Mock()
+    distribution.read_text.return_value = None
+    monkeypatch.setattr(sys, "path", runtime_sys_path)
+    monkeypatch.setattr(
+        build_hooks._cuda_core_cython_path.importlib.metadata,
+        "distribution",
+        lambda _name: distribution,
+    )
+    monkeypatch.setattr(build_hooks._cuda_core_cython_path.importlib.util, "find_spec", find_spec)
+
+    build_hooks._cuda_core_cython_path.add_editable_cuda_bindings_path()
+
+    assert sys.path == [runtime_sys_path[0], str(source_root.resolve())]
+    find_spec.assert_called_once_with("cuda.bindings")
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_editable_build_does_not_persist_regular_wheel_root(tmp_path, monkeypatch):
+    site_packages = tmp_path / "site-packages"
+    _write_bindings_declaration(site_packages)
+    direct_url = {
+        "url": site_packages.as_uri(),
+        "dir_info": {"editable": False},
+    }
+    monkeypatch.setattr(sys, "path", [str(site_packages)])
+    monkeypatch.setattr(
+        build_hooks._cuda_core_cython_path.importlib.metadata,
+        "distribution",
+        lambda _name: _DirectUrlDistribution(direct_url),
+    )
+    _mock_cuda_build_settings(monkeypatch)
+
+    settings = build_hooks._build_config_settings({}, editable=True)
+    build_hooks._cuda_core_cython_path.add_editable_cuda_bindings_path()
+
+    assert settings["cmake.define.CUDA_BINDINGS_CYTHON_ROOT"] == ""
+    assert sys.path == [str(site_packages)]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_editable_runtime_warns_on_invalid_bindings_metadata(tmp_path, monkeypatch):
+    runtime_sys_path = [str(tmp_path / "site-packages")]
+    monkeypatch.setattr(sys, "path", runtime_sys_path)
+    monkeypatch.setattr(
+        build_hooks._cuda_core_cython_path.importlib.metadata,
+        "distribution",
+        lambda _name: _DirectUrlDistribution("{"),
+    )
+
+    with pytest.warns(RuntimeWarning, match="invalid direct_url.json"):
+        build_hooks._cuda_core_cython_path.add_editable_cuda_bindings_path()
+
+    assert sys.path == runtime_sys_path
 
 
 def _check_version_detection(
