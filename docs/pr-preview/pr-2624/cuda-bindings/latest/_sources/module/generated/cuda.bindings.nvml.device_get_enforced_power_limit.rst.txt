@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_enforced\_power\_limit
+======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_enforced_power_limit
