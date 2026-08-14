@@ -16,6 +16,10 @@ Pass the scikit-build-core configuration option `-Ccmake.build-type=Debug` to
 build debuggable binaries explicitly.
 Debuggable binaries are built by default for editable builds.
 
+The legacy `-Cdebug=True` option remains supported for compatibility throughout
+the 1.x release series, but emits a deprecation warning and will be removed in
+cuda.core 2.0.
+
 Debuggable builds are not supported on Windows.
 
 ## Testing

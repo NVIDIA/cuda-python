@@ -13,15 +13,13 @@ from __future__ import annotations
 
 import os
 import re
+import warnings
+from collections.abc import Mapping
 
 import scikit_build_core.build as _build_backend
 
-build_wheel = _build_backend.build_wheel
-build_editable = _build_backend.build_editable
-build_sdist = _build_backend.build_sdist
-prepare_metadata_for_build_wheel = _build_backend.prepare_metadata_for_build_wheel
-prepare_metadata_for_build_editable = _build_backend.prepare_metadata_for_build_editable
-get_requires_for_build_sdist = _build_backend.get_requires_for_build_sdist
+_ConfigSettings = Mapping[str, str | list[str] | bool] | None
+_BUILD_TYPE_SETTINGS = ("cmake.build-type", "skbuild.cmake.build-type")
 
 
 def _get_cuda_path() -> str:
@@ -68,9 +66,78 @@ def _get_cuda_bindings_require() -> list[str]:
     return [f"cuda-bindings=={cuda_major}.*"]
 
 
+def _translate_legacy_debug(config_settings: _ConfigSettings, *, warn: bool = False) -> _ConfigSettings:
+    if config_settings is None or "debug" not in config_settings:
+        return config_settings
+
+    settings = dict(config_settings)
+    debug = settings.pop("debug")
+    if warn:
+        warnings.warn(
+            "The 'debug' build config setting is deprecated and will be removed in "
+            "cuda.core 2.0; use 'cmake.build-type=Debug' or "
+            "'cmake.build-type=Release' instead.",
+            FutureWarning,
+            stacklevel=3,
+        )
+
+    if any(key in settings for key in _BUILD_TYPE_SETTINGS):
+        return settings
+
+    if isinstance(debug, list):
+        if not debug:
+            raise ValueError("debug must have a value")
+        debug = debug[-1]
+    if isinstance(debug, bool):
+        debug_enabled = debug
+    else:
+        normalized = debug.strip().lower()
+        if normalized in {"1", "true", "on", "yes", "y"}:
+            debug_enabled = True
+        elif normalized in {"0", "false", "off", "no", "n"}:
+            debug_enabled = False
+        else:
+            raise ValueError(f"debug must be a boolean value, got {debug!r}")
+
+    settings["cmake.build-type"] = "Debug" if debug_enabled else "Release"
+    return settings
+
+
+def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.prepare_metadata_for_build_wheel(metadata_directory, settings)
+
+
+def prepare_metadata_for_build_editable(metadata_directory, config_settings=None):
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.prepare_metadata_for_build_editable(metadata_directory, settings)
+
+
+def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
+    settings = _translate_legacy_debug(config_settings, warn=True)
+    return _build_backend.build_wheel(wheel_directory, settings, metadata_directory)
+
+
+def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
+    settings = _translate_legacy_debug(config_settings, warn=True)
+    return _build_backend.build_editable(wheel_directory, settings, metadata_directory)
+
+
+def build_sdist(sdist_directory, config_settings=None):
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.build_sdist(sdist_directory, settings)
+
+
 def get_requires_for_build_wheel(config_settings=None):
-    return _build_backend.get_requires_for_build_wheel(config_settings) + _get_cuda_bindings_require()
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.get_requires_for_build_wheel(settings) + _get_cuda_bindings_require()
 
 
 def get_requires_for_build_editable(config_settings=None):
-    return _build_backend.get_requires_for_build_editable(config_settings) + _get_cuda_bindings_require()
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.get_requires_for_build_editable(settings) + _get_cuda_bindings_require()
+
+
+def get_requires_for_build_sdist(config_settings=None):
+    settings = _translate_legacy_debug(config_settings)
+    return _build_backend.get_requires_for_build_sdist(settings)

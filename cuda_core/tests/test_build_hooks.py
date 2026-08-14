@@ -19,6 +19,7 @@ These tests require scikit-build-core to be installed (build_hooks.py wraps it).
 import importlib.util
 import os
 import tempfile
+import warnings
 from pathlib import Path
 from unittest import mock
 
@@ -63,22 +64,90 @@ def test_binary_build_requirements_include_matching_bindings(monkeypatch, hook_n
 
     assert requirements == ["backend-requirement", "cuda-bindings==13.*"]
     backend_hook.assert_called_once_with(config_settings)
+    assert backend_hook.call_args.args[0] is config_settings
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.parametrize(
-    "hook_name",
+    ("hook_name", "args", "config_index"),
     [
-        "build_wheel",
-        "build_editable",
-        "build_sdist",
-        "prepare_metadata_for_build_wheel",
-        "prepare_metadata_for_build_editable",
-        "get_requires_for_build_sdist",
+        pytest.param("get_requires_for_build_wheel", (), 0, id="wheel-requirements"),
+        pytest.param("get_requires_for_build_editable", (), 0, id="editable-requirements"),
+        pytest.param("get_requires_for_build_sdist", (), 0, id="sdist-requirements"),
+        pytest.param("prepare_metadata_for_build_wheel", ("metadata",), 1, id="wheel-metadata"),
+        pytest.param("prepare_metadata_for_build_editable", ("metadata",), 1, id="editable-metadata"),
+        pytest.param("build_wheel", ("dist", "metadata"), 1, id="wheel-build"),
+        pytest.param("build_editable", ("dist", "metadata"), 1, id="editable-build"),
+        pytest.param("build_sdist", ("dist",), 1, id="sdist-build"),
     ],
 )
-def test_non_requirement_hooks_are_delegated_directly(hook_name):
-    assert getattr(build_hooks, hook_name) is getattr(build_hooks._build_backend, hook_name)
+def test_legacy_debug_is_translated_for_pep517_hooks(monkeypatch, hook_name, args, config_index):
+    is_requirements_hook = hook_name.startswith("get_requires")
+    backend_result = ["backend-requirement"] if is_requirements_hook else "artifact"
+    backend_hook = mock.Mock(return_value=backend_result)
+    monkeypatch.setattr(build_hooks._build_backend, hook_name, backend_hook)
+    determine_cuda_major = mock.Mock(return_value="13")
+    monkeypatch.setattr(build_hooks, "_determine_cuda_major_version", determine_cuda_major)
+    config_settings = {"debug": "true", "cmake.define.SENTINEL": "value"}
+    call_args = list(args)
+    call_args.insert(config_index, config_settings)
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        result = getattr(build_hooks, hook_name)(*call_args)
+
+    expected_args = list(args)
+    expected_args.insert(
+        config_index,
+        {"cmake.build-type": "Debug", "cmake.define.SENTINEL": "value"},
+    )
+    backend_hook.assert_called_once_with(*expected_args)
+    adds_cuda_requirement = hook_name in {
+        "get_requires_for_build_wheel",
+        "get_requires_for_build_editable",
+    }
+    expected_result = ["backend-requirement", "cuda-bindings==13.*"] if adds_cuda_requirement else backend_result
+    assert result == expected_result
+    assert config_settings == {"debug": "true", "cmake.define.SENTINEL": "value"}
+    assert determine_cuda_major.call_count == int(adds_cuda_requirement)
+
+    if hook_name in {"build_wheel", "build_editable"}:
+        assert len(caught) == 1
+        assert caught[0].category is FutureWarning
+        assert "removed in cuda.core 2.0" in str(caught[0].message)
+    else:
+        assert caught == []
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize(
+    ("debug", "expected"),
+    [
+        pytest.param(True, "Debug", id="bool-true"),
+        pytest.param(False, "Release", id="bool-false"),
+        pytest.param("TRUE", "Debug", id="string-true"),
+        pytest.param("off", "Release", id="string-false"),
+        pytest.param(["false", "yes"], "Debug", id="repeated-last-value"),
+    ],
+)
+def test_legacy_debug_values(debug, expected):
+    assert build_hooks._translate_legacy_debug({"debug": debug}) == {"cmake.build-type": expected}
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize("native_setting", ["cmake.build-type", "skbuild.cmake.build-type"])
+def test_native_build_type_precedes_legacy_debug(native_setting):
+    config_settings = {"debug": "not-a-boolean", native_setting: "RelWithDebInfo"}
+
+    assert build_hooks._translate_legacy_debug(config_settings) == {native_setting: "RelWithDebInfo"}
+    assert config_settings == {"debug": "not-a-boolean", native_setting: "RelWithDebInfo"}
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+@pytest.mark.parametrize("debug", ["maybe", []])
+def test_invalid_legacy_debug_value_is_rejected(debug):
+    with pytest.raises(ValueError, match="debug must"):
+        build_hooks._translate_legacy_debug({"debug": debug})
 
 
 def _check_version_detection(
