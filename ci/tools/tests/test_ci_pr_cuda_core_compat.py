@@ -36,7 +36,7 @@ def test_cuda_core_job(ci_yml_text: str) -> str:
 @pytest.mark.agent_authored(model="composer-2.5-fast")
 def test_pr_ci_defines_released_cuda_core_job(test_cuda_core_job: str) -> None:
     assert "test-mode: nightly-cuda-core" in test_cuda_core_job
-    assert 'matrix_filter: \'map(select(.ENV.MODE == "nightly-cuda-core"))\'' in test_cuda_core_job
+    assert "matrix_filter: 'map(select(.ENV.MODE == \"nightly-cuda-core\"))'" in test_cuda_core_job
     assert "build-type: nightly" in test_cuda_core_job
     assert "host-platform: linux-64" in test_cuda_core_job
 
