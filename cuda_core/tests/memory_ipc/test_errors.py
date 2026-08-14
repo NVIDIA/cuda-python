@@ -72,6 +72,7 @@ def test_register_rejects_non_ipc_memory_resource(mempool_device):
         DeviceMemoryResource.from_registry(key)
 
 
+@pytest.mark.skipif(os.name == "nt", reason="IPC allocation handles are not supported on Windows")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_ipc_allocation_handle_truth_tracks_close():
     read_fd, write_fd = os.pipe()
