@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e781bd4b"></script>
+    <script src="../_static/documentation_options.js?v=2c082d86"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev64';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -900,6 +900,8 @@ asynchronous copy</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">MemoryResource</span> <span class="pre">mr:</span> <span class="pre">MemoryResource</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">owner:</span> <span class="pre">object</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.from_handle" title="Link to this definition">#</a></dt>
@@ -915,6 +917,12 @@ closed or garbage collected.</p></li>
 <li><p><strong>owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – An object holding external allocation that the <code class="docutils literal notranslate"><span class="pre">ptr</span></code> points to.
 The reference is kept as long as the buffer is alive.
 The <code class="docutils literal notranslate"><span class="pre">owner</span></code> and <code class="docutils literal notranslate"><span class="pre">mr</span></code> cannot be specified together.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – Keyword-only. The stream used to order the buffer’s deallocation
+when <code class="docutils literal notranslate"><span class="pre">mr</span></code> owns the pointer. Defaults to <code class="docutils literal notranslate"><span class="pre">default_stream()</span></code>.
+Recording a default-stream token requires a CUDA context to be
+current. If the buffer may be freed from a different host thread,
+pass a stream other than the per-thread default stream, which
+refers to a different stream on each thread.</p></li>
 </ul>
 </dd>
 </dl>

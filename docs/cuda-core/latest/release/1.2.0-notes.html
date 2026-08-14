@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e781bd4b"></script>
+    <script src="../_static/documentation_options.js?v=2c082d86"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev63';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev64';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -777,6 +777,22 @@ are rejected. Copies within a batch must not alias.
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>A <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is now freed correctly even when the CUDA context current
+at teardown is not the one it was allocated in, or when no context is current
+at all. This happens routinely when a buffer is released by the garbage
+collector on another thread or by deferred CUDA graph cleanup; previously the
+free could fail or be skipped, leaking the allocation.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2497">#2497</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_handle" title="cuda.core.Buffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a> and <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.from_handle" title="cuda.core.ManagedBuffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ManagedBuffer.from_handle()</span></code></a> accept a
+keyword-only <code class="docutils literal notranslate"><span class="pre">stream</span></code> that records the stream used to order the buffer’s
+deallocation when the memory resource owns the pointer. It defaults to
+<code class="docutils literal notranslate"><span class="pre">default_stream()</span></code>, which requires a CUDA context to be current so the
+free recipe can pin that context.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2497">#2497</a>)</p></li>
+<li><p>Explicit calls to <code class="docutils literal notranslate"><span class="pre">deallocate()</span></code> on pool-backed memory resources and
+<a class="reference internal" href="../generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a> now propagate errors from the underlying CUDA
+free operation. Previously, these errors could be suppressed. Automatic
+buffer cleanup remains non-raising and reports failures as warnings.</p></li>
 <li><p>Graph node resources are now retained independently across graph clones,
 executable graphs, updates, node deletion, and in-flight launches. Previously,
 modifying a graph definition could release resources still used by an
