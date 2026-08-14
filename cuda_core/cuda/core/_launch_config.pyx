@@ -20,7 +20,31 @@ _LAUNCH_CONFIG_ATTRS = (
     'shmem_size',
     'is_cooperative',
     'programmatic_stream_serialization',
+    'synchronization_policy',
 )
+
+
+cdef object _validate_synchronization_policy(object policy):
+    from cuda.core.typing import SynchronizationPolicyType
+
+    if policy is None:
+        return None
+    if isinstance(policy, SynchronizationPolicyType):
+        return policy
+    try:
+        value = int(policy)
+    except (TypeError, ValueError) as exc:
+        raise TypeError(
+            "LaunchConfig.synchronization_policy must be a SynchronizationPolicyType, "
+            f"cuda.bindings.driver.CUsynchronizationPolicy, or int; got {type(policy).__name__}"
+        ) from exc
+    try:
+        return SynchronizationPolicyType(value)
+    except ValueError as exc:
+        raise ValueError(
+            f"LaunchConfig.synchronization_policy must be one of "
+            f"{[member.name for member in SynchronizationPolicyType]}; got {policy!r}"
+        ) from exc
 
 __all__ = ['LaunchConfig']
 
@@ -59,6 +83,9 @@ cdef class LaunchConfig:
         Whether to allow programmatic stream serialization (PDL). When True,
         the kernel may overlap with a previous kernel in the same stream that
         signals completion via programmatic means.
+    synchronization_policy : SynchronizationPolicyType | None, optional
+        CPU wait policy applied when synchronizing the launch stream after this
+        kernel. Maps to ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY``.
     """
 
     # TODO: expand LaunchConfig to include other attributes
@@ -72,6 +99,7 @@ cdef class LaunchConfig:
         shmem_size: int | None = None,
         is_cooperative: bool = False,
         programmatic_stream_serialization: bool = False,
+        synchronization_policy: object = None,
     ) -> None:
         """Initialize LaunchConfig with validation.
 
@@ -89,6 +117,8 @@ cdef class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         programmatic_stream_serialization : bool, optional
             Whether to allow programmatic stream serialization / PDL (default: False)
+        synchronization_policy : SynchronizationPolicyType | None, optional
+            CPU wait policy for synchronizing the launch stream (default: None)
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
@@ -116,6 +146,7 @@ cdef class LaunchConfig:
 
         self.is_cooperative = is_cooperative
         self.programmatic_stream_serialization = programmatic_stream_serialization
+        self.synchronization_policy = _validate_synchronization_policy(synchronization_policy)
 
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
@@ -167,6 +198,11 @@ cdef class LaunchConfig:
         if self.programmatic_stream_serialization:
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
             attr.value.programmaticStreamSerializationAllowed = 1
+            self._attrs.push_back(attr)
+
+        if self.synchronization_policy is not None:
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
+            attr.value.syncPolicy = <cydriver.CUsynchronizationPolicy>int(self.synchronization_policy)
             self._attrs.push_back(attr)
 
         drv_cfg.numAttrs = self._attrs.size()
@@ -228,6 +264,12 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
         attr.value.programmaticStreamSerializationAllowed = 1
+        attrs.append(attr)
+
+    if config.synchronization_policy is not None:
+        attr = driver.CUlaunchAttribute()
+        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
+        attr.value.syncPolicy = int(config.synchronization_policy)
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)
