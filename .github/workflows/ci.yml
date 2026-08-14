@@ -424,6 +424,7 @@ jobs:
       cuda-channel: ${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       single-cuda-major: true
+      test-python-version: '3.13'
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
   # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by
@@ -538,6 +539,25 @@ jobs:
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
+  test-windows-arm64:
+    name: Test win-arm64
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) && needs.ci-vars.outputs.CUDA_BUILD_CHANNEL == 'prerelease' }}
+    permissions:
+      actions: read
+      contents: read  # This is required for actions/checkout
+    needs:
+      - ci-vars
+      - should-skip
+      - build-linux-64
+      - build-windows-arm64
+    uses: ./.github/workflows/test-wheel-windows.yml
+    with:
+      build-type: pull-request
+      host-platform: win-arm64
+      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      build-ctk-channel: ${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}
+      test-bindings-ptds: true
+
   doc:
     name: Docs
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -601,6 +621,7 @@ jobs:
       - test-linux-64
       - test-linux-aarch64
       - test-windows
+      - test-windows-arm64
       - doc
       - precommit-windows
     steps:
@@ -639,12 +660,12 @@ jobs:
           check_result "doc"            "success" "${{ needs.doc.result }}"
           check_result "precommit-windows" "success" "${{ needs.precommit-windows.result }}"
 
-          # [doc-only] skips all builds and tests. Windows preview wheel builds
-          # run, but GPU tests remain skipped until suitable runners are available.
+          # [doc-only] skips all builds and tests.
           if [[ "$doc_only" == "true" ]]; then
             linux_expected="skipped"
             windows_build_expected="skipped"
             windows_arm_build_expected="skipped"
+            windows_arm_test_expected="skipped"
             windows_sdist_expected="skipped"
             windows_test_expected="skipped"
           else
@@ -653,14 +674,17 @@ jobs:
             windows_sdist_expected="success"
             if [[ "$cuda_build_channel" == "prerelease" ]]; then
               windows_arm_build_expected="success"
+              windows_arm_test_expected="success"
               windows_test_expected="skipped"
             else
               windows_arm_build_expected="skipped"
+              windows_arm_test_expected="skipped"
               windows_test_expected="success"
             fi
           fi
           check_result "build-windows"      "$windows_build_expected" "${{ needs.build-windows.result }}"
           check_result "build-windows-arm64" "$windows_arm_build_expected" "${{ needs.build-windows-arm64.result }}"
+          check_result "test-windows-arm64" "$windows_arm_test_expected" "${{ needs.test-windows-arm64.result }}"
           check_result "test-sdist-linux"   "$linux_expected" "${{ needs.test-sdist-linux.result }}"
           check_result "test-sdist-windows" "$windows_sdist_expected" "${{ needs.test-sdist-windows.result }}"
           check_result "test-linux-64"      "$linux_expected" "${{ needs.test-linux-64.result }}"

@@ -16,6 +16,9 @@ on:
       build-ctk-ver:
         type: string
         required: true
+      build-ctk-channel:
+        type: string
+        default: stable
       matrix_filter:
         type: string
         default: "."
@@ -28,6 +31,10 @@ on:
       test-bindings:
         type: boolean
         default: true
+      test-bindings-ptds:
+        description: Run cuda.bindings tests with the per-thread default stream too
+        type: boolean
+        default: false
       test-core:
         type: boolean
         default: true
@@ -62,7 +69,8 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
     env:
       BUILD_TYPE: ${{ inputs.build-type }}
-      ARCH: ${{ (inputs.host-platform == 'win-64' && 'amd64') }}
+      ARCH: ${{ (inputs.host-platform == 'win-64' && 'amd64') ||
+                  (inputs.host-platform == 'win-arm64' && 'arm64') }}
     outputs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
     steps:
@@ -96,8 +104,8 @@ jobs:
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
   test:
-    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
-    timeout-minutes: 60
+    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.DRIVER_MODE && format(' ({0})', matrix.DRIVER_MODE) || '' }}${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
+    timeout-minutes: ${{ (inputs.host-platform == 'win-arm64' && 120) || 60 }}
     # The build stage could fail but we want the CI to keep moving.
     needs: compute-matrix
     strategy:
@@ -106,19 +114,114 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # TODO: remove continue-on-error once 3.15 is officially supported
     continue-on-error: ${{ startsWith(matrix.PY_VER, '3.15') }}
-    runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
+    runs-on: ${{ matrix.RUNNER || format('windows-{0}-gpu-{1}-{2}-{3}', matrix.ARCH, matrix.GPU, matrix.RUNNER_DRIVER, matrix.GPU_COUNT) }}
     steps:
+      - name: Set up Git Bash and 7-Zip for Windows ARM64
+        if: ${{ inputs.host-platform == 'win-arm64' }}
+        timeout-minutes: 10
+        shell: powershell
+        env:
+          PORTABLE_GIT_VERSION: '2.55.0.3'
+          PORTABLE_GIT_URL: https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.3/PortableGit-2.55.0.3-arm64.7z.exe
+          PORTABLE_GIT_SHA256: 3bf26b94d9399b16a890776e468334f501742861576cbcdea2d9134643c374bd
+          SEVEN_ZIP_URL: https://github.com/ip7z/7zip/releases/download/26.02/7zr.exe
+          SEVEN_ZIP_SHA256: 56b8cc9f4971cef253644fafe54063ed7fdca551d4dee0f8c6baa81b855acd72
+        run: |
+          if (-not $env:RUNNER_TEMP) {
+            throw "RUNNER_TEMP is not set."
+          }
+
+          # Keep executables job-local: later PR steps must not be able to
+          # poison a persistent tool cache for the next run.
+          $sevenZipRoot = Join-Path $env:RUNNER_TEMP "7-Zip-26.02"
+          if (Test-Path $sevenZipRoot) {
+            Remove-Item -Recurse -Force $sevenZipRoot
+          }
+          New-Item -ItemType Directory -Force -Path $sevenZipRoot | Out-Null
+          $sevenZip = Join-Path $sevenZipRoot "7z.exe"
+          Invoke-WebRequest -UseBasicParsing -Uri $env:SEVEN_ZIP_URL -OutFile $sevenZip
+          $actualHash = (Get-FileHash -Path $sevenZip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualHash -ne $env:SEVEN_ZIP_SHA256) {
+            throw "7-Zip checksum mismatch: expected $env:SEVEN_ZIP_SHA256, got $actualHash."
+          }
+
+          $gitRoot = Join-Path $env:RUNNER_TEMP "PortableGit-$env:PORTABLE_GIT_VERSION-arm64"
+          $git = Join-Path $gitRoot "cmd\git.exe"
+          $bash = Join-Path $gitRoot "bin\bash.exe"
+          $archive = Join-Path $env:RUNNER_TEMP "PortableGit-$env:PORTABLE_GIT_VERSION-arm64.7z.exe"
+          Invoke-WebRequest -UseBasicParsing -Uri $env:PORTABLE_GIT_URL -OutFile $archive
+          $actualHash = (Get-FileHash -Path $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualHash -ne $env:PORTABLE_GIT_SHA256) {
+            throw "PortableGit checksum mismatch: expected $env:PORTABLE_GIT_SHA256, got $actualHash."
+          }
+
+          if (Test-Path $gitRoot) {
+            Remove-Item -Recurse -Force $gitRoot
+          }
+          New-Item -ItemType Directory -Force -Path $gitRoot | Out-Null
+          & $sevenZip x -y $archive "-o$gitRoot"
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          Remove-Item -Force $archive
+
+          $postInstall = Join-Path $gitRoot "post-install.bat"
+          if (-not (Test-Path $postInstall)) {
+            throw "PortableGit post-install.bat was not found after extraction."
+          }
+          Push-Location $gitRoot
+          try {
+            & $postInstall
+            if ($LASTEXITCODE -ne 0) {
+              throw "PortableGit post-install.bat exited with code $LASTEXITCODE."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+          if (-not ((Test-Path $git) -and (Test-Path $bash))) {
+            throw "Git Bash was not found after extracting PortableGit."
+          }
+
+          $gitInfo = & $git version --build-options | Out-String
+          $gitExitCode = $LASTEXITCODE
+          Write-Host $gitInfo
+          if ($gitExitCode -ne 0 -or $gitInfo -notmatch '(?im)^cpu: (arm64|aarch64)\s*$') {
+            throw "PortableGit is not a native ARM64 build."
+          }
+          # Git for Windows does not yet ship its POSIX layer natively on ARM64.
+          # Bash is setup-only; Python and the installed extensions are checked below.
+          & $bash --version
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          (Split-Path $git) | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          (Split-Path $bash) | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $sevenZipRoot | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Verify Windows ARM64 runner
+        if: ${{ inputs.host-platform == 'win-arm64' }}
+        shell: cmd
+        run: |
+          if /I not "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
+            echo Expected an ARM64 runner, got %PROCESSOR_ARCHITECTURE%.
+            exit /b 1
+          )
+          nvidia-smi || exit /b 1
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
+        if: ${{ inputs.host-platform == 'win-64' }}
         with:
           enable-apt: true
 
       - name: Install GPU driver
-        if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
+        if: ${{ inputs.host-platform == 'win-64' && matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
         env:
           DRIVER: ${{ matrix.DRIVER }}
           GPU_TYPE: ${{ matrix.GPU }}
@@ -126,6 +229,7 @@ jobs:
           ci/tools/install_gpu_driver.ps1
 
       - name: Configure driver mode
+        if: ${{ inputs.host-platform == 'win-64' }}
         env:
           DRIVER_MODE: ${{ matrix.DRIVER_MODE }}
         run: |
@@ -135,6 +239,9 @@ jobs:
         run: |
           nvidia-smi
 
+      - name: Verify driver mode
+        if: ${{ inputs.host-platform == 'win-64' }}
+        run: |
           $mode_output = nvidia-smi | Select-String -Pattern "${{ matrix.DRIVER_MODE }}"
           Write-Output "Driver mode check: $mode_output"
           if ("$mode_output" -eq "") {
@@ -289,11 +396,28 @@ jobs:
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_TEST_BINARIES_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Set up Python ${{ matrix.PY_VER }}
+        if: ${{ inputs.host-platform != 'win-arm64' }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ matrix.PY_VER }}
+          architecture: x64
           # TODO: remove allow-prereleases once 3.15 is officially supported
           allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
+
+      - name: Set up Python ${{ matrix.PY_VER }} for Windows ARM64
+        if: ${{ inputs.host-platform == 'win-arm64' }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ matrix.PY_VER }}
+          architecture: arm64
+          # TODO: remove allow-prereleases once 3.15 is officially supported
+          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
+
+      - name: Verify Python architecture
+        if: ${{ inputs.host-platform == 'win-arm64' }}
+        run: |
+          python -VV
+          python -c "import platform, struct, sysconfig; machine = platform.machine().lower(); target = sysconfig.get_platform(); bits = 8 * struct.calcsize('P'); print(f'machine={machine}, platform={target}, bits={bits}'); assert machine in {'arm64', 'aarch64'}; assert target == 'win-arm64'; assert bits == 64"
 
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
         if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
@@ -304,6 +428,7 @@ jobs:
           echo "PIP_ONLY_BINARY=numpy" >> "$GITHUB_ENV"
 
       - name: Verify LongPathsEnabled
+        if: ${{ inputs.host-platform == 'win-64' }}
         run: |
           $val = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled').LongPathsEnabled
           echo "LongPathsEnabled = $val"
@@ -319,6 +444,7 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
+          cuda-channel: ${{ (matrix.CUDA_VER == inputs.build-ctk-ver && inputs.build-ctk-channel) || 'stable' }}
 
       - name: Set up test repetition on nightly runs
         shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -342,13 +468,34 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests bindings
 
+      - name: Run cuda.bindings tests with per-thread default stream
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-bindings && inputs.test-bindings-ptds && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        env:
+          CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM: '1'
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          SKIP_CYTHON_TEST: '1'
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests bindings
+
+      - name: Verify native cuda.bindings extension
+        if: ${{ inputs.test-mode == 'standard' && inputs.host-platform == 'win-arm64' && inputs.test-bindings }}
+        run: |
+          python -c "import sysconfig; import cuda.bindings.driver as driver; suffix = sysconfig.get_config_var('EXT_SUFFIX'); print(driver.__file__); assert suffix and driver.__file__.endswith(suffix); assert sysconfig.get_platform() == 'win-arm64'"
+
       - name: Run cuda.core tests
         if: ${{ inputs.test-mode == 'standard' && inputs.test-core }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          USE_LOCAL_CTK_TEST_DEPS: ${{ (inputs.host-platform == 'win-arm64' && matrix.LOCAL_CTK == '1' && '1') || '0' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests core
+
+      - name: Verify native cuda.core import
+        if: ${{ inputs.test-mode == 'standard' && inputs.host-platform == 'win-arm64' && inputs.test-core }}
+        run: |
+          python -c "import sysconfig; import cuda.core; print(cuda.core.__file__); assert sysconfig.get_platform() == 'win-arm64'"
 
       - name: Ensure cuda-python installable
         if: ${{ inputs.test-mode == 'standard' && inputs.test-python && env.BINDINGS_SOURCE == 'main' }}
@@ -371,8 +518,12 @@ jobs:
           }
           pip install --only-binary=:all: @dependencyArgs @pythonRequirements
 
+      # The WoA prerelease uses the local mini CTK because the full public CUDA
+      # component wheel set is not available; its pathfinder run above still
+      # exercises every discoverable component in see_what_works mode.
       - name: Install cuda.pathfinder extra wheels for testing
-        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder &&
+                (inputs.host-platform != 'win-arm64' || matrix.LOCAL_CTK != '1') }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
@@ -381,7 +532,8 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
-        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder &&
+                (inputs.host-platform != 'win-arm64' || matrix.LOCAL_CTK != '1') }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work

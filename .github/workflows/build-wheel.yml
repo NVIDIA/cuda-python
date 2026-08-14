@@ -51,6 +51,11 @@ on:
         required: false
         type: boolean
         default: true
+      test-python-version:
+        description: "Build compiled test artifacts only for this Python version; empty means all"
+        required: false
+        type: string
+        default: ""
       baseline-run-id:
         required: false
         type: string
@@ -79,6 +84,8 @@ jobs:
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
                  (inputs.host-platform == 'win-64' && 'windows-2022') ||
                  (inputs.host-platform == 'win-arm64' && 'windows-11-arm') }}
+    env:
+      BUILD_TEST_ARTIFACTS: ${{ inputs.test-python-version == '' || matrix.python-version == inputs.test-python-version }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -485,7 +492,7 @@ jobs:
 
       - name: Set up Python
         id: setup-python2
-        if: ${{ !inputs.single-cuda-major && (inputs.test-bindings || inputs.test-core) }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && (inputs.test-bindings || inputs.test-core) }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ matrix.python-version }}
@@ -494,17 +501,17 @@ jobs:
           allow-prereleases: ${{ startsWith(matrix.python-version, '3.15') }}
 
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
-        if: ${{ !inputs.single-cuda-major && (inputs.test-bindings || inputs.test-core) && startsWith(matrix.python-version, '3.15') }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && (inputs.test-bindings || inputs.test-core) && startsWith(matrix.python-version, '3.15') }}
         run: |
           echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
           echo "PIP_ONLY_BINARY=numpy" >> "$GITHUB_ENV"
 
       - name: verify free-threaded build
-        if: ${{ !inputs.single-cuda-major && (inputs.test-bindings || inputs.test-core) && endsWith(matrix.python-version, 't') }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && (inputs.test-bindings || inputs.test-core) && endsWith(matrix.python-version, 't') }}
         run: python -c 'import sys; assert not sys._is_gil_enabled()'
 
       - name: Set up Python include paths
-        if: ${{ !inputs.single-cuda-major && (inputs.test-bindings || inputs.test-core) }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && (inputs.test-bindings || inputs.test-core) }}
         run: |
           if [[ "${{ inputs.host-platform }}" == linux* ]]; then
             echo "CPLUS_INCLUDE_PATH=${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}" >> $GITHUB_ENV
@@ -515,19 +522,19 @@ jobs:
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
 
       - name: Install cuda.pathfinder (required for next step)
-        if: ${{ !inputs.single-cuda-major && (inputs.test-bindings || inputs.test-core) }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && (inputs.test-bindings || inputs.test-core) }}
         run: |
           pip install cuda_pathfinder/*.whl
 
       - name: Hide GNU link.exe so Meson finds MSVC link.exe
-        if: ${{ !inputs.single-cuda-major && startsWith(inputs.host-platform, 'win') && (inputs.test-bindings || inputs.test-core) }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && startsWith(inputs.host-platform, 'win') && (inputs.test-bindings || inputs.test-core) }}
         run: |
           if [ -f "/c/Program Files/Git/usr/bin/link.exe" ]; then
             mv "/c/Program Files/Git/usr/bin/link.exe" "/c/Program Files/Git/usr/bin/link.exe.bak"
           fi
 
       - name: Build cuda.bindings Cython tests
-        if: ${{ !inputs.single-cuda-major && inputs.test-bindings }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && inputs.test-bindings }}
         run: |
           pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
@@ -535,7 +542,7 @@ jobs:
           popd
 
       - name: Upload cuda.bindings Cython tests
-        if: ${{ !inputs.single-cuda-major && inputs.test-bindings }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && inputs.test-bindings }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
@@ -543,10 +550,10 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core Cython tests
-        if: ${{ !inputs.single-cuda-major && inputs.test-core }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && inputs.test-core }}
         run: |
           pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
-          if ${{ inputs.build-core }}; then
+          if ${{ inputs.build-core && !inputs.single-cuda-major }}; then
             core_wheel=$(find "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_CUDA_MAJOR}" -maxdepth 1 -type f -name '*.whl' -print -quit)
           else
             core_wheel=$(find "${{ env.CUDA_CORE_ARTIFACTS_DIR }}" -maxdepth 1 -type f -name '*.whl' -print -quit)
@@ -561,7 +568,7 @@ jobs:
           popd
 
       - name: Upload cuda.core Cython tests
-        if: ${{ !inputs.single-cuda-major && inputs.test-core }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && inputs.test-core }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
@@ -579,13 +586,13 @@ jobs:
           cuda-path: "./cuda_toolkit_prev"
 
       - name: Build cuda.core test binaries
-        if: ${{ !inputs.single-cuda-major && inputs.test-core }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && inputs.test-core }}
         run: |
           nvcc --version
           python "${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/build_test_binaries.py"
 
       - name: Upload cuda.core test binaries
-        if: ${{ !inputs.single-cuda-major && inputs.test-core }}
+        if: ${{ env.BUILD_TEST_ARTIFACTS == 'true' && inputs.test-core }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries

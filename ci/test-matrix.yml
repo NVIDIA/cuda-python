@@ -10,7 +10,8 @@
 #
 # [ARCH, PY_VER, CUDA_VER, LOCAL_CTK, GPU, GPU_COUNT, DRIVER]
 #
-# Windows entries also include DRIVER_MODE.
+# Windows x64 entries also include DRIVER_MODE. RUNNER optionally overrides the
+# generated self-hosted runner label for platforms with dedicated hardware.
 #
 # Notes:
 # - DRIVER accepts:
@@ -134,6 +135,8 @@ windows:
     # special runners
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'TCC' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.3.0', LOCAL_CTK: '0', GPU: 'h100',       GPU_COUNT: '2', DRIVER: 'latest',  DRIVER_MODE: 'MCDM' }
+    # win-arm64
+    - { ARCH: 'arm64', PY_VER: '3.13',  CUDA_VER: '13.4.0', LOCAL_CTK: '1', GPU: 'gb10',       GPU_COUNT: '1', DRIVER: 'latest',  RUNNER: 'windows-arm64-1xgb10' }
   nightly:
     # nightly-pytorch
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.6.3', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.12.1', TORCH_CUDA: 'cu126' } }
