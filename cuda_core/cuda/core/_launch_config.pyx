@@ -170,6 +170,7 @@ cdef class LaunchConfig:
     cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
         cdef cydriver.CUlaunchConfig drv_cfg
         cdef cydriver.CUlaunchAttribute attr
+        cdef int sync_policy_value
         memset(&drv_cfg, 0, sizeof(drv_cfg))
         self._attrs.resize(0)
 
@@ -201,8 +202,9 @@ cdef class LaunchConfig:
             self._attrs.push_back(attr)
 
         if self.synchronization_policy is not None:
+            sync_policy_value = int(self.synchronization_policy)
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
-            attr.value.syncPolicy = <cydriver.CUsynchronizationPolicy>int(self.synchronization_policy)
+            attr.value.syncPolicy = <cydriver.CUsynchronizationPolicy>sync_policy_value
             self._attrs.push_back(attr)
 
         drv_cfg.numAttrs = self._attrs.size()
