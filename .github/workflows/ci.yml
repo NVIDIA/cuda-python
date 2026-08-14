@@ -98,83 +98,7 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
-      # Missing base artifacts or a skipped path filter fail open to the full pipeline.
-      core: >-
-        ${{ steps.baseline.outputs.available != 'true' ||
-            steps.filter.outputs.changes == '' ||
-            steps.filter.outputs.force_all == 'true' ||
-            steps.filter.outputs.core_source == 'true' }}
-      build_pathfinder: >-
-        ${{ steps.baseline.outputs.available != 'true' ||
-            steps.filter.outputs.changes == '' ||
-            steps.filter.outputs.force_all == 'true' ||
-            steps.filter.outputs.pathfinder_source == 'true' }}
-      build_bindings: >-
-        ${{ steps.baseline.outputs.available != 'true' ||
-            steps.filter.outputs.changes == '' ||
-            steps.filter.outputs.force_all == 'true' ||
-            steps.filter.outputs.pathfinder_source == 'true' ||
-            steps.filter.outputs.bindings_source == 'true' ||
-            steps.filter.outputs.python_source == 'true' }}
-      build_core: >-
-        ${{ steps.baseline.outputs.available != 'true' ||
-            steps.filter.outputs.changes == '' ||
-            steps.filter.outputs.force_all == 'true' ||
-            steps.filter.outputs.pathfinder_source == 'true' ||
-            steps.filter.outputs.bindings_source == 'true' ||
-            steps.filter.outputs.core_source == 'true' }}
-      build_python: >-
-        ${{ steps.baseline.outputs.available != 'true' ||
-            steps.filter.outputs.changes == '' ||
-            steps.filter.outputs.force_all == 'true' ||
-            steps.filter.outputs.pathfinder_source == 'true' ||
-            steps.filter.outputs.bindings_source == 'true' ||
-            steps.filter.outputs.python_source == 'true' }}
-      test_pathfinder: >-
-        ${{ steps.baseline.outputs.available != 'true' ||
-            steps.filter.outputs.changes == '' ||
-            steps.filter.outputs.force_all == 'true' ||
-            steps.filter.outputs.all_tests == 'true' ||
-            steps.filter.outputs.pathfinder_source == 'true' ||
-            steps.filter.outputs.pathfinder_tests == 'true' }}
-      test_bindings: >-
-        ${{ steps.baseline.outputs.available != 'true' ||
-            steps.filter.outputs.changes == '' ||
-            steps.filter.outputs.force_all == 'true' ||
-            steps.filter.outputs.all_tests == 'true' ||
-            steps.filter.outputs.pathfinder_source == 'true' ||
-            steps.filter.outputs.bindings_source == 'true' ||
-            steps.filter.outputs.bindings_tests == 'true' ||
-            steps.filter.outputs.test_helpers == 'true' }}
-      test_core: >-
-        ${{ steps.baseline.outputs.available != 'true' ||
-            steps.filter.outputs.changes == '' ||
-            steps.filter.outputs.force_all == 'true' ||
-            steps.filter.outputs.all_tests == 'true' ||
-            steps.filter.outputs.pathfinder_source == 'true' ||
-            steps.filter.outputs.bindings_source == 'true' ||
-            steps.filter.outputs.core_source == 'true' ||
-            steps.filter.outputs.core_tests == 'true' ||
-            steps.filter.outputs.test_helpers == 'true' }}
-      pr_merge_base: ${{ steps.merge-base.outputs.sha }}
-      test_python: >-
-        ${{ steps.baseline.outputs.available != 'true' ||
-            steps.filter.outputs.changes == '' ||
-            steps.filter.outputs.force_all == 'true' ||
-            steps.filter.outputs.all_tests == 'true' ||
-            steps.filter.outputs.pathfinder_source == 'true' ||
-            steps.filter.outputs.bindings_source == 'true' ||
-            steps.filter.outputs.core_source == 'true' ||
-            steps.filter.outputs.python_source == 'true' ||
-            steps.filter.outputs.python_tests == 'true' }}
-      baseline_run_id: >-
-        ${{ steps.filter.outputs.changes != '' &&
-            steps.baseline.outputs.available == 'true' &&
-            steps.baseline.outputs.run_id || '' }}
-      baseline_sha: >-
-        ${{ steps.filter.outputs.changes != '' &&
-            steps.baseline.outputs.available == 'true' &&
-            steps.baseline.outputs.sha || '' }}
+      workplan: ${{ steps.workplan.outputs.workplan }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -216,166 +140,6 @@ jobs:
           base=$(git merge-base HEAD "origin/${BASE_REF}")
           echo "sha=${base}" >> "$GITHUB_OUTPUT"
 
-      - name: Classify changed paths
-        id: filter
-        if: ${{ startsWith(github.ref_name, 'pull-request/') }}
-        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d  # v4.0.3
-        with:
-          # The workflow runs on copy-pr-bot push branches, so compare the
-          # checked-out PR head against the base resolved from PR metadata.
-          base: ${{ steps.merge-base.outputs.sha }}
-          ref: ${{ github.sha }}
-          token: ''
-          predicate-quantifier: some-with-excludes
-          filters: |
-            pathfinder_source:
-              - 'cuda_pathfinder/**'
-              - '!cuda_pathfinder/docs/**'
-              - '!cuda_pathfinder/tests/**'
-              - '!cuda_pathfinder/examples/**'
-              - '!cuda_pathfinder/pixi.lock'
-              - '!cuda_pathfinder/pixi.toml'
-              - '!cuda_pathfinder/AGENTS.md'
-              - '!cuda_pathfinder/CLAUDE.md'
-            bindings_source:
-              - 'cuda_bindings/**'
-              - '!cuda_bindings/docs/**'
-              - '!cuda_bindings/tests/**'
-              - '!cuda_bindings/examples/**'
-              - '!cuda_bindings/pixi.lock'
-              - '!cuda_bindings/pixi.toml'
-              - '!cuda_bindings/AGENTS.md'
-              - '!cuda_bindings/CLAUDE.md'
-            core_source:
-              - 'cuda_core/**'
-              - '!cuda_core/docs/**'
-              - '!cuda_core/tests/**'
-              - '!cuda_core/examples/**'
-              - '!cuda_core/pixi.lock'
-              - '!cuda_core/pixi.toml'
-              - '!cuda_core/pytest.ini'
-              - '!cuda_core/AGENTS.md'
-              - '!cuda_core/CLAUDE.md'
-            python_source:
-              - 'cuda_python/**'
-              - '!cuda_python/docs/**'
-              - '!cuda_python/tests/**'
-              - '!cuda_python/examples/**'
-              - '!cuda_python/AGENTS.md'
-              - '!cuda_python/CLAUDE.md'
-              # cuda_python/README.md is a symlink to this packaging input.
-              - 'README.md'
-            pathfinder_tests:
-              - 'cuda_pathfinder/tests/**'
-              - 'cuda_pathfinder/examples/**'
-              - '!cuda_pathfinder/**/AGENTS.md'
-              - '!cuda_pathfinder/**/CLAUDE.md'
-            bindings_tests:
-              - 'cuda_bindings/tests/**'
-              - 'cuda_bindings/examples/**'
-              - 'benchmarks/cuda_bindings/**'
-              - '!benchmarks/cuda_bindings/pixi.lock'
-              - '!benchmarks/cuda_bindings/pixi.toml'
-              - '!cuda_bindings/**/AGENTS.md'
-              - '!cuda_bindings/**/CLAUDE.md'
-            core_tests:
-              - 'cuda_core/tests/**'
-              - 'cuda_core/examples/**'
-              - 'cuda_core/pytest.ini'
-              - '!cuda_core/**/AGENTS.md'
-              - '!cuda_core/**/CLAUDE.md'
-            python_tests:
-              - 'cuda_python/tests/**'
-              - 'cuda_python/examples/**'
-              - '!cuda_python/**/AGENTS.md'
-              - '!cuda_python/**/CLAUDE.md'
-            test_helpers:
-              - 'cuda_python_test_helpers/cuda_python_test_helpers/**'
-            # These files configure or implement wheel tests, but do not
-            # change any package artifact.
-            all_tests:
-              - '.github/workflows/test-wheel-linux.yml'
-              - '.github/workflows/test-wheel-windows.yml'
-              - 'ci/test-matrix.yml'
-              - 'ci/tools/configure_driver_mode.ps1'
-              - 'ci/tools/guess_latest.sh'
-              - 'ci/tools/install_gpu_driver.ps1'
-              - 'ci/tools/install_gpu_driver.sh'
-              - 'ci/tools/run-tests'
-              - 'ci/tools/setup-sanitizer'
-            # Shared infrastructure and unknown paths run the full pipeline.
-            # Exclude paths classified above and paths consumed only by an
-            # independent or unconditional CI job.
-            force_all:
-              - '**'
-              - '!cuda_pathfinder/**'
-              - '!cuda_bindings/**'
-              - '!cuda_core/**'
-              - '!cuda_python/**'
-              - '!cuda_python_test_helpers/**'
-              - '!benchmarks/cuda_bindings/**'
-              - '!benchmarks/cuda_core/**'
-              - '!.agents/**'
-              - '!.coveragerc'
-              - '!.gitignore'
-              - '!.pre-commit-config.yaml'
-              - '!.spdx-ignore'
-              - '!AGENTS.md'
-              - '!CLAUDE.md'
-              - '!CONTRIBUTING.md'
-              - '!LICENSE'
-              - '!README.md'
-              - '!SECURITY.md'
-              - '!context7.json'
-              - '!greptile.json'
-              - '!pixi.lock'
-              - '!pixi.toml'
-              - '!pytest.ini'
-              - '!ruff.toml'
-              - '!toolshed/**'
-              - '!.github/ISSUE_TEMPLATE/**'
-              - '!.github/PULL_REQUEST_TEMPLATE.md'
-              - '!.github/RELEASE-core.md'
-              - '!.github/actionlint.yaml'
-              - '!.github/actions/doc_preview/**'
-              - '!.github/actions/get_pr_number/**'
-              - '!.github/copy-pr-bot.yaml'
-              - '!.github/dependabot.yml'
-              - '!.github/labeler.yml'
-              - '!.github/workflows/backport.yml'
-              - '!.github/workflows/bandit.yml'
-              - '!.github/workflows/build-docs.yml'
-              - '!.github/workflows/ci-nightly.yml'
-              - '!.github/workflows/ci-pixi-source-test.yml'
-              - '!.github/workflows/cleanup-pr-previews.yml'
-              - '!.github/workflows/coverage.yml'
-              - '!.github/workflows/pr-auto-label.yml'
-              - '!.github/workflows/pr-metadata-check.yml'
-              - '!.github/workflows/release-cuda-pathfinder.yml'
-              - '!.github/workflows/release-upload.yml'
-              - '!.github/workflows/release.yml'
-              - '!.github/workflows/security-suite.yml'
-              - '!.github/workflows/test-wheel-linux.yml'
-              - '!.github/workflows/test-wheel-windows.yml'
-              - '!.github/workflows/triagelabel.yml'
-              - '!ci/.ci-pipeline-regen.md'
-              - '!ci/ci-pipeline.svg'
-              - '!ci/cleanup-pr-previews'
-              - '!ci/test-matrix.yml'
-              - '!ci/tools/check_mempool_hygiene.py'
-              - '!ci/tools/check_pixi_cuda_version.py'
-              - '!ci/tools/check_release_notes.py'
-              - '!ci/tools/configure_driver_mode.ps1'
-              - '!ci/tools/download-wheels'
-              - '!ci/tools/guess_latest.sh'
-              - '!ci/tools/install_gpu_driver.ps1'
-              - '!ci/tools/install_gpu_driver.sh'
-              - '!ci/tools/run-tests'
-              - '!ci/tools/run_pytest_with_stack.py'
-              - '!ci/tools/setup-sanitizer'
-              - '!ci/tools/tests/**'
-              - '!ci/tools/validate-release-wheels'
-
       - name: Resolve reusable base artifacts
         id: baseline
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
@@ -408,7 +172,7 @@ jobs:
             --workflow ci.yml \
             --status success \
             --limit 1 \
-            --json databaseId,headSha,createdAt); then
+            --json databaseId,headSha); then
             unavailable
           fi
 
@@ -469,11 +233,41 @@ jobs:
             echo "Reusable artifacts: run \`${run_id}\` at \`${baseline_sha}\` on \`${BASE_REF}\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Test CI workplan planner
+        run: python3 -m unittest ci/tools/tests/test_compute_ci_plan.py
+
+      - name: Compute CI workplan
+        id: workplan
+        env:
+          MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
+          BASELINE_AVAILABLE: ${{ steps.baseline.outputs.available }}
+          BASELINE_RUN_ID: ${{ steps.baseline.outputs.run_id }}
+          BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
+        run: |
+          set -euo pipefail
+          args=(--head "$GITHUB_SHA")
+          if [[ -n "$MERGE_BASE" ]]; then
+            args+=(--merge-base "$MERGE_BASE")
+          fi
+          if [[ "$BASELINE_AVAILABLE" == "true" ]]; then
+            args+=(--baseline-run-id "$BASELINE_RUN_ID" --baseline-sha "$BASELINE_SHA")
+          fi
+
+          workplan=$(python3 ci/tools/compute_ci_plan.py "${args[@]}")
+          echo "workplan=$workplan" >> "$GITHUB_OUTPUT"
+          {
+            echo
+            echo "### CI workplan"
+            echo '```json'
+            jq . <<< "$workplan"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   api-check-core-vs-release:
     name: API check (cuda_core vs. latest release)
     if: >-
       ${{ !fromJSON(needs.should-skip.outputs.skip) &&
-          fromJSON(needs.detect-changes.outputs.core) }}
+          fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks }}
     runs-on: ubuntu-latest
     needs:
       - should-skip
@@ -524,7 +318,7 @@ jobs:
     if: >-
       ${{ startsWith(github.ref_name, 'pull-request/') &&
           !fromJSON(needs.should-skip.outputs.skip) &&
-          fromJSON(needs.detect-changes.outputs.core) }}
+          fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks }}
     runs-on: ubuntu-latest
     needs:
       - should-skip
@@ -542,7 +336,7 @@ jobs:
         shell: bash --noprofile --norc -euo pipefail {0}
         run: |
           git fetch --depth=1 --filter=blob:none origin \
-            "${{ needs.detect-changes.outputs.pr_merge_base }}"
+            "${{ fromJSON(needs.detect-changes.outputs.workplan).merge_base }}"
 
       - name: Check cuda_core public API
         id: griffe
@@ -550,7 +344,7 @@ jobs:
         with:
           package-name: cuda.core
           package-dir: cuda_core
-          merge-base: ${{ needs.detect-changes.outputs.pr_merge_base }}
+          merge-base: ${{ fromJSON(needs.detect-changes.outputs.workplan).merge_base }}
 
   # NOTE: Build jobs are intentionally split by platform rather than using a single
   # matrix. This lets each test job consume its platform-specific artifacts as
@@ -580,14 +374,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
-      build-pathfinder: ${{ fromJSON(needs.detect-changes.outputs.build_pathfinder) }}
-      build-bindings: ${{ fromJSON(needs.detect-changes.outputs.build_bindings) }}
-      build-core: ${{ fromJSON(needs.detect-changes.outputs.build_core) }}
-      build-python: ${{ fromJSON(needs.detect-changes.outputs.build_python) }}
-      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
-      test-core: ${{ fromJSON(needs.detect-changes.outputs.test_core) }}
-      baseline-run-id: ${{ needs.detect-changes.outputs.baseline_run_id }}
-      baseline-sha: ${{ needs.detect-changes.outputs.baseline_sha }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-linux-aarch64:
@@ -604,14 +391,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            (fromJSON(needs.detect-changes.outputs.build_pathfinder) ||
-             fromJSON(needs.detect-changes.outputs.build_bindings) ||
-             fromJSON(needs.detect-changes.outputs.build_core) ||
-             fromJSON(needs.detect-changes.outputs.build_python) ||
-             fromJSON(needs.detect-changes.outputs.test_pathfinder) ||
-             fromJSON(needs.detect-changes.outputs.test_bindings) ||
-             fromJSON(needs.detect-changes.outputs.test_core) ||
-             fromJSON(needs.detect-changes.outputs.test_python)) }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platform_builds }}
     permissions:
       actions: read
       contents: read
@@ -621,14 +401,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
-      build-pathfinder: ${{ fromJSON(needs.detect-changes.outputs.build_pathfinder) }}
-      build-bindings: ${{ fromJSON(needs.detect-changes.outputs.build_bindings) }}
-      build-core: ${{ fromJSON(needs.detect-changes.outputs.build_core) }}
-      build-python: ${{ fromJSON(needs.detect-changes.outputs.build_python) }}
-      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
-      test-core: ${{ fromJSON(needs.detect-changes.outputs.test_core) }}
-      baseline-run-id: ${{ needs.detect-changes.outputs.baseline_run_id }}
-      baseline-sha: ${{ needs.detect-changes.outputs.baseline_sha }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-windows:
@@ -645,14 +418,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            (fromJSON(needs.detect-changes.outputs.build_pathfinder) ||
-             fromJSON(needs.detect-changes.outputs.build_bindings) ||
-             fromJSON(needs.detect-changes.outputs.build_core) ||
-             fromJSON(needs.detect-changes.outputs.build_python) ||
-             fromJSON(needs.detect-changes.outputs.test_pathfinder) ||
-             fromJSON(needs.detect-changes.outputs.test_bindings) ||
-             fromJSON(needs.detect-changes.outputs.test_core) ||
-             fromJSON(needs.detect-changes.outputs.test_python)) }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platform_builds }}
     permissions:
       actions: read
       contents: read
@@ -662,14 +428,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
-      build-pathfinder: ${{ fromJSON(needs.detect-changes.outputs.build_pathfinder) }}
-      build-bindings: ${{ fromJSON(needs.detect-changes.outputs.build_bindings) }}
-      build-core: ${{ fromJSON(needs.detect-changes.outputs.build_core) }}
-      build-python: ${{ fromJSON(needs.detect-changes.outputs.build_python) }}
-      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
-      test-core: ${{ fromJSON(needs.detect-changes.outputs.test_core) }}
-      baseline-run-id: ${{ needs.detect-changes.outputs.baseline_run_id }}
-      baseline-sha: ${{ needs.detect-changes.outputs.baseline_sha }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
   # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by
@@ -687,10 +446,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            (fromJSON(needs.detect-changes.outputs.build_pathfinder) ||
-             fromJSON(needs.detect-changes.outputs.build_bindings) ||
-             fromJSON(needs.detect-changes.outputs.build_core) ||
-             fromJSON(needs.detect-changes.outputs.build_python)) }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests }}
     permissions:
       actions: read
       contents: read
@@ -699,10 +455,7 @@ jobs:
     with:
       host-platform: linux-64
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      build-pathfinder: ${{ fromJSON(needs.detect-changes.outputs.build_pathfinder) }}
-      build-bindings: ${{ fromJSON(needs.detect-changes.outputs.build_bindings) }}
-      build-core: ${{ fromJSON(needs.detect-changes.outputs.build_core) }}
-      build-python: ${{ fromJSON(needs.detect-changes.outputs.build_python) }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-sdist-linux for why sdist test jobs are split by platform.
   test-sdist-windows:
@@ -716,10 +469,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            (fromJSON(needs.detect-changes.outputs.build_pathfinder) ||
-             fromJSON(needs.detect-changes.outputs.build_bindings) ||
-             fromJSON(needs.detect-changes.outputs.build_core) ||
-             fromJSON(needs.detect-changes.outputs.build_python)) }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests }}
     permissions:
       actions: read
       contents: read
@@ -728,10 +478,7 @@ jobs:
     with:
       host-platform: win-64
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      build-pathfinder: ${{ fromJSON(needs.detect-changes.outputs.build_pathfinder) }}
-      build-bindings: ${{ fromJSON(needs.detect-changes.outputs.build_bindings) }}
-      build-core: ${{ fromJSON(needs.detect-changes.outputs.build_core) }}
-      build-python: ${{ fromJSON(needs.detect-changes.outputs.build_python) }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see
   # build-linux-64). Keep these job definitions textually identical except for:
@@ -747,10 +494,7 @@ jobs:
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            (fromJSON(needs.detect-changes.outputs.test_pathfinder) ||
-             fromJSON(needs.detect-changes.outputs.test_bindings) ||
-             fromJSON(needs.detect-changes.outputs.test_core) ||
-             fromJSON(needs.detect-changes.outputs.test_python)) }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.wheel_tests }}
     permissions:
       actions: read
       contents: read  # This is required for actions/checkout
@@ -766,10 +510,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      test-pathfinder: ${{ fromJSON(needs.detect-changes.outputs.test_pathfinder) }}
-      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
-      test-core: ${{ fromJSON(needs.detect-changes.outputs.test_core) }}
-      test-python: ${{ fromJSON(needs.detect-changes.outputs.test_python) }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-linux-aarch64:
@@ -781,10 +522,7 @@ jobs:
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            (fromJSON(needs.detect-changes.outputs.test_pathfinder) ||
-             fromJSON(needs.detect-changes.outputs.test_bindings) ||
-             fromJSON(needs.detect-changes.outputs.test_core) ||
-             fromJSON(needs.detect-changes.outputs.test_python)) }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.wheel_tests }}
     permissions:
       actions: read
       contents: read  # This is required for actions/checkout
@@ -801,10 +539,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      test-pathfinder: ${{ fromJSON(needs.detect-changes.outputs.test_pathfinder) }}
-      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
-      test-core: ${{ fromJSON(needs.detect-changes.outputs.test_core) }}
-      test-python: ${{ fromJSON(needs.detect-changes.outputs.test_python) }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-windows:
@@ -816,10 +551,7 @@ jobs:
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            (fromJSON(needs.detect-changes.outputs.test_pathfinder) ||
-             fromJSON(needs.detect-changes.outputs.test_bindings) ||
-             fromJSON(needs.detect-changes.outputs.test_core) ||
-             fromJSON(needs.detect-changes.outputs.test_python)) }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.wheel_tests }}
     permissions:
       actions: read
       contents: read  # This is required for actions/checkout
@@ -836,10 +568,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      test-pathfinder: ${{ fromJSON(needs.detect-changes.outputs.test_pathfinder) }}
-      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
-      test-core: ${{ fromJSON(needs.detect-changes.outputs.test_core) }}
-      test-python: ${{ fromJSON(needs.detect-changes.outputs.test_python) }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   doc:
     name: Docs
@@ -927,15 +656,10 @@ jobs:
           fi
 
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
-          build_selected="${{ needs.detect-changes.outputs.build_pathfinder == 'true' ||
-                               needs.detect-changes.outputs.build_bindings == 'true' ||
-                               needs.detect-changes.outputs.build_core == 'true' ||
-                               needs.detect-changes.outputs.build_python == 'true' }}"
-          test_selected="${{ needs.detect-changes.outputs.test_pathfinder == 'true' ||
-                              needs.detect-changes.outputs.test_bindings == 'true' ||
-                              needs.detect-changes.outputs.test_core == 'true' ||
-                              needs.detect-changes.outputs.test_python == 'true' }}"
-          run_core_api_check="${{ needs.detect-changes.outputs.core == 'true' }}"
+          platform_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platform_builds || false }}"
+          build_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests || false }}"
+          test_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.wheel_tests || false }}"
+          run_core_api_check="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks || false }}"
           is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
           status="success"
           check_result() {
@@ -958,8 +682,7 @@ jobs:
 
           # Platform builds run whenever any package needs to be built or tested.
           expected="skipped"
-          if [[ "$doc_only" != "true" &&
-                ( "$build_selected" == "true" || "$test_selected" == "true" ) ]]; then
+          if [[ "$doc_only" != "true" && "$platform_selected" == "true" ]]; then
             expected="success"
           fi
           check_result "build-linux-aarch64" "$expected" "${{ needs.build-linux-aarch64.result }}"

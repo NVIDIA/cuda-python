@@ -17,22 +17,11 @@ on:
       cuda-version:
         required: true
         type: string
-      build-pathfinder:
+      workplan:
+        description: JSON workplan. An empty value builds everything.
         required: false
-        default: true
-        type: boolean
-      build-bindings:
-        required: false
-        default: true
-        type: boolean
-      build-core:
-        required: false
-        default: true
-        type: boolean
-      build-python:
-        required: false
-        default: true
-        type: boolean
+        default: ""
+        type: string
 
 defaults:
   run:
@@ -45,7 +34,12 @@ permissions:
 jobs:
   test-sdist:
     name: Test sdist builds
-    if: ${{ inputs.build-pathfinder || inputs.build-bindings || inputs.build-core || inputs.build-python }}
+    if: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_tests }}
+    env:
+      BUILD_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build }}
+      BUILD_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_build }}
+      BUILD_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_build }}
+      BUILD_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_build }}
     timeout-minutes: 60
     runs-on: windows-2022
     steps:
@@ -63,7 +57,7 @@ jobs:
           python-version: "3.12"
 
       - name: Set up MSVC
-        if: ${{ inputs.build-bindings || inputs.build-core }}
+        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
 
       - name: Install build tools
@@ -71,26 +65,26 @@ jobs:
 
       # Pure Python packages -- no CTK needed.
       - name: Build cuda.pathfinder sdist and wheel-from-sdist
-        if: ${{ inputs.build-pathfinder }}
+        if: ${{ env.BUILD_PATHFINDER == 'true' }}
         run: |
           python -m build --sdist cuda_pathfinder/
           pip wheel --no-deps --wheel-dir cuda_pathfinder/dist cuda_pathfinder/dist/*.tar.gz
 
       - name: Build cuda-python sdist and wheel-from-sdist
-        if: ${{ inputs.build-python }}
+        if: ${{ env.BUILD_PYTHON == 'true' }}
         run: |
           python -m build --sdist cuda_python/
           pip wheel --no-deps --wheel-dir cuda_python/dist cuda_python/dist/*.tar.gz
 
       - name: Download cuda.pathfinder wheel
-        if: ${{ !inputs.build-pathfinder && (inputs.build-bindings || inputs.build-core) }}
+        if: ${{ env.BUILD_PATHFINDER != 'true' && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
           path: cuda_pathfinder/dist
 
       - name: Constrain builds to the local cuda.pathfinder wheel
-        if: ${{ inputs.build-bindings }}
+        if: ${{ env.BUILD_BINDINGS == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
@@ -103,7 +97,7 @@ jobs:
       # smoke test, not a production build; see build-wheel.yml which also
       # limits sccache to Linux).
       - name: Set up mini CTK
-        if: ${{ inputs.build-bindings || inputs.build-core }}
+        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
@@ -115,7 +109,7 @@ jobs:
       # Constraint paths are passed as native Windows paths because the pip
       # subprocesses run outside Git Bash.
       - name: Build cuda.bindings sdist and wheel-from-sdist
-        if: ${{ inputs.build-bindings }}
+        if: ${{ env.BUILD_BINDINGS == 'true' }}
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
@@ -124,14 +118,14 @@ jobs:
           pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
 
       - name: Download cuda.bindings wheel
-        if: ${{ !inputs.build-bindings && inputs.build-core }}
+        if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-bindings-python312-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}
           path: cuda_bindings/dist
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
-        if: ${{ inputs.build-core }}
+        if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
@@ -152,7 +146,7 @@ jobs:
       # wheel-from-sdist needs CTK and cuda-bindings (dynamic build dep via
       # get_requires_for_build_wheel in build_hooks.py).
       - name: Build cuda.core sdist and wheel-from-sdist
-        if: ${{ inputs.build-core }}
+        if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
