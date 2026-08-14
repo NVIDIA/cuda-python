@@ -193,9 +193,8 @@ cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint al
             # Driver ignores location for read_mostly / unset_preferred_location
             # advice values but still validates the CUmemLocation; pass a
             # host placeholder.
-            cu_loc = cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
-                id=0)
+            cu_loc.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+            cu_loc.id = 0
         else:
             cu_loc = to_cumemlocation(loc.kind, loc.id)
         with nogil:

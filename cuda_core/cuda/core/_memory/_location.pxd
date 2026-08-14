@@ -15,24 +15,22 @@ from cuda.bindings cimport cydriver
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     cdef inline cydriver.CUmemLocation to_cumemlocation(str kind, int loc_id):
+        cdef cydriver.CUmemLocation cu_loc
         if kind == "device":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-                id=loc_id)
+            cu_loc.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            cu_loc.id = loc_id
         elif kind == "host":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
-                id=0)
+            cu_loc.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+            cu_loc.id = 0
         elif kind == "host_numa":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA,
-                id=loc_id)
+            cu_loc.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+            cu_loc.id = loc_id
         elif kind == "host_numa_current":
-            return cydriver.CUmemLocation(
-                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
-                id=0)
+            cu_loc.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT
+            cu_loc.id = 0
         else:
             raise ValueError(f"unknown location kind: {kind!r}")
+        return cu_loc
 ELSE:
     cdef inline cydriver.CUmemLocation to_cumemlocation(str kind, int loc_id):
         raise NotImplementedError(
