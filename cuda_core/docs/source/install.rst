@@ -108,12 +108,21 @@ Development with uv
 `uv`_ is a fast Python package and project manager. For example, to work on
 ``cuda-core`` against CUDA 13:
 
+.. important::
+
+   Source and editable builds require ``CUDA_PATH`` or ``CUDA_HOME`` to point
+   to a CUDA Toolkit root containing ``include/cuda.h``. Set the variable
+   before invoking ``uv`` or ``pip``. If both are set, ``CUDA_PATH`` takes
+   precedence. On Windows, use ``set CUDA_PATH=C:\path\to\cuda`` in Command
+   Prompt or ``$env:CUDA_PATH = "C:\path\to\cuda"`` in PowerShell.
+
 .. code-block:: console
 
    $ git clone https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
    $ uv venv
    $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
+   $ export CUDA_PATH=/path/to/cuda
    $ uv pip install -e .[cu13] --group test
 
 Run tests:
@@ -153,6 +162,7 @@ Installing from Source
 
    $ git clone https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_core
+   $ export CUDA_PATH=/path/to/cuda
    $ pip install .
 
 ``cuda-bindings`` 12.x or 13.x is a required dependency.

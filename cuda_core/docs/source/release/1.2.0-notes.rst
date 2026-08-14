@@ -9,6 +9,11 @@
 Fixes and enhancements
 ----------------------
 
+- Debuggable source builds now use scikit-build-core's standard
+  ``-Ccmake.build-type=Debug`` configuration setting. The legacy
+  ``--config-settings=debug=true`` alias has been removed.
+  (`#2607 <https://github.com/NVIDIA/cuda-python/pull/2607>`__)
+
 - Graph node resources are now retained independently across graph clones,
   executable graphs, updates, node deletion, and in-flight launches. Previously,
   modifying a graph definition could release resources still used by an

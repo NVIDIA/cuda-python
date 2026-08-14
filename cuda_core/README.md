@@ -12,8 +12,8 @@ This subpackage adheres to the developing practices described in the parent meta
 
 ## Debugging
 
-Pass the `pip` / `uv` configuration option `-C="debug=True"` or
-`--config-settings="debug=True"` to explicitly to build debuggable binaries.
+Pass the scikit-build-core configuration option `-Ccmake.build-type=Debug` to
+build debuggable binaries explicitly.
 Debuggable binaries are built by default for editable builds.
 
 Debuggable builds are not supported on Windows.

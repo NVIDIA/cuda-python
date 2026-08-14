@@ -14,34 +14,23 @@ find_package(
 find_package(Cython 3.2.5...<3.3 MODULE REQUIRED)
 include(UseCython)
 
-set(CUDA_CORE_CUDA_ROOT "" CACHE PATH "CUDA Toolkit root used to compile cuda-core")
-set(CUDA_CORE_BUILD_MAJOR "" CACHE STRING "CUDA major version for Cython compile-time conditionals")
 set(CUDA_PYTHON_COVERAGE "$ENV{CUDA_PYTHON_COVERAGE}" CACHE STRING "Build Cython line tracing support")
 
-if(NOT CUDA_CORE_CUDA_ROOT)
-  if(DEFINED ENV{CUDA_PATH} AND NOT "$ENV{CUDA_PATH}" STREQUAL "")
-    set(CUDA_CORE_CUDA_ROOT "$ENV{CUDA_PATH}")
-  elseif(DEFINED ENV{CUDA_HOME} AND NOT "$ENV{CUDA_HOME}" STREQUAL "")
-    set(CUDA_CORE_CUDA_ROOT "$ENV{CUDA_HOME}")
-  endif()
+if(DEFINED ENV{CUDA_PATH} AND NOT "$ENV{CUDA_PATH}" STREQUAL "")
+  set(_cuda_core_cuda_root "$ENV{CUDA_PATH}")
+elseif(DEFINED ENV{CUDA_HOME} AND NOT "$ENV{CUDA_HOME}" STREQUAL "")
+  set(_cuda_core_cuda_root "$ENV{CUDA_HOME}")
 endif()
-if(NOT CUDA_CORE_CUDA_ROOT)
-  message(FATAL_ERROR "CUDA_CORE_CUDA_ROOT, CUDA_HOME, or CUDA_PATH must point to a CUDA Toolkit installation")
+if(NOT _cuda_core_cuda_root)
+  message(FATAL_ERROR "CUDA_PATH or CUDA_HOME must point to a CUDA Toolkit installation")
 endif()
 
-# Keep the legacy environment override per-configure. Unlike an explicit -D
-# setting, it must not persist when the wheel build directory is reused for a
-# different CUDA major.
-if(
-  NOT CUDA_CORE_BUILD_MAJOR
-  AND DEFINED ENV{CUDA_CORE_BUILD_MAJOR}
-  AND NOT "$ENV{CUDA_CORE_BUILD_MAJOR}" STREQUAL ""
-)
-  set(CUDA_CORE_BUILD_MAJOR "$ENV{CUDA_CORE_BUILD_MAJOR}")
+if(DEFINED ENV{CUDA_CORE_BUILD_MAJOR} AND NOT "$ENV{CUDA_CORE_BUILD_MAJOR}" STREQUAL "")
+  set(_cuda_core_build_major "$ENV{CUDA_CORE_BUILD_MAJOR}")
 endif()
 
-cmake_path(ABSOLUTE_PATH CUDA_CORE_CUDA_ROOT NORMALIZE)
-set(_cuda_header "${CUDA_CORE_CUDA_ROOT}/include/cuda.h")
+cmake_path(ABSOLUTE_PATH _cuda_core_cuda_root NORMALIZE)
+set(_cuda_header "${_cuda_core_cuda_root}/include/cuda.h")
 if(NOT EXISTS "${_cuda_header}")
   message(FATAL_ERROR "CUDA header not found: ${_cuda_header}")
 endif()
@@ -53,18 +42,18 @@ endif()
 string(REGEX MATCH "[0-9]+" _cuda_version "${_cuda_version_line}")
 math(EXPR _cuda_header_major "${_cuda_version} / 1000")
 
-if("${CUDA_CORE_BUILD_MAJOR}" STREQUAL "")
-  set(CUDA_CORE_BUILD_MAJOR "${_cuda_header_major}")
-elseif(NOT CUDA_CORE_BUILD_MAJOR MATCHES "^[0-9]+$")
-  message(FATAL_ERROR "CUDA_CORE_BUILD_MAJOR must be an integer, got ${CUDA_CORE_BUILD_MAJOR}")
-elseif(NOT "${CUDA_CORE_BUILD_MAJOR}" STREQUAL "${_cuda_header_major}")
+if("${_cuda_core_build_major}" STREQUAL "")
+  set(_cuda_core_build_major "${_cuda_header_major}")
+elseif(NOT _cuda_core_build_major MATCHES "^[0-9]+$")
+  message(FATAL_ERROR "CUDA_CORE_BUILD_MAJOR must be an integer, got ${_cuda_core_build_major}")
+elseif(NOT "${_cuda_core_build_major}" STREQUAL "${_cuda_header_major}")
   message(
     FATAL_ERROR
-    "CUDA_CORE_BUILD_MAJOR=${CUDA_CORE_BUILD_MAJOR} does not match CUDA ${_cuda_header_major} "
+    "CUDA_CORE_BUILD_MAJOR=${_cuda_core_build_major} does not match CUDA ${_cuda_header_major} "
     "reported by ${_cuda_header}"
   )
 endif()
-message(STATUS "Building cuda-core for CUDA ${CUDA_CORE_BUILD_MAJOR} using ${CUDA_CORE_CUDA_ROOT}")
+message(STATUS "Building cuda-core for CUDA ${_cuda_core_build_major} using ${_cuda_core_cuda_root}")
 
 if(WIN32)
   execute_process(
@@ -99,7 +88,7 @@ set(_cython_common_args
   -X embedsignature=True
   -X warn.deprecated.IF=False
   -X freethreading_compatible=True
-  -E CUDA_CORE_BUILD_MAJOR=${CUDA_CORE_BUILD_MAJOR}
+  -E CUDA_CORE_BUILD_MAJOR=${_cuda_core_build_major}
   -I "${CMAKE_CURRENT_SOURCE_DIR}"
   ${_coverage_directive}
 )
@@ -114,7 +103,7 @@ target_include_directories(
   INTERFACE
     "${_cuda_core_source_root}"
     "${_cuda_core_source_root}/_include"
-    "${CUDA_CORE_CUDA_ROOT}/include"
+    "${_cuda_core_cuda_root}/include"
 )
 target_compile_definitions(
   cuda_core_extension_settings

@@ -23,7 +23,7 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   `cuda/core/_cpp/`.
 - **Build backend**: `CMakeLists.txt` defines the Cython extension build;
   `build_hooks.py` wraps scikit-build-core to provide CUDA-major-specific build
-  dependency wiring and compatibility build settings.
+  dependency wiring.
 
 ## Build and version coupling
 

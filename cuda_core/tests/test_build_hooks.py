@@ -18,7 +18,6 @@ These tests require scikit-build-core to be installed (build_hooks.py wraps it).
 
 import importlib.util
 import os
-import sys
 import tempfile
 from pathlib import Path
 from unittest import mock
@@ -57,7 +56,7 @@ def test_binary_build_requirements_include_matching_bindings(monkeypatch, hook_n
     """Binary hooks preserve backend requirements and append CUDA-matched bindings."""
     backend_hook = mock.Mock(return_value=["backend-requirement"])
     monkeypatch.setattr(build_hooks._build_backend, hook_name, backend_hook)
-    monkeypatch.setattr(build_hooks, "_configured_cuda_major", lambda _settings: "13")
+    monkeypatch.setattr(build_hooks, "_determine_cuda_major_version", lambda: "13")
     config_settings = {"cmake.define.SENTINEL": "value"}
 
     requirements = getattr(build_hooks, hook_name)(config_settings)
@@ -67,61 +66,19 @@ def test_binary_build_requirements_include_matching_bindings(monkeypatch, hook_n
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_sdist_requirements_are_delegated_directly():
-    """The sdist hook is delegated directly and remains toolkit-independent."""
-    assert build_hooks.get_requires_for_build_sdist is build_hooks._build_backend.get_requires_for_build_sdist
-
-
-@pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.parametrize(
-    ("debug", "expected"),
-    [("true", "Debug"), ("false", "Release"), (True, "Debug"), (False, "Release")],
+    "hook_name",
+    [
+        "build_wheel",
+        "build_editable",
+        "build_sdist",
+        "prepare_metadata_for_build_wheel",
+        "prepare_metadata_for_build_editable",
+        "get_requires_for_build_sdist",
+    ],
 )
-def test_legacy_debug_setting_maps_to_cmake_build_type(monkeypatch, debug, expected):
-    monkeypatch.setattr(sys, "platform", "linux")
-    settings = build_hooks._translate_config_settings({"debug": debug})
-
-    assert settings == {"cmake.build-type": expected}
-
-
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_debug_build_is_rejected_on_windows(monkeypatch):
-    monkeypatch.setattr(sys, "platform", "win32")
-
-    with pytest.raises(RuntimeError, match="not supported on Windows"):
-        build_hooks._translate_config_settings({"debug": "true"})
-
-
-@pytest.mark.agent_authored(model="gpt-5.6")
-@pytest.mark.parametrize("prefix", ["cmake.define.", "skbuild.cmake.define."])
-def test_build_hooks_preserve_explicit_cuda_settings(monkeypatch, prefix):
-    config_settings = {
-        f"{prefix}CUDA_CORE_CUDA_ROOT": "/configured-cuda",
-        f"{prefix}CUDA_CORE_BUILD_MAJOR": "12",
-    }
-    backend_hook = mock.Mock(return_value="wheel.whl")
-    monkeypatch.setattr(build_hooks._build_backend, "build_wheel", backend_hook)
-
-    assert build_hooks.build_wheel("dist", config_settings, "metadata") == "wheel.whl"
-    backend_hook.assert_called_once_with("dist", config_settings, "metadata")
-
-
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_prefixed_cuda_settings_follow_backend_precedence(tmp_path, monkeypatch):
-    monkeypatch.delenv("CUDA_CORE_BUILD_MAJOR", raising=False)
-    unprefixed_root = tmp_path / "unprefixed"
-    prefixed_root = tmp_path / "prefixed"
-    for root, version in ((unprefixed_root, 12000), (prefixed_root, 13000)):
-        include = root / "include"
-        include.mkdir(parents=True)
-        (include / "cuda.h").write_text(f"#define CUDA_VERSION {version}\n")
-
-    config_settings = {
-        "cmake.define.CUDA_CORE_CUDA_ROOT": str(unprefixed_root),
-        "skbuild.cmake.define.CUDA_CORE_CUDA_ROOT": str(prefixed_root),
-    }
-
-    assert build_hooks._configured_cuda_major(config_settings) == "13"
+def test_non_requirement_hooks_are_delegated_directly(hook_name):
+    assert getattr(build_hooks, hook_name) is getattr(build_hooks._build_backend, hook_name)
 
 
 def _check_version_detection(
@@ -163,7 +120,7 @@ class TestGetCudaMajorVersion:
     @pytest.mark.parametrize("version", ["11", "12", "13", "14"])
     def test_env_var_override(self, version):
         """CUDA_CORE_BUILD_MAJOR env var override works with various versions."""
-        with mock.patch.dict(os.environ, {"CUDA_CORE_BUILD_MAJOR": version}, clear=False):
+        with mock.patch.dict(os.environ, {"CUDA_CORE_BUILD_MAJOR": version}, clear=True):
             result = build_hooks._determine_cuda_major_version()
             assert result == version
 
@@ -188,9 +145,45 @@ class TestGetCudaMajorVersion:
         """CUDA_HOME is used if CUDA_PATH is not set."""
         _check_version_detection(12050, "12", use_cuda_path=False, use_cuda_home=True)
 
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_cuda_path_precedes_cuda_home(self, tmp_path):
+        cuda_path = tmp_path / "cuda-path"
+        cuda_home = tmp_path / "cuda-home"
+        for root, version in ((cuda_path, 12080), (cuda_home, 13010)):
+            include = root / "include"
+            include.mkdir(parents=True)
+            (include / "cuda.h").write_text(f"#define CUDA_VERSION {version}\n")
+
+        with mock.patch.dict(
+            os.environ,
+            {"CUDA_PATH": str(cuda_path), "CUDA_HOME": str(cuda_home)},
+            clear=True,
+        ):
+            assert build_hooks._determine_cuda_major_version() == "12"
+
     def test_env_var_takes_priority_over_headers(self):
         """Env var override takes priority even when headers exist."""
         _check_version_detection(12080, "11", cuda_core_build_major="11")
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_empty_env_var_falls_back_to_headers(self):
+        _check_version_detection(13010, "13", cuda_core_build_major="")
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_invalid_env_var_raises_error(self):
+        with (
+            mock.patch.dict(os.environ, {"CUDA_CORE_BUILD_MAJOR": "thirteen"}, clear=True),
+            pytest.raises(RuntimeError, match="must be an integer"),
+        ):
+            build_hooks._determine_cuda_major_version()
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_missing_cuda_header_raises_error(self, tmp_path):
+        with (
+            mock.patch.dict(os.environ, {"CUDA_PATH": str(tmp_path)}, clear=True),
+            pytest.raises(RuntimeError, match="valid CUDA installation with include/cuda.h"),
+        ):
+            build_hooks._determine_cuda_major_version()
 
     def test_missing_cuda_path_raises_error(self):
         """RuntimeError is raised when CUDA_PATH/CUDA_HOME not set and no env var override."""
