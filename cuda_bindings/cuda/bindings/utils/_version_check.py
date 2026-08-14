@@ -9,6 +9,32 @@ import warnings
 _major_version_compatibility_checked = False
 _lock = threading.Lock()
 
+_DISABLE_WARNING_ENV_VAR = "CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING"
+
+
+def _warning_disabled() -> bool:
+    """Whether the user asked to suppress the major-version warning.
+
+    ``=0`` means "do not suppress". A bare truthiness test on the raw string
+    made ``CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING=0`` suppress the warning
+    -- the exact opposite of what the warning itself tells the user to type,
+    and the opposite of the other boolean knobs in this repository
+    (``CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM`` and
+    ``CUDA_CORE_DONT_FIX_TAB_COMPLETION``), which both parse their value with
+    ``int()``.
+
+    Unset and empty still mean "not disabled". A value that is not an integer
+    keeps the old set-means-disabled behaviour, so anyone currently relying on
+    a spelling like ``=true`` does not silently start seeing the warning again.
+    """
+    raw = os.environ.get(_DISABLE_WARNING_ENV_VAR, "").strip()
+    if not raw:
+        return False
+    try:
+        return int(raw) != 0
+    except ValueError:
+        return True
+
 
 def warn_if_cuda_major_version_mismatch():
     """Warn if the CUDA driver major version is older than cuda-bindings compile-time version.
@@ -21,7 +47,8 @@ def warn_if_cuda_major_version_mismatch():
     The check runs only once per process. Subsequent calls are no-ops.
 
     The warning can be suppressed by setting the environment variable
-    ``CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING=1``.
+    ``CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING=1``. Setting it to ``0`` (or
+    leaving it unset or empty) keeps the warning enabled.
     """
     global _major_version_compatibility_checked
     if _major_version_compatibility_checked:
@@ -32,7 +59,7 @@ def warn_if_cuda_major_version_mismatch():
         _major_version_compatibility_checked = True
 
     # Allow users to suppress the warning
-    if os.environ.get("CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING"):
+    if _warning_disabled():
         return
 
     # Import here to avoid circular imports and allow lazy loading
@@ -55,7 +82,7 @@ def warn_if_cuda_major_version_mismatch():
             f"NVIDIA driver only supports up to CUDA {runtime_major}. Some cuda-bindings "
             f"features may not work correctly. Consider updating your NVIDIA driver, "
             f"or using a cuda-bindings version built for CUDA {runtime_major}. "
-            f"(Set CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING=1 to suppress this warning.)",
+            f"(Set {_DISABLE_WARNING_ENV_VAR}=1 to suppress this warning.)",
             UserWarning,
             stacklevel=3,
         )
