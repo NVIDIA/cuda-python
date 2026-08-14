@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from cuda.core.typing import SynchronizationPolicyType
-
 
 class LaunchConfig:
     """Customizable launch options.
@@ -46,7 +44,7 @@ class LaunchConfig:
         kernel. Maps to ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY``.
     """
 
-    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, synchronization_policy: SynchronizationPolicyType | int | None=None) -> None:
+    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, synchronization_policy: object=None) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters

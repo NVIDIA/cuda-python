@@ -13,8 +13,8 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
-from cuda.bindings import driver
 from conftest import skipif_need_cuda_headers
+from cuda.bindings import driver
 
 from cuda.core import (
     Device,
