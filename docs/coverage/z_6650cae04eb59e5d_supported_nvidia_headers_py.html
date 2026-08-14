@@ -69,8 +69,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_2f3b744c44be98a7__optional_cuda_import_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-29 01:38 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
+            created at 2026-08-14 01:16 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -88,12 +88,12 @@
     <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="com"># SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="com"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="str">"""Legacy table exports derived from the authored header descriptor catalog.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="str">&quot;&quot;&quot;Legacy table exports derived from the authored header descriptor catalog.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="str">The canonical data entry point is :mod:`header_descriptor_catalog`. This module</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="str">keeps historical constant names for backward compatibility by deriving them</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="str">from the catalog.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="str">&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="key">from</span> <span class="nam">__future__</span> <span class="key">import</span> <span class="nam">annotations</span>&nbsp;</span><span class="r"><label for="ctxs11" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -102,8 +102,8 @@
     <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_headers</span><span class="op">.</span><span class="nam">header_descriptor_catalog</span> <span class="key">import</span> <span class="nam">HEADER_DESCRIPTOR_CATALOG</span>&nbsp;</span><span class="r"><label for="ctxs15" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">pathfinder</span><span class="op">.</span><span class="nam">_utils</span><span class="op">.</span><span class="nam">platform_aware</span> <span class="key">import</span> <span class="nam">IS_WINDOWS</span>&nbsp;</span><span class="r"><label for="ctxs16" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="nam">_CTK_DESCRIPTORS</span> <span class="op">=</span> <span class="nam">tuple</span><span class="op">(</span><span class="nam">desc</span> <span class="key">for</span> <span class="nam">desc</span> <span class="key">in</span> <span class="nam">HEADER_DESCRIPTOR_CATALOG</span> <span class="key">if</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">packaged_with</span> <span class="op">==</span> <span class="str">"ctk"</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="nam">_NON_CTK_DESCRIPTORS</span> <span class="op">=</span> <span class="nam">tuple</span><span class="op">(</span><span class="nam">desc</span> <span class="key">for</span> <span class="nam">desc</span> <span class="key">in</span> <span class="nam">HEADER_DESCRIPTOR_CATALOG</span> <span class="key">if</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">packaged_with</span> <span class="op">==</span> <span class="str">"other"</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs19" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="nam">_CTK_DESCRIPTORS</span> <span class="op">=</span> <span class="nam">tuple</span><span class="op">(</span><span class="nam">desc</span> <span class="key">for</span> <span class="nam">desc</span> <span class="key">in</span> <span class="nam">HEADER_DESCRIPTOR_CATALOG</span> <span class="key">if</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">packaged_with</span> <span class="op">==</span> <span class="str">&quot;ctk&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="nam">_NON_CTK_DESCRIPTORS</span> <span class="op">=</span> <span class="nam">tuple</span><span class="op">(</span><span class="nam">desc</span> <span class="key">for</span> <span class="nam">desc</span> <span class="key">in</span> <span class="nam">HEADER_DESCRIPTOR_CATALOG</span> <span class="key">if</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">packaged_with</span> <span class="op">==</span> <span class="str">&quot;other&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs19" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="nam">SUPPORTED_HEADERS_CTK_COMMON</span><span class="op">:</span> <span class="nam">Final</span><span class="op">[</span><span class="nam">dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><span class="r"><label for="ctxs21" class="ctx">(empty)</label></span></p>
     <p class="run run2"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">    <span class="nam">desc</span><span class="op">.</span><span class="nam">name</span><span class="op">:</span> <span class="nam">desc</span><span class="op">.</span><span class="nam">header_basename</span>&nbsp;</span><span class="r"></span></p>
@@ -174,8 +174,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_2f3b744c44be98a7__optional_cuda_import_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-29 01:38 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
+            created at 2026-08-14 01:16 +0000
         </p>
     </div>
 </footer>

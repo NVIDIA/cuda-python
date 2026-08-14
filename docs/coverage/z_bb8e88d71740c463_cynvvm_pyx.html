@@ -94,10 +94,12 @@
   "`": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|setup",
   "{": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
   "|": "tests/test_program.py::test_bitcode_format[txt]|setup",
-  "}": "tests/test_program.py::test_nvvm_program_options[options6-ptx]|setup",
-  "~": "tests/test_memory.py::test_mr_deallocate_called_on_gc|run",
+  "}": "tests/test_program.py::test_nvvm_program_options[options0-ltoir]|setup",
+  "~": "tests/test_program.py::test_nvvm_program_options[options1-ptx]|setup",
   "ab": "tests/test_object_protocols.py::test_repr_format[sample_program_nvvm-\u003cProgram backend='NVVM'\u003e]|teardown",
-  "bb": "tests/test_nvvm.py::test_nvvm_llvm_version|run"
+  "bb": "tests/test_program.py::test_cpp_program_with_trace_option|teardown",
+  "cb": "tests/test_program.py::test_cpp_program_with_various_options[options1]|teardown",
+  "db": "tests/test_nvvm.py::test_nvvm_llvm_version|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -159,8 +161,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cyruntime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-29 01:38 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
+            created at 2026-08-14 01:16 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -198,7 +200,7 @@
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">cdef nvvmResult nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">    return _nvvm._nvvmIRVersion(majorIR, minorIR, majorDbg, minorDbg)</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">38 ctx</label></span><span class="ctxs">1a'()*+,-./:;=?@[]^_`{|}bc01234567JKLMN</span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">    return _nvvm._nvvmIRVersion(majorIR, minorIR, majorDbg, minorDbg)</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">39 ctx</label></span><span class="ctxs">1a'()*+,-./:;=?@[]^_`{|}~bc01234567JKLMN</span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">cdef nvvmResult nvvmCreateProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs27" class="ctx">(empty)</label></span></p>
@@ -206,7 +208,7 @@
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">cdef nvvmResult nvvmDestroyProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs31" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    return _nvvm._nvvmDestroyProgram(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">56 ctx</label></span><span class="ctxs">2a ~ 8 9 B C D E F G W X d e f g h i j k ! O P Q R S T U V abl m Y H Z n o p q r s t u v w x y z A b c J K L M N </span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    return _nvvm._nvvmDestroyProgram(prog)</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">57 ctx</label></span><span class="ctxs">2a 8 9 B C D E F G W X d e f g h i j k ! O P Q R S T U V abl m bbcbY H Z n o p q r s t u v w x y z A b c J K L M N </span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">cdef nvvmResult nvvmAddModuleToProgram(nvvmProgram prog, const char* buffer, size_t size, const char* name) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs35" class="ctx">(empty)</label></span></p>
@@ -242,7 +244,7 @@
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">cdef nvvmResult nvvmLLVMVersion(const char* arch, int* major) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs67" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">    return _nvvm._nvvmLLVMVersion(arch, major)</span>&nbsp;</span><input type="checkbox" id="ctxs68"><span class="r"><label for="ctxs68" class="ctx">1 ctx</label></span><span class="ctxs">2bb</span></p>
+    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">    return _nvvm._nvvmLLVMVersion(arch, major)</span>&nbsp;</span><input type="checkbox" id="ctxs68"><span class="r"><label for="ctxs68" class="ctx">1 ctx</label></span><span class="ctxs">2db</span></p>
 </main>
 <footer>
     <div class="content">
@@ -251,8 +253,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_bb8e88d71740c463_cyruntime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-29 01:38 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
+            created at 2026-08-14 01:16 +0000
         </p>
     </div>
 </footer>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/cyruntime.pyx: 64.48%</title>
+    <title>Coverage for cuda/bindings/cyruntime.pyx: 64.34%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -235,7 +235,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>cyruntime.pyx</b>:
-            <span class="pc_cov">64.48%</span>
+            <span class="pc_cov">64.34%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -278,8 +278,8 @@
         </aside>
         <h2>
             <span class="text">687 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">443<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">244<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">442<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">245<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -287,8 +287,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-29 01:38 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
+            created at 2026-08-14 01:16 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1017,7 +1017,7 @@
     <p class="pln"><span class="n"><a id="t712" href="#t712">712</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t713" href="#t713">713</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t714" href="#t714">714</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDriverGetVersion(int* driverVersion) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs714" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t715" href="#t715">715</a></span><span class="t"><span class="txt">    return _runtime._cudaDriverGetVersion(driverVersion)</span>&nbsp;</span><span class="r"><label for="ctxs715" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t715" href="#t715">715</a></span><span class="t"><span class="txt">    return _runtime._cudaDriverGetVersion(driverVersion)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t716" href="#t716">716</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t717" href="#t717">717</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t718" href="#t718">718</a></span><span class="t"><span class="txt">cdef cudaError_t cudaRuntimeGetVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs718" class="ctx">(empty)</label></span></p>
@@ -1672,10 +1672,10 @@
     <p class="pln"><span class="n"><a id="t1367" href="#t1367">1367</a></span><span class="t"><span class="txt"># Static inline helpers from driver_functions.h</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1368" href="#t1368">1368</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1369" href="#t1369">1369</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1370" href="#t1370">1370</a></span><span class="t"><span class="txt">cdef extern from 'driver_functions.h':</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1371" href="#t1371">1371</a></span><span class="t"><span class="txt">    cudaPitchedPtr _c_make_cudaPitchedPtr "make_cudaPitchedPtr"(void* d, size_t p, size_t xsz, size_t ysz) nogil</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1372" href="#t1372">1372</a></span><span class="t"><span class="txt">    cudaPos _c_make_cudaPos "make_cudaPos"(size_t x, size_t y, size_t z) nogil</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1373" href="#t1373">1373</a></span><span class="t"><span class="txt">    cudaExtent _c_make_cudaExtent "make_cudaExtent"(size_t w, size_t h, size_t d) nogil</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1370" href="#t1370">1370</a></span><span class="t"><span class="txt">cdef extern from &#x27;driver_functions.h&#x27;:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1371" href="#t1371">1371</a></span><span class="t"><span class="txt">    cudaPitchedPtr _c_make_cudaPitchedPtr &quot;make_cudaPitchedPtr&quot;(void* d, size_t p, size_t xsz, size_t ysz) nogil</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1372" href="#t1372">1372</a></span><span class="t"><span class="txt">    cudaPos _c_make_cudaPos &quot;make_cudaPos&quot;(size_t x, size_t y, size_t z) nogil</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1373" href="#t1373">1373</a></span><span class="t"><span class="txt">    cudaExtent _c_make_cudaExtent &quot;make_cudaExtent&quot;(size_t w, size_t h, size_t d) nogil</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1374" href="#t1374">1374</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1375" href="#t1375">1375</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1376" href="#t1376">1376</a></span><span class="t"><span class="txt">cdef cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) except* nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1376" class="ctx">(empty)</label></span></p>
@@ -1704,8 +1704,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_bb8e88d71740c463_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.2">coverage.py v7.15.2</a>,
-            created at 2026-07-29 01:38 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
+            created at 2026-08-14 01:16 +0000
         </p>
     </div>
 </footer>
