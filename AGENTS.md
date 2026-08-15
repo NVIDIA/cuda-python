@@ -14,26 +14,16 @@ guide for package-specific conventions and workflows.
 
 # Pull requests
 
-**Never push branches or commits to the upstream repo (github.com/NVIDIA/cuda-python).
-Treat it as read-only.** All branch creation and pushes must go to the contributor's
-personal fork. Before pushing, confirm which remote points to the contributor's
-personal fork (not `upstream`) by running `git remote -v`, then push there
-(`git push <personal-fork-remote> <branch>`). Open the PR from that fork with
-`gh pr create`. Do not use `git push upstream` or any command that writes to
-the `upstream` remote.
+**Never push branches or commits to the canonical upstream repository. Treat
+it as read-only.** Branch creation and pushes for pull-request work must go to
+an approved fork associated with the contributor. The fork may be owned by the
+contributor's personal account or by an organization.
 
-When creating pull requests with `gh pr create`, always assign at least one
-label and a milestone. CI enforces this via the `pr-metadata-check` workflow
-and will block PRs that are missing labels or a milestone. Use `--label` and
-`--milestone` flags, for example:
-
-```
-gh pr create --title "..." --body "..." --label "bug" --milestone "v1.0"
-```
-
-If you are unsure which label or milestone to use, check the existing labels
-and milestones on the repository with `gh label list` and `gh api
-repos/{owner}/{repo}/milestones --jq '.[].title'`, and pick the best match.
+Before pushing, run `git remote -v` and confirm that the intended push remote
+points to a fork of the pull-request base, not to the base repository itself.
+Compare complete `OWNER/REPOSITORY` names; do not rely on remote names such as
+`origin` or `upstream`, or on the owner alone. Do not use `git push upstream`
+or any command that writes to the upstream remote.
 
 
 # General

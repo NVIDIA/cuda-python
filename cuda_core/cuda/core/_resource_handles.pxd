@@ -239,7 +239,7 @@ cdef void register_mr_dealloc_callback(MRDeallocCallback cb) noexcept
 cdef DevicePtrHandle deviceptr_import_ipc(
     const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil
-cdef void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
+cdef cydriver.CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
 # Library handles
 cdef LibraryHandle create_library_handle_from_file(const char* path) except+ nogil

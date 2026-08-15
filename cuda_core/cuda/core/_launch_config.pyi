@@ -18,15 +18,15 @@ class LaunchConfig:
 
     Attributes
     ----------
-    grid : Union[tuple, int]
+    grid : tuple | int
         Collection of threads that will execute a kernel function. When cluster
         is not specified, this represents the number of blocks, otherwise
         this represents the number of clusters.
-    cluster : Union[tuple, int]
+    cluster : tuple | int
         Group of blocks (Thread Block Cluster) that will execute on the same
         GPU Processing Cluster (GPC). Blocks within a cluster have access to
         distributed shared memory and can be explicitly synchronized.
-    block : Union[tuple, int]
+    block : tuple | int
         Group of threads (Thread Block) that will execute on the same
         streaming multiprocessor (SM). Threads within a thread blocks have
         access to shared memory and can be explicitly synchronized.
@@ -46,11 +46,11 @@ class LaunchConfig:
 
         Parameters
         ----------
-        grid : Union[tuple, int], optional
+        grid : tuple | int, optional
             Grid dimensions (number of blocks or clusters if cluster is specified)
-        cluster : Union[tuple, int], optional
+        cluster : tuple | int, optional
             Cluster dimensions (Thread Block Cluster)
-        block : Union[tuple, int], optional
+        block : tuple | int, optional
             Block dimensions (threads per block)
         shmem_size : int, optional
             Dynamic shared memory size in bytes (default: 0)

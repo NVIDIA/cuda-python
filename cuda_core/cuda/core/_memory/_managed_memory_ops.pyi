@@ -11,6 +11,7 @@ from cuda.core._memory._buffer import Buffer
 from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
 
+_SINGLE_MANAGED_HINT = 'the ManagedBuffer instance method'
 
 def discard_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buffer]) -> None:
     """Discard a batch of managed-memory ranges.
