@@ -222,6 +222,7 @@ def test_event_ipc_descriptor_non_ipc(init_cuda):
         _ = event.ipc_descriptor
 
 
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 def test_event_is_done_false(init_cuda):
     """Event.is_done returns False when captured work has not yet completed."""
     device = Device()

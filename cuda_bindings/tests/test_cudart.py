@@ -34,7 +34,16 @@ def supportsSparseTexturesDeviceFilter():
 
 
 def supportsCudaAPI(name):
-    return name in dir(cuda) or dir(cudart)
+    return name in dir(cuda) or name in dir(cudart)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_supportsCudaAPI():
+    # Guards the operator precedence: `name in dir(cuda) or dir(cudart)` parses
+    # as `(name in dir(cuda)) or dir(cudart)`, which is truthy for every name.
+    assert supportsCudaAPI("cudaMalloc") is True  # runtime module
+    assert supportsCudaAPI("cuInit") is True  # driver module
+    assert supportsCudaAPI("this_is_not_a_cuda_api") is False
 
 
 def test_cudart_memcpy():

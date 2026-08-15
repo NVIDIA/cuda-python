@@ -21,7 +21,6 @@ license-files = ["LICENSE"]
 requires-python = ">=3.10"
 classifiers = [
     "Intended Audience :: Developers",
-    "Topic :: Database",
     "Topic :: Scientific/Engineering",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",

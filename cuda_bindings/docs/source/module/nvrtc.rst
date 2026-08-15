@@ -1,7 +1,9 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9f44170e12fd85fa04fcd599a18d0b6474ec7920be8f28a5c097000eb3ccb0e0
+.. This code was automatically generated with version 13.3.0. Do not modify it directly.
+
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c324889e2f86a6302cc610b49d290d545483f3fc0fa05d62ee47eb8aed781ae1
 -----
 nvrtc
 -----
@@ -126,7 +128,11 @@ NVRTC defines the following types and functions for bundled headers installation
 .. autofunction:: cuda.bindings.nvrtc.nvrtcRemoveBundledHeaders
 .. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS
 
-    Flags for nvrtcInstallBundledHeaders.Skip installation if version marker exists and version matches. This is the default behavior when flags=0.
+    Flags for nvrtcInstallBundledHeaders.
+
+
+
+    Skip installation if version marker exists and version matches. This is the default behavior when flags=0.
 
 .. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE
 

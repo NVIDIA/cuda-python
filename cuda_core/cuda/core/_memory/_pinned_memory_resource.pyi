@@ -84,7 +84,7 @@ class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
-    def __init__(self, options: PinnedMemoryResourceOptions | dict[str, object] | None=None) -> None:
+    def __init__(self, options: PinnedMemoryResourceOptions | None=None) -> None:
         ...
 
     def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:

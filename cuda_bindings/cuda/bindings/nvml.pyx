@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fa68fb618fdd8ebcac22c2bf0cee505ebcdacbc51c0ce60bd703b69a34a880cb
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9167da2a3d3194c67c44a0fe8d4d34b3dbd3c0f43061c50b7d238d2044c75509
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -12,6 +12,7 @@ cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 cimport cpython.memoryview as _cyb_cpython_memoryview
 from cython cimport view as _cyb_view
+from libc.stdint cimport intptr_t
 from libc.stdlib cimport (
     calloc as _cyb_calloc,
     free as _cyb_free,
@@ -72,7 +73,7 @@ from cython cimport view
 cimport cpython
 from libc.string cimport memcpy
 
-from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
+from ._internal.utils cimport (get_nested_resource_ptr,
                                nested_resource)
 
 from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
@@ -14692,7 +14693,7 @@ cdef class DevicePowerMizerModes_v1:
 
     @property
     def supported_power_mizer_modes(self):
-        """int: OUT: Bitmask of supported powermizer modes. The bitmask of supported power mizer modes on this device. The supported modes can be combined using the bitwise OR operator '|'. For example, if a device supports all PowerMizer modes, the bitmask would be: supportedPowerMizerModes = ((1 << NVML_POWER_MIZER_MODE_ADAPTIVE) | (1 << NVML_POWER_MIZER_MODE_PREFER_MAXIMUM_PERFORMANCE) | (1 << NVML_POWER_MIZER_MODE_AUTO) | (1 << NVML_POWER_MIZER_MODE_PREFER_CONSISTENT_PERFORMANCE));  This bitmask can be used to check which power mizer modes are available on the device by performing a bitwise AND operation with the specific mode you want to check."""
+        """int: OUT: Bitmask of supported powermizer modes.   The bitmask of supported power mizer modes on this device. The supported modes can be combined using the bitwise OR operator '|'. For example, if a device supports all PowerMizer modes, the bitmask would be: supportedPowerMizerModes = ((1 << NVML_POWER_MIZER_MODE_ADAPTIVE) | (1 << NVML_POWER_MIZER_MODE_PREFER_MAXIMUM_PERFORMANCE) | (1 << NVML_POWER_MIZER_MODE_AUTO) | (1 << NVML_POWER_MIZER_MODE_PREFER_CONSISTENT_PERFORMANCE));  This bitmask can be used to check which power mizer modes are available on the device by performing a bitwise AND operation with the specific mode you want to check."""
         return self._ptr[0].supportedPowerMizerModes
 
     @supported_power_mizer_modes.setter
