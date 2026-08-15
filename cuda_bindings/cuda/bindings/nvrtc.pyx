@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ac1af34ecd1468ac91074ce7f18423af19fbc7727653cdfc1cd9b6f33f6cec72
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5d36f91a9f04660caaf0a8a7afa443d43899bc6eb70e61a26415485d9a39475a
 from typing import Any, Optional
 import cython
 import ctypes
@@ -44,8 +44,10 @@ ctypedef unsigned long long float_ptr
 ctypedef unsigned long long double_ptr
 ctypedef unsigned long long void_ptr
 
-#: Flags for nvrtcInstallBundledHeaders.Skip installation if version marker
-#: exists and version matches. This is the default behavior when flags=0.
+#: Flags for nvrtcInstallBundledHeaders.
+#:
+#: Skip installation if version marker exists and version matches. This is
+#: the default behavior when flags=0.
 NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS = cynvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS
 
 #: Clear existing directory contents before installation. Guarantees

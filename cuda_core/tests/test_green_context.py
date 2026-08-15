@@ -405,11 +405,37 @@ class TestSMResourceSplit:
         assert len(groups) == 1
         assert groups[0].sm_count >= sm_resource.min_partition_size
 
-    def test_discovery_respects_alignment(self, sm_resource):
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_by_count_discovery_respects_alignment(self, sm_resource):
+        """CUDA 12 SplitByCount discovery returns an aligned SM count."""
+        if binding_version()[0] != 12:
+            pytest.skip("test covers the CUDA 12 SplitByCount path")
+
         groups, _ = sm_resource.split(SMResourceOptions(count=None))
 
-        if sm_resource.coscheduled_alignment > 0:
-            assert groups[0].sm_count % sm_resource.coscheduled_alignment == 0
+        assert groups[0].sm_count % sm_resource.coscheduled_alignment == 0
+
+    def test_discovery_respects_explicit_coscheduled_sm_count(self, sm_resource):
+        """Constrain discovery explicitly because unconstrained discovery may use all SMs."""
+        if driver_version() < (13, 1, 0):
+            pytest.skip("explicit co-scheduled SM discovery requires CUDA 13.1+")
+
+        alignment = sm_resource.coscheduled_alignment
+        try:
+            groups, _ = sm_resource.split(
+                SMResourceOptions(
+                    count=None,
+                    coscheduled_sm_count=alignment,
+                )
+            )
+        except RuntimeError as exc:
+            pytest.skip(str(exc))
+        except CUDAError as exc:
+            if _is_invalid_resource_configuration(exc):
+                pytest.skip(str(exc))
+            raise
+
+        assert groups[0].sm_count % alignment == 0
 
     def test_two_groups(self, sm_resource):
         """Two-group split succeeds for a supported explicit request."""

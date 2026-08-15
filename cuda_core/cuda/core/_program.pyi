@@ -166,7 +166,7 @@ class ProgramOptions:
         Enable device code optimization. When specified along with '-G', enables limited debug information generation
         for optimized device code.
         Default: None
-    ptxas_options : Union[str, list[str]], optional
+    ptxas_options : str | list[str], optional
         Specify one or more options directly to ptxas, the PTX optimizing assembler. Options should be strings.
         For example ["-v", "-O2"].
         Default: None
@@ -200,17 +200,17 @@ class ProgramOptions:
     gen_opt_lto : bool, optional
         Run the optimizer passes before generating the LTO IR.
         Default: False
-    define_macro : Union[str, tuple[str, str], list[Union[str, tuple[str, str]]]], optional
+    define_macro : str | tuple[str, str] | list[str | tuple[str, str]], optional
         Predefine a macro. Can be either a string, in which case that macro will be set to 1, a 2 element tuple of
         strings, in which case the first element is defined as the second, or a list of strings or tuples.
         Default: None
-    undefine_macro : Union[str, list[str]], optional
+    undefine_macro : str | list[str], optional
         Cancel any previous definition of a macro, or list of macros.
         Default: None
-    include_path : Union[str, list[str]], optional
+    include_path : str | list[str], optional
         Add the directory or directories to the list of directories to be searched for headers.
         Default: None
-    pre_include : Union[str, list[str]], optional
+    pre_include : str | list[str], optional
         Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
         Default: None
     no_source_include : bool, optional
@@ -243,13 +243,13 @@ class ProgramOptions:
     no_display_error_number : bool, optional
         Disable the display of a diagnostic number for warning messages.
         Default: False
-    diag_error : Union[int, list[int]], optional
+    diag_error : int | list[int], optional
         Emit error for a specified diagnostic message number or comma-separated list of numbers.
         Default: None
-    diag_suppress : Union[int, list[int]], optional
+    diag_suppress : int | list[int], optional
         Suppress a specified diagnostic message number or comma-separated list of numbers.
         Default: None
-    diag_warn : Union[int, list[int]], optional
+    diag_warn : int | list[int], optional
         Emit warning for a specified diagnostic message number or comma-separated list of numbers.
         Default: None
     brief_diagnostics : bool, optional

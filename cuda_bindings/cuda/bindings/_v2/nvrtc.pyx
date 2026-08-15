@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e5360fc057cdd7b8e28b4d502821443d190e589b200dce1a234494ad6e9abf93
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a36c7e54cf29166832dd9aebc1fa71cc3649498794a2846e707396419caebe10
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -11,6 +11,7 @@
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 from cython cimport view as _cyb_view
+from libc.stdint cimport intptr_t
 from libc.stdlib cimport (
     calloc as _cyb_calloc,
     free as _cyb_free,

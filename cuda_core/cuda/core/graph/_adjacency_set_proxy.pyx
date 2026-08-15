@@ -144,20 +144,23 @@ cdef class _AdjacencySetCore:
         cdef cydriver.CUgraphNode c_node = as_cu(self._h_node)
         if c_node == NULL:
             return []
-        cdef cydriver.CUgraphNode buf[16]
-        cdef size_t count = 16
+        cdef cydriver.CUgraphNode stack_buf[16]
+        cdef cydriver.CUgraphNode* nodes
+        cdef size_t count = 0
         cdef size_t i
         with nogil:
-            HANDLE_RETURN(self._query_fn(c_node, buf, &count))
-        if count <= 16:
-            return [GraphNode._create(self._h_graph, buf[i])
-                    for i in range(count)]
+            HANDLE_RETURN(self._query_fn(c_node, NULL, &count))
+        if count == 0:
+            return []
         cdef vector[cydriver.CUgraphNode] nodes_vec
-        nodes_vec.resize(count)
+        if count <= 16:
+            nodes = stack_buf
+        else:
+            nodes_vec.resize(count)
+            nodes = nodes_vec.data()
         with nogil:
-            HANDLE_RETURN(self._query_fn(
-                c_node, nodes_vec.data(), &count))
-        return [GraphNode._create(self._h_graph, nodes_vec[i])
+            HANDLE_RETURN(self._query_fn(c_node, nodes, &count))
+        return [GraphNode._create(self._h_graph, nodes[i])
                 for i in range(count)]
 
     cdef bint contains(self, GraphNode other):
@@ -165,27 +168,24 @@ cdef class _AdjacencySetCore:
         cdef cydriver.CUgraphNode target = as_cu(other._h_node)
         if c_node == NULL or target == NULL:
             return False
-        cdef cydriver.CUgraphNode buf[16]
-        cdef size_t count = 16
+        cdef cydriver.CUgraphNode stack_buf[16]
+        cdef cydriver.CUgraphNode* nodes
+        cdef size_t count = 0
         cdef size_t i
         with nogil:
-            HANDLE_RETURN(self._query_fn(c_node, buf, &count))
-
-        # Fast path for small sets.
-        if count <= 16:
-            for i in range(count):
-                if buf[i] == target:
-                    return True
+            HANDLE_RETURN(self._query_fn(c_node, NULL, &count))
+        if count == 0:
             return False
-
-        # Fallback for large sets.
         cdef vector[cydriver.CUgraphNode] nodes_vec
-        nodes_vec.resize(count)
+        if count <= 16:
+            nodes = stack_buf
+        else:
+            nodes_vec.resize(count)
+            nodes = nodes_vec.data()
         with nogil:
-            HANDLE_RETURN(self._query_fn(c_node, nodes_vec.data(), &count))
-        assert count == nodes_vec.size()
+            HANDLE_RETURN(self._query_fn(c_node, nodes, &count))
         for i in range(count):
-            if nodes_vec[i] == target:
+            if nodes[i] == target:
                 return True
         return False
 
