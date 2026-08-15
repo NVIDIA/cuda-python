@@ -29,6 +29,12 @@ Highlights
   ``lib/x64`` or ``lib/arm64`` CUDA Toolkit and wheel directories. CUDA 12
   component-wheel and legacy Conda fallbacks remain x64-only.
 
+* Fix Windows binary-utility discovery for CUDA 13.4 Arm64 layouts. Prefer the
+  Compute Sanitizer launcher, locate standalone Nsight Systems and Nsight
+  Compute through their installer registry entries, and select
+  architecture-specific executable targets using the native Windows machine
+  architecture.
+
 Internal maintenance
 --------------------
 

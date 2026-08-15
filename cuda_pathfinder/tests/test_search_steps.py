@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import ctypes
 import os
+from ctypes import wintypes
 
 import pytest
 
@@ -145,6 +147,85 @@ class TestWindowsPythonArch:
         ) as exc_info:
             windows_arch_mod.windows_python_arch()
         assert exc_info.value.platform_tag == "custom-win"
+
+
+class TestWindowsMachineArch:
+    @pytest.mark.parametrize(
+        ("native_machine", "expected"),
+        ((0x8664, "x64"), (0xAA64, "arm64")),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_uses_native_pe_machine(self, mocker, native_machine, expected):
+        mocker.patch.object(windows_arch_mod, "_windows_native_machine", return_value=native_machine)
+        platform_machine = mocker.patch.object(windows_arch_mod.platform, "machine", return_value="AMD64")
+
+        assert windows_arch_mod.windows_machine_arch() == expected
+        platform_machine.assert_not_called()
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_rejects_unknown_native_pe_machine(self, mocker):
+        mocker.patch.object(windows_arch_mod, "_windows_native_machine", return_value=0x014C)
+
+        with pytest.raises(RuntimeError, match=r"Unsupported native Windows PE machine type: 0x014c"):
+            windows_arch_mod.windows_machine_arch()
+
+    @pytest.mark.parametrize(
+        ("reported_machine", "expected"),
+        (("AMD64", "x64"), ("x86_64", "x64"), ("ARM64", "arm64"), ("aarch64", "arm64")),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_old_windows_fallback_normalizes_platform_machine(self, mocker, reported_machine, expected):
+        mocker.patch.object(windows_arch_mod, "_windows_native_machine", return_value=None)
+        mocker.patch.object(windows_arch_mod.platform, "machine", return_value=reported_machine)
+
+        assert windows_arch_mod.windows_machine_arch() == expected
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_native_machine_returns_none_when_is_wow64_process2_is_unavailable(self, mocker):
+        kernel32 = mocker.Mock(spec=["GetCurrentProcess"])
+        mocker.patch.object(ctypes, "WinDLL", create=True, return_value=kernel32)
+
+        assert windows_arch_mod._windows_native_machine() is None
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_native_machine_configures_api_and_returns_native_machine(self, mocker):
+        kernel32 = mocker.Mock()
+        kernel32.GetCurrentProcess.return_value = wintypes.HANDLE(1)
+
+        def report_native_machine(_process, _process_machine, native_machine):
+            native_machine._obj.value = 0xAA64
+            return True
+
+        kernel32.IsWow64Process2.side_effect = report_native_machine
+        mocker.patch.object(ctypes, "WinDLL", create=True, return_value=kernel32)
+
+        assert windows_arch_mod._windows_native_machine() == 0xAA64
+        assert kernel32.GetCurrentProcess.argtypes == ()
+        assert kernel32.GetCurrentProcess.restype is wintypes.HANDLE
+        assert kernel32.IsWow64Process2.argtypes == (
+            wintypes.HANDLE,
+            ctypes.POINTER(wintypes.USHORT),
+            ctypes.POINTER(wintypes.USHORT),
+        )
+        assert kernel32.IsWow64Process2.restype is wintypes.BOOL
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_native_machine_raises_contextual_error_when_api_call_fails(self, mocker):
+        kernel32 = mocker.Mock()
+        kernel32.GetCurrentProcess.return_value = wintypes.HANDLE(1)
+        kernel32.IsWow64Process2.return_value = False
+        mocker.patch.object(ctypes, "WinDLL", create=True, return_value=kernel32)
+        mocker.patch.object(ctypes, "get_last_error", create=True, return_value=87)
+        windows_error = OSError(87, "The parameter is incorrect")
+        mocker.patch.object(ctypes, "WinError", create=True, return_value=windows_error)
+
+        with pytest.raises(
+            RuntimeError,
+            match=r"IsWow64Process2 failed while detecting the native Windows architecture \(Windows error 87\)",
+        ) as exc_info:
+            windows_arch_mod._windows_native_machine()
+
+        assert exc_info.value.__cause__ is windows_error
 
 
 @pytest.mark.parametrize(

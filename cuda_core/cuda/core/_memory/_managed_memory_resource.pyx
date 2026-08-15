@@ -97,7 +97,7 @@ cdef class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
-    def __init__(self, options: ManagedMemoryResourceOptions | dict[str, object] | None = None) -> None:
+    def __init__(self, options: ManagedMemoryResourceOptions | None = None) -> None:
         _MMR_init(self, options)
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> ManagedBuffer:
