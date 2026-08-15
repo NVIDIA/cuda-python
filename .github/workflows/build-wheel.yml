@@ -614,10 +614,14 @@ jobs:
 
           OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
+          OLD_WHEEL_ARTIFACT_PATTERN="${OLD_BASENAME}[0-9a-f]"
+          LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id \
+            --branch "${OLD_BRANCH}" \
+            --artifact "${OLD_WHEEL_ARTIFACT_PATTERN}" \
+            NVIDIA/cuda-python "CI")
           PREV_BINDINGS_DIR="cuda_bindings/dist-prev"
 
-          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
+          gh run download "${LATEST_PRIOR_RUN_ID}" -p "${OLD_BASENAME}" -R NVIDIA/cuda-python
           rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
           ls -al $OLD_BASENAME
           mkdir -p "${PREV_BINDINGS_DIR}"
