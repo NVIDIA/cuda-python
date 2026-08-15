@@ -9,6 +9,7 @@ from typing import NoReturn, TypedDict
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.windows_arch import windows_python_arch
 
 
 class StaticLibNotFoundError(RuntimeError):
@@ -32,17 +33,28 @@ class _StaticLibInfo(TypedDict):
     site_packages_dirs: tuple[str, ...]
 
 
+def _cudadevrt_info() -> _StaticLibInfo:
+    if not IS_WINDOWS:
+        return {
+            "filename": "libcudadevrt.a",
+            "ctk_rel_paths": ("lib64", "lib"),
+            "conda_rel_paths": ("lib",),
+            "site_packages_dirs": ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib"),
+        }
+
+    arch_dir = windows_python_arch()
+    component_wheel_dirs = ("nvidia/cuda_runtime/lib/x64",) if arch_dir == "x64" else ()
+    conda_fallback_dirs = ("lib",) if arch_dir == "x64" else ()
+    return {
+        "filename": "cudadevrt.lib",
+        "ctk_rel_paths": (os.path.join("lib", arch_dir),),
+        "conda_rel_paths": (os.path.join("lib", arch_dir), *conda_fallback_dirs),
+        "site_packages_dirs": (f"nvidia/cu13/lib/{arch_dir}", *component_wheel_dirs),
+    }
+
+
 _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
-    "cudadevrt": {
-        "filename": "cudadevrt.lib" if IS_WINDOWS else "libcudadevrt.a",
-        "ctk_rel_paths": (os.path.join("lib", "x64"),) if IS_WINDOWS else ("lib64", "lib"),
-        "conda_rel_paths": ((os.path.join("lib", "x64"), "lib") if IS_WINDOWS else ("lib",)),
-        "site_packages_dirs": (
-            ("nvidia/cu13/lib/x64", "nvidia/cuda_runtime/lib/x64")
-            if IS_WINDOWS
-            else ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib")
-        ),
-    },
+    "cudadevrt": _cudadevrt_info(),
 }
 
 SUPPORTED_STATIC_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_STATIC_LIBS_INFO.keys()))

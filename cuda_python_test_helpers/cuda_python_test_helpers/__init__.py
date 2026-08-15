@@ -65,3 +65,13 @@ def under_compute_sanitizer() -> bool:
     # Another common indicator: sanitizer injectors are configured via env vars.
     inj = os.environ.get("CUDA_INJECTION64_PATH", "")
     return "compute-sanitizer" in inj or "cuda-memcheck" in inj
+
+
+def driver_version_less_than(target):
+    from cuda.bindings import driver
+
+    (err,) = driver.cuInit(0)
+    assert err == driver.CUresult.CUDA_SUCCESS
+    err, version = driver.cuDriverGetVersion()
+    assert err == driver.CUresult.CUDA_SUCCESS
+    return version < target

@@ -458,7 +458,7 @@ class ObjectCode:
 
         """
 
-    def get_module(self) -> object:
+    def get_module(self) -> driver.CUmodule:
         """Return a context-dependent :obj:`~driver.CUmodule` for legacy interop.
 
         Bridges the native :obj:`~driver.CUlibrary` (see :attr:`handle`) to a

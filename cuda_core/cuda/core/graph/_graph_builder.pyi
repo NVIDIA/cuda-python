@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph._graph_definition import GraphCondition, GraphDefinition
+from cuda.core.graph._graph_node import GraphNode
+from cuda.core.graph._subclasses import ExecutableGraphNode
 
 _BuilderKind = int
 _CaptureState = int
@@ -407,10 +409,12 @@ class GraphBuilder:
         - **Python callable**: Pass any callable. The GIL is acquired
           automatically. The callable must take no arguments; use closures
           or ``functools.partial`` to bind state.
-        - **ctypes function pointer**: Pass a ``ctypes.CFUNCTYPE`` instance.
-          The function receives a single ``void*`` argument (the
-          ``user_data``). The caller must keep the ctypes wrapper alive
-          for the lifetime of the graph.
+        - **ctypes function pointer**: The function receives a single
+          ``void*`` argument (the ``user_data``), and the caller must keep
+          the ctypes wrapper alive for the lifetime of the graph. Its
+          declared prototype must match the driver's ``CUhostFn``
+          (``void (*)(void*)``): ``ctypes.CFUNCTYPE(None, ctypes.c_void_p)``,
+          or ``ctypes.WINFUNCTYPE(None, ctypes.c_void_p)`` on Windows.
 
         .. warning::
 
@@ -430,6 +434,14 @@ class GraphBuilder:
             Only for ctypes function pointers. If ``int``, passed as a raw
             pointer (caller manages lifetime). If bytes-like, the data is
             copied and its lifetime is tied to the graph.
+
+        Raises
+        ------
+        TypeError
+            If ``fn`` is a ctypes function pointer whose declared prototype
+            does not match ``CUhostFn``.
+        ValueError
+            If ``user_data`` is given for a Python callable.
         """
 
 class Graph:
@@ -458,6 +470,15 @@ class Graph:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int()`` on the returned object.
 
+        """
+
+    def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
+        """Return a view for updating *node* in this executable graph.
+
+        *node* is a definition node from the graph used to instantiate this
+        executable. Call ``update()`` on the returned view to replace that
+        node's parameters for future launches. Kernel, memcpy, and memset
+        views also support enabling and disabling the node.
         """
 
     def update(self, source: 'GraphBuilder | GraphDefinition') -> None:
@@ -494,7 +515,7 @@ class Graph:
         """
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
-def _instantiate_graph(h_graph, options: GraphCompleteOptions | None=None) -> Graph:
+def _instantiate_graph(source, options: GraphCompleteOptions | None=None) -> Graph:
     ...
 
 def _capture_callback_with_tail_failure_for_testing(gb: GraphBuilder, fn, *, user_data=None):

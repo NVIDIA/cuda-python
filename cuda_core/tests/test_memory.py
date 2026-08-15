@@ -22,6 +22,7 @@ from conftest import (
 )
 from helpers import supports_ipc_mempool
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource, TrackingMR
+from helpers.constants import POOL_SIZE
 
 from cuda.core import (
     Buffer,
@@ -54,8 +55,6 @@ from cuda.core.typing import (
 )
 from cuda.core.utils import StridedMemoryView
 from cuda_python_test_helpers import IS_WINDOWS
-
-POOL_SIZE = 2097152  # 2MB size
 
 
 def _allocate_pinned_buffer_or_xfail(mr, size, *, device):
@@ -750,6 +749,26 @@ def test_pinned_memory_resource_initialization(init_cuda):
     assert buffer.memory_resource == mr
     assert buffer.is_device_accessible
     buffer.close()
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
+    """allocate() must fail on devices without host memory pool support (see #2486)."""
+    device = init_cuda
+    if device.properties.host_memory_pools_supported:
+        pytest.skip("Device supports host memory pools")
+
+    try:
+        mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE))
+    except CUDAError as exc:
+        if "CUDA_ERROR_NOT_SUPPORTED" in str(exc):
+            pytest.skip("PinnedMemoryResource is not supported on this platform/device")
+        raise
+    try:
+        with pytest.raises(RuntimeError, match="does not support.*LegacyPinnedMemoryResource"):
+            mr.allocate(1024, stream=device.default_stream)
+    finally:
+        mr.close()
 
 
 def test_managed_memory_resource_initialization(init_cuda):
@@ -1622,9 +1641,11 @@ def test_pinned_mr_numa_id_negative_error(init_cuda):
     skip_if_pinned_memory_unsupported(device)
 
     with pytest.raises(ValueError, match="numa_id must be >= 0"):
+        # uncapped-pool-ok: numa_id is validated before the pool is created
         PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-1))
 
     with pytest.raises(ValueError, match="numa_id must be >= 0"):
+        # uncapped-pool-ok: numa_id is validated before the pool is created
         PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-42))
 
 
@@ -1957,6 +1978,23 @@ def test_vmm_options_handle_type_win32_raises():
         VirtualMemoryResourceOptions._handle_type_to_driver("win32")
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("location_type", ["host", "host_numa", "host_numa_current"])
+def test_vmm_host_location_types_report_host_accessible(location_type):
+    """Every host-backed location type reports is_host_accessible.
+
+    __init__ classifies "host", "host_numa" and "host_numa_current" alike when
+    deciding the resource is not bound to a device, so is_host_accessible must
+    agree; otherwise a NUMA-located resource claims to be neither host- nor
+    device-accessible.
+    """
+    device = Device()
+    device.set_current()
+    mr = VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+    assert mr.device is None
+    assert mr.is_host_accessible is True
+
+
 def test_device_memory_resource_peer_accessible_by_non_owned(mempool_device):
     """peer_accessible_by on a non-owned (default) DMR queries the driver live."""
     dev = mempool_device
@@ -2074,4 +2112,5 @@ def test_dmr_ipc_enabled_unsupported_raises(mempool_device):
     if not IS_WINDOWS:
         pytest.skip("memory IPC is supported on this platform; unsupported-raise path is Windows-only")
     with pytest.raises(RuntimeError, match="IPC is not available"):
+        # uncapped-pool-ok: IPC support is checked before the pool is created
         DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(ipc_enabled=True))
