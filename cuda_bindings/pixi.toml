@@ -41,7 +41,6 @@ pytest = "*"
 scipy = "*"
 sphinx = ">=9,<10"
 sphinx-copybutton = "*"
-sphinx-toolbox = "*"
 
 [feature.cython-tests.dependencies]
 cython = ">=3.2.5,<3.3" # for tests that exercise APIs from cython

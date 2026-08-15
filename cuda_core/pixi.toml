@@ -109,7 +109,6 @@ sphinx = ">=9,<10"
 sphinx-copybutton = "*"
 myst-nb = "*"
 enum_tools = "*"
-sphinx-toolbox = "*"
 pyclibrary = "*"
 
 [feature.docs.pypi-dependencies]
