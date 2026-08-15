@@ -775,6 +775,40 @@ def test_nvvm_program_options_as_bytes_numba_debug():
     assert b"-g" in nvvm_bytes
 
 
+@pytest.mark.agent_authored(model="claude-opus-5[1m]")
+def test_nvvm_options_reject_double_dash():
+    """The guard must name a double-dashed option rather than let libNVVM
+    reject it with an opaque error (see #2570)."""
+    from cuda.core._program import _assert_single_dashed_nvvm_options
+
+    _assert_single_dashed_nvvm_options(["-arch=compute_80", "-g", "-numba-debug"])
+
+    with pytest.raises(RuntimeError, match=r"--numba-debug.*double-dashed"):
+        _assert_single_dashed_nvvm_options(["-arch=compute_80", "--numba-debug"])
+
+
+@nvvm_available
+@pytest.mark.agent_authored(model="claude-opus-5[1m]")
+def test_nvvm_program_options_as_bytes_all_single_dashed():
+    """Every option cuda.core emits to libNVVM must be single-dashed, because
+    libNVVM rejects the double-dashed spelling of all of them (see #2570).
+    This covers every NVVM-supported field of ProgramOptions."""
+    options = ProgramOptions(
+        arch="sm_80",
+        debug=True,
+        numba_debug=True,
+        device_code_optimize=True,
+        ftz=True,
+        prec_sqrt=True,
+        prec_div=True,
+        fma=True,
+    )
+    nvvm_bytes = options.as_bytes("nvvm")
+    assert nvvm_bytes, "expected at least one emitted option"
+    offenders = [o for o in nvvm_bytes if o.startswith(b"--")]
+    assert not offenders, f"double-dashed options are rejected by libNVVM: {offenders}"
+
+
 @nvvm_available
 @pytest.mark.skipif(
     not _check_nvvm_supports_numba_debug(),
