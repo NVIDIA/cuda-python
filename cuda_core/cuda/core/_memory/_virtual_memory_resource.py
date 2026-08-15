@@ -33,6 +33,16 @@ from cuda.core.typing import (
 
 __all__ = ["VirtualMemoryResource", "VirtualMemoryResourceOptions"]
 
+# Location types whose physical backing lives in host memory. Shared by
+# VirtualMemoryResource.__init__ and is_host_accessible so the two cannot drift.
+_HOST_LOCATION_TYPES = frozenset(
+    {
+        VirtualMemoryLocationType.HOST,
+        VirtualMemoryLocationType.HOST_NUMA,
+        VirtualMemoryLocationType.HOST_NUMA_CURRENT,
+    }
+)
+
 
 @dataclass
 class VirtualMemoryResourceOptions:
@@ -169,8 +179,7 @@ class VirtualMemoryResource(MemoryResource):
         self.config: VirtualMemoryResourceOptions = check_or_create_options(  # type: ignore[assignment]
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
-        # Matches ("host", "host_numa", "host_numa_current")
-        if "host" in self.config.location_type:
+        if self.config.location_type in _HOST_LOCATION_TYPES:
             self.device = None
 
         if not self.device and self.config.location_type == "device":
@@ -609,7 +618,7 @@ class VirtualMemoryResource(MemoryResource):
         """
         Indicates whether the allocated memory is accessible from the host.
         """
-        return self.config.location_type == "host"
+        return self.config.location_type in _HOST_LOCATION_TYPES
 
     @property
     def device_id(self) -> int:
