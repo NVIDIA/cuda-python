@@ -1329,6 +1329,109 @@ def test_vmm_allocator_grow_allocation_fast_path(init_cuda, monkeypatch):
     assert ("set_access", new_ptr, aligned_additional, 1) in calls
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_vmm_allocator_grow_slow_path_rollback_restores_access(init_cuda, monkeypatch):
+    """Fail the slow path after the old range is remapped and check the rollback.
+
+    Rolling back a failed grow has to leave the original range usable, so
+    restoring the mapping is not enough on its own: the access descriptors that
+    the unmap dropped have to be reapplied to the same range.
+    """
+    device = Device()
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    vmm_mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(handle_type="win32_kmt" if IS_WINDOWS else "posix_fd"),
+    )
+
+    prop = driver.CUmemAllocationProp()
+    prop.type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    prop.location.id = device.device_id
+
+    SUCCESS = driver.CUresult.CUDA_SUCCESS
+    FAILURE = driver.CUresult.CUDA_ERROR_INVALID_VALUE
+    OLD_PTR = 0x20_0000
+    NEW_PTR = 0x40_0000
+    OLD_HANDLE = 0xF00D
+    NEW_HANDLE = 0xBEEF
+    calls = []
+
+    def fake_addr_reserve(size, align, addr, flags):
+        return (SUCCESS, NEW_PTR)
+
+    def fake_retain(ptr):
+        return (SUCCESS, OLD_HANDLE)
+
+    def fake_create(size, p, flags):
+        return (SUCCESS, NEW_HANDLE)
+
+    def fake_map(ptr, size, offset, handle, flags):
+        calls.append(("map", ptr, size, handle))
+        return (SUCCESS,)
+
+    def fake_unmap(ptr, size):
+        calls.append(("unmap", ptr, size))
+        return (SUCCESS,)
+
+    def fake_set_access(ptr, size, descs, count):
+        calls.append(("set_access", ptr, size, count))
+        # Fail the forward call over the new range; the rollback call must still
+        # be allowed to succeed.
+        return (FAILURE,) if ptr == NEW_PTR else (SUCCESS,)
+
+    def fake_release(handle):
+        calls.append(("release", handle))
+        return (SUCCESS,)
+
+    def fake_addr_free(ptr, size):
+        calls.append(("addr_free", ptr, size))
+        return (SUCCESS,)
+
+    monkeypatch.setattr(driver, "cuMemAddressReserve", fake_addr_reserve)
+    monkeypatch.setattr(driver, "cuMemRetainAllocationHandle", fake_retain)
+    monkeypatch.setattr(driver, "cuMemCreate", fake_create)
+    monkeypatch.setattr(driver, "cuMemMap", fake_map)
+    monkeypatch.setattr(driver, "cuMemUnmap", fake_unmap)
+    monkeypatch.setattr(driver, "cuMemSetAccess", fake_set_access)
+    monkeypatch.setattr(driver, "cuMemRelease", fake_release)
+    monkeypatch.setattr(driver, "cuMemAddressFree", fake_addr_free)
+
+    class FakeBuffer:
+        def __init__(self, ptr, size):
+            self.handle = ptr
+            self._size = size
+
+    aligned_prev_size = 2 * 1024 * 1024
+    aligned_additional_size = 2 * 1024 * 1024
+    total_aligned_size = aligned_prev_size + aligned_additional_size
+    addr_align = 2 * 1024 * 1024
+    buf = FakeBuffer(OLD_PTR, aligned_prev_size)
+
+    with pytest.raises(CUDAError):
+        vmm_mr._grow_allocation_slow_path(
+            buf,
+            total_aligned_size,
+            prop,
+            aligned_additional_size,
+            total_aligned_size,
+            addr_align,
+        )
+
+    # The rollback remapped the old physical memory back to the original VA.
+    assert ("map", OLD_PTR, aligned_prev_size, OLD_HANDLE) in calls
+    # ... and reapplied access to that same range, which is the regression here.
+    assert ("set_access", OLD_PTR, aligned_prev_size, 1) in calls
+    # Access is restored only after the mapping exists again.
+    assert calls.index(("map", OLD_PTR, aligned_prev_size, OLD_HANDLE)) < calls.index(
+        ("set_access", OLD_PTR, aligned_prev_size, 1)
+    )
+    # The failed reservation is still released.
+    assert ("addr_free", NEW_PTR, total_aligned_size) in calls
+
+
 def test_vmm_allocator_rdma_unsupported_exception():
     """Test that VirtualMemoryResource throws an exception when RDMA is requested but device doesn't support it.
 

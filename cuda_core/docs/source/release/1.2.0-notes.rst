@@ -120,6 +120,12 @@ Fixes and enhancements
   ``coscheduled_sm_count`` explicitly when an aligned result is required.
   (`#2389 <https://github.com/NVIDIA/cuda-python/pull/2389>`__)
 
+- Rolling back a failed :meth:`VirtualMemoryResource.modify_allocation` now
+  restores access to the original range. Previously the rollback remapped the
+  old physical memory to its original address but left the access descriptors
+  unset, so the recovered buffer faulted on its next access.
+  (`#2440 <https://github.com/NVIDIA/cuda-python/pull/2440>`__)
+
 Deprecation Notices
 -------------------
 

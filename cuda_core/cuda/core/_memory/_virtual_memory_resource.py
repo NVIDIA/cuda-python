@@ -385,6 +385,8 @@ class VirtualMemoryResource(MemoryResource):
         Returns:
             Buffer: The buffer object updated with the new pointer and size.
         """
+        descs = self._build_access_descriptors(prop)
+
         with Transaction() as trans:
             # Reserve a completely new, larger VA range
             res, new_ptr = driver.cuMemAddressReserve(total_aligned_size, addr_align, 0, 0)
@@ -410,6 +412,9 @@ class VirtualMemoryResource(MemoryResource):
                 try:
                     (res,) = driver.cuMemMap(int(buf.handle), aligned_prev_size, 0, old_handle, 0)
                     raise_if_driver_error(res)
+                    if descs:
+                        (res,) = driver.cuMemSetAccess(int(buf.handle), aligned_prev_size, descs, len(descs))
+                        raise_if_driver_error(res)
                 except Exception:  # noqa: S110
                     # TODO: consider logging this exception
                     pass
@@ -442,7 +447,6 @@ class VirtualMemoryResource(MemoryResource):
             )
 
             # Set access permissions for the entire new range
-            descs = self._build_access_descriptors(prop)
             if descs:
                 (res,) = driver.cuMemSetAccess(new_ptr, total_aligned_size, descs, len(descs))
                 raise_if_driver_error(res)
