@@ -44,3 +44,9 @@ cdef Buffer Buffer_from_deviceptr_handle(
     object ipc_descriptor = *,
     type cls = *,
 )
+
+
+# Shared argument coercion for the batched free functions (copy_batch,
+# prefetch_batch, discard_batch, discard_prefetch_batch). `single_hint`
+# names the per-buffer API to use instead when a bare Buffer is passed.
+cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint)

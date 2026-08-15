@@ -76,6 +76,7 @@ def has_recent_memory_pool_support() -> bool:
 
 SYSTEM_REQUIREMENTS = {
     "memory_pool_resources.py": has_recent_memory_pool_support,
+    "batched_memcpy.py": has_recent_memory_pool_support,
     "gl_interop_plasma.py": has_display,
     "gl_interop_fluid.py": has_display,
     "gl_interop_mipmap_lod.py": has_display,
