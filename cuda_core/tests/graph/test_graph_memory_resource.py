@@ -5,10 +5,9 @@
 """Tests for GraphMemoryResource allocation and attributes during graph capture."""
 
 import pytest
-from helpers import IS_WINDOWS, IS_WSL
+from conftest import xfail_on_graph_mempool_oom
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
 
-from conftest import xfail_on_graph_mempool_oom
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -20,6 +19,7 @@ from cuda.core import (
 )
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.graph import GraphCompleteOptions
+from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
 
 
 def _common_kernels_alloc():
@@ -288,6 +288,36 @@ def test_gmr_check_capture_state(mempool_device, mode):
     with xfail_on_graph_mempool_oom(device):
         gmr.allocate(1, stream=gb)  # no error
         gb.end_building().complete()
+
+
+def test_graph_memory_resource_attributes_direct_init_raises():
+    """GraphMemoryResourceAttributes cannot be constructed directly."""
+    from cuda.core._memory._graph_memory_resource import GraphMemoryResourceAttributes
+
+    with pytest.raises(RuntimeError, match="cannot be instantiated directly"):
+        GraphMemoryResourceAttributes()
+
+
+def test_graph_memory_resource_accessibility_flags(init_cuda):
+    """GraphMemoryResource exposes expected accessibility flags and device_id."""
+    device = Device()
+    gmr = GraphMemoryResource(device)
+    assert gmr.is_device_accessible is True
+    assert gmr.is_host_accessible is False
+    assert gmr.device_id == int(device)
+
+
+def test_graph_memory_resource_attributes_repr(mempool_device):
+    """GraphMemoryResourceAttributes.__repr__ includes the class name and the 4 documented attributes."""
+    device = mempool_device
+    gmr = GraphMemoryResource(device)
+    r = repr(gmr.attributes)
+    assert r.startswith("GraphMemoryResourceAttributes(")
+    assert r.endswith(")")
+    assert "reserved_mem_current=" in r
+    assert "reserved_mem_high=" in r
+    assert "used_mem_current=" in r
+    assert "used_mem_high=" in r
 
 
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])

@@ -8,6 +8,7 @@ import pytest
 
 from cuda.core import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core._module import ObjectCode
+from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError
 
 ARCH = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
@@ -196,19 +197,12 @@ def test_linker_options_as_bytes_nvjitlink():
     assert "-maxrregcount=32" in options_str
 
 
-def test_linker_options_as_bytes_invalid_backend():
+@pytest.mark.parametrize("backend", ("invalid", "driver"))
+def test_linker_options_as_bytes_invalid_backend(backend):
     """Test LinkerOptions.as_bytes() with invalid backend"""
     options = LinkerOptions(arch="sm_80")
     with pytest.raises(ValueError, match="only supports 'nvjitlink' backend"):
-        options.as_bytes("invalid")
-
-
-@pytest.mark.skipif(not is_culink_backend, reason="driver backend test")
-def test_linker_options_as_bytes_driver_not_supported():
-    """Test that as_bytes() is not supported for driver backend"""
-    options = LinkerOptions(arch="sm_80")
-    with pytest.raises(RuntimeError, match="as_bytes\\(\\) only supports 'nvjitlink' backend"):
-        options.as_bytes("driver")
+        options.as_bytes(backend)
 
 
 def test_linker_logs_cached_after_link(compile_ptx_functions):
@@ -232,6 +226,47 @@ def test_linker_handle(compile_ptx_functions):
     handle = linker.handle
     assert handle is not None
     assert int(handle) != 0
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+@pytest.mark.skipif(not is_culink_backend, reason="driver backend regression test")
+def test_driver_linker_lifetime_no_heap_corruption(compile_ptx_functions):
+    if not _can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+
+    linker = Linker(*compile_ptx_functions, options=LinkerOptions(arch=ARCH))
+    linker.link("cubin")
+    linker.close()
+    del linker
+
+    obj_a = Program(kernel_a, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    obj_b = Program(device_function_b, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    obj_c = Program(device_function_c, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    linker = Linker(obj_a, obj_b, obj_c, options=LinkerOptions(arch=ARCH))
+    linker.link("cubin")
+    linker.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+@pytest.mark.skipif(not is_culink_backend, reason="driver backend regression test")
+def test_driver_linker_preserves_error_log_after_close(init_cuda):
+    if not _can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+
+    bad_kernel = """
+extern __device__ int Z();
+__global__ void A() { int r = Z(); }
+"""
+    bad_obj = Program(bad_kernel, "c++", ProgramOptions(relocatable_device_code=True)).compile("ptx")
+    linker = Linker(bad_obj, options=LinkerOptions(arch=ARCH))
+    with pytest.raises(CUDAError):
+        linker.link("cubin")
+
+    error_log = linker.get_error_log()
+    assert error_log
+    linker.close()
+    assert linker.get_error_log() == error_log
+    assert isinstance(linker.get_info_log(), str)
 
 
 @pytest.mark.skipif(is_culink_backend, reason="nvjitlink options only tested with nvjitlink backend")
@@ -268,6 +303,49 @@ class TestWhichBackendClassmethod:
         assert result == "nvJitLink"
         assert called, "_decide_nvjitlink_or_driver was not called"
 
+    @pytest.mark.agent_authored(model="grok-4.5")
+    def test_which_backend_falls_back_when_nvjitlink_too_old(self, monkeypatch):
+        """Regression test for #2408: old nvJitLink must not crash which_backend()."""
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
+        monkeypatch.setattr(_linker, "_driver", None)
+
+        def fake__optional_cuda_import(modname, probe_function=None):
+            assert modname == "cuda.bindings.nvjitlink"
+            assert probe_function is None
+            return object()
+
+        monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+        monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: False)
+
+        with pytest.warns(RuntimeWarning, match="too old \\(<12.3\\)"):
+            assert Linker.which_backend() == "driver"
+
+        assert _linker._use_nvjitlink_backend is False
+
+    @pytest.mark.agent_authored(model="grok-4.5")
+    def test_which_backend_falls_back_when_dylib_missing(self, monkeypatch):
+        """Missing nvJitLink dylib must fall back without raising."""
+        from cuda.pathfinder import DynamicLibNotFoundError
+
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
+        monkeypatch.setattr(_linker, "_driver", None)
+
+        def raise_missing(_nvjitlink):
+            raise DynamicLibNotFoundError("missing")
+
+        def fake__optional_cuda_import(modname, probe_function=None):
+            assert modname == "cuda.bindings.nvjitlink"
+            assert probe_function is None
+            return object()
+
+        monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", raise_missing)
+        monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+
+        with pytest.warns(RuntimeWarning, match="cuda.bindings.nvjitlink is not available"):
+            assert Linker.which_backend() == "driver"
+
+        assert _linker._use_nvjitlink_backend is False
+
     def test_which_backend_is_classmethod(self):
         attr = inspect.getattr_static(Linker, "which_backend")
         assert isinstance(attr, classmethod)
@@ -280,3 +358,93 @@ class TestWhichBackendClassmethod:
         """
         attr = inspect.getattr_static(Linker, "which_backend")
         assert not isinstance(attr, property)
+
+
+@pytest.fixture
+def driver_binding(monkeypatch):
+    """Pin _linker._driver to the real driver module so driver-backend tests run under any backend."""
+    from cuda.bindings import driver
+
+    monkeypatch.setattr(_linker, "_driver", driver)
+    return driver
+
+
+def test_prepare_driver_options_all_supported(driver_binding):
+    """Exercise every supported branch of _prepare_driver_options."""
+    driver = driver_binding
+    opts = LinkerOptions(
+        arch="sm_80",
+        max_register_count=32,
+        verbose=True,
+        link_time_optimization=True,
+        optimization_level=2,
+        debug=True,
+        lineinfo=True,
+        no_cache=True,
+    )
+    formatted, keys = opts._prepare_driver_options()
+    assert len(formatted) == len(keys)
+    assert len(keys) == 4 + 8  # 4 fixed log-buffer entries + 8 options set above
+
+    # Skip log-buffer entries; verify key-to-value mapping (catches swap/dup/wrong-value).
+    payload_keys = keys[4:]
+    assert len(set(payload_keys)) == len(payload_keys), f"duplicate option keys: {payload_keys}"
+    option_to_value = dict(zip(payload_keys, formatted[4:]))
+    assert option_to_value[driver.CUjit_option.CU_JIT_TARGET] == driver.CUjit_target.CU_TARGET_COMPUTE_80
+    assert option_to_value[driver.CUjit_option.CU_JIT_MAX_REGISTERS] == 32
+    assert option_to_value[driver.CUjit_option.CU_JIT_LOG_VERBOSE] == 1
+    assert option_to_value[driver.CUjit_option.CU_JIT_LTO] == 1
+    assert option_to_value[driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL] == 2
+    assert option_to_value[driver.CUjit_option.CU_JIT_GENERATE_DEBUG_INFO] == 1
+    assert option_to_value[driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO] == 1
+    assert option_to_value[driver.CUjit_option.CU_JIT_CACHE_MODE] == driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_NONE
+
+
+@pytest.mark.parametrize(
+    "kwargs,match",
+    [
+        ({"ftz": True}, "ftz option is deprecated"),
+        ({"prec_div": True}, "prec_div option is deprecated"),
+        ({"prec_sqrt": True}, "prec_sqrt option is deprecated"),
+        ({"fma": True}, "fma options is deprecated"),
+        ({"kernels_used": "my_kernel"}, "kernels_used is deprecated"),
+        ({"variables_used": "my_var"}, "variables_used is deprecated"),
+        ({"optimize_unused_variables": True}, "optimize_unused_variables is deprecated"),
+    ],
+)
+def test_prepare_driver_options_deprecated_warnings(driver_binding, kwargs, match):
+    """Each driver-deprecated option emits a DeprecationWarning."""
+    opts = LinkerOptions(**kwargs)
+    with pytest.warns(DeprecationWarning, match=match):
+        opts._prepare_driver_options()
+
+
+@pytest.mark.parametrize(
+    "kwargs,match",
+    [
+        ({"time": True}, "time option is not supported by the driver API"),
+        ({"ptx": True}, "ptx option is not supported by the driver API"),
+        ({"ptxas_options": ["-v"]}, "ptxas_options option is not supported by the driver API"),
+        ({"split_compile": 0}, "split_compile option is not supported by the driver API"),
+        ({"split_compile_extended": 1}, "split_compile_extended option is not supported by the driver API"),
+    ],
+)
+def test_prepare_driver_options_unsupported_raises(driver_binding, kwargs, match):
+    """Each nvjitlink-only option raises ValueError on the driver backend."""
+    opts = LinkerOptions(**kwargs)
+    with pytest.raises(ValueError, match=match):
+        opts._prepare_driver_options()
+
+
+def test_linker_empty_object_codes_raises():
+    """Linker with no ObjectCode raises ValueError."""
+    with pytest.raises(ValueError, match="At least one ObjectCode object must be provided"):
+        Linker()
+
+
+def test_as_bytes_nvjitlink_unavailable(monkeypatch):
+    """as_bytes('nvjitlink') raises RuntimeError when the backend is unavailable."""
+    monkeypatch.setattr(_linker, "_use_nvjitlink_backend", False)
+    opts = LinkerOptions(arch="sm_80")
+    with pytest.raises(RuntimeError, match="nvJitLink backend is not available"):
+        opts.as_bytes("nvjitlink")

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .conftest import skip_if_nvml_unsupported, unsupported_before
+from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported, unsupported_before
 
 pytestmark = skip_if_nvml_unsupported
 
@@ -268,6 +268,7 @@ def test_unpack_bitmask_single_value():
         _device._unpack_bitmask(1)
 
 
+@pytest.mark.parallel_threads_limit(4)  # timeouts are slow
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Events not supported on WSL or Windows")
 def test_register_events():
     # This is not the world's greatest test.  All of the events are pretty
@@ -547,7 +548,9 @@ def test_get_inforom_version():
         with unsupported_before(device, "HAS_INFOROM"):
             board_part_number = inforom.board_part_number
         assert isinstance(board_part_number, str)
-        assert len(board_part_number) > 0
+
+        # Some boards (e.g. NVIDIA T4G) do not program a board part number
+        assert board_part_number == "" or board_part_number.strip() == board_part_number
 
         inforom.validate()
 
@@ -681,6 +684,7 @@ def test_cooler():
         assert all(isinstance(t, typing.CoolerTarget) for t in target)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_temperature():
     for device in system.Device.get_all_devices():
         temperature = device.temperature
@@ -692,6 +696,9 @@ def test_temperature():
 
         # By docs, should be supported on KEPLER or newer, but experimentally,
         # is also unsupported on other hardware.
+        # get_threshold emits DeprecationWarning for some thresholds on Ada+;
+        # that behaviour is tested separately in
+        # test_temperature_threshold_unrecognized_device_arch.
         with unsupported_before(device, None):
             for threshold in list(typing.TemperatureThresholds):
                 t = temperature.get_threshold(threshold)
@@ -717,6 +724,58 @@ def test_temperature():
             assert sensor.default_max_temp >= sensor.default_min_temp
             assert isinstance(sensor.current_temp, int)
             assert sensor.default_min_temp <= sensor.current_temp <= sensor.default_max_temp
+
+
+@pytest.mark.thread_unsafe(reason="Temporarily replaces process-global NVML functions")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_temperature_threshold_unrecognized_device_arch(monkeypatch):
+    temperature = system.Device(index=0).temperature
+    unrecognized_arch = int(nvml.DeviceArch.UNKNOWN) - 1
+    with pytest.raises(ValueError):
+        nvml.DeviceArch(unrecognized_arch)
+
+    monkeypatch.setattr(nvml, "device_get_architecture", lambda _handle: unrecognized_arch)
+    monkeypatch.setattr(
+        nvml,
+        "device_get_temperature_threshold",
+        lambda _handle, _threshold: 42,
+    )
+
+    with pytest.warns(DeprecationWarning, match="no longer recommended"):
+        assert temperature.get_threshold(typing.TemperatureThresholds.SHUTDOWN) == 42
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_temperature_arg_validation():
+    # Both getters reject an unknown key before issuing any NVML call.
+    temperature = system.Device(index=0).temperature
+    with pytest.raises(ValueError, match="Invalid temperature threshold type"):
+        temperature.get_threshold("not-a-threshold")
+    with pytest.raises(ValueError, match="Invalid thermal sensor index"):
+        temperature.get_thermal_settings("not-a-sensor")
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_device_constructor_selector_validation():
+    # The constructor requires exactly one selector, rejected before NVML is touched.
+    with pytest.raises(ValueError, match="only one of"):
+        system.Device(index=0, uuid="ignored")
+    with pytest.raises(ValueError, match="either a device"):
+        system.Device()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_device_arg_validation():
+    device = system.Device(index=0)
+    # Each argument validator raises before reaching the driver/NVML call.
+    with pytest.raises(ValueError, match="Invalid affinity scope"):
+        device.get_memory_affinity("not-a-scope")
+    with pytest.raises(ValueError, match="Invalid affinity scope"):
+        device.get_cpu_affinity("not-a-scope")
+    with pytest.raises(ValueError, match="Invalid topology level"):
+        list(device.get_topology_nearest_gpus("not-a-level"))
+    with pytest.raises(ValueError, match="Invalid P2P caps index"):
+        system.get_p2p_status(device, device, "not-an-index")
 
 
 def test_pstates():
@@ -761,24 +820,45 @@ def test_compute_running_processes():
 
 def test_nvlink():
     for device in system.Device.get_all_devices():
-        max_links = _device.NvlinkInfo.max_links
-        assert isinstance(max_links, int)
-        assert max_links > 0
+        with unsupported_before(device, None):
+            for link in range(device.get_nvlink_count()):
+                with unsupported_before(device, None):
+                    nvlink_info = device.get_nvlink(link)
+                assert isinstance(nvlink_info, _device.NvlinkInfo)
 
-        for link in range(max_links):
-            with unsupported_before(device, None):
-                nvlink_info = device.get_nvlink(link)
-            assert isinstance(nvlink_info, _device.NvlinkInfo)
+                with unsupported_before(device, None):
+                    state = nvlink_info.state
+                assert isinstance(state, bool)
 
-            with unsupported_before(device, None):
-                version = nvlink_info.version
-            assert isinstance(version, tuple)
-            assert len(version) == 2
-            assert all(isinstance(i, int) for i in version)
+                if not state:
+                    continue
 
-            with unsupported_before(device, None):
-                state = nvlink_info.state
-            assert isinstance(state, bool)
+                with unsupported_before(device, None):
+                    version = nvlink_info.version
+                assert isinstance(version, tuple)
+                assert len(version) == 2
+                assert all(isinstance(i, int) for i in version)
+
+            for nvlink_info in device.get_nvlinks():
+                assert isinstance(nvlink_info, _device.NvlinkInfo)
+
+                with unsupported_before(device, None):
+                    state = nvlink_info.state
+                assert isinstance(state, bool)
+
+                if not state:
+                    continue
+
+                with unsupported_before(device, None):
+                    version = nvlink_info.version
+                assert isinstance(version, tuple)
+                assert len(version) == 2
+                assert all(isinstance(i, int) for i in version)
+
+
+def test_nvlink_max_links_deprecated():
+    with pytest.warns(DeprecationWarning, match="max_links"):
+        _ = _device.NvlinkInfo.max_links
 
 
 def test_utilization():

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -62,7 +62,7 @@ cdef class GpuDynamicPstatesInfo:
     def __init__(self, gpu_dynamic_pstates_info: nvml.GpuDynamicPstatesInfo):
         self._gpu_dynamic_pstates_info = gpu_dynamic_pstates_info
 
-    def __len__(self):
+    def __len__(self) -> int:
         return nvml.MAX_GPU_UTILIZATIONS
 
     def __getitem__(self, idx: int) -> GpuDynamicPstatesUtilization:

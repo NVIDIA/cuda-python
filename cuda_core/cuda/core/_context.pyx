@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from cuda.bindings cimport cydriver
 from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
@@ -20,8 +21,11 @@ from cuda.core._resource_handles cimport (
     as_intptr,
     as_py,
 )
-from cuda.core._stream import Stream, StreamOptions
+from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+
+if TYPE_CHECKING:
+    import cuda.bindings.driver  # no-cython-lint
 
 
 __all__ = ['Context', 'ContextOptions']
@@ -37,7 +41,7 @@ cdef class Context:
     Use Device or Stream APIs to obtain context objects.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Context objects cannot be instantiated directly. Please use Device or Stream APIs.")
 
     @staticmethod
@@ -58,7 +62,7 @@ cdef class Context:
         return Context._from_handle(cls, h_context, device_id)
 
     @property
-    def handle(self):
+    def handle(self) -> cuda.bindings.driver.CUcontext | None:
         """Return the underlying CUcontext handle."""
         if not self._h_context:
             return None
@@ -67,7 +71,7 @@ cdef class Context:
         return as_py(self._h_context)
 
     @property
-    def _handle(self):
+    def _handle(self) -> cuda.bindings.driver.CUcontext | None:
         return self.handle
 
     @property
@@ -91,7 +95,7 @@ cdef class Context:
             raise RuntimeError("Cannot query resources on a closed context")
         return DeviceResources._init_from_ctx(self._h_context, self._device_id)
 
-    def create_stream(self, options: StreamOptions | None = None):
+    def create_stream(self, options: object = None) -> Stream:
         """Create a new stream bound to this green context.
 
         This method is only available on green contexts. For primary
@@ -130,7 +134,7 @@ cdef class Context:
                 )
         self._h_context.reset()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Context):
             return NotImplemented
         cdef Context _other = <Context>other

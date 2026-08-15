@@ -6,6 +6,8 @@ from __future__ import annotations
 import threading
 from typing import ClassVar
 
+__all__ = ["Host"]
+
 
 class Host:
     """Host (CPU) location for managed-memory operations.
@@ -32,6 +34,9 @@ class Host:
     """
 
     __slots__ = ("__weakref__", "_is_numa_current", "_numa_id")
+
+    _numa_id: int | None
+    _is_numa_current: bool
 
     # Singleton cache keyed by (numa_id, is_numa_current).
     _instances: ClassVar[dict[tuple[int | None, bool], Host]] = {}
@@ -62,10 +67,12 @@ class Host:
 
     @property
     def numa_id(self) -> int | None:
+        """NUMA node ID, or ``None`` if not pinned to a specific NUMA node."""
         return self._numa_id
 
     @property
     def is_numa_current(self) -> bool:
+        """``True`` if this ``Host`` represents the calling thread's NUMA node (constructed via :meth:`numa_current`)."""
         return self._is_numa_current
 
     @classmethod
@@ -73,7 +80,7 @@ class Host:
         """Construct a ``Host`` referring to the calling thread's NUMA node."""
         return cls(is_numa_current=True)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Host):
             return NotImplemented
         return self is other
@@ -81,7 +88,7 @@ class Host:
     def __hash__(self) -> int:
         return hash((Host, self._numa_id, self._is_numa_current))
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         if self._is_numa_current:
             return (_reconstruct_numa_current, ())
         return (Host, (self._numa_id,))

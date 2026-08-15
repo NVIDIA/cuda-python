@@ -1,5 +1,5 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
 Overview
 ========
@@ -38,8 +38,8 @@ The first thing to do is import the `Driver
 API <https://docs.nvidia.com/cuda/cuda-driver-api/index.html>`_ and
 `NVRTC <https://docs.nvidia.com/cuda/nvrtc/index.html>`_ modules from the ``cuda.bindings``
 package. Next, we consider how to store host data and pass it to the device. Different
-approaches can be used to accomplish this and are described in `Preparing kernel
-arguments <https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html#preparing-kernel-arguments>`_.
+approaches can be used to accomplish this and are described in
+:ref:`Preparing kernel arguments <preparing-kernel-arguments>`.
 In this example, we will use NumPy to store host data and pass it to the device, so let's
 import this dependency as well.
 
@@ -308,6 +308,8 @@ maximize performance ({numref}``Figure 1``).
 
    Screenshot of Nsight Compute CLI output of ``cuda.bindings`` example.
 
+.. _preparing-kernel-arguments:
+
 Preparing kernel arguments
 --------------------------
 
@@ -522,7 +524,7 @@ CUDA objects
 Certain CUDA kernels use native CUDA types as their parameters such as ``cudaTextureObject_t``. These types require special handling since they're neither a primitive ctype nor a custom user type. Since ``cuda.bindings`` exposes each of them as Python classes, they each implement ``getPtr()`` and ``__int__()``. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under `Tips and Tricks <https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#>`_.
 
 For this example, lets use the ``transformKernel`` from
-`simple_cubemap_texture.py <https://github.com/NVIDIA/cuda-python/blob/|cuda_bindings_github_ref|/cuda_bindings/examples/0_Introduction/simple_cubemap_texture.py>`_.
+:cuda-bindings-example:`simple_cubemap_texture.py <0_Introduction/simple_cubemap_texture.py>`.
 The :doc:`examples` page links to more samples covering textures, graphs,
 memory mapping, and multi-GPU workflows.
 

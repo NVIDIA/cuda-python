@@ -6,8 +6,13 @@
 
 #include "resource_handles.hpp"
 #include <cuda.h>
+#include <atomic>
+#include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
+#include <list>
+#include <map>
 #include <mutex>
 #include <stdexcept>
 #include <unordered_map>
@@ -69,6 +74,15 @@ decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel = nullptr;
 
 // Graph
 decltype(&cuGraphDestroy) p_cuGraphDestroy = nullptr;
+decltype(&cuGraphInstantiateWithParams) p_cuGraphInstantiateWithParams = nullptr;
+decltype(&cuGraphExecUpdate) p_cuGraphExecUpdate = nullptr;
+decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy = nullptr;
+decltype(&cuUserObjectCreate) p_cuUserObjectCreate = nullptr;
+decltype(&cuUserObjectRelease) p_cuUserObjectRelease = nullptr;
+decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject = nullptr;
+decltype(&cuGraphReleaseUserObject) p_cuGraphReleaseUserObject = nullptr;
+decltype(&cuGraphNodeFindInClone) p_cuGraphNodeFindInClone = nullptr;
+decltype(&cuGraphChildGraphNodeGetGraph) p_cuGraphChildGraphNodeGetGraph = nullptr;
 
 // Linker
 decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
@@ -76,6 +90,16 @@ decltype(&cuLinkDestroy) p_cuLinkDestroy = nullptr;
 // GL interop pointers
 decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources = nullptr;
 decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource = nullptr;
+
+decltype(&cuArray3DCreate) p_cuArray3DCreate = nullptr;
+decltype(&cuArrayDestroy) p_cuArrayDestroy = nullptr;
+decltype(&cuMipmappedArrayCreate) p_cuMipmappedArrayCreate = nullptr;
+decltype(&cuMipmappedArrayDestroy) p_cuMipmappedArrayDestroy = nullptr;
+decltype(&cuMipmappedArrayGetLevel) p_cuMipmappedArrayGetLevel = nullptr;
+decltype(&cuTexObjectCreate) p_cuTexObjectCreate = nullptr;
+decltype(&cuTexObjectDestroy) p_cuTexObjectDestroy = nullptr;
+decltype(&cuSurfObjectCreate) p_cuSurfObjectCreate = nullptr;
+decltype(&cuSurfObjectDestroy) p_cuSurfObjectDestroy = nullptr;
 
 // SM resource split (13.1+ — may be null on older drivers/bindings)
 #if CUDA_VERSION >= 13010
@@ -169,6 +193,154 @@ private:
 }  // namespace
 
 // ============================================================================
+// CUDA user-object deferred cleanup
+//
+// CUDA invokes a user-object destructor on an internal thread where CUDA
+// calls are forbidden. Payload cleanup can release resource handles whose
+// deleters call CUDA, so the callback only transfers a preallocated intrusive
+// node to this process-lifetime queue. One coalesced pending call drains all
+// queued payloads from Python's main thread.
+// ============================================================================
+
+// Intrusive base for payloads transferred out of CUDA's callback.
+struct DeferredCleanupItem {
+    DeferredCleanupItem* next = nullptr;
+    virtual ~DeferredCleanupItem() noexcept = default;
+};
+
+namespace {
+
+// Process-lifetime MPSC queue that drains payloads from Python's main thread.
+class DeferredCleanupQueue {
+public:
+    // Transfer one preallocated cleanup item from a producer to the queue.
+    void enqueue(DeferredCleanupItem* item) noexcept {
+        DeferredCleanupItem* head = head_.load(std::memory_order_relaxed);
+        do {
+            item->next = head;
+        } while (!head_.compare_exchange_weak(
+            head, item, std::memory_order_release, std::memory_order_relaxed));
+        schedule();
+    }
+
+    // Permanently disable pending-call scheduling during interpreter shutdown.
+    void stop() noexcept {
+        accepting_.store(false, std::memory_order_release);
+    }
+
+    // Reattempt scheduling after Py_AddPendingCall() found CPython's bounded
+    // pending-call queue full and left payloads queued for a later safe entry.
+    void retry_schedule() noexcept {
+        schedule();
+    }
+
+private:
+    // Adapt queue draining to CPython's int (*)(void*) callback ABI.
+    static int pending_call(void* arg) noexcept {
+        static_cast<DeferredCleanupQueue*>(arg)->drain();
+        return 0;
+    }
+
+    // Coalesce all queued work behind at most one CPython pending call.
+    void schedule() noexcept {
+        if (!accepting_.load(std::memory_order_acquire)) {
+            return;
+        }
+        if (!Py_IsInitialized() || py_is_finalizing()) {
+            stop();
+            return;
+        }
+        if (!head_.load(std::memory_order_acquire)) {
+            return;
+        }
+        bool expected = false;
+        if (!scheduled_.compare_exchange_strong(
+                expected, true, std::memory_order_acq_rel,
+                std::memory_order_relaxed)) {
+            return;
+        }
+        if (Py_AddPendingCall(&DeferredCleanupQueue::pending_call, this) != 0) {
+            // Keep every payload queued. A later enqueue or safe cuda-core
+            // entry can retry without blocking CUDA's callback thread.
+            scheduled_.store(false, std::memory_order_release);
+        }
+    }
+
+    // Detach and destroy all queued payloads from Python's main thread.
+    void drain() noexcept {
+        if (!Py_IsInitialized() || py_is_finalizing()) {
+            stop();
+            scheduled_.store(false, std::memory_order_release);
+            return;  // Intentionally leak intact payloads during shutdown.
+        }
+
+        while (DeferredCleanupItem* list =
+                   head_.exchange(nullptr, std::memory_order_acquire)) {
+            while (list) {
+                DeferredCleanupItem* next = list->next;
+                delete list;
+                list = next;
+            }
+        }
+
+        scheduled_.store(false, std::memory_order_release);
+        if (head_.load(std::memory_order_acquire)) {
+            schedule();
+        }
+    }
+
+    // Head of the intrusive multi-producer, single-consumer payload stack.
+    std::atomic<DeferredCleanupItem*> head_{nullptr};
+    // True while one cuda-core drain callback is pending or executing.
+    std::atomic<bool> scheduled_{false};
+    // False once shutdown begins, causing later payloads to be leaked safely.
+    std::atomic<bool> accepting_{true};
+};
+
+// Published once at module initialization and intentionally never freed.
+std::atomic<DeferredCleanupQueue*> deferred_cleanup_queue{nullptr};
+
+void ensure_deferred_cleanup_ready() {
+    DeferredCleanupQueue* queue =
+        deferred_cleanup_queue.load(std::memory_order_acquire);
+    if (!queue) {
+        throw std::runtime_error("deferred cleanup is not initialized");
+    }
+    queue->retry_schedule();
+}
+
+// CUDA's CUhostFn ABI is void (*)(void*); recover and enqueue the cleanup item.
+void enqueue_cleanup(void* item) noexcept {
+    auto* cleanup = static_cast<DeferredCleanupItem*>(item);
+    if (DeferredCleanupQueue* queue =
+            deferred_cleanup_queue.load(std::memory_order_acquire)) {
+        queue->enqueue(cleanup);
+    }
+}
+
+}  // namespace
+
+// Module initialization calls this once with the GIL held, which serializes
+// the check, allocation, and publication below.
+void initialize_deferred_cleanup() {
+    if (deferred_cleanup_queue.load(std::memory_order_acquire)) {
+        return;
+    }
+    auto* queue = new DeferredCleanupQueue();
+    deferred_cleanup_queue.store(queue, std::memory_order_release);
+}
+
+void retry_deferred_cleanup() noexcept {
+    if (!Py_IsInitialized() || py_is_finalizing()) {
+        return;
+    }
+    if (DeferredCleanupQueue* queue =
+            deferred_cleanup_queue.load(std::memory_order_acquire)) {
+        queue->retry_schedule();
+    }
+}
+
+// ============================================================================
 // Handle reverse-lookup registry
 //
 // Maps raw CUDA handles (CUevent, CUkernel, etc.) back to their owning
@@ -191,6 +363,15 @@ public:
         map_.erase(key);
     }
 
+    void register_handles(const std::vector<Handle>& handles) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for (const Handle& h : handles) {
+            if (h) {
+                map_[*h] = h;
+            }
+        }
+    }
+
     Handle lookup(const Key& key) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = map_.find(key);
@@ -201,6 +382,31 @@ public:
             map_.erase(it);
         }
         return {};
+    }
+
+    template<typename Factory>
+    Handle get_or_create(const Key& key, Factory&& create) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto it = map_.find(key);
+        if (it != map_.end()) {
+            if (Handle h = it->second.lock()) {
+                return h;
+            }
+            map_.erase(it);
+        }
+
+        Handle h = create();
+        if (h) {
+            map_[key] = h;
+        }
+        return h;
+    }
+
+    MapType drain() noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        MapType extracted;
+        extracted.swap(map_);
+        return extracted;
     }
 
 private:
@@ -493,6 +699,17 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
         }
     );
     return StreamHandle(box, &box->resource);
+}
+
+void py_object_user_object_destroy(void* py_object) noexcept {
+    if (!py_object) {
+        return;
+    }
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        return;
+    }
+    Py_DECREF(reinterpret_cast<PyObject*>(py_object));
 }
 
 ContextHandle get_stream_context(const StreamHandle& h) noexcept {
@@ -1092,27 +1309,878 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept {
 // ============================================================================
 
 namespace {
-struct GraphBox {
-    CUgraph resource;
-    GraphHandle h_parent;  // Keeps parent alive for child/branch graphs
-};
-}  // namespace
 
-GraphHandle create_graph_handle(CUgraph graph) {
-    auto box = std::shared_ptr<const GraphBox>(
-        new GraphBox{graph, {}},
-        [](const GraphBox* b) {
-            GILReleaseGuard gil;
-            p_cuGraphDestroy(b->resource);
-            delete b;
-        }
-    );
-    return GraphHandle(box, &box->resource);
+struct NodeAttachment;
+using GraphAttachmentMap = std::map<CUgraphNode, NodeAttachment*>;
+
+struct GraphHierarchy;
+
+// Standard-layout alias target for GraphHandle.
+struct GraphBoxBase {
+    CUgraph resource = nullptr;
+};
+
+// Canonical state for one CUgraph. Its GraphHandle aliases resource, whose
+// address remains stable for the lifetime of the hierarchy.
+struct GraphBox : GraphBoxBase {
+    GraphHierarchy* hierarchy = nullptr;  // Non-owning back-reference.
+    GraphBox* parent = nullptr;           // Null for the root graph.
+    CUgraphNode owner_node = nullptr;     // Node in parent that owns this graph.
+    GraphAttachmentMap attachments;       // Non-owning attachment index.
+    HandleRegistry<CUgraphNode, GraphNodeHandle> node_handles;
+
+    GraphBox(
+            CUgraph resource_,
+            GraphHierarchy* hierarchy_,
+            GraphBox* parent_ = nullptr,
+            CUgraphNode owner_node_ = nullptr) noexcept
+        : GraphBoxBase{resource_},
+          hierarchy(hierarchy_),
+          parent(parent_),
+          owner_node(owner_node_) {}
+};
+
+// Shared owner of stable GraphBox storage. Every GraphHandle aliases the same
+// control block, so any graph handle keeps the entire hierarchy alive.
+struct GraphHierarchy {
+    std::list<GraphBox> graphs;  // Parent boxes precede their descendants.
+    std::list<GraphBox> graveyard;  // Retired child graph tombstones.
+
+    GraphBox* root() noexcept {
+        return graphs.empty() ? nullptr : &graphs.front();
+    }
+};
+
+// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
+using GraphRegistry = HandleRegistry<CUgraph, GraphHandle>;
+static GraphRegistry graph_registry;
+
+// Immutable resource owners for one version of a graph node's parameters.
+// Inheriting DeferredCleanupItem lets CUDA's user-object destructor enqueue
+// the payload without destroying owners on the callback thread.
+struct NodeAttachment : DeferredCleanupItem {
+    CUuserObject object = nullptr;
+    std::array<OpaqueHandle, 2> owners;
+
+    NodeAttachment(OpaqueHandle owner0, OpaqueHandle owner1)
+        : owners{std::move(owner0), std::move(owner1)} {}
+};
+
+// shared_ptr deleters for the payloads that need one. Typed handles convert to
+// OpaqueHandle by assignment and reuse their own control block, so they need no
+// deleter here. The Python deleter follows the owner-release pattern used by
+// the stream/deviceptr handles above.
+void py_deleter(const void* p) noexcept {
+    GILAcquireGuard gil;
+    if (gil.acquired()) {
+        Py_DECREF(const_cast<PyObject*>(static_cast<const PyObject*>(p)));
+    }
 }
 
-GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent) {
-    auto box = std::make_shared<const GraphBox>(GraphBox{graph, h_parent});
-    return GraphHandle(box, &box->resource);
+void free_deleter(const void* p) noexcept {
+    std::free(const_cast<void*>(p));
+}
+
+GraphBox* get_box(const GraphHandle& h) noexcept {
+    auto* value = reinterpret_cast<const GraphBoxBase*>(h.get());
+    return const_cast<GraphBox*>(
+        static_cast<const GraphBox*>(value));
+}
+
+// Rekey a staged attachment map from source nodes to their cloned nodes.
+// The caller must release the GIL before calling this function.
+CUresult rekey_attachments(
+        GraphAttachmentMap& attachments, CUgraph cloned_graph) {
+    if (!cloned_graph) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (!p_cuGraphNodeFindInClone) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    GraphAttachmentMap remapped;
+    while (!attachments.empty()) {
+        auto attachment = attachments.extract(attachments.begin());
+        CUgraphNode cloned_node = nullptr;
+        CUresult status = p_cuGraphNodeFindInClone(
+            &cloned_node, attachment.key(), cloned_graph);
+        if (status != CUDA_SUCCESS) {
+            return status;
+        }
+        attachment.key() = cloned_node;
+        if (!remapped.insert(std::move(attachment)).inserted) {
+            return CUDA_ERROR_INVALID_VALUE;
+        }
+    }
+    attachments.swap(remapped);
+    return CUDA_SUCCESS;
+}
+
+struct StagedGraphMetadata {
+    const GraphBox* source;
+    GraphBox* clone;
+    GraphAttachmentMap* attachments;
+};
+using StagedGraphMetadataList = std::vector<StagedGraphMetadata>;
+
+// Copy a source hierarchy into detached metadata before CUDA mutation.
+void stage_graph_metadata(
+        const GraphBox& source,
+        GraphBox& clone,
+        GraphAttachmentMap& attachments,
+        std::list<GraphBox>& subgraphs,
+        StagedGraphMetadataList& staged) {
+    attachments = source.attachments;
+    staged.push_back({&source, &clone, &attachments});
+
+    for (const GraphBox& source_child : source.hierarchy->graphs) {
+        if (source_child.parent != &source || !source_child.resource) {
+            continue;
+        }
+        GraphBox& cloned_child = subgraphs.emplace_back(
+            nullptr,
+            clone.hierarchy,
+            &clone,
+            nullptr);
+        stage_graph_metadata(
+            source_child,
+            cloned_child,
+            cloned_child.attachments,
+            subgraphs,
+            staged);
+    }
+}
+
+// Bind staged metadata to a CUDA-cloned hierarchy. The root clone resource
+// must be populated before entry. The caller must release the GIL.
+CUresult rekey_graph_metadata(
+        StagedGraphMetadataList& staged) {
+    if (!p_cuGraphNodeFindInClone || !p_cuGraphChildGraphNodeGetGraph) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    CUresult status;
+    for (size_t i = 0; i < staged.size(); ++i) {
+        const GraphBox& source = *staged[i].source;
+        GraphBox& clone = *staged[i].clone;
+        if (i != 0) {
+            CUgraphNode cloned_owner = nullptr;
+            status = p_cuGraphNodeFindInClone(
+                &cloned_owner,
+                source.owner_node,
+                clone.parent->resource);
+            if (status == CUDA_SUCCESS) {
+                status = p_cuGraphChildGraphNodeGetGraph(
+                    cloned_owner, &clone.resource);
+            }
+            if (status != CUDA_SUCCESS) {
+                return status;
+            }
+            clone.owner_node = cloned_owner;
+        }
+
+        status = rekey_attachments(
+            *staged[i].attachments, clone.resource);
+        if (status != CUDA_SUCCESS) {
+            return status;
+        }
+    }
+    return CUDA_SUCCESS;
+}
+
+}  // namespace
+
+OpaqueHandle make_opaque_py(PyObject* obj) {
+    Py_INCREF(obj);
+    return OpaqueHandle(static_cast<const void*>(obj), py_deleter);
+}
+
+OpaqueHandle make_opaque_malloc(void* buf) {
+    return OpaqueHandle(static_cast<const void*>(buf), free_deleter);
+}
+
+// State held by PreparedAttachment between preparation and commit. It keeps the
+// graph alive, tracks the graph-retained replacement, and holds a preallocated
+// map entry so commit cannot allocate. Destroying PreparedAttachment rolls back
+// the staged user-object retain unless graph_commit_attachment publishes it.
+struct PreparedAttachmentState {
+    GraphHandle h_graph;
+    NodeAttachment* replacement = nullptr;
+    GraphAttachmentMap::node_type replacement_entry;
+
+    explicit PreparedAttachmentState(GraphHandle h_graph_)
+        : h_graph(std::move(h_graph_)) {}
+};
+
+void rollback_prepared_attachment(
+        PreparedAttachmentState* state) noexcept {
+    if (!state) {
+        return;
+    }
+    if (state->replacement) {
+        GraphBox* box = get_box(state->h_graph);
+        if (box->resource) {
+            GILReleaseGuard gil;
+            p_cuGraphReleaseUserObject(
+                box->resource, state->replacement->object, 1);
+        }
+    }
+    delete state;
+}
+
+// Detached metadata for a replacement embedded graph hierarchy. Preparation
+// copies every attachment map and allocates every GraphBox before CUDA destroys
+// the old embedded graph. Commit only rekeys and publishes it.
+struct PreparedChildGraphUpdateState {
+    GraphHandle h_parent;
+    GraphHandle h_source;
+    GraphBox* old_root = nullptr;
+    CUgraphNode owner_node = nullptr;
+    std::list<GraphBox> replacement;
+    StagedGraphMetadataList staged;
+    std::vector<GraphHandle> handles;
+
+    PreparedChildGraphUpdateState(
+            GraphHandle h_parent_,
+            GraphHandle h_source_,
+            GraphBox* old_root_,
+            CUgraphNode owner_node_)
+        : h_parent(std::move(h_parent_)),
+          h_source(std::move(h_source_)),
+          old_root(old_root_),
+          owner_node(owner_node_) {}
+};
+
+GraphHandle create_graph_handle(CUgraph graph) {
+    if (!graph) {
+        return {};
+    }
+
+    auto hierarchy = std::shared_ptr<GraphHierarchy>(
+        new GraphHierarchy{},
+        [](GraphHierarchy* hierarchy) {
+            for (const GraphBox& box : hierarchy->graphs) {
+                if (box.resource) {
+                    graph_registry.unregister_handle(box.resource);
+                }
+            }
+            GraphBox* root = hierarchy->root();
+            if (root && root->resource) {
+                GILReleaseGuard gil;
+                p_cuGraphDestroy(root->resource);
+            }
+            retry_deferred_cleanup();
+            delete hierarchy;
+        }
+    );
+    GraphBox& root = hierarchy->graphs.emplace_back(
+        graph, hierarchy.get());
+
+    GraphHandle h_graph(hierarchy, &root.resource);
+    graph_registry.register_handle(graph, h_graph);
+    return h_graph;
+}
+
+GraphHandle create_child_graph_handle(
+        CUgraph child_graph, const GraphHandle& h_parent,
+        CUgraphNode owner_node) {
+    if (!child_graph || !h_parent || !owner_node) {
+        return {};
+    }
+    if (GraphHandle h_graph = graph_registry.lookup(child_graph)) {
+        return h_graph;
+    }
+
+    GraphBox* parent = get_box(h_parent);
+    GraphHierarchy* hierarchy = parent->hierarchy;
+    GraphBox& child = hierarchy->graphs.emplace_back(
+        child_graph, hierarchy, parent, owner_node);
+
+    GraphHandle h_child(h_parent, &child.resource);
+    graph_registry.register_handle(child_graph, h_child);
+    return h_child;
+}
+
+CUresult graph_prepare_child_graph_update(
+        const GraphHandle& h_parent,
+        const GraphHandle& h_old_child,
+        CUgraphNode owner_node,
+        const GraphHandle& h_source,
+        PreparedChildGraphUpdate* out_prepared) {
+    if (!h_parent || !h_old_child || !owner_node ||
+        !h_source || !out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+
+    GraphBox* parent = get_box(h_parent);
+    GraphBox* old_root = get_box(h_old_child);
+    GraphBox* source = get_box(h_source);
+    // A source from the destination hierarchy can include the old embedded
+    // subtree whose raw node keys CUDA destroys during replacement.
+    if (!parent->resource || !old_root->resource || !source->resource ||
+        old_root->parent != parent ||
+        old_root->owner_node != owner_node ||
+        source->hierarchy == parent->hierarchy) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    PreparedChildGraphUpdate prepared =
+        std::make_shared<PreparedChildGraphUpdateState>(
+            h_parent, h_source, old_root, owner_node);
+
+    GraphBox& replacement_root =
+        prepared->replacement.emplace_back(
+            nullptr, parent->hierarchy, parent, owner_node);
+    stage_graph_metadata(
+        *source,
+        replacement_root,
+        replacement_root.attachments,
+        prepared->replacement,
+        prepared->staged);
+
+    const size_t graph_count = prepared->staged.size();
+    prepared->handles.reserve(graph_count);
+    for (const StagedGraphMetadata& graph : prepared->staged) {
+        prepared->handles.emplace_back(
+            h_parent, &graph.clone->resource);
+    }
+
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+void publish_child_graph_update(
+        PreparedChildGraphUpdateState& state,
+        GraphHandle* out_child) {
+    GraphBox* parent = get_box(state.h_parent);
+    parent->hierarchy->graphs.splice(
+        parent->hierarchy->graphs.end(), state.replacement);
+    *out_child = state.handles.front();
+    graph_registry.register_handles(state.handles);
+}
+
+CUresult graph_commit_child_graph_update(
+        PreparedChildGraphUpdate& prepared,
+        GraphHandle* out_child) {
+    if (!prepared || !out_child) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_child->reset();
+
+    PreparedChildGraphUpdateState& state = *prepared;
+    GraphBox* parent = get_box(state.h_parent);
+    if (!parent->resource || !state.old_root->resource) {
+        prepared.reset();
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    CUresult status = CUDA_ERROR_NOT_SUPPORTED;
+    CUgraph cloned_root = nullptr;
+    if (p_cuGraphChildGraphNodeGetGraph) {
+        GILReleaseGuard gil;
+        status = p_cuGraphChildGraphNodeGetGraph(
+            state.owner_node, &cloned_root);
+        if (status == CUDA_SUCCESS) {
+            state.staged.front().clone->resource = cloned_root;
+            status = rekey_graph_metadata(state.staged);
+        }
+    }
+
+    // CUDA has already destroyed the old embedded graph. No replacement
+    // metadata is visible yet, so this selects only the old generation.
+    invalidate_child_graph_state(
+        state.h_parent, state.owner_node);
+
+    if (status != CUDA_SUCCESS) {
+        prepared.reset();
+        throw std::runtime_error(
+            "failed to update graph metadata after child graph replacement");
+    }
+
+    publish_child_graph_update(state, out_child);
+    prepared.reset();
+    return status;
+}
+
+CUresult graph_get_attachment(
+        const GraphHandle& h_graph, CUgraphNode node,
+        OpaqueHandle* owner0, OpaqueHandle* owner1) {
+    if (!h_graph || !node || (!owner0 && !owner1)) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (owner0) {
+        owner0->reset();
+    }
+    if (owner1) {
+        owner1->reset();
+    }
+
+    GraphBox* box = get_box(h_graph);
+    if (!box->resource) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    auto it = box->attachments.find(node);
+    if (it != box->attachments.end()) {
+        if (owner0) {
+            *owner0 = it->second->owners[0];
+        }
+        if (owner1) {
+            *owner1 = it->second->owners[1];
+        }
+    }
+    return CUDA_SUCCESS;
+}
+
+CUresult graph_prepare_attachment(
+        const GraphHandle& h_graph,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1,
+        PreparedAttachment* out_prepared) {
+    if (!out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+    if (!h_graph) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphBox* box = get_box(h_graph);
+    if (!box->resource) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (!p_cuGraphReleaseUserObject) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    PreparedAttachment prepared(
+        new PreparedAttachmentState(h_graph),
+        PreparedAttachmentDeleter{rollback_prepared_attachment});
+    if (owner0 || owner1) {
+        if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
+            !p_cuGraphRetainUserObject) {
+            return CUDA_ERROR_NOT_SUPPORTED;
+        }
+
+        ensure_deferred_cleanup_ready();
+        prepared->replacement = new NodeAttachment(
+            std::move(owner0), std::move(owner1));
+        GraphAttachmentMap staged;
+        try {
+            staged.emplace(nullptr, prepared->replacement);
+            prepared->replacement_entry =
+                staged.extract(staged.begin());
+        } catch (...) {
+            delete prepared->replacement;
+            prepared->replacement = nullptr;
+            throw;
+        }
+        auto* cleanup_item =
+            static_cast<DeferredCleanupItem*>(
+                prepared->replacement);
+
+        CUuserObject object = nullptr;
+        CUresult status;
+        {
+            GILReleaseGuard gil;
+            status = p_cuUserObjectCreate(
+                &object, cleanup_item,
+                reinterpret_cast<CUhostFn>(enqueue_cleanup),
+                1, CU_USER_OBJECT_NO_DESTRUCTOR_SYNC);
+            if (status != CUDA_SUCCESS) {
+                prepared->replacement_entry.mapped() = nullptr;
+                delete prepared->replacement;
+                prepared->replacement = nullptr;
+                return status;
+            }
+            prepared->replacement->object = object;
+            status = p_cuGraphRetainUserObject(
+                box->resource, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
+            if (status != CUDA_SUCCESS) {
+                prepared->replacement_entry.mapped() = nullptr;
+                prepared->replacement = nullptr;
+                p_cuUserObjectRelease(object, 1);
+                return status;
+            }
+        }
+    }
+
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+CUresult graph_commit_attachment(
+        PreparedAttachment& prepared,
+        CUgraphNode node) {
+    if (!prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphHandle h_graph = prepared->h_graph;
+    GraphBox* box = get_box(h_graph);
+    if (!box->resource || (!node && !prepared->replacement)) {
+        delete prepared.release();
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (!node) {
+        delete prepared.release();
+        return CUDA_SUCCESS;
+    }
+
+    // Publish the replacement or removal before releasing the previous graph
+    // reference; that release can make the previous payload eligible for
+    // destruction.
+    NodeAttachment* previous = nullptr;
+    auto it = box->attachments.find(node);
+    if (it == box->attachments.end()) {
+        if (prepared->replacement) {
+            prepared->replacement_entry.key() = node;
+            auto result = box->attachments.insert(
+                std::move(prepared->replacement_entry));
+            if (!result.inserted) {
+                prepared->replacement_entry =
+                    std::move(result.node);
+                delete prepared.release();
+                return CUDA_ERROR_INVALID_VALUE;
+            }
+        }
+    } else {
+        previous = it->second;
+        if (prepared->replacement) {
+            it->second = prepared->replacement;
+        } else {
+            box->attachments.erase(it);
+        }
+    }
+
+    delete prepared.release();
+    if (!previous) {
+        return CUDA_SUCCESS;
+    }
+    GILReleaseGuard gil;
+    return p_cuGraphReleaseUserObject(
+        box->resource, previous->object, 1);
+}
+
+CUresult graph_clone_attachments(
+        const GraphHandle& h_clone,
+        const GraphHandle& h_source) {
+    if (!h_clone || !h_source) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphBox* clone = get_box(h_clone);
+    GraphBox* source = get_box(h_source);
+    if (!clone->resource || !source->resource ||
+        !clone->attachments.empty()) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    // Build and rekey the clone metadata off-hierarchy so a CUDA mapping error
+    // cannot partially publish it.
+    GraphAttachmentMap attachments;
+    std::list<GraphBox> subgraphs;
+    StagedGraphMetadataList staged;
+    stage_graph_metadata(
+        *source, *clone, attachments, subgraphs, staged);
+
+    std::vector<GraphHandle> handles;
+    handles.reserve(subgraphs.size());
+    for (GraphBox& graph : subgraphs) {
+        handles.emplace_back(h_clone, &graph.resource);
+    }
+
+    CUresult status;
+    {
+        GILReleaseGuard gil;
+        status = rekey_graph_metadata(staged);
+    }
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+
+    clone->attachments.swap(attachments);
+    if (subgraphs.empty()) {
+        return CUDA_SUCCESS;
+    }
+
+    clone->hierarchy->graphs.splice(
+        clone->hierarchy->graphs.end(), subgraphs);
+    graph_registry.register_handles(handles);
+    return CUDA_SUCCESS;
+}
+
+// ============================================================================
+// Graph Exec Handles
+// ============================================================================
+
+namespace {
+
+// Append-only owners introduced by individual executable-node updates. CUDA
+// owns this payload through a user object propagated into the CUgraphExec.
+struct ExecAttachments : DeferredCleanupItem {
+    CUuserObject object = nullptr;
+    std::vector<OpaqueHandle> owners;
+};
+
+struct GraphExecBox {
+    CUgraphExec resource = nullptr;
+    ExecAttachments* attachments = nullptr;  // Non-owning.
+
+    ~GraphExecBox() noexcept {
+        if (resource) {
+            GILReleaseGuard gil;
+            p_cuGraphExecDestroy(resource);
+        }
+        // The accumulator fields may be dangling after exec destruction.
+        retry_deferred_cleanup();
+    }
+};
+
+GraphExecBox* get_exec_box(const GraphExecHandle& h) noexcept {
+    return const_cast<GraphExecBox*>(
+        reinterpret_cast<const GraphExecBox*>(h.get()));
+}
+
+GraphExecHandle make_graph_exec_handle(
+        CUgraphExec graph_exec, ExecAttachments* attachments) {
+    struct RawGraphExecGuard {
+        CUgraphExec resource;
+
+        ~RawGraphExecGuard() noexcept {
+            if (resource) {
+                GILReleaseGuard gil;
+                p_cuGraphExecDestroy(resource);
+            }
+            retry_deferred_cleanup();
+        }
+    } guard{graph_exec};
+
+    auto box = std::make_shared<GraphExecBox>();
+    box->resource = graph_exec;
+    box->attachments = attachments;
+    guard.resource = nullptr;
+    return GraphExecHandle(box, &box->resource);
+}
+
+// Holds a fresh accumulator retained on the source graph across a CUDA call
+// that propagates user objects into an exec. Releasing drops the source's
+// reference: after successful propagation the exec keeps the accumulator
+// alive, and otherwise this drops its last reference.
+struct ExecAttachmentStaging {
+    GraphHandle h_source;
+    ExecAttachments* accumulator = nullptr;
+
+    ~ExecAttachmentStaging() noexcept {
+        release();
+    }
+
+    CUresult release() noexcept {
+        if (!h_source || !accumulator) {
+            return CUDA_SUCCESS;
+        }
+        const CUuserObject object = accumulator->object;
+        const GraphHandle source = std::move(h_source);
+        accumulator = nullptr;
+        GILReleaseGuard gil;
+        return p_cuGraphReleaseUserObject(*source, object, 1);
+    }
+};
+
+// Create an accumulator and retain it on h_source, so that a following
+// instantiation or whole-graph update propagates a reference into the exec.
+CUresult stage_exec_attachments(
+        const GraphHandle& h_source, ExecAttachmentStaging* out_staging) {
+    if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
+        !p_cuGraphRetainUserObject || !p_cuGraphReleaseUserObject) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    ensure_deferred_cleanup_ready();
+    auto* accumulator = new ExecAttachments;
+
+    CUuserObject object = nullptr;
+    CUresult status;
+    {
+        GILReleaseGuard gil;
+        status = p_cuUserObjectCreate(
+            &object,
+            static_cast<DeferredCleanupItem*>(accumulator),
+            reinterpret_cast<CUhostFn>(enqueue_cleanup),
+            1,
+            CU_USER_OBJECT_NO_DESTRUCTOR_SYNC);
+        if (status != CUDA_SUCCESS) {
+            delete accumulator;
+            return status;
+        }
+        accumulator->object = object;
+        status = p_cuGraphRetainUserObject(
+            *h_source, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
+        if (status != CUDA_SUCCESS) {
+            // Dropping the last reference retires the accumulator.
+            p_cuUserObjectRelease(object, 1);
+            return status;
+        }
+    }
+
+    out_staging->h_source = h_source;
+    out_staging->accumulator = accumulator;
+    return CUDA_SUCCESS;
+}
+
+}  // namespace
+
+// State held by PreparedExecAttachment between preparation and commit. It keeps
+// the exec alive and remembers the accumulator size before the append, so that
+// rollback can drop owners staged for a mutation that CUDA rejected.
+struct PreparedExecAttachmentState {
+    GraphExecHandle h_exec;
+    ExecAttachments* attachments = nullptr;
+    size_t original_size = 0;
+
+    PreparedExecAttachmentState(
+            GraphExecHandle h_exec_,
+            ExecAttachments* attachments_,
+            size_t original_size_)
+        : h_exec(std::move(h_exec_)),
+          attachments(attachments_),
+          original_size(original_size_) {}
+};
+
+void rollback_prepared_exec_attachment(
+        PreparedExecAttachmentState* state) noexcept {
+    if (!state) {
+        return;
+    }
+    if (state->attachments) {
+        while (state->attachments->owners.size() > state->original_size) {
+            state->attachments->owners.pop_back();
+        }
+    }
+    delete state;
+}
+
+GraphExecHandle create_graph_exec_handle(
+        const GraphHandle& h_source,
+        CUDA_GRAPH_INSTANTIATE_PARAMS* params) {
+    if (!h_source || !*h_source || !params) {
+        err = CUDA_ERROR_INVALID_VALUE;
+        return {};
+    }
+    if (!p_cuGraphInstantiateWithParams) {
+        err = CUDA_ERROR_NOT_SUPPORTED;
+        return {};
+    }
+
+    ExecAttachmentStaging staging;
+    if (CUDA_SUCCESS != (err = stage_exec_attachments(h_source, &staging))) {
+        return {};
+    }
+
+    CUgraphExec graph_exec = nullptr;
+    {
+        GILReleaseGuard gil;
+        err = p_cuGraphInstantiateWithParams(&graph_exec, *h_source, params);
+    }
+    if (err != CUDA_SUCCESS) {
+        return {};
+    }
+    // CUDA can report a specific failure while returning success. The exec is
+    // then unusable, so it stays unadopted for the caller to diagnose from
+    // params->result_out.
+    if (params->result_out != CUDA_GRAPH_INSTANTIATE_SUCCESS) {
+        return {};
+    }
+    if (!graph_exec) {
+        err = CUDA_ERROR_INVALID_VALUE;
+        return {};
+    }
+
+    GraphExecHandle h_exec = make_graph_exec_handle(
+        graph_exec, staging.accumulator);
+    if (CUDA_SUCCESS != (err = staging.release())) {
+        return {};
+    }
+    return h_exec;
+}
+
+CUresult graph_exec_update(
+        const GraphExecHandle& h_exec,
+        const GraphHandle& h_source,
+        CUgraphExecUpdateResultInfo* result_info) {
+    if (!h_exec || !h_source || !*h_source || !result_info) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    if (!p_cuGraphExecUpdate) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+
+    GraphExecBox* box = get_exec_box(h_exec);
+    if (!box->resource) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    ExecAttachmentStaging staging;
+    CUresult status = stage_exec_attachments(h_source, &staging);
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+
+    {
+        GILReleaseGuard gil;
+        status = p_cuGraphExecUpdate(box->resource, *h_source, result_info);
+    }
+    if (status != CUDA_SUCCESS) {
+        return status;
+    }
+
+    // CUDA may already have retired the old accumulator. Publish the new one
+    // before releasing the source graph's temporary reference.
+    box->attachments = staging.accumulator;
+    return staging.release();
+}
+
+CUresult graph_prepare_exec_attachment(
+        const GraphExecHandle& h_exec,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1,
+        PreparedExecAttachment* out_prepared) {
+    if (!out_prepared) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+    out_prepared->reset();
+    if (!h_exec) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    GraphExecBox* box = get_exec_box(h_exec);
+    if (!box->resource || !box->attachments) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    ExecAttachments* attachments = box->attachments;
+    const size_t original_size = attachments->owners.size();
+    const size_t additions =
+        static_cast<size_t>(static_cast<bool>(owner0)) +
+        static_cast<size_t>(static_cast<bool>(owner1));
+    // Reserve before staging so that rollback and commit cannot allocate.
+    attachments->owners.reserve(original_size + additions);
+    PreparedExecAttachment prepared(
+        new PreparedExecAttachmentState(h_exec, attachments, original_size),
+        PreparedExecAttachmentDeleter{rollback_prepared_exec_attachment});
+    if (owner0) {
+        attachments->owners.emplace_back(std::move(owner0));
+    }
+    if (owner1) {
+        attachments->owners.emplace_back(std::move(owner1));
+    }
+    *out_prepared = std::move(prepared);
+    return CUDA_SUCCESS;
+}
+
+void graph_commit_exec_attachment(
+        PreparedExecAttachment& prepared) noexcept {
+    delete prepared.release();
 }
 
 namespace {
@@ -1129,21 +2197,61 @@ static const GraphNodeBox* get_box(const GraphNodeHandle& h) {
     );
 }
 
-// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static HandleRegistry<CUgraphNode, GraphNodeHandle> graph_node_registry;
+// graphs is ordered parent-before-child. Nulling a selected box marks its
+// later descendants, whose parent pointers remain valid after list splicing.
+// This permits one allocation-free sweep of the hierarchy.
+void invalidate_child_graph_state(
+        const GraphHandle& h_parent,
+        CUgraphNode owner_node) noexcept {
+    if (!h_parent || !owner_node) {
+        return;
+    }
+
+    GraphBox* parent = get_box(h_parent);
+    if (!parent->resource) {
+        return;
+    }
+    GraphHierarchy& hierarchy = *parent->hierarchy;
+    for (auto it = hierarchy.graphs.begin();
+         it != hierarchy.graphs.end();) {
+        auto graph = it++;
+        bool is_owned_root = graph->parent == parent &&
+                             graph->owner_node == owner_node;
+        bool is_descendant = graph->parent &&
+                             !graph->parent->resource;
+        if (!is_owned_root && !is_descendant) {
+            continue;
+        }
+
+        // Empty node_handles and invalidate each one.
+        for (auto& entry : graph->node_handles.drain()) {
+            if (GraphNodeHandle h_node = entry.second.lock()) {
+                get_box(h_node)->resource = nullptr;
+            }
+        }
+        graph_registry.unregister_handle(graph->resource);
+        graph->resource = nullptr;
+        graph->attachments.clear();
+        hierarchy.graveyard.splice(
+            hierarchy.graveyard.end(), hierarchy.graphs, graph);
+    }
+}
 
 GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph) {
-    if (node) {
-        if (auto h = graph_node_registry.lookup(node)) {
-            return h;
-        }
+    if (!node) {
+        auto box = std::make_shared<const GraphNodeBox>(
+            GraphNodeBox{nullptr, h_graph});
+        return GraphNodeHandle(box, &box->resource);
     }
-    auto box = std::make_shared<const GraphNodeBox>(GraphNodeBox{node, h_graph});
-    GraphNodeHandle h(box, &box->resource);
-    if (node) {
-        graph_node_registry.register_handle(node, h);
-    }
-    return h;
+
+    GraphBox* graph = get_box(h_graph);
+    return graph->node_handles.get_or_create(
+        node,
+        [node, &h_graph] {
+            auto box = std::make_shared<const GraphNodeBox>(
+                GraphNodeBox{node, h_graph});
+            return GraphNodeHandle(box, &box->resource);
+        });
 }
 
 GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
@@ -1151,13 +2259,18 @@ GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept {
 }
 
 void invalidate_graph_node(const GraphNodeHandle& h) noexcept {
-    if (h) {
-        CUgraphNode node = get_box(h)->resource;
-        if (node) {
-            graph_node_registry.unregister_handle(node);
-        }
-        get_box(h)->resource = nullptr;
+    if (!h) {
+        return;
     }
+
+    const GraphNodeBox* node_box = get_box(h);
+    CUgraphNode node = node_box->resource;
+    if (!node) {
+        return;
+    }
+    GraphBox* graph = get_box(node_box->h_graph);
+    graph->node_handles.unregister_handle(node);
+    node_box->resource = nullptr;
 }
 
 // ============================================================================
@@ -1324,6 +2437,163 @@ FileDescriptorHandle create_fd_handle_ref(int fd) {
 #else
     return std::make_shared<const int>(fd);
 #endif
+}
+
+// ============================================================================
+// Array / mipmapped-array / texture / surface handles (PR #467)
+// ============================================================================
+
+namespace {
+struct ArrayBox {
+    CUarray resource;
+    // Non-null only for a mipmap-level view: keeps the parent mipmap (the real
+    // owner of the level's storage) alive for as long as the level is held.
+    MipmappedArrayHandle h_parent;
+};
+
+struct MipmappedArrayBox {
+    CUmipmappedArray resource;
+};
+
+struct TexObjectBox {
+    // Tagged so TexObjectHandle is a distinct C++ type from DevicePtrHandle /
+    // SurfObjectHandle (all wrap `unsigned long long`).
+    TexObjectValue resource;
+    // Type-erased backing dependency (OpaqueArrayHandle / MipmappedArrayHandle /
+    // DevicePtrHandle). The texture's resource is a union; we only need to keep
+    // whichever backing it was built from alive, never to dereference it.
+    std::shared_ptr<const void> h_backing;
+};
+
+struct SurfObjectBox {
+    SurfObjectValue resource;
+    OpaqueArrayHandle h_array;  // surfaces are always array-backed
+};
+}  // namespace
+
+OpaqueArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc) {
+    GILReleaseGuard gil;
+    CUarray arr;
+    if (CUDA_SUCCESS != (err = p_cuArray3DCreate(&arr, &desc))) {
+        return {};
+    }
+    // Allocation and adoption share the same owning lifetime; the only
+    // difference is who calls cuArray3DCreate. Delegate so the owning box and
+    // its destroy-on-last-ref deleter are defined in exactly one place.
+    return create_array_handle_owning(arr);
+}
+
+OpaqueArrayHandle create_array_handle_ref(CUarray arr) {
+    if (!arr) {
+        return {};
+    }
+    auto box = std::make_shared<const ArrayBox>(ArrayBox{arr, {}});
+    return OpaqueArrayHandle(box, &box->resource);
+}
+
+OpaqueArrayHandle create_array_handle_owning(CUarray arr) {
+    if (!arr) {
+        return {};
+    }
+    auto box = std::shared_ptr<const ArrayBox>(
+        new ArrayBox{arr, {}},
+        [](const ArrayBox* b) {
+            GILReleaseGuard gil;
+            p_cuArrayDestroy(b->resource);
+            delete b;
+        }
+    );
+    return OpaqueArrayHandle(box, &box->resource);
+}
+
+OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) {
+    GILReleaseGuard gil;
+    CUarray arr;
+    if (CUDA_SUCCESS != (err = p_cuMipmappedArrayGetLevel(&arr, as_cu(h_mip), level))) {
+        return {};
+    }
+    // Non-owning level view: storage belongs to the mipmap. Embed the mipmap
+    // handle so the parent outlives this level; the deleter does not destroy.
+    auto box = std::shared_ptr<const ArrayBox>(
+        new ArrayBox{arr, h_mip},
+        [](const ArrayBox* b) { delete b; }
+    );
+    return OpaqueArrayHandle(box, &box->resource);
+}
+
+MipmappedArrayHandle create_mipmapped_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc,
+                                                   unsigned int num_levels) {
+    GILReleaseGuard gil;
+    CUmipmappedArray mip;
+    if (CUDA_SUCCESS != (err = p_cuMipmappedArrayCreate(&mip, &desc, num_levels))) {
+        return {};
+    }
+    auto box = std::shared_ptr<const MipmappedArrayBox>(
+        new MipmappedArrayBox{mip},
+        [](const MipmappedArrayBox* b) {
+            GILReleaseGuard gil;
+            p_cuMipmappedArrayDestroy(b->resource);
+            delete b;
+        }
+    );
+    return MipmappedArrayHandle(box, &box->resource);
+}
+
+namespace {
+TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
+                                       const CUDA_TEXTURE_DESC& tex,
+                                       std::shared_ptr<const void> h_backing) {
+    GILReleaseGuard gil;
+    CUtexObject obj;
+    if (CUDA_SUCCESS != (err = p_cuTexObjectCreate(&obj, &res, &tex, nullptr))) {
+        return {};
+    }
+    auto box = std::shared_ptr<const TexObjectBox>(
+        new TexObjectBox{TexObjectValue{obj}, std::move(h_backing)},
+        [](const TexObjectBox* b) {
+            GILReleaseGuard gil;
+            p_cuTexObjectDestroy(b->resource.raw);
+            delete b;
+        }
+    );
+    return TexObjectHandle(box, &box->resource);
+}
+}  // namespace
+
+TexObjectHandle create_tex_object_handle_array(const CUDA_RESOURCE_DESC& res,
+                                               const CUDA_TEXTURE_DESC& tex,
+                                               const OpaqueArrayHandle& h_backing) {
+    return make_tex_object_handle(res, tex, h_backing);
+}
+
+TexObjectHandle create_tex_object_handle_mipmap(const CUDA_RESOURCE_DESC& res,
+                                                const CUDA_TEXTURE_DESC& tex,
+                                                const MipmappedArrayHandle& h_backing) {
+    return make_tex_object_handle(res, tex, h_backing);
+}
+
+TexObjectHandle create_tex_object_handle_linear(const CUDA_RESOURCE_DESC& res,
+                                                const CUDA_TEXTURE_DESC& tex,
+                                                const DevicePtrHandle& h_backing) {
+    return make_tex_object_handle(res, tex, h_backing);
+}
+
+SurfObjectHandle create_surf_object_handle(const CUDA_RESOURCE_DESC& res,
+                                           const OpaqueArrayHandle& h_backing) {
+    GILReleaseGuard gil;
+    CUsurfObject obj;
+    if (CUDA_SUCCESS != (err = p_cuSurfObjectCreate(&obj, &res))) {
+        return {};
+    }
+    auto box = std::shared_ptr<const SurfObjectBox>(
+        new SurfObjectBox{SurfObjectValue{obj}, h_backing},
+        [](const SurfObjectBox* b) {
+            GILReleaseGuard gil;
+            p_cuSurfObjectDestroy(b->resource.raw);
+            delete b;
+        }
+    );
+    return SurfObjectHandle(box, &box->resource);
 }
 
 // ============================================================================

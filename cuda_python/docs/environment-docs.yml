@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 name: cuda-python-docs
 channels:
@@ -7,7 +7,7 @@ channels:
 dependencies:
   # ATTENTION: This dependency list is duplicated in
   #            toolshed/setup-docs-env.sh. Please KEEP THEM IN SYNC!
-  - cython
+  - cython >=3.2.5,<3.3
   - myst-parser
   - numpy
   - numpydoc

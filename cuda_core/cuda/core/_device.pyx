@@ -28,7 +28,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
 )
 
-from cuda.core._stream import IsStreamType, Stream, StreamOptions
+from cuda.core._stream import IsStreamType, Stream
 from cuda.core._utils.clear_error_support import assert_type
 from cuda.core._utils.cuda_utils import (
     ComputeCapability,
@@ -39,11 +39,29 @@ from cuda.core._utils.cuda_utils import (
 )
 from cuda.core._stream cimport default_stream
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import cuda.core.system  # no-cython-lint
+    from cuda.core.graph import GraphBuilder
+    from cuda.core.texture import (
+        MipmappedArray,
+        MipmappedArrayOptions,
+        OpaqueArray,
+        OpaqueArrayOptions,
+        ResourceDescriptor,
+        SurfaceObject,
+        TextureObject,
+        TextureObjectOptions,
+    )
+
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...
 _tls = threading.local()
 _lock = threading.Lock()
 cdef bint _is_cuInit = False
+
+__all__ = ['Device']
 
 
 cdef class DeviceProperties:
@@ -56,11 +74,11 @@ cdef class DeviceProperties:
         int _handle
         dict _cache
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("DeviceProperties cannot be instantiated directly. Please use Device APIs.")
 
     @classmethod
-    def _init(cls, handle):
+    def _init(cls, handle: int) -> DeviceProperties:
         cdef DeviceProperties self = DeviceProperties.__new__(cls)
         self._handle = handle
         self._cache = {}
@@ -79,9 +97,12 @@ cdef class DeviceProperties:
 
     cdef inline int _get_cached_attribute(self, attr, default=0) except? -2:
         """Retrieve the attribute value, using cache if applicable."""
-        if attr not in self._cache:
-            self._cache[attr] = self._get_attribute(attr, default)
-        return self._cache[attr]
+        cached = self._cache.get(attr)
+        if cached is not None:
+            return cached
+        cdef int value = self._get_attribute(attr, default)
+        self._cache[attr] = value  # setdefault not needed for ints
+        return value
 
     @property
     def max_threads_per_block(self) -> int:
@@ -903,34 +924,46 @@ cdef class DeviceProperties:
     @property
     def host_memory_pools_supported(self) -> bool:
         """bool: Device supports HOST location with the cuMemAllocAsync and cuMemPool family of APIs."""
-        return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
-        )
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
+            )
 
     @property
     def host_virtual_memory_management_supported(self) -> bool:
         """bool: Device supports HOST location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs."""
-        return bool(
-            self._get_cached_attribute(
-                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+                )
             )
-        )
 
     @property
     def host_alloc_dma_buf_supported(self) -> bool:
         """bool: Device supports page-locked host memory buffer sharing with dma_buf mechanism."""
-        return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED)
-        )
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED)
+            )
 
     @property
     def only_partial_host_native_atomic_supported(self) -> bool:
         """bool: Link between the device and the host supports only some native atomic operations."""
-        return bool(
-            self._get_cached_attribute(
-                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
+        IF CUDA_CORE_BUILD_MAJOR < 13:
+            return False
+        ELSE:
+            return bool(
+                self._get_cached_attribute(
+                    driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
+                )
             )
-        )
 
 
 class Device:
@@ -970,7 +1003,7 @@ class Device:
         "__weakref__",
     )
 
-    def __new__(cls, device_id: Device | int | None = None):
+    def __new__(cls, device_id: Device | int | None = None) -> Device:
         if isinstance(device_id, Device):
             return device_id
 
@@ -983,7 +1016,7 @@ class Device:
         except IndexError:
             raise ValueError(f"device_id must be within [0, {len(devices)}), got {device_id}") from None
 
-    def _check_context_initialized(self):
+    def _check_context_initialized(self) -> None:
         if not self._has_inited:
             raise CUDAError(
                 f"Device {self._device_id} is not yet initialized, perhaps you forgot to call .set_current() first?"
@@ -991,7 +1024,7 @@ class Device:
 
 
     @classmethod
-    def get_all_devices(cls):
+    def get_all_devices(cls) -> tuple[Device, ...]:
         """
         Query the available device instances.
 
@@ -1007,7 +1040,7 @@ class Device:
     def to_system_device(self) -> 'cuda.core.system.Device':
         """
         Get the corresponding :class:`cuda.core.system.Device` (which is used
-        for NVIDIA Machine Library (NVML) access) for this
+        for NVIDIA Management Library (NVML) access) for this
         :class:`cuda.core.Device` (which is used for CUDA access).
 
         The devices are mapped to one another by their UUID.
@@ -1021,7 +1054,7 @@ class Device:
 
         if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             raise RuntimeError(
-                "cuda.core.system.Device requires cuda_bindings 13.1.2+ or 12.9.6+"
+                "cuda.core.system.Device requires cuda-bindings 12.9.6+ for CUDA 12.x, or cuda-bindings 13.2.0+ for CUDA 13.x"
             )
 
         from cuda.core.system import Device as SystemDevice
@@ -1125,11 +1158,11 @@ class Device:
     def compute_capability(self) -> ComputeCapability:
         """Return a named tuple with 2 fields: major and minor."""
         cdef DeviceProperties prop = self.properties
-        if "compute_capability" in prop._cache:
-            return prop._cache["compute_capability"]
+        cached = prop._cache.get("compute_capability")
+        if cached is not None:
+            return cached
         cc = ComputeCapability(prop.compute_capability_major, prop.compute_capability_minor)
-        prop._cache["compute_capability"] = cc
-        return cc
+        return prop._cache.setdefault("compute_capability", cc)
 
     @property
     def arch(self) -> str:
@@ -1172,7 +1205,7 @@ class Device:
         return self._memory_resource
 
     @memory_resource.setter
-    def memory_resource(self, mr):
+    def memory_resource(self, mr: MemoryResource) -> None:
         from cuda.core._memory import MemoryResource
         assert_type(mr, MemoryResource)
         self._memory_resource = mr
@@ -1190,25 +1223,25 @@ class Device:
         """
         return default_stream()
 
-    def __int__(self):
+    def __int__(self) -> int:
         """Return device_id."""
         return self._device_id
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Device {self._device_id} ({self.name})>"
 
     def __hash__(self) -> int:
         return hash(self.uuid)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Device):
             return NotImplemented
         return self._device_id == other._device_id
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         return Device, (self.device_id,)
 
-    def set_current(self, ctx: Context = None) -> Context | None:
+    def set_current(self, ctx: Context | None = None) -> Context | None:
         """Set device to be used for GPU executions.
 
         Initializes CUDA and sets the calling thread to a valid CUDA
@@ -1268,13 +1301,16 @@ class Device:
             # use primary ctx
             h_context = get_primary_context(self._device_id)
             if h_context.get() == NULL:
-                raise ValueError("Cannot set NULL context as current")
+                HANDLE_RETURN(get_last_error())
+                raise RuntimeError(
+                    f"Failed to retain the primary context for device {self._device_id}"
+                )
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxSetCurrent(as_cu(h_context)))
             self._has_inited = True
             self._context = Context._from_handle(Context, h_context, self._device_id)  # Store owning context
 
-    def create_context(self, options: ContextOptions = None) -> Context:
+    def create_context(self, options: ContextOptions | None = None) -> Context:
         """Create a new :obj:`~_context.Context` object.
 
         Note
@@ -1297,7 +1333,6 @@ class Device:
         cdef object res
         cdef SMResource sm_res
         cdef WorkqueueResource wq_res
-        cdef GreenCtxHandle h_green
 
         if options is None:
             raise ValueError(
@@ -1329,7 +1364,7 @@ class Device:
             else:
                 raise TypeError(f"Unsupported context resource type: {type(res)}")
 
-        h_green = create_green_ctx_handle(
+        cdef GreenCtxHandle h_green = create_green_ctx_handle(
             c_resources.data(),
             <unsigned int>(c_resources.size()),
             <cydriver.CUdevice>(self._device_id),
@@ -1341,7 +1376,7 @@ class Device:
 
         return Context._from_green_ctx(Context, h_green, self._device_id)
 
-    def create_stream(self, obj: IsStreamType | None = None, options: StreamOptions | None = None) -> Stream:
+    def create_stream(self, obj: IsStreamType | None = None, options: object = None) -> Stream:
         """Create a :obj:`~_stream.Stream` object.
 
         New stream objects can be created in two different ways:
@@ -1394,7 +1429,7 @@ class Device:
         cdef Context ctx = self._context
         return cyEvent._init(cyEvent, self._device_id, ctx._h_context, options, True)
 
-    def allocate(self, size, *, stream: Stream | GraphBuilder) -> Buffer:
+    def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
@@ -1422,7 +1457,7 @@ class Device:
         self._check_context_initialized()
         return self.memory_resource.allocate(size, stream=stream)
 
-    def sync(self):
+    def sync(self) -> None:
         """Synchronize the device.
 
         Note
@@ -1433,7 +1468,7 @@ class Device:
         self._check_context_initialized()
         handle_return(runtime.cudaDeviceSynchronize())
 
-    def create_graph_builder(self) -> "GraphBuilder":
+    def create_graph_builder(self) -> GraphBuilder:
         """Create a new :obj:`~graph.GraphBuilder` object.
 
         Returns
@@ -1445,7 +1480,134 @@ class Device:
         from cuda.core.graph._graph_builder import GraphBuilder
 
         self._check_context_initialized()
-        return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
+        return GraphBuilder._init(self.create_stream())
+
+    def create_opaque_array(self, options: OpaqueArrayOptions) -> OpaqueArray:
+        """Create an :obj:`~cuda.core.texture.OpaqueArray` on the current device.
+
+        Allocates an opaque, hardware-laid-out CUDA array for texture/surface
+        access. The array is created in the current CUDA context, so make this
+        device current with :meth:`set_current` before calling (mirroring
+        :meth:`create_stream` / :meth:`create_event`).
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`~cuda.core.texture.OpaqueArrayOptions`
+            Allocation options (shape, format, channels, surface flag).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.OpaqueArray`
+            Newly created opaque array.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._array import _create_opaque_array
+
+        self._check_context_initialized()
+        return _create_opaque_array(options)
+
+    def create_mipmapped_array(self, options: MipmappedArrayOptions) -> MipmappedArray:
+        """Create a :obj:`~cuda.core.texture.MipmappedArray` on the current device.
+
+        Allocates a mipmapped CUDA array for texture/surface access across
+        levels. The array is created in the current CUDA context, so make this
+        device current with :meth:`set_current` before calling (mirroring
+        :meth:`create_stream` / :meth:`create_event`).
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        options : :obj:`~cuda.core.texture.MipmappedArrayOptions`
+            Allocation options (shape, format, channels, levels, surface flag).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.MipmappedArray`
+            Newly created mipmapped array.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._mipmapped_array import _create_mipmapped_array
+
+        self._check_context_initialized()
+        return _create_mipmapped_array(options)
+
+    def create_texture_object(
+        self, *, resource: ResourceDescriptor, options: TextureObjectOptions | None = None
+    ) -> TextureObject:
+        """Create a :obj:`~cuda.core.texture.TextureObject` on the current device.
+
+        Binds a resource (an :obj:`~cuda.core.texture.OpaqueArray` /
+        :obj:`~cuda.core.texture.MipmappedArray` / linear or pitch2d
+        :obj:`~cuda.core.Buffer`, wrapped in a
+        :obj:`~cuda.core.texture.ResourceDescriptor`) as a bindless texture for
+        kernel-side sampled reads. The object is created in the current CUDA
+        context, so make this device current with :meth:`set_current` before
+        calling (mirroring :meth:`create_stream` / :meth:`create_event`).
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        resource : :obj:`~cuda.core.texture.ResourceDescriptor`
+            The memory backing the texture.
+        options : :obj:`~cuda.core.texture.TextureObjectOptions`
+            Sampling state (address/filter/read modes, normalization, etc.).
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.TextureObject`
+            Newly created texture object.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._texture import _create_texture_object
+
+        self._check_context_initialized()
+        return _create_texture_object(resource, options)
+
+    def create_surface_object(self, *, resource: ResourceDescriptor) -> SurfaceObject:
+        """Create a :obj:`~cuda.core.texture.SurfaceObject` on the current device.
+
+        Binds an :obj:`~cuda.core.texture.OpaqueArray` (via a
+        :obj:`~cuda.core.texture.ResourceDescriptor`) as a bindless surface for
+        kernel-side typed load/store. The backing array must have been created
+        with ``is_surface_load_store=True``. The object is created in the
+        current CUDA context, so make this device current with
+        :meth:`set_current` before calling (mirroring :meth:`create_stream` /
+        :meth:`create_event`).
+
+        Note
+        ----
+        Device must be initialized.
+
+        Parameters
+        ----------
+        resource : :obj:`~cuda.core.texture.ResourceDescriptor`
+            Must wrap an :obj:`~cuda.core.texture.OpaqueArray` allocated with
+            ``is_surface_load_store=True``.
+
+        Returns
+        -------
+        :obj:`~cuda.core.texture.SurfaceObject`
+            Newly created surface object.
+
+        .. versionadded:: 1.1.0
+        """
+        from cuda.core.texture._surface import _create_surface_object
+
+        self._check_context_initialized()
+        return _create_surface_object(resource)
 
 
 cdef inline int Device_ensure_cuda_initialized() except? -1:

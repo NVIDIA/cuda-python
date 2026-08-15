@@ -1,10 +1,19 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1568+g289771de9.d20260413. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b10e4f1751ee5423db23c6fc953cb0ae37bff7e8937bf1d39ac5fd6eeb0e4e87
+
+
+
+# <<<< PREAMBLE CONTENT >>>>
 
 from libc.stdint cimport intptr_t
+from libcpp cimport bool as _cyb_bool
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 from .cycufile cimport *
 

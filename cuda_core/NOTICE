@@ -1,0 +1,13 @@
+SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+
+CUDA Python - cuda.core
+Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+Third-party software notices
+----------------------------
+
+DLPack
+Copyright (c) 2017 by Contributors
+Licensed under the Apache License, Version 2.0.
+Source: https://github.com/dmlc/dlpack

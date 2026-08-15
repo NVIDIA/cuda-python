@@ -121,7 +121,7 @@ cdef class DeviceEvents:
         # this class's __dealloc__ method.
         nvml.device_register_events(self._device_handle, event_bitmask, self._event_set)
 
-    def __dealloc__(self):
+    def __dealloc__(self) -> None:
         if self._event_set != 0:
             nvml.event_set_free(self._event_set)
 

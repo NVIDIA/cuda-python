@@ -32,7 +32,7 @@ cdef class c_locale_guard:
     cdef locale_t _prev_locale
     cdef bint _active
 
-    def __cinit__(self):
+    def __cinit__(self) -> None:
         self._c_locale = <locale_t>0
         self._prev_locale = <locale_t>0
         self._active = False

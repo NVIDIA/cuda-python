@@ -117,7 +117,7 @@ fi
 # ── Mode: tag ──
 echo "Looking up run ID for tag: ${REF} in repository: ${REPOSITORY}" >&2
 
-if ! COMMIT_SHA=$(git rev-parse "${REF}"); then
+if ! COMMIT_SHA=$(git rev-parse "${REF}^{commit}"); then
     echo "Error: Could not resolve git tag '${REF}' to a commit SHA" >&2
     echo "Make sure the tag exists and you have fetched it" >&2
     exit 1

@@ -1,29 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
-
-import functools
-import platform
-from pathlib import Path
 
 from cuda.bindings import nvml
-
-current_os = platform.system()
-if current_os == "VMkernel":
-    current_os = "Linux"  # Treat VMkernel as Linux
-
-
-def is_windows(os=current_os):
-    return os == "Windows"
-
-
-def is_linux(os=current_os):
-    return os == "Linux"
-
-
-@functools.cache
-def is_wsl(os=current_os):
-    return os == "Linux" and "microsoft" in Path("/proc/version").read_text().lower()
 
 
 def is_vgpu(device):

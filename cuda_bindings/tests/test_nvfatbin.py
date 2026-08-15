@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 
 import base64
@@ -9,7 +9,8 @@ import subprocess
 
 import pytest
 
-from cuda.bindings import nvfatbin, nvrtc
+from cuda.bindings import nvfatbin
+from cuda.bindings._v2 import nvrtc
 
 ARCHITECTURES = ["sm_75", "sm_80", "sm_90", "sm_100"]
 PTX_VERSIONS = ["6.4", "7.0", "8.5", "8.8"]
@@ -121,48 +122,25 @@ def nvcc_smoke(tmpdir) -> str:
     return nvcc
 
 
+def _build_cubin(arch):
+    program_handle = nvrtc.create_program(CODE.encode(), b"")
+    nvrtc.compile_program(program_handle, [f"-arch={arch}".encode()])
+    return nvrtc.get_cubin(program_handle)
+
+
 @pytest.fixture
 def CUBIN(arch):
-    def CHECK_NVRTC(err):
-        if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
-            raise RuntimeError(repr(err))
-
-    err, program_handle = nvrtc.nvrtcCreateProgram(CODE.encode(), b"", 0, [], [])
-    CHECK_NVRTC(err)
-    err = nvrtc.nvrtcCompileProgram(program_handle, 1, [f"-arch={arch}".encode()])[0]
-    CHECK_NVRTC(err)
-    err, size = nvrtc.nvrtcGetCUBINSize(program_handle)
-    CHECK_NVRTC(err)
-    cubin = b" " * size
-    (err,) = nvrtc.nvrtcGetCUBIN(program_handle, cubin)
-    CHECK_NVRTC(err)
-    (err,) = nvrtc.nvrtcDestroyProgram(program_handle)
-    CHECK_NVRTC(err)
-    return cubin
+    return _build_cubin(arch)
 
 
 # create a valid LTOIR input for testing
 @pytest.fixture
 def LTOIR(arch):
     arch = arch.replace("sm", "compute")
-
-    def CHECK_NVRTC(err):
-        if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
-            raise RuntimeError(repr(err))
-
     empty_cplusplus_kernel = "__global__ void A() {}"
-    err, program_handle = nvrtc.nvrtcCreateProgram(empty_cplusplus_kernel.encode(), b"", 0, [], [])
-    CHECK_NVRTC(err)
-    err = nvrtc.nvrtcCompileProgram(program_handle, 1, [b"-dlto", f"-arch={arch}".encode()])[0]
-    CHECK_NVRTC(err)
-    err, size = nvrtc.nvrtcGetLTOIRSize(program_handle)
-    CHECK_NVRTC(err)
-    empty_kernel_ltoir = b" " * size
-    (err,) = nvrtc.nvrtcGetLTOIR(program_handle, empty_kernel_ltoir)
-    CHECK_NVRTC(err)
-    (err,) = nvrtc.nvrtcDestroyProgram(program_handle)
-    CHECK_NVRTC(err)
-    return empty_kernel_ltoir
+    program_handle = nvrtc.create_program(empty_cplusplus_kernel.encode(), b"")
+    nvrtc.compile_program(program_handle, [b"-dlto", f"-arch={arch}".encode()])
+    return nvrtc.get_ltoir(program_handle)
 
 
 @pytest.fixture
@@ -259,11 +237,11 @@ def test_nvfatbin_add_ptx(PTX, arch):
     nvfatbin.destroy(handle)
 
 
-@pytest.mark.parametrize("arch", ["sm_80"], indirect=True)
-def test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH(CUBIN, arch):
+def test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH():
+    cubin = _build_cubin("sm_80")
     handle = nvfatbin.create([], 0)
     with pytest.raises(nvfatbin.nvFatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
-        nvfatbin.add_cubin(handle, CUBIN, len(CUBIN), "75", "inc")
+        nvfatbin.add_cubin(handle, cubin, len(cubin), "75", "inc")
 
     nvfatbin.destroy(handle)
 
@@ -280,11 +258,11 @@ def test_nvfatbin_add_cubin(CUBIN, arch):
     nvfatbin.destroy(handle)
 
 
-@pytest.mark.parametrize("arch", ["sm_80"], indirect=True)
-def test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH(CUBIN, arch):
+def test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH():
+    cubin = _build_cubin("sm_80")
     handle = nvfatbin.create([], 0)
     with pytest.raises(nvfatbin.nvFatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
-        nvfatbin.add_cubin(handle, CUBIN, len(CUBIN), "75", "inc")
+        nvfatbin.add_cubin(handle, cubin, len(cubin), "75", "inc")
 
     nvfatbin.destroy(handle)
 

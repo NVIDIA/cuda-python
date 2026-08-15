@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 from .common import KernelHelper, check_compute_capability_too_low, requirement_not_met
 from .helper_cuda import check_cuda_errors, find_cuda_device, find_cuda_device_drv

@@ -45,7 +45,7 @@ cdef class MigInfo:
         return current == nvml.EnableState.FEATURE_ENABLED
 
     @mode.setter
-    def mode(self, mode: bool):
+    def mode(self, mode: bool) -> None:
         """
         Set the MIG mode for the device.
 

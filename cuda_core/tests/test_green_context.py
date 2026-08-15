@@ -21,7 +21,10 @@ from cuda.core import (
     WorkqueueResourceOptions,
     launch,
 )
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.version import binding_version, driver_version
+from cuda.core.graph import GraphDefinition
+from cuda.core.typing import WorkqueueSharingScopeType
 
 # ---------------------------------------------------------------------------
 # Kernel source
@@ -40,6 +43,19 @@ extern "C" __global__ void fill(int* out, int value, int n) {
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+# Note that the following fixtures (except fill_kernel) require per-thread setup
+# and are currently special cased to work with pytest-run-parallel in conftest.
+
+
+# Resource queries (dev.resources.sm, dev.resources.workqueue) can fail in
+# three orthogonal ways when the resource type isn't supported here:
+#   * RuntimeError — cuda.core was built against CUDA bindings that don't
+#                    expose the resource (e.g. WorkqueueResource on 12.x).
+#   * ValueError   — the runtime driver version is too old to support the
+#                    resource (green-context / workqueue support gates).
+#   * CUDAError    — the driver rejected the specific device-level query.
+# Skip on any of them.
+_RESOURCE_UNAVAILABLE_ERRORS = (RuntimeError, ValueError, CUDAError)
 
 
 @pytest.fixture
@@ -47,7 +63,7 @@ def sm_resource(init_cuda):
     """Query SM resources from the device, skip if unsupported."""
     try:
         return init_cuda.resources.sm
-    except (RuntimeError, ValueError, CUDAError) as exc:
+    except _RESOURCE_UNAVAILABLE_ERRORS as exc:
         pytest.skip(str(exc))
 
 
@@ -56,7 +72,7 @@ def wq_resource(init_cuda):
     """Query workqueue resources from the device, skip if unsupported."""
     try:
         return init_cuda.resources.workqueue
-    except (RuntimeError, ValueError, CUDAError) as exc:
+    except _RESOURCE_UNAVAILABLE_ERRORS as exc:
         pytest.skip(str(exc))
 
 
@@ -146,6 +162,38 @@ def _use_green_ctx(dev, ctx):
         dev.set_current(prev)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_memory_node_updates_preserve_green_context(
+    init_cuda,
+    green_ctx,
+):
+    if driver_version() < (13, 2, 0) or binding_version() < (13, 2, 0):
+        pytest.skip("generic graph node parameter queries require CUDA 13.2+")
+
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(4)
+    dst = memory_resource.allocate(4)
+    with _use_green_ctx(init_cuda, green_ctx):
+        graph_def = GraphDefinition()
+        memset_node = graph_def.memset(dst, 0, 4)
+        memcpy_node = graph_def.memcpy(dst, src, 4)
+        original_memset = handle_return(driver.cuGraphNodeGetParams(memset_node.handle))
+        original_memcpy = handle_return(driver.cuGraphNodeGetParams(memcpy_node.handle))
+
+    memset_node.update(value=1)
+    memcpy_node.update(size=2)
+    updated_memset = handle_return(driver.cuGraphNodeGetParams(memset_node.handle))
+    updated_memcpy = handle_return(driver.cuGraphNodeGetParams(memcpy_node.handle))
+
+    assert int(updated_memset.memset.ctx) == int(original_memset.memset.ctx)
+    assert int(updated_memcpy.memcpy.copyCtx) == int(original_memcpy.memcpy.copyCtx)
+
+    memset_node.destroy()
+    memcpy_node.destroy()
+    src.close()
+    dst.close()
+
+
 # ---------------------------------------------------------------------------
 # Construction / type tests
 # ---------------------------------------------------------------------------
@@ -167,6 +215,24 @@ def test_create_context_requires_resources(init_cuda):
         init_cuda.create_context(ContextOptions(resources=None))
     with pytest.raises(TypeError):
         init_cuda.create_context(object())
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_context_handle_alias_and_closed_queries(init_cuda, sm_resource):
+    """``Context._handle`` mirrors ``.handle``; after a (non-current) green
+    context is closed its handle-backed queries degrade gracefully: ``handle`` is
+    ``None``, ``is_green`` is ``False``, and ``resources`` raises."""
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    ctx = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
+    # `_handle` is a thin alias of the public `handle` property.
+    assert ctx._handle == ctx.handle
+    assert ctx.handle is not None
+
+    ctx.close()
+    assert ctx.handle is None
+    assert ctx.is_green is False
+    with pytest.raises(RuntimeError, match="Cannot query resources"):
+        _ = ctx.resources
 
 
 # ---------------------------------------------------------------------------
@@ -207,8 +273,11 @@ class TestSMResourceQuery:
 
 
 class TestWorkqueueResource:
-    def test_query(self, wq_resource):
+    def test_query(self, init_cuda, wq_resource):
         assert wq_resource.handle != 0
+        assert isinstance(wq_resource.sharing_scope, WorkqueueSharingScopeType)
+        assert wq_resource.concurrency_limit >= 1
+        assert wq_resource.device.device_id == init_cuda.device_id
 
     def test_configure_none_is_noop(self, wq_resource):
         assert wq_resource.configure(WorkqueueResourceOptions(sharing_scope=None)) is None
@@ -216,9 +285,49 @@ class TestWorkqueueResource:
     def test_configure_valid_scope(self, wq_resource):
         wq_resource.configure(WorkqueueResourceOptions(sharing_scope="green_ctx_balanced"))
 
-    def test_configure_invalid_scope_raises(self, wq_resource):
-        with pytest.raises(ValueError, match="Unknown sharing_scope"):
-            wq_resource.configure(WorkqueueResourceOptions(sharing_scope="bogus"))
+    @pytest.mark.parametrize("scope", list(WorkqueueSharingScopeType))
+    def test_configure_scope_with_enum(self, wq_resource, scope):
+        wq_resource.configure(WorkqueueResourceOptions(sharing_scope=scope))
+        assert wq_resource.sharing_scope is scope
+
+    def test_device_id_matches_source_multi_gpu(self):
+        from cuda.core import Device, system
+
+        if system.get_num_devices() < 2:
+            pytest.skip("requires 2+ GPUs")
+        dev0 = Device(0)
+        dev1 = Device(1)
+        try:
+            wq0 = dev0.resources.workqueue
+            wq1 = dev1.resources.workqueue
+        except _RESOURCE_UNAVAILABLE_ERRORS as exc:
+            pytest.skip(str(exc))
+        assert wq0.device.device_id == 0
+        assert wq1.device.device_id == 1
+
+    def test_invalid_scope_raises_at_construction(self):
+        with pytest.raises(ValueError, match="'bogus' is not a valid WorkqueueSharingScopeType. Must be "):
+            WorkqueueResourceOptions(sharing_scope="bogus")
+
+    def test_configure_concurrency_limit(self, wq_resource):
+        wq_resource.configure(WorkqueueResourceOptions(concurrency_limit=4))
+        assert wq_resource.concurrency_limit == 4
+
+    def test_configure_concurrency_and_scope(self, wq_resource):
+        wq_resource.configure(
+            WorkqueueResourceOptions(
+                sharing_scope="green_ctx_balanced",
+                concurrency_limit=2,
+            )
+        )
+
+    def test_concurrency_limit_zero_raises_at_construction(self):
+        with pytest.raises(ValueError, match="concurrency_limit must be >= 1"):
+            WorkqueueResourceOptions(concurrency_limit=0)
+
+    def test_concurrency_limit_negative_raises_at_construction(self):
+        with pytest.raises(ValueError, match="concurrency_limit must be >= 1"):
+            WorkqueueResourceOptions(concurrency_limit=-3)
 
 
 # ---------------------------------------------------------------------------
@@ -250,6 +359,20 @@ class TestSMResourceSplitValidation:
     def test_negative_count_raises(self, sm_resource):
         with pytest.raises(ValueError, match="count must be non-negative"):
             sm_resource.split(SMResourceOptions(count=-1))
+
+    @pytest.mark.agent_authored(model="claude-opus-4.8")
+    def test_empty_count_sequence_raises(self, sm_resource):
+        """An empty ``count`` sequence has no groups to split into."""
+        with pytest.raises(ValueError, match="count sequence must not be empty"):
+            sm_resource.split(SMResourceOptions(count=[]))
+
+    @pytest.mark.agent_authored(model="claude-opus-4.8")
+    @pytest.mark.parametrize("bad_count", [3.5, object()])
+    def test_count_wrong_type_raises(self, sm_resource, bad_count):
+        """``count`` that is neither int, Sequence, nor None is rejected before
+        any driver call."""
+        with pytest.raises(TypeError, match="count must be int, Sequence, or None"):
+            sm_resource.split(SMResourceOptions(count=bad_count))
 
     def test_dry_run_cannot_create_context(self, init_cuda, sm_resource):
         groups, _ = sm_resource.split(SMResourceOptions(count=None), dry_run=True)
@@ -441,6 +564,19 @@ class TestContextResources:
         except (RuntimeError, ValueError, CUDAError):
             pass  # workqueue not available on this driver/build
 
+    @pytest.mark.agent_authored(model="claude-opus-4.8")
+    def test_primary_context_stream_sm_resources(self, init_cuda, sm_resource):
+        """A stream on the *primary* (non-green) context queries SM resources via
+        the plain ``cuCtxGetDevResource`` path (distinct from the green-context
+        path exercised elsewhere): the stream carries a context handle but it is
+        not a green context, so the whole device is reported."""
+        stream = init_cuda.create_stream()
+        try:
+            stream_sm = stream.resources.sm
+            assert stream_sm.sm_count == sm_resource.sm_count
+        finally:
+            stream.close()
+
 
 # ---------------------------------------------------------------------------
 # Kernel launch in green context (explicit model)
@@ -495,9 +631,15 @@ class TestGreenContextKernelLaunch:
                 ctx_a.close()
 
     def test_with_workqueue_resource(self, init_cuda, sm_resource, wq_resource, fill_kernel):
-        """Green context with SM + workqueue resources can launch a kernel."""
+        """Green context with SM + configured workqueue can launch a kernel."""
         dev = init_cuda
         groups, _ = sm_resource.split(SMResourceOptions(count=None))
+        wq_resource.configure(
+            WorkqueueResourceOptions(
+                sharing_scope="green_ctx_balanced",
+                concurrency_limit=4,
+            )
+        )
 
         try:
             ctx = dev.create_context(ContextOptions(resources=[groups[0], wq_resource]))

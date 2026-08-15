@@ -6,13 +6,16 @@ import multiprocessing as mp
 import pytest
 from helpers.buffers import PatternGen
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.constants import POOL_SIZE
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
-POOL_SIZE = 2097152
+
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
 class TestPeerAccessNotPreservedOnImport:
@@ -89,6 +92,8 @@ class TestBufferPeerAccessAfterImport:
         assert process.exitcode == 0
 
         buffer.close()
+        # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+        dev1.sync()
         mr.close()
 
     def child_main(self, mr, buffer):
@@ -126,4 +131,6 @@ class TestBufferPeerAccessAfterImport:
             PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
 
         buffer.close()
+        # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+        dev1.sync()
         mr.close()

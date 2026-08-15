@@ -1,5 +1,5 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
 CUDA Python 11.8.0 Release notes
 ================================
@@ -16,7 +16,7 @@ Highlights
 Source Builds
 ^^^^^^^^^^^^^
 
-CUDA Python source builds now parse CUDA headers located in $CUDA_HOME directory, enabling/disabling types and APIs if defined. Therefore this removes the need for CTK headers to have all types defined. By allowing minor variations, previous `11.7.1 mobile platform workaround <https://nvidia.github.io/cuda-python/release/11.7.1-notes.html#source-builds>`_ is no longer needed.
+CUDA Python source builds now parse CUDA headers located in $CUDA_HOME directory, enabling/disabling types and APIs if defined. Therefore this removes the need for CTK headers to have all types defined. By allowing minor variations, previous :ref:`11.7.1 mobile platform workaround <cuda-bindings-11-7-1-source-builds>` is no longer needed.
 
 It's still required that source builds use the latest CTK headers (i.e. “$CUDA_HOME/include” has latest CTK headers).
 

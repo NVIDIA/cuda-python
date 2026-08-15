@@ -40,7 +40,6 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   - run: `pytest tests/cython/`
 - **Examples**: validate affected examples in `examples/` when changing user
   workflows or public APIs.
-- **Orchestrated run**: from repo root, `scripts/run_tests.sh core`.
 
 ## Runtime/build environment notes
 
@@ -63,6 +62,44 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   call-site consistency.
 - Prefer explicit error propagation over silent fallback paths.
 - If you change public behavior, update tests and docs under `docs/source/`.
+
+## Concurrency and free-threading
+
+`cuda.core` ships free-threaded (no-GIL) wheels and builds with
+`freethreading_compatible=True`. The user-facing policy lives in
+`docs/source/concurrency.rst`; the invariants below are for contributors. Reviewers
+and agents should flag violations.
+
+- **Reads are safe; mutation is the boundary**: concurrent reads of an object are
+  supported, but concurrent mutation of the same public object (e.g., building one
+  graph from two threads, or `close()` racing another call) is the caller's
+  responsibility -- do not add locks to make it safe. Prefer immutable designs to
+  keep the mutable, thread-unsafe surface small. Protecting library-internal state
+  *is* in scope.
+- **Distinct objects can still collide via shared driver state**: operating on
+  separate objects is not automatically safe when they share driver or context
+  state (e.g., changing peer device access while another thread touches affected
+  memory). Synchronizing these cases is the caller's responsibility; do not try to
+  lock around them internally.
+- **Protect internal cached/module-level state**: guard lazily-populated
+  `cdef object` caches and module-level state so concurrent access cannot corrupt
+  interpreter state (CPython reference counts -- a strictly free-threading hazard).
+  Established patterns are `@cython.critical_section` on accessors (#2215), an
+  atomic initialization flag (#2216), and `dict.setdefault` for identity caches
+  (#2217). Guard state only on objects that are legitimately shared between threads;
+  objects that are not meant to be shared (e.g., the thread-local `Device`) do not
+  need such guards (see #2321). Reference-count integrity is guaranteed; cache
+  value-identity/idempotency is not.
+- **Entry points assume the GIL is held**: the helpers in `_cpp/resource_handles.*`
+  are called from Cython with the GIL held and do not re-acquire it. Driver and
+  destructor callbacks run at arbitrary times, so they take the GIL (`with gil`)
+  and probe for interpreter shutdown before touching Python objects.
+- **Lock ordering -- release the GIL before entering the driver**: any CUDA work
+  reachable from a host callback or a retained object's `__del__` must release the
+  GIL before calling the driver, to avoid GIL/driver-lock deadlocks (see the
+  `_py_host_trampoline` path and numba-cuda#321). Objects retained into a graph
+  (kernel arguments, memcpy/memset operands, `dst_owner`/`src_owner`, and
+  host-callback closures) inherit this contract.
 
 ## API design guidelines
 

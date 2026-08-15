@@ -2,11 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 
 from multiprocessing import cpu_count
-from typing import Iterable
+from typing import Iterable, TYPE_CHECKING
 import warnings
 
 from cuda.bindings import nvml
@@ -33,6 +35,9 @@ from cuda.core.system.typing import (
     ThermalController,
     ThermalTarget,
 )
+
+if TYPE_CHECKING:
+    import cuda.core  # no-cython-lint
 
 
 cdef object _pstate_to_int(object pstate):
@@ -181,7 +186,7 @@ cdef class Device:
         index: int | None = None,
         uuid: bytes | str | None = None,
         pci_bus_id: bytes | str | None = None,
-    ):
+    ) -> None:
         args = [index, uuid, pci_bus_id]
         cdef int arg_count = sum(arg is not None for arg in args)
 
@@ -368,7 +373,7 @@ cdef class Device:
         """
         Get the corresponding :class:`cuda.core.Device` (which is used for CUDA
         access) for this :class:`cuda.core.system.Device` (which is used for
-        NVIDIA machine library (NVML) access).
+        NVIDIA Management Library (NVML) access).
 
         The devices are mapped to one another by their UUID.
 
@@ -554,7 +559,7 @@ cdef class Device:
             )
         )
 
-    def set_cpu_affinity(self):
+    def set_cpu_affinity(self) -> None:
         """
         Sets the ideal affinity for the calling thread and device.
 
@@ -564,7 +569,7 @@ cdef class Device:
         """
         nvml.device_set_cpu_affinity(self._handle)
 
-    def clear_cpu_affinity(self):
+    def clear_cpu_affinity(self) -> None:
         """
         Clear all affinity bindings for the calling thread.
 
@@ -886,10 +891,35 @@ cdef class Device:
         Get :obj:`~NvlinkInfo` about this device.
 
         For devices with NVLink support.
+
+        .. version-changed:: 1.1.0
+            Any link number not supported by this specific device will raise a `ValueError`.
         """
-        if link < 0 or link >= NvlinkInfo.max_links:
-            raise ValueError(f"Link index {link} is out of range [0, {NvlinkInfo.max_links})")
+        link_count = self.get_nvlink_count()
+        if link < 0 or link >= link_count:
+            raise ValueError(f"Link index {link} is out of range [0, {link_count})")
         return NvlinkInfo(self, link)
+
+    def get_nvlink_count(self) -> int:
+        """
+        Get the number of NVLink links on this device.
+
+        For devices with NVLink support.
+
+        .. version-added:: 1.1.0
+        """
+        return self.get_field_values([FieldId.DEV_NVLINK_LINK_COUNT])[0].value
+
+    def get_nvlinks(self) -> Iterable[NvlinkInfo]:
+        """
+        Get :obj:`~NvlinkInfo` about all NVLink links on this device.
+
+        For devices with NVLink support.
+
+        .. version-added:: 1.1.0
+        """
+        for link in range(self.get_nvlink_count()):
+            yield self.get_nvlink(link)
 
     ##########################################################################
     # PCI INFO

@@ -235,6 +235,15 @@ def test_event_is_done_false(init_cuda):
     event.sync()
 
 
+def test_import_truncated_event_descriptor():
+    """Truncated IPC event descriptor reserved field is rejected before memcpy."""
+    import cuda.core._event as _event_module
+
+    desc = _event_module.IPCEventDescriptor._init(b"\x00" * 8, True)
+    with pytest.raises(ValueError, match=r"reserved field is 8 bytes; expected at least 64"):
+        Event.from_ipc_descriptor(desc)
+
+
 def test_ipc_event_descriptor_direct_init():
     """IPCEventDescriptor cannot be instantiated directly."""
     import cuda.core._event as _event_module

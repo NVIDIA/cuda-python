@@ -15,10 +15,17 @@ from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
 from dataclasses import dataclass
 import threading
+from typing import TYPE_CHECKING
 import warnings
 
 from cuda.core._memory._managed_buffer import ManagedBuffer
 from cuda.core.typing import ManagedMemoryLocationType
+
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._utils.validators import check_str_enum
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
@@ -90,10 +97,10 @@ cdef class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
-    def __init__(self, options=None):
+    def __init__(self, options: ManagedMemoryResourceOptions | dict[str, object] | None = None) -> None:
         _MMR_init(self, options)
 
-    def allocate(self, size_t size, *, stream: Stream):
+    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> ManagedBuffer:
         """Allocate a managed-memory buffer of the requested size.
 
         Parameters
@@ -114,6 +121,7 @@ cdef class ManagedMemoryResource(_MemPool):
             and instance methods (``prefetch``, ``discard``,
             ``discard_prefetch``).
         """
+        assert isinstance(stream, Stream), "Only Stream is supported for managed memory allocations"
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
@@ -158,9 +166,6 @@ cdef class ManagedMemoryResource(_MemPool):
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
-    cdef tuple _VALID_LOCATION_TYPES = ("device", "host", "host_numa")
-
-
     cdef _resolve_preferred_location(ManagedMemoryResourceOptions opts):
         """Resolve preferred location options into driver and stored values.
 
@@ -170,11 +175,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef object pref_loc = opts.preferred_location if opts is not None else None
         cdef object pref_type = opts.preferred_location_type if opts is not None else None
 
-        if pref_type is not None and pref_type not in _VALID_LOCATION_TYPES:
-            raise ValueError(
-                f"preferred_location_type must be one of {_VALID_LOCATION_TYPES!r} "
-                f"or None, got {pref_type!r}"
-            )
+        check_str_enum(pref_type, ManagedMemoryLocationType, allow_none=True)
 
         if pref_type is None:
             # Legacy behavior
@@ -333,7 +334,7 @@ cdef inline _check_concurrent_managed_access():
         _concurrent_access_warned = True
 
 
-def reset_concurrent_access_warning():
+def reset_concurrent_access_warning() -> None:
     """Reset the concurrent access warning flag for testing purposes."""
     global _concurrent_access_warned
     _concurrent_access_warned = False

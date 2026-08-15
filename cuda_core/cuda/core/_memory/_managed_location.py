@@ -4,9 +4,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from cuda.core._utils.version import binding_version, driver_version
+
+if TYPE_CHECKING:
+    from cuda.core._device import Device
+    from cuda.core._host import Host
 
 _LocationKind = Literal["device", "host", "host_numa", "host_numa_current"]
 
@@ -46,7 +50,7 @@ def _reject_numa_host_on_cuda12(spec: _LocSpec) -> None:
         )
 
 
-def _coerce_location(value, *, allow_none: bool = False) -> _LocSpec | None:
+def _coerce_location(value: Device | Host | None, *, allow_none: bool = False) -> _LocSpec | None:
     """Coerce :class:`Device` / :class:`Host` / ``None`` to ``_LocSpec``.
 
     ``Host()``, ``Host(numa_id=N)``, and ``Host.numa_current()`` map to

@@ -1,28 +1,107 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
+import functools
+import importlib
+import inspect
 import pathlib
 import sys
-from importlib.metadata import PackageNotFoundError, distribution
+from contextlib import contextmanager
 
 import pytest
 
 import cuda.bindings.driver as cuda
 
-# Import shared test helpers for tests across subprojects.
-# PLEASE KEEP IN SYNC with copies in other conftest.py in this repo.
-_test_helpers_root = pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"
+# Keep in sync with cuda_core/tests/conftest.py.
 try:
-    distribution("cuda-python-test-helpers")
-except PackageNotFoundError as exc:
+    import cuda_python_test_helpers._pytest_plugin  # noqa: F401
+except ImportError as e:
+    # Don't call .resolve(): resolving symlinks can make parents[2] point
+    # somewhere other than the monorepo root if a sub-directory is symlinked.
+    _test_helpers_root = pathlib.Path(__file__).parents[2] / "cuda_python_test_helpers"
     if not _test_helpers_root.is_dir():
-        raise RuntimeError(
-            f"cuda-python-test-helpers not installed; expected checkout path {_test_helpers_root}"
-        ) from exc
+        raise RuntimeError(f"cuda-python-test-helpers not installed and not found at {_test_helpers_root}") from e
+    for _k in list(sys.modules):
+        if _k == "cuda_python_test_helpers" or _k.startswith("cuda_python_test_helpers."):
+            del sys.modules[_k]
+    sys.path.insert(0, str(_test_helpers_root))
+    importlib.invalidate_caches()
 
-    test_helpers_root = str(_test_helpers_root)
-    if test_helpers_root not in sys.path:
-        sys.path.insert(0, test_helpers_root)
+pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
+
+
+def pytest_configure(config):
+    # When using `parallel-threads` set up mini-plugin to ensure each thread has a CUDA context
+    parallel_threads = getattr(config.option, "parallel_threads", 0)
+    if parallel_threads == "auto" or int(parallel_threads) > 1:
+        config.pluginmanager.register(_CudaBindingsParallelPlugin(), name="_cuda_bindings_parallel_plugin")
+
+
+@contextmanager
+def _thread_context():
+    # Context setting up `device` and `ctx` for individual threads on
+    # pytest-run-parallel
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        yield device, ctx
+    finally:
+        (err,) = cuda.cuCtxDestroy(ctx)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+def _wrap_worker_cuda_test(func):
+    if getattr(func, "_cuda_bindings_worker_cuda_wrapped", False):
+        return func
+
+    sig = inspect.signature(func)
+    wants_device = "device" in sig.parameters
+    wants_ctx = "ctx" in sig.parameters
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        kwargs = dict(kwargs)  # copy before mutating
+        with _thread_context() as (device, ctx):
+            # device is None when reusing an existing context (defensive path);
+            # keep whatever the fixture provided in kwargs as-is.
+            if wants_device and device is not None:
+                kwargs["device"] = device
+            if wants_ctx:
+                kwargs["ctx"] = ctx
+            return func(*args, **kwargs)
+
+    wrapper._cuda_bindings_worker_cuda_wrapped = True
+    return wrapper
+
+
+def _item_needs_thread_ctx(item):
+    fixturenames = getattr(item, "fixturenames", ())
+    # The 'device' fixture is the main fixture to set up a CUDA context.
+    # 'driver' is specific to the cufile tests and used there instead.
+    return "device" in fixturenames or "driver" in fixturenames
+
+
+class _CudaBindingsParallelPlugin:
+    """A mini pytest plugin used only for pytest-run-parallel testing.
+    pytest-run-parallel spawns new threads for each test and we need to
+    initialize and pass the correct CUDA context for each these.
+
+    This plugin looks for context specific fixtures and replaces them
+    new context specific fixtures may have to be added.
+
+
+    This plugin approach is not ideal, it would be nicer to introduce hooks
+    into pytest-run-parallel.  Once that issue is closed this would be good
+    to refactor: https://github.com/Quansight-Labs/pytest-run-parallel/issues/189
+    """
+
+    @pytest.hookimpl()
+    def pytest_collection_modifyitems(self, config, items):
+        for item in items:
+            if _item_needs_thread_ctx(item):
+                item.obj = _wrap_worker_cuda_test(item.obj)
 
 
 @pytest.fixture(scope="module")

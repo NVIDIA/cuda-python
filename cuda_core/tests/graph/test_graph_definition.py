@@ -3,14 +3,16 @@
 
 """Tests for GraphDefinition topology, node types, instantiation, and execution."""
 
+import ctypes
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
 import pytest
+from conftest import xfail_on_graph_mempool_oom
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
-from conftest import xfail_on_graph_mempool_oom
 from cuda.core import Device, LaunchConfig
 from cuda.core.graph import (
     AllocNode,
@@ -701,6 +703,22 @@ def test_node_attrs_preserved_by_nodes(node_spec):
         assert getattr(retrieved, attr) == getattr(node, attr), f"{spec.name}.{attr} not preserved by nodes()"
 
 
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_host_callback_node_reconstructed_from_embedded_child(init_cuda):
+    """A host-callback node read through an embedded child graph is reconstructed via _create_from_driver."""
+    # The same-wrapper nodes() (test_node_attrs_preserved_by_nodes) returns the
+    # registry-cached object and never exercises reconstruction; only the embedded
+    # child graph carries fresh, unregistered node handles. Host callback is
+    # mempool-free so it reconstructs here; alloc-based nodes stay cached.
+    child = GraphDefinition()
+    _build_host_callback_node(child)
+    parent = GraphDefinition()
+    reconstructed = list(parent.embed(child).child_graph.nodes())
+    assert any(isinstance(n, HostCallbackNode) for n in reconstructed), (
+        f"no reconstructed HostCallbackNode in {[type(n).__name__ for n in reconstructed]}"
+    )
+
+
 def test_identity_preservation(init_cuda):
     """Round-trips through nodes(), edges(), and pred/succ return extant
     objects rather than duplicates."""
@@ -833,7 +851,7 @@ def test_alloc_free_chain(sample_graphdef):
 
 def test_alloc_memory_type_invalid(sample_graphdef):
     """Invalid memory type raises ValueError."""
-    with pytest.raises(ValueError, match="Invalid memory_type"):
+    with pytest.raises(ValueError, match="'invalid' is not a valid GraphMemoryType. Must be "):
         sample_graphdef.allocate(ALLOC_SIZE, memory_type="invalid")
 
 
@@ -1141,6 +1159,88 @@ def test_host_callback_user_data_rejected_for_python_callable(sample_graphdef):
     """user_data is rejected for Python callables."""
     with pytest.raises(ValueError, match="user_data is only supported"):
         sample_graphdef.callback(lambda: None, user_data=b"hello")
+
+
+_INCOMPATIBLE_CTYPES_HOST_CALLBACKS = [
+    pytest.param(ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p), id="bad-restype"),
+    pytest.param(ctypes.CFUNCTYPE(None, ctypes.c_int), id="bad-argtype"),
+    pytest.param(ctypes.CFUNCTYPE(None), id="missing-arg"),
+    pytest.param(ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p), id="extra-arg"),
+]
+
+# Prototypes that declare CUhostFn but differ in ctypes bookkeeping. ctypes
+# builds the same thunk for all of them, so all must be accepted.
+_COMPATIBLE_CTYPES_HOST_CALLBACKS = [
+    pytest.param(ctypes.CFUNCTYPE(None, ctypes.c_void_p), id="cfunctype"),
+    pytest.param(ctypes.CFUNCTYPE(None, ctypes.c_void_p, use_errno=True), id="use-errno"),
+    pytest.param(ctypes.PYFUNCTYPE(None, ctypes.c_void_p), id="pyfunctype"),
+]
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+@pytest.mark.parametrize("callback_type", _INCOMPATIBLE_CTYPES_HOST_CALLBACKS)
+def test_host_callback_ctypes_rejects_incompatible_signature(sample_graphdef, callback_type):
+    """Incompatible ctypes prototypes are rejected before CUDA sees them."""
+    with pytest.raises(TypeError, match="CUhostFn"):
+        sample_graphdef.callback(callback_type(0))
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+def test_host_callback_ctypes_update_rejects_incompatible_signature(sample_graphdef):
+    """HostCallbackNode.update applies the same ctypes ABI check."""
+    good_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    bad_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+
+    @good_type
+    def good(data):
+        pass
+
+    node = sample_graphdef.callback(good)
+    with pytest.raises(TypeError, match="CUhostFn"):
+        node.update(bad_type(0))
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("callback_type", _COMPATIBLE_CTYPES_HOST_CALLBACKS)
+def test_host_callback_ctypes_accepts_equivalent_prototypes(sample_graphdef, callback_type):
+    """Prototypes that declare CUhostFn are accepted and run."""
+    called = [False]
+
+    @callback_type
+    def raw_fn(data):
+        called[0] = True
+
+    sample_graphdef.callback(raw_fn)
+    graph = sample_graphdef.instantiate()
+
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    assert called[0]
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.5")
+@pytest.mark.skipif(sys.platform != "win32", reason="WINFUNCTYPE is Windows-only")
+def test_host_callback_ctypes_accepts_winfunctype(sample_graphdef):
+    """On Windows, WINFUNCTYPE matches CUDA_CB (__stdcall) and is accepted."""
+    callback_type = ctypes.WINFUNCTYPE(None, ctypes.c_void_p)
+    called = [False]
+
+    @callback_type
+    def raw_fn(data):
+        called[0] = True
+
+    sample_graphdef.callback(raw_fn)
+    graph = sample_graphdef.instantiate()
+
+    stream = Device().create_stream()
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    assert called[0]
 
 
 def test_instantiate_and_execute_event_record_wait(sample_graphdef):

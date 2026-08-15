@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -19,11 +19,20 @@ sys.path.insert(0, str((Path(__file__).parents[1] / "exts").absolute()))
 # -- Project information -----------------------------------------------------
 
 project = "CUDA Python"
-copyright = "2021-2024, NVIDIA"
+copyright = "2021-2026, NVIDIA"
 author = "NVIDIA"
 
 # The full version, including alpha/beta/rc tags
 release = os.environ["SPHINX_CUDA_PYTHON_VER"]
+
+
+def _html_baseurl():
+    docs_domain = os.environ.get("CUDA_PYTHON_DOCS_DOMAIN", "https://nvidia.github.io/cuda-python")
+    if int(os.environ.get("BUILD_PREVIEW", 0)):
+        return f"{docs_domain}/pr-preview/pr-{os.environ['PR_NUMBER']}/latest/"
+    if int(os.environ.get("BUILD_LATEST", 0)):
+        return f"{docs_domain}/latest/"
+    return f"{docs_domain}/{release}/"
 
 
 # -- General configuration ---------------------------------------------------
@@ -58,7 +67,7 @@ toc_object_entries_show_parents = "domain"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_baseurl = "docs"
+html_baseurl = _html_baseurl()
 html_theme = "nvidia_sphinx_theme"
 html_theme_options = {
     "switcher": {

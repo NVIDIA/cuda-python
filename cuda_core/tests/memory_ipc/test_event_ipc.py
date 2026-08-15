@@ -16,6 +16,10 @@ CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 
+# these tetss spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
+
+
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""

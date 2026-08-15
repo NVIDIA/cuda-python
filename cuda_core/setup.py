@@ -27,7 +27,7 @@ def _ensure_compiler_initialized(compiler, plat_name):
             initialize(plat_name)
 
 
-def _build_aoti_shim_lib(compiler):
+def _build_aoti_shim_lib(compiler, plat_name):
     # Reuse setuptools' initialized MSVC compiler instead of rediscovering
     # lib.exe separately in the build backend.
     lib_exe = getattr(compiler, "lib", None)
@@ -35,12 +35,16 @@ def _build_aoti_shim_lib(compiler):
         raise RuntimeError("MSVC compiler did not expose lib.exe after initialization.")
 
     _AOTI_SHIM_LIB_FILE.parent.mkdir(exist_ok=True)
+    machine = {
+        "win-amd64": "X64",
+        "win-arm64": "ARM64",
+    }.get(plat_name, "X64")
     compiler.spawn(
         [
             lib_exe,
             f"/DEF:{_AOTI_SHIM_DEF_FILE}",
             f"/OUT:{_AOTI_SHIM_LIB_FILE}",
-            "/MACHINE:X64",
+            f"/MACHINE:{machine}",
         ]
     )
     return str(_AOTI_SHIM_LIB_FILE)
@@ -58,7 +62,7 @@ class build_ext(_build_ext):  # noqa: N801
                 continue
 
             _ensure_compiler_initialized(self.compiler, self.plat_name)
-            shim_lib = _build_aoti_shim_lib(self.compiler)
+            shim_lib = _build_aoti_shim_lib(self.compiler, self.plat_name)
             link_args = list(ext.extra_link_args or [])
             if shim_lib not in link_args:
                 ext.extra_link_args = [*link_args, shim_lib]

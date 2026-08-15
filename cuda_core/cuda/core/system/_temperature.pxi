@@ -102,7 +102,7 @@ cdef class ThermalSettings:
     def __init__(self, thermal_settings: nvml.ThermalSettings):
         self._thermal_settings = thermal_settings
 
-    def __len__(self):
+    def __len__(self) -> int:
         # MAX_THERMAL_SENSORS_PER_GPU is 3
         return min(self._thermal_settings.count, 3)
 
@@ -173,7 +173,9 @@ cdef class Temperature:
             nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_MEM_MAX,
             nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_GPU_MAX
         ):
-            device_arch = nvml.DeviceArch(nvml.device_get_architecture(self._handle))
+            # Compare the raw value so newer NVML architecture constants remain
+            # forward-compatible.
+            device_arch = nvml.device_get_architecture(self._handle)
             if device_arch >= nvml.DeviceArch.ADA:
                 warnings.warn(
                     f"{threshold_type} is no longer recommended for Ada and later architectures. "

@@ -7,6 +7,7 @@ from itertools import cycle
 import pytest
 from helpers.buffers import PatternGen
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.constants import POOL_SIZE
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
@@ -14,7 +15,9 @@ CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 NMRS = 3
 NTASKS = 7
-POOL_SIZE = 2097152
+
+# these tests spawn new processes and files which fails for very many threads
+pytestmark = pytest.mark.parallel_threads_limit(4)
 
 
 class TestIpcSendBuffers:
@@ -26,6 +29,7 @@ class TestIpcSendBuffers:
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = []
 
         try:
             # Allocate and fill memory.
@@ -51,6 +55,10 @@ class TestIpcSendBuffers:
                 pgen.verify_buffer(buffer, seed=True)
                 buffer.close()
         finally:
+            for buffer in buffers:
+                buffer.close()
+            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+            device.sync()
             for mr in mrs:
                 mr.close()
 

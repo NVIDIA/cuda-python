@@ -53,3 +53,19 @@ class TestHost:
         assert Host() != Host(numa_id=0)
         assert Host.numa_current() != Host()
         assert hash(Host(numa_id=1)) == hash(Host(numa_id=1))
+
+    def test_repr(self):
+        assert repr(Host()) == "Host()"
+        assert repr(Host(numa_id=2)) == "Host(numa_id=2)"
+        assert repr(Host.numa_current()) == "Host.numa_current()"
+
+    def test_pickle_roundtrip_preserves_singleton(self):
+        # __reduce__ routes numa_current through _reconstruct_numa_current and
+        # the others through Host(numa_id); both rebuild the same singleton.
+        # copy.copy / copy.deepcopy share the same __reduce__ machinery.
+        import copy
+        import pickle
+
+        for h in (Host(), Host(numa_id=4), Host.numa_current()):
+            assert pickle.loads(pickle.dumps(h)) is h  # noqa: S301
+            assert copy.copy(h) is h

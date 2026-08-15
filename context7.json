@@ -1,4 +1,32 @@
 {
+  "$schema": "https://context7.com/schema/context7.json",
   "url": "https://context7.com/nvidia/cuda-python",
-  "public_key": "pk_gupaHhsdvsuT1j3BZpb7i"
+  "public_key": "pk_gupaHhsdvsuT1j3BZpb7i",
+  "folders": [
+    "cuda_python/docs/source",
+    "cuda_bindings/docs/source",
+    "cuda_core/docs/source",
+    "cuda_pathfinder/docs/source"
+  ],
+  "excludeFolders": [
+    "**/_templates"
+  ],
+  "excludeFiles": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CHANGELOG.md",
+    "CHANGELOG.mdx",
+    "changelog.md",
+    "changelog.mdx",
+    "CONTRIBUTING.md",
+    "LICENSE.md",
+    "license.md",
+    "CODE_OF_CONDUCT.md",
+    "code_of_conduct.md",
+    "SECURITY.md",
+    "api_private.rst",
+    "conduct.rst",
+    "contribute.rst",
+    "license.rst"
+  ]
 }

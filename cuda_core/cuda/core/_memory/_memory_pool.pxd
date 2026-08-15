@@ -41,13 +41,3 @@ cdef int MP_raise_release_threshold(_MemPool self) except? -1
 # Buffer). Subclasses (e.g. ManagedMemoryResource) pass their own buffer
 # subclass so their `allocate` returns the typed object.
 cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = *)
-
-
-cdef class _MemPoolAttributes:
-    cdef:
-        MemoryPoolHandle _h_pool
-
-    @staticmethod
-    cdef _MemPoolAttributes _init(MemoryPoolHandle h_pool)
-
-    cdef int _getattribute(self, cydriver.CUmemPool_attribute attr_enum, void* value) except? -1

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     from libcpp.vector cimport vector
@@ -19,6 +20,9 @@ from cuda.core._host import Host
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._memory._managed_location import _coerce_location
 
+if TYPE_CHECKING:
+    from cuda.core._graph import GraphBuilder
+    from cuda.core._device import Device
 
 cdef frozenset _ALL_LOCATION_TYPES = frozenset(("device", "host", "host_numa", "host_numa_current"))
 cdef frozenset _DEVICE_HOST_NUMA = frozenset(("device", "host", "host_numa"))
@@ -76,7 +80,6 @@ cdef tuple _coerce_batch_buffers(object buffers, str what):
 
 
 cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, str what):
-    cdef object coerced
     if isinstance(location, Sequence):
         if len(location) != n:
             raise ValueError(
@@ -84,28 +87,30 @@ cdef tuple _broadcast_locations(object location, Py_ssize_t n, bint allow_none, 
                 f"targets length {n}"
             )
         return tuple(_coerce_location(loc, allow_none=allow_none) for loc in location)
-    coerced = _coerce_location(location, allow_none=allow_none)
+    cdef object coerced = _coerce_location(location, allow_none=allow_none)
     return tuple([coerced] * n)
 
 
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     # Convert a _LocSpec dataclass to a cydriver.CUmemLocation struct.
     cdef inline cydriver.CUmemLocation _to_cumemlocation(object loc):
-        cdef cydriver.CUmemLocation out
         cdef str kind = loc.kind
         if kind == "device":
-            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-            out.id = <int>loc.id
+            return cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
+                id=<int>loc.id)
         elif kind == "host":
-            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-            out.id = 0
+            return cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
+                id=0)
         elif kind == "host_numa":
-            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
-            out.id = <int>loc.id
+            return cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA,
+                id=<int>loc.id)
         else:  # host_numa_current
-            out.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT
-            out.id = 0
-        return out
+            return cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
+                id=0)
 ELSE:
     # CUDA 12 cuMemPrefetchAsync takes a device ordinal (-1 = host).
     cdef inline int _to_legacy_device(object loc) except? -2:
@@ -151,7 +156,7 @@ def discard_batch(stream: Stream | GraphBuilder, buffers: Sequence[Buffer]) -> N
     _do_batch_discard(bufs, s)
 
 
-def _do_single_discard_py(Buffer buf, stream):
+def _do_single_discard_py(Buffer buf, stream: Stream | GraphBuilder | None) -> None:
     """Internal: single-buffer discard for ManagedBuffer.discard()."""
     _require_managed_buffer(buf, "discard")
     cdef Stream s = Stream_accept(stream)
@@ -185,7 +190,7 @@ cdef void _do_batch_discard(tuple bufs, Stream s):
         )
 
 
-def _advise_one(Buffer buf, advice, location):
+def _advise_one(Buffer buf, advice: driver.CUmem_advise, location: Device | Host | None) -> None:
     """Internal: apply managed-memory advice to a single buffer.
 
     Used by :class:`ManagedBuffer` property setters. Not part of the
@@ -219,8 +224,9 @@ cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint al
             # Driver ignores location for read_mostly / unset_preferred_location
             # advice values but still validates the CUmemLocation; pass a
             # host placeholder.
-            cu_loc.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-            cu_loc.id = 0
+            cu_loc = cydriver.CUmemLocation(
+                type=cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST,
+                id=0)
         else:
             cu_loc = _to_cumemlocation(loc)
         with nogil:
@@ -270,7 +276,7 @@ def prefetch_batch(
     _do_batch_prefetch(bufs, locs, s)
 
 
-def _do_single_prefetch_py(Buffer buf, location, stream):
+def _do_single_prefetch_py(Buffer buf, location: Device | Host | None, stream: Stream | GraphBuilder | None) -> None:
     """Internal: single-buffer prefetch for ManagedBuffer.prefetch().
 
     Uses cuMemPrefetchAsync (works on CUDA 12 and 13).
@@ -305,7 +311,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
     ) except ?cydriver.CUDA_ERROR_NOT_FOUND nogil
 
 
-    def _read_preferred_location_v2(Buffer buf):
+    def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
         """Internal: read preferred_location with full NUMA detail.
 
         Bypasses cuda.bindings.driver.cuMemRangeGetAttribute (whose
@@ -368,7 +374,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
                 0, hstream,
             ))
 ELSE:
-    def _read_preferred_location_v2(Buffer buf):
+    def _read_preferred_location_v2(Buffer buf) -> Device | Host | None:
         # Symbol exists so _managed_buffer.py can `from ... import
         # _read_preferred_location_v2` unconditionally at module top.
         # `ManagedBuffer.preferred_location` gates on both
@@ -430,7 +436,7 @@ def discard_prefetch_batch(
     _do_batch_discard_prefetch(bufs, locs, s)
 
 
-def _do_single_discard_prefetch_py(Buffer buf, location, stream):
+def _do_single_discard_prefetch_py(Buffer buf, location: Device | Host | None, stream: Stream | GraphBuilder | None) -> None:
     """Internal: single-buffer discard+prefetch for
     ManagedBuffer.discard_prefetch()."""
     _require_managed_buffer(buf, "discard_prefetch")

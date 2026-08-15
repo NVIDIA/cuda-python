@@ -34,6 +34,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     build_dynamic_lib_subprocess_command,
     parse_dynamic_lib_subprocess_payload,
 )
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import ALL_AVAILABLE_LIBNAMES
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if TYPE_CHECKING:
@@ -42,9 +43,6 @@ if TYPE_CHECKING:
 # All libnames recognized by load_nvidia_dynamic_lib, across all categories
 # (CTK, third-party, driver).
 _ALL_KNOWN_LIBNAMES: frozenset[str] = frozenset(LIB_DESCRIPTORS)
-_ALL_SUPPORTED_LIBNAMES: frozenset[str] = frozenset(
-    name for name, desc in LIB_DESCRIPTORS.items() if (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
-)
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 
@@ -136,13 +134,26 @@ def _loadable_via_canary_subprocess(libname: str, *, timeout: float = _CANARY_PR
     return _resolve_system_loaded_abs_path_in_subprocess(libname, timeout=timeout) is not None
 
 
+def resolve_ctk_root_via_canary(canary_libname: str) -> str | None:
+    """Resolve the CUDA Toolkit root from a system-loadable canary library.
+
+    The canary library's absolute path is resolved by the OS dynamic loader in
+    an isolated subprocess, which honors ``LD_LIBRARY_PATH`` on Linux and the
+    native DLL search on Windows. The toolkit root is then derived from that
+    path. Returns ``None`` if the canary cannot be resolved or no root can be
+    derived.
+    """
+    canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(canary_libname)
+    if canary_abs_path is None:
+        return None
+    ctk_root: str | None = derive_ctk_root(canary_abs_path)
+    return ctk_root
+
+
 def _try_ctk_root_canary(ctx: SearchContext) -> str | None:
     """Try CTK-root canary fallback for descriptor-configured libraries."""
     for canary_libname in ctx.desc.ctk_root_canary_anchor_libnames:
-        canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(canary_libname)
-        if canary_abs_path is None:
-            continue
-        ctk_root = derive_ctk_root(canary_abs_path)
+        ctk_root = resolve_ctk_root_via_canary(canary_libname)
         if ctk_root is None:
             continue
         find = find_via_ctk_root(ctx, ctk_root)
@@ -295,9 +306,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         )
     if libname not in _ALL_KNOWN_LIBNAMES:
         raise DynamicLibUnknownError(f"Unknown library name: {libname!r}. Known names: {sorted(_ALL_KNOWN_LIBNAMES)}")
-    if libname not in _ALL_SUPPORTED_LIBNAMES:
+    if libname not in ALL_AVAILABLE_LIBNAMES:
         raise DynamicLibNotAvailableError(
             f"Library name {libname!r} is known but not available on {_PLATFORM_NAME}. "
-            f"Supported names on {_PLATFORM_NAME}: {sorted(_ALL_SUPPORTED_LIBNAMES)}"
+            f"Supported names on {_PLATFORM_NAME}: {sorted(ALL_AVAILABLE_LIBNAMES)}"
         )
     return _load_lib_no_cache(libname)
