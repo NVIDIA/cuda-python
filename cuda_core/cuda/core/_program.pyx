@@ -466,6 +466,11 @@ class ProgramOptions:
         Load NVIDIA's `libdevice <https://docs.nvidia.com/cuda/libdevice-users-guide/>`_
         math builtins library. Only supported for the NVVM backend.
         Default: False
+    numba_debug : bool, optional
+        Emit the debug information layout expected by Numba. Recognized only by
+        newer toolkits; compilers that do not support it reject the option with
+        an error.
+        Default: False
     """
 
     name: str | None = "default_program"
@@ -1232,8 +1237,10 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
     options.append(f"-arch={arch}")
     if opts.debug is not None and opts.debug:
         options.append("-g")
+    # libNVVM only accepts single-dashed options; the double-dashed spelling
+    # accepted by NVRTC is rejected with NVVM_ERROR_INVALID_OPTION.
     if opts.numba_debug:
-        options.append("--numba-debug")
+        options.append("-numba-debug")
     if opts.device_code_optimize is False:
         options.append("-opt=0")
     elif opts.device_code_optimize is True:

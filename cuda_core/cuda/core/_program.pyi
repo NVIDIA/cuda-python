@@ -313,6 +313,11 @@ class ProgramOptions:
         Load NVIDIA's `libdevice <https://docs.nvidia.com/cuda/libdevice-users-guide/>`_
         math builtins library. Only supported for the NVVM backend.
         Default: False
+    numba_debug : bool, optional
+        Emit the debug information layout expected by Numba. Recognized only by
+        newer toolkits; compilers that do not support it reject the option with
+        an error.
+        Default: False
     """
     name: str | None = 'default_program'
     arch: str | None = None
