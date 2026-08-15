@@ -127,6 +127,41 @@ class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream object to use for asynchronous deallocation. If None,
             the deallocation stream stored in the handle is used.
+
+        See Also
+        --------
+        set_deallocation_stream
+            Change the deallocation stream without closing the buffer.
+        """
+
+    def set_deallocation_stream(self, stream: Stream | GraphBuilder) -> None:
+        """Change the stream that orders this buffer's eventual deallocation.
+
+        The buffer remains open and usable. A later :meth:`close` without a
+        stream, garbage collection, or release of the final retained device
+        pointer handle uses the replacement stream.
+
+        This method does not synchronize streams or establish dependencies.
+        The caller must ensure that allocation and all accesses are ordered
+        before the deallocation on ``stream``.
+
+        Parameters
+        ----------
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            The stream to use for eventual asynchronous deallocation.
+
+        Raises
+        ------
+        RuntimeError
+            If the buffer is already closed, or if a default-stream token
+            cannot be bound because no CUDA context is current.
+        TypeError
+            If ``stream`` is ``None`` or is not an accepted stream object.
+
+        Notes
+        -----
+        Synchronizing concurrent mutation and destruction of the same buffer
+        is the caller's responsibility.
         """
 
     def __enter__(self):
