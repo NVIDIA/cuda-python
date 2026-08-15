@@ -14,7 +14,6 @@ except ImportError:
 import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
-from cuda.bindings import driver
 
 from cuda.bindings import driver
 from cuda.core import (
