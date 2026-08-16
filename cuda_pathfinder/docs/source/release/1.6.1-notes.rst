@@ -35,6 +35,12 @@ Highlights
   architecture-specific executable targets using the native Windows machine
   architecture.
 
+* Make ``LocatedHeaderDir`` immutable, matching ``LocatedStaticLib`` and
+  ``LocatedBitcodeLib``. ``locate_nvidia_header_directory`` is
+  ``functools.cache``-backed, so writing to a returned object previously
+  changed what every later lookup of that ``libname`` returned. The type is
+  now hashable as well.
+
 Internal maintenance
 --------------------
 
