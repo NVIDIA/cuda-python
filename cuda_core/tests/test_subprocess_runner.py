@@ -3,7 +3,9 @@
 
 """Tests for the shared isolated-subprocess test helper.
 
-No CUDA device is needed: every snippet here runs plain stdlib code.
+Every snippet here is plain stdlib code, so no CUDA device is needed. These
+pin the helper's own contract only; they do not exercise the call sites that
+use it.
 """
 
 import os
@@ -11,7 +13,6 @@ import subprocess
 import textwrap
 
 import pytest
-
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 
@@ -25,9 +26,6 @@ def test_returns_captured_text_output(tmp_path):
 
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_runs_in_the_requested_directory(tmp_path):
-    # The whole point of the required cwd: `python -c` puts the working
-    # directory at the head of sys.path, so callers must be able to steer it
-    # away from a source tree that would shadow the installed package.
     result = run_python_snippet("import os; print(os.getcwd())", cwd=tmp_path)
     assert os.path.realpath(result.stdout.strip()) == os.path.realpath(tmp_path)
 
@@ -56,9 +54,7 @@ def test_unset_env_removes_an_inherited_variable(tmp_path, monkeypatch):
 
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_unset_env_is_applied_before_extra_env(tmp_path, monkeypatch):
-    # `_run_probe` in test_rlcompleter_patch.py relies on this ordering: it
-    # clears the opt-out variable so a parent value cannot bleed in, then sets
-    # it again for the opt-out scenario.
+    """A name in both must end up with the ``extra_env`` value, not removed."""
     monkeypatch.setenv("CUDA_PYTHON_TEST_SENTINEL", "inherited")
     result = run_python_snippet(
         "import os; print(os.environ['CUDA_PYTHON_TEST_SENTINEL'])",
@@ -101,7 +97,11 @@ def test_timeout_is_enforced(tmp_path):
 
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_stdin_is_closed(tmp_path):
-    # PYTHONINSPECT keeps the interpreter alive after `-c`; an inherited stdin
-    # would leave the implicit REPL waiting instead of exiting.
     result = run_python_snippet("import sys; print(repr(sys.stdin.read()))", cwd=tmp_path)
     assert result.stdout.strip() == "''"
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_empty_cwd_is_rejected():
+    with pytest.raises(AssertionError):
+        run_python_snippet("pass", cwd="")

@@ -63,13 +63,10 @@ def _run_probe(*, pythoninspect: bool, opt_out: bool = False) -> subprocess.Comp
         return run_python_snippet(
             _PROBE_SCRIPT,
             cwd=tmpdir,
-            # Drop PYTHONPATH so the subprocess can't find a source-tree
-            # cuda.core via an inherited path entry; we want it to import the
-            # installed wheel. Clearing the opt-out keeps a parent value from
-            # bleeding in; the scenario re-sets it through extra_env.
+            # The child must import the installed wheel, not a source tree
+            # reachable through an inherited PYTHONPATH.
             unset_env=("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "PYTHONPATH"),
             extra_env={"CUDA_CORE_DONT_FIX_TAB_COMPLETION": "1"} if opt_out else None,
-            # Both callers assert on the exit code themselves.
             check=False,
         )
 
@@ -137,8 +134,6 @@ def test_opt_out_env_var_values(value, expect_patched):
     `ValueError: invalid literal for int() with base 10: ''` out of
     `cuda/core/__init__.py` and made the package unimportable.
     """
-    # Run from a neutral directory so a source tree next to the test run
-    # cannot shadow the installed package (see _run_probe).
     with tempfile.TemporaryDirectory() as tmpdir:
         result = run_python_snippet(
             _OPT_OUT_PROBE_SCRIPT,
