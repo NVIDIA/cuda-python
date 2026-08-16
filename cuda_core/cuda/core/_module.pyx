@@ -4,9 +4,12 @@
 
 from __future__ import annotations
 
+cimport cython
 from libc.stddef cimport size_t
+from libcpp.mutex cimport py_safe_call_once
 
 from collections import namedtuple
+from os import fsencode, fspath, PathLike
 
 from cuda.core._device import Device
 from cuda.core._launch_config cimport LaunchConfig
@@ -50,7 +53,7 @@ cdef class KernelAttributes:
     is visible through the others.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     @staticmethod
@@ -82,10 +85,10 @@ cdef class KernelAttributes:
         cdef int result
         with nogil:
             HANDLE_RETURN(cydriver.cuKernelGetAttribute(&result, attribute, as_cu(self._h_kernel), device_id))
-        self._cache[cache_key] = result
+        self._cache[cache_key] = result  # setdefault not needed for ints
         return result
 
-    def __getitem__(self, device) -> KernelAttributes:
+    def __getitem__(self, device: Device | int) -> KernelAttributes:
         """Return a view of these attributes bound to a specific device.
 
         Parameters
@@ -233,7 +236,9 @@ cdef class KernelAttributes:
         )
 
 
-MaxPotentialBlockSizeOccupancyResult = namedtuple("MaxPotential", ("min_grid_size", "max_block_size"))
+MaxPotentialBlockSizeOccupancyResult = namedtuple(
+    "MaxPotentialBlockSizeOccupancyResult", ("min_grid_size", "max_block_size")
+)
 
 
 cdef class KernelOccupancy:
@@ -241,7 +246,7 @@ cdef class KernelOccupancy:
     launch parameters such as block size, grid size, and shared memory usage.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
 
     @staticmethod
@@ -295,7 +300,7 @@ cdef class KernelOccupancy:
 
         Parameters
         ----------
-            dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize]
+            dynamic_shared_memory_needed: int | driver.CUoccupancyB2DSize
                 The amount of dynamic shared memory in bytes needed by block.
                 Use `0` if block does not need shared memory. Use C-callable
                 represented by :obj:`~driver.CUoccupancyB2DSize` to encode
@@ -439,7 +444,7 @@ cdef class Kernel:
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
     @staticmethod
@@ -451,10 +456,14 @@ cdef class Kernel:
         return ker
 
     @property
+    @cython.critical_section
     def attributes(self) -> KernelAttributes:
         """Get the read-only attributes of this kernel."""
+        cdef KernelAttributes attributes
         if self._attributes is None:
-            self._attributes = KernelAttributes._init(self._h_kernel)
+            attributes = KernelAttributes._init(self._h_kernel)
+            if self._attributes is None:
+                self._attributes = attributes
         return self._attributes
 
     cdef tuple _get_arguments_info(self, bint param_info=False):
@@ -498,14 +507,18 @@ cdef class Kernel:
         return param_info
 
     @property
+    @cython.critical_section
     def occupancy(self) -> KernelOccupancy:
         """Get the occupancy information for launching this kernel."""
+        cdef KernelOccupancy occupancy
         if self._occupancy is None:
-            self._occupancy = KernelOccupancy._init(self._h_kernel)
+            occupancy = KernelOccupancy._init(self._h_kernel)
+            if self._occupancy is None:
+                self._occupancy = occupancy
         return self._occupancy
 
     @property
-    def handle(self):
+    def handle(self) -> object:
         """Return the underlying kernel handle object.
 
         .. caution::
@@ -516,11 +529,11 @@ cdef class Kernel:
         return as_py(self._h_kernel)
 
     @property
-    def _handle(self):
+    def _handle(self) -> object:
         return self.handle
 
     @staticmethod
-    def from_handle(handle, mod: ObjectCode = None) -> Kernel:
+    def from_handle(handle, mod: ObjectCode | None = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters
@@ -561,7 +574,7 @@ cdef class Kernel:
             k._keepalive = mod
         return k
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Kernel):
             return NotImplemented
         return as_intptr(self._h_kernel) == as_intptr((<Kernel>other)._h_kernel)
@@ -577,6 +590,31 @@ CodeTypeT = bytes | bytearray | str
 
 cdef tuple _supported_code_type = tuple(ObjectCodeFormatType.__members__.values())
 
+
+cdef void _lazy_load_module_once(void *self_v) except *:
+    # Call-once helper for the lazy module loading, we want to avoid unloading
+    # a module in case of threads racing, so use `call_once`.
+    cdef ObjectCode self = <ObjectCode>self_v
+    cdef LibraryHandle h_library
+    cdef bytes path_bytes
+    module = self._module
+    if isinstance(module, str):
+        path_bytes = module.encode()
+        h_library = create_library_handle_from_file(<const char*>path_bytes)
+    elif isinstance(module, (bytes, bytearray)):
+        h_library = create_library_handle_from_data(<const void*><char*>module)
+    elif isinstance(module, PathLike):
+        path_bytes = fsencode(module)
+        h_library = create_library_handle_from_file(<const char*>path_bytes)
+    else:
+        assert_type_str_or_bytes_like(module)
+        raise_code_path_meant_to_be_unreachable()
+        return
+    if not h_library:
+        HANDLE_RETURN(get_last_error())
+    self._h_library = h_library
+
+
 cdef class ObjectCode:
     """Represent a compiled program to be loaded onto the device.
 
@@ -591,14 +629,14 @@ cdef class ObjectCode:
     :class:`~cuda.core.Program`
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "ObjectCode objects cannot be instantiated directly. "
             "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
         )
 
     @classmethod
-    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict | None = None):
+    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         assert code_type in _supported_code_type, f"{code_type=} is not supported"
         cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
@@ -606,7 +644,13 @@ cdef class ObjectCode:
         self._h_library = LibraryHandle()  # Empty handle
 
         self._code_type = str(code_type)
-        self._module = module
+
+        if isinstance(module, (str, bytes, bytearray)):
+            self._module = module
+        elif isinstance(module, PathLike):
+            self._module = fspath(module)
+        else:
+            self._module = module
         self._sym_map = {} if symbol_mapping is None else symbol_mapping
         self._name = name if name else ""
 
@@ -616,21 +660,22 @@ cdef class ObjectCode:
     def _reduce_helper(module, code_type, name, symbol_mapping):
         return ObjectCode._init(module, code_type, name=name if name else "", symbol_mapping=symbol_mapping)
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_cubin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory cubin to load, or
-            a file path string pointing to the on-disk cubin to load.
-        name : Optional[str]
+            a file path object (or its string representation) pointing to the
+            on-disk cubin to load.
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -638,17 +683,18 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.CUBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ptx(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory ptx code to load, or
-            a file path string pointing to the on-disk ptx file to load.
-        name : Optional[str]
+            a file path object (or its string representation) pointing to the
+            on-disk ptx file to load.
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -656,17 +702,18 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.PTX, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_ltoir(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
         ----------
-        module : Union[bytes, str]
-            Either a bytes object containing the in-memory ltoir code to load, or
-            a file path string pointing to the on-disk ltoir file to load.
-        name : Optional[str]
+        module : bytes | str | os.PathLike
+            Either a bytes object containing the in-memory ltoir code to load,
+            or a file path object (or its string representation) pointing to the
+            on-disk ltoir file to load.
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -674,17 +721,18 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.LTOIR, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_fatbin(module: bytes | str | PathLike[str], *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str | os.PathLike
             Either a bytes object containing the in-memory fatbin to load, or
-            a file path string pointing to the on-disk fatbin to load.
-        name : Optional[str]
+            or a file path object (or its string representation) pointing to the
+            on-disk fatbin to load.
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -692,17 +740,17 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.FATBIN, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory object code to load, or
             a file path string pointing to the on-disk object code to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -710,17 +758,17 @@ cdef class ObjectCode:
         return ObjectCode._init(module, ObjectCodeFormatType.OBJECT, name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
+    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory library to load, or
             a file path string pointing to the on-disk library to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -730,26 +778,10 @@ cdef class ObjectCode:
     # TODO: do we want to unload in a finalizer? Probably not..
 
     cdef int _lazy_load_module(self) except -1:
-        if self._h_library:
-            return 0
-        module = self._module
-        assert_type_str_or_bytes_like(module)
-        cdef bytes path_bytes
-        if isinstance(module, str):
-            path_bytes = module.encode()
-            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
-            if not self._h_library:
-                HANDLE_RETURN(get_last_error())
-            return 0
-        if isinstance(module, (bytes, bytearray)):
-            self._h_library = create_library_handle_from_data(<const void*><char*>module)
-            if not self._h_library:
-                HANDLE_RETURN(get_last_error())
-            return 0
-        raise_code_path_meant_to_be_unreachable()
-        return -1
+        py_safe_call_once(self._load_once, _lazy_load_module_once, <void *>self)
+        return 0
 
-    def get_kernel(self, name) -> Kernel:
+    def get_kernel(self, name: str | bytes) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
         Parameters
@@ -778,6 +810,25 @@ cdef class ObjectCode:
             HANDLE_RETURN(get_last_error())
         return Kernel._from_handle(h_kernel)
 
+    def get_module(self) -> driver.CUmodule:
+        """Return a context-dependent :obj:`~driver.CUmodule` for legacy interop.
+
+        Bridges the native :obj:`~driver.CUlibrary` (see :attr:`handle`) to a
+        ``CUmodule`` via ``cuLibraryGetModule``, for use with legacy driver APIs
+        that only accept ``CUmodule``.
+
+        Returns
+        -------
+        :obj:`~driver.CUmodule`
+            Module handle for the current CUDA context, suitable for legacy
+            driver APIs that accept ``CUmodule``.
+        """
+        self._lazy_load_module()
+        cdef cydriver.CUmodule mod
+        with nogil:
+            HANDLE_RETURN(cydriver.cuLibraryGetModule(&mod, as_cu(self._h_library)))
+        return as_py(mod)
+
     @property
     def code(self) -> CodeTypeT:
         """Return the underlying code object."""
@@ -794,13 +845,16 @@ cdef class ObjectCode:
         return self._code_type
 
     @property
-    def symbol_mapping(self) -> dict:
+    def symbol_mapping(self) -> dict[str, str]:
         """Return a copy of the symbol mapping dictionary."""
         return dict(self._sym_map)
 
     @property
-    def handle(self):
-        """Return the underlying handle object.
+    def handle(self) -> object:
+        """Return the native, context-independent :obj:`~driver.CUlibrary` handle.
+
+        Used by ``cuda.core`` and newer driver library APIs. For legacy APIs
+        that only accept a ``CUmodule``, use :meth:`get_module` instead.
 
         .. caution::
 
@@ -810,7 +864,7 @@ cdef class ObjectCode:
         self._lazy_load_module()
         return as_py(self._h_library)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, ObjectCode):
             return NotImplemented
         # Trigger lazy load for both objects to compare handles

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Sequence
+
 from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport (
     create_graphics_resource_handle,
@@ -26,7 +28,7 @@ _REGISTER_FLAGS = {
 }
 
 
-def _parse_register_flags(flags):
+def _parse_register_flags(flags: str | Sequence[str] | None) -> int:
     if flags is None:
         return 0
     if isinstance(flags, str):
@@ -83,14 +85,20 @@ cdef class GraphicsResource:
                 pass
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError(
             "GraphicsResource objects cannot be instantiated directly. "
             "Use GraphicsResource.from_gl_buffer() or GraphicsResource.from_gl_image()."
         )
 
     @classmethod
-    def from_gl_buffer(cls, int gl_buffer, *, flags=None, stream=None) -> GraphicsResource:
+    def from_gl_buffer(
+        cls,
+        int gl_buffer,
+        *,
+        flags: str | tuple[str, ...] | list[str] | None = None,
+        stream: Stream | None = None
+    ) -> GraphicsResource:
         """Register an OpenGL buffer object for CUDA access.
 
         Parameters
@@ -151,7 +159,11 @@ cdef class GraphicsResource:
 
     @classmethod
     def from_gl_image(
-        cls, int image, int target, *, flags=None
+        cls,
+        int image,
+        int target,
+        *,
+        flags: str | tuple[str, ...] | list[str] | None = None
     ) -> GraphicsResource:
         """Register an OpenGL texture or renderbuffer for CUDA access.
 
@@ -196,11 +208,10 @@ cdef class GraphicsResource:
         self._entered_buffer = None
         return self
 
-    def _get_mapped_buffer(self):
-        cdef Buffer buf
+    def _get_mapped_buffer(self) -> object:
         if self._mapped_buffer is None:
             return None
-        buf = <Buffer>self._mapped_buffer
+        cdef Buffer buf = <Buffer>self._mapped_buffer
         if not buf._h_ptr:
             self._mapped_buffer = None
             return None
@@ -238,20 +249,16 @@ cdef class GraphicsResource:
         CUDAError
             If the mapping fails.
         """
-        cdef Stream s_obj
-        cdef cydriver.CUgraphicsResource raw
-        cdef cydriver.CUstream cy_stream
         cdef cydriver.CUdeviceptr dev_ptr = 0
         cdef size_t size = 0
-        cdef Buffer buf
         if not self._handle:
             raise RuntimeError("GraphicsResource has been closed")
         if self._get_mapped_buffer() is not None:
             raise RuntimeError("GraphicsResource is already mapped")
 
-        s_obj = Stream_accept(stream)
-        raw = as_cu(self._handle)
-        cy_stream = as_cu(s_obj._h_stream)
+        cdef Stream s_obj = Stream_accept(stream)
+        cdef cydriver.CUgraphicsResource raw = as_cu(self._handle)
+        cdef cydriver.CUstream cy_stream = as_cu(s_obj._h_stream)
         with nogil:
             HANDLE_RETURN(
                 cydriver.cuGraphicsMapResources(1, &raw, cy_stream)
@@ -259,7 +266,7 @@ cdef class GraphicsResource:
             HANDLE_RETURN(
                 cydriver.cuGraphicsResourceGetMappedPointer(&dev_ptr, &size, raw)
             )
-        buf = Buffer_from_deviceptr_handle(
+        cdef Buffer buf = Buffer_from_deviceptr_handle(
             deviceptr_create_mapped_graphics(dev_ptr, self._handle, s_obj._h_stream),
             size,
             None,
@@ -268,7 +275,7 @@ cdef class GraphicsResource:
         self._mapped_buffer = buf
         return buf
 
-    def unmap(self, *, stream: Stream | None = None):
+    def unmap(self, *, stream: Stream | None = None) -> None:
         """Unmap this graphics resource, releasing it back to the graphics API.
 
         After unmapping, the :class:`~cuda.core.Buffer` previously returned
@@ -287,28 +294,26 @@ cdef class GraphicsResource:
         CUDAError
             If the unmapping fails.
         """
-        cdef object buf_obj
-        cdef Buffer buf
         if not self._handle:
             raise RuntimeError("GraphicsResource has been closed")
-        buf_obj = self._get_mapped_buffer()
+        cdef object buf_obj = self._get_mapped_buffer()
         if buf_obj is None:
             raise RuntimeError("GraphicsResource is not mapped")
-        buf = <Buffer>buf_obj
+        cdef Buffer buf = <Buffer>buf_obj
         buf.close(stream=stream)
         self._mapped_buffer = None
 
-    def __enter__(self):
+    def __enter__(self) -> object:
         if self._context_manager_stream is None:
             return self
         self._entered_buffer = self.map(stream=self._context_manager_stream)
         return self._entered_buffer
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: type | None, exc_val: BaseException | None, exc_tb: object) -> bool:
         self.close()
         return False
 
-    cpdef close(self, stream=None):
+    cpdef close(self, object stream=None):
         """Unregister this graphics resource from CUDA.
 
         If the resource is currently mapped, it is unmapped first. After
@@ -320,11 +325,10 @@ cdef class GraphicsResource:
             Optional override for the stream used to close the currently
             mapped buffer, if one exists.
         """
-        cdef object buf_obj
         cdef Buffer buf
         if not self._handle:
             return
-        buf_obj = self._get_mapped_buffer()
+        cdef object buf_obj = self._get_mapped_buffer()
         if buf_obj is not None:
             buf = <Buffer>buf_obj
             buf.close(stream=stream)
@@ -348,7 +352,7 @@ cdef class GraphicsResource:
         """Alias for :attr:`handle`."""
         return self.handle
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         mapped_str = " mapped" if self.is_mapped else ""
         closed_str = " closed" if not self._handle else ""
         return f"<GraphicsResource handle={as_intptr(self._handle):#x}{mapped_str}{closed_str}>"

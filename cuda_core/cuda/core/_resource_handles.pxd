@@ -5,7 +5,7 @@
 from libc.stddef cimport size_t
 from libc.stdint cimport intptr_t
 
-from libcpp.memory cimport shared_ptr
+from libcpp.memory cimport shared_ptr, unique_ptr
 
 from cuda.bindings cimport cydriver
 from cuda.bindings cimport cynvrtc
@@ -28,6 +28,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUlibrary] LibraryHandle
     ctypedef shared_ptr[const cydriver.CUkernel] KernelHandle
     ctypedef shared_ptr[const cydriver.CUgraph] GraphHandle
+    ctypedef shared_ptr[const cydriver.CUgraphExec] GraphExecHandle
     ctypedef shared_ptr[const cydriver.CUgraphNode] GraphNodeHandle
     ctypedef shared_ptr[const cydriver.CUgraphicsResource] GraphicsResourceHandle
     ctypedef shared_ptr[const cynvrtc.nvrtcProgram] NvrtcProgramHandle
@@ -43,6 +44,46 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     ctypedef shared_ptr[const cydriver.CUlinkState] CuLinkHandle
     ctypedef shared_ptr[const int] FileDescriptorHandle
+    ctypedef shared_ptr[const cydriver.CUarray] OpaqueArrayHandle
+    ctypedef shared_ptr[const cydriver.CUmipmappedArray] MipmappedArrayHandle
+
+    # CUtexObject / CUsurfObject are both `unsigned long long` (as is CUdeviceptr),
+    # so they are wrapped in distinct tagged value types to keep each handle's
+    # as_cu/as_intptr/as_py overloads distinct.
+    cppclass TexObjectValue "cuda_core::TexObjectValue":
+        pass
+    cppclass SurfObjectValue "cuda_core::SurfObjectValue":
+        pass
+    ctypedef shared_ptr[const TexObjectValue] TexObjectHandle
+    ctypedef shared_ptr[const SurfObjectValue] SurfObjectHandle
+
+    # Type-erased shared owner for resources attached to graph node slots.
+    # Typed handles above assign directly to an OpaqueHandle (shared control
+    # block); make_opaque_py / make_opaque_malloc cover the two cases needing a
+    # custom deleter.
+    ctypedef shared_ptr[const void] OpaqueHandle
+
+    cppclass PreparedAttachmentState:
+        pass
+    cppclass PreparedAttachmentDeleter:
+        pass
+    ctypedef unique_ptr[
+        PreparedAttachmentState, PreparedAttachmentDeleter
+    ] PreparedAttachment
+
+    cppclass PreparedChildGraphUpdateState:
+        pass
+    ctypedef shared_ptr[
+        PreparedChildGraphUpdateState
+    ] PreparedChildGraphUpdate
+
+    cppclass PreparedExecAttachmentState:
+        pass
+    cppclass PreparedExecAttachmentDeleter:
+        pass
+    ctypedef unique_ptr[
+        PreparedExecAttachmentState, PreparedExecAttachmentDeleter
+    ] PreparedExecAttachment
 
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
@@ -52,14 +93,20 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUmemoryPool as_cu(MemoryPoolHandle h) noexcept nogil
     cydriver.CUdeviceptr as_cu(DevicePtrHandle h) noexcept nogil
     cydriver.CUlibrary as_cu(LibraryHandle h) noexcept nogil
+    cydriver.CUmodule as_cu(cydriver.CUmodule h) noexcept nogil
     cydriver.CUkernel as_cu(KernelHandle h) noexcept nogil
     cydriver.CUgraph as_cu(GraphHandle h) noexcept nogil
+    cydriver.CUgraphExec as_cu(GraphExecHandle h) noexcept nogil
     cydriver.CUgraphNode as_cu(GraphNodeHandle h) noexcept nogil
     cydriver.CUgraphicsResource as_cu(GraphicsResourceHandle h) noexcept nogil
     cynvrtc.nvrtcProgram as_cu(NvrtcProgramHandle h) noexcept nogil
     cynvvm.nvvmProgram as_cu(NvvmProgramHandle h) noexcept nogil
     cynvjitlink.nvJitLinkHandle as_cu(NvJitLinkHandle h) noexcept nogil
     cydriver.CUlinkState as_cu(CuLinkHandle h) noexcept nogil
+    cydriver.CUarray as_cu(OpaqueArrayHandle h) noexcept nogil
+    cydriver.CUmipmappedArray as_cu(MipmappedArrayHandle h) noexcept nogil
+    cydriver.CUtexObject as_cu(TexObjectHandle h) noexcept nogil
+    cydriver.CUsurfObject as_cu(SurfObjectHandle h) noexcept nogil
 
     # as_intptr() - extract handle as intptr_t for Python interop (inline C++)
     intptr_t as_intptr(ContextHandle h) noexcept nogil
@@ -69,8 +116,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(MemoryPoolHandle h) noexcept nogil
     intptr_t as_intptr(DevicePtrHandle h) noexcept nogil
     intptr_t as_intptr(LibraryHandle h) noexcept nogil
+    intptr_t as_intptr(const cydriver.CUmodule& h) noexcept nogil
     intptr_t as_intptr(KernelHandle h) noexcept nogil
     intptr_t as_intptr(GraphHandle h) noexcept nogil
+    intptr_t as_intptr(GraphExecHandle h) noexcept nogil
     intptr_t as_intptr(GraphNodeHandle h) noexcept nogil
     intptr_t as_intptr(GraphicsResourceHandle h) noexcept nogil
     intptr_t as_intptr(NvrtcProgramHandle h) noexcept nogil
@@ -78,6 +127,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(NvJitLinkHandle h) noexcept nogil
     intptr_t as_intptr(CuLinkHandle h) noexcept nogil
     intptr_t as_intptr(FileDescriptorHandle h) noexcept nogil
+    intptr_t as_intptr(OpaqueArrayHandle h) noexcept nogil
+    intptr_t as_intptr(MipmappedArrayHandle h) noexcept nogil
+    intptr_t as_intptr(TexObjectHandle h) noexcept nogil
+    intptr_t as_intptr(SurfObjectHandle h) noexcept nogil
 
     # as_py() - convert handle to Python wrapper object (inline C++; requires GIL)
     object as_py(ContextHandle h)
@@ -87,8 +140,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(MemoryPoolHandle h)
     object as_py(DevicePtrHandle h)
     object as_py(LibraryHandle h)
+    object as_py(const cydriver.CUmodule& h)
     object as_py(KernelHandle h)
     object as_py(GraphHandle h)
+    object as_py(GraphExecHandle h)
     object as_py(GraphNodeHandle h)
     object as_py(GraphicsResourceHandle h)
     object as_py(NvrtcProgramHandle h)
@@ -96,6 +151,10 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(NvJitLinkHandle h)
     object as_py(CuLinkHandle h)
     object as_py(FileDescriptorHandle h)
+    object as_py(OpaqueArrayHandle h)
+    object as_py(MipmappedArrayHandle h)
+    object as_py(TexObjectHandle h)
+    object as_py(SurfObjectHandle h)
 
 
 # =============================================================================
@@ -125,6 +184,8 @@ cdef StreamHandle create_stream_handle(
     const ContextHandle& h_ctx, unsigned int flags, int priority) except+ nogil
 cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) except+ nogil
 cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) except+ nogil
+cdef void py_object_user_object_destroy(void* py_object) noexcept nogil
+cdef void retry_deferred_cleanup() noexcept
 cdef ContextHandle get_stream_context(const StreamHandle& h) noexcept nogil
 cdef StreamHandle get_legacy_stream() except+ nogil
 cdef StreamHandle get_per_thread_stream() except+ nogil
@@ -178,7 +239,7 @@ cdef void register_mr_dealloc_callback(MRDeallocCallback cb) noexcept
 cdef DevicePtrHandle deviceptr_import_ipc(
     const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil
-cdef void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
+cdef cydriver.CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
 # Library handles
 cdef LibraryHandle create_library_handle_from_file(const char* path) except+ nogil
@@ -192,7 +253,47 @@ cdef LibraryHandle get_kernel_library(const KernelHandle& h) noexcept nogil
 
 # Graph handles
 cdef GraphHandle create_graph_handle(cydriver.CUgraph graph) except+ nogil
-cdef GraphHandle create_graph_handle_ref(cydriver.CUgraph graph, const GraphHandle& h_parent) except+ nogil
+cdef GraphHandle create_child_graph_handle(
+    cydriver.CUgraph child_graph, const GraphHandle& h_parent,
+    cydriver.CUgraphNode owner_node) except+ nogil
+
+# Graph node attachments
+cdef OpaqueHandle make_opaque_py(object obj) except+
+cdef OpaqueHandle make_opaque_malloc(void* buf) except+
+cdef cydriver.CUresult graph_get_attachment(
+    const GraphHandle& h_graph, cydriver.CUgraphNode node,
+    OpaqueHandle* owner0, OpaqueHandle* owner1) except+
+cdef cydriver.CUresult graph_prepare_attachment(
+    const GraphHandle& h_graph, OpaqueHandle owner0, OpaqueHandle owner1,
+    PreparedAttachment* out_prepared) except+
+cdef cydriver.CUresult graph_commit_attachment(
+    PreparedAttachment& prepared, cydriver.CUgraphNode node) except+
+cdef cydriver.CUresult graph_clone_attachments(
+    const GraphHandle& h_clone, const GraphHandle& h_source) except+
+cdef cydriver.CUresult graph_prepare_child_graph_update(
+    const GraphHandle& h_parent, const GraphHandle& h_old_child,
+    cydriver.CUgraphNode owner_node, const GraphHandle& h_source,
+    PreparedChildGraphUpdate* out_prepared) except+
+cdef cydriver.CUresult graph_commit_child_graph_update(
+    PreparedChildGraphUpdate& prepared, GraphHandle* out_child) except+
+cdef void invalidate_child_graph_state(
+    const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
+
+# Graph exec handles
+cdef GraphExecHandle create_graph_exec_handle(
+    const GraphHandle& h_source,
+    cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS* params) except+
+cdef cydriver.CUresult graph_exec_update(
+    const GraphExecHandle& h_exec,
+    const GraphHandle& h_source,
+    cydriver.CUgraphExecUpdateResultInfo* result_info) except+
+cdef cydriver.CUresult graph_prepare_exec_attachment(
+    const GraphExecHandle& h_exec,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedExecAttachment* out_prepared) except+
+cdef void graph_commit_exec_attachment(
+    PreparedExecAttachment& prepared) noexcept
 
 # Graph node handles
 cdef GraphNodeHandle create_graph_node_handle(cydriver.CUgraphNode node, const GraphHandle& h_graph) except+ nogil
@@ -222,6 +323,25 @@ cdef CuLinkHandle create_culink_handle_ref(cydriver.CUlinkState state) except+ n
 # File descriptor handles
 cdef FileDescriptorHandle create_fd_handle(int fd) except+ nogil
 cdef FileDescriptorHandle create_fd_handle_ref(int fd) except+ nogil
+
+# Array / mipmapped-array / texture / surface handles (PR #467)
+cdef OpaqueArrayHandle create_array_handle(const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
+cdef OpaqueArrayHandle create_array_handle_ref(cydriver.CUarray arr) except+ nogil
+cdef OpaqueArrayHandle create_array_handle_owning(cydriver.CUarray arr) except+ nogil
+cdef OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) except+ nogil
+cdef MipmappedArrayHandle create_mipmapped_array_handle(
+    const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc, unsigned int num_levels) except+ nogil
+cdef TexObjectHandle create_tex_object_handle_array(
+    const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
+    const OpaqueArrayHandle& h_backing) except+ nogil
+cdef TexObjectHandle create_tex_object_handle_mipmap(
+    const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
+    const MipmappedArrayHandle& h_backing) except+ nogil
+cdef TexObjectHandle create_tex_object_handle_linear(
+    const cydriver.CUDA_RESOURCE_DESC& res, const cydriver.CUDA_TEXTURE_DESC& tex,
+    const DevicePtrHandle& h_backing) except+ nogil
+cdef SurfObjectHandle create_surf_object_handle(
+    const cydriver.CUDA_RESOURCE_DESC& res, const OpaqueArrayHandle& h_backing) except+ nogil
 
 # SM resource split (13.1+ — calls through function pointer, safe on older bindings)
 # groupParams is void* here to avoid referencing CU_DEV_SM_RESOURCE_GROUP_PARAMS

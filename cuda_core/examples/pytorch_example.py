@@ -32,24 +32,26 @@ __global__ void saxpy_kernel(const T* a, const T* x, const T* y, T* out, size_t 
 """
 
 
-# Create a wrapper class that implements __cuda_stream__
-class PyTorchStreamWrapper:
-    def __init__(self, pt_stream):
-        self.pt_stream = pt_stream
-
-    def __cuda_stream__(self):
-        stream_id = self.pt_stream.cuda_stream
-        return (0, stream_id)  # Return format required by CUDA Python
+def torch_version() -> tuple[int, int, int]:
+    v = torch.__version__
+    v = v.split("+")[0].split(".")
+    return tuple(int(x) for x in v)
 
 
 def main():
     dev = Device()
     dev.set_current()
 
+    print(f"PyTorch version: {torch_version()}", file=sys.stderr)
+    if torch_version() < (2, 10, 0):
+        # Need support for the __cuda_stream__ method.
+        print("PyTorch version 2.10 or later required, skipping example", file=sys.stderr)
+        return
+
     pt_stream = torch.cuda.current_stream()
     print(f"PyTorch stream: {pt_stream}", file=sys.stderr)
 
-    stream = dev.create_stream(PyTorchStreamWrapper(pt_stream))
+    stream = dev.create_stream(pt_stream)
 
     try:
         # prepare program

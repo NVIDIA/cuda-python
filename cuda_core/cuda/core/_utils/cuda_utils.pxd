@@ -18,18 +18,49 @@ ctypedef fused integer_t:
 cdef const cydriver.CUcontext CU_CONTEXT_INVALID = <cydriver.CUcontext>(-2)
 
 
-cdef int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil
-cdef int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except?-1 nogil
-cdef int HANDLE_RETURN_NVVM(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except?-1 nogil
-cdef int HANDLE_RETURN_NVJITLINK(
-    cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except?-1 nogil
+cdef inline int HANDLE_RETURN(cydriver.CUresult err) except?-1 nogil:
+    if err != cydriver.CUresult.CUDA_SUCCESS:
+        return _check_driver_error(err)
+    return 0
+
+
+cdef inline int HANDLE_RETURN_NVRTC(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except?-1 nogil:
+    """Handle NVRTC result codes, raising NVRTCError with program log on failure."""
+    if err == cynvrtc.nvrtcResult.NVRTC_SUCCESS:
+        return 0
+    with gil:
+        _raise_nvrtc_error(prog, err)
+
+
+cdef inline int HANDLE_RETURN_NVVM(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except?-1 nogil:
+    """Handle NVVM result codes, raising nvvmError with program log on failure."""
+    if err == cynvvm.nvvmResult.NVVM_SUCCESS:
+        return 0
+    with gil:
+        _raise_nvvm_error(prog, err)
+
+
+cdef inline int HANDLE_RETURN_NVJITLINK(
+        cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except?-1 nogil:
+    """Handle nvJitLink result codes, raising nvJitLinkError with error log on failure."""
+    if err == cynvjitlink.nvJitLinkResult.NVJITLINK_SUCCESS:
+        return 0
+    with gil:
+        _raise_nvjitlink_error(handle, err)
+
+
+# Helper for retrieving the current CUDA device. Raises if no active context
+# is bound to the calling thread.
+cdef int _get_current_device_id() except? -1
 
 
 # TODO: stop exposing these within the codebase?
 cpdef int _check_driver_error(cydriver.CUresult error) except?-1 nogil
 cpdef int _check_runtime_error(error) except?-1
 cpdef int _check_nvrtc_error(error) except?-1
-
+cdef int _raise_nvrtc_error(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except -1
+cdef int _raise_nvvm_error(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except -1
+cdef int _raise_nvjitlink_error(cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except -1
 
 cpdef check_or_create_options(type cls, options, str options_description=*, bint keep_none=*)
 

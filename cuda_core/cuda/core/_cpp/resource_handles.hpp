@@ -36,6 +36,14 @@ struct TaggedHandle {
 using NvvmProgramValue = TaggedHandle<nvvmProgram, 0>;
 using NvJitLinkValue = TaggedHandle<nvJitLink_t, 1>;
 
+// CUtexObject, CUsurfObject and CUdeviceptr are all `unsigned long long`, so
+// shared_ptr<const CUtexObject> et al. would be the *same* C++ type as
+// DevicePtrHandle (and each other), collapsing the as_cu/as_intptr/as_py
+// overload sets. Tag them to keep each handle type distinct, exactly as the
+// NVVM / nvJitLink handles above do.
+using TexObjectValue = TaggedHandle<CUtexObject, 2>;
+using SurfObjectValue = TaggedHandle<CUsurfObject, 3>;
+
 // ============================================================================
 // Thread-local error handling
 // ============================================================================
@@ -59,6 +67,7 @@ void clear_last_error() noexcept;
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
 extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
 extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
@@ -100,6 +109,15 @@ extern decltype(&cuLibraryGetKernel) p_cuLibraryGetKernel;
 
 // Graph
 extern decltype(&cuGraphDestroy) p_cuGraphDestroy;
+extern decltype(&cuGraphInstantiateWithParams) p_cuGraphInstantiateWithParams;
+extern decltype(&cuGraphExecUpdate) p_cuGraphExecUpdate;
+extern decltype(&cuGraphExecDestroy) p_cuGraphExecDestroy;
+extern decltype(&cuUserObjectCreate) p_cuUserObjectCreate;
+extern decltype(&cuUserObjectRelease) p_cuUserObjectRelease;
+extern decltype(&cuGraphRetainUserObject) p_cuGraphRetainUserObject;
+extern decltype(&cuGraphReleaseUserObject) p_cuGraphReleaseUserObject;
+extern decltype(&cuGraphNodeFindInClone) p_cuGraphNodeFindInClone;
+extern decltype(&cuGraphChildGraphNodeGetGraph) p_cuGraphChildGraphNodeGetGraph;
 
 // Linker
 extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
@@ -107,6 +125,17 @@ extern decltype(&cuLinkDestroy) p_cuLinkDestroy;
 // Graphics interop
 extern decltype(&cuGraphicsUnmapResources) p_cuGraphicsUnmapResources;
 extern decltype(&cuGraphicsUnregisterResource) p_cuGraphicsUnregisterResource;
+
+// Texture / surface / array (PR #467)
+extern decltype(&cuArray3DCreate) p_cuArray3DCreate;
+extern decltype(&cuArrayDestroy) p_cuArrayDestroy;
+extern decltype(&cuMipmappedArrayCreate) p_cuMipmappedArrayCreate;
+extern decltype(&cuMipmappedArrayDestroy) p_cuMipmappedArrayDestroy;
+extern decltype(&cuMipmappedArrayGetLevel) p_cuMipmappedArrayGetLevel;
+extern decltype(&cuTexObjectCreate) p_cuTexObjectCreate;
+extern decltype(&cuTexObjectDestroy) p_cuTexObjectDestroy;
+extern decltype(&cuSurfObjectCreate) p_cuSurfObjectCreate;
+extern decltype(&cuSurfObjectDestroy) p_cuSurfObjectDestroy;
 
 // SM resource split (13.1+ — may be null on older drivers/bindings)
 #if CUDA_VERSION >= 13010
@@ -164,6 +193,7 @@ using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 using LibraryHandle = std::shared_ptr<const CUlibrary>;
 using KernelHandle = std::shared_ptr<const CUkernel>;
 using GraphHandle = std::shared_ptr<const CUgraph>;
+using GraphExecHandle = std::shared_ptr<const CUgraphExec>;
 using GraphNodeHandle = std::shared_ptr<const CUgraphNode>;
 using GraphicsResourceHandle = std::shared_ptr<const CUgraphicsResource>;
 using NvrtcProgramHandle = std::shared_ptr<const nvrtcProgram>;
@@ -171,6 +201,10 @@ using NvvmProgramHandle = std::shared_ptr<const NvvmProgramValue>;
 using NvJitLinkHandle = std::shared_ptr<const NvJitLinkValue>;
 using CuLinkHandle = std::shared_ptr<const CUlinkState>;
 using FileDescriptorHandle = std::shared_ptr<const int>;
+using OpaqueArrayHandle = std::shared_ptr<const CUarray>;
+using MipmappedArrayHandle = std::shared_ptr<const CUmipmappedArray>;
+using TexObjectHandle = std::shared_ptr<const TexObjectValue>;
+using SurfObjectHandle = std::shared_ptr<const SurfObjectValue>;
 
 
 // ============================================================================
@@ -223,6 +257,15 @@ StreamHandle create_stream_handle_ref(CUstream stream);
 // The owner's refcount is incremented; decremented when handle is released.
 // The owner is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
+
+// Destroy a Python-backed CUDA user object by decref'ing it when safe.
+// If Python is finalized or finalizing, the object is intentionally leaked.
+void py_object_user_object_destroy(void* py_object) noexcept;
+
+// Initialize the process-lifetime CUDA user-object cleanup queue. Called once
+// from module initialization while Python is fully initialized.
+void initialize_deferred_cleanup();
+void retry_deferred_cleanup() noexcept;
 
 // Return the context dependency associated with a stream handle, if any.
 ContextHandle get_stream_context(const StreamHandle& h) noexcept;
@@ -381,7 +424,10 @@ DevicePtrHandle deviceptr_import_ipc(
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
+// Returns CUDA_ERROR_INVALID_CONTEXT when a default-stream token cannot be
+// bound because no CUDA context is current.
+CUresult set_deallocation_stream(
+    const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
 
 // ============================================================================
 // Library handle functions
@@ -426,16 +472,161 @@ LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
 // Graph handle functions
 // ============================================================================
 
-// Wrap an externally-created CUgraph with RAII cleanup.
-// When the last reference is released, cuGraphDestroy is called automatically.
-// The caller must have already created the graph via cuGraphCreate.
+// Create the owning handle for a root graph and its hierarchy.
 GraphHandle create_graph_handle(CUgraph graph);
 
-// Create a non-owning graph handle that keeps h_parent alive.
-// Use for graphs owned by a child/conditional node in a parent graph.
-// The child graph will NOT be destroyed when this handle is released,
-// but h_parent will be prevented from destruction while this handle exists.
-GraphHandle create_graph_handle_ref(CUgraph graph, const GraphHandle& h_parent);
+// Create the canonical handle for a graph whose CUDA lifetime is owned by a
+// node in h_parent.
+GraphHandle create_child_graph_handle(
+    CUgraph child_graph, const GraphHandle& h_parent, CUgraphNode owner_node);
+
+// ============================================================================
+// Graph node attachments
+//
+// Each resource-bearing node has one attachment with an immutable owner bundle,
+// retained on its CUgraph as a CUDA user object.
+//
+// Attachment mutations use prepare -> CUDA mutation -> commit. Preparation
+// graph-retains a replacement and preallocates its map entry when needed; an
+// empty replacement stages removal. Dropping an uncommitted PreparedAttachment
+// rolls back any staged retain. Commit updates metadata before releasing the
+// previous graph reference.
+// graph_get_attachment lets callers carry unchanged owners into partial
+// updates. The clone and invalidation helpers synchronize non-owning metadata
+// after CUDA copies or destroys graph state.
+// ============================================================================
+
+// Type-erased shared owner of an attached resource. Typed handles such as
+// EventHandle and KernelHandle convert to OpaqueHandle by assignment, reusing
+// their existing control block; the helpers below build OpaqueHandles for the
+// two cases that need a custom deleter.
+using OpaqueHandle = std::shared_ptr<const void>;
+
+// Build an OpaqueHandle from a Python object: increments its refcount now and
+// decrements it (under the GIL) on release. The caller must hold the GIL.
+OpaqueHandle make_opaque_py(PyObject* obj);
+
+// Build an OpaqueHandle from a malloc'd buffer: std::free on release.
+OpaqueHandle make_opaque_malloc(void* buf);
+
+struct PreparedAttachmentState;
+using PreparedAttachmentRollback =
+    void (*)(PreparedAttachmentState*) noexcept;
+struct PreparedAttachmentDeleter {
+    PreparedAttachmentRollback rollback = nullptr;
+
+    void operator()(PreparedAttachmentState* state) const noexcept {
+        rollback(state);
+    }
+};
+using PreparedAttachment =
+    std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
+
+struct PreparedChildGraphUpdateState;
+// Opaque unpublished hierarchy transaction; releasing it discards staged
+// metadata unless graph_commit_child_graph_update publishes the replacement.
+using PreparedChildGraphUpdate =
+    std::shared_ptr<PreparedChildGraphUpdateState>;
+
+struct PreparedExecAttachmentState;
+using PreparedExecAttachmentRollback =
+    void (*)(PreparedExecAttachmentState*) noexcept;
+struct PreparedExecAttachmentDeleter {
+    PreparedExecAttachmentRollback rollback = nullptr;
+
+    void operator()(PreparedExecAttachmentState* state) const noexcept {
+        rollback(state);
+    }
+};
+// Opaque append transaction. Releasing it rolls back newly appended owners
+// unless graph_commit_exec_attachment has kept them.
+using PreparedExecAttachment =
+    std::unique_ptr<PreparedExecAttachmentState, PreparedExecAttachmentDeleter>;
+
+// Copy requested owners from node's current attachment. Pass nullptr to ignore
+// either owner; a missing attachment produces empty handles.
+CUresult graph_get_attachment(
+    const GraphHandle& h_graph,
+    CUgraphNode node,
+    OpaqueHandle* owner0,
+    OpaqueHandle* owner1);
+
+// Create and graph-retain a replacement attachment before a CUDA mutation.
+// Destruction rolls the prepared attachment back unless it is committed.
+CUresult graph_prepare_attachment(
+    const GraphHandle& h_graph,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedAttachment* out_prepared);
+
+// Publish a prepared attachment after the CUDA mutation succeeds. A null node
+// retains the attachment anonymously without publishing node metadata.
+CUresult graph_commit_attachment(
+    PreparedAttachment& prepared,
+    CUgraphNode node);
+
+// Copy attachment metadata from a source graph hierarchy into its CUDA clone.
+CUresult graph_clone_attachments(
+    const GraphHandle& h_clone,
+    const GraphHandle& h_source);
+
+// Stage a complete metadata replacement before CUDA replaces an embedded
+// graph. Dropping the prepared state leaves the current hierarchy unchanged.
+CUresult graph_prepare_child_graph_update(
+    const GraphHandle& h_parent,
+    const GraphHandle& h_old_child,
+    CUgraphNode owner_node,
+    const GraphHandle& h_source,
+    PreparedChildGraphUpdate* out_prepared);
+
+// Rekey staged metadata to CUDA's replacement clone, retire the old embedded
+// hierarchy, and publish the replacement handle.
+CUresult graph_commit_child_graph_update(
+    PreparedChildGraphUpdate& prepared,
+    GraphHandle* out_child);
+
+// Invalidate cuda.core state for child graphs CUDA destroyed with owner_node.
+void invalidate_child_graph_state(
+    const GraphHandle& h_parent,
+    CUgraphNode owner_node) noexcept;
+
+// ============================================================================
+// Graph exec handle functions
+// ============================================================================
+
+// Create an owning exec handle by calling cuGraphInstantiateWithParams.
+// A fresh attachment accumulator is retained on h_source first, because CUDA
+// propagates user object references only at instantiation; an exec cannot
+// receive them afterwards. The exec is the sole owner once this returns.
+// When the last reference is released, cuGraphExecDestroy is called
+// automatically.
+// Returns empty handle on error (caller must check). The caller reads
+// params->result_out for the specific instantiation failure and
+// get_last_error() for a driver status.
+GraphExecHandle create_graph_exec_handle(
+    const GraphHandle& h_source,
+    CUDA_GRAPH_INSTANTIATE_PARAMS* params);
+
+// Update h_exec in place by calling cuGraphExecUpdate, and publish a fresh
+// accumulator when CUDA accepts the update. Writes result_info for the caller.
+CUresult graph_exec_update(
+    const GraphExecHandle& h_exec,
+    const GraphHandle& h_source,
+    CUgraphExecUpdateResultInfo* result_info);
+
+// Append owners before an executable-node mutation. The accumulator grows
+// because CUDA cannot attach user objects to an exec after instantiation, so
+// old owners stay reachable. Dropping the transaction restores the accumulator
+// to its original size.
+CUresult graph_prepare_exec_attachment(
+    const GraphExecHandle& h_exec,
+    OpaqueHandle owner0,
+    OpaqueHandle owner1,
+    PreparedExecAttachment* out_prepared);
+
+// Keep the owners added by graph_prepare_exec_attachment.
+void graph_commit_exec_attachment(
+    PreparedExecAttachment& prepared) noexcept;
 
 // ============================================================================
 // Graph node handle functions
@@ -527,6 +718,61 @@ FileDescriptorHandle create_fd_handle(int fd);
 FileDescriptorHandle create_fd_handle_ref(int fd);
 
 // ============================================================================
+// Array / mipmapped-array / texture / surface handle functions (PR #467)
+//
+// These resources are managed exactly like every other cuda.core resource:
+// the owning handle's deleter calls the matching cu*Destroy with the GIL
+// released, structural dependencies are embedded in the box (so a backing
+// resource always outlives a texture/surface/level built on it), and
+// creation returns an empty handle + thread-local error on failure.
+// ============================================================================
+
+// Create an owning CUDA array via cuArray3DCreate.
+// When the last reference is released, cuArrayDestroy is called automatically.
+// Returns empty handle on error (caller must check).
+OpaqueArrayHandle create_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc);
+
+// Create a non-owning array handle (references an existing CUarray).
+// Use for arrays owned elsewhere (e.g. graphics interop). Never destroyed here.
+OpaqueArrayHandle create_array_handle_ref(CUarray arr);
+
+// Create an owning array handle adopting an existing CUarray.
+// When the last reference is released, cuArrayDestroy is called automatically.
+OpaqueArrayHandle create_array_handle_owning(CUarray arr);
+
+// Create a non-owning handle to a mipmap level via cuMipmappedArrayGetLevel.
+// The level CUarray is owned by the mipmap; the parent MipmappedArrayHandle is
+// embedded in the box so it outlives the level view. No destroy in the deleter.
+// Returns empty handle on error (caller must check).
+OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level);
+
+// Create an owning mipmapped array via cuMipmappedArrayCreate.
+// When the last reference is released, cuMipmappedArrayDestroy is called.
+// Returns empty handle on error (caller must check).
+MipmappedArrayHandle create_mipmapped_array_handle(const CUDA_ARRAY3D_DESCRIPTOR& desc,
+                                                   unsigned int num_levels);
+
+// Create an owning texture object via cuTexObjectCreate, embedding the backing
+// resource handle (array / mipmapped array / linear-or-pitch2d device pointer)
+// so the backing always outlives the texture. cuTexObjectDestroy runs in the
+// deleter. Returns empty handle on error (caller must check).
+TexObjectHandle create_tex_object_handle_array(const CUDA_RESOURCE_DESC& res,
+                                               const CUDA_TEXTURE_DESC& tex,
+                                               const OpaqueArrayHandle& h_backing);
+TexObjectHandle create_tex_object_handle_mipmap(const CUDA_RESOURCE_DESC& res,
+                                                const CUDA_TEXTURE_DESC& tex,
+                                                const MipmappedArrayHandle& h_backing);
+TexObjectHandle create_tex_object_handle_linear(const CUDA_RESOURCE_DESC& res,
+                                                const CUDA_TEXTURE_DESC& tex,
+                                                const DevicePtrHandle& h_backing);
+
+// Create an owning surface object via cuSurfObjectCreate, embedding the backing
+// array handle so it outlives the surface. cuSurfObjectDestroy runs in the
+// deleter. Returns empty handle on error (caller must check).
+SurfObjectHandle create_surf_object_handle(const CUDA_RESOURCE_DESC& res,
+                                           const OpaqueArrayHandle& h_backing);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
@@ -559,11 +805,19 @@ inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUmodule as_cu(const CUmodule& h) noexcept {
+    return h;
+}
+
 inline CUkernel as_cu(const KernelHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
 inline CUgraph as_cu(const GraphHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline CUgraphExec as_cu(const GraphExecHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
@@ -589,6 +843,24 @@ inline nvJitLink_t as_cu(const NvJitLinkHandle& h) noexcept {
 
 inline CUlinkState as_cu(const CuLinkHandle& h) noexcept {
     return h ? *h : nullptr;
+}
+
+inline CUarray as_cu(const OpaqueArrayHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+inline CUmipmappedArray as_cu(const MipmappedArrayHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
+// CUtexObject / CUsurfObject are integer-valued (like CUdeviceptr); null is 0.
+// The raw value lives in the tagged wrapper's `raw` field.
+inline CUtexObject as_cu(const TexObjectHandle& h) noexcept {
+    return h ? h->raw : 0;
+}
+
+inline CUsurfObject as_cu(const SurfObjectHandle& h) noexcept {
+    return h ? h->raw : 0;
 }
 
 // as_intptr() - extract handle as intptr_t for Python interop
@@ -621,11 +893,19 @@ inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
+inline std::intptr_t as_intptr(const CUmodule& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
 inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
 inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const GraphExecHandle& h) noexcept {
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
@@ -657,11 +937,43 @@ inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
     return h ? static_cast<std::intptr_t>(*h) : -1;
 }
 
+inline std::intptr_t as_intptr(const OpaqueArrayHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const MipmappedArrayHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const TexObjectHandle& h) noexcept {
+    return static_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const SurfObjectHandle& h) noexcept {
+    return static_cast<std::intptr_t>(as_cu(h));
+}
+
 // as_py() - convert handle to Python wrapper object (returns new reference)
 #if PY_VERSION_HEX < 0x030D0000
 extern "C" int _Py_IsFinalizing(void);
 #endif
 
+// Best-effort probe for interpreter shutdown.
+//
+// In CPython this is not a hard guarantee: finalization can begin after this
+// returns false but before a later PyGILState_Ensure() or other Python C-API
+// call.
+//
+// If that race is lost on a non-finalizer thread, CPython's behavior is
+// version-dependent: on older supported versions (3.10-3.13) it may abruptly
+// terminate the current thread (historically via PyThread_exit_thread(),
+// without normal C++ unwinding), while on newer versions (3.14+) it may hang
+// the thread until process exit.
+//
+// We still use this check because the policy in this layer is to avoid Python
+// work once shutdown is underway and accept an intentional leak or skipped
+// Python conversion in that edge case rather than add more complex deferral
+// machinery.
 inline bool py_is_finalizing() noexcept {
 #if PY_VERSION_HEX >= 0x030D0000
     return Py_IsFinalizing();
@@ -715,12 +1027,20 @@ inline PyObject* as_py(const LibraryHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUlibrary", as_intptr(h));
 }
 
+inline PyObject* as_py(const CUmodule& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUmodule", as_intptr(h));
+}
+
 inline PyObject* as_py(const KernelHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUkernel", as_intptr(h));
 }
 
 inline PyObject* as_py(const GraphHandle& h) noexcept {
     return detail::make_py("cuda.bindings.driver", "CUgraph", as_intptr(h));
+}
+
+inline PyObject* as_py(const GraphExecHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUgraphExec", as_intptr(h));
 }
 
 inline PyObject* as_py(const GraphNodeHandle& h) noexcept {
@@ -754,6 +1074,22 @@ inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
 
 inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
     return PyLong_FromSsize_t(as_intptr(h));
+}
+
+inline PyObject* as_py(const OpaqueArrayHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUarray", as_intptr(h));
+}
+
+inline PyObject* as_py(const MipmappedArrayHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUmipmappedArray", as_intptr(h));
+}
+
+inline PyObject* as_py(const TexObjectHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUtexObject", as_intptr(h));
+}
+
+inline PyObject* as_py(const SurfObjectHandle& h) noexcept {
+    return detail::make_py("cuda.bindings.driver", "CUsurfObject", as_intptr(h));
 }
 
 // ============================================================================

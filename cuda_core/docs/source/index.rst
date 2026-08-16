@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 ``cuda.core``: Pythonic access to CUDA core functionality
@@ -12,8 +12,10 @@ Welcome to the documentation for ``cuda.core``.
 
    getting-started
    install
+   10_minutes_to_cuda_core
    examples
    interoperability
+   concurrency
    api
    api_nvml
    environment_variables

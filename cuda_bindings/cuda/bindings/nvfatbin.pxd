@@ -1,10 +1,18 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.4.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d9fd5ffb6adedf403c2fee0594d979c6ad2221c94f886cdaaa5efb01c1fa1421
 
-from libc.stdint cimport intptr_t, uint32_t
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport intptr_t
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 from .cynvfatbin cimport *
 
@@ -34,5 +42,6 @@ cpdef add_ltoir(intptr_t handle, code, size_t size, arch, identifier, options_cm
 cpdef size_t size(intptr_t handle) except? 0
 cpdef get(intptr_t handle, buffer)
 cpdef tuple version()
+cpdef add_index(intptr_t handle, code, size_t size, identifier)
 cpdef add_reloc(intptr_t handle, code, size_t size)
 cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_line)

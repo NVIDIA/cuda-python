@@ -1,64 +1,68 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0f1c15a761a6c0fbd8dd543ce35fa436cc64eadee9d7018f9eca3869d2ead415
 
-from libc.stdint cimport intptr_t, uintptr_t
 
-import threading
+# <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
+
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
+
+cdef extern from "<dlfcn.h>":
+    void* _cyb_dlsym "dlsym"(void*, const char*) nogil
+    const void * _cyb_RTLD_DEFAULT "RTLD_DEFAULT"
+
+from libc.stdint cimport intptr_t
+
+import threading as _cyb_threading
+
+cdef int _cyb___py_nvml_init = 0
+cdef dict _cyb_func_ptrs = None
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport uintptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
-
 from cuda.pathfinder import load_nvidia_dynamic_lib
-
-
-###############################################################################
-# Extern
-###############################################################################
-
-# You must 'from .utils import NotSupportedError' before using this template
-
-cdef extern from "<dlfcn.h>" nogil:
-    void* dlopen(const char*, int)
-    char* dlerror()
-    void* dlsym(void*, const char*)
-    int dlclose(void*)
-
-    enum:
-        RTLD_LAZY
-        RTLD_NOW
-        RTLD_GLOBAL
-        RTLD_LOCAL
-
-    const void* RTLD_DEFAULT 'RTLD_DEFAULT'
-
-cdef int get_cuda_version():
-    cdef void* handle = NULL
-    cdef int err, driver_ver = 0
-
-    # Load driver to check version
-    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
-    if handle == NULL:
-        err_msg = dlerror()
-        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
-    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
-    if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
-    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
-
-    return driver_ver
-
 
 
 ###############################################################################
 # Wrapper init
 ###############################################################################
-
-cdef object __symbol_lock = threading.Lock()
-cdef bint __py_nvml_init = False
 
 cdef void* __nvmlInit_v2 = NULL
 cdef void* __nvmlInitWithFlags = NULL
@@ -411,2502 +415,2519 @@ cdef void* __nvmlDeviceGetVgpuSchedulerLog_v2 = NULL
 cdef void* __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = NULL
 cdef void* __nvmlDeviceSetVgpuSchedulerState_v2 = NULL
 cdef void* __nvmlGpuInstanceSetVgpuSchedulerState_v2 = NULL
-
-
-cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvml")._handle_uint
-    return <void*>handle
-
+cdef void* __nvmlSystemGetCPER_v1 = NULL
+cdef void* __nvmlDeviceGetBBXTimeData_v1 = NULL
+cdef void* __nvmlDeviceGetAccountingStats_v2 = NULL
+cdef void* __nvmlDeviceGetRemappedRows_v2 = NULL
 
 cdef int _init_nvml() except -1 nogil:
-    global __py_nvml_init
+    global _cyb___py_nvml_init
     cdef void* handle = NULL
+    with gil, _cyb_symbol_lock:
+        if _cyb___py_nvml_init: return 0
 
-    with gil, __symbol_lock:
-        # Recheck the flag after obtaining the locks
-        if __py_nvml_init:
-            return 0
-
-        # Load function
         global __nvmlInit_v2
-        __nvmlInit_v2 = dlsym(RTLD_DEFAULT, 'nvmlInit_v2')
+        __nvmlInit_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlInit_v2')
         if __nvmlInit_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlInit_v2 = dlsym(handle, 'nvmlInit_v2')
+            __nvmlInit_v2 = _cyb_dlsym(handle, 'nvmlInit_v2')
 
         global __nvmlInitWithFlags
-        __nvmlInitWithFlags = dlsym(RTLD_DEFAULT, 'nvmlInitWithFlags')
+        __nvmlInitWithFlags = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlInitWithFlags')
         if __nvmlInitWithFlags == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlInitWithFlags = dlsym(handle, 'nvmlInitWithFlags')
+            __nvmlInitWithFlags = _cyb_dlsym(handle, 'nvmlInitWithFlags')
 
         global __nvmlShutdown
-        __nvmlShutdown = dlsym(RTLD_DEFAULT, 'nvmlShutdown')
+        __nvmlShutdown = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlShutdown')
         if __nvmlShutdown == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlShutdown = dlsym(handle, 'nvmlShutdown')
+            __nvmlShutdown = _cyb_dlsym(handle, 'nvmlShutdown')
 
         global __nvmlErrorString
-        __nvmlErrorString = dlsym(RTLD_DEFAULT, 'nvmlErrorString')
+        __nvmlErrorString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlErrorString')
         if __nvmlErrorString == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlErrorString = dlsym(handle, 'nvmlErrorString')
+            __nvmlErrorString = _cyb_dlsym(handle, 'nvmlErrorString')
 
         global __nvmlSystemGetDriverVersion
-        __nvmlSystemGetDriverVersion = dlsym(RTLD_DEFAULT, 'nvmlSystemGetDriverVersion')
+        __nvmlSystemGetDriverVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetDriverVersion')
         if __nvmlSystemGetDriverVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetDriverVersion = dlsym(handle, 'nvmlSystemGetDriverVersion')
+            __nvmlSystemGetDriverVersion = _cyb_dlsym(handle, 'nvmlSystemGetDriverVersion')
 
         global __nvmlSystemGetNVMLVersion
-        __nvmlSystemGetNVMLVersion = dlsym(RTLD_DEFAULT, 'nvmlSystemGetNVMLVersion')
+        __nvmlSystemGetNVMLVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetNVMLVersion')
         if __nvmlSystemGetNVMLVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetNVMLVersion = dlsym(handle, 'nvmlSystemGetNVMLVersion')
+            __nvmlSystemGetNVMLVersion = _cyb_dlsym(handle, 'nvmlSystemGetNVMLVersion')
 
         global __nvmlSystemGetCudaDriverVersion
-        __nvmlSystemGetCudaDriverVersion = dlsym(RTLD_DEFAULT, 'nvmlSystemGetCudaDriverVersion')
+        __nvmlSystemGetCudaDriverVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetCudaDriverVersion')
         if __nvmlSystemGetCudaDriverVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetCudaDriverVersion = dlsym(handle, 'nvmlSystemGetCudaDriverVersion')
+            __nvmlSystemGetCudaDriverVersion = _cyb_dlsym(handle, 'nvmlSystemGetCudaDriverVersion')
 
         global __nvmlSystemGetCudaDriverVersion_v2
-        __nvmlSystemGetCudaDriverVersion_v2 = dlsym(RTLD_DEFAULT, 'nvmlSystemGetCudaDriverVersion_v2')
+        __nvmlSystemGetCudaDriverVersion_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetCudaDriverVersion_v2')
         if __nvmlSystemGetCudaDriverVersion_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetCudaDriverVersion_v2 = dlsym(handle, 'nvmlSystemGetCudaDriverVersion_v2')
+            __nvmlSystemGetCudaDriverVersion_v2 = _cyb_dlsym(handle, 'nvmlSystemGetCudaDriverVersion_v2')
 
         global __nvmlSystemGetProcessName
-        __nvmlSystemGetProcessName = dlsym(RTLD_DEFAULT, 'nvmlSystemGetProcessName')
+        __nvmlSystemGetProcessName = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetProcessName')
         if __nvmlSystemGetProcessName == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetProcessName = dlsym(handle, 'nvmlSystemGetProcessName')
+            __nvmlSystemGetProcessName = _cyb_dlsym(handle, 'nvmlSystemGetProcessName')
 
         global __nvmlSystemGetHicVersion
-        __nvmlSystemGetHicVersion = dlsym(RTLD_DEFAULT, 'nvmlSystemGetHicVersion')
+        __nvmlSystemGetHicVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetHicVersion')
         if __nvmlSystemGetHicVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetHicVersion = dlsym(handle, 'nvmlSystemGetHicVersion')
+            __nvmlSystemGetHicVersion = _cyb_dlsym(handle, 'nvmlSystemGetHicVersion')
 
         global __nvmlSystemGetTopologyGpuSet
-        __nvmlSystemGetTopologyGpuSet = dlsym(RTLD_DEFAULT, 'nvmlSystemGetTopologyGpuSet')
+        __nvmlSystemGetTopologyGpuSet = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetTopologyGpuSet')
         if __nvmlSystemGetTopologyGpuSet == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetTopologyGpuSet = dlsym(handle, 'nvmlSystemGetTopologyGpuSet')
+            __nvmlSystemGetTopologyGpuSet = _cyb_dlsym(handle, 'nvmlSystemGetTopologyGpuSet')
 
         global __nvmlSystemGetDriverBranch
-        __nvmlSystemGetDriverBranch = dlsym(RTLD_DEFAULT, 'nvmlSystemGetDriverBranch')
+        __nvmlSystemGetDriverBranch = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetDriverBranch')
         if __nvmlSystemGetDriverBranch == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetDriverBranch = dlsym(handle, 'nvmlSystemGetDriverBranch')
+            __nvmlSystemGetDriverBranch = _cyb_dlsym(handle, 'nvmlSystemGetDriverBranch')
 
         global __nvmlUnitGetCount
-        __nvmlUnitGetCount = dlsym(RTLD_DEFAULT, 'nvmlUnitGetCount')
+        __nvmlUnitGetCount = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlUnitGetCount')
         if __nvmlUnitGetCount == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlUnitGetCount = dlsym(handle, 'nvmlUnitGetCount')
+            __nvmlUnitGetCount = _cyb_dlsym(handle, 'nvmlUnitGetCount')
 
         global __nvmlUnitGetHandleByIndex
-        __nvmlUnitGetHandleByIndex = dlsym(RTLD_DEFAULT, 'nvmlUnitGetHandleByIndex')
+        __nvmlUnitGetHandleByIndex = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlUnitGetHandleByIndex')
         if __nvmlUnitGetHandleByIndex == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlUnitGetHandleByIndex = dlsym(handle, 'nvmlUnitGetHandleByIndex')
+            __nvmlUnitGetHandleByIndex = _cyb_dlsym(handle, 'nvmlUnitGetHandleByIndex')
 
         global __nvmlUnitGetUnitInfo
-        __nvmlUnitGetUnitInfo = dlsym(RTLD_DEFAULT, 'nvmlUnitGetUnitInfo')
+        __nvmlUnitGetUnitInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlUnitGetUnitInfo')
         if __nvmlUnitGetUnitInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlUnitGetUnitInfo = dlsym(handle, 'nvmlUnitGetUnitInfo')
+            __nvmlUnitGetUnitInfo = _cyb_dlsym(handle, 'nvmlUnitGetUnitInfo')
 
         global __nvmlUnitGetLedState
-        __nvmlUnitGetLedState = dlsym(RTLD_DEFAULT, 'nvmlUnitGetLedState')
+        __nvmlUnitGetLedState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlUnitGetLedState')
         if __nvmlUnitGetLedState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlUnitGetLedState = dlsym(handle, 'nvmlUnitGetLedState')
+            __nvmlUnitGetLedState = _cyb_dlsym(handle, 'nvmlUnitGetLedState')
 
         global __nvmlUnitGetPsuInfo
-        __nvmlUnitGetPsuInfo = dlsym(RTLD_DEFAULT, 'nvmlUnitGetPsuInfo')
+        __nvmlUnitGetPsuInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlUnitGetPsuInfo')
         if __nvmlUnitGetPsuInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlUnitGetPsuInfo = dlsym(handle, 'nvmlUnitGetPsuInfo')
+            __nvmlUnitGetPsuInfo = _cyb_dlsym(handle, 'nvmlUnitGetPsuInfo')
 
         global __nvmlUnitGetTemperature
-        __nvmlUnitGetTemperature = dlsym(RTLD_DEFAULT, 'nvmlUnitGetTemperature')
+        __nvmlUnitGetTemperature = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlUnitGetTemperature')
         if __nvmlUnitGetTemperature == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlUnitGetTemperature = dlsym(handle, 'nvmlUnitGetTemperature')
+            __nvmlUnitGetTemperature = _cyb_dlsym(handle, 'nvmlUnitGetTemperature')
 
         global __nvmlUnitGetFanSpeedInfo
-        __nvmlUnitGetFanSpeedInfo = dlsym(RTLD_DEFAULT, 'nvmlUnitGetFanSpeedInfo')
+        __nvmlUnitGetFanSpeedInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlUnitGetFanSpeedInfo')
         if __nvmlUnitGetFanSpeedInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlUnitGetFanSpeedInfo = dlsym(handle, 'nvmlUnitGetFanSpeedInfo')
+            __nvmlUnitGetFanSpeedInfo = _cyb_dlsym(handle, 'nvmlUnitGetFanSpeedInfo')
 
         global __nvmlUnitGetDevices
-        __nvmlUnitGetDevices = dlsym(RTLD_DEFAULT, 'nvmlUnitGetDevices')
+        __nvmlUnitGetDevices = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlUnitGetDevices')
         if __nvmlUnitGetDevices == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlUnitGetDevices = dlsym(handle, 'nvmlUnitGetDevices')
+            __nvmlUnitGetDevices = _cyb_dlsym(handle, 'nvmlUnitGetDevices')
 
         global __nvmlDeviceGetCount_v2
-        __nvmlDeviceGetCount_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCount_v2')
+        __nvmlDeviceGetCount_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCount_v2')
         if __nvmlDeviceGetCount_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCount_v2 = dlsym(handle, 'nvmlDeviceGetCount_v2')
+            __nvmlDeviceGetCount_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetCount_v2')
 
         global __nvmlDeviceGetAttributes_v2
-        __nvmlDeviceGetAttributes_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetAttributes_v2')
+        __nvmlDeviceGetAttributes_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAttributes_v2')
         if __nvmlDeviceGetAttributes_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetAttributes_v2 = dlsym(handle, 'nvmlDeviceGetAttributes_v2')
+            __nvmlDeviceGetAttributes_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetAttributes_v2')
 
         global __nvmlDeviceGetHandleByIndex_v2
-        __nvmlDeviceGetHandleByIndex_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetHandleByIndex_v2')
+        __nvmlDeviceGetHandleByIndex_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetHandleByIndex_v2')
         if __nvmlDeviceGetHandleByIndex_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetHandleByIndex_v2 = dlsym(handle, 'nvmlDeviceGetHandleByIndex_v2')
+            __nvmlDeviceGetHandleByIndex_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetHandleByIndex_v2')
 
         global __nvmlDeviceGetHandleBySerial
-        __nvmlDeviceGetHandleBySerial = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetHandleBySerial')
+        __nvmlDeviceGetHandleBySerial = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetHandleBySerial')
         if __nvmlDeviceGetHandleBySerial == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetHandleBySerial = dlsym(handle, 'nvmlDeviceGetHandleBySerial')
+            __nvmlDeviceGetHandleBySerial = _cyb_dlsym(handle, 'nvmlDeviceGetHandleBySerial')
 
         global __nvmlDeviceGetHandleByUUID
-        __nvmlDeviceGetHandleByUUID = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetHandleByUUID')
+        __nvmlDeviceGetHandleByUUID = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetHandleByUUID')
         if __nvmlDeviceGetHandleByUUID == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetHandleByUUID = dlsym(handle, 'nvmlDeviceGetHandleByUUID')
+            __nvmlDeviceGetHandleByUUID = _cyb_dlsym(handle, 'nvmlDeviceGetHandleByUUID')
 
         global __nvmlDeviceGetHandleByUUIDV
-        __nvmlDeviceGetHandleByUUIDV = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetHandleByUUIDV')
+        __nvmlDeviceGetHandleByUUIDV = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetHandleByUUIDV')
         if __nvmlDeviceGetHandleByUUIDV == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetHandleByUUIDV = dlsym(handle, 'nvmlDeviceGetHandleByUUIDV')
+            __nvmlDeviceGetHandleByUUIDV = _cyb_dlsym(handle, 'nvmlDeviceGetHandleByUUIDV')
 
         global __nvmlDeviceGetHandleByPciBusId_v2
-        __nvmlDeviceGetHandleByPciBusId_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetHandleByPciBusId_v2')
+        __nvmlDeviceGetHandleByPciBusId_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetHandleByPciBusId_v2')
         if __nvmlDeviceGetHandleByPciBusId_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetHandleByPciBusId_v2 = dlsym(handle, 'nvmlDeviceGetHandleByPciBusId_v2')
+            __nvmlDeviceGetHandleByPciBusId_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetHandleByPciBusId_v2')
 
         global __nvmlDeviceGetName
-        __nvmlDeviceGetName = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetName')
+        __nvmlDeviceGetName = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetName')
         if __nvmlDeviceGetName == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetName = dlsym(handle, 'nvmlDeviceGetName')
+            __nvmlDeviceGetName = _cyb_dlsym(handle, 'nvmlDeviceGetName')
 
         global __nvmlDeviceGetBrand
-        __nvmlDeviceGetBrand = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetBrand')
+        __nvmlDeviceGetBrand = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetBrand')
         if __nvmlDeviceGetBrand == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetBrand = dlsym(handle, 'nvmlDeviceGetBrand')
+            __nvmlDeviceGetBrand = _cyb_dlsym(handle, 'nvmlDeviceGetBrand')
 
         global __nvmlDeviceGetIndex
-        __nvmlDeviceGetIndex = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetIndex')
+        __nvmlDeviceGetIndex = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetIndex')
         if __nvmlDeviceGetIndex == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetIndex = dlsym(handle, 'nvmlDeviceGetIndex')
+            __nvmlDeviceGetIndex = _cyb_dlsym(handle, 'nvmlDeviceGetIndex')
 
         global __nvmlDeviceGetSerial
-        __nvmlDeviceGetSerial = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSerial')
+        __nvmlDeviceGetSerial = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSerial')
         if __nvmlDeviceGetSerial == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSerial = dlsym(handle, 'nvmlDeviceGetSerial')
+            __nvmlDeviceGetSerial = _cyb_dlsym(handle, 'nvmlDeviceGetSerial')
 
         global __nvmlDeviceGetModuleId
-        __nvmlDeviceGetModuleId = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetModuleId')
+        __nvmlDeviceGetModuleId = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetModuleId')
         if __nvmlDeviceGetModuleId == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetModuleId = dlsym(handle, 'nvmlDeviceGetModuleId')
+            __nvmlDeviceGetModuleId = _cyb_dlsym(handle, 'nvmlDeviceGetModuleId')
 
         global __nvmlDeviceGetC2cModeInfoV
-        __nvmlDeviceGetC2cModeInfoV = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetC2cModeInfoV')
+        __nvmlDeviceGetC2cModeInfoV = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetC2cModeInfoV')
         if __nvmlDeviceGetC2cModeInfoV == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetC2cModeInfoV = dlsym(handle, 'nvmlDeviceGetC2cModeInfoV')
+            __nvmlDeviceGetC2cModeInfoV = _cyb_dlsym(handle, 'nvmlDeviceGetC2cModeInfoV')
 
         global __nvmlDeviceGetMemoryAffinity
-        __nvmlDeviceGetMemoryAffinity = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMemoryAffinity')
+        __nvmlDeviceGetMemoryAffinity = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMemoryAffinity')
         if __nvmlDeviceGetMemoryAffinity == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMemoryAffinity = dlsym(handle, 'nvmlDeviceGetMemoryAffinity')
+            __nvmlDeviceGetMemoryAffinity = _cyb_dlsym(handle, 'nvmlDeviceGetMemoryAffinity')
 
         global __nvmlDeviceGetCpuAffinityWithinScope
-        __nvmlDeviceGetCpuAffinityWithinScope = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCpuAffinityWithinScope')
+        __nvmlDeviceGetCpuAffinityWithinScope = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCpuAffinityWithinScope')
         if __nvmlDeviceGetCpuAffinityWithinScope == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCpuAffinityWithinScope = dlsym(handle, 'nvmlDeviceGetCpuAffinityWithinScope')
+            __nvmlDeviceGetCpuAffinityWithinScope = _cyb_dlsym(handle, 'nvmlDeviceGetCpuAffinityWithinScope')
 
         global __nvmlDeviceGetCpuAffinity
-        __nvmlDeviceGetCpuAffinity = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCpuAffinity')
+        __nvmlDeviceGetCpuAffinity = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCpuAffinity')
         if __nvmlDeviceGetCpuAffinity == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCpuAffinity = dlsym(handle, 'nvmlDeviceGetCpuAffinity')
+            __nvmlDeviceGetCpuAffinity = _cyb_dlsym(handle, 'nvmlDeviceGetCpuAffinity')
 
         global __nvmlDeviceSetCpuAffinity
-        __nvmlDeviceSetCpuAffinity = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetCpuAffinity')
+        __nvmlDeviceSetCpuAffinity = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetCpuAffinity')
         if __nvmlDeviceSetCpuAffinity == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetCpuAffinity = dlsym(handle, 'nvmlDeviceSetCpuAffinity')
+            __nvmlDeviceSetCpuAffinity = _cyb_dlsym(handle, 'nvmlDeviceSetCpuAffinity')
 
         global __nvmlDeviceClearCpuAffinity
-        __nvmlDeviceClearCpuAffinity = dlsym(RTLD_DEFAULT, 'nvmlDeviceClearCpuAffinity')
+        __nvmlDeviceClearCpuAffinity = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceClearCpuAffinity')
         if __nvmlDeviceClearCpuAffinity == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceClearCpuAffinity = dlsym(handle, 'nvmlDeviceClearCpuAffinity')
+            __nvmlDeviceClearCpuAffinity = _cyb_dlsym(handle, 'nvmlDeviceClearCpuAffinity')
 
         global __nvmlDeviceGetNumaNodeId
-        __nvmlDeviceGetNumaNodeId = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNumaNodeId')
+        __nvmlDeviceGetNumaNodeId = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNumaNodeId')
         if __nvmlDeviceGetNumaNodeId == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNumaNodeId = dlsym(handle, 'nvmlDeviceGetNumaNodeId')
+            __nvmlDeviceGetNumaNodeId = _cyb_dlsym(handle, 'nvmlDeviceGetNumaNodeId')
 
         global __nvmlDeviceGetTopologyCommonAncestor
-        __nvmlDeviceGetTopologyCommonAncestor = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetTopologyCommonAncestor')
+        __nvmlDeviceGetTopologyCommonAncestor = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetTopologyCommonAncestor')
         if __nvmlDeviceGetTopologyCommonAncestor == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetTopologyCommonAncestor = dlsym(handle, 'nvmlDeviceGetTopologyCommonAncestor')
+            __nvmlDeviceGetTopologyCommonAncestor = _cyb_dlsym(handle, 'nvmlDeviceGetTopologyCommonAncestor')
 
         global __nvmlDeviceGetTopologyNearestGpus
-        __nvmlDeviceGetTopologyNearestGpus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetTopologyNearestGpus')
+        __nvmlDeviceGetTopologyNearestGpus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetTopologyNearestGpus')
         if __nvmlDeviceGetTopologyNearestGpus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetTopologyNearestGpus = dlsym(handle, 'nvmlDeviceGetTopologyNearestGpus')
+            __nvmlDeviceGetTopologyNearestGpus = _cyb_dlsym(handle, 'nvmlDeviceGetTopologyNearestGpus')
 
         global __nvmlDeviceGetP2PStatus
-        __nvmlDeviceGetP2PStatus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetP2PStatus')
+        __nvmlDeviceGetP2PStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetP2PStatus')
         if __nvmlDeviceGetP2PStatus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetP2PStatus = dlsym(handle, 'nvmlDeviceGetP2PStatus')
+            __nvmlDeviceGetP2PStatus = _cyb_dlsym(handle, 'nvmlDeviceGetP2PStatus')
 
         global __nvmlDeviceGetUUID
-        __nvmlDeviceGetUUID = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetUUID')
+        __nvmlDeviceGetUUID = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetUUID')
         if __nvmlDeviceGetUUID == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetUUID = dlsym(handle, 'nvmlDeviceGetUUID')
+            __nvmlDeviceGetUUID = _cyb_dlsym(handle, 'nvmlDeviceGetUUID')
 
         global __nvmlDeviceGetMinorNumber
-        __nvmlDeviceGetMinorNumber = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMinorNumber')
+        __nvmlDeviceGetMinorNumber = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMinorNumber')
         if __nvmlDeviceGetMinorNumber == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMinorNumber = dlsym(handle, 'nvmlDeviceGetMinorNumber')
+            __nvmlDeviceGetMinorNumber = _cyb_dlsym(handle, 'nvmlDeviceGetMinorNumber')
 
         global __nvmlDeviceGetBoardPartNumber
-        __nvmlDeviceGetBoardPartNumber = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetBoardPartNumber')
+        __nvmlDeviceGetBoardPartNumber = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetBoardPartNumber')
         if __nvmlDeviceGetBoardPartNumber == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetBoardPartNumber = dlsym(handle, 'nvmlDeviceGetBoardPartNumber')
+            __nvmlDeviceGetBoardPartNumber = _cyb_dlsym(handle, 'nvmlDeviceGetBoardPartNumber')
 
         global __nvmlDeviceGetInforomVersion
-        __nvmlDeviceGetInforomVersion = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetInforomVersion')
+        __nvmlDeviceGetInforomVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetInforomVersion')
         if __nvmlDeviceGetInforomVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetInforomVersion = dlsym(handle, 'nvmlDeviceGetInforomVersion')
+            __nvmlDeviceGetInforomVersion = _cyb_dlsym(handle, 'nvmlDeviceGetInforomVersion')
 
         global __nvmlDeviceGetInforomImageVersion
-        __nvmlDeviceGetInforomImageVersion = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetInforomImageVersion')
+        __nvmlDeviceGetInforomImageVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetInforomImageVersion')
         if __nvmlDeviceGetInforomImageVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetInforomImageVersion = dlsym(handle, 'nvmlDeviceGetInforomImageVersion')
+            __nvmlDeviceGetInforomImageVersion = _cyb_dlsym(handle, 'nvmlDeviceGetInforomImageVersion')
 
         global __nvmlDeviceGetInforomConfigurationChecksum
-        __nvmlDeviceGetInforomConfigurationChecksum = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetInforomConfigurationChecksum')
+        __nvmlDeviceGetInforomConfigurationChecksum = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetInforomConfigurationChecksum')
         if __nvmlDeviceGetInforomConfigurationChecksum == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetInforomConfigurationChecksum = dlsym(handle, 'nvmlDeviceGetInforomConfigurationChecksum')
+            __nvmlDeviceGetInforomConfigurationChecksum = _cyb_dlsym(handle, 'nvmlDeviceGetInforomConfigurationChecksum')
 
         global __nvmlDeviceValidateInforom
-        __nvmlDeviceValidateInforom = dlsym(RTLD_DEFAULT, 'nvmlDeviceValidateInforom')
+        __nvmlDeviceValidateInforom = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceValidateInforom')
         if __nvmlDeviceValidateInforom == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceValidateInforom = dlsym(handle, 'nvmlDeviceValidateInforom')
+            __nvmlDeviceValidateInforom = _cyb_dlsym(handle, 'nvmlDeviceValidateInforom')
 
         global __nvmlDeviceGetLastBBXFlushTime
-        __nvmlDeviceGetLastBBXFlushTime = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetLastBBXFlushTime')
+        __nvmlDeviceGetLastBBXFlushTime = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetLastBBXFlushTime')
         if __nvmlDeviceGetLastBBXFlushTime == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetLastBBXFlushTime = dlsym(handle, 'nvmlDeviceGetLastBBXFlushTime')
+            __nvmlDeviceGetLastBBXFlushTime = _cyb_dlsym(handle, 'nvmlDeviceGetLastBBXFlushTime')
 
         global __nvmlDeviceGetDisplayMode
-        __nvmlDeviceGetDisplayMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetDisplayMode')
+        __nvmlDeviceGetDisplayMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetDisplayMode')
         if __nvmlDeviceGetDisplayMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetDisplayMode = dlsym(handle, 'nvmlDeviceGetDisplayMode')
+            __nvmlDeviceGetDisplayMode = _cyb_dlsym(handle, 'nvmlDeviceGetDisplayMode')
 
         global __nvmlDeviceGetDisplayActive
-        __nvmlDeviceGetDisplayActive = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetDisplayActive')
+        __nvmlDeviceGetDisplayActive = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetDisplayActive')
         if __nvmlDeviceGetDisplayActive == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetDisplayActive = dlsym(handle, 'nvmlDeviceGetDisplayActive')
+            __nvmlDeviceGetDisplayActive = _cyb_dlsym(handle, 'nvmlDeviceGetDisplayActive')
 
         global __nvmlDeviceGetPersistenceMode
-        __nvmlDeviceGetPersistenceMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPersistenceMode')
+        __nvmlDeviceGetPersistenceMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPersistenceMode')
         if __nvmlDeviceGetPersistenceMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPersistenceMode = dlsym(handle, 'nvmlDeviceGetPersistenceMode')
+            __nvmlDeviceGetPersistenceMode = _cyb_dlsym(handle, 'nvmlDeviceGetPersistenceMode')
 
         global __nvmlDeviceGetPciInfoExt
-        __nvmlDeviceGetPciInfoExt = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPciInfoExt')
+        __nvmlDeviceGetPciInfoExt = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPciInfoExt')
         if __nvmlDeviceGetPciInfoExt == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPciInfoExt = dlsym(handle, 'nvmlDeviceGetPciInfoExt')
+            __nvmlDeviceGetPciInfoExt = _cyb_dlsym(handle, 'nvmlDeviceGetPciInfoExt')
 
         global __nvmlDeviceGetPciInfo_v3
-        __nvmlDeviceGetPciInfo_v3 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPciInfo_v3')
+        __nvmlDeviceGetPciInfo_v3 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPciInfo_v3')
         if __nvmlDeviceGetPciInfo_v3 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPciInfo_v3 = dlsym(handle, 'nvmlDeviceGetPciInfo_v3')
+            __nvmlDeviceGetPciInfo_v3 = _cyb_dlsym(handle, 'nvmlDeviceGetPciInfo_v3')
 
         global __nvmlDeviceGetMaxPcieLinkGeneration
-        __nvmlDeviceGetMaxPcieLinkGeneration = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMaxPcieLinkGeneration')
+        __nvmlDeviceGetMaxPcieLinkGeneration = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMaxPcieLinkGeneration')
         if __nvmlDeviceGetMaxPcieLinkGeneration == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMaxPcieLinkGeneration = dlsym(handle, 'nvmlDeviceGetMaxPcieLinkGeneration')
+            __nvmlDeviceGetMaxPcieLinkGeneration = _cyb_dlsym(handle, 'nvmlDeviceGetMaxPcieLinkGeneration')
 
         global __nvmlDeviceGetGpuMaxPcieLinkGeneration
-        __nvmlDeviceGetGpuMaxPcieLinkGeneration = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuMaxPcieLinkGeneration')
+        __nvmlDeviceGetGpuMaxPcieLinkGeneration = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuMaxPcieLinkGeneration')
         if __nvmlDeviceGetGpuMaxPcieLinkGeneration == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuMaxPcieLinkGeneration = dlsym(handle, 'nvmlDeviceGetGpuMaxPcieLinkGeneration')
+            __nvmlDeviceGetGpuMaxPcieLinkGeneration = _cyb_dlsym(handle, 'nvmlDeviceGetGpuMaxPcieLinkGeneration')
 
         global __nvmlDeviceGetMaxPcieLinkWidth
-        __nvmlDeviceGetMaxPcieLinkWidth = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMaxPcieLinkWidth')
+        __nvmlDeviceGetMaxPcieLinkWidth = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMaxPcieLinkWidth')
         if __nvmlDeviceGetMaxPcieLinkWidth == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMaxPcieLinkWidth = dlsym(handle, 'nvmlDeviceGetMaxPcieLinkWidth')
+            __nvmlDeviceGetMaxPcieLinkWidth = _cyb_dlsym(handle, 'nvmlDeviceGetMaxPcieLinkWidth')
 
         global __nvmlDeviceGetCurrPcieLinkGeneration
-        __nvmlDeviceGetCurrPcieLinkGeneration = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCurrPcieLinkGeneration')
+        __nvmlDeviceGetCurrPcieLinkGeneration = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCurrPcieLinkGeneration')
         if __nvmlDeviceGetCurrPcieLinkGeneration == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCurrPcieLinkGeneration = dlsym(handle, 'nvmlDeviceGetCurrPcieLinkGeneration')
+            __nvmlDeviceGetCurrPcieLinkGeneration = _cyb_dlsym(handle, 'nvmlDeviceGetCurrPcieLinkGeneration')
 
         global __nvmlDeviceGetCurrPcieLinkWidth
-        __nvmlDeviceGetCurrPcieLinkWidth = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCurrPcieLinkWidth')
+        __nvmlDeviceGetCurrPcieLinkWidth = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCurrPcieLinkWidth')
         if __nvmlDeviceGetCurrPcieLinkWidth == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCurrPcieLinkWidth = dlsym(handle, 'nvmlDeviceGetCurrPcieLinkWidth')
+            __nvmlDeviceGetCurrPcieLinkWidth = _cyb_dlsym(handle, 'nvmlDeviceGetCurrPcieLinkWidth')
 
         global __nvmlDeviceGetPcieThroughput
-        __nvmlDeviceGetPcieThroughput = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPcieThroughput')
+        __nvmlDeviceGetPcieThroughput = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPcieThroughput')
         if __nvmlDeviceGetPcieThroughput == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPcieThroughput = dlsym(handle, 'nvmlDeviceGetPcieThroughput')
+            __nvmlDeviceGetPcieThroughput = _cyb_dlsym(handle, 'nvmlDeviceGetPcieThroughput')
 
         global __nvmlDeviceGetPcieReplayCounter
-        __nvmlDeviceGetPcieReplayCounter = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPcieReplayCounter')
+        __nvmlDeviceGetPcieReplayCounter = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPcieReplayCounter')
         if __nvmlDeviceGetPcieReplayCounter == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPcieReplayCounter = dlsym(handle, 'nvmlDeviceGetPcieReplayCounter')
+            __nvmlDeviceGetPcieReplayCounter = _cyb_dlsym(handle, 'nvmlDeviceGetPcieReplayCounter')
 
         global __nvmlDeviceGetClockInfo
-        __nvmlDeviceGetClockInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetClockInfo')
+        __nvmlDeviceGetClockInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetClockInfo')
         if __nvmlDeviceGetClockInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetClockInfo = dlsym(handle, 'nvmlDeviceGetClockInfo')
+            __nvmlDeviceGetClockInfo = _cyb_dlsym(handle, 'nvmlDeviceGetClockInfo')
 
         global __nvmlDeviceGetMaxClockInfo
-        __nvmlDeviceGetMaxClockInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMaxClockInfo')
+        __nvmlDeviceGetMaxClockInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMaxClockInfo')
         if __nvmlDeviceGetMaxClockInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMaxClockInfo = dlsym(handle, 'nvmlDeviceGetMaxClockInfo')
+            __nvmlDeviceGetMaxClockInfo = _cyb_dlsym(handle, 'nvmlDeviceGetMaxClockInfo')
 
         global __nvmlDeviceGetGpcClkVfOffset
-        __nvmlDeviceGetGpcClkVfOffset = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpcClkVfOffset')
+        __nvmlDeviceGetGpcClkVfOffset = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpcClkVfOffset')
         if __nvmlDeviceGetGpcClkVfOffset == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpcClkVfOffset = dlsym(handle, 'nvmlDeviceGetGpcClkVfOffset')
+            __nvmlDeviceGetGpcClkVfOffset = _cyb_dlsym(handle, 'nvmlDeviceGetGpcClkVfOffset')
 
         global __nvmlDeviceGetClock
-        __nvmlDeviceGetClock = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetClock')
+        __nvmlDeviceGetClock = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetClock')
         if __nvmlDeviceGetClock == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetClock = dlsym(handle, 'nvmlDeviceGetClock')
+            __nvmlDeviceGetClock = _cyb_dlsym(handle, 'nvmlDeviceGetClock')
 
         global __nvmlDeviceGetMaxCustomerBoostClock
-        __nvmlDeviceGetMaxCustomerBoostClock = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMaxCustomerBoostClock')
+        __nvmlDeviceGetMaxCustomerBoostClock = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMaxCustomerBoostClock')
         if __nvmlDeviceGetMaxCustomerBoostClock == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMaxCustomerBoostClock = dlsym(handle, 'nvmlDeviceGetMaxCustomerBoostClock')
+            __nvmlDeviceGetMaxCustomerBoostClock = _cyb_dlsym(handle, 'nvmlDeviceGetMaxCustomerBoostClock')
 
         global __nvmlDeviceGetSupportedMemoryClocks
-        __nvmlDeviceGetSupportedMemoryClocks = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSupportedMemoryClocks')
+        __nvmlDeviceGetSupportedMemoryClocks = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSupportedMemoryClocks')
         if __nvmlDeviceGetSupportedMemoryClocks == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSupportedMemoryClocks = dlsym(handle, 'nvmlDeviceGetSupportedMemoryClocks')
+            __nvmlDeviceGetSupportedMemoryClocks = _cyb_dlsym(handle, 'nvmlDeviceGetSupportedMemoryClocks')
 
         global __nvmlDeviceGetSupportedGraphicsClocks
-        __nvmlDeviceGetSupportedGraphicsClocks = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSupportedGraphicsClocks')
+        __nvmlDeviceGetSupportedGraphicsClocks = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSupportedGraphicsClocks')
         if __nvmlDeviceGetSupportedGraphicsClocks == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSupportedGraphicsClocks = dlsym(handle, 'nvmlDeviceGetSupportedGraphicsClocks')
+            __nvmlDeviceGetSupportedGraphicsClocks = _cyb_dlsym(handle, 'nvmlDeviceGetSupportedGraphicsClocks')
 
         global __nvmlDeviceGetAutoBoostedClocksEnabled
-        __nvmlDeviceGetAutoBoostedClocksEnabled = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetAutoBoostedClocksEnabled')
+        __nvmlDeviceGetAutoBoostedClocksEnabled = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAutoBoostedClocksEnabled')
         if __nvmlDeviceGetAutoBoostedClocksEnabled == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetAutoBoostedClocksEnabled = dlsym(handle, 'nvmlDeviceGetAutoBoostedClocksEnabled')
+            __nvmlDeviceGetAutoBoostedClocksEnabled = _cyb_dlsym(handle, 'nvmlDeviceGetAutoBoostedClocksEnabled')
 
         global __nvmlDeviceGetFanSpeed
-        __nvmlDeviceGetFanSpeed = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetFanSpeed')
+        __nvmlDeviceGetFanSpeed = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetFanSpeed')
         if __nvmlDeviceGetFanSpeed == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetFanSpeed = dlsym(handle, 'nvmlDeviceGetFanSpeed')
+            __nvmlDeviceGetFanSpeed = _cyb_dlsym(handle, 'nvmlDeviceGetFanSpeed')
 
         global __nvmlDeviceGetFanSpeed_v2
-        __nvmlDeviceGetFanSpeed_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetFanSpeed_v2')
+        __nvmlDeviceGetFanSpeed_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetFanSpeed_v2')
         if __nvmlDeviceGetFanSpeed_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetFanSpeed_v2 = dlsym(handle, 'nvmlDeviceGetFanSpeed_v2')
+            __nvmlDeviceGetFanSpeed_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetFanSpeed_v2')
 
         global __nvmlDeviceGetFanSpeedRPM
-        __nvmlDeviceGetFanSpeedRPM = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetFanSpeedRPM')
+        __nvmlDeviceGetFanSpeedRPM = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetFanSpeedRPM')
         if __nvmlDeviceGetFanSpeedRPM == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetFanSpeedRPM = dlsym(handle, 'nvmlDeviceGetFanSpeedRPM')
+            __nvmlDeviceGetFanSpeedRPM = _cyb_dlsym(handle, 'nvmlDeviceGetFanSpeedRPM')
 
         global __nvmlDeviceGetTargetFanSpeed
-        __nvmlDeviceGetTargetFanSpeed = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetTargetFanSpeed')
+        __nvmlDeviceGetTargetFanSpeed = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetTargetFanSpeed')
         if __nvmlDeviceGetTargetFanSpeed == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetTargetFanSpeed = dlsym(handle, 'nvmlDeviceGetTargetFanSpeed')
+            __nvmlDeviceGetTargetFanSpeed = _cyb_dlsym(handle, 'nvmlDeviceGetTargetFanSpeed')
 
         global __nvmlDeviceGetMinMaxFanSpeed
-        __nvmlDeviceGetMinMaxFanSpeed = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMinMaxFanSpeed')
+        __nvmlDeviceGetMinMaxFanSpeed = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMinMaxFanSpeed')
         if __nvmlDeviceGetMinMaxFanSpeed == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMinMaxFanSpeed = dlsym(handle, 'nvmlDeviceGetMinMaxFanSpeed')
+            __nvmlDeviceGetMinMaxFanSpeed = _cyb_dlsym(handle, 'nvmlDeviceGetMinMaxFanSpeed')
 
         global __nvmlDeviceGetFanControlPolicy_v2
-        __nvmlDeviceGetFanControlPolicy_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetFanControlPolicy_v2')
+        __nvmlDeviceGetFanControlPolicy_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetFanControlPolicy_v2')
         if __nvmlDeviceGetFanControlPolicy_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetFanControlPolicy_v2 = dlsym(handle, 'nvmlDeviceGetFanControlPolicy_v2')
+            __nvmlDeviceGetFanControlPolicy_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetFanControlPolicy_v2')
 
         global __nvmlDeviceGetNumFans
-        __nvmlDeviceGetNumFans = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNumFans')
+        __nvmlDeviceGetNumFans = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNumFans')
         if __nvmlDeviceGetNumFans == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNumFans = dlsym(handle, 'nvmlDeviceGetNumFans')
+            __nvmlDeviceGetNumFans = _cyb_dlsym(handle, 'nvmlDeviceGetNumFans')
 
         global __nvmlDeviceGetCoolerInfo
-        __nvmlDeviceGetCoolerInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCoolerInfo')
+        __nvmlDeviceGetCoolerInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCoolerInfo')
         if __nvmlDeviceGetCoolerInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCoolerInfo = dlsym(handle, 'nvmlDeviceGetCoolerInfo')
+            __nvmlDeviceGetCoolerInfo = _cyb_dlsym(handle, 'nvmlDeviceGetCoolerInfo')
 
         global __nvmlDeviceGetTemperatureV
-        __nvmlDeviceGetTemperatureV = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetTemperatureV')
+        __nvmlDeviceGetTemperatureV = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetTemperatureV')
         if __nvmlDeviceGetTemperatureV == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetTemperatureV = dlsym(handle, 'nvmlDeviceGetTemperatureV')
+            __nvmlDeviceGetTemperatureV = _cyb_dlsym(handle, 'nvmlDeviceGetTemperatureV')
 
         global __nvmlDeviceGetTemperatureThreshold
-        __nvmlDeviceGetTemperatureThreshold = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetTemperatureThreshold')
+        __nvmlDeviceGetTemperatureThreshold = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetTemperatureThreshold')
         if __nvmlDeviceGetTemperatureThreshold == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetTemperatureThreshold = dlsym(handle, 'nvmlDeviceGetTemperatureThreshold')
+            __nvmlDeviceGetTemperatureThreshold = _cyb_dlsym(handle, 'nvmlDeviceGetTemperatureThreshold')
 
         global __nvmlDeviceGetMarginTemperature
-        __nvmlDeviceGetMarginTemperature = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMarginTemperature')
+        __nvmlDeviceGetMarginTemperature = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMarginTemperature')
         if __nvmlDeviceGetMarginTemperature == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMarginTemperature = dlsym(handle, 'nvmlDeviceGetMarginTemperature')
+            __nvmlDeviceGetMarginTemperature = _cyb_dlsym(handle, 'nvmlDeviceGetMarginTemperature')
 
         global __nvmlDeviceGetThermalSettings
-        __nvmlDeviceGetThermalSettings = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetThermalSettings')
+        __nvmlDeviceGetThermalSettings = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetThermalSettings')
         if __nvmlDeviceGetThermalSettings == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetThermalSettings = dlsym(handle, 'nvmlDeviceGetThermalSettings')
+            __nvmlDeviceGetThermalSettings = _cyb_dlsym(handle, 'nvmlDeviceGetThermalSettings')
 
         global __nvmlDeviceGetPerformanceState
-        __nvmlDeviceGetPerformanceState = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPerformanceState')
+        __nvmlDeviceGetPerformanceState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPerformanceState')
         if __nvmlDeviceGetPerformanceState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPerformanceState = dlsym(handle, 'nvmlDeviceGetPerformanceState')
+            __nvmlDeviceGetPerformanceState = _cyb_dlsym(handle, 'nvmlDeviceGetPerformanceState')
 
         global __nvmlDeviceGetCurrentClocksEventReasons
-        __nvmlDeviceGetCurrentClocksEventReasons = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCurrentClocksEventReasons')
+        __nvmlDeviceGetCurrentClocksEventReasons = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCurrentClocksEventReasons')
         if __nvmlDeviceGetCurrentClocksEventReasons == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCurrentClocksEventReasons = dlsym(handle, 'nvmlDeviceGetCurrentClocksEventReasons')
+            __nvmlDeviceGetCurrentClocksEventReasons = _cyb_dlsym(handle, 'nvmlDeviceGetCurrentClocksEventReasons')
 
         global __nvmlDeviceGetSupportedClocksEventReasons
-        __nvmlDeviceGetSupportedClocksEventReasons = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSupportedClocksEventReasons')
+        __nvmlDeviceGetSupportedClocksEventReasons = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSupportedClocksEventReasons')
         if __nvmlDeviceGetSupportedClocksEventReasons == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSupportedClocksEventReasons = dlsym(handle, 'nvmlDeviceGetSupportedClocksEventReasons')
+            __nvmlDeviceGetSupportedClocksEventReasons = _cyb_dlsym(handle, 'nvmlDeviceGetSupportedClocksEventReasons')
 
         global __nvmlDeviceGetPowerState
-        __nvmlDeviceGetPowerState = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPowerState')
+        __nvmlDeviceGetPowerState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPowerState')
         if __nvmlDeviceGetPowerState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPowerState = dlsym(handle, 'nvmlDeviceGetPowerState')
+            __nvmlDeviceGetPowerState = _cyb_dlsym(handle, 'nvmlDeviceGetPowerState')
 
         global __nvmlDeviceGetDynamicPstatesInfo
-        __nvmlDeviceGetDynamicPstatesInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetDynamicPstatesInfo')
+        __nvmlDeviceGetDynamicPstatesInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetDynamicPstatesInfo')
         if __nvmlDeviceGetDynamicPstatesInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetDynamicPstatesInfo = dlsym(handle, 'nvmlDeviceGetDynamicPstatesInfo')
+            __nvmlDeviceGetDynamicPstatesInfo = _cyb_dlsym(handle, 'nvmlDeviceGetDynamicPstatesInfo')
 
         global __nvmlDeviceGetMemClkVfOffset
-        __nvmlDeviceGetMemClkVfOffset = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMemClkVfOffset')
+        __nvmlDeviceGetMemClkVfOffset = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMemClkVfOffset')
         if __nvmlDeviceGetMemClkVfOffset == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMemClkVfOffset = dlsym(handle, 'nvmlDeviceGetMemClkVfOffset')
+            __nvmlDeviceGetMemClkVfOffset = _cyb_dlsym(handle, 'nvmlDeviceGetMemClkVfOffset')
 
         global __nvmlDeviceGetMinMaxClockOfPState
-        __nvmlDeviceGetMinMaxClockOfPState = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMinMaxClockOfPState')
+        __nvmlDeviceGetMinMaxClockOfPState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMinMaxClockOfPState')
         if __nvmlDeviceGetMinMaxClockOfPState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMinMaxClockOfPState = dlsym(handle, 'nvmlDeviceGetMinMaxClockOfPState')
+            __nvmlDeviceGetMinMaxClockOfPState = _cyb_dlsym(handle, 'nvmlDeviceGetMinMaxClockOfPState')
 
         global __nvmlDeviceGetSupportedPerformanceStates
-        __nvmlDeviceGetSupportedPerformanceStates = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSupportedPerformanceStates')
+        __nvmlDeviceGetSupportedPerformanceStates = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSupportedPerformanceStates')
         if __nvmlDeviceGetSupportedPerformanceStates == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSupportedPerformanceStates = dlsym(handle, 'nvmlDeviceGetSupportedPerformanceStates')
+            __nvmlDeviceGetSupportedPerformanceStates = _cyb_dlsym(handle, 'nvmlDeviceGetSupportedPerformanceStates')
 
         global __nvmlDeviceGetGpcClkMinMaxVfOffset
-        __nvmlDeviceGetGpcClkMinMaxVfOffset = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpcClkMinMaxVfOffset')
+        __nvmlDeviceGetGpcClkMinMaxVfOffset = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpcClkMinMaxVfOffset')
         if __nvmlDeviceGetGpcClkMinMaxVfOffset == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpcClkMinMaxVfOffset = dlsym(handle, 'nvmlDeviceGetGpcClkMinMaxVfOffset')
+            __nvmlDeviceGetGpcClkMinMaxVfOffset = _cyb_dlsym(handle, 'nvmlDeviceGetGpcClkMinMaxVfOffset')
 
         global __nvmlDeviceGetMemClkMinMaxVfOffset
-        __nvmlDeviceGetMemClkMinMaxVfOffset = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMemClkMinMaxVfOffset')
+        __nvmlDeviceGetMemClkMinMaxVfOffset = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMemClkMinMaxVfOffset')
         if __nvmlDeviceGetMemClkMinMaxVfOffset == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMemClkMinMaxVfOffset = dlsym(handle, 'nvmlDeviceGetMemClkMinMaxVfOffset')
+            __nvmlDeviceGetMemClkMinMaxVfOffset = _cyb_dlsym(handle, 'nvmlDeviceGetMemClkMinMaxVfOffset')
 
         global __nvmlDeviceGetClockOffsets
-        __nvmlDeviceGetClockOffsets = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetClockOffsets')
+        __nvmlDeviceGetClockOffsets = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetClockOffsets')
         if __nvmlDeviceGetClockOffsets == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetClockOffsets = dlsym(handle, 'nvmlDeviceGetClockOffsets')
+            __nvmlDeviceGetClockOffsets = _cyb_dlsym(handle, 'nvmlDeviceGetClockOffsets')
 
         global __nvmlDeviceSetClockOffsets
-        __nvmlDeviceSetClockOffsets = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetClockOffsets')
+        __nvmlDeviceSetClockOffsets = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetClockOffsets')
         if __nvmlDeviceSetClockOffsets == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetClockOffsets = dlsym(handle, 'nvmlDeviceSetClockOffsets')
+            __nvmlDeviceSetClockOffsets = _cyb_dlsym(handle, 'nvmlDeviceSetClockOffsets')
 
         global __nvmlDeviceGetPerformanceModes
-        __nvmlDeviceGetPerformanceModes = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPerformanceModes')
+        __nvmlDeviceGetPerformanceModes = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPerformanceModes')
         if __nvmlDeviceGetPerformanceModes == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPerformanceModes = dlsym(handle, 'nvmlDeviceGetPerformanceModes')
+            __nvmlDeviceGetPerformanceModes = _cyb_dlsym(handle, 'nvmlDeviceGetPerformanceModes')
 
         global __nvmlDeviceGetCurrentClockFreqs
-        __nvmlDeviceGetCurrentClockFreqs = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCurrentClockFreqs')
+        __nvmlDeviceGetCurrentClockFreqs = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCurrentClockFreqs')
         if __nvmlDeviceGetCurrentClockFreqs == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCurrentClockFreqs = dlsym(handle, 'nvmlDeviceGetCurrentClockFreqs')
+            __nvmlDeviceGetCurrentClockFreqs = _cyb_dlsym(handle, 'nvmlDeviceGetCurrentClockFreqs')
 
         global __nvmlDeviceGetPowerManagementLimit
-        __nvmlDeviceGetPowerManagementLimit = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPowerManagementLimit')
+        __nvmlDeviceGetPowerManagementLimit = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPowerManagementLimit')
         if __nvmlDeviceGetPowerManagementLimit == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPowerManagementLimit = dlsym(handle, 'nvmlDeviceGetPowerManagementLimit')
+            __nvmlDeviceGetPowerManagementLimit = _cyb_dlsym(handle, 'nvmlDeviceGetPowerManagementLimit')
 
         global __nvmlDeviceGetPowerManagementLimitConstraints
-        __nvmlDeviceGetPowerManagementLimitConstraints = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPowerManagementLimitConstraints')
+        __nvmlDeviceGetPowerManagementLimitConstraints = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPowerManagementLimitConstraints')
         if __nvmlDeviceGetPowerManagementLimitConstraints == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPowerManagementLimitConstraints = dlsym(handle, 'nvmlDeviceGetPowerManagementLimitConstraints')
+            __nvmlDeviceGetPowerManagementLimitConstraints = _cyb_dlsym(handle, 'nvmlDeviceGetPowerManagementLimitConstraints')
 
         global __nvmlDeviceGetPowerManagementDefaultLimit
-        __nvmlDeviceGetPowerManagementDefaultLimit = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPowerManagementDefaultLimit')
+        __nvmlDeviceGetPowerManagementDefaultLimit = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPowerManagementDefaultLimit')
         if __nvmlDeviceGetPowerManagementDefaultLimit == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPowerManagementDefaultLimit = dlsym(handle, 'nvmlDeviceGetPowerManagementDefaultLimit')
+            __nvmlDeviceGetPowerManagementDefaultLimit = _cyb_dlsym(handle, 'nvmlDeviceGetPowerManagementDefaultLimit')
 
         global __nvmlDeviceGetPowerUsage
-        __nvmlDeviceGetPowerUsage = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPowerUsage')
+        __nvmlDeviceGetPowerUsage = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPowerUsage')
         if __nvmlDeviceGetPowerUsage == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPowerUsage = dlsym(handle, 'nvmlDeviceGetPowerUsage')
+            __nvmlDeviceGetPowerUsage = _cyb_dlsym(handle, 'nvmlDeviceGetPowerUsage')
 
         global __nvmlDeviceGetTotalEnergyConsumption
-        __nvmlDeviceGetTotalEnergyConsumption = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetTotalEnergyConsumption')
+        __nvmlDeviceGetTotalEnergyConsumption = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetTotalEnergyConsumption')
         if __nvmlDeviceGetTotalEnergyConsumption == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetTotalEnergyConsumption = dlsym(handle, 'nvmlDeviceGetTotalEnergyConsumption')
+            __nvmlDeviceGetTotalEnergyConsumption = _cyb_dlsym(handle, 'nvmlDeviceGetTotalEnergyConsumption')
 
         global __nvmlDeviceGetEnforcedPowerLimit
-        __nvmlDeviceGetEnforcedPowerLimit = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetEnforcedPowerLimit')
+        __nvmlDeviceGetEnforcedPowerLimit = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetEnforcedPowerLimit')
         if __nvmlDeviceGetEnforcedPowerLimit == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetEnforcedPowerLimit = dlsym(handle, 'nvmlDeviceGetEnforcedPowerLimit')
+            __nvmlDeviceGetEnforcedPowerLimit = _cyb_dlsym(handle, 'nvmlDeviceGetEnforcedPowerLimit')
 
         global __nvmlDeviceGetGpuOperationMode
-        __nvmlDeviceGetGpuOperationMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuOperationMode')
+        __nvmlDeviceGetGpuOperationMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuOperationMode')
         if __nvmlDeviceGetGpuOperationMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuOperationMode = dlsym(handle, 'nvmlDeviceGetGpuOperationMode')
+            __nvmlDeviceGetGpuOperationMode = _cyb_dlsym(handle, 'nvmlDeviceGetGpuOperationMode')
 
         global __nvmlDeviceGetMemoryInfo_v2
-        __nvmlDeviceGetMemoryInfo_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMemoryInfo_v2')
+        __nvmlDeviceGetMemoryInfo_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMemoryInfo_v2')
         if __nvmlDeviceGetMemoryInfo_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMemoryInfo_v2 = dlsym(handle, 'nvmlDeviceGetMemoryInfo_v2')
+            __nvmlDeviceGetMemoryInfo_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetMemoryInfo_v2')
 
         global __nvmlDeviceGetComputeMode
-        __nvmlDeviceGetComputeMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetComputeMode')
+        __nvmlDeviceGetComputeMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetComputeMode')
         if __nvmlDeviceGetComputeMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetComputeMode = dlsym(handle, 'nvmlDeviceGetComputeMode')
+            __nvmlDeviceGetComputeMode = _cyb_dlsym(handle, 'nvmlDeviceGetComputeMode')
 
         global __nvmlDeviceGetCudaComputeCapability
-        __nvmlDeviceGetCudaComputeCapability = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCudaComputeCapability')
+        __nvmlDeviceGetCudaComputeCapability = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCudaComputeCapability')
         if __nvmlDeviceGetCudaComputeCapability == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCudaComputeCapability = dlsym(handle, 'nvmlDeviceGetCudaComputeCapability')
+            __nvmlDeviceGetCudaComputeCapability = _cyb_dlsym(handle, 'nvmlDeviceGetCudaComputeCapability')
 
         global __nvmlDeviceGetDramEncryptionMode
-        __nvmlDeviceGetDramEncryptionMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetDramEncryptionMode')
+        __nvmlDeviceGetDramEncryptionMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetDramEncryptionMode')
         if __nvmlDeviceGetDramEncryptionMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetDramEncryptionMode = dlsym(handle, 'nvmlDeviceGetDramEncryptionMode')
+            __nvmlDeviceGetDramEncryptionMode = _cyb_dlsym(handle, 'nvmlDeviceGetDramEncryptionMode')
 
         global __nvmlDeviceSetDramEncryptionMode
-        __nvmlDeviceSetDramEncryptionMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetDramEncryptionMode')
+        __nvmlDeviceSetDramEncryptionMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetDramEncryptionMode')
         if __nvmlDeviceSetDramEncryptionMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetDramEncryptionMode = dlsym(handle, 'nvmlDeviceSetDramEncryptionMode')
+            __nvmlDeviceSetDramEncryptionMode = _cyb_dlsym(handle, 'nvmlDeviceSetDramEncryptionMode')
 
         global __nvmlDeviceGetEccMode
-        __nvmlDeviceGetEccMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetEccMode')
+        __nvmlDeviceGetEccMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetEccMode')
         if __nvmlDeviceGetEccMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetEccMode = dlsym(handle, 'nvmlDeviceGetEccMode')
+            __nvmlDeviceGetEccMode = _cyb_dlsym(handle, 'nvmlDeviceGetEccMode')
 
         global __nvmlDeviceGetDefaultEccMode
-        __nvmlDeviceGetDefaultEccMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetDefaultEccMode')
+        __nvmlDeviceGetDefaultEccMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetDefaultEccMode')
         if __nvmlDeviceGetDefaultEccMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetDefaultEccMode = dlsym(handle, 'nvmlDeviceGetDefaultEccMode')
+            __nvmlDeviceGetDefaultEccMode = _cyb_dlsym(handle, 'nvmlDeviceGetDefaultEccMode')
 
         global __nvmlDeviceGetBoardId
-        __nvmlDeviceGetBoardId = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetBoardId')
+        __nvmlDeviceGetBoardId = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetBoardId')
         if __nvmlDeviceGetBoardId == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetBoardId = dlsym(handle, 'nvmlDeviceGetBoardId')
+            __nvmlDeviceGetBoardId = _cyb_dlsym(handle, 'nvmlDeviceGetBoardId')
 
         global __nvmlDeviceGetMultiGpuBoard
-        __nvmlDeviceGetMultiGpuBoard = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMultiGpuBoard')
+        __nvmlDeviceGetMultiGpuBoard = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMultiGpuBoard')
         if __nvmlDeviceGetMultiGpuBoard == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMultiGpuBoard = dlsym(handle, 'nvmlDeviceGetMultiGpuBoard')
+            __nvmlDeviceGetMultiGpuBoard = _cyb_dlsym(handle, 'nvmlDeviceGetMultiGpuBoard')
 
         global __nvmlDeviceGetTotalEccErrors
-        __nvmlDeviceGetTotalEccErrors = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetTotalEccErrors')
+        __nvmlDeviceGetTotalEccErrors = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetTotalEccErrors')
         if __nvmlDeviceGetTotalEccErrors == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetTotalEccErrors = dlsym(handle, 'nvmlDeviceGetTotalEccErrors')
+            __nvmlDeviceGetTotalEccErrors = _cyb_dlsym(handle, 'nvmlDeviceGetTotalEccErrors')
 
         global __nvmlDeviceGetMemoryErrorCounter
-        __nvmlDeviceGetMemoryErrorCounter = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMemoryErrorCounter')
+        __nvmlDeviceGetMemoryErrorCounter = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMemoryErrorCounter')
         if __nvmlDeviceGetMemoryErrorCounter == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMemoryErrorCounter = dlsym(handle, 'nvmlDeviceGetMemoryErrorCounter')
+            __nvmlDeviceGetMemoryErrorCounter = _cyb_dlsym(handle, 'nvmlDeviceGetMemoryErrorCounter')
 
         global __nvmlDeviceGetUtilizationRates
-        __nvmlDeviceGetUtilizationRates = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetUtilizationRates')
+        __nvmlDeviceGetUtilizationRates = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetUtilizationRates')
         if __nvmlDeviceGetUtilizationRates == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetUtilizationRates = dlsym(handle, 'nvmlDeviceGetUtilizationRates')
+            __nvmlDeviceGetUtilizationRates = _cyb_dlsym(handle, 'nvmlDeviceGetUtilizationRates')
 
         global __nvmlDeviceGetEncoderUtilization
-        __nvmlDeviceGetEncoderUtilization = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetEncoderUtilization')
+        __nvmlDeviceGetEncoderUtilization = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetEncoderUtilization')
         if __nvmlDeviceGetEncoderUtilization == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetEncoderUtilization = dlsym(handle, 'nvmlDeviceGetEncoderUtilization')
+            __nvmlDeviceGetEncoderUtilization = _cyb_dlsym(handle, 'nvmlDeviceGetEncoderUtilization')
 
         global __nvmlDeviceGetEncoderCapacity
-        __nvmlDeviceGetEncoderCapacity = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetEncoderCapacity')
+        __nvmlDeviceGetEncoderCapacity = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetEncoderCapacity')
         if __nvmlDeviceGetEncoderCapacity == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetEncoderCapacity = dlsym(handle, 'nvmlDeviceGetEncoderCapacity')
+            __nvmlDeviceGetEncoderCapacity = _cyb_dlsym(handle, 'nvmlDeviceGetEncoderCapacity')
 
         global __nvmlDeviceGetEncoderStats
-        __nvmlDeviceGetEncoderStats = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetEncoderStats')
+        __nvmlDeviceGetEncoderStats = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetEncoderStats')
         if __nvmlDeviceGetEncoderStats == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetEncoderStats = dlsym(handle, 'nvmlDeviceGetEncoderStats')
+            __nvmlDeviceGetEncoderStats = _cyb_dlsym(handle, 'nvmlDeviceGetEncoderStats')
 
         global __nvmlDeviceGetEncoderSessions
-        __nvmlDeviceGetEncoderSessions = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetEncoderSessions')
+        __nvmlDeviceGetEncoderSessions = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetEncoderSessions')
         if __nvmlDeviceGetEncoderSessions == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetEncoderSessions = dlsym(handle, 'nvmlDeviceGetEncoderSessions')
+            __nvmlDeviceGetEncoderSessions = _cyb_dlsym(handle, 'nvmlDeviceGetEncoderSessions')
 
         global __nvmlDeviceGetDecoderUtilization
-        __nvmlDeviceGetDecoderUtilization = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetDecoderUtilization')
+        __nvmlDeviceGetDecoderUtilization = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetDecoderUtilization')
         if __nvmlDeviceGetDecoderUtilization == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetDecoderUtilization = dlsym(handle, 'nvmlDeviceGetDecoderUtilization')
+            __nvmlDeviceGetDecoderUtilization = _cyb_dlsym(handle, 'nvmlDeviceGetDecoderUtilization')
 
         global __nvmlDeviceGetJpgUtilization
-        __nvmlDeviceGetJpgUtilization = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetJpgUtilization')
+        __nvmlDeviceGetJpgUtilization = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetJpgUtilization')
         if __nvmlDeviceGetJpgUtilization == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetJpgUtilization = dlsym(handle, 'nvmlDeviceGetJpgUtilization')
+            __nvmlDeviceGetJpgUtilization = _cyb_dlsym(handle, 'nvmlDeviceGetJpgUtilization')
 
         global __nvmlDeviceGetOfaUtilization
-        __nvmlDeviceGetOfaUtilization = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetOfaUtilization')
+        __nvmlDeviceGetOfaUtilization = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetOfaUtilization')
         if __nvmlDeviceGetOfaUtilization == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetOfaUtilization = dlsym(handle, 'nvmlDeviceGetOfaUtilization')
+            __nvmlDeviceGetOfaUtilization = _cyb_dlsym(handle, 'nvmlDeviceGetOfaUtilization')
 
         global __nvmlDeviceGetFBCStats
-        __nvmlDeviceGetFBCStats = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetFBCStats')
+        __nvmlDeviceGetFBCStats = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetFBCStats')
         if __nvmlDeviceGetFBCStats == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetFBCStats = dlsym(handle, 'nvmlDeviceGetFBCStats')
+            __nvmlDeviceGetFBCStats = _cyb_dlsym(handle, 'nvmlDeviceGetFBCStats')
 
         global __nvmlDeviceGetFBCSessions
-        __nvmlDeviceGetFBCSessions = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetFBCSessions')
+        __nvmlDeviceGetFBCSessions = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetFBCSessions')
         if __nvmlDeviceGetFBCSessions == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetFBCSessions = dlsym(handle, 'nvmlDeviceGetFBCSessions')
+            __nvmlDeviceGetFBCSessions = _cyb_dlsym(handle, 'nvmlDeviceGetFBCSessions')
 
         global __nvmlDeviceGetDriverModel_v2
-        __nvmlDeviceGetDriverModel_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetDriverModel_v2')
+        __nvmlDeviceGetDriverModel_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetDriverModel_v2')
         if __nvmlDeviceGetDriverModel_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetDriverModel_v2 = dlsym(handle, 'nvmlDeviceGetDriverModel_v2')
+            __nvmlDeviceGetDriverModel_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetDriverModel_v2')
 
         global __nvmlDeviceGetVbiosVersion
-        __nvmlDeviceGetVbiosVersion = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVbiosVersion')
+        __nvmlDeviceGetVbiosVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVbiosVersion')
         if __nvmlDeviceGetVbiosVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVbiosVersion = dlsym(handle, 'nvmlDeviceGetVbiosVersion')
+            __nvmlDeviceGetVbiosVersion = _cyb_dlsym(handle, 'nvmlDeviceGetVbiosVersion')
 
         global __nvmlDeviceGetBridgeChipInfo
-        __nvmlDeviceGetBridgeChipInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetBridgeChipInfo')
+        __nvmlDeviceGetBridgeChipInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetBridgeChipInfo')
         if __nvmlDeviceGetBridgeChipInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetBridgeChipInfo = dlsym(handle, 'nvmlDeviceGetBridgeChipInfo')
+            __nvmlDeviceGetBridgeChipInfo = _cyb_dlsym(handle, 'nvmlDeviceGetBridgeChipInfo')
 
         global __nvmlDeviceGetComputeRunningProcesses_v3
-        __nvmlDeviceGetComputeRunningProcesses_v3 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetComputeRunningProcesses_v3')
+        __nvmlDeviceGetComputeRunningProcesses_v3 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetComputeRunningProcesses_v3')
         if __nvmlDeviceGetComputeRunningProcesses_v3 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetComputeRunningProcesses_v3 = dlsym(handle, 'nvmlDeviceGetComputeRunningProcesses_v3')
+            __nvmlDeviceGetComputeRunningProcesses_v3 = _cyb_dlsym(handle, 'nvmlDeviceGetComputeRunningProcesses_v3')
 
         global __nvmlDeviceGetGraphicsRunningProcesses_v3
-        __nvmlDeviceGetGraphicsRunningProcesses_v3 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
+        __nvmlDeviceGetGraphicsRunningProcesses_v3 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
         if __nvmlDeviceGetGraphicsRunningProcesses_v3 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGraphicsRunningProcesses_v3 = dlsym(handle, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
+            __nvmlDeviceGetGraphicsRunningProcesses_v3 = _cyb_dlsym(handle, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
 
         global __nvmlDeviceGetMPSComputeRunningProcesses_v3
-        __nvmlDeviceGetMPSComputeRunningProcesses_v3 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMPSComputeRunningProcesses_v3')
+        __nvmlDeviceGetMPSComputeRunningProcesses_v3 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMPSComputeRunningProcesses_v3')
         if __nvmlDeviceGetMPSComputeRunningProcesses_v3 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMPSComputeRunningProcesses_v3 = dlsym(handle, 'nvmlDeviceGetMPSComputeRunningProcesses_v3')
+            __nvmlDeviceGetMPSComputeRunningProcesses_v3 = _cyb_dlsym(handle, 'nvmlDeviceGetMPSComputeRunningProcesses_v3')
 
         global __nvmlDeviceGetRunningProcessDetailList
-        __nvmlDeviceGetRunningProcessDetailList = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetRunningProcessDetailList')
+        __nvmlDeviceGetRunningProcessDetailList = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetRunningProcessDetailList')
         if __nvmlDeviceGetRunningProcessDetailList == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetRunningProcessDetailList = dlsym(handle, 'nvmlDeviceGetRunningProcessDetailList')
+            __nvmlDeviceGetRunningProcessDetailList = _cyb_dlsym(handle, 'nvmlDeviceGetRunningProcessDetailList')
 
         global __nvmlDeviceOnSameBoard
-        __nvmlDeviceOnSameBoard = dlsym(RTLD_DEFAULT, 'nvmlDeviceOnSameBoard')
+        __nvmlDeviceOnSameBoard = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceOnSameBoard')
         if __nvmlDeviceOnSameBoard == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceOnSameBoard = dlsym(handle, 'nvmlDeviceOnSameBoard')
+            __nvmlDeviceOnSameBoard = _cyb_dlsym(handle, 'nvmlDeviceOnSameBoard')
 
         global __nvmlDeviceGetAPIRestriction
-        __nvmlDeviceGetAPIRestriction = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetAPIRestriction')
+        __nvmlDeviceGetAPIRestriction = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAPIRestriction')
         if __nvmlDeviceGetAPIRestriction == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetAPIRestriction = dlsym(handle, 'nvmlDeviceGetAPIRestriction')
+            __nvmlDeviceGetAPIRestriction = _cyb_dlsym(handle, 'nvmlDeviceGetAPIRestriction')
 
         global __nvmlDeviceGetSamples
-        __nvmlDeviceGetSamples = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSamples')
+        __nvmlDeviceGetSamples = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSamples')
         if __nvmlDeviceGetSamples == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSamples = dlsym(handle, 'nvmlDeviceGetSamples')
+            __nvmlDeviceGetSamples = _cyb_dlsym(handle, 'nvmlDeviceGetSamples')
 
         global __nvmlDeviceGetBAR1MemoryInfo
-        __nvmlDeviceGetBAR1MemoryInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetBAR1MemoryInfo')
+        __nvmlDeviceGetBAR1MemoryInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetBAR1MemoryInfo')
         if __nvmlDeviceGetBAR1MemoryInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetBAR1MemoryInfo = dlsym(handle, 'nvmlDeviceGetBAR1MemoryInfo')
+            __nvmlDeviceGetBAR1MemoryInfo = _cyb_dlsym(handle, 'nvmlDeviceGetBAR1MemoryInfo')
 
         global __nvmlDeviceGetIrqNum
-        __nvmlDeviceGetIrqNum = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetIrqNum')
+        __nvmlDeviceGetIrqNum = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetIrqNum')
         if __nvmlDeviceGetIrqNum == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetIrqNum = dlsym(handle, 'nvmlDeviceGetIrqNum')
+            __nvmlDeviceGetIrqNum = _cyb_dlsym(handle, 'nvmlDeviceGetIrqNum')
 
         global __nvmlDeviceGetNumGpuCores
-        __nvmlDeviceGetNumGpuCores = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNumGpuCores')
+        __nvmlDeviceGetNumGpuCores = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNumGpuCores')
         if __nvmlDeviceGetNumGpuCores == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNumGpuCores = dlsym(handle, 'nvmlDeviceGetNumGpuCores')
+            __nvmlDeviceGetNumGpuCores = _cyb_dlsym(handle, 'nvmlDeviceGetNumGpuCores')
 
         global __nvmlDeviceGetPowerSource
-        __nvmlDeviceGetPowerSource = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPowerSource')
+        __nvmlDeviceGetPowerSource = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPowerSource')
         if __nvmlDeviceGetPowerSource == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPowerSource = dlsym(handle, 'nvmlDeviceGetPowerSource')
+            __nvmlDeviceGetPowerSource = _cyb_dlsym(handle, 'nvmlDeviceGetPowerSource')
 
         global __nvmlDeviceGetMemoryBusWidth
-        __nvmlDeviceGetMemoryBusWidth = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMemoryBusWidth')
+        __nvmlDeviceGetMemoryBusWidth = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMemoryBusWidth')
         if __nvmlDeviceGetMemoryBusWidth == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMemoryBusWidth = dlsym(handle, 'nvmlDeviceGetMemoryBusWidth')
+            __nvmlDeviceGetMemoryBusWidth = _cyb_dlsym(handle, 'nvmlDeviceGetMemoryBusWidth')
 
         global __nvmlDeviceGetPcieLinkMaxSpeed
-        __nvmlDeviceGetPcieLinkMaxSpeed = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPcieLinkMaxSpeed')
+        __nvmlDeviceGetPcieLinkMaxSpeed = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPcieLinkMaxSpeed')
         if __nvmlDeviceGetPcieLinkMaxSpeed == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPcieLinkMaxSpeed = dlsym(handle, 'nvmlDeviceGetPcieLinkMaxSpeed')
+            __nvmlDeviceGetPcieLinkMaxSpeed = _cyb_dlsym(handle, 'nvmlDeviceGetPcieLinkMaxSpeed')
 
         global __nvmlDeviceGetPcieSpeed
-        __nvmlDeviceGetPcieSpeed = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPcieSpeed')
+        __nvmlDeviceGetPcieSpeed = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPcieSpeed')
         if __nvmlDeviceGetPcieSpeed == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPcieSpeed = dlsym(handle, 'nvmlDeviceGetPcieSpeed')
+            __nvmlDeviceGetPcieSpeed = _cyb_dlsym(handle, 'nvmlDeviceGetPcieSpeed')
 
         global __nvmlDeviceGetAdaptiveClockInfoStatus
-        __nvmlDeviceGetAdaptiveClockInfoStatus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetAdaptiveClockInfoStatus')
+        __nvmlDeviceGetAdaptiveClockInfoStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAdaptiveClockInfoStatus')
         if __nvmlDeviceGetAdaptiveClockInfoStatus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetAdaptiveClockInfoStatus = dlsym(handle, 'nvmlDeviceGetAdaptiveClockInfoStatus')
+            __nvmlDeviceGetAdaptiveClockInfoStatus = _cyb_dlsym(handle, 'nvmlDeviceGetAdaptiveClockInfoStatus')
 
         global __nvmlDeviceGetBusType
-        __nvmlDeviceGetBusType = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetBusType')
+        __nvmlDeviceGetBusType = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetBusType')
         if __nvmlDeviceGetBusType == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetBusType = dlsym(handle, 'nvmlDeviceGetBusType')
+            __nvmlDeviceGetBusType = _cyb_dlsym(handle, 'nvmlDeviceGetBusType')
 
         global __nvmlDeviceGetGpuFabricInfoV
-        __nvmlDeviceGetGpuFabricInfoV = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuFabricInfoV')
+        __nvmlDeviceGetGpuFabricInfoV = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuFabricInfoV')
         if __nvmlDeviceGetGpuFabricInfoV == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuFabricInfoV = dlsym(handle, 'nvmlDeviceGetGpuFabricInfoV')
+            __nvmlDeviceGetGpuFabricInfoV = _cyb_dlsym(handle, 'nvmlDeviceGetGpuFabricInfoV')
 
         global __nvmlSystemGetConfComputeCapabilities
-        __nvmlSystemGetConfComputeCapabilities = dlsym(RTLD_DEFAULT, 'nvmlSystemGetConfComputeCapabilities')
+        __nvmlSystemGetConfComputeCapabilities = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetConfComputeCapabilities')
         if __nvmlSystemGetConfComputeCapabilities == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetConfComputeCapabilities = dlsym(handle, 'nvmlSystemGetConfComputeCapabilities')
+            __nvmlSystemGetConfComputeCapabilities = _cyb_dlsym(handle, 'nvmlSystemGetConfComputeCapabilities')
 
         global __nvmlSystemGetConfComputeState
-        __nvmlSystemGetConfComputeState = dlsym(RTLD_DEFAULT, 'nvmlSystemGetConfComputeState')
+        __nvmlSystemGetConfComputeState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetConfComputeState')
         if __nvmlSystemGetConfComputeState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetConfComputeState = dlsym(handle, 'nvmlSystemGetConfComputeState')
+            __nvmlSystemGetConfComputeState = _cyb_dlsym(handle, 'nvmlSystemGetConfComputeState')
 
         global __nvmlDeviceGetConfComputeMemSizeInfo
-        __nvmlDeviceGetConfComputeMemSizeInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetConfComputeMemSizeInfo')
+        __nvmlDeviceGetConfComputeMemSizeInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetConfComputeMemSizeInfo')
         if __nvmlDeviceGetConfComputeMemSizeInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetConfComputeMemSizeInfo = dlsym(handle, 'nvmlDeviceGetConfComputeMemSizeInfo')
+            __nvmlDeviceGetConfComputeMemSizeInfo = _cyb_dlsym(handle, 'nvmlDeviceGetConfComputeMemSizeInfo')
 
         global __nvmlSystemGetConfComputeGpusReadyState
-        __nvmlSystemGetConfComputeGpusReadyState = dlsym(RTLD_DEFAULT, 'nvmlSystemGetConfComputeGpusReadyState')
+        __nvmlSystemGetConfComputeGpusReadyState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetConfComputeGpusReadyState')
         if __nvmlSystemGetConfComputeGpusReadyState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetConfComputeGpusReadyState = dlsym(handle, 'nvmlSystemGetConfComputeGpusReadyState')
+            __nvmlSystemGetConfComputeGpusReadyState = _cyb_dlsym(handle, 'nvmlSystemGetConfComputeGpusReadyState')
 
         global __nvmlDeviceGetConfComputeProtectedMemoryUsage
-        __nvmlDeviceGetConfComputeProtectedMemoryUsage = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetConfComputeProtectedMemoryUsage')
+        __nvmlDeviceGetConfComputeProtectedMemoryUsage = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetConfComputeProtectedMemoryUsage')
         if __nvmlDeviceGetConfComputeProtectedMemoryUsage == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetConfComputeProtectedMemoryUsage = dlsym(handle, 'nvmlDeviceGetConfComputeProtectedMemoryUsage')
+            __nvmlDeviceGetConfComputeProtectedMemoryUsage = _cyb_dlsym(handle, 'nvmlDeviceGetConfComputeProtectedMemoryUsage')
 
         global __nvmlDeviceGetConfComputeGpuCertificate
-        __nvmlDeviceGetConfComputeGpuCertificate = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetConfComputeGpuCertificate')
+        __nvmlDeviceGetConfComputeGpuCertificate = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetConfComputeGpuCertificate')
         if __nvmlDeviceGetConfComputeGpuCertificate == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetConfComputeGpuCertificate = dlsym(handle, 'nvmlDeviceGetConfComputeGpuCertificate')
+            __nvmlDeviceGetConfComputeGpuCertificate = _cyb_dlsym(handle, 'nvmlDeviceGetConfComputeGpuCertificate')
 
         global __nvmlDeviceGetConfComputeGpuAttestationReport
-        __nvmlDeviceGetConfComputeGpuAttestationReport = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetConfComputeGpuAttestationReport')
+        __nvmlDeviceGetConfComputeGpuAttestationReport = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetConfComputeGpuAttestationReport')
         if __nvmlDeviceGetConfComputeGpuAttestationReport == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetConfComputeGpuAttestationReport = dlsym(handle, 'nvmlDeviceGetConfComputeGpuAttestationReport')
+            __nvmlDeviceGetConfComputeGpuAttestationReport = _cyb_dlsym(handle, 'nvmlDeviceGetConfComputeGpuAttestationReport')
 
         global __nvmlSystemGetConfComputeKeyRotationThresholdInfo
-        __nvmlSystemGetConfComputeKeyRotationThresholdInfo = dlsym(RTLD_DEFAULT, 'nvmlSystemGetConfComputeKeyRotationThresholdInfo')
+        __nvmlSystemGetConfComputeKeyRotationThresholdInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetConfComputeKeyRotationThresholdInfo')
         if __nvmlSystemGetConfComputeKeyRotationThresholdInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetConfComputeKeyRotationThresholdInfo = dlsym(handle, 'nvmlSystemGetConfComputeKeyRotationThresholdInfo')
+            __nvmlSystemGetConfComputeKeyRotationThresholdInfo = _cyb_dlsym(handle, 'nvmlSystemGetConfComputeKeyRotationThresholdInfo')
 
         global __nvmlDeviceSetConfComputeUnprotectedMemSize
-        __nvmlDeviceSetConfComputeUnprotectedMemSize = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetConfComputeUnprotectedMemSize')
+        __nvmlDeviceSetConfComputeUnprotectedMemSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetConfComputeUnprotectedMemSize')
         if __nvmlDeviceSetConfComputeUnprotectedMemSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetConfComputeUnprotectedMemSize = dlsym(handle, 'nvmlDeviceSetConfComputeUnprotectedMemSize')
+            __nvmlDeviceSetConfComputeUnprotectedMemSize = _cyb_dlsym(handle, 'nvmlDeviceSetConfComputeUnprotectedMemSize')
 
         global __nvmlSystemSetConfComputeGpusReadyState
-        __nvmlSystemSetConfComputeGpusReadyState = dlsym(RTLD_DEFAULT, 'nvmlSystemSetConfComputeGpusReadyState')
+        __nvmlSystemSetConfComputeGpusReadyState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemSetConfComputeGpusReadyState')
         if __nvmlSystemSetConfComputeGpusReadyState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemSetConfComputeGpusReadyState = dlsym(handle, 'nvmlSystemSetConfComputeGpusReadyState')
+            __nvmlSystemSetConfComputeGpusReadyState = _cyb_dlsym(handle, 'nvmlSystemSetConfComputeGpusReadyState')
 
         global __nvmlSystemSetConfComputeKeyRotationThresholdInfo
-        __nvmlSystemSetConfComputeKeyRotationThresholdInfo = dlsym(RTLD_DEFAULT, 'nvmlSystemSetConfComputeKeyRotationThresholdInfo')
+        __nvmlSystemSetConfComputeKeyRotationThresholdInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemSetConfComputeKeyRotationThresholdInfo')
         if __nvmlSystemSetConfComputeKeyRotationThresholdInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemSetConfComputeKeyRotationThresholdInfo = dlsym(handle, 'nvmlSystemSetConfComputeKeyRotationThresholdInfo')
+            __nvmlSystemSetConfComputeKeyRotationThresholdInfo = _cyb_dlsym(handle, 'nvmlSystemSetConfComputeKeyRotationThresholdInfo')
 
         global __nvmlSystemGetConfComputeSettings
-        __nvmlSystemGetConfComputeSettings = dlsym(RTLD_DEFAULT, 'nvmlSystemGetConfComputeSettings')
+        __nvmlSystemGetConfComputeSettings = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetConfComputeSettings')
         if __nvmlSystemGetConfComputeSettings == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetConfComputeSettings = dlsym(handle, 'nvmlSystemGetConfComputeSettings')
+            __nvmlSystemGetConfComputeSettings = _cyb_dlsym(handle, 'nvmlSystemGetConfComputeSettings')
 
         global __nvmlDeviceGetGspFirmwareVersion
-        __nvmlDeviceGetGspFirmwareVersion = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGspFirmwareVersion')
+        __nvmlDeviceGetGspFirmwareVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGspFirmwareVersion')
         if __nvmlDeviceGetGspFirmwareVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGspFirmwareVersion = dlsym(handle, 'nvmlDeviceGetGspFirmwareVersion')
+            __nvmlDeviceGetGspFirmwareVersion = _cyb_dlsym(handle, 'nvmlDeviceGetGspFirmwareVersion')
 
         global __nvmlDeviceGetGspFirmwareMode
-        __nvmlDeviceGetGspFirmwareMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGspFirmwareMode')
+        __nvmlDeviceGetGspFirmwareMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGspFirmwareMode')
         if __nvmlDeviceGetGspFirmwareMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGspFirmwareMode = dlsym(handle, 'nvmlDeviceGetGspFirmwareMode')
+            __nvmlDeviceGetGspFirmwareMode = _cyb_dlsym(handle, 'nvmlDeviceGetGspFirmwareMode')
 
         global __nvmlDeviceGetSramEccErrorStatus
-        __nvmlDeviceGetSramEccErrorStatus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSramEccErrorStatus')
+        __nvmlDeviceGetSramEccErrorStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSramEccErrorStatus')
         if __nvmlDeviceGetSramEccErrorStatus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSramEccErrorStatus = dlsym(handle, 'nvmlDeviceGetSramEccErrorStatus')
+            __nvmlDeviceGetSramEccErrorStatus = _cyb_dlsym(handle, 'nvmlDeviceGetSramEccErrorStatus')
 
         global __nvmlDeviceGetAccountingMode
-        __nvmlDeviceGetAccountingMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetAccountingMode')
+        __nvmlDeviceGetAccountingMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAccountingMode')
         if __nvmlDeviceGetAccountingMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetAccountingMode = dlsym(handle, 'nvmlDeviceGetAccountingMode')
+            __nvmlDeviceGetAccountingMode = _cyb_dlsym(handle, 'nvmlDeviceGetAccountingMode')
 
         global __nvmlDeviceGetAccountingStats
-        __nvmlDeviceGetAccountingStats = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetAccountingStats')
+        __nvmlDeviceGetAccountingStats = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAccountingStats')
         if __nvmlDeviceGetAccountingStats == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetAccountingStats = dlsym(handle, 'nvmlDeviceGetAccountingStats')
+            __nvmlDeviceGetAccountingStats = _cyb_dlsym(handle, 'nvmlDeviceGetAccountingStats')
 
         global __nvmlDeviceGetAccountingPids
-        __nvmlDeviceGetAccountingPids = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetAccountingPids')
+        __nvmlDeviceGetAccountingPids = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAccountingPids')
         if __nvmlDeviceGetAccountingPids == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetAccountingPids = dlsym(handle, 'nvmlDeviceGetAccountingPids')
+            __nvmlDeviceGetAccountingPids = _cyb_dlsym(handle, 'nvmlDeviceGetAccountingPids')
 
         global __nvmlDeviceGetAccountingBufferSize
-        __nvmlDeviceGetAccountingBufferSize = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetAccountingBufferSize')
+        __nvmlDeviceGetAccountingBufferSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAccountingBufferSize')
         if __nvmlDeviceGetAccountingBufferSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetAccountingBufferSize = dlsym(handle, 'nvmlDeviceGetAccountingBufferSize')
+            __nvmlDeviceGetAccountingBufferSize = _cyb_dlsym(handle, 'nvmlDeviceGetAccountingBufferSize')
 
         global __nvmlDeviceGetRetiredPages
-        __nvmlDeviceGetRetiredPages = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetRetiredPages')
+        __nvmlDeviceGetRetiredPages = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetRetiredPages')
         if __nvmlDeviceGetRetiredPages == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetRetiredPages = dlsym(handle, 'nvmlDeviceGetRetiredPages')
+            __nvmlDeviceGetRetiredPages = _cyb_dlsym(handle, 'nvmlDeviceGetRetiredPages')
 
         global __nvmlDeviceGetRetiredPages_v2
-        __nvmlDeviceGetRetiredPages_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetRetiredPages_v2')
+        __nvmlDeviceGetRetiredPages_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetRetiredPages_v2')
         if __nvmlDeviceGetRetiredPages_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetRetiredPages_v2 = dlsym(handle, 'nvmlDeviceGetRetiredPages_v2')
+            __nvmlDeviceGetRetiredPages_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetRetiredPages_v2')
 
         global __nvmlDeviceGetRetiredPagesPendingStatus
-        __nvmlDeviceGetRetiredPagesPendingStatus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetRetiredPagesPendingStatus')
+        __nvmlDeviceGetRetiredPagesPendingStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetRetiredPagesPendingStatus')
         if __nvmlDeviceGetRetiredPagesPendingStatus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetRetiredPagesPendingStatus = dlsym(handle, 'nvmlDeviceGetRetiredPagesPendingStatus')
+            __nvmlDeviceGetRetiredPagesPendingStatus = _cyb_dlsym(handle, 'nvmlDeviceGetRetiredPagesPendingStatus')
 
         global __nvmlDeviceGetRemappedRows
-        __nvmlDeviceGetRemappedRows = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetRemappedRows')
+        __nvmlDeviceGetRemappedRows = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetRemappedRows')
         if __nvmlDeviceGetRemappedRows == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetRemappedRows = dlsym(handle, 'nvmlDeviceGetRemappedRows')
+            __nvmlDeviceGetRemappedRows = _cyb_dlsym(handle, 'nvmlDeviceGetRemappedRows')
 
         global __nvmlDeviceGetRowRemapperHistogram
-        __nvmlDeviceGetRowRemapperHistogram = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetRowRemapperHistogram')
+        __nvmlDeviceGetRowRemapperHistogram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetRowRemapperHistogram')
         if __nvmlDeviceGetRowRemapperHistogram == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetRowRemapperHistogram = dlsym(handle, 'nvmlDeviceGetRowRemapperHistogram')
+            __nvmlDeviceGetRowRemapperHistogram = _cyb_dlsym(handle, 'nvmlDeviceGetRowRemapperHistogram')
 
         global __nvmlDeviceGetArchitecture
-        __nvmlDeviceGetArchitecture = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetArchitecture')
+        __nvmlDeviceGetArchitecture = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetArchitecture')
         if __nvmlDeviceGetArchitecture == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetArchitecture = dlsym(handle, 'nvmlDeviceGetArchitecture')
+            __nvmlDeviceGetArchitecture = _cyb_dlsym(handle, 'nvmlDeviceGetArchitecture')
 
         global __nvmlDeviceGetClkMonStatus
-        __nvmlDeviceGetClkMonStatus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetClkMonStatus')
+        __nvmlDeviceGetClkMonStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetClkMonStatus')
         if __nvmlDeviceGetClkMonStatus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetClkMonStatus = dlsym(handle, 'nvmlDeviceGetClkMonStatus')
+            __nvmlDeviceGetClkMonStatus = _cyb_dlsym(handle, 'nvmlDeviceGetClkMonStatus')
 
         global __nvmlDeviceGetProcessUtilization
-        __nvmlDeviceGetProcessUtilization = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetProcessUtilization')
+        __nvmlDeviceGetProcessUtilization = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetProcessUtilization')
         if __nvmlDeviceGetProcessUtilization == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetProcessUtilization = dlsym(handle, 'nvmlDeviceGetProcessUtilization')
+            __nvmlDeviceGetProcessUtilization = _cyb_dlsym(handle, 'nvmlDeviceGetProcessUtilization')
 
         global __nvmlDeviceGetProcessesUtilizationInfo
-        __nvmlDeviceGetProcessesUtilizationInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetProcessesUtilizationInfo')
+        __nvmlDeviceGetProcessesUtilizationInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetProcessesUtilizationInfo')
         if __nvmlDeviceGetProcessesUtilizationInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetProcessesUtilizationInfo = dlsym(handle, 'nvmlDeviceGetProcessesUtilizationInfo')
+            __nvmlDeviceGetProcessesUtilizationInfo = _cyb_dlsym(handle, 'nvmlDeviceGetProcessesUtilizationInfo')
 
         global __nvmlDeviceGetPlatformInfo
-        __nvmlDeviceGetPlatformInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPlatformInfo')
+        __nvmlDeviceGetPlatformInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPlatformInfo')
         if __nvmlDeviceGetPlatformInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPlatformInfo = dlsym(handle, 'nvmlDeviceGetPlatformInfo')
+            __nvmlDeviceGetPlatformInfo = _cyb_dlsym(handle, 'nvmlDeviceGetPlatformInfo')
 
         global __nvmlUnitSetLedState
-        __nvmlUnitSetLedState = dlsym(RTLD_DEFAULT, 'nvmlUnitSetLedState')
+        __nvmlUnitSetLedState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlUnitSetLedState')
         if __nvmlUnitSetLedState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlUnitSetLedState = dlsym(handle, 'nvmlUnitSetLedState')
+            __nvmlUnitSetLedState = _cyb_dlsym(handle, 'nvmlUnitSetLedState')
 
         global __nvmlDeviceSetPersistenceMode
-        __nvmlDeviceSetPersistenceMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetPersistenceMode')
+        __nvmlDeviceSetPersistenceMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetPersistenceMode')
         if __nvmlDeviceSetPersistenceMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetPersistenceMode = dlsym(handle, 'nvmlDeviceSetPersistenceMode')
+            __nvmlDeviceSetPersistenceMode = _cyb_dlsym(handle, 'nvmlDeviceSetPersistenceMode')
 
         global __nvmlDeviceSetComputeMode
-        __nvmlDeviceSetComputeMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetComputeMode')
+        __nvmlDeviceSetComputeMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetComputeMode')
         if __nvmlDeviceSetComputeMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetComputeMode = dlsym(handle, 'nvmlDeviceSetComputeMode')
+            __nvmlDeviceSetComputeMode = _cyb_dlsym(handle, 'nvmlDeviceSetComputeMode')
 
         global __nvmlDeviceSetEccMode
-        __nvmlDeviceSetEccMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetEccMode')
+        __nvmlDeviceSetEccMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetEccMode')
         if __nvmlDeviceSetEccMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetEccMode = dlsym(handle, 'nvmlDeviceSetEccMode')
+            __nvmlDeviceSetEccMode = _cyb_dlsym(handle, 'nvmlDeviceSetEccMode')
 
         global __nvmlDeviceClearEccErrorCounts
-        __nvmlDeviceClearEccErrorCounts = dlsym(RTLD_DEFAULT, 'nvmlDeviceClearEccErrorCounts')
+        __nvmlDeviceClearEccErrorCounts = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceClearEccErrorCounts')
         if __nvmlDeviceClearEccErrorCounts == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceClearEccErrorCounts = dlsym(handle, 'nvmlDeviceClearEccErrorCounts')
+            __nvmlDeviceClearEccErrorCounts = _cyb_dlsym(handle, 'nvmlDeviceClearEccErrorCounts')
 
         global __nvmlDeviceSetDriverModel
-        __nvmlDeviceSetDriverModel = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetDriverModel')
+        __nvmlDeviceSetDriverModel = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetDriverModel')
         if __nvmlDeviceSetDriverModel == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetDriverModel = dlsym(handle, 'nvmlDeviceSetDriverModel')
+            __nvmlDeviceSetDriverModel = _cyb_dlsym(handle, 'nvmlDeviceSetDriverModel')
 
         global __nvmlDeviceSetGpuLockedClocks
-        __nvmlDeviceSetGpuLockedClocks = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetGpuLockedClocks')
+        __nvmlDeviceSetGpuLockedClocks = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetGpuLockedClocks')
         if __nvmlDeviceSetGpuLockedClocks == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetGpuLockedClocks = dlsym(handle, 'nvmlDeviceSetGpuLockedClocks')
+            __nvmlDeviceSetGpuLockedClocks = _cyb_dlsym(handle, 'nvmlDeviceSetGpuLockedClocks')
 
         global __nvmlDeviceResetGpuLockedClocks
-        __nvmlDeviceResetGpuLockedClocks = dlsym(RTLD_DEFAULT, 'nvmlDeviceResetGpuLockedClocks')
+        __nvmlDeviceResetGpuLockedClocks = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceResetGpuLockedClocks')
         if __nvmlDeviceResetGpuLockedClocks == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceResetGpuLockedClocks = dlsym(handle, 'nvmlDeviceResetGpuLockedClocks')
+            __nvmlDeviceResetGpuLockedClocks = _cyb_dlsym(handle, 'nvmlDeviceResetGpuLockedClocks')
 
         global __nvmlDeviceSetMemoryLockedClocks
-        __nvmlDeviceSetMemoryLockedClocks = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetMemoryLockedClocks')
+        __nvmlDeviceSetMemoryLockedClocks = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetMemoryLockedClocks')
         if __nvmlDeviceSetMemoryLockedClocks == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetMemoryLockedClocks = dlsym(handle, 'nvmlDeviceSetMemoryLockedClocks')
+            __nvmlDeviceSetMemoryLockedClocks = _cyb_dlsym(handle, 'nvmlDeviceSetMemoryLockedClocks')
 
         global __nvmlDeviceResetMemoryLockedClocks
-        __nvmlDeviceResetMemoryLockedClocks = dlsym(RTLD_DEFAULT, 'nvmlDeviceResetMemoryLockedClocks')
+        __nvmlDeviceResetMemoryLockedClocks = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceResetMemoryLockedClocks')
         if __nvmlDeviceResetMemoryLockedClocks == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceResetMemoryLockedClocks = dlsym(handle, 'nvmlDeviceResetMemoryLockedClocks')
+            __nvmlDeviceResetMemoryLockedClocks = _cyb_dlsym(handle, 'nvmlDeviceResetMemoryLockedClocks')
 
         global __nvmlDeviceSetAutoBoostedClocksEnabled
-        __nvmlDeviceSetAutoBoostedClocksEnabled = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetAutoBoostedClocksEnabled')
+        __nvmlDeviceSetAutoBoostedClocksEnabled = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetAutoBoostedClocksEnabled')
         if __nvmlDeviceSetAutoBoostedClocksEnabled == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetAutoBoostedClocksEnabled = dlsym(handle, 'nvmlDeviceSetAutoBoostedClocksEnabled')
+            __nvmlDeviceSetAutoBoostedClocksEnabled = _cyb_dlsym(handle, 'nvmlDeviceSetAutoBoostedClocksEnabled')
 
         global __nvmlDeviceSetDefaultAutoBoostedClocksEnabled
-        __nvmlDeviceSetDefaultAutoBoostedClocksEnabled = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetDefaultAutoBoostedClocksEnabled')
+        __nvmlDeviceSetDefaultAutoBoostedClocksEnabled = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetDefaultAutoBoostedClocksEnabled')
         if __nvmlDeviceSetDefaultAutoBoostedClocksEnabled == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetDefaultAutoBoostedClocksEnabled = dlsym(handle, 'nvmlDeviceSetDefaultAutoBoostedClocksEnabled')
+            __nvmlDeviceSetDefaultAutoBoostedClocksEnabled = _cyb_dlsym(handle, 'nvmlDeviceSetDefaultAutoBoostedClocksEnabled')
 
         global __nvmlDeviceSetDefaultFanSpeed_v2
-        __nvmlDeviceSetDefaultFanSpeed_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetDefaultFanSpeed_v2')
+        __nvmlDeviceSetDefaultFanSpeed_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetDefaultFanSpeed_v2')
         if __nvmlDeviceSetDefaultFanSpeed_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetDefaultFanSpeed_v2 = dlsym(handle, 'nvmlDeviceSetDefaultFanSpeed_v2')
+            __nvmlDeviceSetDefaultFanSpeed_v2 = _cyb_dlsym(handle, 'nvmlDeviceSetDefaultFanSpeed_v2')
 
         global __nvmlDeviceSetFanControlPolicy
-        __nvmlDeviceSetFanControlPolicy = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetFanControlPolicy')
+        __nvmlDeviceSetFanControlPolicy = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetFanControlPolicy')
         if __nvmlDeviceSetFanControlPolicy == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetFanControlPolicy = dlsym(handle, 'nvmlDeviceSetFanControlPolicy')
+            __nvmlDeviceSetFanControlPolicy = _cyb_dlsym(handle, 'nvmlDeviceSetFanControlPolicy')
 
         global __nvmlDeviceSetTemperatureThreshold
-        __nvmlDeviceSetTemperatureThreshold = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetTemperatureThreshold')
+        __nvmlDeviceSetTemperatureThreshold = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetTemperatureThreshold')
         if __nvmlDeviceSetTemperatureThreshold == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetTemperatureThreshold = dlsym(handle, 'nvmlDeviceSetTemperatureThreshold')
+            __nvmlDeviceSetTemperatureThreshold = _cyb_dlsym(handle, 'nvmlDeviceSetTemperatureThreshold')
 
         global __nvmlDeviceSetGpuOperationMode
-        __nvmlDeviceSetGpuOperationMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetGpuOperationMode')
+        __nvmlDeviceSetGpuOperationMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetGpuOperationMode')
         if __nvmlDeviceSetGpuOperationMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetGpuOperationMode = dlsym(handle, 'nvmlDeviceSetGpuOperationMode')
+            __nvmlDeviceSetGpuOperationMode = _cyb_dlsym(handle, 'nvmlDeviceSetGpuOperationMode')
 
         global __nvmlDeviceSetAPIRestriction
-        __nvmlDeviceSetAPIRestriction = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetAPIRestriction')
+        __nvmlDeviceSetAPIRestriction = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetAPIRestriction')
         if __nvmlDeviceSetAPIRestriction == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetAPIRestriction = dlsym(handle, 'nvmlDeviceSetAPIRestriction')
+            __nvmlDeviceSetAPIRestriction = _cyb_dlsym(handle, 'nvmlDeviceSetAPIRestriction')
 
         global __nvmlDeviceSetFanSpeed_v2
-        __nvmlDeviceSetFanSpeed_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetFanSpeed_v2')
+        __nvmlDeviceSetFanSpeed_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetFanSpeed_v2')
         if __nvmlDeviceSetFanSpeed_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetFanSpeed_v2 = dlsym(handle, 'nvmlDeviceSetFanSpeed_v2')
+            __nvmlDeviceSetFanSpeed_v2 = _cyb_dlsym(handle, 'nvmlDeviceSetFanSpeed_v2')
 
         global __nvmlDeviceSetAccountingMode
-        __nvmlDeviceSetAccountingMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetAccountingMode')
+        __nvmlDeviceSetAccountingMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetAccountingMode')
         if __nvmlDeviceSetAccountingMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetAccountingMode = dlsym(handle, 'nvmlDeviceSetAccountingMode')
+            __nvmlDeviceSetAccountingMode = _cyb_dlsym(handle, 'nvmlDeviceSetAccountingMode')
 
         global __nvmlDeviceClearAccountingPids
-        __nvmlDeviceClearAccountingPids = dlsym(RTLD_DEFAULT, 'nvmlDeviceClearAccountingPids')
+        __nvmlDeviceClearAccountingPids = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceClearAccountingPids')
         if __nvmlDeviceClearAccountingPids == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceClearAccountingPids = dlsym(handle, 'nvmlDeviceClearAccountingPids')
+            __nvmlDeviceClearAccountingPids = _cyb_dlsym(handle, 'nvmlDeviceClearAccountingPids')
 
         global __nvmlDeviceSetPowerManagementLimit_v2
-        __nvmlDeviceSetPowerManagementLimit_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetPowerManagementLimit_v2')
+        __nvmlDeviceSetPowerManagementLimit_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetPowerManagementLimit_v2')
         if __nvmlDeviceSetPowerManagementLimit_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetPowerManagementLimit_v2 = dlsym(handle, 'nvmlDeviceSetPowerManagementLimit_v2')
+            __nvmlDeviceSetPowerManagementLimit_v2 = _cyb_dlsym(handle, 'nvmlDeviceSetPowerManagementLimit_v2')
 
         global __nvmlDeviceGetNvLinkState
-        __nvmlDeviceGetNvLinkState = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNvLinkState')
+        __nvmlDeviceGetNvLinkState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvLinkState')
         if __nvmlDeviceGetNvLinkState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNvLinkState = dlsym(handle, 'nvmlDeviceGetNvLinkState')
+            __nvmlDeviceGetNvLinkState = _cyb_dlsym(handle, 'nvmlDeviceGetNvLinkState')
 
         global __nvmlDeviceGetNvLinkVersion
-        __nvmlDeviceGetNvLinkVersion = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNvLinkVersion')
+        __nvmlDeviceGetNvLinkVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvLinkVersion')
         if __nvmlDeviceGetNvLinkVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNvLinkVersion = dlsym(handle, 'nvmlDeviceGetNvLinkVersion')
+            __nvmlDeviceGetNvLinkVersion = _cyb_dlsym(handle, 'nvmlDeviceGetNvLinkVersion')
 
         global __nvmlDeviceGetNvLinkCapability
-        __nvmlDeviceGetNvLinkCapability = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNvLinkCapability')
+        __nvmlDeviceGetNvLinkCapability = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvLinkCapability')
         if __nvmlDeviceGetNvLinkCapability == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNvLinkCapability = dlsym(handle, 'nvmlDeviceGetNvLinkCapability')
+            __nvmlDeviceGetNvLinkCapability = _cyb_dlsym(handle, 'nvmlDeviceGetNvLinkCapability')
 
         global __nvmlDeviceGetNvLinkRemotePciInfo_v2
-        __nvmlDeviceGetNvLinkRemotePciInfo_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNvLinkRemotePciInfo_v2')
+        __nvmlDeviceGetNvLinkRemotePciInfo_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvLinkRemotePciInfo_v2')
         if __nvmlDeviceGetNvLinkRemotePciInfo_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNvLinkRemotePciInfo_v2 = dlsym(handle, 'nvmlDeviceGetNvLinkRemotePciInfo_v2')
+            __nvmlDeviceGetNvLinkRemotePciInfo_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetNvLinkRemotePciInfo_v2')
 
         global __nvmlDeviceGetNvLinkErrorCounter
-        __nvmlDeviceGetNvLinkErrorCounter = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNvLinkErrorCounter')
+        __nvmlDeviceGetNvLinkErrorCounter = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvLinkErrorCounter')
         if __nvmlDeviceGetNvLinkErrorCounter == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNvLinkErrorCounter = dlsym(handle, 'nvmlDeviceGetNvLinkErrorCounter')
+            __nvmlDeviceGetNvLinkErrorCounter = _cyb_dlsym(handle, 'nvmlDeviceGetNvLinkErrorCounter')
 
         global __nvmlDeviceResetNvLinkErrorCounters
-        __nvmlDeviceResetNvLinkErrorCounters = dlsym(RTLD_DEFAULT, 'nvmlDeviceResetNvLinkErrorCounters')
+        __nvmlDeviceResetNvLinkErrorCounters = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceResetNvLinkErrorCounters')
         if __nvmlDeviceResetNvLinkErrorCounters == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceResetNvLinkErrorCounters = dlsym(handle, 'nvmlDeviceResetNvLinkErrorCounters')
+            __nvmlDeviceResetNvLinkErrorCounters = _cyb_dlsym(handle, 'nvmlDeviceResetNvLinkErrorCounters')
 
         global __nvmlDeviceGetNvLinkRemoteDeviceType
-        __nvmlDeviceGetNvLinkRemoteDeviceType = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNvLinkRemoteDeviceType')
+        __nvmlDeviceGetNvLinkRemoteDeviceType = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvLinkRemoteDeviceType')
         if __nvmlDeviceGetNvLinkRemoteDeviceType == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNvLinkRemoteDeviceType = dlsym(handle, 'nvmlDeviceGetNvLinkRemoteDeviceType')
+            __nvmlDeviceGetNvLinkRemoteDeviceType = _cyb_dlsym(handle, 'nvmlDeviceGetNvLinkRemoteDeviceType')
 
         global __nvmlDeviceSetNvLinkDeviceLowPowerThreshold
-        __nvmlDeviceSetNvLinkDeviceLowPowerThreshold = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetNvLinkDeviceLowPowerThreshold')
+        __nvmlDeviceSetNvLinkDeviceLowPowerThreshold = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetNvLinkDeviceLowPowerThreshold')
         if __nvmlDeviceSetNvLinkDeviceLowPowerThreshold == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetNvLinkDeviceLowPowerThreshold = dlsym(handle, 'nvmlDeviceSetNvLinkDeviceLowPowerThreshold')
+            __nvmlDeviceSetNvLinkDeviceLowPowerThreshold = _cyb_dlsym(handle, 'nvmlDeviceSetNvLinkDeviceLowPowerThreshold')
 
         global __nvmlSystemSetNvlinkBwMode
-        __nvmlSystemSetNvlinkBwMode = dlsym(RTLD_DEFAULT, 'nvmlSystemSetNvlinkBwMode')
+        __nvmlSystemSetNvlinkBwMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemSetNvlinkBwMode')
         if __nvmlSystemSetNvlinkBwMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemSetNvlinkBwMode = dlsym(handle, 'nvmlSystemSetNvlinkBwMode')
+            __nvmlSystemSetNvlinkBwMode = _cyb_dlsym(handle, 'nvmlSystemSetNvlinkBwMode')
 
         global __nvmlSystemGetNvlinkBwMode
-        __nvmlSystemGetNvlinkBwMode = dlsym(RTLD_DEFAULT, 'nvmlSystemGetNvlinkBwMode')
+        __nvmlSystemGetNvlinkBwMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetNvlinkBwMode')
         if __nvmlSystemGetNvlinkBwMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemGetNvlinkBwMode = dlsym(handle, 'nvmlSystemGetNvlinkBwMode')
+            __nvmlSystemGetNvlinkBwMode = _cyb_dlsym(handle, 'nvmlSystemGetNvlinkBwMode')
 
         global __nvmlDeviceGetNvlinkSupportedBwModes
-        __nvmlDeviceGetNvlinkSupportedBwModes = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNvlinkSupportedBwModes')
+        __nvmlDeviceGetNvlinkSupportedBwModes = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvlinkSupportedBwModes')
         if __nvmlDeviceGetNvlinkSupportedBwModes == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNvlinkSupportedBwModes = dlsym(handle, 'nvmlDeviceGetNvlinkSupportedBwModes')
+            __nvmlDeviceGetNvlinkSupportedBwModes = _cyb_dlsym(handle, 'nvmlDeviceGetNvlinkSupportedBwModes')
 
         global __nvmlDeviceGetNvlinkBwMode
-        __nvmlDeviceGetNvlinkBwMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNvlinkBwMode')
+        __nvmlDeviceGetNvlinkBwMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvlinkBwMode')
         if __nvmlDeviceGetNvlinkBwMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNvlinkBwMode = dlsym(handle, 'nvmlDeviceGetNvlinkBwMode')
+            __nvmlDeviceGetNvlinkBwMode = _cyb_dlsym(handle, 'nvmlDeviceGetNvlinkBwMode')
 
         global __nvmlDeviceSetNvlinkBwMode
-        __nvmlDeviceSetNvlinkBwMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetNvlinkBwMode')
+        __nvmlDeviceSetNvlinkBwMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetNvlinkBwMode')
         if __nvmlDeviceSetNvlinkBwMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetNvlinkBwMode = dlsym(handle, 'nvmlDeviceSetNvlinkBwMode')
+            __nvmlDeviceSetNvlinkBwMode = _cyb_dlsym(handle, 'nvmlDeviceSetNvlinkBwMode')
 
         global __nvmlEventSetCreate
-        __nvmlEventSetCreate = dlsym(RTLD_DEFAULT, 'nvmlEventSetCreate')
+        __nvmlEventSetCreate = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlEventSetCreate')
         if __nvmlEventSetCreate == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlEventSetCreate = dlsym(handle, 'nvmlEventSetCreate')
+            __nvmlEventSetCreate = _cyb_dlsym(handle, 'nvmlEventSetCreate')
 
         global __nvmlDeviceRegisterEvents
-        __nvmlDeviceRegisterEvents = dlsym(RTLD_DEFAULT, 'nvmlDeviceRegisterEvents')
+        __nvmlDeviceRegisterEvents = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceRegisterEvents')
         if __nvmlDeviceRegisterEvents == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceRegisterEvents = dlsym(handle, 'nvmlDeviceRegisterEvents')
+            __nvmlDeviceRegisterEvents = _cyb_dlsym(handle, 'nvmlDeviceRegisterEvents')
 
         global __nvmlDeviceGetSupportedEventTypes
-        __nvmlDeviceGetSupportedEventTypes = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSupportedEventTypes')
+        __nvmlDeviceGetSupportedEventTypes = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSupportedEventTypes')
         if __nvmlDeviceGetSupportedEventTypes == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSupportedEventTypes = dlsym(handle, 'nvmlDeviceGetSupportedEventTypes')
+            __nvmlDeviceGetSupportedEventTypes = _cyb_dlsym(handle, 'nvmlDeviceGetSupportedEventTypes')
 
         global __nvmlEventSetWait_v2
-        __nvmlEventSetWait_v2 = dlsym(RTLD_DEFAULT, 'nvmlEventSetWait_v2')
+        __nvmlEventSetWait_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlEventSetWait_v2')
         if __nvmlEventSetWait_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlEventSetWait_v2 = dlsym(handle, 'nvmlEventSetWait_v2')
+            __nvmlEventSetWait_v2 = _cyb_dlsym(handle, 'nvmlEventSetWait_v2')
 
         global __nvmlEventSetFree
-        __nvmlEventSetFree = dlsym(RTLD_DEFAULT, 'nvmlEventSetFree')
+        __nvmlEventSetFree = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlEventSetFree')
         if __nvmlEventSetFree == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlEventSetFree = dlsym(handle, 'nvmlEventSetFree')
+            __nvmlEventSetFree = _cyb_dlsym(handle, 'nvmlEventSetFree')
 
         global __nvmlSystemEventSetCreate
-        __nvmlSystemEventSetCreate = dlsym(RTLD_DEFAULT, 'nvmlSystemEventSetCreate')
+        __nvmlSystemEventSetCreate = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemEventSetCreate')
         if __nvmlSystemEventSetCreate == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemEventSetCreate = dlsym(handle, 'nvmlSystemEventSetCreate')
+            __nvmlSystemEventSetCreate = _cyb_dlsym(handle, 'nvmlSystemEventSetCreate')
 
         global __nvmlSystemEventSetFree
-        __nvmlSystemEventSetFree = dlsym(RTLD_DEFAULT, 'nvmlSystemEventSetFree')
+        __nvmlSystemEventSetFree = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemEventSetFree')
         if __nvmlSystemEventSetFree == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemEventSetFree = dlsym(handle, 'nvmlSystemEventSetFree')
+            __nvmlSystemEventSetFree = _cyb_dlsym(handle, 'nvmlSystemEventSetFree')
 
         global __nvmlSystemRegisterEvents
-        __nvmlSystemRegisterEvents = dlsym(RTLD_DEFAULT, 'nvmlSystemRegisterEvents')
+        __nvmlSystemRegisterEvents = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemRegisterEvents')
         if __nvmlSystemRegisterEvents == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemRegisterEvents = dlsym(handle, 'nvmlSystemRegisterEvents')
+            __nvmlSystemRegisterEvents = _cyb_dlsym(handle, 'nvmlSystemRegisterEvents')
 
         global __nvmlSystemEventSetWait
-        __nvmlSystemEventSetWait = dlsym(RTLD_DEFAULT, 'nvmlSystemEventSetWait')
+        __nvmlSystemEventSetWait = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemEventSetWait')
         if __nvmlSystemEventSetWait == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSystemEventSetWait = dlsym(handle, 'nvmlSystemEventSetWait')
+            __nvmlSystemEventSetWait = _cyb_dlsym(handle, 'nvmlSystemEventSetWait')
 
         global __nvmlDeviceModifyDrainState
-        __nvmlDeviceModifyDrainState = dlsym(RTLD_DEFAULT, 'nvmlDeviceModifyDrainState')
+        __nvmlDeviceModifyDrainState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceModifyDrainState')
         if __nvmlDeviceModifyDrainState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceModifyDrainState = dlsym(handle, 'nvmlDeviceModifyDrainState')
+            __nvmlDeviceModifyDrainState = _cyb_dlsym(handle, 'nvmlDeviceModifyDrainState')
 
         global __nvmlDeviceQueryDrainState
-        __nvmlDeviceQueryDrainState = dlsym(RTLD_DEFAULT, 'nvmlDeviceQueryDrainState')
+        __nvmlDeviceQueryDrainState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceQueryDrainState')
         if __nvmlDeviceQueryDrainState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceQueryDrainState = dlsym(handle, 'nvmlDeviceQueryDrainState')
+            __nvmlDeviceQueryDrainState = _cyb_dlsym(handle, 'nvmlDeviceQueryDrainState')
 
         global __nvmlDeviceRemoveGpu_v2
-        __nvmlDeviceRemoveGpu_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceRemoveGpu_v2')
+        __nvmlDeviceRemoveGpu_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceRemoveGpu_v2')
         if __nvmlDeviceRemoveGpu_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceRemoveGpu_v2 = dlsym(handle, 'nvmlDeviceRemoveGpu_v2')
+            __nvmlDeviceRemoveGpu_v2 = _cyb_dlsym(handle, 'nvmlDeviceRemoveGpu_v2')
 
         global __nvmlDeviceDiscoverGpus
-        __nvmlDeviceDiscoverGpus = dlsym(RTLD_DEFAULT, 'nvmlDeviceDiscoverGpus')
+        __nvmlDeviceDiscoverGpus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceDiscoverGpus')
         if __nvmlDeviceDiscoverGpus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceDiscoverGpus = dlsym(handle, 'nvmlDeviceDiscoverGpus')
+            __nvmlDeviceDiscoverGpus = _cyb_dlsym(handle, 'nvmlDeviceDiscoverGpus')
 
         global __nvmlDeviceGetFieldValues
-        __nvmlDeviceGetFieldValues = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetFieldValues')
+        __nvmlDeviceGetFieldValues = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetFieldValues')
         if __nvmlDeviceGetFieldValues == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetFieldValues = dlsym(handle, 'nvmlDeviceGetFieldValues')
+            __nvmlDeviceGetFieldValues = _cyb_dlsym(handle, 'nvmlDeviceGetFieldValues')
 
         global __nvmlDeviceClearFieldValues
-        __nvmlDeviceClearFieldValues = dlsym(RTLD_DEFAULT, 'nvmlDeviceClearFieldValues')
+        __nvmlDeviceClearFieldValues = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceClearFieldValues')
         if __nvmlDeviceClearFieldValues == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceClearFieldValues = dlsym(handle, 'nvmlDeviceClearFieldValues')
+            __nvmlDeviceClearFieldValues = _cyb_dlsym(handle, 'nvmlDeviceClearFieldValues')
 
         global __nvmlDeviceGetVirtualizationMode
-        __nvmlDeviceGetVirtualizationMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVirtualizationMode')
+        __nvmlDeviceGetVirtualizationMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVirtualizationMode')
         if __nvmlDeviceGetVirtualizationMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVirtualizationMode = dlsym(handle, 'nvmlDeviceGetVirtualizationMode')
+            __nvmlDeviceGetVirtualizationMode = _cyb_dlsym(handle, 'nvmlDeviceGetVirtualizationMode')
 
         global __nvmlDeviceGetHostVgpuMode
-        __nvmlDeviceGetHostVgpuMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetHostVgpuMode')
+        __nvmlDeviceGetHostVgpuMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetHostVgpuMode')
         if __nvmlDeviceGetHostVgpuMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetHostVgpuMode = dlsym(handle, 'nvmlDeviceGetHostVgpuMode')
+            __nvmlDeviceGetHostVgpuMode = _cyb_dlsym(handle, 'nvmlDeviceGetHostVgpuMode')
 
         global __nvmlDeviceSetVirtualizationMode
-        __nvmlDeviceSetVirtualizationMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetVirtualizationMode')
+        __nvmlDeviceSetVirtualizationMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetVirtualizationMode')
         if __nvmlDeviceSetVirtualizationMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetVirtualizationMode = dlsym(handle, 'nvmlDeviceSetVirtualizationMode')
+            __nvmlDeviceSetVirtualizationMode = _cyb_dlsym(handle, 'nvmlDeviceSetVirtualizationMode')
 
         global __nvmlDeviceGetVgpuHeterogeneousMode
-        __nvmlDeviceGetVgpuHeterogeneousMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuHeterogeneousMode')
+        __nvmlDeviceGetVgpuHeterogeneousMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuHeterogeneousMode')
         if __nvmlDeviceGetVgpuHeterogeneousMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuHeterogeneousMode = dlsym(handle, 'nvmlDeviceGetVgpuHeterogeneousMode')
+            __nvmlDeviceGetVgpuHeterogeneousMode = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuHeterogeneousMode')
 
         global __nvmlDeviceSetVgpuHeterogeneousMode
-        __nvmlDeviceSetVgpuHeterogeneousMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetVgpuHeterogeneousMode')
+        __nvmlDeviceSetVgpuHeterogeneousMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetVgpuHeterogeneousMode')
         if __nvmlDeviceSetVgpuHeterogeneousMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetVgpuHeterogeneousMode = dlsym(handle, 'nvmlDeviceSetVgpuHeterogeneousMode')
+            __nvmlDeviceSetVgpuHeterogeneousMode = _cyb_dlsym(handle, 'nvmlDeviceSetVgpuHeterogeneousMode')
 
         global __nvmlVgpuInstanceGetPlacementId
-        __nvmlVgpuInstanceGetPlacementId = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetPlacementId')
+        __nvmlVgpuInstanceGetPlacementId = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetPlacementId')
         if __nvmlVgpuInstanceGetPlacementId == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetPlacementId = dlsym(handle, 'nvmlVgpuInstanceGetPlacementId')
+            __nvmlVgpuInstanceGetPlacementId = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetPlacementId')
 
         global __nvmlDeviceGetVgpuTypeSupportedPlacements
-        __nvmlDeviceGetVgpuTypeSupportedPlacements = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuTypeSupportedPlacements')
+        __nvmlDeviceGetVgpuTypeSupportedPlacements = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuTypeSupportedPlacements')
         if __nvmlDeviceGetVgpuTypeSupportedPlacements == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuTypeSupportedPlacements = dlsym(handle, 'nvmlDeviceGetVgpuTypeSupportedPlacements')
+            __nvmlDeviceGetVgpuTypeSupportedPlacements = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuTypeSupportedPlacements')
 
         global __nvmlDeviceGetVgpuTypeCreatablePlacements
-        __nvmlDeviceGetVgpuTypeCreatablePlacements = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuTypeCreatablePlacements')
+        __nvmlDeviceGetVgpuTypeCreatablePlacements = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuTypeCreatablePlacements')
         if __nvmlDeviceGetVgpuTypeCreatablePlacements == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuTypeCreatablePlacements = dlsym(handle, 'nvmlDeviceGetVgpuTypeCreatablePlacements')
+            __nvmlDeviceGetVgpuTypeCreatablePlacements = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuTypeCreatablePlacements')
 
         global __nvmlVgpuTypeGetGspHeapSize
-        __nvmlVgpuTypeGetGspHeapSize = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetGspHeapSize')
+        __nvmlVgpuTypeGetGspHeapSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetGspHeapSize')
         if __nvmlVgpuTypeGetGspHeapSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetGspHeapSize = dlsym(handle, 'nvmlVgpuTypeGetGspHeapSize')
+            __nvmlVgpuTypeGetGspHeapSize = _cyb_dlsym(handle, 'nvmlVgpuTypeGetGspHeapSize')
 
         global __nvmlVgpuTypeGetFbReservation
-        __nvmlVgpuTypeGetFbReservation = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetFbReservation')
+        __nvmlVgpuTypeGetFbReservation = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetFbReservation')
         if __nvmlVgpuTypeGetFbReservation == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetFbReservation = dlsym(handle, 'nvmlVgpuTypeGetFbReservation')
+            __nvmlVgpuTypeGetFbReservation = _cyb_dlsym(handle, 'nvmlVgpuTypeGetFbReservation')
 
         global __nvmlVgpuInstanceGetRuntimeStateSize
-        __nvmlVgpuInstanceGetRuntimeStateSize = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetRuntimeStateSize')
+        __nvmlVgpuInstanceGetRuntimeStateSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetRuntimeStateSize')
         if __nvmlVgpuInstanceGetRuntimeStateSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetRuntimeStateSize = dlsym(handle, 'nvmlVgpuInstanceGetRuntimeStateSize')
+            __nvmlVgpuInstanceGetRuntimeStateSize = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetRuntimeStateSize')
 
         global __nvmlDeviceSetVgpuCapabilities
-        __nvmlDeviceSetVgpuCapabilities = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetVgpuCapabilities')
+        __nvmlDeviceSetVgpuCapabilities = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetVgpuCapabilities')
         if __nvmlDeviceSetVgpuCapabilities == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetVgpuCapabilities = dlsym(handle, 'nvmlDeviceSetVgpuCapabilities')
+            __nvmlDeviceSetVgpuCapabilities = _cyb_dlsym(handle, 'nvmlDeviceSetVgpuCapabilities')
 
         global __nvmlDeviceGetGridLicensableFeatures_v4
-        __nvmlDeviceGetGridLicensableFeatures_v4 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGridLicensableFeatures_v4')
+        __nvmlDeviceGetGridLicensableFeatures_v4 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGridLicensableFeatures_v4')
         if __nvmlDeviceGetGridLicensableFeatures_v4 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGridLicensableFeatures_v4 = dlsym(handle, 'nvmlDeviceGetGridLicensableFeatures_v4')
+            __nvmlDeviceGetGridLicensableFeatures_v4 = _cyb_dlsym(handle, 'nvmlDeviceGetGridLicensableFeatures_v4')
 
         global __nvmlGetVgpuDriverCapabilities
-        __nvmlGetVgpuDriverCapabilities = dlsym(RTLD_DEFAULT, 'nvmlGetVgpuDriverCapabilities')
+        __nvmlGetVgpuDriverCapabilities = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGetVgpuDriverCapabilities')
         if __nvmlGetVgpuDriverCapabilities == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGetVgpuDriverCapabilities = dlsym(handle, 'nvmlGetVgpuDriverCapabilities')
+            __nvmlGetVgpuDriverCapabilities = _cyb_dlsym(handle, 'nvmlGetVgpuDriverCapabilities')
 
         global __nvmlDeviceGetVgpuCapabilities
-        __nvmlDeviceGetVgpuCapabilities = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuCapabilities')
+        __nvmlDeviceGetVgpuCapabilities = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuCapabilities')
         if __nvmlDeviceGetVgpuCapabilities == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuCapabilities = dlsym(handle, 'nvmlDeviceGetVgpuCapabilities')
+            __nvmlDeviceGetVgpuCapabilities = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuCapabilities')
 
         global __nvmlDeviceGetSupportedVgpus
-        __nvmlDeviceGetSupportedVgpus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSupportedVgpus')
+        __nvmlDeviceGetSupportedVgpus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSupportedVgpus')
         if __nvmlDeviceGetSupportedVgpus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSupportedVgpus = dlsym(handle, 'nvmlDeviceGetSupportedVgpus')
+            __nvmlDeviceGetSupportedVgpus = _cyb_dlsym(handle, 'nvmlDeviceGetSupportedVgpus')
 
         global __nvmlDeviceGetCreatableVgpus
-        __nvmlDeviceGetCreatableVgpus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCreatableVgpus')
+        __nvmlDeviceGetCreatableVgpus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCreatableVgpus')
         if __nvmlDeviceGetCreatableVgpus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCreatableVgpus = dlsym(handle, 'nvmlDeviceGetCreatableVgpus')
+            __nvmlDeviceGetCreatableVgpus = _cyb_dlsym(handle, 'nvmlDeviceGetCreatableVgpus')
 
         global __nvmlVgpuTypeGetClass
-        __nvmlVgpuTypeGetClass = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetClass')
+        __nvmlVgpuTypeGetClass = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetClass')
         if __nvmlVgpuTypeGetClass == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetClass = dlsym(handle, 'nvmlVgpuTypeGetClass')
+            __nvmlVgpuTypeGetClass = _cyb_dlsym(handle, 'nvmlVgpuTypeGetClass')
 
         global __nvmlVgpuTypeGetName
-        __nvmlVgpuTypeGetName = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetName')
+        __nvmlVgpuTypeGetName = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetName')
         if __nvmlVgpuTypeGetName == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetName = dlsym(handle, 'nvmlVgpuTypeGetName')
+            __nvmlVgpuTypeGetName = _cyb_dlsym(handle, 'nvmlVgpuTypeGetName')
 
         global __nvmlVgpuTypeGetGpuInstanceProfileId
-        __nvmlVgpuTypeGetGpuInstanceProfileId = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetGpuInstanceProfileId')
+        __nvmlVgpuTypeGetGpuInstanceProfileId = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetGpuInstanceProfileId')
         if __nvmlVgpuTypeGetGpuInstanceProfileId == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetGpuInstanceProfileId = dlsym(handle, 'nvmlVgpuTypeGetGpuInstanceProfileId')
+            __nvmlVgpuTypeGetGpuInstanceProfileId = _cyb_dlsym(handle, 'nvmlVgpuTypeGetGpuInstanceProfileId')
 
         global __nvmlVgpuTypeGetDeviceID
-        __nvmlVgpuTypeGetDeviceID = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetDeviceID')
+        __nvmlVgpuTypeGetDeviceID = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetDeviceID')
         if __nvmlVgpuTypeGetDeviceID == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetDeviceID = dlsym(handle, 'nvmlVgpuTypeGetDeviceID')
+            __nvmlVgpuTypeGetDeviceID = _cyb_dlsym(handle, 'nvmlVgpuTypeGetDeviceID')
 
         global __nvmlVgpuTypeGetFramebufferSize
-        __nvmlVgpuTypeGetFramebufferSize = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetFramebufferSize')
+        __nvmlVgpuTypeGetFramebufferSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetFramebufferSize')
         if __nvmlVgpuTypeGetFramebufferSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetFramebufferSize = dlsym(handle, 'nvmlVgpuTypeGetFramebufferSize')
+            __nvmlVgpuTypeGetFramebufferSize = _cyb_dlsym(handle, 'nvmlVgpuTypeGetFramebufferSize')
 
         global __nvmlVgpuTypeGetNumDisplayHeads
-        __nvmlVgpuTypeGetNumDisplayHeads = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetNumDisplayHeads')
+        __nvmlVgpuTypeGetNumDisplayHeads = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetNumDisplayHeads')
         if __nvmlVgpuTypeGetNumDisplayHeads == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetNumDisplayHeads = dlsym(handle, 'nvmlVgpuTypeGetNumDisplayHeads')
+            __nvmlVgpuTypeGetNumDisplayHeads = _cyb_dlsym(handle, 'nvmlVgpuTypeGetNumDisplayHeads')
 
         global __nvmlVgpuTypeGetResolution
-        __nvmlVgpuTypeGetResolution = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetResolution')
+        __nvmlVgpuTypeGetResolution = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetResolution')
         if __nvmlVgpuTypeGetResolution == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetResolution = dlsym(handle, 'nvmlVgpuTypeGetResolution')
+            __nvmlVgpuTypeGetResolution = _cyb_dlsym(handle, 'nvmlVgpuTypeGetResolution')
 
         global __nvmlVgpuTypeGetLicense
-        __nvmlVgpuTypeGetLicense = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetLicense')
+        __nvmlVgpuTypeGetLicense = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetLicense')
         if __nvmlVgpuTypeGetLicense == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetLicense = dlsym(handle, 'nvmlVgpuTypeGetLicense')
+            __nvmlVgpuTypeGetLicense = _cyb_dlsym(handle, 'nvmlVgpuTypeGetLicense')
 
         global __nvmlVgpuTypeGetFrameRateLimit
-        __nvmlVgpuTypeGetFrameRateLimit = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetFrameRateLimit')
+        __nvmlVgpuTypeGetFrameRateLimit = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetFrameRateLimit')
         if __nvmlVgpuTypeGetFrameRateLimit == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetFrameRateLimit = dlsym(handle, 'nvmlVgpuTypeGetFrameRateLimit')
+            __nvmlVgpuTypeGetFrameRateLimit = _cyb_dlsym(handle, 'nvmlVgpuTypeGetFrameRateLimit')
 
         global __nvmlVgpuTypeGetMaxInstances
-        __nvmlVgpuTypeGetMaxInstances = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetMaxInstances')
+        __nvmlVgpuTypeGetMaxInstances = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetMaxInstances')
         if __nvmlVgpuTypeGetMaxInstances == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetMaxInstances = dlsym(handle, 'nvmlVgpuTypeGetMaxInstances')
+            __nvmlVgpuTypeGetMaxInstances = _cyb_dlsym(handle, 'nvmlVgpuTypeGetMaxInstances')
 
         global __nvmlVgpuTypeGetMaxInstancesPerVm
-        __nvmlVgpuTypeGetMaxInstancesPerVm = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetMaxInstancesPerVm')
+        __nvmlVgpuTypeGetMaxInstancesPerVm = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetMaxInstancesPerVm')
         if __nvmlVgpuTypeGetMaxInstancesPerVm == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetMaxInstancesPerVm = dlsym(handle, 'nvmlVgpuTypeGetMaxInstancesPerVm')
+            __nvmlVgpuTypeGetMaxInstancesPerVm = _cyb_dlsym(handle, 'nvmlVgpuTypeGetMaxInstancesPerVm')
 
         global __nvmlVgpuTypeGetBAR1Info
-        __nvmlVgpuTypeGetBAR1Info = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetBAR1Info')
+        __nvmlVgpuTypeGetBAR1Info = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetBAR1Info')
         if __nvmlVgpuTypeGetBAR1Info == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetBAR1Info = dlsym(handle, 'nvmlVgpuTypeGetBAR1Info')
+            __nvmlVgpuTypeGetBAR1Info = _cyb_dlsym(handle, 'nvmlVgpuTypeGetBAR1Info')
 
         global __nvmlDeviceGetActiveVgpus
-        __nvmlDeviceGetActiveVgpus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetActiveVgpus')
+        __nvmlDeviceGetActiveVgpus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetActiveVgpus')
         if __nvmlDeviceGetActiveVgpus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetActiveVgpus = dlsym(handle, 'nvmlDeviceGetActiveVgpus')
+            __nvmlDeviceGetActiveVgpus = _cyb_dlsym(handle, 'nvmlDeviceGetActiveVgpus')
 
         global __nvmlVgpuInstanceGetVmID
-        __nvmlVgpuInstanceGetVmID = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetVmID')
+        __nvmlVgpuInstanceGetVmID = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetVmID')
         if __nvmlVgpuInstanceGetVmID == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetVmID = dlsym(handle, 'nvmlVgpuInstanceGetVmID')
+            __nvmlVgpuInstanceGetVmID = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetVmID')
 
         global __nvmlVgpuInstanceGetUUID
-        __nvmlVgpuInstanceGetUUID = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetUUID')
+        __nvmlVgpuInstanceGetUUID = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetUUID')
         if __nvmlVgpuInstanceGetUUID == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetUUID = dlsym(handle, 'nvmlVgpuInstanceGetUUID')
+            __nvmlVgpuInstanceGetUUID = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetUUID')
 
         global __nvmlVgpuInstanceGetVmDriverVersion
-        __nvmlVgpuInstanceGetVmDriverVersion = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetVmDriverVersion')
+        __nvmlVgpuInstanceGetVmDriverVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetVmDriverVersion')
         if __nvmlVgpuInstanceGetVmDriverVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetVmDriverVersion = dlsym(handle, 'nvmlVgpuInstanceGetVmDriverVersion')
+            __nvmlVgpuInstanceGetVmDriverVersion = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetVmDriverVersion')
 
         global __nvmlVgpuInstanceGetFbUsage
-        __nvmlVgpuInstanceGetFbUsage = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetFbUsage')
+        __nvmlVgpuInstanceGetFbUsage = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetFbUsage')
         if __nvmlVgpuInstanceGetFbUsage == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetFbUsage = dlsym(handle, 'nvmlVgpuInstanceGetFbUsage')
+            __nvmlVgpuInstanceGetFbUsage = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetFbUsage')
 
         global __nvmlVgpuInstanceGetLicenseStatus
-        __nvmlVgpuInstanceGetLicenseStatus = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetLicenseStatus')
+        __nvmlVgpuInstanceGetLicenseStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetLicenseStatus')
         if __nvmlVgpuInstanceGetLicenseStatus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetLicenseStatus = dlsym(handle, 'nvmlVgpuInstanceGetLicenseStatus')
+            __nvmlVgpuInstanceGetLicenseStatus = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetLicenseStatus')
 
         global __nvmlVgpuInstanceGetType
-        __nvmlVgpuInstanceGetType = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetType')
+        __nvmlVgpuInstanceGetType = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetType')
         if __nvmlVgpuInstanceGetType == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetType = dlsym(handle, 'nvmlVgpuInstanceGetType')
+            __nvmlVgpuInstanceGetType = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetType')
 
         global __nvmlVgpuInstanceGetFrameRateLimit
-        __nvmlVgpuInstanceGetFrameRateLimit = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetFrameRateLimit')
+        __nvmlVgpuInstanceGetFrameRateLimit = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetFrameRateLimit')
         if __nvmlVgpuInstanceGetFrameRateLimit == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetFrameRateLimit = dlsym(handle, 'nvmlVgpuInstanceGetFrameRateLimit')
+            __nvmlVgpuInstanceGetFrameRateLimit = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetFrameRateLimit')
 
         global __nvmlVgpuInstanceGetEccMode
-        __nvmlVgpuInstanceGetEccMode = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetEccMode')
+        __nvmlVgpuInstanceGetEccMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetEccMode')
         if __nvmlVgpuInstanceGetEccMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetEccMode = dlsym(handle, 'nvmlVgpuInstanceGetEccMode')
+            __nvmlVgpuInstanceGetEccMode = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetEccMode')
 
         global __nvmlVgpuInstanceGetEncoderCapacity
-        __nvmlVgpuInstanceGetEncoderCapacity = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetEncoderCapacity')
+        __nvmlVgpuInstanceGetEncoderCapacity = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetEncoderCapacity')
         if __nvmlVgpuInstanceGetEncoderCapacity == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetEncoderCapacity = dlsym(handle, 'nvmlVgpuInstanceGetEncoderCapacity')
+            __nvmlVgpuInstanceGetEncoderCapacity = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetEncoderCapacity')
 
         global __nvmlVgpuInstanceSetEncoderCapacity
-        __nvmlVgpuInstanceSetEncoderCapacity = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceSetEncoderCapacity')
+        __nvmlVgpuInstanceSetEncoderCapacity = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceSetEncoderCapacity')
         if __nvmlVgpuInstanceSetEncoderCapacity == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceSetEncoderCapacity = dlsym(handle, 'nvmlVgpuInstanceSetEncoderCapacity')
+            __nvmlVgpuInstanceSetEncoderCapacity = _cyb_dlsym(handle, 'nvmlVgpuInstanceSetEncoderCapacity')
 
         global __nvmlVgpuInstanceGetEncoderStats
-        __nvmlVgpuInstanceGetEncoderStats = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetEncoderStats')
+        __nvmlVgpuInstanceGetEncoderStats = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetEncoderStats')
         if __nvmlVgpuInstanceGetEncoderStats == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetEncoderStats = dlsym(handle, 'nvmlVgpuInstanceGetEncoderStats')
+            __nvmlVgpuInstanceGetEncoderStats = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetEncoderStats')
 
         global __nvmlVgpuInstanceGetEncoderSessions
-        __nvmlVgpuInstanceGetEncoderSessions = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetEncoderSessions')
+        __nvmlVgpuInstanceGetEncoderSessions = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetEncoderSessions')
         if __nvmlVgpuInstanceGetEncoderSessions == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetEncoderSessions = dlsym(handle, 'nvmlVgpuInstanceGetEncoderSessions')
+            __nvmlVgpuInstanceGetEncoderSessions = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetEncoderSessions')
 
         global __nvmlVgpuInstanceGetFBCStats
-        __nvmlVgpuInstanceGetFBCStats = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetFBCStats')
+        __nvmlVgpuInstanceGetFBCStats = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetFBCStats')
         if __nvmlVgpuInstanceGetFBCStats == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetFBCStats = dlsym(handle, 'nvmlVgpuInstanceGetFBCStats')
+            __nvmlVgpuInstanceGetFBCStats = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetFBCStats')
 
         global __nvmlVgpuInstanceGetFBCSessions
-        __nvmlVgpuInstanceGetFBCSessions = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetFBCSessions')
+        __nvmlVgpuInstanceGetFBCSessions = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetFBCSessions')
         if __nvmlVgpuInstanceGetFBCSessions == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetFBCSessions = dlsym(handle, 'nvmlVgpuInstanceGetFBCSessions')
+            __nvmlVgpuInstanceGetFBCSessions = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetFBCSessions')
 
         global __nvmlVgpuInstanceGetGpuInstanceId
-        __nvmlVgpuInstanceGetGpuInstanceId = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetGpuInstanceId')
+        __nvmlVgpuInstanceGetGpuInstanceId = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetGpuInstanceId')
         if __nvmlVgpuInstanceGetGpuInstanceId == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetGpuInstanceId = dlsym(handle, 'nvmlVgpuInstanceGetGpuInstanceId')
+            __nvmlVgpuInstanceGetGpuInstanceId = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetGpuInstanceId')
 
         global __nvmlVgpuInstanceGetGpuPciId
-        __nvmlVgpuInstanceGetGpuPciId = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetGpuPciId')
+        __nvmlVgpuInstanceGetGpuPciId = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetGpuPciId')
         if __nvmlVgpuInstanceGetGpuPciId == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetGpuPciId = dlsym(handle, 'nvmlVgpuInstanceGetGpuPciId')
+            __nvmlVgpuInstanceGetGpuPciId = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetGpuPciId')
 
         global __nvmlVgpuTypeGetCapabilities
-        __nvmlVgpuTypeGetCapabilities = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetCapabilities')
+        __nvmlVgpuTypeGetCapabilities = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetCapabilities')
         if __nvmlVgpuTypeGetCapabilities == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetCapabilities = dlsym(handle, 'nvmlVgpuTypeGetCapabilities')
+            __nvmlVgpuTypeGetCapabilities = _cyb_dlsym(handle, 'nvmlVgpuTypeGetCapabilities')
 
         global __nvmlVgpuInstanceGetMdevUUID
-        __nvmlVgpuInstanceGetMdevUUID = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetMdevUUID')
+        __nvmlVgpuInstanceGetMdevUUID = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetMdevUUID')
         if __nvmlVgpuInstanceGetMdevUUID == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetMdevUUID = dlsym(handle, 'nvmlVgpuInstanceGetMdevUUID')
+            __nvmlVgpuInstanceGetMdevUUID = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetMdevUUID')
 
         global __nvmlGpuInstanceGetCreatableVgpus
-        __nvmlGpuInstanceGetCreatableVgpus = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetCreatableVgpus')
+        __nvmlGpuInstanceGetCreatableVgpus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetCreatableVgpus')
         if __nvmlGpuInstanceGetCreatableVgpus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetCreatableVgpus = dlsym(handle, 'nvmlGpuInstanceGetCreatableVgpus')
+            __nvmlGpuInstanceGetCreatableVgpus = _cyb_dlsym(handle, 'nvmlGpuInstanceGetCreatableVgpus')
 
         global __nvmlVgpuTypeGetMaxInstancesPerGpuInstance
-        __nvmlVgpuTypeGetMaxInstancesPerGpuInstance = dlsym(RTLD_DEFAULT, 'nvmlVgpuTypeGetMaxInstancesPerGpuInstance')
+        __nvmlVgpuTypeGetMaxInstancesPerGpuInstance = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuTypeGetMaxInstancesPerGpuInstance')
         if __nvmlVgpuTypeGetMaxInstancesPerGpuInstance == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuTypeGetMaxInstancesPerGpuInstance = dlsym(handle, 'nvmlVgpuTypeGetMaxInstancesPerGpuInstance')
+            __nvmlVgpuTypeGetMaxInstancesPerGpuInstance = _cyb_dlsym(handle, 'nvmlVgpuTypeGetMaxInstancesPerGpuInstance')
 
         global __nvmlGpuInstanceGetActiveVgpus
-        __nvmlGpuInstanceGetActiveVgpus = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetActiveVgpus')
+        __nvmlGpuInstanceGetActiveVgpus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetActiveVgpus')
         if __nvmlGpuInstanceGetActiveVgpus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetActiveVgpus = dlsym(handle, 'nvmlGpuInstanceGetActiveVgpus')
+            __nvmlGpuInstanceGetActiveVgpus = _cyb_dlsym(handle, 'nvmlGpuInstanceGetActiveVgpus')
 
         global __nvmlGpuInstanceSetVgpuSchedulerState
-        __nvmlGpuInstanceSetVgpuSchedulerState = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceSetVgpuSchedulerState')
+        __nvmlGpuInstanceSetVgpuSchedulerState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceSetVgpuSchedulerState')
         if __nvmlGpuInstanceSetVgpuSchedulerState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceSetVgpuSchedulerState = dlsym(handle, 'nvmlGpuInstanceSetVgpuSchedulerState')
+            __nvmlGpuInstanceSetVgpuSchedulerState = _cyb_dlsym(handle, 'nvmlGpuInstanceSetVgpuSchedulerState')
 
         global __nvmlGpuInstanceGetVgpuSchedulerState
-        __nvmlGpuInstanceGetVgpuSchedulerState = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerState')
+        __nvmlGpuInstanceGetVgpuSchedulerState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerState')
         if __nvmlGpuInstanceGetVgpuSchedulerState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetVgpuSchedulerState = dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerState')
+            __nvmlGpuInstanceGetVgpuSchedulerState = _cyb_dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerState')
 
         global __nvmlGpuInstanceGetVgpuSchedulerLog
-        __nvmlGpuInstanceGetVgpuSchedulerLog = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerLog')
+        __nvmlGpuInstanceGetVgpuSchedulerLog = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerLog')
         if __nvmlGpuInstanceGetVgpuSchedulerLog == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetVgpuSchedulerLog = dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerLog')
+            __nvmlGpuInstanceGetVgpuSchedulerLog = _cyb_dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerLog')
 
         global __nvmlGpuInstanceGetVgpuTypeCreatablePlacements
-        __nvmlGpuInstanceGetVgpuTypeCreatablePlacements = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuTypeCreatablePlacements')
+        __nvmlGpuInstanceGetVgpuTypeCreatablePlacements = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuTypeCreatablePlacements')
         if __nvmlGpuInstanceGetVgpuTypeCreatablePlacements == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetVgpuTypeCreatablePlacements = dlsym(handle, 'nvmlGpuInstanceGetVgpuTypeCreatablePlacements')
+            __nvmlGpuInstanceGetVgpuTypeCreatablePlacements = _cyb_dlsym(handle, 'nvmlGpuInstanceGetVgpuTypeCreatablePlacements')
 
         global __nvmlGpuInstanceGetVgpuHeterogeneousMode
-        __nvmlGpuInstanceGetVgpuHeterogeneousMode = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuHeterogeneousMode')
+        __nvmlGpuInstanceGetVgpuHeterogeneousMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuHeterogeneousMode')
         if __nvmlGpuInstanceGetVgpuHeterogeneousMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetVgpuHeterogeneousMode = dlsym(handle, 'nvmlGpuInstanceGetVgpuHeterogeneousMode')
+            __nvmlGpuInstanceGetVgpuHeterogeneousMode = _cyb_dlsym(handle, 'nvmlGpuInstanceGetVgpuHeterogeneousMode')
 
         global __nvmlGpuInstanceSetVgpuHeterogeneousMode
-        __nvmlGpuInstanceSetVgpuHeterogeneousMode = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceSetVgpuHeterogeneousMode')
+        __nvmlGpuInstanceSetVgpuHeterogeneousMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceSetVgpuHeterogeneousMode')
         if __nvmlGpuInstanceSetVgpuHeterogeneousMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceSetVgpuHeterogeneousMode = dlsym(handle, 'nvmlGpuInstanceSetVgpuHeterogeneousMode')
+            __nvmlGpuInstanceSetVgpuHeterogeneousMode = _cyb_dlsym(handle, 'nvmlGpuInstanceSetVgpuHeterogeneousMode')
 
         global __nvmlVgpuInstanceGetMetadata
-        __nvmlVgpuInstanceGetMetadata = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetMetadata')
+        __nvmlVgpuInstanceGetMetadata = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetMetadata')
         if __nvmlVgpuInstanceGetMetadata == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetMetadata = dlsym(handle, 'nvmlVgpuInstanceGetMetadata')
+            __nvmlVgpuInstanceGetMetadata = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetMetadata')
 
         global __nvmlDeviceGetVgpuMetadata
-        __nvmlDeviceGetVgpuMetadata = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuMetadata')
+        __nvmlDeviceGetVgpuMetadata = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuMetadata')
         if __nvmlDeviceGetVgpuMetadata == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuMetadata = dlsym(handle, 'nvmlDeviceGetVgpuMetadata')
+            __nvmlDeviceGetVgpuMetadata = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuMetadata')
 
         global __nvmlGetVgpuCompatibility
-        __nvmlGetVgpuCompatibility = dlsym(RTLD_DEFAULT, 'nvmlGetVgpuCompatibility')
+        __nvmlGetVgpuCompatibility = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGetVgpuCompatibility')
         if __nvmlGetVgpuCompatibility == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGetVgpuCompatibility = dlsym(handle, 'nvmlGetVgpuCompatibility')
+            __nvmlGetVgpuCompatibility = _cyb_dlsym(handle, 'nvmlGetVgpuCompatibility')
 
         global __nvmlDeviceGetPgpuMetadataString
-        __nvmlDeviceGetPgpuMetadataString = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPgpuMetadataString')
+        __nvmlDeviceGetPgpuMetadataString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPgpuMetadataString')
         if __nvmlDeviceGetPgpuMetadataString == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPgpuMetadataString = dlsym(handle, 'nvmlDeviceGetPgpuMetadataString')
+            __nvmlDeviceGetPgpuMetadataString = _cyb_dlsym(handle, 'nvmlDeviceGetPgpuMetadataString')
 
         global __nvmlDeviceGetVgpuSchedulerLog
-        __nvmlDeviceGetVgpuSchedulerLog = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerLog')
+        __nvmlDeviceGetVgpuSchedulerLog = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerLog')
         if __nvmlDeviceGetVgpuSchedulerLog == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuSchedulerLog = dlsym(handle, 'nvmlDeviceGetVgpuSchedulerLog')
+            __nvmlDeviceGetVgpuSchedulerLog = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuSchedulerLog')
 
         global __nvmlDeviceGetVgpuSchedulerState
-        __nvmlDeviceGetVgpuSchedulerState = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerState')
+        __nvmlDeviceGetVgpuSchedulerState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerState')
         if __nvmlDeviceGetVgpuSchedulerState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuSchedulerState = dlsym(handle, 'nvmlDeviceGetVgpuSchedulerState')
+            __nvmlDeviceGetVgpuSchedulerState = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuSchedulerState')
 
         global __nvmlDeviceGetVgpuSchedulerCapabilities
-        __nvmlDeviceGetVgpuSchedulerCapabilities = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerCapabilities')
+        __nvmlDeviceGetVgpuSchedulerCapabilities = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerCapabilities')
         if __nvmlDeviceGetVgpuSchedulerCapabilities == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuSchedulerCapabilities = dlsym(handle, 'nvmlDeviceGetVgpuSchedulerCapabilities')
+            __nvmlDeviceGetVgpuSchedulerCapabilities = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuSchedulerCapabilities')
 
         global __nvmlDeviceSetVgpuSchedulerState
-        __nvmlDeviceSetVgpuSchedulerState = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetVgpuSchedulerState')
+        __nvmlDeviceSetVgpuSchedulerState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetVgpuSchedulerState')
         if __nvmlDeviceSetVgpuSchedulerState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetVgpuSchedulerState = dlsym(handle, 'nvmlDeviceSetVgpuSchedulerState')
+            __nvmlDeviceSetVgpuSchedulerState = _cyb_dlsym(handle, 'nvmlDeviceSetVgpuSchedulerState')
 
         global __nvmlGetVgpuVersion
-        __nvmlGetVgpuVersion = dlsym(RTLD_DEFAULT, 'nvmlGetVgpuVersion')
+        __nvmlGetVgpuVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGetVgpuVersion')
         if __nvmlGetVgpuVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGetVgpuVersion = dlsym(handle, 'nvmlGetVgpuVersion')
+            __nvmlGetVgpuVersion = _cyb_dlsym(handle, 'nvmlGetVgpuVersion')
 
         global __nvmlSetVgpuVersion
-        __nvmlSetVgpuVersion = dlsym(RTLD_DEFAULT, 'nvmlSetVgpuVersion')
+        __nvmlSetVgpuVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSetVgpuVersion')
         if __nvmlSetVgpuVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlSetVgpuVersion = dlsym(handle, 'nvmlSetVgpuVersion')
+            __nvmlSetVgpuVersion = _cyb_dlsym(handle, 'nvmlSetVgpuVersion')
 
         global __nvmlDeviceGetVgpuUtilization
-        __nvmlDeviceGetVgpuUtilization = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuUtilization')
+        __nvmlDeviceGetVgpuUtilization = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuUtilization')
         if __nvmlDeviceGetVgpuUtilization == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuUtilization = dlsym(handle, 'nvmlDeviceGetVgpuUtilization')
+            __nvmlDeviceGetVgpuUtilization = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuUtilization')
 
         global __nvmlDeviceGetVgpuInstancesUtilizationInfo
-        __nvmlDeviceGetVgpuInstancesUtilizationInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuInstancesUtilizationInfo')
+        __nvmlDeviceGetVgpuInstancesUtilizationInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuInstancesUtilizationInfo')
         if __nvmlDeviceGetVgpuInstancesUtilizationInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuInstancesUtilizationInfo = dlsym(handle, 'nvmlDeviceGetVgpuInstancesUtilizationInfo')
+            __nvmlDeviceGetVgpuInstancesUtilizationInfo = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuInstancesUtilizationInfo')
 
         global __nvmlDeviceGetVgpuProcessUtilization
-        __nvmlDeviceGetVgpuProcessUtilization = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuProcessUtilization')
+        __nvmlDeviceGetVgpuProcessUtilization = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuProcessUtilization')
         if __nvmlDeviceGetVgpuProcessUtilization == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuProcessUtilization = dlsym(handle, 'nvmlDeviceGetVgpuProcessUtilization')
+            __nvmlDeviceGetVgpuProcessUtilization = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuProcessUtilization')
 
         global __nvmlDeviceGetVgpuProcessesUtilizationInfo
-        __nvmlDeviceGetVgpuProcessesUtilizationInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuProcessesUtilizationInfo')
+        __nvmlDeviceGetVgpuProcessesUtilizationInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuProcessesUtilizationInfo')
         if __nvmlDeviceGetVgpuProcessesUtilizationInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuProcessesUtilizationInfo = dlsym(handle, 'nvmlDeviceGetVgpuProcessesUtilizationInfo')
+            __nvmlDeviceGetVgpuProcessesUtilizationInfo = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuProcessesUtilizationInfo')
 
         global __nvmlVgpuInstanceGetAccountingMode
-        __nvmlVgpuInstanceGetAccountingMode = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetAccountingMode')
+        __nvmlVgpuInstanceGetAccountingMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetAccountingMode')
         if __nvmlVgpuInstanceGetAccountingMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetAccountingMode = dlsym(handle, 'nvmlVgpuInstanceGetAccountingMode')
+            __nvmlVgpuInstanceGetAccountingMode = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetAccountingMode')
 
         global __nvmlVgpuInstanceGetAccountingPids
-        __nvmlVgpuInstanceGetAccountingPids = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetAccountingPids')
+        __nvmlVgpuInstanceGetAccountingPids = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetAccountingPids')
         if __nvmlVgpuInstanceGetAccountingPids == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetAccountingPids = dlsym(handle, 'nvmlVgpuInstanceGetAccountingPids')
+            __nvmlVgpuInstanceGetAccountingPids = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetAccountingPids')
 
         global __nvmlVgpuInstanceGetAccountingStats
-        __nvmlVgpuInstanceGetAccountingStats = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetAccountingStats')
+        __nvmlVgpuInstanceGetAccountingStats = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetAccountingStats')
         if __nvmlVgpuInstanceGetAccountingStats == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetAccountingStats = dlsym(handle, 'nvmlVgpuInstanceGetAccountingStats')
+            __nvmlVgpuInstanceGetAccountingStats = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetAccountingStats')
 
         global __nvmlVgpuInstanceClearAccountingPids
-        __nvmlVgpuInstanceClearAccountingPids = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceClearAccountingPids')
+        __nvmlVgpuInstanceClearAccountingPids = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceClearAccountingPids')
         if __nvmlVgpuInstanceClearAccountingPids == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceClearAccountingPids = dlsym(handle, 'nvmlVgpuInstanceClearAccountingPids')
+            __nvmlVgpuInstanceClearAccountingPids = _cyb_dlsym(handle, 'nvmlVgpuInstanceClearAccountingPids')
 
         global __nvmlVgpuInstanceGetLicenseInfo_v2
-        __nvmlVgpuInstanceGetLicenseInfo_v2 = dlsym(RTLD_DEFAULT, 'nvmlVgpuInstanceGetLicenseInfo_v2')
+        __nvmlVgpuInstanceGetLicenseInfo_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlVgpuInstanceGetLicenseInfo_v2')
         if __nvmlVgpuInstanceGetLicenseInfo_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlVgpuInstanceGetLicenseInfo_v2 = dlsym(handle, 'nvmlVgpuInstanceGetLicenseInfo_v2')
+            __nvmlVgpuInstanceGetLicenseInfo_v2 = _cyb_dlsym(handle, 'nvmlVgpuInstanceGetLicenseInfo_v2')
 
         global __nvmlGetExcludedDeviceCount
-        __nvmlGetExcludedDeviceCount = dlsym(RTLD_DEFAULT, 'nvmlGetExcludedDeviceCount')
+        __nvmlGetExcludedDeviceCount = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGetExcludedDeviceCount')
         if __nvmlGetExcludedDeviceCount == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGetExcludedDeviceCount = dlsym(handle, 'nvmlGetExcludedDeviceCount')
+            __nvmlGetExcludedDeviceCount = _cyb_dlsym(handle, 'nvmlGetExcludedDeviceCount')
 
         global __nvmlGetExcludedDeviceInfoByIndex
-        __nvmlGetExcludedDeviceInfoByIndex = dlsym(RTLD_DEFAULT, 'nvmlGetExcludedDeviceInfoByIndex')
+        __nvmlGetExcludedDeviceInfoByIndex = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGetExcludedDeviceInfoByIndex')
         if __nvmlGetExcludedDeviceInfoByIndex == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGetExcludedDeviceInfoByIndex = dlsym(handle, 'nvmlGetExcludedDeviceInfoByIndex')
+            __nvmlGetExcludedDeviceInfoByIndex = _cyb_dlsym(handle, 'nvmlGetExcludedDeviceInfoByIndex')
 
         global __nvmlDeviceSetMigMode
-        __nvmlDeviceSetMigMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetMigMode')
+        __nvmlDeviceSetMigMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetMigMode')
         if __nvmlDeviceSetMigMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetMigMode = dlsym(handle, 'nvmlDeviceSetMigMode')
+            __nvmlDeviceSetMigMode = _cyb_dlsym(handle, 'nvmlDeviceSetMigMode')
 
         global __nvmlDeviceGetMigMode
-        __nvmlDeviceGetMigMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMigMode')
+        __nvmlDeviceGetMigMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMigMode')
         if __nvmlDeviceGetMigMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMigMode = dlsym(handle, 'nvmlDeviceGetMigMode')
+            __nvmlDeviceGetMigMode = _cyb_dlsym(handle, 'nvmlDeviceGetMigMode')
 
         global __nvmlDeviceGetGpuInstanceProfileInfoV
-        __nvmlDeviceGetGpuInstanceProfileInfoV = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceProfileInfoV')
+        __nvmlDeviceGetGpuInstanceProfileInfoV = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceProfileInfoV')
         if __nvmlDeviceGetGpuInstanceProfileInfoV == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuInstanceProfileInfoV = dlsym(handle, 'nvmlDeviceGetGpuInstanceProfileInfoV')
+            __nvmlDeviceGetGpuInstanceProfileInfoV = _cyb_dlsym(handle, 'nvmlDeviceGetGpuInstanceProfileInfoV')
 
         global __nvmlDeviceGetGpuInstancePossiblePlacements_v2
-        __nvmlDeviceGetGpuInstancePossiblePlacements_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuInstancePossiblePlacements_v2')
+        __nvmlDeviceGetGpuInstancePossiblePlacements_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuInstancePossiblePlacements_v2')
         if __nvmlDeviceGetGpuInstancePossiblePlacements_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuInstancePossiblePlacements_v2 = dlsym(handle, 'nvmlDeviceGetGpuInstancePossiblePlacements_v2')
+            __nvmlDeviceGetGpuInstancePossiblePlacements_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetGpuInstancePossiblePlacements_v2')
 
         global __nvmlDeviceGetGpuInstanceRemainingCapacity
-        __nvmlDeviceGetGpuInstanceRemainingCapacity = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceRemainingCapacity')
+        __nvmlDeviceGetGpuInstanceRemainingCapacity = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceRemainingCapacity')
         if __nvmlDeviceGetGpuInstanceRemainingCapacity == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuInstanceRemainingCapacity = dlsym(handle, 'nvmlDeviceGetGpuInstanceRemainingCapacity')
+            __nvmlDeviceGetGpuInstanceRemainingCapacity = _cyb_dlsym(handle, 'nvmlDeviceGetGpuInstanceRemainingCapacity')
 
         global __nvmlDeviceCreateGpuInstance
-        __nvmlDeviceCreateGpuInstance = dlsym(RTLD_DEFAULT, 'nvmlDeviceCreateGpuInstance')
+        __nvmlDeviceCreateGpuInstance = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceCreateGpuInstance')
         if __nvmlDeviceCreateGpuInstance == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceCreateGpuInstance = dlsym(handle, 'nvmlDeviceCreateGpuInstance')
+            __nvmlDeviceCreateGpuInstance = _cyb_dlsym(handle, 'nvmlDeviceCreateGpuInstance')
 
         global __nvmlDeviceCreateGpuInstanceWithPlacement
-        __nvmlDeviceCreateGpuInstanceWithPlacement = dlsym(RTLD_DEFAULT, 'nvmlDeviceCreateGpuInstanceWithPlacement')
+        __nvmlDeviceCreateGpuInstanceWithPlacement = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceCreateGpuInstanceWithPlacement')
         if __nvmlDeviceCreateGpuInstanceWithPlacement == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceCreateGpuInstanceWithPlacement = dlsym(handle, 'nvmlDeviceCreateGpuInstanceWithPlacement')
+            __nvmlDeviceCreateGpuInstanceWithPlacement = _cyb_dlsym(handle, 'nvmlDeviceCreateGpuInstanceWithPlacement')
 
         global __nvmlGpuInstanceDestroy
-        __nvmlGpuInstanceDestroy = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceDestroy')
+        __nvmlGpuInstanceDestroy = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceDestroy')
         if __nvmlGpuInstanceDestroy == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceDestroy = dlsym(handle, 'nvmlGpuInstanceDestroy')
+            __nvmlGpuInstanceDestroy = _cyb_dlsym(handle, 'nvmlGpuInstanceDestroy')
 
         global __nvmlDeviceGetGpuInstances
-        __nvmlDeviceGetGpuInstances = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuInstances')
+        __nvmlDeviceGetGpuInstances = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuInstances')
         if __nvmlDeviceGetGpuInstances == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuInstances = dlsym(handle, 'nvmlDeviceGetGpuInstances')
+            __nvmlDeviceGetGpuInstances = _cyb_dlsym(handle, 'nvmlDeviceGetGpuInstances')
 
         global __nvmlDeviceGetGpuInstanceById
-        __nvmlDeviceGetGpuInstanceById = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceById')
+        __nvmlDeviceGetGpuInstanceById = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceById')
         if __nvmlDeviceGetGpuInstanceById == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuInstanceById = dlsym(handle, 'nvmlDeviceGetGpuInstanceById')
+            __nvmlDeviceGetGpuInstanceById = _cyb_dlsym(handle, 'nvmlDeviceGetGpuInstanceById')
 
         global __nvmlGpuInstanceGetInfo
-        __nvmlGpuInstanceGetInfo = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetInfo')
+        __nvmlGpuInstanceGetInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetInfo')
         if __nvmlGpuInstanceGetInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetInfo = dlsym(handle, 'nvmlGpuInstanceGetInfo')
+            __nvmlGpuInstanceGetInfo = _cyb_dlsym(handle, 'nvmlGpuInstanceGetInfo')
 
         global __nvmlGpuInstanceGetComputeInstanceProfileInfoV
-        __nvmlGpuInstanceGetComputeInstanceProfileInfoV = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstanceProfileInfoV')
+        __nvmlGpuInstanceGetComputeInstanceProfileInfoV = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstanceProfileInfoV')
         if __nvmlGpuInstanceGetComputeInstanceProfileInfoV == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetComputeInstanceProfileInfoV = dlsym(handle, 'nvmlGpuInstanceGetComputeInstanceProfileInfoV')
+            __nvmlGpuInstanceGetComputeInstanceProfileInfoV = _cyb_dlsym(handle, 'nvmlGpuInstanceGetComputeInstanceProfileInfoV')
 
         global __nvmlGpuInstanceGetComputeInstanceRemainingCapacity
-        __nvmlGpuInstanceGetComputeInstanceRemainingCapacity = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstanceRemainingCapacity')
+        __nvmlGpuInstanceGetComputeInstanceRemainingCapacity = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstanceRemainingCapacity')
         if __nvmlGpuInstanceGetComputeInstanceRemainingCapacity == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetComputeInstanceRemainingCapacity = dlsym(handle, 'nvmlGpuInstanceGetComputeInstanceRemainingCapacity')
+            __nvmlGpuInstanceGetComputeInstanceRemainingCapacity = _cyb_dlsym(handle, 'nvmlGpuInstanceGetComputeInstanceRemainingCapacity')
 
         global __nvmlGpuInstanceGetComputeInstancePossiblePlacements
-        __nvmlGpuInstanceGetComputeInstancePossiblePlacements = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstancePossiblePlacements')
+        __nvmlGpuInstanceGetComputeInstancePossiblePlacements = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstancePossiblePlacements')
         if __nvmlGpuInstanceGetComputeInstancePossiblePlacements == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetComputeInstancePossiblePlacements = dlsym(handle, 'nvmlGpuInstanceGetComputeInstancePossiblePlacements')
+            __nvmlGpuInstanceGetComputeInstancePossiblePlacements = _cyb_dlsym(handle, 'nvmlGpuInstanceGetComputeInstancePossiblePlacements')
 
         global __nvmlGpuInstanceCreateComputeInstance
-        __nvmlGpuInstanceCreateComputeInstance = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceCreateComputeInstance')
+        __nvmlGpuInstanceCreateComputeInstance = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceCreateComputeInstance')
         if __nvmlGpuInstanceCreateComputeInstance == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceCreateComputeInstance = dlsym(handle, 'nvmlGpuInstanceCreateComputeInstance')
+            __nvmlGpuInstanceCreateComputeInstance = _cyb_dlsym(handle, 'nvmlGpuInstanceCreateComputeInstance')
 
         global __nvmlGpuInstanceCreateComputeInstanceWithPlacement
-        __nvmlGpuInstanceCreateComputeInstanceWithPlacement = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceCreateComputeInstanceWithPlacement')
+        __nvmlGpuInstanceCreateComputeInstanceWithPlacement = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceCreateComputeInstanceWithPlacement')
         if __nvmlGpuInstanceCreateComputeInstanceWithPlacement == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceCreateComputeInstanceWithPlacement = dlsym(handle, 'nvmlGpuInstanceCreateComputeInstanceWithPlacement')
+            __nvmlGpuInstanceCreateComputeInstanceWithPlacement = _cyb_dlsym(handle, 'nvmlGpuInstanceCreateComputeInstanceWithPlacement')
 
         global __nvmlComputeInstanceDestroy
-        __nvmlComputeInstanceDestroy = dlsym(RTLD_DEFAULT, 'nvmlComputeInstanceDestroy')
+        __nvmlComputeInstanceDestroy = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlComputeInstanceDestroy')
         if __nvmlComputeInstanceDestroy == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlComputeInstanceDestroy = dlsym(handle, 'nvmlComputeInstanceDestroy')
+            __nvmlComputeInstanceDestroy = _cyb_dlsym(handle, 'nvmlComputeInstanceDestroy')
 
         global __nvmlGpuInstanceGetComputeInstances
-        __nvmlGpuInstanceGetComputeInstances = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstances')
+        __nvmlGpuInstanceGetComputeInstances = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstances')
         if __nvmlGpuInstanceGetComputeInstances == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetComputeInstances = dlsym(handle, 'nvmlGpuInstanceGetComputeInstances')
+            __nvmlGpuInstanceGetComputeInstances = _cyb_dlsym(handle, 'nvmlGpuInstanceGetComputeInstances')
 
         global __nvmlGpuInstanceGetComputeInstanceById
-        __nvmlGpuInstanceGetComputeInstanceById = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstanceById')
+        __nvmlGpuInstanceGetComputeInstanceById = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetComputeInstanceById')
         if __nvmlGpuInstanceGetComputeInstanceById == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetComputeInstanceById = dlsym(handle, 'nvmlGpuInstanceGetComputeInstanceById')
+            __nvmlGpuInstanceGetComputeInstanceById = _cyb_dlsym(handle, 'nvmlGpuInstanceGetComputeInstanceById')
 
         global __nvmlComputeInstanceGetInfo_v2
-        __nvmlComputeInstanceGetInfo_v2 = dlsym(RTLD_DEFAULT, 'nvmlComputeInstanceGetInfo_v2')
+        __nvmlComputeInstanceGetInfo_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlComputeInstanceGetInfo_v2')
         if __nvmlComputeInstanceGetInfo_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlComputeInstanceGetInfo_v2 = dlsym(handle, 'nvmlComputeInstanceGetInfo_v2')
+            __nvmlComputeInstanceGetInfo_v2 = _cyb_dlsym(handle, 'nvmlComputeInstanceGetInfo_v2')
 
         global __nvmlDeviceIsMigDeviceHandle
-        __nvmlDeviceIsMigDeviceHandle = dlsym(RTLD_DEFAULT, 'nvmlDeviceIsMigDeviceHandle')
+        __nvmlDeviceIsMigDeviceHandle = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceIsMigDeviceHandle')
         if __nvmlDeviceIsMigDeviceHandle == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceIsMigDeviceHandle = dlsym(handle, 'nvmlDeviceIsMigDeviceHandle')
+            __nvmlDeviceIsMigDeviceHandle = _cyb_dlsym(handle, 'nvmlDeviceIsMigDeviceHandle')
 
         global __nvmlDeviceGetGpuInstanceId
-        __nvmlDeviceGetGpuInstanceId = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceId')
+        __nvmlDeviceGetGpuInstanceId = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceId')
         if __nvmlDeviceGetGpuInstanceId == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuInstanceId = dlsym(handle, 'nvmlDeviceGetGpuInstanceId')
+            __nvmlDeviceGetGpuInstanceId = _cyb_dlsym(handle, 'nvmlDeviceGetGpuInstanceId')
 
         global __nvmlDeviceGetComputeInstanceId
-        __nvmlDeviceGetComputeInstanceId = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetComputeInstanceId')
+        __nvmlDeviceGetComputeInstanceId = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetComputeInstanceId')
         if __nvmlDeviceGetComputeInstanceId == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetComputeInstanceId = dlsym(handle, 'nvmlDeviceGetComputeInstanceId')
+            __nvmlDeviceGetComputeInstanceId = _cyb_dlsym(handle, 'nvmlDeviceGetComputeInstanceId')
 
         global __nvmlDeviceGetMaxMigDeviceCount
-        __nvmlDeviceGetMaxMigDeviceCount = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMaxMigDeviceCount')
+        __nvmlDeviceGetMaxMigDeviceCount = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMaxMigDeviceCount')
         if __nvmlDeviceGetMaxMigDeviceCount == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMaxMigDeviceCount = dlsym(handle, 'nvmlDeviceGetMaxMigDeviceCount')
+            __nvmlDeviceGetMaxMigDeviceCount = _cyb_dlsym(handle, 'nvmlDeviceGetMaxMigDeviceCount')
 
         global __nvmlDeviceGetMigDeviceHandleByIndex
-        __nvmlDeviceGetMigDeviceHandleByIndex = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetMigDeviceHandleByIndex')
+        __nvmlDeviceGetMigDeviceHandleByIndex = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetMigDeviceHandleByIndex')
         if __nvmlDeviceGetMigDeviceHandleByIndex == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetMigDeviceHandleByIndex = dlsym(handle, 'nvmlDeviceGetMigDeviceHandleByIndex')
+            __nvmlDeviceGetMigDeviceHandleByIndex = _cyb_dlsym(handle, 'nvmlDeviceGetMigDeviceHandleByIndex')
 
         global __nvmlDeviceGetDeviceHandleFromMigDeviceHandle
-        __nvmlDeviceGetDeviceHandleFromMigDeviceHandle = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetDeviceHandleFromMigDeviceHandle')
+        __nvmlDeviceGetDeviceHandleFromMigDeviceHandle = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetDeviceHandleFromMigDeviceHandle')
         if __nvmlDeviceGetDeviceHandleFromMigDeviceHandle == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetDeviceHandleFromMigDeviceHandle = dlsym(handle, 'nvmlDeviceGetDeviceHandleFromMigDeviceHandle')
+            __nvmlDeviceGetDeviceHandleFromMigDeviceHandle = _cyb_dlsym(handle, 'nvmlDeviceGetDeviceHandleFromMigDeviceHandle')
 
         global __nvmlDeviceGetCapabilities
-        __nvmlDeviceGetCapabilities = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCapabilities')
+        __nvmlDeviceGetCapabilities = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetCapabilities')
         if __nvmlDeviceGetCapabilities == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetCapabilities = dlsym(handle, 'nvmlDeviceGetCapabilities')
+            __nvmlDeviceGetCapabilities = _cyb_dlsym(handle, 'nvmlDeviceGetCapabilities')
 
         global __nvmlDevicePowerSmoothingActivatePresetProfile
-        __nvmlDevicePowerSmoothingActivatePresetProfile = dlsym(RTLD_DEFAULT, 'nvmlDevicePowerSmoothingActivatePresetProfile')
+        __nvmlDevicePowerSmoothingActivatePresetProfile = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDevicePowerSmoothingActivatePresetProfile')
         if __nvmlDevicePowerSmoothingActivatePresetProfile == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDevicePowerSmoothingActivatePresetProfile = dlsym(handle, 'nvmlDevicePowerSmoothingActivatePresetProfile')
+            __nvmlDevicePowerSmoothingActivatePresetProfile = _cyb_dlsym(handle, 'nvmlDevicePowerSmoothingActivatePresetProfile')
 
         global __nvmlDevicePowerSmoothingUpdatePresetProfileParam
-        __nvmlDevicePowerSmoothingUpdatePresetProfileParam = dlsym(RTLD_DEFAULT, 'nvmlDevicePowerSmoothingUpdatePresetProfileParam')
+        __nvmlDevicePowerSmoothingUpdatePresetProfileParam = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDevicePowerSmoothingUpdatePresetProfileParam')
         if __nvmlDevicePowerSmoothingUpdatePresetProfileParam == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDevicePowerSmoothingUpdatePresetProfileParam = dlsym(handle, 'nvmlDevicePowerSmoothingUpdatePresetProfileParam')
+            __nvmlDevicePowerSmoothingUpdatePresetProfileParam = _cyb_dlsym(handle, 'nvmlDevicePowerSmoothingUpdatePresetProfileParam')
 
         global __nvmlDevicePowerSmoothingSetState
-        __nvmlDevicePowerSmoothingSetState = dlsym(RTLD_DEFAULT, 'nvmlDevicePowerSmoothingSetState')
+        __nvmlDevicePowerSmoothingSetState = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDevicePowerSmoothingSetState')
         if __nvmlDevicePowerSmoothingSetState == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDevicePowerSmoothingSetState = dlsym(handle, 'nvmlDevicePowerSmoothingSetState')
+            __nvmlDevicePowerSmoothingSetState = _cyb_dlsym(handle, 'nvmlDevicePowerSmoothingSetState')
 
         global __nvmlDeviceGetAddressingMode
-        __nvmlDeviceGetAddressingMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetAddressingMode')
+        __nvmlDeviceGetAddressingMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAddressingMode')
         if __nvmlDeviceGetAddressingMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetAddressingMode = dlsym(handle, 'nvmlDeviceGetAddressingMode')
+            __nvmlDeviceGetAddressingMode = _cyb_dlsym(handle, 'nvmlDeviceGetAddressingMode')
 
         global __nvmlDeviceGetRepairStatus
-        __nvmlDeviceGetRepairStatus = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetRepairStatus')
+        __nvmlDeviceGetRepairStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetRepairStatus')
         if __nvmlDeviceGetRepairStatus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetRepairStatus = dlsym(handle, 'nvmlDeviceGetRepairStatus')
+            __nvmlDeviceGetRepairStatus = _cyb_dlsym(handle, 'nvmlDeviceGetRepairStatus')
 
         global __nvmlDeviceGetPowerMizerMode_v1
-        __nvmlDeviceGetPowerMizerMode_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPowerMizerMode_v1')
+        __nvmlDeviceGetPowerMizerMode_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPowerMizerMode_v1')
         if __nvmlDeviceGetPowerMizerMode_v1 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPowerMizerMode_v1 = dlsym(handle, 'nvmlDeviceGetPowerMizerMode_v1')
+            __nvmlDeviceGetPowerMizerMode_v1 = _cyb_dlsym(handle, 'nvmlDeviceGetPowerMizerMode_v1')
 
         global __nvmlDeviceSetPowerMizerMode_v1
-        __nvmlDeviceSetPowerMizerMode_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetPowerMizerMode_v1')
+        __nvmlDeviceSetPowerMizerMode_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetPowerMizerMode_v1')
         if __nvmlDeviceSetPowerMizerMode_v1 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetPowerMizerMode_v1 = dlsym(handle, 'nvmlDeviceSetPowerMizerMode_v1')
+            __nvmlDeviceSetPowerMizerMode_v1 = _cyb_dlsym(handle, 'nvmlDeviceSetPowerMizerMode_v1')
 
         global __nvmlDeviceGetPdi
-        __nvmlDeviceGetPdi = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetPdi')
+        __nvmlDeviceGetPdi = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetPdi')
         if __nvmlDeviceGetPdi == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetPdi = dlsym(handle, 'nvmlDeviceGetPdi')
+            __nvmlDeviceGetPdi = _cyb_dlsym(handle, 'nvmlDeviceGetPdi')
 
         global __nvmlDeviceSetHostname_v1
-        __nvmlDeviceSetHostname_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetHostname_v1')
+        __nvmlDeviceSetHostname_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetHostname_v1')
         if __nvmlDeviceSetHostname_v1 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetHostname_v1 = dlsym(handle, 'nvmlDeviceSetHostname_v1')
+            __nvmlDeviceSetHostname_v1 = _cyb_dlsym(handle, 'nvmlDeviceSetHostname_v1')
 
         global __nvmlDeviceGetHostname_v1
-        __nvmlDeviceGetHostname_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetHostname_v1')
+        __nvmlDeviceGetHostname_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetHostname_v1')
         if __nvmlDeviceGetHostname_v1 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetHostname_v1 = dlsym(handle, 'nvmlDeviceGetHostname_v1')
+            __nvmlDeviceGetHostname_v1 = _cyb_dlsym(handle, 'nvmlDeviceGetHostname_v1')
 
         global __nvmlDeviceGetNvLinkInfo
-        __nvmlDeviceGetNvLinkInfo = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetNvLinkInfo')
+        __nvmlDeviceGetNvLinkInfo = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvLinkInfo')
         if __nvmlDeviceGetNvLinkInfo == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetNvLinkInfo = dlsym(handle, 'nvmlDeviceGetNvLinkInfo')
+            __nvmlDeviceGetNvLinkInfo = _cyb_dlsym(handle, 'nvmlDeviceGetNvLinkInfo')
 
         global __nvmlDeviceReadWritePRM_v1
-        __nvmlDeviceReadWritePRM_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceReadWritePRM_v1')
+        __nvmlDeviceReadWritePRM_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceReadWritePRM_v1')
         if __nvmlDeviceReadWritePRM_v1 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceReadWritePRM_v1 = dlsym(handle, 'nvmlDeviceReadWritePRM_v1')
+            __nvmlDeviceReadWritePRM_v1 = _cyb_dlsym(handle, 'nvmlDeviceReadWritePRM_v1')
 
         global __nvmlDeviceGetGpuInstanceProfileInfoByIdV
-        __nvmlDeviceGetGpuInstanceProfileInfoByIdV = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceProfileInfoByIdV')
+        __nvmlDeviceGetGpuInstanceProfileInfoByIdV = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuInstanceProfileInfoByIdV')
         if __nvmlDeviceGetGpuInstanceProfileInfoByIdV == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetGpuInstanceProfileInfoByIdV = dlsym(handle, 'nvmlDeviceGetGpuInstanceProfileInfoByIdV')
+            __nvmlDeviceGetGpuInstanceProfileInfoByIdV = _cyb_dlsym(handle, 'nvmlDeviceGetGpuInstanceProfileInfoByIdV')
 
         global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
-        __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts')
+        __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts')
         if __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = dlsym(handle, 'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts')
+            __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = _cyb_dlsym(handle, 'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts')
 
         global __nvmlDeviceGetUnrepairableMemoryFlag_v1
-        __nvmlDeviceGetUnrepairableMemoryFlag_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetUnrepairableMemoryFlag_v1')
+        __nvmlDeviceGetUnrepairableMemoryFlag_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetUnrepairableMemoryFlag_v1')
         if __nvmlDeviceGetUnrepairableMemoryFlag_v1 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetUnrepairableMemoryFlag_v1 = dlsym(handle, 'nvmlDeviceGetUnrepairableMemoryFlag_v1')
+            __nvmlDeviceGetUnrepairableMemoryFlag_v1 = _cyb_dlsym(handle, 'nvmlDeviceGetUnrepairableMemoryFlag_v1')
 
         global __nvmlDeviceReadPRMCounters_v1
-        __nvmlDeviceReadPRMCounters_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceReadPRMCounters_v1')
+        __nvmlDeviceReadPRMCounters_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceReadPRMCounters_v1')
         if __nvmlDeviceReadPRMCounters_v1 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceReadPRMCounters_v1 = dlsym(handle, 'nvmlDeviceReadPRMCounters_v1')
+            __nvmlDeviceReadPRMCounters_v1 = _cyb_dlsym(handle, 'nvmlDeviceReadPRMCounters_v1')
 
         global __nvmlDeviceSetRusdSettings_v1
-        __nvmlDeviceSetRusdSettings_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetRusdSettings_v1')
+        __nvmlDeviceSetRusdSettings_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetRusdSettings_v1')
         if __nvmlDeviceSetRusdSettings_v1 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetRusdSettings_v1 = dlsym(handle, 'nvmlDeviceSetRusdSettings_v1')
+            __nvmlDeviceSetRusdSettings_v1 = _cyb_dlsym(handle, 'nvmlDeviceSetRusdSettings_v1')
 
         global __nvmlDeviceVgpuForceGspUnload
-        __nvmlDeviceVgpuForceGspUnload = dlsym(RTLD_DEFAULT, 'nvmlDeviceVgpuForceGspUnload')
+        __nvmlDeviceVgpuForceGspUnload = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceVgpuForceGspUnload')
         if __nvmlDeviceVgpuForceGspUnload == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceVgpuForceGspUnload = dlsym(handle, 'nvmlDeviceVgpuForceGspUnload')
+            __nvmlDeviceVgpuForceGspUnload = _cyb_dlsym(handle, 'nvmlDeviceVgpuForceGspUnload')
 
         global __nvmlDeviceGetVgpuSchedulerState_v2
-        __nvmlDeviceGetVgpuSchedulerState_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerState_v2')
+        __nvmlDeviceGetVgpuSchedulerState_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerState_v2')
         if __nvmlDeviceGetVgpuSchedulerState_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuSchedulerState_v2 = dlsym(handle, 'nvmlDeviceGetVgpuSchedulerState_v2')
+            __nvmlDeviceGetVgpuSchedulerState_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuSchedulerState_v2')
 
         global __nvmlGpuInstanceGetVgpuSchedulerState_v2
-        __nvmlGpuInstanceGetVgpuSchedulerState_v2 = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerState_v2')
+        __nvmlGpuInstanceGetVgpuSchedulerState_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerState_v2')
         if __nvmlGpuInstanceGetVgpuSchedulerState_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetVgpuSchedulerState_v2 = dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerState_v2')
+            __nvmlGpuInstanceGetVgpuSchedulerState_v2 = _cyb_dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerState_v2')
 
         global __nvmlDeviceGetVgpuSchedulerLog_v2
-        __nvmlDeviceGetVgpuSchedulerLog_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerLog_v2')
+        __nvmlDeviceGetVgpuSchedulerLog_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetVgpuSchedulerLog_v2')
         if __nvmlDeviceGetVgpuSchedulerLog_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceGetVgpuSchedulerLog_v2 = dlsym(handle, 'nvmlDeviceGetVgpuSchedulerLog_v2')
+            __nvmlDeviceGetVgpuSchedulerLog_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetVgpuSchedulerLog_v2')
 
         global __nvmlGpuInstanceGetVgpuSchedulerLog_v2
-        __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerLog_v2')
+        __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceGetVgpuSchedulerLog_v2')
         if __nvmlGpuInstanceGetVgpuSchedulerLog_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerLog_v2')
+            __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = _cyb_dlsym(handle, 'nvmlGpuInstanceGetVgpuSchedulerLog_v2')
 
         global __nvmlDeviceSetVgpuSchedulerState_v2
-        __nvmlDeviceSetVgpuSchedulerState_v2 = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetVgpuSchedulerState_v2')
+        __nvmlDeviceSetVgpuSchedulerState_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetVgpuSchedulerState_v2')
         if __nvmlDeviceSetVgpuSchedulerState_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlDeviceSetVgpuSchedulerState_v2 = dlsym(handle, 'nvmlDeviceSetVgpuSchedulerState_v2')
+            __nvmlDeviceSetVgpuSchedulerState_v2 = _cyb_dlsym(handle, 'nvmlDeviceSetVgpuSchedulerState_v2')
 
         global __nvmlGpuInstanceSetVgpuSchedulerState_v2
-        __nvmlGpuInstanceSetVgpuSchedulerState_v2 = dlsym(RTLD_DEFAULT, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
+        __nvmlGpuInstanceSetVgpuSchedulerState_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
         if __nvmlGpuInstanceSetVgpuSchedulerState_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __nvmlGpuInstanceSetVgpuSchedulerState_v2 = dlsym(handle, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
+            __nvmlGpuInstanceSetVgpuSchedulerState_v2 = _cyb_dlsym(handle, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
 
-        __py_nvml_init = True
+        global __nvmlSystemGetCPER_v1
+        __nvmlSystemGetCPER_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetCPER_v1')
+        if __nvmlSystemGetCPER_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlSystemGetCPER_v1 = _cyb_dlsym(handle, 'nvmlSystemGetCPER_v1')
+
+        global __nvmlDeviceGetBBXTimeData_v1
+        __nvmlDeviceGetBBXTimeData_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetBBXTimeData_v1')
+        if __nvmlDeviceGetBBXTimeData_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetBBXTimeData_v1 = _cyb_dlsym(handle, 'nvmlDeviceGetBBXTimeData_v1')
+
+        global __nvmlDeviceGetAccountingStats_v2
+        __nvmlDeviceGetAccountingStats_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetAccountingStats_v2')
+        if __nvmlDeviceGetAccountingStats_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetAccountingStats_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetAccountingStats_v2')
+
+        global __nvmlDeviceGetRemappedRows_v2
+        __nvmlDeviceGetRemappedRows_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetRemappedRows_v2')
+        if __nvmlDeviceGetRemappedRows_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetRemappedRows_v2 = _cyb_dlsym(handle, 'nvmlDeviceGetRemappedRows_v2')
+
+        _cyb_atomic_int_store(<int *>&_cyb___py_nvml_init, 1)
         return 0
 
-
 cdef inline int _check_or_init_nvml() except -1 nogil:
-    if __py_nvml_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_nvml_init):
         return 0
 
     return _init_nvml()
 
 
-cdef dict func_ptrs = None
-
-
 cpdef dict _inspect_function_pointers():
-    global func_ptrs
-    if func_ptrs is not None:
-        return func_ptrs
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is not None:
+        return _cyb_func_ptrs
 
     _check_or_init_nvml()
     cdef dict data = {}
-
     global __nvmlInit_v2
     data["__nvmlInit_v2"] = <intptr_t>__nvmlInit_v2
 
@@ -3960,15 +3981,33 @@ cpdef dict _inspect_function_pointers():
     global __nvmlGpuInstanceSetVgpuSchedulerState_v2
     data["__nvmlGpuInstanceSetVgpuSchedulerState_v2"] = <intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState_v2
 
-    func_ptrs = data
+    global __nvmlSystemGetCPER_v1
+    data["__nvmlSystemGetCPER_v1"] = <intptr_t>__nvmlSystemGetCPER_v1
+
+    global __nvmlDeviceGetBBXTimeData_v1
+    data["__nvmlDeviceGetBBXTimeData_v1"] = <intptr_t>__nvmlDeviceGetBBXTimeData_v1
+
+    global __nvmlDeviceGetAccountingStats_v2
+    data["__nvmlDeviceGetAccountingStats_v2"] = <intptr_t>__nvmlDeviceGetAccountingStats_v2
+
+    global __nvmlDeviceGetRemappedRows_v2
+    data["__nvmlDeviceGetRemappedRows_v2"] = <intptr_t>__nvmlDeviceGetRemappedRows_v2
+    _cyb_func_ptrs = data
     return data
 
 
 cpdef _inspect_function_pointer(str name):
-    global func_ptrs
-    if func_ptrs is None:
-        func_ptrs = _inspect_function_pointers()
-    return func_ptrs[name]
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is None:
+        _cyb_func_ptrs = _inspect_function_pointers()
+    return _cyb_func_ptrs[name]
+
+
+
+
+cdef void* load_library() except* with gil:
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvml")._handle_uint
+    return <void*>handle
 
 
 ###############################################################################
@@ -7483,3 +7522,43 @@ cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpu
             raise FunctionNotFoundError("function nvmlGpuInstanceSetVgpuSchedulerState_v2 is not found")
     return (<nvmlReturn_t (*)(nvmlGpuInstance_t, nvmlVgpuSchedulerState_v2_t*) noexcept nogil>__nvmlGpuInstanceSetVgpuSchedulerState_v2)(
         gpuInstance, pSchedulerState)
+
+
+cdef nvmlReturn_t _nvmlSystemGetCPER_v1(nvmlGetCPER_v1_t* cper) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlSystemGetCPER_v1
+    _check_or_init_nvml()
+    if __nvmlSystemGetCPER_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlSystemGetCPER_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlGetCPER_v1_t*) noexcept nogil>__nvmlSystemGetCPER_v1)(
+        cper)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetBBXTimeData_v1(nvmlDevice_t device, nvmlBBXTimeData_v1_t* timeData) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetBBXTimeData_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetBBXTimeData_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetBBXTimeData_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlBBXTimeData_v1_t*) noexcept nogil>__nvmlDeviceGetBBXTimeData_v1)(
+        device, timeData)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetAccountingStats_v2(nvmlDevice_t device, nvmlAccountingStats_v2_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetAccountingStats_v2
+    _check_or_init_nvml()
+    if __nvmlDeviceGetAccountingStats_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetAccountingStats_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlAccountingStats_v2_t*) noexcept nogil>__nvmlDeviceGetAccountingStats_v2)(
+        device, stats)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappedRowsInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetRemappedRows_v2
+    _check_or_init_nvml()
+    if __nvmlDeviceGetRemappedRows_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetRemappedRows_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlRemappedRowsInfo_v2_t*) noexcept nogil>__nvmlDeviceGetRemappedRows_v2)(
+        device, info)

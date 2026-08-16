@@ -19,6 +19,7 @@ Devices and execution
    :toctree: generated/
 
    Device
+   Host
    launch
 
    :template: autosummary/cyclass.rst
@@ -60,6 +61,7 @@ Memory management
    :template: autosummary/cyclass.rst
 
    Buffer
+   ManagedBuffer
    MemoryResource
    DeviceMemoryResource
    GraphMemoryResource
@@ -75,92 +77,19 @@ Memory management
    ManagedMemoryResourceOptions
    VirtualMemoryResourceOptions
 
-
-CUDA graphs
------------
-
-A CUDA graph captures a set of GPU operations and their dependencies,
-allowing them to be defined once and launched repeatedly with minimal
-CPU overhead. Graphs can be constructed in two ways:
-:class:`~graph.GraphBuilder` captures operations from a stream, while
-:class:`~graph.GraphDefinition` builds a graph explicitly by adding nodes and
-edges. Both produce an executable :class:`~graph.Graph` that can be
-launched on a :class:`Stream`.
-
-.. autosummary::
-   :toctree: generated/
-
-   graph.Graph
-   graph.GraphBuilder
-   graph.GraphDefinition
-
-   :template: autosummary/cyclass.rst
-
-   graph.GraphNode
-   graph.GraphCondition
-
-   :template: dataclass.rst
-
-   graph.GraphCompleteOptions
-   graph.GraphDebugPrintOptions
-
-Node types
-``````````
-
-Every graph node is a subclass of :class:`~graph.GraphNode`, which
-provides the common interface (dependencies, successors, destruction).
-Each subclass exposes attributes unique to its operation type.
-
-.. autosummary::
-   :toctree: generated/
-
-   :template: autosummary/cyclass.rst
-
-   graph.EmptyNode
-   graph.KernelNode
-   graph.AllocNode
-   graph.FreeNode
-   graph.MemsetNode
-   graph.MemcpyNode
-   graph.ChildGraphNode
-   graph.EventRecordNode
-   graph.EventWaitNode
-   graph.HostCallbackNode
-   graph.ConditionalNode
-   graph.IfNode
-   graph.IfElseNode
-   graph.WhileNode
-   graph.SwitchNode
-
-
-Graphics interoperability
--------------------------
-
-.. autosummary::
-   :toctree: generated/
-
-   :template: autosummary/cyclass.rst
-
-   GraphicsResource
-
-
-Tensor Memory Accelerator (TMA)
--------------------------------
-
-.. autosummary::
-   :toctree: generated/
-
-   :template: autosummary/cyclass.rst
-
-   TensorMapDescriptor
-
-   :template: dataclass.rst
-
-   TensorMapDescriptorOptions
+A :class:`Buffer` records the stream that will order its eventual deallocation.
+Use :meth:`Buffer.set_deallocation_stream` to replace that stream without
+closing the buffer. Changing the recorded stream does not synchronize streams;
+the caller must order allocation and every access before the deallocation,
+using events or other CUDA synchronization mechanisms as needed. See
+:cuda-core-example:`buffer_deallocation_stream.py <buffer_deallocation_stream.py>`
+for a complete example.
 
 
 CUDA compilation toolchain
 --------------------------
+
+.. currentmodule:: cuda.core
 
 .. autosummary::
    :toctree: generated/
@@ -195,7 +124,192 @@ avoid recompiling identical source + options + target without writing the
    FileStreamProgramCache
    make_program_cache_key
 
+
+CUDA graphs
+-----------
+
+A CUDA graph captures a set of GPU operations and their dependencies,
+allowing them to be defined once and launched repeatedly with minimal
+CPU overhead. Graphs can be constructed in two ways:
+:class:`~graph.GraphBuilder` captures operations from a stream, while
+:class:`~graph.GraphDefinition` builds a graph explicitly by adding nodes and
+edges. Both produce an executable :class:`~graph.Graph` that can be
+launched on a :class:`Stream`.
+
 .. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   graph.Graph
+   graph.GraphBuilder
+   graph.GraphDefinition
+
+   :template: autosummary/cyclass.rst
+
+   graph.GraphNode
+   graph.GraphCondition
+
+   :template: dataclass.rst
+
+   graph.GraphCompleteOptions
+   graph.GraphDebugPrintOptions
+
+Node types
+``````````
+
+Every graph node is a subclass of :class:`~graph.GraphNode`, which
+provides the common interface (dependencies, successors, destruction).
+Each subclass exposes attributes unique to its operation type.
+
+Parameter-bearing definition nodes expose subclass-specific ``update()``
+methods: :class:`~graph.KernelNode`, :class:`~graph.MemcpyNode`,
+:class:`~graph.MemsetNode`, :class:`~graph.ChildGraphNode`,
+:class:`~graph.EventRecordNode`, :class:`~graph.EventWaitNode`, and
+:class:`~graph.HostCallbackNode`. These methods require CUDA driver and
+``cuda.bindings`` versions 12.2 or newer. Updates affect future graph
+instantiations; executable graphs that were already instantiated continue
+using their previous parameters and retained resources. Omitted optional
+arguments preserve their current values where supported.
+On CUDA 12.2 through 13.1, the intended CUDA context must be current when
+updating memcpy or memset nodes. CUDA driver and ``cuda.bindings`` versions
+13.2 and newer preserve the recorded context automatically.
+Multidimensional or array-backed memcpy nodes and clustered or cooperative
+kernel nodes cannot currently be updated. Clustered and cooperative kernel
+nodes also cannot currently be constructed explicitly.
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   graph.EmptyNode
+   graph.KernelNode
+   graph.AllocNode
+   graph.FreeNode
+   graph.MemsetNode
+   graph.MemcpyNode
+   graph.ChildGraphNode
+   graph.EventRecordNode
+   graph.EventWaitNode
+   graph.HostCallbackNode
+   graph.ConditionalNode
+   graph.IfNode
+   graph.IfElseNode
+   graph.WhileNode
+   graph.SwitchNode
+
+Executable node views
+`````````````````````
+
+Index an executable :class:`~graph.Graph` with a definition node to update that
+node in the executable, for example
+``graph[kernel_node].update(config=config, kernel=kernel, args=args)``.
+The returned view retains the executable and source node, while CUDA validates
+that the node is associated with the executable.
+
+Executable graphs do not support reading back current node parameters, so
+updates take a complete replacement. Buffer operands, kernels, events, kernel
+arguments, and callback bindings are retained for every future launch that may
+use them. Superseded resources remain retained until a successful whole-graph
+update or executable destruction. Raw integer addresses remain caller-owned.
+Memcpy and memset updates use the current CUDA context, which must match the
+original node context.
+
+Kernel, memcpy, and memset views also provide ``is_enabled``, ``enable()``, and
+``disable()``. Executable-node updates require CUDA driver and
+``cuda.bindings`` versions 12.2 or newer.
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   graph.ExecutableGraphNode
+   graph.ExecutableKernelNode
+   graph.ExecutableMemcpyNode
+   graph.ExecutableMemsetNode
+   graph.ExecutableHostCallbackNode
+   graph.ExecutableChildGraphNode
+   graph.ExecutableEventRecordNode
+   graph.ExecutableEventWaitNode
+
+
+Graphics interoperability
+-------------------------
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   GraphicsResource
+
+
+Tensor Memory Accelerator (TMA)
+-------------------------------
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   TensorMapDescriptor
+
+   :template: dataclass.rst
+
+   TensorMapDescriptorOptions
+
+
+Textures and surfaces
+---------------------
+
+CUDA arrays back bindless texture and surface objects for kernel-side sampled
+reads and typed load/store. These types live in the :mod:`cuda.core.texture`
+namespace. :class:`OpaqueArray` is allocated through
+:meth:`cuda.core.Device.create_opaque_array` and bound through a
+:class:`ResourceDescriptor` factory; linear (1D) and row-pitched 2D
+:class:`Buffer` views as well as mipmapped allocations (:class:`MipmappedArray`,
+via :meth:`cuda.core.Device.create_mipmapped_array`) are also supported as
+texture backings. Bindless handles are created with
+:meth:`cuda.core.Device.create_texture_object` and
+:meth:`cuda.core.Device.create_surface_object`.
+
+A :class:`OpaqueArray` has an opaque, hardware-defined layout with no linear
+device pointer, so it cannot participate in ``__cuda_array_interface__`` /
+DLPack zero-copy interop. Data is moved in and out only by copying — use
+:meth:`OpaqueArray.copy_from` / :meth:`OpaqueArray.copy_to` against a linear
+:class:`Buffer` or a host buffer-protocol object.
+
+.. currentmodule:: cuda.core.texture
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: autosummary/cyclass.rst
+
+   OpaqueArray
+   MipmappedArray
+   ResourceDescriptor
+   TextureObject
+   SurfaceObject
+
+   :template: dataclass.rst
+
+   OpaqueArrayOptions
+   MipmappedArrayOptions
+   TextureObjectOptions
+
+The associated enumerations —
+:class:`~cuda.core.typing.ArrayFormatType`,
+:class:`~cuda.core.typing.AddressModeType`,
+:class:`~cuda.core.typing.FilterModeType`, and
+:class:`~cuda.core.typing.ReadModeType` — live in :mod:`cuda.core.typing`
+alongside the other ``cuda.core`` enumerations.
 
 
 CUDA process checkpointing
@@ -252,6 +366,8 @@ Use ``Process.restore_thread_id`` to discover that thread before calling
 persistence mode to be enabled or ``cuInit`` to have been called before
 execution.
 
+.. currentmodule:: cuda.core
+
 .. autosummary::
    :toctree: generated/
 
@@ -263,11 +379,34 @@ execution.
 Utility functions
 -----------------
 
+.. currentmodule:: cuda.core
+
 .. autosummary::
    :toctree: generated/
 
    utils.args_viewable_as_strided_memory
+   utils.copy_batch
+   utils.prefetch_batch
+   utils.discard_batch
+   utils.discard_prefetch_batch
 
    :template: autosummary/cyclass.rst
 
    utils.StridedMemoryView
+
+Data transfer options
+`````````````````````
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: dataclass.rst
+
+   utils.CopyOptions
+
+   :template: class.rst
+
+   utils.MemcpySrcAccessOrder
+   utils.MemcpyOverlapMode

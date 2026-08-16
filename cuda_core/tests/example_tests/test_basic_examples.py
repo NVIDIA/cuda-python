@@ -11,15 +11,10 @@ import sys
 import warnings
 
 import pytest
+from cuda_python_test_helpers.pep723 import has_package_requirements_or_skip
 
 from cuda.core import Device, ManagedMemoryResource, system
-
-try:
-    from cuda.bindings._test_helpers.pep723 import has_package_requirements_or_skip
-except ImportError:
-    # If the import fails, we define a dummy function that will cause all tests to be skipped.
-    def has_package_requirements_or_skip(example):
-        pytest.skip("PEP 723 test helper is not available")
+from cuda.core._program import _can_load_generated_ptx
 
 
 def has_compute_capability_9_or_higher() -> bool:
@@ -81,7 +76,11 @@ def has_recent_memory_pool_support() -> bool:
 
 SYSTEM_REQUIREMENTS = {
     "memory_pool_resources.py": has_recent_memory_pool_support,
+    "batched_memcpy.py": has_recent_memory_pool_support,
     "gl_interop_plasma.py": has_display,
+    "gl_interop_fluid.py": has_display,
+    "gl_interop_mipmap_lod.py": has_display,
+    "jit_lto_fractal.py": _can_load_generated_ptx,
     "pytorch_example.py": lambda: (
         has_compute_capability_9_or_higher() and is_x86_64()
     ),  # PyTorch only provides CUDA support for x86_64
@@ -98,6 +97,7 @@ sample_files = [os.path.basename(x) for x in glob.glob(samples_path + "**/*.py",
 
 
 @pytest.mark.parametrize("example", sample_files)
+@pytest.mark.parallel_threads_limit(8)
 def test_example(example):
     example_path = os.path.join(samples_path, example)
     has_package_requirements_or_skip(example_path)

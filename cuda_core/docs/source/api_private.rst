@@ -21,28 +21,34 @@ CUDA runtime
    _module.KernelOccupancy
    _module.MaxPotentialBlockSizeOccupancyResult
    _module.ParamInfo
+   typing.AddressModeType
+   typing.ArrayFormatType
    typing.CompilerBackendType
    typing.DevicePointerType
    typing.DeviceResourcesType
+   typing.FilterModeType
    typing.GraphConditionalType
    typing.GraphMemoryType
    typing.ManagedMemoryLocationType
    typing.ObjectCodeFormatType
    typing.PCHStatusType
    typing.ProcessStateType
+   typing.ReadModeType
    typing.SourceCodeType
    typing.VirtualMemoryAccessType
    typing.VirtualMemoryAllocationType
    typing.VirtualMemoryGranularityType
    typing.VirtualMemoryHandleType
    typing.VirtualMemoryLocationType
+   typing.WorkqueueSharingScopeType
 
    :template: autosummary/cyclass.rst
 
+   DeviceResources
    _device.DeviceProperties
-   _device_resources.DeviceResources
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
+   _memory._managed_buffer.AccessedBySetProxy
 
 
 CUDA graphs
@@ -120,3 +126,36 @@ NVML
    system.typing.TemperatureThresholds
    system.typing.ThermalController
    system.typing.ThermalTarget
+
+   system.NvmlError
+   system.UninitializedError
+   system.InvalidArgumentError
+   system.NotSupportedError
+   system.NoPermissionError
+   system.AlreadyInitializedError
+   system.NotFoundError
+   system.InsufficientSizeError
+   system.InsufficientPowerError
+   system.DriverNotLoadedError
+   system.TimeoutError
+   system.IrqIssueError
+   system.LibraryNotFoundError
+   system.FunctionNotFoundError
+   system.CorruptedInforomError
+   system.GpuIsLostError
+   system.ResetRequiredError
+   system.OperatingSystemError
+   system.LibRmVersionMismatchError
+   system.InUseError
+   system.MemoryError
+   system.NoDataError
+   system.VgpuEccNotSupportedError
+   system.InsufficientResourcesError
+   system.FreqNotSupportedError
+   system.ArgumentVersionMismatchError
+   system.DeprecatedError
+   system.NotReadyError
+   system.GpuNotFoundError
+   system.InvalidStateError
+   system.ResetTypeNotSupportedError
+   system.UnknownError

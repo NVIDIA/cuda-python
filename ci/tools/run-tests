@@ -13,19 +13,22 @@ if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
   exit 1
 fi
-if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" ]]; then
-  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', or 'pathfinder'"
+if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" && "${1}" != nightly-* ]]; then
+  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', 'pathfinder', or 'nightly-*'"
   exit 1
 fi
 
 test_module=${1}
 
-# Unconditionally install pathfinder wheel
-# (it is a direct dependency of bindings, and a transitive dependency of core)
-pushd ./cuda_pathfinder
-echo "Installing pathfinder wheel"
-pip install ./*.whl --group test
-popd
+# For standard modes, install pathfinder up front (it is a direct dependency
+# of bindings, and a transitive dependency of core).  Nightly modes install
+# all wheels together in a single pip call further below.
+if [[ "${test_module}" != nightly-* ]]; then
+  pushd ./cuda_pathfinder
+  echo "Installing pathfinder wheel"
+  pip install ./*.whl --group test
+  popd
+fi
 
 if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
@@ -33,7 +36,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
     "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
     "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS} " \
     "BC:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS}"
-  pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
+  pytest -ra -s -v tests/ |& tee /tmp/pathfinder_test_log.txt
   # Report the number of "INFO test_" lines (including zero)
   # to support quick validations based on GHA log archives.
   line_count=$(awk '/^INFO test_/ {count++} END {print count+0}' /tmp/pathfinder_test_log.txt)
@@ -48,51 +51,144 @@ elif [[ "${test_module}" == "bindings" ]]; then
     pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
   fi
   echo "Running bindings tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
+  ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
+    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/cython
   fi
   popd
-elif [[ "${test_module}" == "core" ]]; then
-  # Install cuda.bindings for core tests based on BINDINGS_SOURCE.
-  if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
-    echo "Installing published cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.* from PyPI"
-    pip install "cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*"
-  elif [[ "${BINDINGS_SOURCE}" == "backport" || "${BINDINGS_SOURCE}" == "main" ]]; then
-    echo "Installing bindings wheel (source: ${BINDINGS_SOURCE})"
-    if [[ "${LOCAL_CTK}" == 1 ]]; then
-      pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
-    else
-      pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all]
-    fi
-  fi
+elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
+  # Shared setup for core and nightly modes.
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
-  echo "Installing core wheel"
+  TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
 
   FREE_THREADING=""
   if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
     FREE_THREADING+="-ft"
   fi
 
-  pushd ./cuda_core
-  CUDA_VER_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
-  # Start from the built wheel path, then add the published cuda.bindings extra
+  # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
+  #   main/backport → local wheel from artifacts dir
+  #   published     → install from PyPI by version
+  BINDINGS_ARGS=()
+  if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
+    BINDINGS_ARGS+=("cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*")
+  else
+    BINDINGS_ARGS=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
+    if [[ "${LOCAL_CTK}" != 1 ]]; then
+      BINDINGS_ARGS=("${BINDINGS_ARGS[0]}[all]")
+    fi
+  fi
+
+  # Resolve core wheel, adding the published cuda.bindings extra
   # when this job is resolving against wheel-installed CTK packages.
-  WHL_EXTRA=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
+  CORE_WHL=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
   if [[ "${LOCAL_CTK}" != 1 ]]; then
-    WHL_EXTRA=("${WHL_EXTRA[0]}[cu${TEST_CUDA_MAJOR}]")
+    CORE_WHL=("${CORE_WHL[0]}[cu${TEST_CUDA_MAJOR}]")
   fi
-  # Constrain cuda-toolkit to the requested CTK version to avoid
-  # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
-  pip install "${WHL_EXTRA[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${CUDA_VER_MINOR}.*"
-  echo "Installed packages before core tests:"
-  pip list
-  echo "Running core tests"
-  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/
-  # Currently our CI always installs the latest bindings (from either major version).
-  # This is not compatible with the test requirements.
-  if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 --randomly-dont-reorganize tests/cython
+
+  if [[ "${test_module}" == nightly-* ]]; then
+    # Resolve pathfinder wheel to absolute path before pushd.
+    # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already
+    # absolute (set via realpath in env-vars).
+    PATHFINDER_WHL=($(realpath ./cuda_pathfinder/*.whl))
   fi
-  popd
+
+  if [[ "${test_module}" == "core" ]]; then
+    # pushd so --group reads test dependency groups from cuda_core/pyproject.toml.
+    pushd ./cuda_core
+    echo "Installing bindings (source: ${BINDINGS_SOURCE})"
+    pip install "${BINDINGS_ARGS[@]}"
+    echo "Installing core wheel"
+    # Constrain cuda-toolkit to the requested CTK version to avoid
+    # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
+    pip install "${CORE_WHL[@]}" --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
+    echo "Installed packages before core tests:"
+    pip list
+    echo "Running core tests"
+    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/
+    # Currently our CI always installs the latest bindings (from either major version).
+    # This is not compatible with the test requirements.
+    if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
+      ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/cython
+    fi
+    popd
+  elif [[ "${test_module}" == "nightly-cuda-core" ]]; then
+    # Test the *released* cuda-core (from PyPI) against *main*-built pathfinder
+    # and cuda-bindings. The workflow follows up with an actions/checkout of the
+    # matching cuda-core-v<X.Y.Z> tag so the released version's own test suite
+    # (which is not shipped in the wheel) can be exercised.
+    echo "Installing pathfinder + bindings from main + released cuda-core from PyPI"
+    pip install "${PATHFINDER_WHL[@]}" "${BINDINGS_ARGS[@]}" "cuda-core[cu${TEST_CUDA_MAJOR}]"
+
+    released_ver=$(pip show cuda-core | awk '/^Version:/{print $2}')
+    if [[ -n "${GITHUB_ENV:-}" ]]; then
+      echo "CUDA_CORE_RELEASED_VER=${released_ver}" >> "${GITHUB_ENV}"
+      echo "CUDA_CORE_TEST_GROUP=test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}" >> "${GITHUB_ENV}"
+    fi
+    echo "Installed packages before released cuda-core tests:"
+    pip list
+  else
+    # Nightly optional-dependency testing: nightly-pytorch, nightly-numba-cuda,
+    # nightly-numba-cuda-mlir. Install ALL cuda-python wheels (pathfinder +
+    # bindings + core) and the optional dep in a single pip call so pip resolves
+    # version constraints in one shot.
+    pushd ./cuda_core
+    PIP_ARGS=(
+      "${PATHFINDER_WHL[@]}"
+      "${BINDINGS_ARGS[@]}"
+      "${CORE_WHL[@]}"
+      --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
+    )
+
+    if [[ "${test_module}" == "nightly-pytorch" ]]; then
+      # TORCH_VER and TORCH_CUDA must be set by the caller.
+      # Use cuda-toolkit[cudart] only — torch brings its own nvcc/nvrtc/etc.
+      # This avoids version conflicts between our nvidia-* pins and torch's.
+      echo "Installing pathfinder + bindings + core + test deps + PyTorch ${TORCH_VER} (${TORCH_CUDA})"
+      PIP_ARGS+=("cuda-toolkit[cudart]==${TEST_CUDA_MAJOR_MINOR}.*")
+      if [[ "${TORCH_VER}" == "latest" ]]; then
+        PIP_ARGS+=(torch)
+      else
+        PIP_ARGS+=("torch==${TORCH_VER}")
+      fi
+      PIP_ARGS+=(--extra-index-url "https://download.pytorch.org/whl/${TORCH_CUDA}")
+    elif [[ "${test_module}" == "nightly-numba-cuda" ]]; then
+      echo "Installing pathfinder + bindings + core + test deps + numba-cuda"
+      # numba-cuda's test-cuXX group deps (can't use --group for a wheel install):
+      PIP_ARGS+=(
+        "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
+        "numba-cuda[cu${TEST_CUDA_MAJOR}]"
+        "cupy-cuda${TEST_CUDA_MAJOR}x"
+        psutil cffi pytest-xdist pytest-benchmark filecheck ml_dtypes statistics
+      )
+    elif [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then
+      echo "Installing pathfinder + bindings + core + numba-cuda-mlir + cupy"
+      # numpy<2.5: numba-cuda-mlir 0.4.0 registers np.row_stack, which was
+      # removed in NumPy 2.5. See NVIDIA/numba-cuda-mlir#154.
+      # curand/cublas + cupy: some numba-cuda-mlir tests (e.g.
+      # test_fortran_contiguous) call cp.random, which dlopens libcurand at
+      # runtime. Mirror the numba-cuda branch, which installs the same libs.
+      PIP_ARGS+=(
+        "numba-cuda-mlir[cu${TEST_CUDA_MAJOR}]"
+        "numpy<2.5"
+        "cuda-toolkit[curand,cublas]==${TEST_CUDA_MAJOR_MINOR}.*"
+        "cupy-cuda${TEST_CUDA_MAJOR}x"
+      )
+    fi
+
+    pip install "${PIP_ARGS[@]}"
+    echo "Nightly install complete — installed packages:"
+    pip list
+    popd
+
+    if [[ "${test_module}" == "nightly-numba-cuda-mlir" ]]; then
+      # Expose the installed numba-cuda-mlir version so the workflow can
+      # actions/checkout the matching v<X.Y.Z> tag from NVIDIA/numba-cuda-mlir
+      # (the wheel does not ship test_*.py files).
+      installed_ver=$(pip show numba-cuda-mlir | awk '/^Version:/{print $2}')
+      if [[ -n "${GITHUB_ENV:-}" ]]; then
+        echo "NUMBA_CUDA_MLIR_VER=${installed_ver}" >> "${GITHUB_ENV}"
+      fi
+    fi
+  fi
 fi

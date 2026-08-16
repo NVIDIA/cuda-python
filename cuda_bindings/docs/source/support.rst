@@ -1,5 +1,5 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+.. SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
 .. _support:
 
@@ -38,7 +38,7 @@ The NVIDIA CUDA Python team reserves rights to amend the above support policy. A
 however, will be announced to the users in advance.
 
 
-.. _CUDA minor version compatibility: https://docs.nvidia.com/deploy/cuda-compatibility/#minor-version-compatibility
+.. _CUDA minor version compatibility: https://docs.nvidia.com/deploy/cuda-compatibility/minor-version-compatibility.html
 .. _CPython EOL schedule: https://devguide.python.org/versions/
 .. _built-in modules that are known to be thread-unsafe: https://github.com/python/cpython/issues/116738
 .. _free-threaded interpreter: https://docs.python.org/3/howto/free-threading-python.html

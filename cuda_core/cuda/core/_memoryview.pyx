@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+cimport cython
 from ._dlpack cimport *
 from ._dlpack import classify_dl_device
 from libc.stdint cimport intptr_t
@@ -14,6 +15,8 @@ import ctypes
 import functools
 import sys
 import warnings
+from collections.abc import Callable  # no-cython-lint  # used in string annotations below
+from typing import Any  # no-cython-lint  # used in string annotations below
 
 import numpy
 
@@ -43,7 +46,7 @@ cdef dict _torch_type_cache = {}
 cdef object _torch_version_ok = None
 
 cdef inline bint _torch_version_check():
-    """Return True if 2.3 <= torch <= 2.11 (known AOTI ABI range). Memoized.
+    """Return True if 2.3 <= torch <= 2.12 (known AOTI ABI range). Memoized.
 
     Lower bound: AOTI functions we use were introduced in PyTorch 2.3.
     Upper bound: the ``pyobj_to_aten_handle`` trick relies on the
@@ -64,7 +67,7 @@ cdef inline bint _torch_version_check():
     try:
         major, minor = int(torch.__version__.split(".")[0]), \
                        int(torch.__version__.split(".")[1])
-        _torch_version_ok = (2, 3) <= (major, minor) <= (2, 11)
+        _torch_version_ok = (2, 3) <= (major, minor) <= (2, 12)
     except (ValueError, IndexError):
         _torch_version_ok = False
     return <bint>_torch_version_ok
@@ -78,7 +81,7 @@ cdef inline bint _is_torch_tensor(object obj):
     cdef str mod = tp.__module__ or ""
     cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr") \
         and _torch_version_check()
-    _torch_type_cache[tp] = result
+    _torch_type_cache[tp] = result  # setdefault not needed for bools
     return result
 
 
@@ -334,7 +337,7 @@ cdef class StridedMemoryView:
         )
         return view
 
-    def __dealloc__(self):
+    def __dealloc__(self) -> None:
         if self.dl_tensor == NULL:
             return
 
@@ -343,13 +346,15 @@ cdef class StridedMemoryView:
             data = cpython.PyCapsule_GetPointer(
                 self.metadata, DLPACK_VERSIONED_TENSOR_USED_NAME)
             dlm_tensor_ver = <DLManagedTensorVersioned*>data
-            dlm_tensor_ver.deleter(dlm_tensor_ver)
+            if dlm_tensor_ver.deleter != NULL:
+                dlm_tensor_ver.deleter(dlm_tensor_ver)
         elif cpython.PyCapsule_IsValid(
                 self.metadata, DLPACK_TENSOR_USED_NAME):
             data = cpython.PyCapsule_GetPointer(
                 self.metadata, DLPACK_TENSOR_USED_NAME)
             dlm_tensor = <DLManagedTensor*>data
-            dlm_tensor.deleter(dlm_tensor)
+            if dlm_tensor.deleter != NULL:
+                dlm_tensor.deleter(dlm_tensor)
 
     def view(
         self, layout : _StridedLayout | None = None, dtype : numpy.dtype | None = None
@@ -370,16 +375,16 @@ cdef class StridedMemoryView:
 
     def as_tensor_map(
         self,
-        box_dim=None,
+        box_dim: tuple[int, ...] | None = None,
         *,
-        options=None,
-        element_strides=None,
-        data_type=None,
-        interleave=None,
-        swizzle=None,
-        l2_promotion=None,
-        oob_fill=None,
-    ):
+        options: object = None,
+        element_strides: tuple[int, ...] | None = None,
+        data_type: object = None,
+        interleave: object = None,
+        swizzle: object = None,
+        l2_promotion: object = None,
+        oob_fill: object = None,
+    ) -> object:
         """Create a tiled :obj:`TensorMapDescriptor` from this view.
 
         This is the public entry point for creating tiled tensor map
@@ -407,10 +412,12 @@ cdef class StridedMemoryView:
         return TensorMapDescriptor._from_tiled(self, box_dim, **kwargs)
 
     def copy_from(
-        self, other : StridedMemoryView, stream : Stream,
-        allocator = None,
-        blocking : bool | None = None,
-    ):
+        self,
+        other: StridedMemoryView,
+        stream: Stream,
+        allocator: object = None,
+        blocking: bool | None = None,
+    ) -> None:
         """
         Copies the data from the other view into this view.
 
@@ -441,10 +448,12 @@ cdef class StridedMemoryView:
         raise NotImplementedError("Sorry, not supported: copy_from")
 
     def copy_to(
-        self, other : StridedMemoryView, stream : Stream | None = None,
-        allocator = None,
-        blocking : bool | None = None,
-    ):
+        self,
+        other: StridedMemoryView,
+        stream: Stream | None = None,
+        allocator: object = None,
+        blocking: bool | None = None,
+    ) -> None:
         """
         Copies the data from this view into the ``other`` view.
 
@@ -459,7 +468,7 @@ cdef class StridedMemoryView:
         max_version: tuple[int, int] | None = None,
         dl_device: tuple[int, int] | None = None,
         copy: bool | None = None,
-    ):
+    ) -> object:
         # Similar to Buffer.__dlpack__: no implicit synchronization is performed.
         if dl_device is not None:
             raise BufferError("Sorry, not supported: dl_device other than None")
@@ -522,7 +531,7 @@ cdef class StridedMemoryView:
         """
         return self.get_dtype()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (f"StridedMemoryView(ptr={self.ptr},\n"
               + f"                  shape={self.shape},\n"
               + f"                  strides={self.strides},\n"
@@ -533,39 +542,52 @@ cdef class StridedMemoryView:
               + f"                  readonly={self.readonly},\n"
               + f"                  exporting_obj={get_simple_repr(self.exporting_obj)})")
 
+    @cython.critical_section
     cdef inline _StridedLayout get_layout(self):
+        cdef _StridedLayout layout
         if self._layout is None:
             if self.dl_tensor:
-                self._layout = layout_from_dlpack(self.dl_tensor)
+                layout = layout_from_dlpack(self.dl_tensor)
             elif self.metadata is not None:
-                self._layout = layout_from_cai(self.metadata)
+                layout = layout_from_cai(self.metadata)
             else:
                 raise ValueError("Cannot infer layout from the exporting object")
+            if self._layout is None:
+                self._layout = layout
         return self._layout
 
+    @cython.critical_section
     cdef inline object get_buffer(self):
         """
         Returns Buffer instance with the underlying data.
         If the SMV was created from a Buffer, it will return the same Buffer instance.
         Otherwise, it will create a new instance with owner set to the exporting object.
         """
+        cdef object buffer
         if self._buffer is None:
             if isinstance(self.exporting_obj, Buffer):
-                self._buffer = self.exporting_obj
+                buffer = self.exporting_obj
             else:
-                self._buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
+                buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
+            if self._buffer is None:
+                self._buffer = buffer
         return self._buffer
 
+    @cython.critical_section
     cdef inline object get_dtype(self):
+        cdef object dtype
         if self._dtype is None:
+            dtype = None
             if self.dl_tensor != NULL:
-                self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
+                dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
             elif isinstance(self.metadata, int):
                 # AOTI dtype code stored by the torch tensor bridge
-                self._dtype = _get_tensor_bridge().resolve_aoti_dtype(
+                dtype = _get_tensor_bridge().resolve_aoti_dtype(
                     self.metadata)
             elif self.metadata is not None:
-                self._dtype = _typestr2dtype(self.metadata["typestr"])
+                dtype = _typestr2dtype(self.metadata["typestr"])
+            if self._dtype is None:
+                self._dtype = dtype
         return self._dtype
 
 
@@ -996,7 +1018,7 @@ cdef bint check_has_dlpack(obj) except*:
     elif hasattr(obj, "__cuda_array_interface__"):
         has_dlpack = False
     else:
-        raise RuntimeError(
+        raise BufferError(
             "the input object does not support any data exchange protocol")
     return has_dlpack
 
@@ -1006,7 +1028,7 @@ cdef class _StridedMemoryViewProxy:
         object obj
         bint has_dlpack
 
-    def __init__(self, obj):
+    def __init__(self, obj: object) -> None:
         self.obj = obj
         self.has_dlpack = check_has_dlpack(obj)
 
@@ -1090,12 +1112,12 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
 
 
 @functools.lru_cache
-def _typestr2dtype(str typestr):
+def _typestr2dtype(str typestr) -> numpy.dtype:
     return numpy.dtype(typestr)
 
 
 @functools.lru_cache
-def _typestr2itemsize(str typestr):
+def _typestr2itemsize(str typestr) -> int:
     return _typestr2dtype(typestr).itemsize
 
 
@@ -1166,7 +1188,7 @@ cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
 
 cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     cdef dict cai_data = obj.__cuda_array_interface__
-    if cai_data["version"] < 3:
+    if cai_data.get("version", 0) < 3:
         raise BufferError("only CUDA Array Interface v3 or above is supported")
     if cai_data.get("mask") is not None:
         raise BufferError("mask is not supported")
@@ -1222,7 +1244,7 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
 
 cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     cdef dict data = obj.__array_interface__
-    if data["version"] < 3:
+    if data.get("version", 0) < 3:
         raise BufferError("only NumPy Array Interface v3 or above is supported")
     if data.get("mask") is not None:
         raise BufferError("mask is not supported")
@@ -1239,7 +1261,7 @@ cpdef StridedMemoryView view_as_array_interface(obj, view=None):
     return buf
 
 
-def args_viewable_as_strided_memory(tuple arg_indices):
+def args_viewable_as_strided_memory(arg_indices: tuple[int, ...]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator to create proxy objects to :obj:`StridedMemoryView` for the
     specified positional arguments.
@@ -1268,9 +1290,9 @@ def args_viewable_as_strided_memory(tuple arg_indices):
     arg_indices : tuple
         The indices of the target positional arguments.
     """
-    def wrapped_func_with_indices(func):
+    def wrapped_func_with_indices(func: "Callable") -> "Callable":
         @functools.wraps(func)
-        def wrapped_func(*args, **kwargs):
+        def wrapped_func(*args, **kwargs) -> object:
             args = list(args)
             cdef int idx
             for idx in arg_indices:

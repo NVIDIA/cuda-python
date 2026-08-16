@@ -11,7 +11,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import threading
+from typing import TYPE_CHECKING
 from warnings import warn
+
+if TYPE_CHECKING:
+    from cuda.core.utils._program_cache import ProgramCacheResource  # no-cython-lint
 
 from cuda.bindings import nvrtc
 from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
@@ -76,7 +80,7 @@ cdef class Program:
     def __init__(self, code: str | bytes | bytearray, code_type: SourceCodeType | str, options: ProgramOptions | None = None):
         Program_init(self, code, str(code_type), options)
 
-    def close(self):
+    def close(self) -> None:
         """Destroy this program."""
         if self._linker:
             self._linker.close()
@@ -87,10 +91,10 @@ cdef class Program:
     def compile(
         self,
         target_type: ObjectCodeFormatType | str,
-        name_expressions: tuple | list = (),
-        logs=None,
+        name_expressions: tuple[str, ...] | list[str] = (),
+        logs: object = None,
         *,
-        cache: "ProgramCacheResource | None" = None,
+        cache: ProgramCacheResource | None = None,
     ) -> ObjectCode:
         """Compile the program to the specified target type.
 
@@ -294,6 +298,7 @@ class ProgramOptions:
     ----------
     name : str, optional
         Name of the program. If the compilation succeeds, the name is passed down to the generated :class:`ObjectCode`.
+        When set to `None`, ``"default_program"`` is used.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
@@ -314,7 +319,7 @@ class ProgramOptions:
         Enable device code optimization. When specified along with '-G', enables limited debug information generation
         for optimized device code.
         Default: None
-    ptxas_options : Union[str, list[str]], optional
+    ptxas_options : str | list[str], optional
         Specify one or more options directly to ptxas, the PTX optimizing assembler. Options should be strings.
         For example ["-v", "-O2"].
         Default: None
@@ -348,17 +353,17 @@ class ProgramOptions:
     gen_opt_lto : bool, optional
         Run the optimizer passes before generating the LTO IR.
         Default: False
-    define_macro : Union[str, tuple[str, str], list[Union[str, tuple[str, str]]]], optional
+    define_macro : str | tuple[str, str] | list[str | tuple[str, str]], optional
         Predefine a macro. Can be either a string, in which case that macro will be set to 1, a 2 element tuple of
         strings, in which case the first element is defined as the second, or a list of strings or tuples.
         Default: None
-    undefine_macro : Union[str, list[str]], optional
+    undefine_macro : str | list[str], optional
         Cancel any previous definition of a macro, or list of macros.
         Default: None
-    include_path : Union[str, list[str]], optional
+    include_path : str | list[str], optional
         Add the directory or directories to the list of directories to be searched for headers.
         Default: None
-    pre_include : Union[str, list[str]], optional
+    pre_include : str | list[str], optional
         Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
         Default: None
     no_source_include : bool, optional
@@ -391,13 +396,13 @@ class ProgramOptions:
     no_display_error_number : bool, optional
         Disable the display of a diagnostic number for warning messages.
         Default: False
-    diag_error : Union[int, list[int]], optional
+    diag_error : int | list[int], optional
         Emit error for a specified diagnostic message number or comma-separated list of numbers.
         Default: None
-    diag_suppress : Union[int, list[int]], optional
+    diag_suppress : int | list[int], optional
         Suppress a specified diagnostic message number or comma-separated list of numbers.
         Default: None
-    diag_warn : Union[int, list[int]], optional
+    diag_warn : int | list[int], optional
         Emit warning for a specified diagnostic message number or comma-separated list of numbers.
         Default: None
     brief_diagnostics : bool, optional
@@ -518,7 +523,10 @@ class ProgramOptions:
     use_libdevice: bool | None = None  # For libdevice execution
     numba_debug: bool | None = None  # Custom option for Numba debugging
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        # Set name to default if not provided
+        if self.name is None:
+            self.name = "default_program"
         self._name = self.name.encode()
         # Set arch to default if not provided
         if self.arch is None:
@@ -598,7 +606,7 @@ class ProgramOptions:
         else:
             raise ValueError(f"Unknown backend '{backend}'. Must be one of: 'nvrtc', 'nvvm'")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"ProgramOptions(name={self.name!r}, arch={self.arch!r})"
 
     def _prepare_extra_sources_bytes(self) -> list[tuple[bytes, bytes]] | None:
@@ -641,16 +649,14 @@ _nvvm_module = None
 _nvvm_import_attempted = False
 
 
-def _get_nvvm_module():
+def _get_nvvm_module() -> object:
     """Get the NVVM module, importing it lazily with availability checks."""
     global _nvvm_module, _nvvm_import_attempted
 
-    if _nvvm_import_attempted:
-        if _nvvm_module is None:
-            raise RuntimeError("NVVM module is not available (previous import attempt failed)")
+    if _nvvm_module is not None:
         return _nvvm_module
-
-    _nvvm_import_attempted = True
+    if _nvvm_import_attempted:
+        raise RuntimeError("NVVM module is not available (previous import attempt failed)")
 
     try:
         version = binding_version()
@@ -674,9 +680,11 @@ def _get_nvvm_module():
 
     except RuntimeError:
         _nvvm_module = None
+        _nvvm_import_attempted = True
         raise
 
-def _find_libdevice_path():
+
+def _find_libdevice_path() -> object:
     """Find libdevice*.bc for NVVM compilation using cuda.pathfinder."""
     from cuda.pathfinder import find_bitcode_lib
     return find_bitcode_lib("device")
@@ -734,6 +742,7 @@ cdef inline object _translate_program_options(object options):
         split_compile=options.split_compile,
         ptxas_options=options.ptxas_options,
         no_cache=options.no_cache,
+        numba_debug = options.numba_debug
     )
 
 
@@ -1223,6 +1232,8 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
     options.append(f"-arch={arch}")
     if opts.debug is not None and opts.debug:
         options.append("-g")
+    if opts.numba_debug:
+        options.append("--numba-debug")
     if opts.device_code_optimize is False:
         options.append("-opt=0")
     elif opts.device_code_optimize is True:
@@ -1299,8 +1310,6 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
         unsupported.append("fdevice_syntax_only")
     if opts.minimal is not None and opts.minimal:
         unsupported.append("minimal")
-    if opts.numba_debug is not None and opts.numba_debug:
-        unsupported.append("numba_debug")
     if unsupported:
         raise CUDAError(f"The following options are not supported by NVVM backend: {', '.join(unsupported)}")
 

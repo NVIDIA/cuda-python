@@ -6,6 +6,7 @@ from __future__ import annotations
 
 cimport cython
 from libc.stdint cimport uintptr_t
+from libcpp.atomic cimport memory_order_acquire, memory_order_release
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
@@ -15,11 +16,13 @@ from cuda.core._memory cimport _ipc
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     StreamHandle,
+    ContextHandle,
     deviceptr_create_with_owner,
     deviceptr_create_with_mr,
     register_mr_dealloc_callback,
     as_intptr,
     as_cu,
+    get_current_context,
     set_deallocation_stream,
 )
 from cuda.core.typing import DevicePointerType
@@ -28,15 +31,15 @@ from cuda.core._stream cimport Stream, Stream_accept, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
-from typing import TypeVar
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-if sys.version_info >= (3, 12):
-    from collections.abc import Buffer as BufferProtocol
-else:
-    BufferProtocol = object
-
+from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
+
+if TYPE_CHECKING:
+    from cuda.core.graph import GraphBuilder
 
 
 # =============================================================================
@@ -49,23 +52,21 @@ cdef void _mr_dealloc_callback(
     size_t size,
     const StreamHandle& h_stream,
 ) noexcept:
-    """Called by the C++ deleter to deallocate via MemoryResource.deallocate.
-
-    This is the C++ teardown path: there is no Python caller frame from
-    which to obtain a stream. If the device-pointer handle was created
-    without ``set_deallocation_stream`` being called (e.g. buffers minted
-    via ``Buffer.from_handle(ptr, size, mr=mr)`` from DLPack import,
-    third-party adapters, or other foreign sources), ``h_stream`` is
-    empty here. Stream-ordered MR ``deallocate`` overrides reject
-    ``stream=None`` (issue #2001), so without a fallback the destructor
-    would print a warning and leak the allocation. Fall back to the
-    legacy/per-thread default stream so the free still happens; this is
-    the unique exception to the "no implicit default-stream fallback"
-    policy because the teardown has no other source of truth.
-    """
+    """Called by the C++ deleter to deallocate via MemoryResource.deallocate."""
     cdef Stream stream
     try:
-        stream = Stream._from_handle(Stream, h_stream) if h_stream else default_stream()
+        if not h_stream:
+            print(
+                "Warning: no deallocation stream was recorded; falling back to "
+                "the default stream for mr.deallocate() during Buffer "
+                "destruction. This is an internal cuda-core error; please "
+                "report it with your CUDA driver, CUDA Toolkit, and "
+                "cuda-python versions.",
+                file=sys.stderr,
+            )
+            stream = default_stream()
+        else:
+            stream = Stream._from_handle(Stream, h_stream)
         mr.deallocate(int(ptr), size, stream=stream)
     except Exception as exc:
         print(f"Warning: mr.deallocate() failed during Buffer destruction: {exc}",
@@ -74,8 +75,88 @@ cdef void _mr_dealloc_callback(
 register_mr_dealloc_callback(_mr_dealloc_callback)
 
 
+cdef inline void _apply_deallocation_stream(
+        const DevicePtrHandle& h_ptr, const StreamHandle& h_stream) except *:
+    """Record h_stream as the deallocation stream for h_ptr.
+
+    Translates CUDA_ERROR_INVALID_CONTEXT (default-stream token with no current
+    context) into a descriptive RuntimeError instead of a raw CUDAError.
+    """
+    cdef cydriver.CUresult status = set_deallocation_stream(h_ptr, h_stream)
+    if status == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+        raise RuntimeError(
+            "Cannot record a default deallocation stream when no CUDA context is "
+            "current. Call Device.set_current() first, or pass stream= with a "
+            "non-default Stream."
+        )
+    HANDLE_RETURN(status)
+
+
 __all__ = ['Buffer', 'MemoryResource']
 
+
+# Memory Attribute Query Helpers
+# ------------------------------
+cdef inline int _query_memory_attrs(
+    _MemAttrs& out,
+    cydriver.CUdeviceptr ptr
+) except -1 nogil:
+    """Query memory attributes for a device pointer."""
+    cdef unsigned int memory_type = 0
+    cdef int is_managed = 0
+    cdef int device_id = 0
+    cdef cydriver.CUpointer_attribute[3] attrs = [
+        cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+        cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED,
+        cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+    ]
+    cdef uintptr_t[3] vals = [
+        <uintptr_t><void*>&memory_type,
+        <uintptr_t><void*>&is_managed,
+        <uintptr_t><void*>&device_id,
+    ]
+
+    cdef cydriver.CUresult ret
+    ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
+    if ret == cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
+        with cython.gil:
+            # Device class handles the cuInit call internally
+            Device()
+        ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
+    HANDLE_RETURN(ret)
+
+    # TODO: HMM/ATS-enabled sysmem should also report is_managed=True; the
+    # CU_POINTER_ATTRIBUTE_IS_MANAGED query does not capture that yet.
+    out.is_managed = is_managed != 0
+
+    if memory_type == 0:
+        # unregistered host pointer
+        out.is_host_accessible = True
+        out.is_device_accessible = False
+        out.device_id = -1
+    elif (
+        is_managed
+        or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
+    ):
+        # Managed memory or pinned host memory
+        out.is_host_accessible = True
+        out.is_device_accessible = True
+        out.device_id = device_id
+    elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
+        out.is_host_accessible = False
+        out.is_device_accessible = True
+        out.device_id = device_id
+    else:
+        with cython.gil:
+            raise ValueError(f"Unsupported memory type: {memory_type}")
+    return 0
+
+
+cdef inline void _init_memory_attrs(Buffer self):
+    """Initialize memory attributes by querying the pointer."""
+    if not self._mem_attrs_inited.load(memory_order_acquire):
+        _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
+        self._mem_attrs_inited.store(True, memory_order_release)
 
 
 cdef class Buffer:
@@ -86,19 +167,26 @@ cdef class Buffer:
     allocations.
 
     Support for data interchange mechanisms are provided by DLPack.
+
+    Note
+    ----
+    Pickling an IPC-enabled :class:`Buffer` embeds an
+    :class:`~_memory.IPCBufferDescriptor`. Unpickling reconstructs the buffer
+    by calling :meth:`from_ipc_descriptor` and therefore performs an IPC
+    import. Do not unpickle buffers from untrusted sources.
     """
-    def __cinit__(self):
+    def __cinit__(self) -> None:
         self._clear()
 
-    def _clear(self):
+    def _clear(self) -> None:
         self._h_ptr.reset()  # Release the handle
         self._size = 0
         self._memory_resource = None
         self._ipc_data = None
         self._owner = None
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError("Buffer objects cannot be instantiated directly. "
                            "Please use MemoryResource APIs.")
 
@@ -106,38 +194,70 @@ cdef class Buffer:
     def _init(
         cls, ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         ipc_descriptor: IPCBufferDescriptor | None = None,
-        owner : object | None = None
-    ):
+        owner : object | None = None,
+        *,
+        stream: Stream | GraphBuilder | None = None,
+    ) -> Buffer:
         """Create a Buffer from a raw pointer.
 
         When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
         is called when the buffer is closed or garbage collected.  When ``owner``
         is provided, the owner is kept alive but no deallocation is performed.
+        When ``mr`` is provided, a deallocation stream is recorded at creation
+        (``stream`` if given, otherwise ``default_stream()``). Recording a
+        default-stream token requires a CUDA context to be current.
         """
         if mr is not None and owner is not None:
             raise ValueError("owner and memory resource cannot be both specified together")
+        if stream is not None and mr is None:
+            raise ValueError("stream requires a memory resource (mr)")
         cdef Buffer self = Buffer.__new__(cls)
         cdef uintptr_t c_ptr = <uintptr_t>(int(ptr))
+        cdef Stream s
+        cdef cydriver.CUresult _ds_status
         if mr is not None:
+            s = Stream_accept(default_stream() if stream is None else stream)
             self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
+            _ds_status = set_deallocation_stream(self._h_ptr, s._h_stream)
+            if _ds_status != cydriver.CUresult.CUDA_SUCCESS:
+                # Reset before raising: the DevicePtrHandle destructor would otherwise
+                # invoke _mr_dealloc_callback, which catches any inner exception and
+                # clears the exception state, swallowing the error we're about to raise.
+                self._h_ptr.reset()
+                if _ds_status == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+                    raise RuntimeError(
+                        "Cannot record a default deallocation stream when no CUDA context is "
+                        "current. Call Device.set_current() first, or pass stream= with a "
+                        "non-default Stream."
+                    )
+                HANDLE_RETURN(_ds_status)
         else:
             self._h_ptr = deviceptr_create_with_owner(c_ptr, owner)
         self._size = size
         self._memory_resource = mr
         self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._owner = owner
-        self._mem_attrs_inited = False
+        self._mem_attrs_inited.store(False)
         return self
 
     @staticmethod
     def _reduce_helper(mr, ipc_descriptor):
+        cdef ContextHandle h_ctx = get_current_context()
+        cdef int device_id
+        if not h_ctx:
+            # Spawned processes unpickle arguments before entering their target,
+            # so initialize the context needed to bind the default-stream token.
+            device_id = mr.device_id
+            (Device(device_id) if device_id >= 0 else Device()).set_current()
         # The parent process's stream is not portable across processes, so the
         # pickle path cannot thread an explicit stream through. Seed the
         # imported buffer's deallocation with the current context's default
-        # stream; the receiver can override via buffer.close(stream).
+        # stream; the receiver can override it before or during close.
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[object, ...]:
+        # Unpickling performs a live CUDA IPC import from descriptor bytes in the
+        # pickle stream. Only deserialize Buffers from a trusted principal.
         # Must not serialize the parent's stream!
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
@@ -145,6 +265,8 @@ cdef class Buffer:
     def from_handle(
         ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         owner: object | None = None,
+        *,
+        stream: Stream | GraphBuilder | None = None,
     ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
@@ -162,6 +284,13 @@ cdef class Buffer:
             An object holding external allocation that the ``ptr`` points to.
             The reference is kept as long as the buffer is alive.
             The ``owner`` and ``mr`` cannot be specified together.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
+            Keyword-only. The stream used to order the buffer's deallocation
+            when ``mr`` owns the pointer. Defaults to ``default_stream()``.
+            Recording a default-stream token requires a CUDA context to be
+            current. If the buffer may be freed from a different host thread,
+            pass a stream other than the per-thread default stream, which
+            refers to a different stream on each thread.
 
         Note
         ----
@@ -169,7 +298,7 @@ cdef class Buffer:
         non-owning reference.  The pointer will NOT be freed when the
         :class:`Buffer` is closed or garbage collected.
         """
-        return Buffer._init(ptr, size, mr=mr, owner=owner)
+        return Buffer._init(ptr, size, mr=mr, owner=owner, stream=stream)
 
     @classmethod
     def from_ipc_descriptor(
@@ -187,17 +316,27 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream`
             Keyword-only. The stream used for asynchronous deallocation when
             the buffer is closed or garbage collected.
+
+        Note
+        ----
+        The descriptor payload and ``size`` are supplied by the exporting peer
+        and must be treated as untrusted input unless the peer is known to be
+        cooperating.
         """
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
     @property
+    @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
+        cdef object ipc_data
         if self._ipc_data is None:
-            self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+            ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+            if self._ipc_data is None:
+                self._ipc_data = ipc_data
         return self._ipc_data.ipc_descriptor
 
-    def close(self, stream: Stream | GraphBuilder | None = None):
+    def close(self, stream: Stream | GraphBuilder | None = None) -> None:
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -208,8 +347,44 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream object to use for asynchronous deallocation. If None,
             the deallocation stream stored in the handle is used.
+
+        See Also
+        --------
+        set_deallocation_stream
+            Change the deallocation stream without closing the buffer.
         """
         Buffer_close(self, stream)
+
+    def set_deallocation_stream(self, stream: Stream | GraphBuilder) -> None:
+        """Change the stream that orders this buffer's eventual deallocation.
+
+        The buffer remains open and usable. A later :meth:`close` without a
+        stream, garbage collection, or release of the final retained device
+        pointer handle uses the replacement stream.
+
+        This method does not synchronize streams or establish dependencies.
+        The caller must ensure that allocation and all accesses are ordered
+        before the deallocation on ``stream``.
+
+        Parameters
+        ----------
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            The stream to use for eventual asynchronous deallocation.
+
+        Raises
+        ------
+        RuntimeError
+            If the buffer is already closed, or if a default-stream token
+            cannot be bound because no CUDA context is current.
+        TypeError
+            If ``stream`` is ``None`` or is not an accepted stream object.
+
+        Notes
+        -----
+        Synchronizing concurrent mutation and destruction of the same buffer
+        is the caller's responsibility.
+        """
+        Buffer_set_deallocation_stream(self, stream)
 
     def __enter__(self):
         return self
@@ -218,7 +393,7 @@ cdef class Buffer:
         self.close()
         return False
 
-    def copy_to(self, dst: Buffer = None, *, stream: Stream | GraphBuilder) -> Buffer:
+    def copy_to(self, dst: Buffer | None = None, *, stream: Stream | GraphBuilder) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -254,7 +429,7 @@ cdef class Buffer:
                 as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
         return dst
 
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
+    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
@@ -278,7 +453,7 @@ cdef class Buffer:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(
                 as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
 
-    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
+    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:
         """Fill this buffer with a repeating byte pattern.
 
         Parameters
@@ -330,7 +505,7 @@ cdef class Buffer:
         max_version: tuple[int, int] | None = None,
         dl_device: tuple[int, int] | None = None,
         copy: bool | None = None,
-    ) -> TypeVar("PyCapsule"):
+    ) -> object:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
         if dl_device is not None:
@@ -343,8 +518,7 @@ cdef class Buffer:
             if not isinstance(max_version, tuple) or len(max_version) != 2:
                 raise BufferError(f"Expected max_version tuple[int, int], got {max_version}")
             versioned = max_version >= (1, 0)
-        capsule = make_py_capsule(self, versioned)
-        return capsule
+        return make_py_capsule(self, versioned)
 
     def __dlpack_device__(self) -> tuple[int, int]:
         return classify_dl_device(self)
@@ -356,7 +530,7 @@ cdef class Buffer:
         #   2. This Buffer object is host accessible
         raise NotImplementedError("WIP: Buffer.__buffer__ hasn't been implemented yet.")
 
-    def __release_buffer__(self, buffer: memoryview, /):
+    def __release_buffer__(self, buffer: memoryview, /) -> None:
         # Supporting method paired with __buffer__.
         raise NotImplementedError("WIP: Buffer.__release_buffer__ hasn't been implemented yet.")
 
@@ -365,11 +539,11 @@ cdef class Buffer:
         """Return the device ordinal of this buffer."""
         if self._memory_resource is not None:
             return self._memory_resource.device_id
-        _init_mem_attrs(self)
+        _init_memory_attrs(self)
         return self._mem_attrs.device_id
 
     @property
-    def handle(self) -> DevicePointerType:
+    def handle(self) -> int:
         """Return the buffer handle object.
 
         .. caution::
@@ -381,7 +555,7 @@ cdef class Buffer:
         # that expect a raw pointer value
         return as_intptr(self._h_ptr)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Buffer):
             return NotImplemented
         cdef Buffer other_buf = <Buffer>other
@@ -400,7 +574,7 @@ cdef class Buffer:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_device_accessible
-        _init_mem_attrs(self)
+        _init_memory_attrs(self)
         return self._mem_attrs.is_device_accessible
 
     @property
@@ -408,13 +582,13 @@ cdef class Buffer:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_host_accessible
-        _init_mem_attrs(self)
+        _init_memory_attrs(self)
         return self._mem_attrs.is_host_accessible
 
     @property
     def is_managed(self) -> bool:
         """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
-        _init_mem_attrs(self)
+        _init_memory_attrs(self)
         if self._mem_attrs.is_managed:
             return True
         # Pool-allocated managed memory does not set CU_POINTER_ATTRIBUTE_IS_MANAGED,
@@ -443,68 +617,6 @@ cdef class Buffer:
         return self._owner
 
 
-# Memory Attribute Query Helpers
-# ------------------------------
-cdef inline void _init_mem_attrs(Buffer self):
-    """Initialize memory attributes by querying the pointer."""
-    if not self._mem_attrs_inited:
-        _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
-        self._mem_attrs_inited = True
-
-
-cdef inline int _query_memory_attrs(
-    _MemAttrs& out,
-    cydriver.CUdeviceptr ptr
-) except -1 nogil:
-    """Query memory attributes for a device pointer."""
-    cdef unsigned int memory_type = 0
-    cdef int is_managed = 0
-    cdef int device_id = 0
-    cdef cydriver.CUpointer_attribute attrs[3]
-    cdef uintptr_t vals[3]
-
-    attrs[0] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE
-    attrs[1] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED
-    attrs[2] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL
-    vals[0] = <uintptr_t><void*>&memory_type
-    vals[1] = <uintptr_t><void*>&is_managed
-    vals[2] = <uintptr_t><void*>&device_id
-
-    cdef cydriver.CUresult ret
-    ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
-    if ret == cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
-        with cython.gil:
-            # Device class handles the cuInit call internally
-            Device()
-        ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
-    HANDLE_RETURN(ret)
-
-    if memory_type == 0:
-        # unregistered host pointer
-        out.is_host_accessible = True
-        out.is_device_accessible = False
-        out.device_id = -1
-        out.is_managed = False
-    elif (
-        is_managed
-        or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
-    ):
-        # Managed memory or pinned host memory
-        out.is_host_accessible = True
-        out.is_device_accessible = True
-        out.device_id = device_id
-        out.is_managed = is_managed
-    elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
-        out.is_host_accessible = False
-        out.is_device_accessible = True
-        out.device_id = device_id
-        out.is_managed = False
-    else:
-        with cython.gil:
-            raise ValueError(f"Unsupported memory type: {memory_type}")
-    return 0
-
-
 cdef class MemoryResource:
     """Abstract base class for memory resources that manage allocation and
     deallocation of buffers.
@@ -527,7 +639,12 @@ cdef class MemoryResource:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword-only. The stream on which to perform the allocation
             asynchronously. Must be passed explicitly; pass
-            ``device.default_stream`` to use the default stream.
+            ``device.default_stream`` to use the default stream. For subclasses
+            that support stream-ordered deallocation, this stream also orders
+            the buffer's eventual deallocation, so if the buffer may be freed
+            from a different host thread, prefer a stream other than the
+            per-thread default stream, which refers to a different stream on
+            each thread.
 
         Returns
         -------
@@ -537,7 +654,13 @@ cdef class MemoryResource:
         """
         raise TypeError("MemoryResource.allocate must be implemented by subclasses.")
 
-    def deallocate(self, ptr: DevicePointerType, size_t size, *, stream: Stream | GraphBuilder):
+    def deallocate(
+        self,
+        ptr: DevicePointerType,
+        size_t size,
+        *,
+        stream: Stream | GraphBuilder
+    ) -> None:
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -576,32 +699,65 @@ cdef class MemoryResource:
 
 # Buffer Implementation Helpers
 # -----------------------------
-cdef inline Buffer Buffer_from_deviceptr_handle(
+cdef Buffer Buffer_from_deviceptr_handle(
     DevicePtrHandle h_ptr,
     size_t size,
     MemoryResource mr,
-    object ipc_descriptor = None
+    object ipc_descriptor = None,
+    type cls = Buffer,
 ):
-    """Create a Buffer from an existing DevicePtrHandle."""
-    cdef Buffer buf = Buffer.__new__(Buffer)
+    """Create a Buffer (or subclass instance) from an existing DevicePtrHandle."""
+    cdef Buffer buf = cls.__new__(cls)
     buf._h_ptr = h_ptr
     buf._size = size
     buf._memory_resource = mr
     buf._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
     buf._owner = None
-    buf._mem_attrs_inited = False
+    buf._mem_attrs_inited.store(False)
     return buf
+
+
+cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint):
+    """Coerce ``buffers`` to a ``tuple[Buffer, ...]``; reject a bare Buffer.
+
+    Shared by the batched free functions. Passing one Buffer is rejected
+    rather than treated as a one-element batch so that the per-buffer API
+    named by ``single_hint`` stays the single obvious way to do it.
+    """
+    cdef list out
+    if isinstance(buffers, Buffer):
+        raise TypeError(
+            f"{what}: pass a sequence of Buffers; for a single buffer use {single_hint}"
+        )
+    if not isinstance(buffers, Sequence):
+        raise TypeError(
+            f"{what}: buffers must be a sequence of Buffer, got {type(buffers).__name__}"
+        )
+    if not buffers:
+        raise ValueError(f"{what}: empty buffers sequence")
+    out = []
+    for item in buffers:
+        if not isinstance(item, Buffer):
+            raise TypeError(f"{what}: expected Buffer, got {type(item).__name__}")
+        out.append(item)
+    return tuple(out)
+
+
+cdef inline void Buffer_set_deallocation_stream(Buffer self, object stream):
+    """Validate and replace a live buffer's deallocation recipe."""
+    if not self._h_ptr:
+        raise RuntimeError("Cannot set the deallocation stream on a closed Buffer")
+    cdef Stream s = Stream_accept(stream)
+    _apply_deallocation_stream(self._h_ptr, s._h_stream)
 
 
 cdef inline void Buffer_close(Buffer self, object stream):
     """Close a buffer, freeing its memory."""
-    cdef Stream s
     if not self._h_ptr:
         return
     # Update deallocation stream if provided
     if stream is not None:
-        s = Stream_accept(stream)
-        set_deallocation_stream(self._h_ptr, s._h_stream)
+        Buffer_set_deallocation_stream(self, stream)
     # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
     self._h_ptr.reset()
     self._size = 0

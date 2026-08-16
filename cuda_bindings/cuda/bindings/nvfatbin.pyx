@@ -1,15 +1,55 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.4.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=464151e9be344b663eb001d24b780328f477470afca263a03384394a057b74bd
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+cimport cpython as _cyb_cpython
+from libc.stdint cimport intptr_t
+
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
+    cdef intptr_t ptr
+    cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
+    if not readonly:
+        flags |= _cyb_cpython.PyBUF_WRITABLE
+    cdef int status = -1
+    cdef _cyb_cpython.Py_buffer view
+    if isinstance(buf, int):
+        ptr = <intptr_t>buf
+    else:
+        try:
+            status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
+            if size != -1:
+                assert view.len == size
+            assert view.ndim == 1
+        except Exception as e:
+            adj = "writable " if not readonly else ""
+            raise ValueError(
+                "buf must be either a Python int representing the pointer "
+                f"address to a valid buffer, or a 1D contiguous {adj}"
+                f"buffer, of size {size}"
+            ) from e
+        else:
+            ptr = <intptr_t>view.buf
+        finally:
+            if status == 0:
+                _cyb_cpython.PyBuffer_Release(&view)
+    return ptr
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
-                               get_buffer_pointer, get_resource_ptrs)
+                               get_resource_ptrs)
 
-from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
 from libcpp.vector cimport vector
 
 
@@ -17,10 +57,10 @@ from libcpp.vector cimport vector
 # Enum
 ###############################################################################
 
-class Result(_IntEnum):
+class Result(_cyb_FastEnum):
     """
-    The enumerated type nvFatbinResult defines API call result codes.
-    nvFatbin APIs return nvFatbinResult codes to indicate the result.
+    The enumerated type `nvFatbinResult` defines API call result codes.
+    nvFatbin APIs return `nvFatbinResult` codes to indicate the result.
 
     See `nvFatbinResult`.
     """
@@ -109,7 +149,8 @@ cpdef intptr_t create(options, size_t options_count) except -1:
     """nvFatbinCreate creates a new handle.
 
     Args:
-        options (object): An array of strings, each containing a single option. It can be:
+        options (object): An array of strings, each containing a
+            single option. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
@@ -139,13 +180,15 @@ cpdef add_ptx(intptr_t handle, code, size_t size, arch, identifier, options_cmd_
         handle (intptr_t): nvFatbin handle.
         code (bytes): The PTX code.
         size (size_t): The size of the PTX code.
-        arch (str): The numerical architecture that this PTX is for (the XX of any sm_XX, lto_XX, or compute_XX).
-        identifier (str): Name of the PTX, useful when extracting the fatbin with tools like cuobjdump.
+        arch (str): The numerical architecture that this PTX is for
+            (the XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the PTX, useful when extracting the
+            fatbin with tools like cuobjdump.
         options_cmd_line (str): Options used during JIT compilation.
 
     .. seealso:: `nvFatbinAddPTX`
     """
-    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(arch, str):
         raise TypeError("arch must be a Python str")
     cdef bytes _temp_arch_ = (<str>arch).encode()
@@ -170,12 +213,14 @@ cpdef add_cubin(intptr_t handle, code, size_t size, arch, identifier):
         handle (intptr_t): nvFatbin handle.
         code (bytes): The cubin.
         size (size_t): The size of the cubin.
-        arch (str): The numerical architecture that this cubin is for (the XX of any sm_XX, lto_XX, or compute_XX).
-        identifier (str): Name of the cubin, useful when extracting the fatbin with tools like cuobjdump.
+        arch (str): The numerical architecture that this cubin is for
+            (the XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the cubin, useful when extracting
+            the fatbin with tools like cuobjdump.
 
     .. seealso:: `nvFatbinAddCubin`
     """
-    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(arch, str):
         raise TypeError("arch must be a Python str")
     cdef bytes _temp_arch_ = (<str>arch).encode()
@@ -196,13 +241,15 @@ cpdef add_ltoir(intptr_t handle, code, size_t size, arch, identifier, options_cm
         handle (intptr_t): nvFatbin handle.
         code (bytes): The LTOIR code.
         size (size_t): The size of the LTOIR code.
-        arch (str): The numerical architecture that this LTOIR is for (the XX of any sm_XX, lto_XX, or compute_XX).
-        identifier (str): Name of the LTOIR, useful when extracting the fatbin with tools like cuobjdump.
+        arch (str): The numerical architecture that this LTOIR is for
+            (the XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the LTOIR, useful when extracting
+            the fatbin with tools like cuobjdump.
         options_cmd_line (str): Options used during JIT compilation.
 
     .. seealso:: `nvFatbinAddLTOIR`
     """
-    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(arch, str):
         raise TypeError("arch must be a Python str")
     cdef bytes _temp_arch_ = (<str>arch).encode()
@@ -247,7 +294,7 @@ cpdef get(intptr_t handle, buffer):
 
     .. seealso:: `nvFatbinGet`
     """
-    cdef void* _buffer_ = get_buffer_pointer(buffer, -1, readonly=False)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, -1, readonly=False)
     with nogil:
         __status__ = nvFatbinGet(<Handle>handle, <void*>_buffer_)
     check_status(__status__)
@@ -272,6 +319,17 @@ cpdef tuple version():
     return (major, minor)
 
 
+cpdef add_index(intptr_t handle, code, size_t size, identifier):
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
+    if not isinstance(identifier, str):
+        raise TypeError("identifier must be a Python str")
+    cdef bytes _temp_identifier_ = (<str>identifier).encode()
+    cdef char* _identifier_ = _temp_identifier_
+    with nogil:
+        __status__ = nvFatbinAddIndex(<Handle>handle, <const void*>_code_, size, <const char*>_identifier_)
+    check_status(__status__)
+
+
 cpdef add_reloc(intptr_t handle, code, size_t size):
     """nvFatbinAddReloc adds relocatable PTX entries from a host object to the fatbinary.
 
@@ -282,7 +340,7 @@ cpdef add_reloc(intptr_t handle, code, size_t size):
 
     .. seealso:: `nvFatbinAddReloc`
     """
-    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     with nogil:
         __status__ = nvFatbinAddReloc(<Handle>handle, <const void*>_code_, size)
     check_status(__status__)
@@ -295,12 +353,13 @@ cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_li
         handle (intptr_t): nvFatbin handle.
         code (bytes): The Tile IR.
         size (size_t): The size of the Tile IR.
-        identifier (str): Name of the Tile IR, useful when extracting the fatbin with tools like cuobjdump.
+        identifier (str): Name of the Tile IR, useful when extracting
+            the fatbin with tools like cuobjdump.
         options_cmd_line (str): Options used during JIT compilation.
 
     .. seealso:: `nvFatbinAddTileIR`
     """
-    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(identifier, str):
         raise TypeError("identifier must be a Python str")
     cdef bytes _temp_identifier_ = (<str>identifier).encode()
@@ -312,3 +371,4 @@ cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_li
     with nogil:
         __status__ = nvFatbinAddTileIR(<Handle>handle, <const void*>_code_, size, <const char*>_identifier_, <const char*>_options_cmd_line_)
     check_status(__status__)
+del _cyb_FastEnum

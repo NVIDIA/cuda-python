@@ -71,7 +71,7 @@ cdef class ClockInfo:
     cdef intptr_t _handle
     cdef int _clock_type
 
-    def __init__(self, handle, clock_type: ClockType | str):
+    def __init__(self, handle: int, clock_type: ClockType | str):
         self._handle = handle
         try:
             clock_type = _CLOCK_TYPE_MAPPING[clock_type]

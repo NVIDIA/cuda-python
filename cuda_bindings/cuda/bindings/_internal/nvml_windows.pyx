@@ -1,83 +1,68 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=dfef5d61e23406c9104db88966dea7813becf53ad5e89fca63b78d618097e15a
 
-from libc.stdint cimport intptr_t
 
-import os
-import threading
+# <<<< PREAMBLE CONTENT >>>>
 
-from cuda.pathfinder import load_nvidia_dynamic_lib
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
 
-from .utils import FunctionNotFoundError, NotSupportedError
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
 
-from libc.stddef cimport wchar_t
-from libc.stdint cimport uintptr_t
-from cpython cimport PyUnicode_AsWideCharString, PyMem_Free
-
-# You must 'from .utils import NotSupportedError' before using this template
-
-cdef extern from "windows.h" nogil:
+cdef extern from "<windows.h>":
     ctypedef void* HMODULE
-    ctypedef void* HANDLE
-    ctypedef void* FARPROC
-    ctypedef unsigned long DWORD
-    ctypedef const wchar_t *LPCWSTR
-    ctypedef const char *LPCSTR
+    void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
-    cdef DWORD LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-    cdef DWORD LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+from libc.stdint cimport (
+    intptr_t,
+    uintptr_t,
+)
 
-    HMODULE _LoadLibraryExW "LoadLibraryExW"(
-        LPCWSTR lpLibFileName,
-        HANDLE hFile,
-        DWORD dwFlags
-    )
+import threading as _cyb_threading
 
-    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, LPCSTR lpProcName)
+cdef int _cyb___py_nvml_init = 0
+cdef dict _cyb_func_ptrs = None
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
-cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
-    cdef uintptr_t result
-    cdef wchar_t* wpath = PyUnicode_AsWideCharString(path, NULL)
-    with nogil:
-        result = <uintptr_t>_LoadLibraryExW(
-            wpath,
-            hFile,
-            dwFlags
-        )
-    PyMem_Free(wpath)
-    return result
+# <<<< END OF PREAMBLE CONTENT >>>>
 
-cdef inline void *GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
-    return _GetProcAddress(<HMODULE>hModule, lpProcName)
-
-cdef int get_cuda_version():
-    cdef int err, driver_ver = 0
-
-    # Load driver to check version
-    handle = LoadLibraryExW("nvcuda.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)
-    if handle == 0:
-        raise NotSupportedError('CUDA driver is not found')
-    cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
-    if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in nvcuda.dll')
-    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
-
-    return driver_ver
-
-
-
+from libc.stdint cimport uintptr_t
+from cuda.pathfinder import load_nvidia_dynamic_lib
+from .utils import FunctionNotFoundError, NotSupportedError
 ###############################################################################
 # Wrapper init
 ###############################################################################
-
-cdef object __symbol_lock = threading.Lock()
-cdef bint __py_nvml_init = False
 
 cdef void* __nvmlInit_v2 = NULL
 cdef void* __nvmlInitWithFlags = NULL
@@ -430,1097 +415,1102 @@ cdef void* __nvmlDeviceGetVgpuSchedulerLog_v2 = NULL
 cdef void* __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = NULL
 cdef void* __nvmlDeviceSetVgpuSchedulerState_v2 = NULL
 cdef void* __nvmlGpuInstanceSetVgpuSchedulerState_v2 = NULL
-
-
-cdef uintptr_t load_library() except* with gil:
-    return load_nvidia_dynamic_lib("nvml")._handle_uint
-
+cdef void* __nvmlSystemGetCPER_v1 = NULL
+cdef void* __nvmlDeviceGetBBXTimeData_v1 = NULL
+cdef void* __nvmlDeviceGetAccountingStats_v2 = NULL
+cdef void* __nvmlDeviceGetRemappedRows_v2 = NULL
 
 cdef int _init_nvml() except -1 nogil:
-    global __py_nvml_init
+    global _cyb___py_nvml_init
 
-    cdef int err, driver_ver = 0
+    cdef int err
     cdef uintptr_t handle
+    with gil, _cyb_symbol_lock:
+        if _cyb___py_nvml_init: return 0
 
-    with gil, __symbol_lock:
         handle = load_library()
-
-        # Load function
         global __nvmlInit_v2
-        __nvmlInit_v2 = GetProcAddress(handle, 'nvmlInit_v2')
+        __nvmlInit_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlInit_v2')
 
         global __nvmlInitWithFlags
-        __nvmlInitWithFlags = GetProcAddress(handle, 'nvmlInitWithFlags')
+        __nvmlInitWithFlags = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlInitWithFlags')
 
         global __nvmlShutdown
-        __nvmlShutdown = GetProcAddress(handle, 'nvmlShutdown')
+        __nvmlShutdown = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlShutdown')
 
         global __nvmlErrorString
-        __nvmlErrorString = GetProcAddress(handle, 'nvmlErrorString')
+        __nvmlErrorString = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlErrorString')
 
         global __nvmlSystemGetDriverVersion
-        __nvmlSystemGetDriverVersion = GetProcAddress(handle, 'nvmlSystemGetDriverVersion')
+        __nvmlSystemGetDriverVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetDriverVersion')
 
         global __nvmlSystemGetNVMLVersion
-        __nvmlSystemGetNVMLVersion = GetProcAddress(handle, 'nvmlSystemGetNVMLVersion')
+        __nvmlSystemGetNVMLVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetNVMLVersion')
 
         global __nvmlSystemGetCudaDriverVersion
-        __nvmlSystemGetCudaDriverVersion = GetProcAddress(handle, 'nvmlSystemGetCudaDriverVersion')
+        __nvmlSystemGetCudaDriverVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetCudaDriverVersion')
 
         global __nvmlSystemGetCudaDriverVersion_v2
-        __nvmlSystemGetCudaDriverVersion_v2 = GetProcAddress(handle, 'nvmlSystemGetCudaDriverVersion_v2')
+        __nvmlSystemGetCudaDriverVersion_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetCudaDriverVersion_v2')
 
         global __nvmlSystemGetProcessName
-        __nvmlSystemGetProcessName = GetProcAddress(handle, 'nvmlSystemGetProcessName')
+        __nvmlSystemGetProcessName = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetProcessName')
 
         global __nvmlSystemGetHicVersion
-        __nvmlSystemGetHicVersion = GetProcAddress(handle, 'nvmlSystemGetHicVersion')
+        __nvmlSystemGetHicVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetHicVersion')
 
         global __nvmlSystemGetTopologyGpuSet
-        __nvmlSystemGetTopologyGpuSet = GetProcAddress(handle, 'nvmlSystemGetTopologyGpuSet')
+        __nvmlSystemGetTopologyGpuSet = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetTopologyGpuSet')
 
         global __nvmlSystemGetDriverBranch
-        __nvmlSystemGetDriverBranch = GetProcAddress(handle, 'nvmlSystemGetDriverBranch')
+        __nvmlSystemGetDriverBranch = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetDriverBranch')
 
         global __nvmlUnitGetCount
-        __nvmlUnitGetCount = GetProcAddress(handle, 'nvmlUnitGetCount')
+        __nvmlUnitGetCount = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetCount')
 
         global __nvmlUnitGetHandleByIndex
-        __nvmlUnitGetHandleByIndex = GetProcAddress(handle, 'nvmlUnitGetHandleByIndex')
+        __nvmlUnitGetHandleByIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetHandleByIndex')
 
         global __nvmlUnitGetUnitInfo
-        __nvmlUnitGetUnitInfo = GetProcAddress(handle, 'nvmlUnitGetUnitInfo')
+        __nvmlUnitGetUnitInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetUnitInfo')
 
         global __nvmlUnitGetLedState
-        __nvmlUnitGetLedState = GetProcAddress(handle, 'nvmlUnitGetLedState')
+        __nvmlUnitGetLedState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetLedState')
 
         global __nvmlUnitGetPsuInfo
-        __nvmlUnitGetPsuInfo = GetProcAddress(handle, 'nvmlUnitGetPsuInfo')
+        __nvmlUnitGetPsuInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetPsuInfo')
 
         global __nvmlUnitGetTemperature
-        __nvmlUnitGetTemperature = GetProcAddress(handle, 'nvmlUnitGetTemperature')
+        __nvmlUnitGetTemperature = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetTemperature')
 
         global __nvmlUnitGetFanSpeedInfo
-        __nvmlUnitGetFanSpeedInfo = GetProcAddress(handle, 'nvmlUnitGetFanSpeedInfo')
+        __nvmlUnitGetFanSpeedInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetFanSpeedInfo')
 
         global __nvmlUnitGetDevices
-        __nvmlUnitGetDevices = GetProcAddress(handle, 'nvmlUnitGetDevices')
+        __nvmlUnitGetDevices = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetDevices')
 
         global __nvmlDeviceGetCount_v2
-        __nvmlDeviceGetCount_v2 = GetProcAddress(handle, 'nvmlDeviceGetCount_v2')
+        __nvmlDeviceGetCount_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCount_v2')
 
         global __nvmlDeviceGetAttributes_v2
-        __nvmlDeviceGetAttributes_v2 = GetProcAddress(handle, 'nvmlDeviceGetAttributes_v2')
+        __nvmlDeviceGetAttributes_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAttributes_v2')
 
         global __nvmlDeviceGetHandleByIndex_v2
-        __nvmlDeviceGetHandleByIndex_v2 = GetProcAddress(handle, 'nvmlDeviceGetHandleByIndex_v2')
+        __nvmlDeviceGetHandleByIndex_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleByIndex_v2')
 
         global __nvmlDeviceGetHandleBySerial
-        __nvmlDeviceGetHandleBySerial = GetProcAddress(handle, 'nvmlDeviceGetHandleBySerial')
+        __nvmlDeviceGetHandleBySerial = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleBySerial')
 
         global __nvmlDeviceGetHandleByUUID
-        __nvmlDeviceGetHandleByUUID = GetProcAddress(handle, 'nvmlDeviceGetHandleByUUID')
+        __nvmlDeviceGetHandleByUUID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleByUUID')
 
         global __nvmlDeviceGetHandleByUUIDV
-        __nvmlDeviceGetHandleByUUIDV = GetProcAddress(handle, 'nvmlDeviceGetHandleByUUIDV')
+        __nvmlDeviceGetHandleByUUIDV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleByUUIDV')
 
         global __nvmlDeviceGetHandleByPciBusId_v2
-        __nvmlDeviceGetHandleByPciBusId_v2 = GetProcAddress(handle, 'nvmlDeviceGetHandleByPciBusId_v2')
+        __nvmlDeviceGetHandleByPciBusId_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleByPciBusId_v2')
 
         global __nvmlDeviceGetName
-        __nvmlDeviceGetName = GetProcAddress(handle, 'nvmlDeviceGetName')
+        __nvmlDeviceGetName = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetName')
 
         global __nvmlDeviceGetBrand
-        __nvmlDeviceGetBrand = GetProcAddress(handle, 'nvmlDeviceGetBrand')
+        __nvmlDeviceGetBrand = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBrand')
 
         global __nvmlDeviceGetIndex
-        __nvmlDeviceGetIndex = GetProcAddress(handle, 'nvmlDeviceGetIndex')
+        __nvmlDeviceGetIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetIndex')
 
         global __nvmlDeviceGetSerial
-        __nvmlDeviceGetSerial = GetProcAddress(handle, 'nvmlDeviceGetSerial')
+        __nvmlDeviceGetSerial = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSerial')
 
         global __nvmlDeviceGetModuleId
-        __nvmlDeviceGetModuleId = GetProcAddress(handle, 'nvmlDeviceGetModuleId')
+        __nvmlDeviceGetModuleId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetModuleId')
 
         global __nvmlDeviceGetC2cModeInfoV
-        __nvmlDeviceGetC2cModeInfoV = GetProcAddress(handle, 'nvmlDeviceGetC2cModeInfoV')
+        __nvmlDeviceGetC2cModeInfoV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetC2cModeInfoV')
 
         global __nvmlDeviceGetMemoryAffinity
-        __nvmlDeviceGetMemoryAffinity = GetProcAddress(handle, 'nvmlDeviceGetMemoryAffinity')
+        __nvmlDeviceGetMemoryAffinity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryAffinity')
 
         global __nvmlDeviceGetCpuAffinityWithinScope
-        __nvmlDeviceGetCpuAffinityWithinScope = GetProcAddress(handle, 'nvmlDeviceGetCpuAffinityWithinScope')
+        __nvmlDeviceGetCpuAffinityWithinScope = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCpuAffinityWithinScope')
 
         global __nvmlDeviceGetCpuAffinity
-        __nvmlDeviceGetCpuAffinity = GetProcAddress(handle, 'nvmlDeviceGetCpuAffinity')
+        __nvmlDeviceGetCpuAffinity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCpuAffinity')
 
         global __nvmlDeviceSetCpuAffinity
-        __nvmlDeviceSetCpuAffinity = GetProcAddress(handle, 'nvmlDeviceSetCpuAffinity')
+        __nvmlDeviceSetCpuAffinity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetCpuAffinity')
 
         global __nvmlDeviceClearCpuAffinity
-        __nvmlDeviceClearCpuAffinity = GetProcAddress(handle, 'nvmlDeviceClearCpuAffinity')
+        __nvmlDeviceClearCpuAffinity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceClearCpuAffinity')
 
         global __nvmlDeviceGetNumaNodeId
-        __nvmlDeviceGetNumaNodeId = GetProcAddress(handle, 'nvmlDeviceGetNumaNodeId')
+        __nvmlDeviceGetNumaNodeId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNumaNodeId')
 
         global __nvmlDeviceGetTopologyCommonAncestor
-        __nvmlDeviceGetTopologyCommonAncestor = GetProcAddress(handle, 'nvmlDeviceGetTopologyCommonAncestor')
+        __nvmlDeviceGetTopologyCommonAncestor = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTopologyCommonAncestor')
 
         global __nvmlDeviceGetTopologyNearestGpus
-        __nvmlDeviceGetTopologyNearestGpus = GetProcAddress(handle, 'nvmlDeviceGetTopologyNearestGpus')
+        __nvmlDeviceGetTopologyNearestGpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTopologyNearestGpus')
 
         global __nvmlDeviceGetP2PStatus
-        __nvmlDeviceGetP2PStatus = GetProcAddress(handle, 'nvmlDeviceGetP2PStatus')
+        __nvmlDeviceGetP2PStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetP2PStatus')
 
         global __nvmlDeviceGetUUID
-        __nvmlDeviceGetUUID = GetProcAddress(handle, 'nvmlDeviceGetUUID')
+        __nvmlDeviceGetUUID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetUUID')
 
         global __nvmlDeviceGetMinorNumber
-        __nvmlDeviceGetMinorNumber = GetProcAddress(handle, 'nvmlDeviceGetMinorNumber')
+        __nvmlDeviceGetMinorNumber = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMinorNumber')
 
         global __nvmlDeviceGetBoardPartNumber
-        __nvmlDeviceGetBoardPartNumber = GetProcAddress(handle, 'nvmlDeviceGetBoardPartNumber')
+        __nvmlDeviceGetBoardPartNumber = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBoardPartNumber')
 
         global __nvmlDeviceGetInforomVersion
-        __nvmlDeviceGetInforomVersion = GetProcAddress(handle, 'nvmlDeviceGetInforomVersion')
+        __nvmlDeviceGetInforomVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetInforomVersion')
 
         global __nvmlDeviceGetInforomImageVersion
-        __nvmlDeviceGetInforomImageVersion = GetProcAddress(handle, 'nvmlDeviceGetInforomImageVersion')
+        __nvmlDeviceGetInforomImageVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetInforomImageVersion')
 
         global __nvmlDeviceGetInforomConfigurationChecksum
-        __nvmlDeviceGetInforomConfigurationChecksum = GetProcAddress(handle, 'nvmlDeviceGetInforomConfigurationChecksum')
+        __nvmlDeviceGetInforomConfigurationChecksum = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetInforomConfigurationChecksum')
 
         global __nvmlDeviceValidateInforom
-        __nvmlDeviceValidateInforom = GetProcAddress(handle, 'nvmlDeviceValidateInforom')
+        __nvmlDeviceValidateInforom = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceValidateInforom')
 
         global __nvmlDeviceGetLastBBXFlushTime
-        __nvmlDeviceGetLastBBXFlushTime = GetProcAddress(handle, 'nvmlDeviceGetLastBBXFlushTime')
+        __nvmlDeviceGetLastBBXFlushTime = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetLastBBXFlushTime')
 
         global __nvmlDeviceGetDisplayMode
-        __nvmlDeviceGetDisplayMode = GetProcAddress(handle, 'nvmlDeviceGetDisplayMode')
+        __nvmlDeviceGetDisplayMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDisplayMode')
 
         global __nvmlDeviceGetDisplayActive
-        __nvmlDeviceGetDisplayActive = GetProcAddress(handle, 'nvmlDeviceGetDisplayActive')
+        __nvmlDeviceGetDisplayActive = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDisplayActive')
 
         global __nvmlDeviceGetPersistenceMode
-        __nvmlDeviceGetPersistenceMode = GetProcAddress(handle, 'nvmlDeviceGetPersistenceMode')
+        __nvmlDeviceGetPersistenceMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPersistenceMode')
 
         global __nvmlDeviceGetPciInfoExt
-        __nvmlDeviceGetPciInfoExt = GetProcAddress(handle, 'nvmlDeviceGetPciInfoExt')
+        __nvmlDeviceGetPciInfoExt = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPciInfoExt')
 
         global __nvmlDeviceGetPciInfo_v3
-        __nvmlDeviceGetPciInfo_v3 = GetProcAddress(handle, 'nvmlDeviceGetPciInfo_v3')
+        __nvmlDeviceGetPciInfo_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPciInfo_v3')
 
         global __nvmlDeviceGetMaxPcieLinkGeneration
-        __nvmlDeviceGetMaxPcieLinkGeneration = GetProcAddress(handle, 'nvmlDeviceGetMaxPcieLinkGeneration')
+        __nvmlDeviceGetMaxPcieLinkGeneration = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxPcieLinkGeneration')
 
         global __nvmlDeviceGetGpuMaxPcieLinkGeneration
-        __nvmlDeviceGetGpuMaxPcieLinkGeneration = GetProcAddress(handle, 'nvmlDeviceGetGpuMaxPcieLinkGeneration')
+        __nvmlDeviceGetGpuMaxPcieLinkGeneration = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuMaxPcieLinkGeneration')
 
         global __nvmlDeviceGetMaxPcieLinkWidth
-        __nvmlDeviceGetMaxPcieLinkWidth = GetProcAddress(handle, 'nvmlDeviceGetMaxPcieLinkWidth')
+        __nvmlDeviceGetMaxPcieLinkWidth = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxPcieLinkWidth')
 
         global __nvmlDeviceGetCurrPcieLinkGeneration
-        __nvmlDeviceGetCurrPcieLinkGeneration = GetProcAddress(handle, 'nvmlDeviceGetCurrPcieLinkGeneration')
+        __nvmlDeviceGetCurrPcieLinkGeneration = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCurrPcieLinkGeneration')
 
         global __nvmlDeviceGetCurrPcieLinkWidth
-        __nvmlDeviceGetCurrPcieLinkWidth = GetProcAddress(handle, 'nvmlDeviceGetCurrPcieLinkWidth')
+        __nvmlDeviceGetCurrPcieLinkWidth = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCurrPcieLinkWidth')
 
         global __nvmlDeviceGetPcieThroughput
-        __nvmlDeviceGetPcieThroughput = GetProcAddress(handle, 'nvmlDeviceGetPcieThroughput')
+        __nvmlDeviceGetPcieThroughput = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPcieThroughput')
 
         global __nvmlDeviceGetPcieReplayCounter
-        __nvmlDeviceGetPcieReplayCounter = GetProcAddress(handle, 'nvmlDeviceGetPcieReplayCounter')
+        __nvmlDeviceGetPcieReplayCounter = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPcieReplayCounter')
 
         global __nvmlDeviceGetClockInfo
-        __nvmlDeviceGetClockInfo = GetProcAddress(handle, 'nvmlDeviceGetClockInfo')
+        __nvmlDeviceGetClockInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetClockInfo')
 
         global __nvmlDeviceGetMaxClockInfo
-        __nvmlDeviceGetMaxClockInfo = GetProcAddress(handle, 'nvmlDeviceGetMaxClockInfo')
+        __nvmlDeviceGetMaxClockInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxClockInfo')
 
         global __nvmlDeviceGetGpcClkVfOffset
-        __nvmlDeviceGetGpcClkVfOffset = GetProcAddress(handle, 'nvmlDeviceGetGpcClkVfOffset')
+        __nvmlDeviceGetGpcClkVfOffset = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpcClkVfOffset')
 
         global __nvmlDeviceGetClock
-        __nvmlDeviceGetClock = GetProcAddress(handle, 'nvmlDeviceGetClock')
+        __nvmlDeviceGetClock = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetClock')
 
         global __nvmlDeviceGetMaxCustomerBoostClock
-        __nvmlDeviceGetMaxCustomerBoostClock = GetProcAddress(handle, 'nvmlDeviceGetMaxCustomerBoostClock')
+        __nvmlDeviceGetMaxCustomerBoostClock = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxCustomerBoostClock')
 
         global __nvmlDeviceGetSupportedMemoryClocks
-        __nvmlDeviceGetSupportedMemoryClocks = GetProcAddress(handle, 'nvmlDeviceGetSupportedMemoryClocks')
+        __nvmlDeviceGetSupportedMemoryClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedMemoryClocks')
 
         global __nvmlDeviceGetSupportedGraphicsClocks
-        __nvmlDeviceGetSupportedGraphicsClocks = GetProcAddress(handle, 'nvmlDeviceGetSupportedGraphicsClocks')
+        __nvmlDeviceGetSupportedGraphicsClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedGraphicsClocks')
 
         global __nvmlDeviceGetAutoBoostedClocksEnabled
-        __nvmlDeviceGetAutoBoostedClocksEnabled = GetProcAddress(handle, 'nvmlDeviceGetAutoBoostedClocksEnabled')
+        __nvmlDeviceGetAutoBoostedClocksEnabled = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAutoBoostedClocksEnabled')
 
         global __nvmlDeviceGetFanSpeed
-        __nvmlDeviceGetFanSpeed = GetProcAddress(handle, 'nvmlDeviceGetFanSpeed')
+        __nvmlDeviceGetFanSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFanSpeed')
 
         global __nvmlDeviceGetFanSpeed_v2
-        __nvmlDeviceGetFanSpeed_v2 = GetProcAddress(handle, 'nvmlDeviceGetFanSpeed_v2')
+        __nvmlDeviceGetFanSpeed_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFanSpeed_v2')
 
         global __nvmlDeviceGetFanSpeedRPM
-        __nvmlDeviceGetFanSpeedRPM = GetProcAddress(handle, 'nvmlDeviceGetFanSpeedRPM')
+        __nvmlDeviceGetFanSpeedRPM = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFanSpeedRPM')
 
         global __nvmlDeviceGetTargetFanSpeed
-        __nvmlDeviceGetTargetFanSpeed = GetProcAddress(handle, 'nvmlDeviceGetTargetFanSpeed')
+        __nvmlDeviceGetTargetFanSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTargetFanSpeed')
 
         global __nvmlDeviceGetMinMaxFanSpeed
-        __nvmlDeviceGetMinMaxFanSpeed = GetProcAddress(handle, 'nvmlDeviceGetMinMaxFanSpeed')
+        __nvmlDeviceGetMinMaxFanSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMinMaxFanSpeed')
 
         global __nvmlDeviceGetFanControlPolicy_v2
-        __nvmlDeviceGetFanControlPolicy_v2 = GetProcAddress(handle, 'nvmlDeviceGetFanControlPolicy_v2')
+        __nvmlDeviceGetFanControlPolicy_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFanControlPolicy_v2')
 
         global __nvmlDeviceGetNumFans
-        __nvmlDeviceGetNumFans = GetProcAddress(handle, 'nvmlDeviceGetNumFans')
+        __nvmlDeviceGetNumFans = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNumFans')
 
         global __nvmlDeviceGetCoolerInfo
-        __nvmlDeviceGetCoolerInfo = GetProcAddress(handle, 'nvmlDeviceGetCoolerInfo')
+        __nvmlDeviceGetCoolerInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCoolerInfo')
 
         global __nvmlDeviceGetTemperatureV
-        __nvmlDeviceGetTemperatureV = GetProcAddress(handle, 'nvmlDeviceGetTemperatureV')
+        __nvmlDeviceGetTemperatureV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTemperatureV')
 
         global __nvmlDeviceGetTemperatureThreshold
-        __nvmlDeviceGetTemperatureThreshold = GetProcAddress(handle, 'nvmlDeviceGetTemperatureThreshold')
+        __nvmlDeviceGetTemperatureThreshold = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTemperatureThreshold')
 
         global __nvmlDeviceGetMarginTemperature
-        __nvmlDeviceGetMarginTemperature = GetProcAddress(handle, 'nvmlDeviceGetMarginTemperature')
+        __nvmlDeviceGetMarginTemperature = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMarginTemperature')
 
         global __nvmlDeviceGetThermalSettings
-        __nvmlDeviceGetThermalSettings = GetProcAddress(handle, 'nvmlDeviceGetThermalSettings')
+        __nvmlDeviceGetThermalSettings = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetThermalSettings')
 
         global __nvmlDeviceGetPerformanceState
-        __nvmlDeviceGetPerformanceState = GetProcAddress(handle, 'nvmlDeviceGetPerformanceState')
+        __nvmlDeviceGetPerformanceState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPerformanceState')
 
         global __nvmlDeviceGetCurrentClocksEventReasons
-        __nvmlDeviceGetCurrentClocksEventReasons = GetProcAddress(handle, 'nvmlDeviceGetCurrentClocksEventReasons')
+        __nvmlDeviceGetCurrentClocksEventReasons = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCurrentClocksEventReasons')
 
         global __nvmlDeviceGetSupportedClocksEventReasons
-        __nvmlDeviceGetSupportedClocksEventReasons = GetProcAddress(handle, 'nvmlDeviceGetSupportedClocksEventReasons')
+        __nvmlDeviceGetSupportedClocksEventReasons = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedClocksEventReasons')
 
         global __nvmlDeviceGetPowerState
-        __nvmlDeviceGetPowerState = GetProcAddress(handle, 'nvmlDeviceGetPowerState')
+        __nvmlDeviceGetPowerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerState')
 
         global __nvmlDeviceGetDynamicPstatesInfo
-        __nvmlDeviceGetDynamicPstatesInfo = GetProcAddress(handle, 'nvmlDeviceGetDynamicPstatesInfo')
+        __nvmlDeviceGetDynamicPstatesInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDynamicPstatesInfo')
 
         global __nvmlDeviceGetMemClkVfOffset
-        __nvmlDeviceGetMemClkVfOffset = GetProcAddress(handle, 'nvmlDeviceGetMemClkVfOffset')
+        __nvmlDeviceGetMemClkVfOffset = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemClkVfOffset')
 
         global __nvmlDeviceGetMinMaxClockOfPState
-        __nvmlDeviceGetMinMaxClockOfPState = GetProcAddress(handle, 'nvmlDeviceGetMinMaxClockOfPState')
+        __nvmlDeviceGetMinMaxClockOfPState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMinMaxClockOfPState')
 
         global __nvmlDeviceGetSupportedPerformanceStates
-        __nvmlDeviceGetSupportedPerformanceStates = GetProcAddress(handle, 'nvmlDeviceGetSupportedPerformanceStates')
+        __nvmlDeviceGetSupportedPerformanceStates = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedPerformanceStates')
 
         global __nvmlDeviceGetGpcClkMinMaxVfOffset
-        __nvmlDeviceGetGpcClkMinMaxVfOffset = GetProcAddress(handle, 'nvmlDeviceGetGpcClkMinMaxVfOffset')
+        __nvmlDeviceGetGpcClkMinMaxVfOffset = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpcClkMinMaxVfOffset')
 
         global __nvmlDeviceGetMemClkMinMaxVfOffset
-        __nvmlDeviceGetMemClkMinMaxVfOffset = GetProcAddress(handle, 'nvmlDeviceGetMemClkMinMaxVfOffset')
+        __nvmlDeviceGetMemClkMinMaxVfOffset = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemClkMinMaxVfOffset')
 
         global __nvmlDeviceGetClockOffsets
-        __nvmlDeviceGetClockOffsets = GetProcAddress(handle, 'nvmlDeviceGetClockOffsets')
+        __nvmlDeviceGetClockOffsets = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetClockOffsets')
 
         global __nvmlDeviceSetClockOffsets
-        __nvmlDeviceSetClockOffsets = GetProcAddress(handle, 'nvmlDeviceSetClockOffsets')
+        __nvmlDeviceSetClockOffsets = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetClockOffsets')
 
         global __nvmlDeviceGetPerformanceModes
-        __nvmlDeviceGetPerformanceModes = GetProcAddress(handle, 'nvmlDeviceGetPerformanceModes')
+        __nvmlDeviceGetPerformanceModes = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPerformanceModes')
 
         global __nvmlDeviceGetCurrentClockFreqs
-        __nvmlDeviceGetCurrentClockFreqs = GetProcAddress(handle, 'nvmlDeviceGetCurrentClockFreqs')
+        __nvmlDeviceGetCurrentClockFreqs = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCurrentClockFreqs')
 
         global __nvmlDeviceGetPowerManagementLimit
-        __nvmlDeviceGetPowerManagementLimit = GetProcAddress(handle, 'nvmlDeviceGetPowerManagementLimit')
+        __nvmlDeviceGetPowerManagementLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerManagementLimit')
 
         global __nvmlDeviceGetPowerManagementLimitConstraints
-        __nvmlDeviceGetPowerManagementLimitConstraints = GetProcAddress(handle, 'nvmlDeviceGetPowerManagementLimitConstraints')
+        __nvmlDeviceGetPowerManagementLimitConstraints = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerManagementLimitConstraints')
 
         global __nvmlDeviceGetPowerManagementDefaultLimit
-        __nvmlDeviceGetPowerManagementDefaultLimit = GetProcAddress(handle, 'nvmlDeviceGetPowerManagementDefaultLimit')
+        __nvmlDeviceGetPowerManagementDefaultLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerManagementDefaultLimit')
 
         global __nvmlDeviceGetPowerUsage
-        __nvmlDeviceGetPowerUsage = GetProcAddress(handle, 'nvmlDeviceGetPowerUsage')
+        __nvmlDeviceGetPowerUsage = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerUsage')
 
         global __nvmlDeviceGetTotalEnergyConsumption
-        __nvmlDeviceGetTotalEnergyConsumption = GetProcAddress(handle, 'nvmlDeviceGetTotalEnergyConsumption')
+        __nvmlDeviceGetTotalEnergyConsumption = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTotalEnergyConsumption')
 
         global __nvmlDeviceGetEnforcedPowerLimit
-        __nvmlDeviceGetEnforcedPowerLimit = GetProcAddress(handle, 'nvmlDeviceGetEnforcedPowerLimit')
+        __nvmlDeviceGetEnforcedPowerLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEnforcedPowerLimit')
 
         global __nvmlDeviceGetGpuOperationMode
-        __nvmlDeviceGetGpuOperationMode = GetProcAddress(handle, 'nvmlDeviceGetGpuOperationMode')
+        __nvmlDeviceGetGpuOperationMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuOperationMode')
 
         global __nvmlDeviceGetMemoryInfo_v2
-        __nvmlDeviceGetMemoryInfo_v2 = GetProcAddress(handle, 'nvmlDeviceGetMemoryInfo_v2')
+        __nvmlDeviceGetMemoryInfo_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryInfo_v2')
 
         global __nvmlDeviceGetComputeMode
-        __nvmlDeviceGetComputeMode = GetProcAddress(handle, 'nvmlDeviceGetComputeMode')
+        __nvmlDeviceGetComputeMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetComputeMode')
 
         global __nvmlDeviceGetCudaComputeCapability
-        __nvmlDeviceGetCudaComputeCapability = GetProcAddress(handle, 'nvmlDeviceGetCudaComputeCapability')
+        __nvmlDeviceGetCudaComputeCapability = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCudaComputeCapability')
 
         global __nvmlDeviceGetDramEncryptionMode
-        __nvmlDeviceGetDramEncryptionMode = GetProcAddress(handle, 'nvmlDeviceGetDramEncryptionMode')
+        __nvmlDeviceGetDramEncryptionMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDramEncryptionMode')
 
         global __nvmlDeviceSetDramEncryptionMode
-        __nvmlDeviceSetDramEncryptionMode = GetProcAddress(handle, 'nvmlDeviceSetDramEncryptionMode')
+        __nvmlDeviceSetDramEncryptionMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetDramEncryptionMode')
 
         global __nvmlDeviceGetEccMode
-        __nvmlDeviceGetEccMode = GetProcAddress(handle, 'nvmlDeviceGetEccMode')
+        __nvmlDeviceGetEccMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEccMode')
 
         global __nvmlDeviceGetDefaultEccMode
-        __nvmlDeviceGetDefaultEccMode = GetProcAddress(handle, 'nvmlDeviceGetDefaultEccMode')
+        __nvmlDeviceGetDefaultEccMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDefaultEccMode')
 
         global __nvmlDeviceGetBoardId
-        __nvmlDeviceGetBoardId = GetProcAddress(handle, 'nvmlDeviceGetBoardId')
+        __nvmlDeviceGetBoardId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBoardId')
 
         global __nvmlDeviceGetMultiGpuBoard
-        __nvmlDeviceGetMultiGpuBoard = GetProcAddress(handle, 'nvmlDeviceGetMultiGpuBoard')
+        __nvmlDeviceGetMultiGpuBoard = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMultiGpuBoard')
 
         global __nvmlDeviceGetTotalEccErrors
-        __nvmlDeviceGetTotalEccErrors = GetProcAddress(handle, 'nvmlDeviceGetTotalEccErrors')
+        __nvmlDeviceGetTotalEccErrors = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTotalEccErrors')
 
         global __nvmlDeviceGetMemoryErrorCounter
-        __nvmlDeviceGetMemoryErrorCounter = GetProcAddress(handle, 'nvmlDeviceGetMemoryErrorCounter')
+        __nvmlDeviceGetMemoryErrorCounter = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryErrorCounter')
 
         global __nvmlDeviceGetUtilizationRates
-        __nvmlDeviceGetUtilizationRates = GetProcAddress(handle, 'nvmlDeviceGetUtilizationRates')
+        __nvmlDeviceGetUtilizationRates = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetUtilizationRates')
 
         global __nvmlDeviceGetEncoderUtilization
-        __nvmlDeviceGetEncoderUtilization = GetProcAddress(handle, 'nvmlDeviceGetEncoderUtilization')
+        __nvmlDeviceGetEncoderUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEncoderUtilization')
 
         global __nvmlDeviceGetEncoderCapacity
-        __nvmlDeviceGetEncoderCapacity = GetProcAddress(handle, 'nvmlDeviceGetEncoderCapacity')
+        __nvmlDeviceGetEncoderCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEncoderCapacity')
 
         global __nvmlDeviceGetEncoderStats
-        __nvmlDeviceGetEncoderStats = GetProcAddress(handle, 'nvmlDeviceGetEncoderStats')
+        __nvmlDeviceGetEncoderStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEncoderStats')
 
         global __nvmlDeviceGetEncoderSessions
-        __nvmlDeviceGetEncoderSessions = GetProcAddress(handle, 'nvmlDeviceGetEncoderSessions')
+        __nvmlDeviceGetEncoderSessions = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEncoderSessions')
 
         global __nvmlDeviceGetDecoderUtilization
-        __nvmlDeviceGetDecoderUtilization = GetProcAddress(handle, 'nvmlDeviceGetDecoderUtilization')
+        __nvmlDeviceGetDecoderUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDecoderUtilization')
 
         global __nvmlDeviceGetJpgUtilization
-        __nvmlDeviceGetJpgUtilization = GetProcAddress(handle, 'nvmlDeviceGetJpgUtilization')
+        __nvmlDeviceGetJpgUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetJpgUtilization')
 
         global __nvmlDeviceGetOfaUtilization
-        __nvmlDeviceGetOfaUtilization = GetProcAddress(handle, 'nvmlDeviceGetOfaUtilization')
+        __nvmlDeviceGetOfaUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetOfaUtilization')
 
         global __nvmlDeviceGetFBCStats
-        __nvmlDeviceGetFBCStats = GetProcAddress(handle, 'nvmlDeviceGetFBCStats')
+        __nvmlDeviceGetFBCStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFBCStats')
 
         global __nvmlDeviceGetFBCSessions
-        __nvmlDeviceGetFBCSessions = GetProcAddress(handle, 'nvmlDeviceGetFBCSessions')
+        __nvmlDeviceGetFBCSessions = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFBCSessions')
 
         global __nvmlDeviceGetDriverModel_v2
-        __nvmlDeviceGetDriverModel_v2 = GetProcAddress(handle, 'nvmlDeviceGetDriverModel_v2')
+        __nvmlDeviceGetDriverModel_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDriverModel_v2')
 
         global __nvmlDeviceGetVbiosVersion
-        __nvmlDeviceGetVbiosVersion = GetProcAddress(handle, 'nvmlDeviceGetVbiosVersion')
+        __nvmlDeviceGetVbiosVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVbiosVersion')
 
         global __nvmlDeviceGetBridgeChipInfo
-        __nvmlDeviceGetBridgeChipInfo = GetProcAddress(handle, 'nvmlDeviceGetBridgeChipInfo')
+        __nvmlDeviceGetBridgeChipInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBridgeChipInfo')
 
         global __nvmlDeviceGetComputeRunningProcesses_v3
-        __nvmlDeviceGetComputeRunningProcesses_v3 = GetProcAddress(handle, 'nvmlDeviceGetComputeRunningProcesses_v3')
+        __nvmlDeviceGetComputeRunningProcesses_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetComputeRunningProcesses_v3')
 
         global __nvmlDeviceGetGraphicsRunningProcesses_v3
-        __nvmlDeviceGetGraphicsRunningProcesses_v3 = GetProcAddress(handle, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
+        __nvmlDeviceGetGraphicsRunningProcesses_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
 
         global __nvmlDeviceGetMPSComputeRunningProcesses_v3
-        __nvmlDeviceGetMPSComputeRunningProcesses_v3 = GetProcAddress(handle, 'nvmlDeviceGetMPSComputeRunningProcesses_v3')
+        __nvmlDeviceGetMPSComputeRunningProcesses_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMPSComputeRunningProcesses_v3')
 
         global __nvmlDeviceGetRunningProcessDetailList
-        __nvmlDeviceGetRunningProcessDetailList = GetProcAddress(handle, 'nvmlDeviceGetRunningProcessDetailList')
+        __nvmlDeviceGetRunningProcessDetailList = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRunningProcessDetailList')
 
         global __nvmlDeviceOnSameBoard
-        __nvmlDeviceOnSameBoard = GetProcAddress(handle, 'nvmlDeviceOnSameBoard')
+        __nvmlDeviceOnSameBoard = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceOnSameBoard')
 
         global __nvmlDeviceGetAPIRestriction
-        __nvmlDeviceGetAPIRestriction = GetProcAddress(handle, 'nvmlDeviceGetAPIRestriction')
+        __nvmlDeviceGetAPIRestriction = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAPIRestriction')
 
         global __nvmlDeviceGetSamples
-        __nvmlDeviceGetSamples = GetProcAddress(handle, 'nvmlDeviceGetSamples')
+        __nvmlDeviceGetSamples = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSamples')
 
         global __nvmlDeviceGetBAR1MemoryInfo
-        __nvmlDeviceGetBAR1MemoryInfo = GetProcAddress(handle, 'nvmlDeviceGetBAR1MemoryInfo')
+        __nvmlDeviceGetBAR1MemoryInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBAR1MemoryInfo')
 
         global __nvmlDeviceGetIrqNum
-        __nvmlDeviceGetIrqNum = GetProcAddress(handle, 'nvmlDeviceGetIrqNum')
+        __nvmlDeviceGetIrqNum = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetIrqNum')
 
         global __nvmlDeviceGetNumGpuCores
-        __nvmlDeviceGetNumGpuCores = GetProcAddress(handle, 'nvmlDeviceGetNumGpuCores')
+        __nvmlDeviceGetNumGpuCores = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNumGpuCores')
 
         global __nvmlDeviceGetPowerSource
-        __nvmlDeviceGetPowerSource = GetProcAddress(handle, 'nvmlDeviceGetPowerSource')
+        __nvmlDeviceGetPowerSource = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerSource')
 
         global __nvmlDeviceGetMemoryBusWidth
-        __nvmlDeviceGetMemoryBusWidth = GetProcAddress(handle, 'nvmlDeviceGetMemoryBusWidth')
+        __nvmlDeviceGetMemoryBusWidth = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryBusWidth')
 
         global __nvmlDeviceGetPcieLinkMaxSpeed
-        __nvmlDeviceGetPcieLinkMaxSpeed = GetProcAddress(handle, 'nvmlDeviceGetPcieLinkMaxSpeed')
+        __nvmlDeviceGetPcieLinkMaxSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPcieLinkMaxSpeed')
 
         global __nvmlDeviceGetPcieSpeed
-        __nvmlDeviceGetPcieSpeed = GetProcAddress(handle, 'nvmlDeviceGetPcieSpeed')
+        __nvmlDeviceGetPcieSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPcieSpeed')
 
         global __nvmlDeviceGetAdaptiveClockInfoStatus
-        __nvmlDeviceGetAdaptiveClockInfoStatus = GetProcAddress(handle, 'nvmlDeviceGetAdaptiveClockInfoStatus')
+        __nvmlDeviceGetAdaptiveClockInfoStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAdaptiveClockInfoStatus')
 
         global __nvmlDeviceGetBusType
-        __nvmlDeviceGetBusType = GetProcAddress(handle, 'nvmlDeviceGetBusType')
+        __nvmlDeviceGetBusType = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBusType')
 
         global __nvmlDeviceGetGpuFabricInfoV
-        __nvmlDeviceGetGpuFabricInfoV = GetProcAddress(handle, 'nvmlDeviceGetGpuFabricInfoV')
+        __nvmlDeviceGetGpuFabricInfoV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuFabricInfoV')
 
         global __nvmlSystemGetConfComputeCapabilities
-        __nvmlSystemGetConfComputeCapabilities = GetProcAddress(handle, 'nvmlSystemGetConfComputeCapabilities')
+        __nvmlSystemGetConfComputeCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeCapabilities')
 
         global __nvmlSystemGetConfComputeState
-        __nvmlSystemGetConfComputeState = GetProcAddress(handle, 'nvmlSystemGetConfComputeState')
+        __nvmlSystemGetConfComputeState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeState')
 
         global __nvmlDeviceGetConfComputeMemSizeInfo
-        __nvmlDeviceGetConfComputeMemSizeInfo = GetProcAddress(handle, 'nvmlDeviceGetConfComputeMemSizeInfo')
+        __nvmlDeviceGetConfComputeMemSizeInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetConfComputeMemSizeInfo')
 
         global __nvmlSystemGetConfComputeGpusReadyState
-        __nvmlSystemGetConfComputeGpusReadyState = GetProcAddress(handle, 'nvmlSystemGetConfComputeGpusReadyState')
+        __nvmlSystemGetConfComputeGpusReadyState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeGpusReadyState')
 
         global __nvmlDeviceGetConfComputeProtectedMemoryUsage
-        __nvmlDeviceGetConfComputeProtectedMemoryUsage = GetProcAddress(handle, 'nvmlDeviceGetConfComputeProtectedMemoryUsage')
+        __nvmlDeviceGetConfComputeProtectedMemoryUsage = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetConfComputeProtectedMemoryUsage')
 
         global __nvmlDeviceGetConfComputeGpuCertificate
-        __nvmlDeviceGetConfComputeGpuCertificate = GetProcAddress(handle, 'nvmlDeviceGetConfComputeGpuCertificate')
+        __nvmlDeviceGetConfComputeGpuCertificate = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetConfComputeGpuCertificate')
 
         global __nvmlDeviceGetConfComputeGpuAttestationReport
-        __nvmlDeviceGetConfComputeGpuAttestationReport = GetProcAddress(handle, 'nvmlDeviceGetConfComputeGpuAttestationReport')
+        __nvmlDeviceGetConfComputeGpuAttestationReport = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetConfComputeGpuAttestationReport')
 
         global __nvmlSystemGetConfComputeKeyRotationThresholdInfo
-        __nvmlSystemGetConfComputeKeyRotationThresholdInfo = GetProcAddress(handle, 'nvmlSystemGetConfComputeKeyRotationThresholdInfo')
+        __nvmlSystemGetConfComputeKeyRotationThresholdInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeKeyRotationThresholdInfo')
 
         global __nvmlDeviceSetConfComputeUnprotectedMemSize
-        __nvmlDeviceSetConfComputeUnprotectedMemSize = GetProcAddress(handle, 'nvmlDeviceSetConfComputeUnprotectedMemSize')
+        __nvmlDeviceSetConfComputeUnprotectedMemSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetConfComputeUnprotectedMemSize')
 
         global __nvmlSystemSetConfComputeGpusReadyState
-        __nvmlSystemSetConfComputeGpusReadyState = GetProcAddress(handle, 'nvmlSystemSetConfComputeGpusReadyState')
+        __nvmlSystemSetConfComputeGpusReadyState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemSetConfComputeGpusReadyState')
 
         global __nvmlSystemSetConfComputeKeyRotationThresholdInfo
-        __nvmlSystemSetConfComputeKeyRotationThresholdInfo = GetProcAddress(handle, 'nvmlSystemSetConfComputeKeyRotationThresholdInfo')
+        __nvmlSystemSetConfComputeKeyRotationThresholdInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemSetConfComputeKeyRotationThresholdInfo')
 
         global __nvmlSystemGetConfComputeSettings
-        __nvmlSystemGetConfComputeSettings = GetProcAddress(handle, 'nvmlSystemGetConfComputeSettings')
+        __nvmlSystemGetConfComputeSettings = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeSettings')
 
         global __nvmlDeviceGetGspFirmwareVersion
-        __nvmlDeviceGetGspFirmwareVersion = GetProcAddress(handle, 'nvmlDeviceGetGspFirmwareVersion')
+        __nvmlDeviceGetGspFirmwareVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGspFirmwareVersion')
 
         global __nvmlDeviceGetGspFirmwareMode
-        __nvmlDeviceGetGspFirmwareMode = GetProcAddress(handle, 'nvmlDeviceGetGspFirmwareMode')
+        __nvmlDeviceGetGspFirmwareMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGspFirmwareMode')
 
         global __nvmlDeviceGetSramEccErrorStatus
-        __nvmlDeviceGetSramEccErrorStatus = GetProcAddress(handle, 'nvmlDeviceGetSramEccErrorStatus')
+        __nvmlDeviceGetSramEccErrorStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSramEccErrorStatus')
 
         global __nvmlDeviceGetAccountingMode
-        __nvmlDeviceGetAccountingMode = GetProcAddress(handle, 'nvmlDeviceGetAccountingMode')
+        __nvmlDeviceGetAccountingMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingMode')
 
         global __nvmlDeviceGetAccountingStats
-        __nvmlDeviceGetAccountingStats = GetProcAddress(handle, 'nvmlDeviceGetAccountingStats')
+        __nvmlDeviceGetAccountingStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingStats')
 
         global __nvmlDeviceGetAccountingPids
-        __nvmlDeviceGetAccountingPids = GetProcAddress(handle, 'nvmlDeviceGetAccountingPids')
+        __nvmlDeviceGetAccountingPids = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingPids')
 
         global __nvmlDeviceGetAccountingBufferSize
-        __nvmlDeviceGetAccountingBufferSize = GetProcAddress(handle, 'nvmlDeviceGetAccountingBufferSize')
+        __nvmlDeviceGetAccountingBufferSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingBufferSize')
 
         global __nvmlDeviceGetRetiredPages
-        __nvmlDeviceGetRetiredPages = GetProcAddress(handle, 'nvmlDeviceGetRetiredPages')
+        __nvmlDeviceGetRetiredPages = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRetiredPages')
 
         global __nvmlDeviceGetRetiredPages_v2
-        __nvmlDeviceGetRetiredPages_v2 = GetProcAddress(handle, 'nvmlDeviceGetRetiredPages_v2')
+        __nvmlDeviceGetRetiredPages_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRetiredPages_v2')
 
         global __nvmlDeviceGetRetiredPagesPendingStatus
-        __nvmlDeviceGetRetiredPagesPendingStatus = GetProcAddress(handle, 'nvmlDeviceGetRetiredPagesPendingStatus')
+        __nvmlDeviceGetRetiredPagesPendingStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRetiredPagesPendingStatus')
 
         global __nvmlDeviceGetRemappedRows
-        __nvmlDeviceGetRemappedRows = GetProcAddress(handle, 'nvmlDeviceGetRemappedRows')
+        __nvmlDeviceGetRemappedRows = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRemappedRows')
 
         global __nvmlDeviceGetRowRemapperHistogram
-        __nvmlDeviceGetRowRemapperHistogram = GetProcAddress(handle, 'nvmlDeviceGetRowRemapperHistogram')
+        __nvmlDeviceGetRowRemapperHistogram = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRowRemapperHistogram')
 
         global __nvmlDeviceGetArchitecture
-        __nvmlDeviceGetArchitecture = GetProcAddress(handle, 'nvmlDeviceGetArchitecture')
+        __nvmlDeviceGetArchitecture = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetArchitecture')
 
         global __nvmlDeviceGetClkMonStatus
-        __nvmlDeviceGetClkMonStatus = GetProcAddress(handle, 'nvmlDeviceGetClkMonStatus')
+        __nvmlDeviceGetClkMonStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetClkMonStatus')
 
         global __nvmlDeviceGetProcessUtilization
-        __nvmlDeviceGetProcessUtilization = GetProcAddress(handle, 'nvmlDeviceGetProcessUtilization')
+        __nvmlDeviceGetProcessUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetProcessUtilization')
 
         global __nvmlDeviceGetProcessesUtilizationInfo
-        __nvmlDeviceGetProcessesUtilizationInfo = GetProcAddress(handle, 'nvmlDeviceGetProcessesUtilizationInfo')
+        __nvmlDeviceGetProcessesUtilizationInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetProcessesUtilizationInfo')
 
         global __nvmlDeviceGetPlatformInfo
-        __nvmlDeviceGetPlatformInfo = GetProcAddress(handle, 'nvmlDeviceGetPlatformInfo')
+        __nvmlDeviceGetPlatformInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPlatformInfo')
 
         global __nvmlUnitSetLedState
-        __nvmlUnitSetLedState = GetProcAddress(handle, 'nvmlUnitSetLedState')
+        __nvmlUnitSetLedState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitSetLedState')
 
         global __nvmlDeviceSetPersistenceMode
-        __nvmlDeviceSetPersistenceMode = GetProcAddress(handle, 'nvmlDeviceSetPersistenceMode')
+        __nvmlDeviceSetPersistenceMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetPersistenceMode')
 
         global __nvmlDeviceSetComputeMode
-        __nvmlDeviceSetComputeMode = GetProcAddress(handle, 'nvmlDeviceSetComputeMode')
+        __nvmlDeviceSetComputeMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetComputeMode')
 
         global __nvmlDeviceSetEccMode
-        __nvmlDeviceSetEccMode = GetProcAddress(handle, 'nvmlDeviceSetEccMode')
+        __nvmlDeviceSetEccMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetEccMode')
 
         global __nvmlDeviceClearEccErrorCounts
-        __nvmlDeviceClearEccErrorCounts = GetProcAddress(handle, 'nvmlDeviceClearEccErrorCounts')
+        __nvmlDeviceClearEccErrorCounts = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceClearEccErrorCounts')
 
         global __nvmlDeviceSetDriverModel
-        __nvmlDeviceSetDriverModel = GetProcAddress(handle, 'nvmlDeviceSetDriverModel')
+        __nvmlDeviceSetDriverModel = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetDriverModel')
 
         global __nvmlDeviceSetGpuLockedClocks
-        __nvmlDeviceSetGpuLockedClocks = GetProcAddress(handle, 'nvmlDeviceSetGpuLockedClocks')
+        __nvmlDeviceSetGpuLockedClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetGpuLockedClocks')
 
         global __nvmlDeviceResetGpuLockedClocks
-        __nvmlDeviceResetGpuLockedClocks = GetProcAddress(handle, 'nvmlDeviceResetGpuLockedClocks')
+        __nvmlDeviceResetGpuLockedClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceResetGpuLockedClocks')
 
         global __nvmlDeviceSetMemoryLockedClocks
-        __nvmlDeviceSetMemoryLockedClocks = GetProcAddress(handle, 'nvmlDeviceSetMemoryLockedClocks')
+        __nvmlDeviceSetMemoryLockedClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetMemoryLockedClocks')
 
         global __nvmlDeviceResetMemoryLockedClocks
-        __nvmlDeviceResetMemoryLockedClocks = GetProcAddress(handle, 'nvmlDeviceResetMemoryLockedClocks')
+        __nvmlDeviceResetMemoryLockedClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceResetMemoryLockedClocks')
 
         global __nvmlDeviceSetAutoBoostedClocksEnabled
-        __nvmlDeviceSetAutoBoostedClocksEnabled = GetProcAddress(handle, 'nvmlDeviceSetAutoBoostedClocksEnabled')
+        __nvmlDeviceSetAutoBoostedClocksEnabled = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetAutoBoostedClocksEnabled')
 
         global __nvmlDeviceSetDefaultAutoBoostedClocksEnabled
-        __nvmlDeviceSetDefaultAutoBoostedClocksEnabled = GetProcAddress(handle, 'nvmlDeviceSetDefaultAutoBoostedClocksEnabled')
+        __nvmlDeviceSetDefaultAutoBoostedClocksEnabled = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetDefaultAutoBoostedClocksEnabled')
 
         global __nvmlDeviceSetDefaultFanSpeed_v2
-        __nvmlDeviceSetDefaultFanSpeed_v2 = GetProcAddress(handle, 'nvmlDeviceSetDefaultFanSpeed_v2')
+        __nvmlDeviceSetDefaultFanSpeed_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetDefaultFanSpeed_v2')
 
         global __nvmlDeviceSetFanControlPolicy
-        __nvmlDeviceSetFanControlPolicy = GetProcAddress(handle, 'nvmlDeviceSetFanControlPolicy')
+        __nvmlDeviceSetFanControlPolicy = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetFanControlPolicy')
 
         global __nvmlDeviceSetTemperatureThreshold
-        __nvmlDeviceSetTemperatureThreshold = GetProcAddress(handle, 'nvmlDeviceSetTemperatureThreshold')
+        __nvmlDeviceSetTemperatureThreshold = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetTemperatureThreshold')
 
         global __nvmlDeviceSetGpuOperationMode
-        __nvmlDeviceSetGpuOperationMode = GetProcAddress(handle, 'nvmlDeviceSetGpuOperationMode')
+        __nvmlDeviceSetGpuOperationMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetGpuOperationMode')
 
         global __nvmlDeviceSetAPIRestriction
-        __nvmlDeviceSetAPIRestriction = GetProcAddress(handle, 'nvmlDeviceSetAPIRestriction')
+        __nvmlDeviceSetAPIRestriction = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetAPIRestriction')
 
         global __nvmlDeviceSetFanSpeed_v2
-        __nvmlDeviceSetFanSpeed_v2 = GetProcAddress(handle, 'nvmlDeviceSetFanSpeed_v2')
+        __nvmlDeviceSetFanSpeed_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetFanSpeed_v2')
 
         global __nvmlDeviceSetAccountingMode
-        __nvmlDeviceSetAccountingMode = GetProcAddress(handle, 'nvmlDeviceSetAccountingMode')
+        __nvmlDeviceSetAccountingMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetAccountingMode')
 
         global __nvmlDeviceClearAccountingPids
-        __nvmlDeviceClearAccountingPids = GetProcAddress(handle, 'nvmlDeviceClearAccountingPids')
+        __nvmlDeviceClearAccountingPids = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceClearAccountingPids')
 
         global __nvmlDeviceSetPowerManagementLimit_v2
-        __nvmlDeviceSetPowerManagementLimit_v2 = GetProcAddress(handle, 'nvmlDeviceSetPowerManagementLimit_v2')
+        __nvmlDeviceSetPowerManagementLimit_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetPowerManagementLimit_v2')
 
         global __nvmlDeviceGetNvLinkState
-        __nvmlDeviceGetNvLinkState = GetProcAddress(handle, 'nvmlDeviceGetNvLinkState')
+        __nvmlDeviceGetNvLinkState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkState')
 
         global __nvmlDeviceGetNvLinkVersion
-        __nvmlDeviceGetNvLinkVersion = GetProcAddress(handle, 'nvmlDeviceGetNvLinkVersion')
+        __nvmlDeviceGetNvLinkVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkVersion')
 
         global __nvmlDeviceGetNvLinkCapability
-        __nvmlDeviceGetNvLinkCapability = GetProcAddress(handle, 'nvmlDeviceGetNvLinkCapability')
+        __nvmlDeviceGetNvLinkCapability = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkCapability')
 
         global __nvmlDeviceGetNvLinkRemotePciInfo_v2
-        __nvmlDeviceGetNvLinkRemotePciInfo_v2 = GetProcAddress(handle, 'nvmlDeviceGetNvLinkRemotePciInfo_v2')
+        __nvmlDeviceGetNvLinkRemotePciInfo_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkRemotePciInfo_v2')
 
         global __nvmlDeviceGetNvLinkErrorCounter
-        __nvmlDeviceGetNvLinkErrorCounter = GetProcAddress(handle, 'nvmlDeviceGetNvLinkErrorCounter')
+        __nvmlDeviceGetNvLinkErrorCounter = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkErrorCounter')
 
         global __nvmlDeviceResetNvLinkErrorCounters
-        __nvmlDeviceResetNvLinkErrorCounters = GetProcAddress(handle, 'nvmlDeviceResetNvLinkErrorCounters')
+        __nvmlDeviceResetNvLinkErrorCounters = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceResetNvLinkErrorCounters')
 
         global __nvmlDeviceGetNvLinkRemoteDeviceType
-        __nvmlDeviceGetNvLinkRemoteDeviceType = GetProcAddress(handle, 'nvmlDeviceGetNvLinkRemoteDeviceType')
+        __nvmlDeviceGetNvLinkRemoteDeviceType = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkRemoteDeviceType')
 
         global __nvmlDeviceSetNvLinkDeviceLowPowerThreshold
-        __nvmlDeviceSetNvLinkDeviceLowPowerThreshold = GetProcAddress(handle, 'nvmlDeviceSetNvLinkDeviceLowPowerThreshold')
+        __nvmlDeviceSetNvLinkDeviceLowPowerThreshold = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetNvLinkDeviceLowPowerThreshold')
 
         global __nvmlSystemSetNvlinkBwMode
-        __nvmlSystemSetNvlinkBwMode = GetProcAddress(handle, 'nvmlSystemSetNvlinkBwMode')
+        __nvmlSystemSetNvlinkBwMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemSetNvlinkBwMode')
 
         global __nvmlSystemGetNvlinkBwMode
-        __nvmlSystemGetNvlinkBwMode = GetProcAddress(handle, 'nvmlSystemGetNvlinkBwMode')
+        __nvmlSystemGetNvlinkBwMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetNvlinkBwMode')
 
         global __nvmlDeviceGetNvlinkSupportedBwModes
-        __nvmlDeviceGetNvlinkSupportedBwModes = GetProcAddress(handle, 'nvmlDeviceGetNvlinkSupportedBwModes')
+        __nvmlDeviceGetNvlinkSupportedBwModes = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvlinkSupportedBwModes')
 
         global __nvmlDeviceGetNvlinkBwMode
-        __nvmlDeviceGetNvlinkBwMode = GetProcAddress(handle, 'nvmlDeviceGetNvlinkBwMode')
+        __nvmlDeviceGetNvlinkBwMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvlinkBwMode')
 
         global __nvmlDeviceSetNvlinkBwMode
-        __nvmlDeviceSetNvlinkBwMode = GetProcAddress(handle, 'nvmlDeviceSetNvlinkBwMode')
+        __nvmlDeviceSetNvlinkBwMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetNvlinkBwMode')
 
         global __nvmlEventSetCreate
-        __nvmlEventSetCreate = GetProcAddress(handle, 'nvmlEventSetCreate')
+        __nvmlEventSetCreate = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetCreate')
 
         global __nvmlDeviceRegisterEvents
-        __nvmlDeviceRegisterEvents = GetProcAddress(handle, 'nvmlDeviceRegisterEvents')
+        __nvmlDeviceRegisterEvents = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceRegisterEvents')
 
         global __nvmlDeviceGetSupportedEventTypes
-        __nvmlDeviceGetSupportedEventTypes = GetProcAddress(handle, 'nvmlDeviceGetSupportedEventTypes')
+        __nvmlDeviceGetSupportedEventTypes = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedEventTypes')
 
         global __nvmlEventSetWait_v2
-        __nvmlEventSetWait_v2 = GetProcAddress(handle, 'nvmlEventSetWait_v2')
+        __nvmlEventSetWait_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetWait_v2')
 
         global __nvmlEventSetFree
-        __nvmlEventSetFree = GetProcAddress(handle, 'nvmlEventSetFree')
+        __nvmlEventSetFree = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetFree')
 
         global __nvmlSystemEventSetCreate
-        __nvmlSystemEventSetCreate = GetProcAddress(handle, 'nvmlSystemEventSetCreate')
+        __nvmlSystemEventSetCreate = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemEventSetCreate')
 
         global __nvmlSystemEventSetFree
-        __nvmlSystemEventSetFree = GetProcAddress(handle, 'nvmlSystemEventSetFree')
+        __nvmlSystemEventSetFree = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemEventSetFree')
 
         global __nvmlSystemRegisterEvents
-        __nvmlSystemRegisterEvents = GetProcAddress(handle, 'nvmlSystemRegisterEvents')
+        __nvmlSystemRegisterEvents = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemRegisterEvents')
 
         global __nvmlSystemEventSetWait
-        __nvmlSystemEventSetWait = GetProcAddress(handle, 'nvmlSystemEventSetWait')
+        __nvmlSystemEventSetWait = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemEventSetWait')
 
         global __nvmlDeviceModifyDrainState
-        __nvmlDeviceModifyDrainState = GetProcAddress(handle, 'nvmlDeviceModifyDrainState')
+        __nvmlDeviceModifyDrainState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceModifyDrainState')
 
         global __nvmlDeviceQueryDrainState
-        __nvmlDeviceQueryDrainState = GetProcAddress(handle, 'nvmlDeviceQueryDrainState')
+        __nvmlDeviceQueryDrainState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceQueryDrainState')
 
         global __nvmlDeviceRemoveGpu_v2
-        __nvmlDeviceRemoveGpu_v2 = GetProcAddress(handle, 'nvmlDeviceRemoveGpu_v2')
+        __nvmlDeviceRemoveGpu_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceRemoveGpu_v2')
 
         global __nvmlDeviceDiscoverGpus
-        __nvmlDeviceDiscoverGpus = GetProcAddress(handle, 'nvmlDeviceDiscoverGpus')
+        __nvmlDeviceDiscoverGpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceDiscoverGpus')
 
         global __nvmlDeviceGetFieldValues
-        __nvmlDeviceGetFieldValues = GetProcAddress(handle, 'nvmlDeviceGetFieldValues')
+        __nvmlDeviceGetFieldValues = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFieldValues')
 
         global __nvmlDeviceClearFieldValues
-        __nvmlDeviceClearFieldValues = GetProcAddress(handle, 'nvmlDeviceClearFieldValues')
+        __nvmlDeviceClearFieldValues = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceClearFieldValues')
 
         global __nvmlDeviceGetVirtualizationMode
-        __nvmlDeviceGetVirtualizationMode = GetProcAddress(handle, 'nvmlDeviceGetVirtualizationMode')
+        __nvmlDeviceGetVirtualizationMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVirtualizationMode')
 
         global __nvmlDeviceGetHostVgpuMode
-        __nvmlDeviceGetHostVgpuMode = GetProcAddress(handle, 'nvmlDeviceGetHostVgpuMode')
+        __nvmlDeviceGetHostVgpuMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHostVgpuMode')
 
         global __nvmlDeviceSetVirtualizationMode
-        __nvmlDeviceSetVirtualizationMode = GetProcAddress(handle, 'nvmlDeviceSetVirtualizationMode')
+        __nvmlDeviceSetVirtualizationMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVirtualizationMode')
 
         global __nvmlDeviceGetVgpuHeterogeneousMode
-        __nvmlDeviceGetVgpuHeterogeneousMode = GetProcAddress(handle, 'nvmlDeviceGetVgpuHeterogeneousMode')
+        __nvmlDeviceGetVgpuHeterogeneousMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuHeterogeneousMode')
 
         global __nvmlDeviceSetVgpuHeterogeneousMode
-        __nvmlDeviceSetVgpuHeterogeneousMode = GetProcAddress(handle, 'nvmlDeviceSetVgpuHeterogeneousMode')
+        __nvmlDeviceSetVgpuHeterogeneousMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVgpuHeterogeneousMode')
 
         global __nvmlVgpuInstanceGetPlacementId
-        __nvmlVgpuInstanceGetPlacementId = GetProcAddress(handle, 'nvmlVgpuInstanceGetPlacementId')
+        __nvmlVgpuInstanceGetPlacementId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetPlacementId')
 
         global __nvmlDeviceGetVgpuTypeSupportedPlacements
-        __nvmlDeviceGetVgpuTypeSupportedPlacements = GetProcAddress(handle, 'nvmlDeviceGetVgpuTypeSupportedPlacements')
+        __nvmlDeviceGetVgpuTypeSupportedPlacements = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuTypeSupportedPlacements')
 
         global __nvmlDeviceGetVgpuTypeCreatablePlacements
-        __nvmlDeviceGetVgpuTypeCreatablePlacements = GetProcAddress(handle, 'nvmlDeviceGetVgpuTypeCreatablePlacements')
+        __nvmlDeviceGetVgpuTypeCreatablePlacements = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuTypeCreatablePlacements')
 
         global __nvmlVgpuTypeGetGspHeapSize
-        __nvmlVgpuTypeGetGspHeapSize = GetProcAddress(handle, 'nvmlVgpuTypeGetGspHeapSize')
+        __nvmlVgpuTypeGetGspHeapSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetGspHeapSize')
 
         global __nvmlVgpuTypeGetFbReservation
-        __nvmlVgpuTypeGetFbReservation = GetProcAddress(handle, 'nvmlVgpuTypeGetFbReservation')
+        __nvmlVgpuTypeGetFbReservation = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetFbReservation')
 
         global __nvmlVgpuInstanceGetRuntimeStateSize
-        __nvmlVgpuInstanceGetRuntimeStateSize = GetProcAddress(handle, 'nvmlVgpuInstanceGetRuntimeStateSize')
+        __nvmlVgpuInstanceGetRuntimeStateSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetRuntimeStateSize')
 
         global __nvmlDeviceSetVgpuCapabilities
-        __nvmlDeviceSetVgpuCapabilities = GetProcAddress(handle, 'nvmlDeviceSetVgpuCapabilities')
+        __nvmlDeviceSetVgpuCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVgpuCapabilities')
 
         global __nvmlDeviceGetGridLicensableFeatures_v4
-        __nvmlDeviceGetGridLicensableFeatures_v4 = GetProcAddress(handle, 'nvmlDeviceGetGridLicensableFeatures_v4')
+        __nvmlDeviceGetGridLicensableFeatures_v4 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGridLicensableFeatures_v4')
 
         global __nvmlGetVgpuDriverCapabilities
-        __nvmlGetVgpuDriverCapabilities = GetProcAddress(handle, 'nvmlGetVgpuDriverCapabilities')
+        __nvmlGetVgpuDriverCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetVgpuDriverCapabilities')
 
         global __nvmlDeviceGetVgpuCapabilities
-        __nvmlDeviceGetVgpuCapabilities = GetProcAddress(handle, 'nvmlDeviceGetVgpuCapabilities')
+        __nvmlDeviceGetVgpuCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuCapabilities')
 
         global __nvmlDeviceGetSupportedVgpus
-        __nvmlDeviceGetSupportedVgpus = GetProcAddress(handle, 'nvmlDeviceGetSupportedVgpus')
+        __nvmlDeviceGetSupportedVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedVgpus')
 
         global __nvmlDeviceGetCreatableVgpus
-        __nvmlDeviceGetCreatableVgpus = GetProcAddress(handle, 'nvmlDeviceGetCreatableVgpus')
+        __nvmlDeviceGetCreatableVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCreatableVgpus')
 
         global __nvmlVgpuTypeGetClass
-        __nvmlVgpuTypeGetClass = GetProcAddress(handle, 'nvmlVgpuTypeGetClass')
+        __nvmlVgpuTypeGetClass = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetClass')
 
         global __nvmlVgpuTypeGetName
-        __nvmlVgpuTypeGetName = GetProcAddress(handle, 'nvmlVgpuTypeGetName')
+        __nvmlVgpuTypeGetName = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetName')
 
         global __nvmlVgpuTypeGetGpuInstanceProfileId
-        __nvmlVgpuTypeGetGpuInstanceProfileId = GetProcAddress(handle, 'nvmlVgpuTypeGetGpuInstanceProfileId')
+        __nvmlVgpuTypeGetGpuInstanceProfileId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetGpuInstanceProfileId')
 
         global __nvmlVgpuTypeGetDeviceID
-        __nvmlVgpuTypeGetDeviceID = GetProcAddress(handle, 'nvmlVgpuTypeGetDeviceID')
+        __nvmlVgpuTypeGetDeviceID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetDeviceID')
 
         global __nvmlVgpuTypeGetFramebufferSize
-        __nvmlVgpuTypeGetFramebufferSize = GetProcAddress(handle, 'nvmlVgpuTypeGetFramebufferSize')
+        __nvmlVgpuTypeGetFramebufferSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetFramebufferSize')
 
         global __nvmlVgpuTypeGetNumDisplayHeads
-        __nvmlVgpuTypeGetNumDisplayHeads = GetProcAddress(handle, 'nvmlVgpuTypeGetNumDisplayHeads')
+        __nvmlVgpuTypeGetNumDisplayHeads = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetNumDisplayHeads')
 
         global __nvmlVgpuTypeGetResolution
-        __nvmlVgpuTypeGetResolution = GetProcAddress(handle, 'nvmlVgpuTypeGetResolution')
+        __nvmlVgpuTypeGetResolution = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetResolution')
 
         global __nvmlVgpuTypeGetLicense
-        __nvmlVgpuTypeGetLicense = GetProcAddress(handle, 'nvmlVgpuTypeGetLicense')
+        __nvmlVgpuTypeGetLicense = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetLicense')
 
         global __nvmlVgpuTypeGetFrameRateLimit
-        __nvmlVgpuTypeGetFrameRateLimit = GetProcAddress(handle, 'nvmlVgpuTypeGetFrameRateLimit')
+        __nvmlVgpuTypeGetFrameRateLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetFrameRateLimit')
 
         global __nvmlVgpuTypeGetMaxInstances
-        __nvmlVgpuTypeGetMaxInstances = GetProcAddress(handle, 'nvmlVgpuTypeGetMaxInstances')
+        __nvmlVgpuTypeGetMaxInstances = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetMaxInstances')
 
         global __nvmlVgpuTypeGetMaxInstancesPerVm
-        __nvmlVgpuTypeGetMaxInstancesPerVm = GetProcAddress(handle, 'nvmlVgpuTypeGetMaxInstancesPerVm')
+        __nvmlVgpuTypeGetMaxInstancesPerVm = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetMaxInstancesPerVm')
 
         global __nvmlVgpuTypeGetBAR1Info
-        __nvmlVgpuTypeGetBAR1Info = GetProcAddress(handle, 'nvmlVgpuTypeGetBAR1Info')
+        __nvmlVgpuTypeGetBAR1Info = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetBAR1Info')
 
         global __nvmlDeviceGetActiveVgpus
-        __nvmlDeviceGetActiveVgpus = GetProcAddress(handle, 'nvmlDeviceGetActiveVgpus')
+        __nvmlDeviceGetActiveVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetActiveVgpus')
 
         global __nvmlVgpuInstanceGetVmID
-        __nvmlVgpuInstanceGetVmID = GetProcAddress(handle, 'nvmlVgpuInstanceGetVmID')
+        __nvmlVgpuInstanceGetVmID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetVmID')
 
         global __nvmlVgpuInstanceGetUUID
-        __nvmlVgpuInstanceGetUUID = GetProcAddress(handle, 'nvmlVgpuInstanceGetUUID')
+        __nvmlVgpuInstanceGetUUID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetUUID')
 
         global __nvmlVgpuInstanceGetVmDriverVersion
-        __nvmlVgpuInstanceGetVmDriverVersion = GetProcAddress(handle, 'nvmlVgpuInstanceGetVmDriverVersion')
+        __nvmlVgpuInstanceGetVmDriverVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetVmDriverVersion')
 
         global __nvmlVgpuInstanceGetFbUsage
-        __nvmlVgpuInstanceGetFbUsage = GetProcAddress(handle, 'nvmlVgpuInstanceGetFbUsage')
+        __nvmlVgpuInstanceGetFbUsage = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetFbUsage')
 
         global __nvmlVgpuInstanceGetLicenseStatus
-        __nvmlVgpuInstanceGetLicenseStatus = GetProcAddress(handle, 'nvmlVgpuInstanceGetLicenseStatus')
+        __nvmlVgpuInstanceGetLicenseStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetLicenseStatus')
 
         global __nvmlVgpuInstanceGetType
-        __nvmlVgpuInstanceGetType = GetProcAddress(handle, 'nvmlVgpuInstanceGetType')
+        __nvmlVgpuInstanceGetType = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetType')
 
         global __nvmlVgpuInstanceGetFrameRateLimit
-        __nvmlVgpuInstanceGetFrameRateLimit = GetProcAddress(handle, 'nvmlVgpuInstanceGetFrameRateLimit')
+        __nvmlVgpuInstanceGetFrameRateLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetFrameRateLimit')
 
         global __nvmlVgpuInstanceGetEccMode
-        __nvmlVgpuInstanceGetEccMode = GetProcAddress(handle, 'nvmlVgpuInstanceGetEccMode')
+        __nvmlVgpuInstanceGetEccMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetEccMode')
 
         global __nvmlVgpuInstanceGetEncoderCapacity
-        __nvmlVgpuInstanceGetEncoderCapacity = GetProcAddress(handle, 'nvmlVgpuInstanceGetEncoderCapacity')
+        __nvmlVgpuInstanceGetEncoderCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetEncoderCapacity')
 
         global __nvmlVgpuInstanceSetEncoderCapacity
-        __nvmlVgpuInstanceSetEncoderCapacity = GetProcAddress(handle, 'nvmlVgpuInstanceSetEncoderCapacity')
+        __nvmlVgpuInstanceSetEncoderCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceSetEncoderCapacity')
 
         global __nvmlVgpuInstanceGetEncoderStats
-        __nvmlVgpuInstanceGetEncoderStats = GetProcAddress(handle, 'nvmlVgpuInstanceGetEncoderStats')
+        __nvmlVgpuInstanceGetEncoderStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetEncoderStats')
 
         global __nvmlVgpuInstanceGetEncoderSessions
-        __nvmlVgpuInstanceGetEncoderSessions = GetProcAddress(handle, 'nvmlVgpuInstanceGetEncoderSessions')
+        __nvmlVgpuInstanceGetEncoderSessions = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetEncoderSessions')
 
         global __nvmlVgpuInstanceGetFBCStats
-        __nvmlVgpuInstanceGetFBCStats = GetProcAddress(handle, 'nvmlVgpuInstanceGetFBCStats')
+        __nvmlVgpuInstanceGetFBCStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetFBCStats')
 
         global __nvmlVgpuInstanceGetFBCSessions
-        __nvmlVgpuInstanceGetFBCSessions = GetProcAddress(handle, 'nvmlVgpuInstanceGetFBCSessions')
+        __nvmlVgpuInstanceGetFBCSessions = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetFBCSessions')
 
         global __nvmlVgpuInstanceGetGpuInstanceId
-        __nvmlVgpuInstanceGetGpuInstanceId = GetProcAddress(handle, 'nvmlVgpuInstanceGetGpuInstanceId')
+        __nvmlVgpuInstanceGetGpuInstanceId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetGpuInstanceId')
 
         global __nvmlVgpuInstanceGetGpuPciId
-        __nvmlVgpuInstanceGetGpuPciId = GetProcAddress(handle, 'nvmlVgpuInstanceGetGpuPciId')
+        __nvmlVgpuInstanceGetGpuPciId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetGpuPciId')
 
         global __nvmlVgpuTypeGetCapabilities
-        __nvmlVgpuTypeGetCapabilities = GetProcAddress(handle, 'nvmlVgpuTypeGetCapabilities')
+        __nvmlVgpuTypeGetCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetCapabilities')
 
         global __nvmlVgpuInstanceGetMdevUUID
-        __nvmlVgpuInstanceGetMdevUUID = GetProcAddress(handle, 'nvmlVgpuInstanceGetMdevUUID')
+        __nvmlVgpuInstanceGetMdevUUID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetMdevUUID')
 
         global __nvmlGpuInstanceGetCreatableVgpus
-        __nvmlGpuInstanceGetCreatableVgpus = GetProcAddress(handle, 'nvmlGpuInstanceGetCreatableVgpus')
+        __nvmlGpuInstanceGetCreatableVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetCreatableVgpus')
 
         global __nvmlVgpuTypeGetMaxInstancesPerGpuInstance
-        __nvmlVgpuTypeGetMaxInstancesPerGpuInstance = GetProcAddress(handle, 'nvmlVgpuTypeGetMaxInstancesPerGpuInstance')
+        __nvmlVgpuTypeGetMaxInstancesPerGpuInstance = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetMaxInstancesPerGpuInstance')
 
         global __nvmlGpuInstanceGetActiveVgpus
-        __nvmlGpuInstanceGetActiveVgpus = GetProcAddress(handle, 'nvmlGpuInstanceGetActiveVgpus')
+        __nvmlGpuInstanceGetActiveVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetActiveVgpus')
 
         global __nvmlGpuInstanceSetVgpuSchedulerState
-        __nvmlGpuInstanceSetVgpuSchedulerState = GetProcAddress(handle, 'nvmlGpuInstanceSetVgpuSchedulerState')
+        __nvmlGpuInstanceSetVgpuSchedulerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceSetVgpuSchedulerState')
 
         global __nvmlGpuInstanceGetVgpuSchedulerState
-        __nvmlGpuInstanceGetVgpuSchedulerState = GetProcAddress(handle, 'nvmlGpuInstanceGetVgpuSchedulerState')
+        __nvmlGpuInstanceGetVgpuSchedulerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuSchedulerState')
 
         global __nvmlGpuInstanceGetVgpuSchedulerLog
-        __nvmlGpuInstanceGetVgpuSchedulerLog = GetProcAddress(handle, 'nvmlGpuInstanceGetVgpuSchedulerLog')
+        __nvmlGpuInstanceGetVgpuSchedulerLog = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuSchedulerLog')
 
         global __nvmlGpuInstanceGetVgpuTypeCreatablePlacements
-        __nvmlGpuInstanceGetVgpuTypeCreatablePlacements = GetProcAddress(handle, 'nvmlGpuInstanceGetVgpuTypeCreatablePlacements')
+        __nvmlGpuInstanceGetVgpuTypeCreatablePlacements = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuTypeCreatablePlacements')
 
         global __nvmlGpuInstanceGetVgpuHeterogeneousMode
-        __nvmlGpuInstanceGetVgpuHeterogeneousMode = GetProcAddress(handle, 'nvmlGpuInstanceGetVgpuHeterogeneousMode')
+        __nvmlGpuInstanceGetVgpuHeterogeneousMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuHeterogeneousMode')
 
         global __nvmlGpuInstanceSetVgpuHeterogeneousMode
-        __nvmlGpuInstanceSetVgpuHeterogeneousMode = GetProcAddress(handle, 'nvmlGpuInstanceSetVgpuHeterogeneousMode')
+        __nvmlGpuInstanceSetVgpuHeterogeneousMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceSetVgpuHeterogeneousMode')
 
         global __nvmlVgpuInstanceGetMetadata
-        __nvmlVgpuInstanceGetMetadata = GetProcAddress(handle, 'nvmlVgpuInstanceGetMetadata')
+        __nvmlVgpuInstanceGetMetadata = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetMetadata')
 
         global __nvmlDeviceGetVgpuMetadata
-        __nvmlDeviceGetVgpuMetadata = GetProcAddress(handle, 'nvmlDeviceGetVgpuMetadata')
+        __nvmlDeviceGetVgpuMetadata = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuMetadata')
 
         global __nvmlGetVgpuCompatibility
-        __nvmlGetVgpuCompatibility = GetProcAddress(handle, 'nvmlGetVgpuCompatibility')
+        __nvmlGetVgpuCompatibility = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetVgpuCompatibility')
 
         global __nvmlDeviceGetPgpuMetadataString
-        __nvmlDeviceGetPgpuMetadataString = GetProcAddress(handle, 'nvmlDeviceGetPgpuMetadataString')
+        __nvmlDeviceGetPgpuMetadataString = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPgpuMetadataString')
 
         global __nvmlDeviceGetVgpuSchedulerLog
-        __nvmlDeviceGetVgpuSchedulerLog = GetProcAddress(handle, 'nvmlDeviceGetVgpuSchedulerLog')
+        __nvmlDeviceGetVgpuSchedulerLog = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerLog')
 
         global __nvmlDeviceGetVgpuSchedulerState
-        __nvmlDeviceGetVgpuSchedulerState = GetProcAddress(handle, 'nvmlDeviceGetVgpuSchedulerState')
+        __nvmlDeviceGetVgpuSchedulerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerState')
 
         global __nvmlDeviceGetVgpuSchedulerCapabilities
-        __nvmlDeviceGetVgpuSchedulerCapabilities = GetProcAddress(handle, 'nvmlDeviceGetVgpuSchedulerCapabilities')
+        __nvmlDeviceGetVgpuSchedulerCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerCapabilities')
 
         global __nvmlDeviceSetVgpuSchedulerState
-        __nvmlDeviceSetVgpuSchedulerState = GetProcAddress(handle, 'nvmlDeviceSetVgpuSchedulerState')
+        __nvmlDeviceSetVgpuSchedulerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVgpuSchedulerState')
 
         global __nvmlGetVgpuVersion
-        __nvmlGetVgpuVersion = GetProcAddress(handle, 'nvmlGetVgpuVersion')
+        __nvmlGetVgpuVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetVgpuVersion')
 
         global __nvmlSetVgpuVersion
-        __nvmlSetVgpuVersion = GetProcAddress(handle, 'nvmlSetVgpuVersion')
+        __nvmlSetVgpuVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSetVgpuVersion')
 
         global __nvmlDeviceGetVgpuUtilization
-        __nvmlDeviceGetVgpuUtilization = GetProcAddress(handle, 'nvmlDeviceGetVgpuUtilization')
+        __nvmlDeviceGetVgpuUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuUtilization')
 
         global __nvmlDeviceGetVgpuInstancesUtilizationInfo
-        __nvmlDeviceGetVgpuInstancesUtilizationInfo = GetProcAddress(handle, 'nvmlDeviceGetVgpuInstancesUtilizationInfo')
+        __nvmlDeviceGetVgpuInstancesUtilizationInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuInstancesUtilizationInfo')
 
         global __nvmlDeviceGetVgpuProcessUtilization
-        __nvmlDeviceGetVgpuProcessUtilization = GetProcAddress(handle, 'nvmlDeviceGetVgpuProcessUtilization')
+        __nvmlDeviceGetVgpuProcessUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuProcessUtilization')
 
         global __nvmlDeviceGetVgpuProcessesUtilizationInfo
-        __nvmlDeviceGetVgpuProcessesUtilizationInfo = GetProcAddress(handle, 'nvmlDeviceGetVgpuProcessesUtilizationInfo')
+        __nvmlDeviceGetVgpuProcessesUtilizationInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuProcessesUtilizationInfo')
 
         global __nvmlVgpuInstanceGetAccountingMode
-        __nvmlVgpuInstanceGetAccountingMode = GetProcAddress(handle, 'nvmlVgpuInstanceGetAccountingMode')
+        __nvmlVgpuInstanceGetAccountingMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetAccountingMode')
 
         global __nvmlVgpuInstanceGetAccountingPids
-        __nvmlVgpuInstanceGetAccountingPids = GetProcAddress(handle, 'nvmlVgpuInstanceGetAccountingPids')
+        __nvmlVgpuInstanceGetAccountingPids = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetAccountingPids')
 
         global __nvmlVgpuInstanceGetAccountingStats
-        __nvmlVgpuInstanceGetAccountingStats = GetProcAddress(handle, 'nvmlVgpuInstanceGetAccountingStats')
+        __nvmlVgpuInstanceGetAccountingStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetAccountingStats')
 
         global __nvmlVgpuInstanceClearAccountingPids
-        __nvmlVgpuInstanceClearAccountingPids = GetProcAddress(handle, 'nvmlVgpuInstanceClearAccountingPids')
+        __nvmlVgpuInstanceClearAccountingPids = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceClearAccountingPids')
 
         global __nvmlVgpuInstanceGetLicenseInfo_v2
-        __nvmlVgpuInstanceGetLicenseInfo_v2 = GetProcAddress(handle, 'nvmlVgpuInstanceGetLicenseInfo_v2')
+        __nvmlVgpuInstanceGetLicenseInfo_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetLicenseInfo_v2')
 
         global __nvmlGetExcludedDeviceCount
-        __nvmlGetExcludedDeviceCount = GetProcAddress(handle, 'nvmlGetExcludedDeviceCount')
+        __nvmlGetExcludedDeviceCount = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetExcludedDeviceCount')
 
         global __nvmlGetExcludedDeviceInfoByIndex
-        __nvmlGetExcludedDeviceInfoByIndex = GetProcAddress(handle, 'nvmlGetExcludedDeviceInfoByIndex')
+        __nvmlGetExcludedDeviceInfoByIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetExcludedDeviceInfoByIndex')
 
         global __nvmlDeviceSetMigMode
-        __nvmlDeviceSetMigMode = GetProcAddress(handle, 'nvmlDeviceSetMigMode')
+        __nvmlDeviceSetMigMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetMigMode')
 
         global __nvmlDeviceGetMigMode
-        __nvmlDeviceGetMigMode = GetProcAddress(handle, 'nvmlDeviceGetMigMode')
+        __nvmlDeviceGetMigMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMigMode')
 
         global __nvmlDeviceGetGpuInstanceProfileInfoV
-        __nvmlDeviceGetGpuInstanceProfileInfoV = GetProcAddress(handle, 'nvmlDeviceGetGpuInstanceProfileInfoV')
+        __nvmlDeviceGetGpuInstanceProfileInfoV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceProfileInfoV')
 
         global __nvmlDeviceGetGpuInstancePossiblePlacements_v2
-        __nvmlDeviceGetGpuInstancePossiblePlacements_v2 = GetProcAddress(handle, 'nvmlDeviceGetGpuInstancePossiblePlacements_v2')
+        __nvmlDeviceGetGpuInstancePossiblePlacements_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstancePossiblePlacements_v2')
 
         global __nvmlDeviceGetGpuInstanceRemainingCapacity
-        __nvmlDeviceGetGpuInstanceRemainingCapacity = GetProcAddress(handle, 'nvmlDeviceGetGpuInstanceRemainingCapacity')
+        __nvmlDeviceGetGpuInstanceRemainingCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceRemainingCapacity')
 
         global __nvmlDeviceCreateGpuInstance
-        __nvmlDeviceCreateGpuInstance = GetProcAddress(handle, 'nvmlDeviceCreateGpuInstance')
+        __nvmlDeviceCreateGpuInstance = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceCreateGpuInstance')
 
         global __nvmlDeviceCreateGpuInstanceWithPlacement
-        __nvmlDeviceCreateGpuInstanceWithPlacement = GetProcAddress(handle, 'nvmlDeviceCreateGpuInstanceWithPlacement')
+        __nvmlDeviceCreateGpuInstanceWithPlacement = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceCreateGpuInstanceWithPlacement')
 
         global __nvmlGpuInstanceDestroy
-        __nvmlGpuInstanceDestroy = GetProcAddress(handle, 'nvmlGpuInstanceDestroy')
+        __nvmlGpuInstanceDestroy = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceDestroy')
 
         global __nvmlDeviceGetGpuInstances
-        __nvmlDeviceGetGpuInstances = GetProcAddress(handle, 'nvmlDeviceGetGpuInstances')
+        __nvmlDeviceGetGpuInstances = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstances')
 
         global __nvmlDeviceGetGpuInstanceById
-        __nvmlDeviceGetGpuInstanceById = GetProcAddress(handle, 'nvmlDeviceGetGpuInstanceById')
+        __nvmlDeviceGetGpuInstanceById = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceById')
 
         global __nvmlGpuInstanceGetInfo
-        __nvmlGpuInstanceGetInfo = GetProcAddress(handle, 'nvmlGpuInstanceGetInfo')
+        __nvmlGpuInstanceGetInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetInfo')
 
         global __nvmlGpuInstanceGetComputeInstanceProfileInfoV
-        __nvmlGpuInstanceGetComputeInstanceProfileInfoV = GetProcAddress(handle, 'nvmlGpuInstanceGetComputeInstanceProfileInfoV')
+        __nvmlGpuInstanceGetComputeInstanceProfileInfoV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstanceProfileInfoV')
 
         global __nvmlGpuInstanceGetComputeInstanceRemainingCapacity
-        __nvmlGpuInstanceGetComputeInstanceRemainingCapacity = GetProcAddress(handle, 'nvmlGpuInstanceGetComputeInstanceRemainingCapacity')
+        __nvmlGpuInstanceGetComputeInstanceRemainingCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstanceRemainingCapacity')
 
         global __nvmlGpuInstanceGetComputeInstancePossiblePlacements
-        __nvmlGpuInstanceGetComputeInstancePossiblePlacements = GetProcAddress(handle, 'nvmlGpuInstanceGetComputeInstancePossiblePlacements')
+        __nvmlGpuInstanceGetComputeInstancePossiblePlacements = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstancePossiblePlacements')
 
         global __nvmlGpuInstanceCreateComputeInstance
-        __nvmlGpuInstanceCreateComputeInstance = GetProcAddress(handle, 'nvmlGpuInstanceCreateComputeInstance')
+        __nvmlGpuInstanceCreateComputeInstance = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceCreateComputeInstance')
 
         global __nvmlGpuInstanceCreateComputeInstanceWithPlacement
-        __nvmlGpuInstanceCreateComputeInstanceWithPlacement = GetProcAddress(handle, 'nvmlGpuInstanceCreateComputeInstanceWithPlacement')
+        __nvmlGpuInstanceCreateComputeInstanceWithPlacement = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceCreateComputeInstanceWithPlacement')
 
         global __nvmlComputeInstanceDestroy
-        __nvmlComputeInstanceDestroy = GetProcAddress(handle, 'nvmlComputeInstanceDestroy')
+        __nvmlComputeInstanceDestroy = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlComputeInstanceDestroy')
 
         global __nvmlGpuInstanceGetComputeInstances
-        __nvmlGpuInstanceGetComputeInstances = GetProcAddress(handle, 'nvmlGpuInstanceGetComputeInstances')
+        __nvmlGpuInstanceGetComputeInstances = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstances')
 
         global __nvmlGpuInstanceGetComputeInstanceById
-        __nvmlGpuInstanceGetComputeInstanceById = GetProcAddress(handle, 'nvmlGpuInstanceGetComputeInstanceById')
+        __nvmlGpuInstanceGetComputeInstanceById = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstanceById')
 
         global __nvmlComputeInstanceGetInfo_v2
-        __nvmlComputeInstanceGetInfo_v2 = GetProcAddress(handle, 'nvmlComputeInstanceGetInfo_v2')
+        __nvmlComputeInstanceGetInfo_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlComputeInstanceGetInfo_v2')
 
         global __nvmlDeviceIsMigDeviceHandle
-        __nvmlDeviceIsMigDeviceHandle = GetProcAddress(handle, 'nvmlDeviceIsMigDeviceHandle')
+        __nvmlDeviceIsMigDeviceHandle = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceIsMigDeviceHandle')
 
         global __nvmlDeviceGetGpuInstanceId
-        __nvmlDeviceGetGpuInstanceId = GetProcAddress(handle, 'nvmlDeviceGetGpuInstanceId')
+        __nvmlDeviceGetGpuInstanceId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceId')
 
         global __nvmlDeviceGetComputeInstanceId
-        __nvmlDeviceGetComputeInstanceId = GetProcAddress(handle, 'nvmlDeviceGetComputeInstanceId')
+        __nvmlDeviceGetComputeInstanceId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetComputeInstanceId')
 
         global __nvmlDeviceGetMaxMigDeviceCount
-        __nvmlDeviceGetMaxMigDeviceCount = GetProcAddress(handle, 'nvmlDeviceGetMaxMigDeviceCount')
+        __nvmlDeviceGetMaxMigDeviceCount = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxMigDeviceCount')
 
         global __nvmlDeviceGetMigDeviceHandleByIndex
-        __nvmlDeviceGetMigDeviceHandleByIndex = GetProcAddress(handle, 'nvmlDeviceGetMigDeviceHandleByIndex')
+        __nvmlDeviceGetMigDeviceHandleByIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMigDeviceHandleByIndex')
 
         global __nvmlDeviceGetDeviceHandleFromMigDeviceHandle
-        __nvmlDeviceGetDeviceHandleFromMigDeviceHandle = GetProcAddress(handle, 'nvmlDeviceGetDeviceHandleFromMigDeviceHandle')
+        __nvmlDeviceGetDeviceHandleFromMigDeviceHandle = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDeviceHandleFromMigDeviceHandle')
 
         global __nvmlDeviceGetCapabilities
-        __nvmlDeviceGetCapabilities = GetProcAddress(handle, 'nvmlDeviceGetCapabilities')
+        __nvmlDeviceGetCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCapabilities')
 
         global __nvmlDevicePowerSmoothingActivatePresetProfile
-        __nvmlDevicePowerSmoothingActivatePresetProfile = GetProcAddress(handle, 'nvmlDevicePowerSmoothingActivatePresetProfile')
+        __nvmlDevicePowerSmoothingActivatePresetProfile = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDevicePowerSmoothingActivatePresetProfile')
 
         global __nvmlDevicePowerSmoothingUpdatePresetProfileParam
-        __nvmlDevicePowerSmoothingUpdatePresetProfileParam = GetProcAddress(handle, 'nvmlDevicePowerSmoothingUpdatePresetProfileParam')
+        __nvmlDevicePowerSmoothingUpdatePresetProfileParam = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDevicePowerSmoothingUpdatePresetProfileParam')
 
         global __nvmlDevicePowerSmoothingSetState
-        __nvmlDevicePowerSmoothingSetState = GetProcAddress(handle, 'nvmlDevicePowerSmoothingSetState')
+        __nvmlDevicePowerSmoothingSetState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDevicePowerSmoothingSetState')
 
         global __nvmlDeviceGetAddressingMode
-        __nvmlDeviceGetAddressingMode = GetProcAddress(handle, 'nvmlDeviceGetAddressingMode')
+        __nvmlDeviceGetAddressingMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAddressingMode')
 
         global __nvmlDeviceGetRepairStatus
-        __nvmlDeviceGetRepairStatus = GetProcAddress(handle, 'nvmlDeviceGetRepairStatus')
+        __nvmlDeviceGetRepairStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRepairStatus')
 
         global __nvmlDeviceGetPowerMizerMode_v1
-        __nvmlDeviceGetPowerMizerMode_v1 = GetProcAddress(handle, 'nvmlDeviceGetPowerMizerMode_v1')
+        __nvmlDeviceGetPowerMizerMode_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerMizerMode_v1')
 
         global __nvmlDeviceSetPowerMizerMode_v1
-        __nvmlDeviceSetPowerMizerMode_v1 = GetProcAddress(handle, 'nvmlDeviceSetPowerMizerMode_v1')
+        __nvmlDeviceSetPowerMizerMode_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetPowerMizerMode_v1')
 
         global __nvmlDeviceGetPdi
-        __nvmlDeviceGetPdi = GetProcAddress(handle, 'nvmlDeviceGetPdi')
+        __nvmlDeviceGetPdi = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPdi')
 
         global __nvmlDeviceSetHostname_v1
-        __nvmlDeviceSetHostname_v1 = GetProcAddress(handle, 'nvmlDeviceSetHostname_v1')
+        __nvmlDeviceSetHostname_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetHostname_v1')
 
         global __nvmlDeviceGetHostname_v1
-        __nvmlDeviceGetHostname_v1 = GetProcAddress(handle, 'nvmlDeviceGetHostname_v1')
+        __nvmlDeviceGetHostname_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHostname_v1')
 
         global __nvmlDeviceGetNvLinkInfo
-        __nvmlDeviceGetNvLinkInfo = GetProcAddress(handle, 'nvmlDeviceGetNvLinkInfo')
+        __nvmlDeviceGetNvLinkInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkInfo')
 
         global __nvmlDeviceReadWritePRM_v1
-        __nvmlDeviceReadWritePRM_v1 = GetProcAddress(handle, 'nvmlDeviceReadWritePRM_v1')
+        __nvmlDeviceReadWritePRM_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceReadWritePRM_v1')
 
         global __nvmlDeviceGetGpuInstanceProfileInfoByIdV
-        __nvmlDeviceGetGpuInstanceProfileInfoByIdV = GetProcAddress(handle, 'nvmlDeviceGetGpuInstanceProfileInfoByIdV')
+        __nvmlDeviceGetGpuInstanceProfileInfoByIdV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceProfileInfoByIdV')
 
         global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
-        __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = GetProcAddress(handle, 'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts')
+        __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts')
 
         global __nvmlDeviceGetUnrepairableMemoryFlag_v1
-        __nvmlDeviceGetUnrepairableMemoryFlag_v1 = GetProcAddress(handle, 'nvmlDeviceGetUnrepairableMemoryFlag_v1')
+        __nvmlDeviceGetUnrepairableMemoryFlag_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetUnrepairableMemoryFlag_v1')
 
         global __nvmlDeviceReadPRMCounters_v1
-        __nvmlDeviceReadPRMCounters_v1 = GetProcAddress(handle, 'nvmlDeviceReadPRMCounters_v1')
+        __nvmlDeviceReadPRMCounters_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceReadPRMCounters_v1')
 
         global __nvmlDeviceSetRusdSettings_v1
-        __nvmlDeviceSetRusdSettings_v1 = GetProcAddress(handle, 'nvmlDeviceSetRusdSettings_v1')
+        __nvmlDeviceSetRusdSettings_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetRusdSettings_v1')
 
         global __nvmlDeviceVgpuForceGspUnload
-        __nvmlDeviceVgpuForceGspUnload = GetProcAddress(handle, 'nvmlDeviceVgpuForceGspUnload')
+        __nvmlDeviceVgpuForceGspUnload = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceVgpuForceGspUnload')
 
         global __nvmlDeviceGetVgpuSchedulerState_v2
-        __nvmlDeviceGetVgpuSchedulerState_v2 = GetProcAddress(handle, 'nvmlDeviceGetVgpuSchedulerState_v2')
+        __nvmlDeviceGetVgpuSchedulerState_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerState_v2')
 
         global __nvmlGpuInstanceGetVgpuSchedulerState_v2
-        __nvmlGpuInstanceGetVgpuSchedulerState_v2 = GetProcAddress(handle, 'nvmlGpuInstanceGetVgpuSchedulerState_v2')
+        __nvmlGpuInstanceGetVgpuSchedulerState_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuSchedulerState_v2')
 
         global __nvmlDeviceGetVgpuSchedulerLog_v2
-        __nvmlDeviceGetVgpuSchedulerLog_v2 = GetProcAddress(handle, 'nvmlDeviceGetVgpuSchedulerLog_v2')
+        __nvmlDeviceGetVgpuSchedulerLog_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerLog_v2')
 
         global __nvmlGpuInstanceGetVgpuSchedulerLog_v2
-        __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = GetProcAddress(handle, 'nvmlGpuInstanceGetVgpuSchedulerLog_v2')
+        __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuSchedulerLog_v2')
 
         global __nvmlDeviceSetVgpuSchedulerState_v2
-        __nvmlDeviceSetVgpuSchedulerState_v2 = GetProcAddress(handle, 'nvmlDeviceSetVgpuSchedulerState_v2')
+        __nvmlDeviceSetVgpuSchedulerState_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVgpuSchedulerState_v2')
 
         global __nvmlGpuInstanceSetVgpuSchedulerState_v2
-        __nvmlGpuInstanceSetVgpuSchedulerState_v2 = GetProcAddress(handle, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
+        __nvmlGpuInstanceSetVgpuSchedulerState_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
 
-        __py_nvml_init = True
+        global __nvmlSystemGetCPER_v1
+        __nvmlSystemGetCPER_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetCPER_v1')
+
+        global __nvmlDeviceGetBBXTimeData_v1
+        __nvmlDeviceGetBBXTimeData_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBBXTimeData_v1')
+
+        global __nvmlDeviceGetAccountingStats_v2
+        __nvmlDeviceGetAccountingStats_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingStats_v2')
+
+        global __nvmlDeviceGetRemappedRows_v2
+        __nvmlDeviceGetRemappedRows_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRemappedRows_v2')
+
+        _cyb_atomic_int_store(<int *>&_cyb___py_nvml_init, 1)
         return 0
 
-
 cdef inline int _check_or_init_nvml() except -1 nogil:
-    if __py_nvml_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_nvml_init):
         return 0
 
     return _init_nvml()
 
 
-cdef dict func_ptrs = None
-
-
 cpdef dict _inspect_function_pointers():
-    global func_ptrs
-    if func_ptrs is not None:
-        return func_ptrs
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is not None:
+        return _cyb_func_ptrs
 
     _check_or_init_nvml()
     cdef dict data = {}
-
     global __nvmlInit_v2
     data["__nvmlInit_v2"] = <intptr_t>__nvmlInit_v2
 
@@ -2574,15 +2564,32 @@ cpdef dict _inspect_function_pointers():
     global __nvmlGpuInstanceSetVgpuSchedulerState_v2
     data["__nvmlGpuInstanceSetVgpuSchedulerState_v2"] = <intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState_v2
 
-    func_ptrs = data
+    global __nvmlSystemGetCPER_v1
+    data["__nvmlSystemGetCPER_v1"] = <intptr_t>__nvmlSystemGetCPER_v1
+
+    global __nvmlDeviceGetBBXTimeData_v1
+    data["__nvmlDeviceGetBBXTimeData_v1"] = <intptr_t>__nvmlDeviceGetBBXTimeData_v1
+
+    global __nvmlDeviceGetAccountingStats_v2
+    data["__nvmlDeviceGetAccountingStats_v2"] = <intptr_t>__nvmlDeviceGetAccountingStats_v2
+
+    global __nvmlDeviceGetRemappedRows_v2
+    data["__nvmlDeviceGetRemappedRows_v2"] = <intptr_t>__nvmlDeviceGetRemappedRows_v2
+    _cyb_func_ptrs = data
     return data
 
 
 cpdef _inspect_function_pointer(str name):
-    global func_ptrs
-    if func_ptrs is None:
-        func_ptrs = _inspect_function_pointers()
-    return func_ptrs[name]
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is None:
+        _cyb_func_ptrs = _inspect_function_pointers()
+    return _cyb_func_ptrs[name]
+
+
+
+
+cdef uintptr_t load_library() except* with gil:
+    return load_nvidia_dynamic_lib("nvml")._handle_uint
 
 
 ###############################################################################
@@ -6097,3 +6104,43 @@ cdef nvmlReturn_t _nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpu
             raise FunctionNotFoundError("function nvmlGpuInstanceSetVgpuSchedulerState_v2 is not found")
     return (<nvmlReturn_t (*)(nvmlGpuInstance_t, nvmlVgpuSchedulerState_v2_t*) noexcept nogil>__nvmlGpuInstanceSetVgpuSchedulerState_v2)(
         gpuInstance, pSchedulerState)
+
+
+cdef nvmlReturn_t _nvmlSystemGetCPER_v1(nvmlGetCPER_v1_t* cper) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlSystemGetCPER_v1
+    _check_or_init_nvml()
+    if __nvmlSystemGetCPER_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlSystemGetCPER_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlGetCPER_v1_t*) noexcept nogil>__nvmlSystemGetCPER_v1)(
+        cper)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetBBXTimeData_v1(nvmlDevice_t device, nvmlBBXTimeData_v1_t* timeData) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetBBXTimeData_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetBBXTimeData_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetBBXTimeData_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlBBXTimeData_v1_t*) noexcept nogil>__nvmlDeviceGetBBXTimeData_v1)(
+        device, timeData)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetAccountingStats_v2(nvmlDevice_t device, nvmlAccountingStats_v2_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetAccountingStats_v2
+    _check_or_init_nvml()
+    if __nvmlDeviceGetAccountingStats_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetAccountingStats_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlAccountingStats_v2_t*) noexcept nogil>__nvmlDeviceGetAccountingStats_v2)(
+        device, stats)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappedRowsInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetRemappedRows_v2
+    _check_or_init_nvml()
+    if __nvmlDeviceGetRemappedRows_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetRemappedRows_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlRemappedRowsInfo_v2_t*) noexcept nogil>__nvmlDeviceGetRemappedRows_v2)(
+        device, info)

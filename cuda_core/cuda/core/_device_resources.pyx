@@ -6,6 +6,11 @@ from __future__ import annotations
 
 from collections.abc import Sequence as SequenceABC
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core._device import Device
+    from cuda.core.typing import WorkqueueSharingScopeType
 
 from libc.stdint cimport intptr_t
 from libc.stdlib cimport free, malloc
@@ -16,6 +21,7 @@ from cuda.core._resource_handles cimport ContextHandle, GreenCtxHandle, as_cu, g
 from cuda.core._utils.cuda_utils cimport check_or_create_options, HANDLE_RETURN
 from cuda.core._utils.cuda_utils import is_sequence
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
+from cuda.core._utils.validators import check_str_enum
 
 
 __all__ = [
@@ -114,10 +120,10 @@ cdef class SMResourceOptions:
         (Default to ``False``)
     """
 
-    count: int | SequenceABC | None = None
-    coscheduled_sm_count: int | SequenceABC | None = None
-    preferred_coscheduled_sm_count: int | SequenceABC | None = None
-    backfill: bool | SequenceABC = False
+    count: int | SequenceABC[int] | None = None
+    coscheduled_sm_count: int | SequenceABC[int] | None = None
+    preferred_coscheduled_sm_count: int | SequenceABC[int] | None = None
+    backfill: bool | SequenceABC[bool] = False
 
 
 @dataclass
@@ -126,12 +132,28 @@ cdef class WorkqueueResourceOptions:
 
     Attributes
     ----------
-    sharing_scope : str, optional
-        Workqueue sharing scope. Accepted values: ``"device_ctx"``
-        or ``"green_ctx_balanced"``. (Default to ``None``)
+    sharing_scope : :class:`~cuda.core.typing.WorkqueueSharingScopeType` | str, optional
+        Workqueue sharing scope. Accepted values: ``"device_ctx"`` or
+        ``"green_ctx_balanced"``.
+    concurrency_limit : int, optional
+        Expected maximum number of concurrent stream-ordered
+        workloads. Must be ``>= 1`` when set. The effective
+        driver-side cap is ``CUDA_DEVICE_MAX_CONNECTIONS``
+        (typically ``[1, 32]``); configurations may exceed
+        this cap, but the driver will not guarantee that work
+        submission remains non-overlapping. (Default to ``None``)
     """
 
-    sharing_scope: str | None = None
+    sharing_scope: WorkqueueSharingScopeType | str | None = None
+    concurrency_limit: int | None = None
+
+    def __post_init__(self):
+        from cuda.core.typing import WorkqueueSharingScopeType
+        check_str_enum(self.sharing_scope, WorkqueueSharingScopeType, allow_none=True)
+        if self.concurrency_limit is not None and self.concurrency_limit < 1:
+            raise ValueError(
+                f"concurrency_limit must be >= 1, got {self.concurrency_limit}"
+            )
 
 
 cdef inline int _validate_split_field_length(
@@ -228,7 +250,6 @@ cdef object _resolve_split_by_count_request(SMResourceOptions options):
     cdef list counts = _broadcast_field(options.count, n_groups)
     cdef object first = counts[0]
     cdef object value
-    cdef unsigned int min_count
 
     if options.coscheduled_sm_count is not None:
         raise RuntimeError(
@@ -248,7 +269,7 @@ cdef object _resolve_split_by_count_request(SMResourceOptions options):
                 "use CUDA 13.1 or newer for per-group counts"
             )
 
-    min_count = _to_sm_count(first)
+    cdef unsigned int min_count = _to_sm_count(first)
     return n_groups, min_count
 
 
@@ -471,7 +492,12 @@ cdef class SMResource:
         """Raw flags from the underlying SM resource."""
         return self._flags
 
-    def split(self, options not None, *, bint dry_run=False):
+    def split(
+        self,
+        options: SMResourceOptions,
+        *,
+        bint dry_run=False
+    ) -> tuple[list[SMResource], SMResource]:
         """Split this SM resource into groups and a remainder.
 
         Parameters
@@ -508,7 +534,7 @@ cdef class WorkqueueResource:
     cannot be instantiated directly.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "WorkqueueResource cannot be instantiated directly. "
             "Use dev.resources.workqueue."
@@ -529,23 +555,78 @@ cdef class WorkqueueResource:
         """Return the address of the underlying config ``CUdevResource`` struct."""
         return <intptr_t>(&self._wq_config_resource)
 
-    def configure(self, options not None):
+    @property
+    def sharing_scope(self) -> WorkqueueSharingScopeType:
+        """Current sharing scope of this workqueue resource.
+
+        Returns the :class:`~cuda.core.typing.WorkqueueSharingScopeType`
+        member corresponding to the driver-populated
+        ``wqConfig.sharingScope`` field. It can be updated via
+        :meth:`configure` with
+        :attr:`WorkqueueResourceOptions.sharing_scope`.
+        """
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            from cuda.core.typing import WorkqueueSharingScopeType
+            cdef object scope = self._wq_config_resource.wqConfig.sharingScope
+            if scope == cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX:
+                return WorkqueueSharingScopeType.DEVICE_CTX
+            elif scope == cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED:
+                return WorkqueueSharingScopeType.GREEN_CTX_BALANCED
+            raise RuntimeError(f"Unknown sharing scope enum value: {scope}")
+        ELSE:
+            raise RuntimeError(
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+            )
+
+    @property
+    def concurrency_limit(self) -> int:
+        """Current expected maximum concurrent stream-ordered workloads.
+
+        Reflects the driver-populated ``wqConfig.wqConcurrencyLimit`` field.
+        When first queried from a device, this matches the driver-reported
+        cap (typically ``CUDA_DEVICE_MAX_CONNECTIONS``). It can be updated
+        via :meth:`configure` with
+        :attr:`WorkqueueResourceOptions.concurrency_limit`.
+        """
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            return self._wq_config_resource.wqConfig.wqConcurrencyLimit
+        ELSE:
+            raise RuntimeError(
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+            )
+
+    @property
+    def device(self) -> Device:
+        """The :class:`~cuda.core.Device` this workqueue resource is available on."""
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            from cuda.core._device import Device  # avoid circular import
+            return Device(int(self._wq_config_resource.wqConfig.device))
+        ELSE:
+            raise RuntimeError(
+                "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
+            )
+
+    def configure(self, options: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.
 
         Parameters
         ----------
         options : :obj:`WorkqueueResourceOptions`
-            Configuration options (sharing scope, etc.).
+            Configuration options (sharing scope, concurrency limit).
         """
         cdef WorkqueueResourceOptions opts = check_or_create_options(
             WorkqueueResourceOptions, options, "Workqueue resource options"
         )
         _check_green_ctx_support()
         _check_workqueue_support()
-        if opts.sharing_scope is None:
+        if opts.sharing_scope is None and opts.concurrency_limit is None:
             return None
 
         IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if opts.concurrency_limit is not None:
+                self._wq_config_resource.wqConfig.wqConcurrencyLimit = (
+                    <unsigned int>opts.concurrency_limit
+                )
             if opts.sharing_scope == "device_ctx":
                 self._wq_config_resource.wqConfig.sharingScope = (
                     cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX
@@ -553,11 +634,6 @@ cdef class WorkqueueResource:
             elif opts.sharing_scope == "green_ctx_balanced":
                 self._wq_config_resource.wqConfig.sharingScope = (
                     cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
-                )
-            else:
-                raise ValueError(
-                    f"Unknown sharing_scope: {opts.sharing_scope!r}. "
-                    "Expected 'device_ctx' or 'green_ctx_balanced'."
                 )
         ELSE:
             raise RuntimeError(
@@ -576,7 +652,7 @@ cdef class DeviceResources:
     This class cannot be instantiated directly.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         raise RuntimeError(
             "DeviceResources cannot be instantiated directly. "
             "Use dev.resources or ctx.resources."

@@ -14,18 +14,16 @@ guide for package-specific conventions and workflows.
 
 # Pull requests
 
-When creating pull requests with `gh pr create`, always assign at least one
-label and a milestone. CI enforces this via the `pr-metadata-check` workflow
-and will block PRs that are missing labels or a milestone. Use `--label` and
-`--milestone` flags, for example:
+**Never push branches or commits to the canonical upstream repository. Treat
+it as read-only.** Branch creation and pushes for pull-request work must go to
+an approved fork associated with the contributor. The fork may be owned by the
+contributor's personal account or by an organization.
 
-```
-gh pr create --title "..." --body "..." --label "bug" --milestone "v1.0"
-```
-
-If you are unsure which label or milestone to use, check the existing labels
-and milestones on the repository with `gh label list` and `gh api
-repos/{owner}/{repo}/milestones --jq '.[].title'`, and pick the best match.
+Before pushing, run `git remote -v` and confirm that the intended push remote
+points to a fork of the pull-request base, not to the base repository itself.
+Compare complete `OWNER/REPOSITORY` names; do not rely on remote names such as
+`origin` or `upstream`, or on the owner alone. Do not use `git push upstream`
+or any command that writes to the upstream remote.
 
 
 # General
@@ -104,6 +102,44 @@ repos/{owner}/{repo}/milestones --jq '.[].title'`, and pick the best match.
 - Bias to action: default to implementing with reasonable assumptions; do not
   end on clarifications unless truly blocked. Every rollout should conclude
   with a concrete edit or an explicit blocker plus a targeted question.
+
+## Test authorship markers
+
+Use pytest markers to make the provenance of newly added unit tests explicit.
+Keep this provenance system minimal: choose from only these three markers.
+Place the marker immediately above each test function. A class-level marker is
+acceptable only when every test method in the class has the same provenance.
+Do not use module-level `pytestmark` for authorship provenance; it is too easy
+to miss in large files and makes later per-test provenance changes ambiguous.
+
+- `@pytest.mark.agent_authored(model="<model>")`: the test was authored by an
+  agent and has not yet been materially reviewed or rewritten by a human.
+  Agents must add this marker when generating new unit tests, for example:
+
+  ```python
+  import pytest
+
+  @pytest.mark.agent_authored(model="gpt-5.5")
+  def test_something():
+      ...
+  ```
+
+- `@pytest.mark.human_reviewed`: a human has materially reviewed or rewritten
+  an agent-authored test. Prefer replacing
+  `@pytest.mark.agent_authored(model="<model>")` with this marker instead of
+  keeping both.
+- `@pytest.mark.human_authored`: the test was authored by a human, or
+  rewritten enough that the authorship is primarily human.
+
+Use at most one authorship marker per test. Treat missing markers as legacy or
+unknown provenance, not as implicit `@pytest.mark.human_authored`. Because
+these are pytest markers, tests can be selected with `pytest -m`, for example
+`pytest -m agent_authored`.
+
+When an agent notices a human adding a new test or materially modifying an
+existing test, suggest adding `@pytest.mark.human_authored` or replacing
+`@pytest.mark.agent_authored(model="<model>")` with
+`@pytest.mark.human_reviewed` as appropriate.
 
 
 # Editing constraints

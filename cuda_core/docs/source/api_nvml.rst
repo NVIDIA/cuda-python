@@ -10,7 +10,7 @@ This is the API reference for Pythonic access to CUDA system information,
 through the NVIDIA Management Library (NVML).
 
 .. note::
-   ``cuda.core.system`` support requires ``cuda_bindings`` 12.9.6 or later, or 13.2.0 or later.
+   ``cuda.core.system`` support requires ``cuda-bindings`` 12.9.6 or later for CUDA 12.x, or ``cuda-bindings`` 13.2.0 or later for CUDA 13.x.
 
 Basic functions
 ---------------
@@ -45,3 +45,11 @@ Types
 
    Device
    NvlinkInfo
+
+Constants
+---------
+
+.. autosummary::
+   :toctree: generated/
+
+   CUDA_BINDINGS_NVML_IS_COMPATIBLE

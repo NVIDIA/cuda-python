@@ -96,6 +96,9 @@ def test_patched_completion_succeeds_on_non_ipc_resource():
     assert "allocation_handle: True" in result.stdout, result.stdout
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 13), reason="Python 3.13.13, 3.14.6 and 3.15 fixed the rlcompleter bug upstream"
+)
 def test_opt_out_env_var_disables_patch_even_when_interactive():
     """`CUDA_CORE_DONT_FIX_TAB_COMPLETION=1` must short-circuit before the
     interactive check, so the bug reproduces again even under PYTHONINSPECT."""
@@ -104,3 +107,61 @@ def test_opt_out_env_var_disables_patch_even_when_interactive():
     result = _run_probe(pythoninspect=True, opt_out=True)
     assert result.returncode == 0, f"stderr: {result.stderr}\nstdout: {result.stdout}"
     assert "crash: RuntimeError" in result.stdout, result.stdout
+
+
+# Imports cuda.core and reports whether the rlcompleter patch was installed.
+# No CUDA device is needed: the opt-out is evaluated at import time. The
+# stdlib rlcompleter module has no `property` attribute of its own, so its
+# presence is exactly the signal that the patch ran.
+_OPT_OUT_PROBE_SCRIPT = textwrap.dedent("""
+    import rlcompleter
+
+    import cuda.core  # noqa: F401
+
+    print(f"patched: {hasattr(rlcompleter, 'property')}")
+""")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize(
+    ("value", "expect_patched"),
+    [
+        # Empty / whitespace-only means "not set": `export VAR=` is the usual
+        # way to neutralize a variable in a shell profile or container spec.
+        ("", True),
+        ("   ", True),
+        # Integer values keep their long-standing meaning.
+        ("0", True),
+        ("00", True),
+        ("1", False),
+        ("2", False),
+        # Non-integer values are honored as an opt-out.
+        ("true", False),
+        ("yes", False),
+    ],
+)
+def test_opt_out_env_var_values(value, expect_patched):
+    """`CUDA_CORE_DONT_FIX_TAB_COMPLETION` must never break `import cuda.core`.
+
+    The opt-out used to be read with a bare `int(...)` at import time, so any
+    value that is not a base-10 integer -- including the empty string -- raised
+    `ValueError: invalid literal for int() with base 10: ''` out of
+    `cuda/core/__init__.py` and made the package unimportable.
+    """
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    env["CUDA_CORE_DONT_FIX_TAB_COMPLETION"] = value
+    # Run from a neutral directory so a source tree next to the test run
+    # cannot shadow the installed package (see _run_probe).
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = subprocess.run(  # noqa: S603
+            [sys.executable, "-c", _OPT_OUT_PROBE_SCRIPT],
+            capture_output=True,
+            text=True,
+            env=env,
+            check=False,
+            stdin=subprocess.DEVNULL,
+            cwd=tmpdir,
+        )
+    assert result.returncode == 0, f"stderr: {result.stderr}\nstdout: {result.stdout}"
+    assert result.stdout.strip() == f"patched: {expect_patched}", result.stdout

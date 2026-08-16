@@ -12,6 +12,8 @@ using fork, avoiding the need for subprocess isolation.
 import warnings
 from unittest.mock import patch
 
+from helpers.constants import POOL_SIZE
+
 from cuda.core import DeviceMemoryResource, DeviceMemoryResourceOptions, EventOptions
 from cuda.core._event import _reduce_event
 from cuda.core._memory._device_memory_resource import _deep_reduce_device_memory_resource
@@ -23,7 +25,7 @@ def test_warn_on_fork_method_device_memory_resource(ipc_device):
     """Test that warning is emitted when DeviceMemoryResource is pickled with fork method."""
     device = ipc_device
     device.set_current()
-    options = DeviceMemoryResourceOptions(max_size=2097152, ipc_enabled=True)
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mr = DeviceMemoryResource(device, options=options)
 
     with patch("multiprocessing.get_start_method", return_value="fork"), warnings.catch_warnings(record=True) as w:
@@ -50,7 +52,7 @@ def test_warn_on_fork_method_allocation_handle(ipc_device):
     """Test that warning is emitted when IPCAllocationHandle is pickled with fork method."""
     device = ipc_device
     device.set_current()
-    options = DeviceMemoryResourceOptions(max_size=2097152, ipc_enabled=True)
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mr = DeviceMemoryResource(device, options=options)
     alloc_handle = mr.allocation_handle
 
@@ -102,7 +104,7 @@ def test_no_warning_with_spawn_method(ipc_device):
     """Test that no warning is emitted when start method is 'spawn'."""
     device = ipc_device
     device.set_current()
-    options = DeviceMemoryResourceOptions(max_size=2097152, ipc_enabled=True)
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mr = DeviceMemoryResource(device, options=options)
 
     with patch("multiprocessing.get_start_method", return_value="spawn"), warnings.catch_warnings(record=True) as w:
@@ -125,7 +127,7 @@ def test_warning_emitted_only_once(ipc_device):
     """Test that warning is only emitted once even when multiple objects are pickled."""
     device = ipc_device
     device.set_current()
-    options = DeviceMemoryResourceOptions(max_size=2097152, ipc_enabled=True)
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mr1 = DeviceMemoryResource(device, options=options)
     mr2 = DeviceMemoryResource(device, options=options)
 

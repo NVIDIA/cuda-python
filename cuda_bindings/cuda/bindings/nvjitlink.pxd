@@ -1,10 +1,21 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b3986e82e5ac57f70277f1ab470024ff95d353999f98723724c7eb62f6a409a1
 
-from libc.stdint cimport intptr_t, uint32_t
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    intptr_t,
+    uint32_t,
+)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 from .cynvjitlink cimport *
 
@@ -41,3 +52,5 @@ cpdef get_error_log(intptr_t handle, log)
 cpdef size_t get_info_log_size(intptr_t handle) except? 0
 cpdef get_info_log(intptr_t handle, log)
 cpdef tuple version()
+cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0
+cpdef get_linked_ltoir(intptr_t handle, ltoir)

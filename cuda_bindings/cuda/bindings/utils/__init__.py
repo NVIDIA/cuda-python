@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 from typing import Any, Callable
 
 from ._nvvm_utils import check_nvvm_compiler_options
@@ -27,6 +27,9 @@ def get_cuda_native_handle(obj: Any) -> int:
     """
     obj_type = type(obj)
     try:
-        return _handle_getters[obj_type](obj)
+        getter = _handle_getters[obj_type]
     except KeyError:
         raise TypeError("Unknown type: " + str(obj_type)) from None
+    # Deliberately outside the try: a KeyError raised by the getter itself is a
+    # bug in that getter, not an unregistered type.
+    return getter(obj)

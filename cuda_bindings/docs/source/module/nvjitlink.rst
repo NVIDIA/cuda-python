@@ -1,5 +1,5 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+.. SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
 .. default-role:: cpp:any
 
@@ -25,6 +25,8 @@ NvJitLink defines the following functions for linking code objects and querying 
 .. autofunction:: cuda.bindings.nvjitlink.get_linked_cubin
 .. autofunction:: cuda.bindings.nvjitlink.get_linked_ptx_size
 .. autofunction:: cuda.bindings.nvjitlink.get_linked_ptx
+.. autofunction:: cuda.bindings.nvjitlink.get_linked_ltoir_size
+.. autofunction:: cuda.bindings.nvjitlink.get_linked_ltoir
 .. autofunction:: cuda.bindings.nvjitlink.get_error_log_size
 .. autofunction:: cuda.bindings.nvjitlink.get_error_log
 .. autofunction:: cuda.bindings.nvjitlink.get_info_log_size
@@ -63,6 +65,33 @@ Types
 
 
     .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_FINALIZE
+
+
+    .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_NULL_INPUT
+
+
+    .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_INCOMPATIBLE_OPTIONS
+
+
+    .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_INCORRECT_INPUT_TYPE
+
+
+    .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_ARCH_MISMATCH
+
+
+    .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_OUTDATED_LIBRARY
+
+
+    .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_MISSING_FATBIN
+
+
+    .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_UNRECOGNIZED_ARCH
+
+
+    .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_UNSUPPORTED_ARCH
+
+
+    .. autoattribute:: cuda.bindings.nvjitlink.Result.ERROR_LTO_NOT_ENABLED
 
 
 .. autoclass:: cuda.bindings.nvjitlink.InputType

@@ -6,8 +6,6 @@ name: sccache summary
 description: Parse sccache stats JSON and write a summary table to GITHUB_STEP_SUMMARY
 
 # Inspired by NVIDIA/cccl's prepare-execution-summary.py (PR #3621).
-# Only counts C/C++ and CUDA language hits (excludes PTX/CUBIN which are
-# not included in sccache's compile_requests counter).
 
 inputs:
   json-file:
@@ -47,10 +45,11 @@ runs:
         with open(json_file) as f:
             stats = json.load(f)["stats"]
 
-        # compile_requests includes non-compilation calls (linker, etc).
-        # Use cache_hits + cache_misses as the denominator to match sccache's
-        # own "Cache hits rate" which only counts actual compilation requests.
-        counted_languages = {"C/C++", "CUDA"}
+        # compile_requests only counts top-level nvcc invocations, but each
+        # invocation spawns sub-tool compilations (cudafe++, cicc, ptxas) that
+        # sccache tracks under separate language keys.  Count all of them so
+        # the reported rate matches sccache's own "Cache hits rate".
+        counted_languages = {"C/C++", "CUDA", "CUDA (Device code)", "PTX", "CUBIN"}
         hits = sum(
             v for k, v in stats.get("cache_hits", {}).get("counts", {}).items()
             if k in counted_languages

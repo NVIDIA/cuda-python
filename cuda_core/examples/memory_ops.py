@@ -5,13 +5,14 @@
 # ################################################################################
 #
 # This example demonstrates memory resources for allocation and management,
-# copying data between device and pinned memory, and DLPack interop. Requires
-# NumPy 2.1.0+.
+# copying data between device and pinned memory, and DLPack interop. Writing
+# into the pinned host array imported via DLPack requires NumPy 2.2.5+ (arrays
+# from np.from_dlpack are read-only on earlier versions; see numpy GH #28632).
 #
 # ################################################################################
 
 # /// script
-# dependencies = ["cuda_bindings", "cuda_core", "nvidia-cuda-nvrtc", "cupy-cuda13x"]
+# dependencies = ["cuda_bindings", "cuda_core", "nvidia-cuda-nvrtc", "cupy-cuda13x", "numpy>=2.2.5"]
 # ///
 
 import sys
@@ -47,8 +48,8 @@ __global__ void memory_ops(float* device_data,
 
 
 def main():
-    if np.__version__ < "2.1.0":
-        print("This example requires NumPy 2.1.0 or later", file=sys.stderr)
+    if np.lib.NumpyVersion(np.__version__) < "2.2.5":
+        print("This example requires NumPy 2.2.5 or later", file=sys.stderr)
         sys.exit(1)
 
     dev = Device()

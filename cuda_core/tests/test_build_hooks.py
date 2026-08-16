@@ -16,6 +16,7 @@ conftest.py which imports cuda.core modules:
 These tests require Cython to be installed (build_hooks.py imports it).
 """
 
+import builtins
 import importlib.util
 import os
 import tempfile
@@ -48,6 +49,35 @@ def _load_build_hooks():
 
 # Load the module once at import time
 build_hooks = _load_build_hooks()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_cuda_path_is_resolved_before_importing_bindings(monkeypatch):
+    """PEP 517 namespace repair runs before cuda.bindings is imported."""
+    events = []
+
+    class StopBuildError(Exception):
+        pass
+
+    def get_cuda_path():
+        events.append("cuda-path")
+        return "/cuda"
+
+    original_import = builtins.__import__
+
+    def stop_at_bindings_import(name, *args, **kwargs):
+        if name == "cuda.bindings":
+            events.append("cuda-bindings")
+            raise StopBuildError
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(build_hooks, "_get_cuda_path", get_cuda_path)
+    monkeypatch.setattr(builtins, "__import__", stop_at_bindings_import)
+
+    with pytest.raises(StopBuildError):
+        build_hooks._build_cuda_core()
+
+    assert events == ["cuda-path", "cuda-bindings"]
 
 
 def _check_version_detection(

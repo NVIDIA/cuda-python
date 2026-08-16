@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
@@ -8,6 +8,7 @@ import sys
 from contextlib import suppress
 
 __all__ = [
+    "IS_LINUX",
     "IS_WINDOWS",
     "IS_WSL",
     "libc",
@@ -15,17 +16,18 @@ __all__ = [
 ]
 
 
+# Please keep in sync with the equivalent implementation in
+# cuda_core/cuda/core/system/_system.pyx.
 def _detect_wsl() -> bool:
     data = ""
     with suppress(Exception), open("/proc/sys/kernel/osrelease") as f:
         data = f.read().lower()
-    if "microsoft" in data or "wsl" in data:
-        return True
-    return any(os.environ.get(k) for k in ("WSL_DISTRO_NAME", "WSL_INTEROP"))
+    return "microsoft" in data or "wsl" in data
 
 
 IS_WSL: bool = _detect_wsl()
 IS_WINDOWS: bool = platform.system() == "Windows" or sys.platform.startswith("win")
+IS_LINUX: bool = not IS_WINDOWS and not IS_WSL and platform.system() == "Linux"
 
 if IS_WINDOWS:
     libc = ctypes.CDLL("msvcrt.dll")
@@ -63,3 +65,13 @@ def under_compute_sanitizer() -> bool:
     # Another common indicator: sanitizer injectors are configured via env vars.
     inj = os.environ.get("CUDA_INJECTION64_PATH", "")
     return "compute-sanitizer" in inj or "cuda-memcheck" in inj
+
+
+def driver_version_less_than(target):
+    from cuda.bindings import driver
+
+    (err,) = driver.cuInit(0)
+    assert err == driver.CUresult.CUDA_SUCCESS
+    err, version = driver.cuDriverGetVersion()
+    assert err == driver.CUresult.CUDA_SUCCESS
+    return version < target

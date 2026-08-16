@@ -20,7 +20,7 @@ import tempfile
 import threading
 import time
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Callable, Iterable
 
 from cuda.core._module import ObjectCode
 
@@ -44,7 +44,7 @@ _REPLACE_RETRY_DELAYS = (0.0, 0.005, 0.010, 0.020, 0.050, 0.100)  # ~185ms budge
 _IS_WINDOWS = os.name == "nt"
 
 
-def _stat_key(st: os.stat_result) -> tuple:
+def _stat_key(st: os.stat_result) -> tuple[int, int, int]:
     """Stat fingerprint used by every stat-guarded path.
 
     ``(st_ino, st_size, st_mtime_ns)`` is the smallest triple that
@@ -81,7 +81,9 @@ def _default_cache_dir() -> Path:
     return root / "cuda-python" / "program-cache"
 
 
-def _with_sharing_retry(op, *args, on_exhausted=None, **kwargs):
+def _with_sharing_retry(
+    op: Callable[..., Any], *args: Any, on_exhausted: Callable[..., Any] | None = None, **kwargs: Any
+) -> Any:
     """Run ``op(*args, **kwargs)`` retrying transient Windows sharing
     violations under the bounded ``_REPLACE_RETRY_DELAYS`` budget.
 
@@ -130,7 +132,7 @@ def _replace_with_sharing_retry(tmp_path: Path, target: Path) -> bool:
         os.replace(tmp_path, target)
         return True
 
-    return _with_sharing_retry(_do_replace, on_exhausted=lambda _exc: False)
+    return bool(_with_sharing_retry(_do_replace, on_exhausted=lambda _exc: False))
 
 
 def _stat_and_read_with_sharing_retry(path: Path) -> tuple[os.stat_result, bytes]:
@@ -156,10 +158,10 @@ def _stat_and_read_with_sharing_retry(path: Path) -> tuple[os.stat_result, bytes
     def _do_stat_and_read() -> tuple[os.stat_result, bytes]:
         return path.stat(), path.read_bytes()
 
-    def _exhausted(last_exc):
+    def _exhausted(last_exc: PermissionError) -> None:
         raise FileNotFoundError(path) from last_exc
 
-    return _with_sharing_retry(_do_stat_and_read, on_exhausted=_exhausted)
+    return _with_sharing_retry(_do_stat_and_read, on_exhausted=_exhausted)  # type: ignore[no-any-return]
 
 
 _UTIME_SUPPORTS_FD = os.utime in os.supports_fd
@@ -385,7 +387,7 @@ class FileStreamProgramCache(ProgramCacheResource):
 
     def __init__(
         self,
-        path: str | os.PathLike | None = None,
+        path: str | os.PathLike[str] | None = None,
         *,
         max_size_bytes: int | None = None,
     ) -> None:
@@ -395,9 +397,19 @@ class FileStreamProgramCache(ProgramCacheResource):
         self._entries = self._root / _ENTRIES_SUBDIR
         self._tmp = self._root / _TMP_SUBDIR
         self._max_size_bytes = max_size_bytes
+        # Permissions (see PR #2399):
+        # root/ and entries/ use default permissions so a shared cache (e.g. one
+        # a group shares on a cluster) keeps working. The cached files themselves
+        # are still private: each is written to tmp/ as owner-only and moved into
+        # entries/, which keeps its permissions. tmp/ is made owner-only so no one
+        # can read or swap a file while it's being written. We don't chmod, so an
+        # existing directory is left as-is.
+        # Trade-off: if a group deliberately shares a writable entries/, a member
+        # could replace a cached file. Blocking that needs a check at load time,
+        # not just permissions, and is out of scope here.
         self._root.mkdir(parents=True, exist_ok=True)
         self._entries.mkdir(exist_ok=True)
-        self._tmp.mkdir(exist_ok=True)
+        self._tmp.mkdir(exist_ok=True, mode=0o700)
         # Opportunistic startup sweep of orphaned temp files left by any
         # crashed writers. Age-based so concurrent in-flight writes from
         # other processes are preserved.
@@ -422,11 +434,17 @@ class FileStreamProgramCache(ProgramCacheResource):
         k = _as_key_bytes(key)
         # Hash the key to a fixed-length identifier so arbitrary-length user
         # keys never exceed per-component filename limits (typically 255 on
-        # ext4 / NTFS). With a 256-bit blake2b digest, the cache relies on
-        # cryptographic collision resistance for key uniqueness -- two
-        # distinct keys hashing to the same path is astronomically unlikely
-        # (~2^-128 with the 32-byte digest in use here).
-        digest = hashlib.blake2b(k, digest_size=32).hexdigest()
+        # ext4 / NTFS).
+        #
+        # FIPS: must use a FIPS-approved hash algorithm. FIPS-enforcing
+        # systems can disable non-approved hashlib algorithms (for example
+        # blake2b) at the OpenSSL level. See #2043.
+        #
+        # With a 256-bit SHA-256 digest, the cache relies on collision
+        # resistance for key uniqueness -- two distinct keys hashing to the
+        # same path is astronomically unlikely (~2^128 practical collision
+        # work).
+        digest = hashlib.sha256(k, usedforsecurity=False).hexdigest()
         return self._entries / digest[:2] / digest[2:]
 
     # -- mapping API ---------------------------------------------------------
@@ -627,7 +645,7 @@ class FileStreamProgramCache(ProgramCacheResource):
                 continue
         return total + self._sum_tmp_sizes()
 
-    def _iter_tmp_entries(self) -> Iterable[os.DirEntry]:
+    def _iter_tmp_entries(self) -> Iterable[os.DirEntry[str]]:
         # Mirror ``_iter_entry_paths``: scandir + cached d_type for the
         # file/dir filter + deterministic handle close on early exit.
         # Yields ``DirEntry`` (not Path) so callers can use ``entry.stat``

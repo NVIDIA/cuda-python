@@ -4,7 +4,7 @@
 import ctypes
 
 import helpers
-from helpers.marks import requires_module
+from cuda_python_test_helpers.marks import requires_module
 from helpers.misc import StreamWrapper
 
 try:
@@ -13,8 +13,8 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
-
 from conftest import skipif_need_cuda_headers
+
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -125,6 +125,245 @@ def test_launch_config_native_conversion(init_cuda):
         pytest.skip("Driver or GPU not new enough for thread block clusters")
 
 
+def test_to_native_launch_config_no_cluster():
+    """Covers the no-cluster path of _to_native_launch_config; no Hopper+ required."""
+    from cuda.core._launch_config import _to_native_launch_config
+
+    config = LaunchConfig(grid=(4, 5, 6), block=(7, 8, 9), shmem_size=128)
+    native = _to_native_launch_config(config)
+    assert native.gridDimX == 4, f"Expected gridDimX=4, got {native.gridDimX}"
+    assert native.gridDimY == 5, f"Expected gridDimY=5, got {native.gridDimY}"
+    assert native.gridDimZ == 6, f"Expected gridDimZ=6, got {native.gridDimZ}"
+    assert native.blockDimX == 7, f"Expected blockDimX=7, got {native.blockDimX}"
+    assert native.blockDimY == 8, f"Expected blockDimY=8, got {native.blockDimY}"
+    assert native.blockDimZ == 9, f"Expected blockDimZ=9, got {native.blockDimZ}"
+    assert native.sharedMemBytes == 128, f"Expected sharedMemBytes=128, got {native.sharedMemBytes}"
+    assert native.numAttrs == 0, f"Expected numAttrs=0, got {native.numAttrs}"
+    assert list(native.attrs) == [], f"Expected empty attrs, got {list(native.attrs)}"
+
+
+def test_launch_config_cooperative_unsupported(monkeypatch):
+    """LaunchConfig(is_cooperative=True) raises when device does not support it."""
+    from cuda.core import _launch_config as _lc_mod
+
+    class _FakeProps:
+        cooperative_launch = False
+
+    class _FakeDev:
+        properties = _FakeProps()
+
+    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
+    with pytest.raises(CUDAError, match="cooperative kernels are not supported"):
+        LaunchConfig(grid=1, block=1, is_cooperative=True)
+
+
+def test_to_native_launch_config_cooperative(monkeypatch):
+    """Covers the is_cooperative branch of _to_native_launch_config; Device is mocked so it runs on any GPU."""
+    from cuda.bindings import driver
+    from cuda.core import _launch_config as _lc_mod
+    from cuda.core._launch_config import _to_native_launch_config
+
+    class _FakeProps:
+        cooperative_launch = True
+
+    class _FakeDev:
+        properties = _FakeProps()
+
+    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
+
+    config = LaunchConfig(grid=2, block=4, is_cooperative=True)
+    native = _to_native_launch_config(config)
+    assert native.gridDimX == 2
+    assert native.blockDimX == 4
+    assert native.numAttrs == 1
+    attr = native.attrs[0]
+    assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE, (
+        f"Expected CU_LAUNCH_ATTRIBUTE_COOPERATIVE, got {attr.id}"
+    )
+    assert attr.value.cooperative == 1, f"Expected cooperative=1, got {attr.value.cooperative}"
+
+
+def test_to_native_launch_config_pdl():
+    """LaunchConfig(programmatic_stream_serialization=True) maps to the PDL launch attribute."""
+    from cuda.bindings import driver
+    from cuda.core._launch_config import _to_native_launch_config
+
+    config = LaunchConfig(grid=2, block=4, programmatic_stream_serialization=True)
+    native = _to_native_launch_config(config)
+    assert native.gridDimX == 2
+    assert native.blockDimX == 4
+    assert native.numAttrs == 1
+    attr = native.attrs[0]
+    assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION, (
+        f"Expected CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION, got {attr.id}"
+    )
+    assert attr.value.programmaticStreamSerializationAllowed == 1, (
+        f"Expected programmaticStreamSerializationAllowed=1, got {attr.value.programmaticStreamSerializationAllowed}"
+    )
+
+
+@skipif_need_cuda_headers
+def test_pdl_primary_secondary_overlap_same_stream():
+    """Primary + secondary PDL launch on one stream can overlap on Hopper+.
+
+    Secondary is launched with ``programmatic_stream_serialization=True``. After
+    the primary triggers completion, it spins until it observes a flag written by
+    the secondary's independent preamble — proving both grids were resident at
+    once. Without PDL, the secondary cannot start until the primary exits.
+
+    Note concurrency is opportunistic, so a missing overlap execution is reported as
+    an expected failure.
+    """
+    dev = Device()
+    if dev.compute_capability < (9, 0):
+        pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
+    dev.set_current()
+    stream = dev.create_stream(options={"nonblocking": True})
+
+    # clock64 budgets are in GPU cycles; keep the post-trigger window long enough
+    # for the secondary to boot, but short enough for a unit test.
+    code = r"""
+    #include <cuda_device_runtime_api.h>
+
+    extern "C" __global__ void primary_kernel(int* secondary_started, int* overlapped) {
+        cudaTriggerProgrammaticLaunchCompletion();
+
+        const long long deadline = clock64() + 100000000LL;  // ~50ms @ ~2GHz
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            while (clock64() < deadline) {
+                if (atomicAdd(secondary_started, 0) != 0) {
+                    atomicExch(overlapped, 1);
+                    return;
+                }
+                __nanosleep(1000);
+            }
+        }
+    }
+
+    extern "C" __global__ void secondary_kernel(int* secondary_started) {
+        if (threadIdx.x == 0 && blockIdx.x == 0) {
+            atomicExch(secondary_started, 1);
+        }
+    }
+    """
+
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CUDA_INCLUDE_PATH)
+    prog = Program(code, code_type="c++", options=pro_opts)
+    mod = prog.compile("cubin")
+    primary = mod.get_kernel("primary_kernel")
+    secondary = mod.get_kernel("secondary_kernel")
+
+    mr = LegacyPinnedMemoryResource()
+    secondary_started = np.from_dlpack(mr.allocate(4)).view(np.int32)
+    overlapped = np.from_dlpack(mr.allocate(4)).view(np.int32)
+
+    primary_cfg = LaunchConfig(grid=1, block=1)
+    secondary_cfg = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
+    secondary_serial_cfg = LaunchConfig(grid=1, block=1)
+
+    def _run(secondary_launch_cfg: LaunchConfig) -> int:
+        secondary_started[0] = 0
+        overlapped[0] = 0
+        launch(stream, primary_cfg, primary, secondary_started.ctypes.data, overlapped.ctypes.data)
+        launch(stream, secondary_launch_cfg, secondary, secondary_started.ctypes.data)
+        stream.sync()
+        return int(overlapped[0])
+
+    # Without the PDL attribute, same-stream kernels stay serialized.
+    assert _run(secondary_serial_cfg) == 0, "Expected no overlap when programmatic_stream_serialization is False"
+
+    # PDL overlap is opportunistic; retry a few times on a quiet GPU.
+    saw_overlap = False
+    for _ in range(5):
+        if _run(secondary_cfg) == 1:
+            saw_overlap = True
+            break
+
+    if not saw_overlap:
+        # Overlap is never guaranteed by the driver, so a miss is reported as an
+        # expected failure rather than turning a busy GPU into a red CI run.
+        pytest.xfail(
+            "PDL (Programmatic Dependent Launch) overlap was not observed. "
+            "If this keeps xfailing in CI, manually re-check on a quiet Hopper+ GPU."
+        )
+
+    print(
+        f"PDL (Programmatic Dependent Launch) overlap verified on {dev.name} compute capability {dev.compute_capability}",
+        flush=True,
+    )
+
+
+def test_launch_config_cluster_accepts_hopper_cc(monkeypatch):
+    """LaunchConfig accepts ``cluster`` when the device reports compute
+    capability >= 9.0. Device is mocked so the cluster-cast branch runs on any
+    GPU (real cluster support otherwise requires Hopper+)."""
+    from cuda.core import _launch_config as _lc_mod
+
+    class _FakeDev:
+        compute_capability = (9, 0)
+
+    # looked_up confirms the mock took effect.
+    looked_up = []
+    monkeypatch.setattr(_lc_mod, "Device", lambda: looked_up.append(1) or _FakeDev())
+
+    config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
+    assert looked_up, "Device was not looked up via the module global; mock did not take effect"
+    assert config.cluster == (2, 2, 1)
+    assert config.grid == (2, 3, 1)
+
+
+def test_launch_config_cluster_rejects_pre_hopper_cc(monkeypatch):
+    """LaunchConfig(cluster=...) raises on a device with compute capability < 9.0."""
+    from cuda.core import _launch_config as _lc_mod
+
+    class _FakeDev:
+        compute_capability = (8, 6)
+
+    # looked_up confirms the mock took effect.
+    looked_up = []
+    monkeypatch.setattr(_lc_mod, "Device", lambda: looked_up.append(1) or _FakeDev())
+
+    with pytest.raises(CUDAError, match="thread block clusters are not supported"):
+        LaunchConfig(grid=2, cluster=2, block=32)
+    assert looked_up, "Device was not looked up via the module global; mock did not take effect"
+
+
+def test_to_native_launch_config_cluster_branch():
+    """Covers the cluster branch of ``_to_native_launch_config`` (grid is
+    converted from cluster units to block units, plus the cluster-dimension
+    attribute) without requiring Hopper.
+
+    The cc gate lives in ``LaunchConfig.__init__``; ``cluster`` itself is a
+    public attribute, so setting it on a cluster-free config yields the exact
+    object ``__init__`` would build on Hopper and lets the conversion run on
+    any GPU.
+
+    Note: this exercises the standalone ``cpdef _to_native_launch_config``
+    function (a duplicate of the ``LaunchConfig._to_native_launch_config``
+    cdef method, slated for removal once all modules are cythonized), not the
+    cdef method that ``launch`` / ``Module`` actually call in production.
+    """
+    from cuda.bindings import driver
+    from cuda.core._launch_config import _to_native_launch_config
+
+    config = LaunchConfig(grid=(2, 3, 4), block=(5, 6, 7))
+    config.cluster = (2, 2, 2)
+    native = _to_native_launch_config(config)
+
+    # grid (in cluster units) * cluster -> block units
+    assert native.gridDimX == 4
+    assert native.gridDimY == 6
+    assert native.gridDimZ == 8
+    assert native.blockDimX == 5
+    assert native.blockDimY == 6
+    assert native.blockDimZ == 7
+    assert native.numAttrs == 1
+    attr = native.attrs[0]
+    assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+    assert (attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z) == (2, 2, 2)
+
+
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, SourceCodeType.CXX)
@@ -192,7 +431,7 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
 
 
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
-@requires_module(np, "2.1")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
 def test_launch_scalar_argument(python_type, cpp_type, init_value):
     dev = Device()
     dev.set_current()
@@ -403,27 +642,68 @@ def test_kernel_arg_ctypes_subclass_isinstance_fallback():
     class MyBool(ctypes.c_bool):
         pass
 
-    # These should NOT raise — they should be handled via isinstance fallback
+    # These should NOT raise; they should be handled via isinstance fallback
     holder = ParamHolder([MyInt32(42), MyFloat(3.14), MyBool(True)])
     assert holder.ptr != 0
 
 
-@requires_module(np, "2.1")
-def test_launch_scalar_argument_ctypes_subclass_fallback():
-    """Subclassed ctypes scalars survive the launch path and reach the kernel correctly."""
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+@requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
+@pytest.mark.parametrize(
+    ("base_type", "np_dtype", "cpp_type", "raw_value"),
+    [
+        # ctypes scalar subclasses — one per prepare_ctypes_arg isinstance-fallback
+        # branch. Values are chosen to expose a wrong width/sign: unsigned values
+        # exceed the same-width signed max, and c_uint64 exceeds uint32 max so a
+        # uint64 branch misrouted to prepare_arg[uint32_t] truncates 0x1_0000_0001
+        # to 1 and fails the readback.
+        (ctypes.c_bool, np.bool_, "bool", True),
+        (ctypes.c_int8, np.int8, "signed char", -42),
+        (ctypes.c_int16, np.int16, "signed short", -1234),
+        (ctypes.c_int32, np.int32, "signed int", -123456),
+        (ctypes.c_int64, np.int64, "signed long long", -123456789),
+        (ctypes.c_uint8, np.uint8, "unsigned char", 200),
+        (ctypes.c_uint16, np.uint16, "unsigned short", 60000),
+        (ctypes.c_uint32, np.uint32, "unsigned int", 4000000000),
+        (ctypes.c_uint64, np.uint64, "unsigned long long", 0x1_0000_0001),
+        (ctypes.c_float, np.float32, "float", 3.14),
+        (ctypes.c_double, np.float64, "double", 2.718281828),
+        # numpy scalar subclass — prepare_numpy_arg fallback
+        (np.float32, np.float32, "float", 3.14),
+    ],
+    ids=[
+        "ctypes_bool",
+        "ctypes_int8",
+        "ctypes_int16",
+        "ctypes_int32",
+        "ctypes_int64",
+        "ctypes_uint8",
+        "ctypes_uint16",
+        "ctypes_uint32",
+        "ctypes_uint64",
+        "ctypes_float",
+        "ctypes_double",
+        "numpy_float32",
+    ],
+)
+def test_launch_scalar_argument_subclass_fallback(base_type, np_dtype, cpp_type, raw_value):
+    """Subclassed scalar arguments survive fallback handling and reach the kernel
+    with the correct width/sign. The readback value (not just ptr != 0) guards each
+    fallback branch against marshalling the wrong C type, e.g. uint64 -> uint32_t."""
 
-    class MyInt32(ctypes.c_int32):
+    class Subclassed(base_type):
         pass
+
+    scalar = Subclassed(raw_value)
+    expected = np_dtype(raw_value)
 
     dev = Device()
     dev.set_current()
 
     mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(np.int32).itemsize)
-    arr = np.from_dlpack(b).view(np.int32)
+    b = mr.allocate(np.dtype(np_dtype).itemsize)
+    arr = np.from_dlpack(b).view(np_dtype)
     arr[:] = 0
-
-    scalar = MyInt32(-123456)
 
     code = r"""
     template <typename T>
@@ -435,17 +715,16 @@ def test_launch_scalar_argument_ctypes_subclass_fallback():
     arch = "".join(f"{i}" for i in dev.compute_capability)
     pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}")
     prog = Program(code, code_type="c++", options=pro_opts)
-    ker_name = "write_scalar<signed int>"
+    ker_name = f"write_scalar<{cpp_type}>"
     mod = prog.compile("cubin", name_expressions=(ker_name,))
     ker = mod.get_kernel(ker_name)
 
-    # This exercises the prepare_ctypes_arg isinstance fallback through a real launch.
     stream = dev.default_stream
     config = LaunchConfig(grid=1, block=1)
     launch(stream, config, ker, arr.ctypes.data, scalar)
     stream.sync()
 
-    assert arr[0] == scalar.value
+    assert arr[0] == expected
 
 
 def test_kernel_arg_numpy_subclass_isinstance_fallback():
@@ -460,46 +739,6 @@ def test_kernel_arg_numpy_subclass_isinstance_fallback():
 
     holder = ParamHolder([MyInt32(7), MyFloat32(2.5)])
     assert holder.ptr != 0
-
-
-@requires_module(np, "2.1")
-def test_launch_scalar_argument_numpy_subclass_fallback():
-    """Subclassed numpy scalars survive the launch path and reach the kernel correctly."""
-
-    class MyFloat32(np.float32):
-        pass
-
-    dev = Device()
-    dev.set_current()
-
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(np.float32).itemsize)
-    arr = np.from_dlpack(b).view(np.float32)
-    arr[:] = 0.0
-
-    scalar = MyFloat32(3.14)
-
-    code = r"""
-    template <typename T>
-    __global__ void write_scalar(T* arr, T val) {
-        arr[0] = val;
-    }
-    """
-
-    arch = "".join(f"{i}" for i in dev.compute_capability)
-    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}")
-    prog = Program(code, code_type="c++", options=pro_opts)
-    ker_name = "write_scalar<float>"
-    mod = prog.compile("cubin", name_expressions=(ker_name,))
-    ker = mod.get_kernel(ker_name)
-
-    # This exercises the prepare_numpy_arg isinstance fallback through a real launch.
-    stream = dev.default_stream
-    config = LaunchConfig(grid=1, block=1)
-    launch(stream, config, ker, arr.ctypes.data, scalar)
-    stream.sync()
-
-    assert arr[0] == scalar
 
 
 def test_kernel_arg_python_isinstance_fallbacks():

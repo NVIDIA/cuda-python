@@ -1,10 +1,18 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1568+g289771de9.d20260413. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b6fe9a4efd0077f8c09ef4f826880ad0a54100455d4465953c4127d3de8c4d91
+
+
+
+# <<<< PREAMBLE CONTENT >>>>
 
 from libc.stdint cimport intptr_t
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 from .cynvml cimport *
 
@@ -137,6 +145,8 @@ ctypedef nvmlPowerProfileType_t _PowerProfileType
 ctypedef nvmlDeviceAddressingModeType_t _DeviceAddressingModeType
 ctypedef nvmlPRMCounterId_t _PRMCounterId
 ctypedef nvmlPowerProfileOperation_t _PowerProfileOperation
+ctypedef nvmlProcessMode_t _ProcessMode
+ctypedef nvmlCPERType_t _CPERType
 
 
 ###############################################################################
@@ -424,3 +434,7 @@ cpdef object device_get_vgpu_scheduler_log_v2(intptr_t device)
 cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance)
 cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_state)
 cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p_scheduler_state)
+cpdef object system_get_cper_v1()
+cpdef object device_get_bbx_time_data_v1(intptr_t device)
+cpdef object device_get_accounting_stats_v2(intptr_t device)
+cpdef object device_get_remapped_rows_v2(intptr_t device)

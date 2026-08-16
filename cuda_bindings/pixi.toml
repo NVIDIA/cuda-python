@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 [workspace]
 channels = ["conda-forge"]
@@ -10,7 +10,7 @@ preview = ["pixi-build"]
 [workspace.build-variants]
 python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 # Keep source-package metadata aligned with the consuming environment's CUDA major.
-cuda-version = ["12.*", "13.2.*"]
+cuda-version = ["12.*", "13.3.*"]
 
 [feature.test.dependencies]
 cuda-bindings = { path = "." }
@@ -21,11 +21,14 @@ pytest-repeat = "*"
 pyglet = ">=2.1.9"
 numpy = "*"
 
+[feature.test.pypi-dependencies]
+cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
+
 # Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
 [feature.docs.dependencies]
 cuda-bindings = "13.2.*"
 python = "3.12.*"
-cython = "*"
+cython = ">=3.2.5,<3.3"
 enum_tools = "*"
 make = "*"
 myst-nb = "*"
@@ -33,7 +36,6 @@ myst-parser = "*"
 numpy = "*"
 numpydoc = "*"
 pip = "*"
-pyclibrary = "*"
 pydata-sphinx-theme = "*"
 pytest = "*"
 scipy = "*"
@@ -42,7 +44,7 @@ sphinx-copybutton = "*"
 sphinx-toolbox = "*"
 
 [feature.cython-tests.dependencies]
-cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
+cython = ">=3.2.5,<3.3" # for tests that exercise APIs from cython
 setuptools = "*"      # for distutils
 gxx = "*"             # to compile the generated code
 # These are necessary because running the Cython tests requires compiling
@@ -74,7 +76,7 @@ CUDA_HOME = "$CONDA_PREFIX/Library"
 cuda-version = "12.*"
 
 [feature.cu13.dependencies]
-cuda-version = "13.2.*"
+cuda-version = "13.3.*"
 
 [environments]
 default = { features = ["test", "cython-tests"], solve-group = "default" }
@@ -96,9 +98,6 @@ backend = { name = "pixi-build-python", version = "*" }
 [package.build.config]
 compilers = ["c", "cxx"]
 
-[package.build.config.env]
-CUDA_PYTHON_PARSER_CACHING = "1"
-
 [package.build.target.linux-64.config.env]
 CUDA_HOME = "$PREFIX/targets/x86_64-linux"
 CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)"
@@ -119,8 +118,7 @@ python = "*"
 cuda-version = "*"
 setuptools = ">=80"
 setuptools-scm = ">=8"
-cython = ">=3.2,<3.3"
-pyclibrary = ">=0.1.7"
+cython = ">=3.2.5,<3.3"
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 cuda-cudart-static = "*"
 cuda-nvrtc-dev = "*"

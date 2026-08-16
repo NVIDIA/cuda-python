@@ -1,25 +1,21 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import os.path
 import shutil
+import subprocess
+import sys
 import textwrap
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
-from cuda.bindings._test_helpers.mempool import xfail_if_mempool_oom
-
-
-def driverVersionLessThan(target):
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, version = cuda.cuDriverGetVersion()
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    return version < target
+from cuda_python_test_helpers import driver_version_less_than
 
 
 def supportsMemoryPool():
@@ -38,6 +34,11 @@ def supportsCudaAPI(name):
 
 def callableBinary(name):
     return shutil.which(name) is not None
+
+
+@pytest.mark.skipif(True, reason="Always skip!")
+def test_always_skip():
+    pass
 
 
 def test_cuda_memcpy():
@@ -205,12 +206,9 @@ def test_cuda_repr():
         value : 0
     nvSciSync :
         fence : 0x0
-        reserved : 0
     keyedMutex :
         key : 0
-    reserved : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 flags : 0
-reserved : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 """)
     assert actual_repr.split() == expected_repr.split()
 
@@ -260,7 +258,7 @@ def test_cuda_CUstreamBatchMemOpParams():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
 )
 def test_cuda_memPool_attr():
     poolProps = cuda.CUmemPoolProps()
@@ -323,7 +321,7 @@ def test_cuda_memPool_attr():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
 )
 def test_cuda_pointer_attr():
     err, ptr = cuda.cuMemAllocManaged(0x1000, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
@@ -374,7 +372,7 @@ def test_cuda_pointer_attr():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
 )
 def test_pointer_get_attributes_device_ordinal():
     attributes = [
@@ -452,7 +450,10 @@ def test_cuda_mem_range_attr(device):
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.skipif(driverVersionLessThan(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported")
+@pytest.mark.skipif(
+    driver_version_less_than(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported"
+)
+@pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
 def test_cuda_graphMem_attr(device):
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -510,7 +511,7 @@ def test_cuda_graphMem_attr(device):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12010)
+    driver_version_less_than(12010)
     or not supportsCudaAPI("cuCoredumpSetAttributeGlobal")
     or not supportsCudaAPI("cuCoredumpGetAttributeGlobal"),
     reason="Coredump API not present",
@@ -560,7 +561,7 @@ def test_get_error_name_and_string():
 
 
 # TODO: cuStreamGetCaptureInfo_v2
-@pytest.mark.skipif(driverVersionLessThan(11030), reason="Driver too old for cuStreamGetCaptureInfo_v2")
+@pytest.mark.skipif(driver_version_less_than(11030), reason="Driver too old for cuStreamGetCaptureInfo_v2")
 def test_stream_capture():
     pass
 
@@ -599,16 +600,6 @@ def test_eglFrame():
     assert int(val.frame.pPitch[2]) == 3
 
 
-def test_char_range():
-    val = cuda.CUipcMemHandle_st()
-    for x in range(-128, 0):
-        val.reserved = [x] * 64
-        assert val.reserved[0] == 256 + x
-    for x in range(256):
-        val.reserved = [x] * 64
-        assert val.reserved[0] == x
-
-
 def test_anon_assign():
     val1 = cuda.CUexecAffinityParam_st()
     val2 = cuda.CUexecAffinityParam_st()
@@ -640,7 +631,7 @@ def test_invalid_repr_attribute():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12020)
+    driver_version_less_than(12020)
     or not supportsCudaAPI("cuGraphAddNode")
     or not supportsCudaAPI("cuGraphNodeSetParams")
     or not supportsCudaAPI("cuGraphExecNodeSetParams"),
@@ -752,7 +743,7 @@ def test_graph_poly():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12040) or not supportsCudaAPI("cuDeviceGetDevResource"),
+    driver_version_less_than(12040) or not supportsCudaAPI("cuDeviceGetDevResource"),
     reason="Polymorphic graph APIs required",
 )
 def test_cuDeviceGetDevResource(device):
@@ -772,7 +763,7 @@ def test_cuDeviceGetDevResource(device):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12030) or not supportsCudaAPI("cuGraphConditionalHandleCreate"),
+    driver_version_less_than(12030) or not supportsCudaAPI("cuGraphConditionalHandleCreate"),
     reason="Conditional graph APIs required",
 )
 def test_conditional(ctx):
@@ -834,14 +825,14 @@ def test_all_CUresult_codes():
     assert num_good >= 76  # CTK 11.0.3_450.51.06
 
 
-@pytest.mark.skipif(driverVersionLessThan(12030), reason="Driver too old for cuKernelGetName")
+@pytest.mark.skipif(driver_version_less_than(12030), reason="Driver too old for cuKernelGetName")
 def test_cuKernelGetName_failure():
     err, name = cuda.cuKernelGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
 
 
-@pytest.mark.skipif(driverVersionLessThan(12030), reason="Driver too old for cuFuncGetName")
+@pytest.mark.skipif(driver_version_less_than(12030), reason="Driver too old for cuFuncGetName")
 def test_cuFuncGetName_failure():
     err, name = cuda.cuFuncGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
@@ -849,7 +840,7 @@ def test_cuFuncGetName_failure():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
+    driver_version_less_than(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
     reason="When API was introduced",
 )
 def test_cuCheckpointProcessGetState_failure():
@@ -859,7 +850,7 @@ def test_cuCheckpointProcessGetState_failure():
 
 
 def test_private_function_pointer_inspector():
-    from cuda.bindings._bindings.cydriver import _inspect_function_pointer
+    from cuda.bindings._internal.driver import _inspect_function_pointer
 
     assert _inspect_function_pointer("__cuGetErrorString") != 0
 
@@ -891,7 +882,7 @@ def test_struct_pointer_comparison(target):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphGetId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphGetId(device, ctx):
@@ -918,7 +909,7 @@ def test_cuGraphGetId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphExecGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphExecGetId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphExecGetId(device, ctx):
@@ -964,8 +955,87 @@ def test_cuGraphExecGetId(device, ctx):
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
+    # Regression test for https://github.com/NVIDIA/cuda-python/issues/1804
+    # cuGraphGetEdges previously returned CUgraphEdgeData wrappers backed by
+    # a scratch buffer that was freed before the call returned, leaving the
+    # wrappers pointing at freed memory. Ensure the returned objects remain
+    # readable after the call and after subsequent allocations.
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        err, n0 = cuda.cuGraphAddEmptyNode(graph, None, 0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, n1 = cuda.cuGraphAddEmptyNode(graph, [n0], 1)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, n2 = cuda.cuGraphAddEmptyNode(graph, [n0, n1], 2)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        err, _, _, _, num_edges = cuda.cuGraphGetEdges(graph)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert num_edges == 3
+        err, from_nodes, to_nodes, edge_data, num_edges = cuda.cuGraphGetEdges(graph, num_edges)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert len(edge_data) == num_edges == 3
+
+        # Stir the heap to make a use-after-free more likely to surface.
+        for _ in range(64):
+            err, _, _, _, _ = cuda.cuGraphGetEdges(graph, num_edges)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            err, _, _, _ = cuda.cuGraphNodeGetDependencies(n1, 1)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+
+        # Each wrapper must still own its data.
+        for ed in edge_data:
+            assert ed.from_port == 0
+            assert ed.to_port == 0
+            assert int(ed.type) == 0
+    finally:
+        (err,) = cuda.cuGraphDestroy(graph)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+def test_cuGraphNodeGetDependencies_edgeData_outlives_call(device, ctx):
+    # Companion regression test for #1804 covering the dependency-query path.
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        err, n0 = cuda.cuGraphAddEmptyNode(graph, None, 0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        err, n1 = cuda.cuGraphAddEmptyNode(graph, [n0], 1)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        err, _, _, num_deps = cuda.cuGraphNodeGetDependencies(n1)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert num_deps == 1
+        err, deps, edge_data, num_deps = cuda.cuGraphNodeGetDependencies(n1, num_deps)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert len(edge_data) == num_deps == 1
+
+        err, _, _, num_dependents = cuda.cuGraphNodeGetDependentNodes(n0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert num_dependents == 1
+        err, dependents, dep_edge_data, num_dependents = cuda.cuGraphNodeGetDependentNodes(n0, num_dependents)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert len(dep_edge_data) == num_dependents == 1
+
+        for _ in range(64):
+            err, _, _, _ = cuda.cuGraphNodeGetDependencies(n1, num_deps)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+            err, _, _, _ = cuda.cuGraphNodeGetDependentNodes(n0, num_dependents)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+
+        for ed in edge_data + dep_edge_data:
+            assert ed.from_port == 0
+            assert ed.to_port == 0
+            assert int(ed.type) == 0
+    finally:
+        (err,) = cuda.cuGraphDestroy(graph)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetLocalId(device, ctx):
@@ -1007,7 +1077,7 @@ def test_cuGraphNodeGetLocalId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetToolsId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetToolsId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetToolsId(device, ctx):
@@ -1036,7 +1106,7 @@ def test_cuGraphNodeGetToolsId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetContainingGraph"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetContainingGraph"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetContainingGraph(device, ctx):
@@ -1083,7 +1153,7 @@ def test_cuGraphNodeGetContainingGraph(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuStreamGetDevResource(device, ctx):
@@ -1102,7 +1172,7 @@ def test_cuStreamGetDevResource(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuDevSmResourceSplit(device, ctx):
@@ -1189,3 +1259,79 @@ def test_buffer_reference():
     ptr = ctypes.cast(memcpyParams.memcpy.copyParams.dstHost, ctypes.POINTER(ctypes.c_uint8))
     x = np.ctypeslib.as_array(ptr, shape=(size,))
     assert np.all(x == 2)
+
+
+def test_array_setter_no_double_free_after_clearing_with_empty_list():
+    # Regression test for a double-free in the generated setters for
+    # list-valued struct members (e.g. CUlaunchConfig.attrs,
+    # CUDA_MEM_ALLOC_NODE_PARAMS.accessDescs, ...). Assigning an empty list
+    # used to free the internal buffer but leave the cached pointer non-NULL;
+    # the next assignment (or __dealloc__) would call free() on that dangling
+    # pointer, causing a double-free that glibc aborts via SIGABRT.
+    #
+    # CUlaunchConfig.attrs is exercised here as one representative instance;
+    # the same pattern was applied across many setters in driver.pyx.in and
+    # runtime.pyx.in.
+    #
+    # The reproducer runs in a subprocess so that a glibc abort surfaces as
+    # a non-zero return code instead of tearing down the pytest process.
+    code = textwrap.dedent(
+        """
+        import cuda.bindings.driver as cuda
+
+        params = cuda.CUlaunchConfig()
+        # Allocate the internal buffer.
+        params.attrs = [cuda.CUlaunchAttribute() for _ in range(4)]
+        # Free it. Pre-fix, self._attrs is left pointing at freed memory.
+        params.attrs = []
+        # Length mismatch (0 vs 8) takes the else branch and calls free()
+        # again on the dangling pointer.
+        params.attrs = [cuda.CUlaunchAttribute() for _ in range(8)]
+        """
+    )
+    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, cwd=os.path.dirname(__file__))  # noqa: S603
+    assert proc.returncode == 0, (
+        f"reproducer subprocess exited with code {proc.returncode}; stderr: {proc.stderr.decode(errors='replace')}"
+    )
+
+
+def test_dealloc_clears_array_field_in_external_struct():
+    # Regression test for the externally-owned-memory case of the same bug.
+    #
+    # When a wrapper aliases an externally-owned struct (constructed with
+    # `_ptr=...`), `__dealloc__` used to free its internal buffer but leave
+    # `self._pvt_ptr[0].<field>` pointing at the freed memory. Anyone still
+    # holding the external struct (the owning wrapper, a parent struct, or
+    # the CUDA driver itself) would see a dangling pointer.
+    #
+    # CUlaunchConfig.attrs is exercised here as one representative instance;
+    # the same pattern was applied across the `__dealloc__` methods in
+    # driver.pyx.in and runtime.pyx.in.
+    outer = cuda.CUlaunchConfig()
+    # `inner` aliases the same underlying struct as `outer`.
+    inner = cuda.CUlaunchConfig(_ptr=outer.getPtr())
+    # Allocates a buffer and writes its pointer into the shared struct's
+    # `attrs` field.
+    inner.attrs = [cuda.CUlaunchAttribute() for _ in range(4)]
+
+    # Locate `attrs` in the C struct by scanning for the just-written
+    # pointer. The struct is small and only `attrs` is non-NULL.
+    struct_addr = outer.getPtr()
+    word_size = ctypes.sizeof(ctypes.c_void_p)
+    scan_words = 128 // word_size
+    words = (ctypes.c_void_p * scan_words).from_address(struct_addr)
+    attrs_offset = next(
+        (i * word_size for i, p in enumerate(words) if p),
+        None,
+    )
+    assert attrs_offset is not None, "attrs pointer was not written into the C struct"
+
+    # Destroy the wrapper. With the fix, __dealloc__ also clears the field
+    # in the externally-owned struct; without it, the field remains dangling.
+    del inner
+
+    attrs_after = ctypes.c_void_p.from_address(struct_addr + attrs_offset).value
+    assert attrs_after is None, (
+        f"external struct still holds a dangling pointer ({attrs_after:#x}) "
+        "where attrs was, after the aliasing wrapper was destroyed"
+    )

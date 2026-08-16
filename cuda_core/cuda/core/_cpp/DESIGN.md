@@ -41,6 +41,12 @@ Resource handles provide **referentially transparent** wrappers around CUDA reso
 This eliminates global lifetime analysis. Correctness is enforced structurally—if you
 have a handle, you have a valid resource.
 
+Handles to child graphs and their nodes are a narrow exception. These handles
+are borrowed references to CUDA resources owned by a mutable parent graph.
+Removing or replacing the owning graph node destroys those resources, forcing
+cuda-core to invalidate any outstanding handles. See
+[Graph Node Attachments](GRAPH_ATTACHMENTS.md).
+
 ## Handle Types
 
 All handles are `std::shared_ptr` aliases that expose only the raw CUDA resource:
@@ -204,6 +210,9 @@ struct StreamBox {
 
 The shared pointer's custom deleter captures any additional state needed for
 destruction. This ensures resources are always destroyed in the correct order.
+
+Graph node parameters require a specialized ownership model built on
+`OpaqueHandle`; see [Graph Node Attachments](GRAPH_ATTACHMENTS.md).
 
 ### GIL Management
 

@@ -1,22 +1,61 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a82258bb2654bea18f6bce657324bdbbee8b8b0b30d2a0021e792ba5f95fa9a4
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+cimport cpython as _cyb_cpython
+from libc.stdint cimport intptr_t
+
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
+    cdef intptr_t ptr
+    cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
+    if not readonly:
+        flags |= _cyb_cpython.PyBUF_WRITABLE
+    cdef int status = -1
+    cdef _cyb_cpython.Py_buffer view
+    if isinstance(buf, int):
+        ptr = <intptr_t>buf
+    else:
+        try:
+            status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
+            if size != -1:
+                assert view.len == size
+            assert view.ndim == 1
+        except Exception as e:
+            adj = "writable " if not readonly else ""
+            raise ValueError(
+                "buf must be either a Python int representing the pointer "
+                f"address to a valid buffer, or a 1D contiguous {adj}"
+                f"buffer, of size {size}"
+            ) from e
+        else:
+            ptr = <intptr_t>view.buf
+        finally:
+            if status == 0:
+                _cyb_cpython.PyBuffer_Release(&view)
+    return ptr
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 cimport cython  # NOQA
 
-from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
+from ._internal.utils cimport (get_nested_resource_ptr,
                                nested_resource)
-
-from cuda.bindings._internal._fast_enum import FastEnum as _IntEnum
 
 
 ###############################################################################
 # Enum
 ###############################################################################
 
-class Result(_IntEnum):
+class Result(_cyb_FastEnum):
     """
     NVVM API call result code.
 
@@ -85,8 +124,11 @@ cpdef str get_error_string(int result):
 
     .. seealso:: `nvvmGetErrorString`
     """
+    cdef const char *_output_cstr_
     cdef bytes _output_
-    _output_ = nvvmGetErrorString(<_Result>result)
+    with nogil:
+        _output_cstr_ = nvvmGetErrorString(<_Result>result)
+    _output_ = _output_cstr_
     return _output_.decode()
 
 
@@ -152,13 +194,15 @@ cpdef add_module_to_program(intptr_t prog, buffer, size_t size, name):
 
     Args:
         prog (intptr_t): NVVM program.
-        buffer (bytes): NVVM IR module in the bitcode or text representation.
+        buffer (bytes): NVVM IR module in the bitcode or text
+            representation.
         size (size_t): Size of the NVVM IR module.
-        name (str): Name of the NVVM IR module. If NULL, "<unnamed>" is used as the name.
+        name (str): Name of the NVVM IR module. If NULL, "<unnamed>"
+            is used as the name.
 
     .. seealso:: `nvvmAddModuleToProgram`
     """
-    cdef void* _buffer_ = get_buffer_pointer(buffer, size, readonly=True)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, size, readonly=True)
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
@@ -175,11 +219,12 @@ cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name):
         prog (intptr_t): NVVM program.
         buffer (bytes): NVVM IR module in the bitcode representation.
         size (size_t): Size of the NVVM IR module.
-        name (str): Name of the NVVM IR module. If NULL, "<unnamed>" is used as the name.
+        name (str): Name of the NVVM IR module. If NULL, "<unnamed>"
+            is used as the name.
 
     .. seealso:: `nvvmLazyAddModuleToProgram`
     """
-    cdef void* _buffer_ = get_buffer_pointer(buffer, size, readonly=True)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, size, readonly=True)
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
@@ -195,7 +240,8 @@ cpdef compile_program(intptr_t prog, int num_options, options):
     Args:
         prog (intptr_t): NVVM program.
         num_options (int): Number of compiler ``options`` passed.
-        options (object): Compiler options in the form of C string array. It can be:
+        options (object): Compiler options in the form of C string
+            array. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
@@ -218,7 +264,8 @@ cpdef verify_program(intptr_t prog, int num_options, options):
     Args:
         prog (intptr_t): NVVM program.
         num_options (int): Number of compiler ``options`` passed.
-        options (object): Compiler options in the form of C string array. It can be:
+        options (object): Compiler options in the form of C string
+            array. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
@@ -242,7 +289,8 @@ cpdef size_t get_compiled_result_size(intptr_t prog) except? 0:
         prog (intptr_t): NVVM program.
 
     Returns:
-        size_t: Size of the compiled result (including the trailing NULL).
+        size_t: Size of the compiled result (including the trailing
+            NULL).
 
     .. seealso:: `nvvmGetCompiledResultSize`
     """
@@ -262,7 +310,7 @@ cpdef get_compiled_result(intptr_t prog, buffer):
 
     .. seealso:: `nvvmGetCompiledResult`
     """
-    cdef void* _buffer_ = get_buffer_pointer(buffer, -1, readonly=False)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, -1, readonly=False)
     with nogil:
         __status__ = nvvmGetCompiledResult(<Program>prog, <char*>_buffer_)
     check_status(__status__)
@@ -275,7 +323,8 @@ cpdef size_t get_program_log_size(intptr_t prog) except? 0:
         prog (intptr_t): NVVM program.
 
     Returns:
-        size_t: Size of the compilation/verification log (including the trailing NULL).
+        size_t: Size of the compilation/verification log (including
+            the trailing NULL).
 
     .. seealso:: `nvvmGetProgramLogSize`
     """
@@ -295,7 +344,7 @@ cpdef get_program_log(intptr_t prog, buffer):
 
     .. seealso:: `nvvmGetProgramLog`
     """
-    cdef void* _buffer_ = get_buffer_pointer(buffer, -1, readonly=False)
+    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, -1, readonly=False)
     with nogil:
         __status__ = nvvmGetProgramLog(<Program>prog, <char*>_buffer_)
     check_status(__status__)
@@ -321,3 +370,4 @@ cpdef int llvm_version(arch) except? 0:
         __status__ = nvvmLLVMVersion(<const char*>_arch_, &major)
     check_status(__status__)
     return major
+del _cyb_FastEnum

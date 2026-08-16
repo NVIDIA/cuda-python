@@ -1,15 +1,58 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4f142d6dd069dd459052ff17e4e585b764e7a8b4298051df3c6c0d39e1c67ded
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+cimport cpython as _cyb_cpython
+from libc.stdint cimport (
+    intptr_t,
+    uint32_t,
+)
+
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
+    cdef intptr_t ptr
+    cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
+    if not readonly:
+        flags |= _cyb_cpython.PyBUF_WRITABLE
+    cdef int status = -1
+    cdef _cyb_cpython.Py_buffer view
+    if isinstance(buf, int):
+        ptr = <intptr_t>buf
+    else:
+        try:
+            status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
+            if size != -1:
+                assert view.len == size
+            assert view.ndim == 1
+        except Exception as e:
+            adj = "writable " if not readonly else ""
+            raise ValueError(
+                "buf must be either a Python int representing the pointer "
+                f"address to a valid buffer, or a 1D contiguous {adj}"
+                f"buffer, of size {size}"
+            ) from e
+        else:
+            ptr = <intptr_t>view.buf
+        finally:
+            if status == 0:
+                _cyb_cpython.PyBuffer_Release(&view)
+    return ptr
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
 
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
-                               get_buffer_pointer, get_resource_ptrs)
+                               get_resource_ptrs)
 
-from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 from libcpp.vector cimport vector
 
 
@@ -17,10 +60,10 @@ from libcpp.vector cimport vector
 # Enum
 ###############################################################################
 
-class Result(_FastEnum):
+class Result(_cyb_FastEnum):
     """
-    The enumerated type nvJitLinkResult defines API call result codes.
-    nvJitLink APIs return nvJitLinkResult codes to indicate the result.
+    The enumerated type `nvJitLinkResult` defines API call result codes.
+    nvJitLink APIs return `nvJitLinkResult` codes to indicate the result.
 
     See `nvJitLinkResult`.
     """
@@ -44,10 +87,10 @@ class Result(_FastEnum):
     ERROR_UNSUPPORTED_ARCH = (NVJITLINK_ERROR_UNSUPPORTED_ARCH, 'Unsupported -arch value')
     ERROR_LTO_NOT_ENABLED = (NVJITLINK_ERROR_LTO_NOT_ENABLED, 'Requires -lto')
 
-class InputType(_FastEnum):
+class InputType(_cyb_FastEnum):
     """
-    The enumerated type nvJitLinkInputType defines the kind of inputs that
-    can be passed to nvJitLinkAdd* APIs.
+    The enumerated type `nvJitLinkInputType` defines the kind of inputs
+    that can be passed to nvJitLinkAdd* APIs.
 
     See `nvJitLinkInputType`.
     """
@@ -105,11 +148,12 @@ cpdef destroy(intptr_t handle):
 
 
 cpdef intptr_t create(uint32_t num_options, options) except -1:
-    """nvJitLinkCreate creates an instance of nvJitLinkHandle with the given input options, and sets the output parameter ``handle``.
+    """nvJitLinkCreate creates an instance of ``nvJitLinkHandle`` with the given input options, and sets the output parameter ``handle``.
 
     Args:
         num_options (uint32_t): Number of options passed.
-        options (object): Array of size ``num_options`` of option strings. It can be:
+        options (object): Array of size ``num_options`` of option
+            strings. It can be:
 
             - an :class:`int` as the pointer address to the nested sequence, or
             - a Python sequence of :class:`int`\s, each of which is a pointer address
@@ -143,7 +187,7 @@ cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
 
     .. seealso:: `nvJitLinkAddData`
     """
-    cdef void* _data_ = get_buffer_pointer(data, size, readonly=True)
+    cdef void* _data_ = <void *>_cyb_get_buffer_pointer(data, size, readonly=True)
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
@@ -212,7 +256,7 @@ cpdef get_linked_cubin(intptr_t handle, cubin):
 
     .. seealso:: `nvJitLinkGetLinkedCubin`
     """
-    cdef void* _cubin_ = get_buffer_pointer(cubin, -1, readonly=False)
+    cdef void* _cubin_ = <void *>_cyb_get_buffer_pointer(cubin, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetLinkedCubin(<Handle>handle, <void*>_cubin_)
     check_status(__status__)
@@ -245,7 +289,7 @@ cpdef get_linked_ptx(intptr_t handle, ptx):
 
     .. seealso:: `nvJitLinkGetLinkedPtx`
     """
-    cdef void* _ptx_ = get_buffer_pointer(ptx, -1, readonly=False)
+    cdef void* _ptx_ = <void *>_cyb_get_buffer_pointer(ptx, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetLinkedPtx(<Handle>handle, <char*>_ptx_)
     check_status(__status__)
@@ -278,7 +322,7 @@ cpdef get_error_log(intptr_t handle, log):
 
     .. seealso:: `nvJitLinkGetErrorLog`
     """
-    cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
+    cdef void* _log_ = <void *>_cyb_get_buffer_pointer(log, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetErrorLog(<Handle>handle, <char*>_log_)
     check_status(__status__)
@@ -311,7 +355,7 @@ cpdef get_info_log(intptr_t handle, log):
 
     .. seealso:: `nvJitLinkGetInfoLog`
     """
-    cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
+    cdef void* _log_ = <void *>_cyb_get_buffer_pointer(log, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetInfoLog(<Handle>handle, <char*>_log_)
     check_status(__status__)
@@ -334,3 +378,37 @@ cpdef tuple version():
         __status__ = nvJitLinkVersion(&major, &minor)
     check_status(__status__)
     return (major, minor)
+
+
+cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0:
+    """nvJitLinkGetLinkedLTOIRSize gets the size of the linked LTOIR.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+
+    Returns:
+        size_t: Size of the linked LTOIR.
+
+    .. seealso:: `nvJitLinkGetLinkedLTOIRSize`
+    """
+    cdef size_t size
+    with nogil:
+        __status__ = nvJitLinkGetLinkedLTOIRSize(<Handle>handle, &size)
+    check_status(__status__)
+    return size
+
+
+cpdef get_linked_ltoir(intptr_t handle, ltoir):
+    """nvJitLinkGetLinkedLTOIR gets the linked LTOIR.
+
+    Args:
+        handle (intptr_t): nvJitLink handle.
+        ltoir (bytes): The linked LTOIR in Container format.
+
+    .. seealso:: `nvJitLinkGetLinkedLTOIR`
+    """
+    cdef void* _ltoir_ = <void *>_cyb_get_buffer_pointer(ltoir, -1, readonly=False)
+    with nogil:
+        __status__ = nvJitLinkGetLinkedLTOIR(<Handle>handle, <void*>_ltoir_)
+    check_status(__status__)
+del _cyb_FastEnum

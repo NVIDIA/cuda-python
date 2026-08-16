@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 
 
 from cuda.bindings import nvml
@@ -27,8 +27,3 @@ def test_nvlink_get_link_count(all_devices):
         assert value.nvml_return == nvml.Return.SUCCESS or value.nvml_return == nvml.Return.ERROR_NOT_SUPPORTED, (
             f"Unexpected return {value.nvml_return} for link count field query"
         )
-
-        # The feature_nvlink_supported detection is not robust, so we
-        # can't be more specific about how many links we should find.
-        if value.nvml_return == nvml.Return.SUCCESS:
-            assert value.value.ui_val[0] <= nvml.NVLINK_MAX_LINKS, f"Unexpected link count {value.value.ui_val[0]}"

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import functools
 import math
 
 # TODO: replace optional imports with pytest.importorskip
@@ -26,7 +27,7 @@ except ImportError:
     ml_dtypes = None
 import numpy as np
 import pytest
-from helpers.marks import requires_module
+from cuda_python_test_helpers.marks import requires_module
 
 from cuda.core import Device
 from cuda.core._dlpack import DLDeviceType
@@ -148,7 +149,7 @@ def _cpu_array_samples():
     return samples
 
 
-@pytest.mark.parametrize("in_arr,", _cpu_array_samples())
+@pytest.mark.parametrize("in_arr", _cpu_array_samples())
 class TestViewCPU:
     def test_args_viewable_as_strided_memory_cpu(self, in_arr):
         @args_viewable_as_strided_memory((0,))
@@ -676,20 +677,26 @@ def test_from_array_interface_unsupported_strides(init_cuda):
         StridedMemoryView.from_array_interface(b)
 
 
-def _make_cuda_array_interface_obj(*, shape, strides, typestr="<f8", data=(0, False), version=3):
-    return type(
-        "SyntheticCAI",
-        (),
-        {
-            "__cuda_array_interface__": {
-                "shape": shape,
-                "strides": strides,
-                "typestr": typestr,
-                "data": data,
-                "version": version,
-            }
-        },
-    )()
+def _make_interface_obj(attr_name, *, shape, strides, typestr="<f8", data=(0, False), version=3, **extra):
+    """Create an object exposing an array-interface dict as ``attr_name``.
+
+    ``version=None`` omits the key entirely, so tests can exercise interfaces
+    that don't declare a version. Extra kwargs are added to the interface dict.
+    """
+    iface = {
+        "shape": shape,
+        "strides": strides,
+        "typestr": typestr,
+        "data": data,
+    }
+    if version is not None:
+        iface["version"] = version
+    iface.update(extra)
+    return type(f"Synthetic{attr_name}", (), {attr_name: iface})()
+
+
+_make_cuda_array_interface_obj = functools.partial(_make_interface_obj, "__cuda_array_interface__")
+_make_array_interface_obj = functools.partial(_make_interface_obj, "__array_interface__")
 
 
 def test_from_cuda_array_interface_unsupported_strides(init_cuda):
@@ -902,54 +909,12 @@ def test_dlpack_export_unsupported_dtype_raises():
         bad_view.__dlpack__()
 
 
-class _FakeCAIv2:
-    """Object with CUDA Array Interface v2 (unsupported)."""
-
-    def __init__(self):
-        self.__cuda_array_interface__ = {
-            "version": 2,
-            "shape": (5,),
-            "typestr": "<f4",
-            "data": (0, False),
-        }
-
-
-class _FakeCAIWithMask:
-    """Object with CUDA Array Interface that has a mask."""
-
-    def __init__(self):
-        self.__cuda_array_interface__ = {
-            "version": 3,
-            "shape": (5,),
-            "typestr": "<f4",
-            "data": (0, False),
-            "mask": np.ones(5, dtype=bool),
-        }
-
-
-class _FakeArrayInterfacev2:
-    """Object with NumPy Array Interface v2 (unsupported)."""
-
-    def __init__(self, arr):
-        iface = dict(arr.__array_interface__)
-        iface["version"] = 2
-        self.__array_interface__ = iface
-
-
-class _FakeArrayInterfaceWithMask:
-    """Object with NumPy Array Interface that has a mask."""
-
-    def __init__(self, arr):
-        iface = dict(arr.__array_interface__)
-        iface["mask"] = np.ones(arr.shape, dtype=bool)
-        self.__array_interface__ = iface
-
-
-def test_cai_v2_rejected():
-    """CUDA Array Interface v2 raises BufferError."""
+@pytest.mark.parametrize("version", [2, None])
+def test_cai_version_rejected(version):
+    """CUDA Array Interface below v3 (or missing version) raises BufferError."""
     from cuda.core._memoryview import view_as_cai
 
-    obj = _FakeCAIv2()
+    obj = _make_cuda_array_interface_obj(shape=(5,), strides=None, version=version)
     with pytest.raises(BufferError, match="v3 or above"):
         view_as_cai(obj, stream_ptr=-1)
 
@@ -958,38 +923,26 @@ def test_cai_mask_rejected():
     """CUDA Array Interface with mask raises BufferError."""
     from cuda.core._memoryview import view_as_cai
 
-    obj = _FakeCAIWithMask()
+    obj = _make_cuda_array_interface_obj(shape=(5,), strides=None, mask=np.ones(5, dtype=bool))
     with pytest.raises(BufferError, match="mask is not supported"):
         view_as_cai(obj, stream_ptr=-1)
-
-
-class _FakeCAIv3:
-    """Valid CUDA Array Interface v3 object (for stream=None test)."""
-
-    def __init__(self):
-        self.__cuda_array_interface__ = {
-            "version": 3,
-            "shape": (5,),
-            "typestr": "<f4",
-            "data": (0, False),
-        }
 
 
 def test_cai_stream_none_rejected():
     """CUDA Array Interface with stream=None raises BufferError."""
     from cuda.core._memoryview import view_as_cai
 
-    obj = _FakeCAIv3()
+    obj = _make_cuda_array_interface_obj(shape=(5,), strides=None)
     with pytest.raises(BufferError, match="stream=None is ambiguous"):
         view_as_cai(obj, stream_ptr=None)
 
 
-def test_array_interface_v2_rejected():
-    """NumPy Array Interface v2 raises BufferError."""
+@pytest.mark.parametrize("version", [2, None])
+def test_array_interface_version_rejected(version):
+    """NumPy Array Interface below v3 (or missing version) raises BufferError."""
     from cuda.core._memoryview import view_as_array_interface
 
-    arr = np.zeros(5, dtype=np.float32)
-    obj = _FakeArrayInterfacev2(arr)
+    obj = _make_array_interface_obj(shape=(5,), strides=None, version=version)
     with pytest.raises(BufferError, match="v3 or above"):
         view_as_array_interface(obj)
 
@@ -998,8 +951,7 @@ def test_array_interface_mask_rejected():
     """NumPy Array Interface with mask raises BufferError."""
     from cuda.core._memoryview import view_as_array_interface
 
-    arr = np.zeros(5, dtype=np.float32)
-    obj = _FakeArrayInterfaceWithMask(arr)
+    obj = _make_array_interface_obj(shape=(5,), strides=None, mask=np.ones(5, dtype=bool))
     with pytest.raises(BufferError, match="mask is not supported"):
         view_as_array_interface(obj)
 
@@ -1036,3 +988,114 @@ def test_torch_tensor_bridge_dtypes(init_cuda, dtype):
     smv = StridedMemoryView.from_any_interface(a, stream_ptr=0)
     assert smv.dtype.itemsize == a.element_size()
     assert smv.ptr == a.data_ptr()
+
+
+def test_check_has_dlpack_plain_object_raises():
+    """StridedMemoryView.from_any_interface rejects objects with neither DLPack nor CAI."""
+
+    class _NoProto:
+        pass
+
+    with pytest.raises(BufferError, match="does not support any data exchange protocol"):
+        StridedMemoryView.from_any_interface(_NoProto(), stream_ptr=-1)
+
+
+def test_dlpack_export_non_native_endian_rejected():
+    """Non-native-endian dtypes are rejected for DLPack export."""
+    # Build a native int32 view first, then re-view with a byte-swapped dtype
+    # so the export-time check fires (input validation only sees the native dtype).
+    swapped = np.dtype(np.int32).newbyteorder("S")
+    src = np.zeros(3, dtype=np.int32)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1)
+    bad_view = view.view(dtype=swapped)
+    with pytest.raises(BufferError, match="Non-native-endian"):
+        bad_view.__dlpack__()
+
+
+def test_strided_memory_view_proxy_cai_only_has_dlpack_false():
+    """``_StridedMemoryViewProxy`` records ``has_dlpack=False`` for an object
+    that exposes only ``__cuda_array_interface__`` (check_has_dlpack CAI branch)."""
+    from cuda.core._memoryview import _StridedMemoryViewProxy
+
+    obj = _make_cuda_array_interface_obj(shape=(2,), strides=None)
+    proxy = _StridedMemoryViewProxy(obj)
+    assert proxy.has_dlpack is False
+    assert proxy.obj is obj
+
+
+def test_view_as_cai_device_pointer_and_stream_ordering(init_cuda):
+    """``view_as_cai`` on a real device pointer resolves the device ordinal via
+    ``cuPointerGetAttribute`` and takes the cross-stream branch when the CAI
+    ``stream`` differs from the consumer stream.
+
+    This only exercises the code path and checks *device* correctness (ptr,
+    device_id, shape); it does NOT verify stream-order correctness. Uses a
+    synthetic CAI object backed by a genuine device allocation, so the
+    cupy/numba-only device branch is exercised without those optional deps.
+    """
+    dev = init_cuda
+    buffer = dev.memory_resource.allocate(64, stream=dev.default_stream)
+    producer = dev.create_stream()
+    consumer = dev.create_stream()
+    obj = _make_cuda_array_interface_obj(
+        shape=(8,),
+        strides=None,
+        typestr="<f4",
+        data=(int(buffer.handle), False),
+    )
+    obj.__cuda_array_interface__["stream"] = int(producer.handle)
+
+    view = StridedMemoryView.from_cuda_array_interface(obj, stream_ptr=consumer.handle)
+
+    assert view.is_device_accessible is True
+    assert view.ptr == int(buffer.handle)
+    assert view.device_id == dev.device_id
+    assert view.shape == (8,)
+    dev.default_stream.sync()
+
+
+def test_strided_memory_view_init_cai_path_deprecated(init_cuda):
+    """The deprecated ``StridedMemoryView(obj)`` constructor routes a CAI-only
+    object through the CAI branch (warn + ``view_as_cai``), not the DLPack one."""
+    obj = _make_cuda_array_interface_obj(shape=(4,), strides=None, typestr="<f4", data=(0, False))
+    with pytest.deprecated_call(match="CUDA-array-interface-supporting object is deprecated"):
+        view = StridedMemoryView(obj, stream_ptr=-1)
+    assert view.is_device_accessible is True
+    assert view.shape == (4,)
+    assert view.device_id == init_cuda.device_id
+
+
+def test_dlpack_export_device_accessible_cai_view(init_cuda):
+    """Exporting a device-accessible CAI-backed view (no dl_tensor) drives the
+    ``_smv_get_dl_device`` branch that calls ``get_buffer``/``classify_dl_device``
+    and reports a CUDA device via ``__dlpack_device__``."""
+    dev = init_cuda
+    buffer = dev.memory_resource.allocate(64, stream=dev.default_stream)
+    obj = _make_cuda_array_interface_obj(
+        shape=(8,),
+        strides=None,
+        typestr="<f4",
+        data=(int(buffer.handle), False),
+    )
+    view = StridedMemoryView.from_cuda_array_interface(obj, stream_ptr=-1)
+
+    device_type, device_id = view.__dlpack_device__()
+    assert device_type == int(DLDeviceType.kDLCUDA)
+    assert device_id == dev.device_id
+
+    capsule = view.__dlpack__()
+    assert _PyCapsule_IsValid(capsule, b"dltensor") == 1
+    del capsule  # unconsumed -> deleter frees the managed tensor
+    dev.default_stream.sync()
+
+
+def test_strided_memory_view_repr_with_none_dtype(init_cuda):
+    """``__repr__`` of a view whose dtype is None renders the dtype via
+    ``get_simple_repr`` taking the builtins branch (NoneType)."""
+    dev = init_cuda
+    buffer = dev.memory_resource.allocate(16, stream=dev.default_stream)
+    view = StridedMemoryView.from_buffer(buffer, shape=(16,), itemsize=1, dtype=None)
+    assert view.dtype is None
+    r = repr(view)
+    assert r.startswith("StridedMemoryView(ptr=")
+    assert "dtype=NoneType" in r

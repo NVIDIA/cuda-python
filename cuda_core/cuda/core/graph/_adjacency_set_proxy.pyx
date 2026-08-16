@@ -15,39 +15,40 @@ from cuda.core._resource_handles cimport (
     graph_node_get_graph,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from collections.abc import MutableSet
+from collections.abc import Iterator, MutableSet, Set
+from typing import Any
 
 
 # ---- Python MutableSet wrapper ----------------------------------------------
 
-class AdjacencySetProxy(MutableSet):
+class AdjacencySetProxy(MutableSet[GraphNode]):
     """Mutable set proxy for a node's predecessors or successors.  Mutations
     write through to the underlying CUDA graph."""
 
     __slots__ = ("_core",)
 
-    def __init__(self, node, bint is_fwd):
+    def __init__(self, node: GraphNode, bint is_fwd) -> None:
         self._core = _AdjacencySetCore(node, is_fwd)
 
     # Used by operators such as &|^ to create non-proxy views when needed.
     @classmethod
-    def _from_iterable(cls, it):
+    def _from_iterable(cls, it) -> set[GraphNode]:
         return set(it)
 
     # --- abstract methods required by MutableSet ---
 
-    def __contains__(self, x):
+    def __contains__(self, x: object) -> bool:
         if not isinstance(x, GraphNode):
             return False
         return (<_AdjacencySetCore>self._core).contains(<GraphNode>x)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[GraphNode]:
         return iter((<_AdjacencySetCore>self._core).query())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return (<_AdjacencySetCore>self._core).count()
 
-    def add(self, value):
+    def add(self, value: GraphNode) -> None:
         if not isinstance(value, GraphNode):
             raise TypeError(
                 f"expected GraphNode, got {type(value).__name__}")
@@ -55,7 +56,7 @@ class AdjacencySetProxy(MutableSet):
             return
         (<_AdjacencySetCore>self._core).add_edge(<GraphNode>value)
 
-    def discard(self, value):
+    def discard(self, value: GraphNode) -> None:
         if not isinstance(value, GraphNode):
             return
         if value not in self:
@@ -64,13 +65,13 @@ class AdjacencySetProxy(MutableSet):
 
     # --- override for bulk efficiency ---
 
-    def clear(self):
+    def clear(self) -> None:
         """Remove all edges in a single driver call."""
         members = (<_AdjacencySetCore>self._core).query()
         if members:
             (<_AdjacencySetCore>self._core).remove_edges(members)
 
-    def __isub__(self, it):
+    def __isub__(self, it: Set[Any]) -> "AdjacencySetProxy":
         """Remove edges to all nodes in *it* in a single driver call."""
         if it is self:
             self.clear()
@@ -80,7 +81,7 @@ class AdjacencySetProxy(MutableSet):
                 (<_AdjacencySetCore>self._core).remove_edges(to_remove)
         return self
 
-    def update(self, *others):
+    def update(self, *others) -> None:
         """Add edges to multiple nodes at once."""
         nodes = []
         for other in others:
@@ -98,12 +99,12 @@ class AdjacencySetProxy(MutableSet):
         if new:
             (<_AdjacencySetCore>self._core).add_edges(new)
 
-    def __ior__(self, it):
+    def __ior__(self, it: Set[Any]) -> "AdjacencySetProxy":
         """Add edges to all nodes in *it* in a single driver call."""
         self.update(it)
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{" + ", ".join(repr(n) for n in self) + "}"
 
 
@@ -143,20 +144,23 @@ cdef class _AdjacencySetCore:
         cdef cydriver.CUgraphNode c_node = as_cu(self._h_node)
         if c_node == NULL:
             return []
-        cdef cydriver.CUgraphNode buf[16]
-        cdef size_t count = 16
+        cdef cydriver.CUgraphNode stack_buf[16]
+        cdef cydriver.CUgraphNode* nodes
+        cdef size_t count = 0
         cdef size_t i
         with nogil:
-            HANDLE_RETURN(self._query_fn(c_node, buf, &count))
-        if count <= 16:
-            return [GraphNode._create(self._h_graph, buf[i])
-                    for i in range(count)]
+            HANDLE_RETURN(self._query_fn(c_node, NULL, &count))
+        if count == 0:
+            return []
         cdef vector[cydriver.CUgraphNode] nodes_vec
-        nodes_vec.resize(count)
+        if count <= 16:
+            nodes = stack_buf
+        else:
+            nodes_vec.resize(count)
+            nodes = nodes_vec.data()
         with nogil:
-            HANDLE_RETURN(self._query_fn(
-                c_node, nodes_vec.data(), &count))
-        return [GraphNode._create(self._h_graph, nodes_vec[i])
+            HANDLE_RETURN(self._query_fn(c_node, nodes, &count))
+        return [GraphNode._create(self._h_graph, nodes[i])
                 for i in range(count)]
 
     cdef bint contains(self, GraphNode other):
@@ -164,27 +168,24 @@ cdef class _AdjacencySetCore:
         cdef cydriver.CUgraphNode target = as_cu(other._h_node)
         if c_node == NULL or target == NULL:
             return False
-        cdef cydriver.CUgraphNode buf[16]
-        cdef size_t count = 16
+        cdef cydriver.CUgraphNode stack_buf[16]
+        cdef cydriver.CUgraphNode* nodes
+        cdef size_t count = 0
         cdef size_t i
         with nogil:
-            HANDLE_RETURN(self._query_fn(c_node, buf, &count))
-
-        # Fast path for small sets.
-        if count <= 16:
-            for i in range(count):
-                if buf[i] == target:
-                    return True
+            HANDLE_RETURN(self._query_fn(c_node, NULL, &count))
+        if count == 0:
             return False
-
-        # Fallback for large sets.
         cdef vector[cydriver.CUgraphNode] nodes_vec
-        nodes_vec.resize(count)
+        if count <= 16:
+            nodes = stack_buf
+        else:
+            nodes_vec.resize(count)
+            nodes = nodes_vec.data()
         with nogil:
-            HANDLE_RETURN(self._query_fn(c_node, nodes_vec.data(), &count))
-        assert count == nodes_vec.size()
+            HANDLE_RETURN(self._query_fn(c_node, nodes, &count))
         for i in range(count):
-            if nodes_vec[i] == target:
+            if nodes[i] == target:
                 return True
         return False
 

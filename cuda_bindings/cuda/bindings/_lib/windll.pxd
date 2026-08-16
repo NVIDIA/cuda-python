@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 from libc.stddef cimport wchar_t
 from libc.stdint cimport uintptr_t
@@ -14,7 +14,7 @@ cdef extern from "windows.h" nogil:
     ctypedef const char *LPCSTR
     ctypedef int BOOL
 
-    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
+    const DWORD LOAD_LIBRARY_SEARCH_SYSTEM32
 
     HMODULE _LoadLibraryExW "LoadLibraryExW"(
         LPCWSTR lpLibFileName,

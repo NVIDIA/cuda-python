@@ -2,16 +2,35 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import weakref
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 
-from cuda.core.graph._graph_definition cimport GraphCondition
-from cuda.core.graph._utils cimport _attach_host_callback_to_graph
-from cuda.core._resource_handles cimport as_cu
+from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
+from cuda.core.graph._graph_node cimport GraphNode
+from cuda.core.graph._host_callback cimport _resolve_host_callback
+from cuda.core.graph._subclasses cimport (
+    ExecutableGraphNode,
+    create_executable_node_view,
+)
+from cuda.core._resource_handles cimport (
+    GraphExecHandle,
+    GraphHandle,
+    OpaqueHandle,
+    PreparedAttachment,
+    as_cu, as_py,
+    create_child_graph_handle, create_graph_exec_handle, create_graph_handle,
+    get_last_error,
+    graph_clone_attachments,
+    graph_commit_attachment,
+    graph_exec_update,
+    graph_prepare_attachment,
+    invalidate_child_graph_state,
+    retry_deferred_cleanup,
+)
 from cuda.core._stream cimport Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
@@ -21,6 +40,9 @@ from cuda.core._utils.cuda_utils import (
     driver,
     handle_return,
 )
+
+if TYPE_CHECKING:
+    from cuda.core.graph._graph_definition import GraphDefinition
 
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
@@ -147,22 +169,40 @@ class GraphCompleteOptions:
     use_node_priority: bool = False
 
 
-def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> "Graph":
-    params = driver.CUDA_GRAPH_INSTANTIATE_PARAMS()
+def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> Graph:
+    cdef GraphHandle h_graph
+    cdef GraphExecHandle h_exec
+
+    if isinstance(source, GraphBuilder):
+        h_graph = (<GraphBuilder>source)._h_graph
+    elif isinstance(source, GraphDefinition):
+        h_graph = (<GraphDefinition>source)._h_graph
+    else:
+        raise TypeError(
+            f"expected GraphBuilder or GraphDefinition, got {type(source).__name__}")
+
+    cdef cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS params = cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS(
+        flags=0,
+        hUploadStream=<cydriver.CUstream>NULL,
+        hErrNode_out=<cydriver.CUgraphNode>NULL,
+        result_out=cydriver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS,
+    )
     if options:
         flags = 0
         if options.auto_free_on_launch:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH
         if options.upload_stream:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD
-            params.hUploadStream = options.upload_stream.handle
+            params.hUploadStream = as_cu((<Stream>options.upload_stream)._h_stream)
         if options.device_launch:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_DEVICE_LAUNCH
         if options.use_node_priority:
             flags |= driver.CUgraphInstantiate_flags.CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
         params.flags = flags
 
-    graph = Graph._init(handle_return(driver.cuGraphInstantiateWithParams(h_graph, params)))
+    # The exec is adopted only when result_out reports success, so the
+    # diagnostics below run before the handle is checked.
+    h_exec = create_graph_exec_handle(h_graph, &params)
     if params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_ERROR:
         raise RuntimeError(
             "Instantiation failed for an unexpected reason which is described in the return value of the function."
@@ -182,10 +222,47 @@ def _instantiate_graph(h_graph, options: GraphCompleteOptions | None = None) -> 
         raise RuntimeError("One or more conditional handles are not associated with conditional builders.")
     elif params.result_out != driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS:
         raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
-    return graph
+
+    if as_cu(h_exec) == NULL:
+        HANDLE_RETURN(get_last_error())
+    return Graph._init(h_exec)
 
 
-class GraphBuilder:
+# Distinguishes the three kinds of GraphBuilder, which differ in how they
+# begin/end stream capture and whether they own the resulting CUgraph.
+# Each kind progresses through _CaptureState as follows:
+#
+#   PRIMARY:          NOT_STARTED -> CAPTURING -> ENDED
+#   FORKED:           CAPTURING (never transitions; joined and closed)
+#   CONDITIONAL_BODY: NOT_STARTED -> CAPTURING -> ENDED
+#
+cdef enum _BuilderKind:
+    # PRIMARY: The top-level builder created by Device or Stream. Owns the
+    # captured CUgraph via an owning GraphHandle. Progresses through all three
+    # capture states; responsible for ending capture if destroyed early.
+    PRIMARY = 0
+    # FORKED: Created by split(). Captures on a private stream forked from the
+    # primary. Starts in CAPTURING state and never transitions; the user joins
+    # it back to the primary via join(), which closes the builder.  Must NOT
+    # call cuStreamEndCapture (the driver requires all forked streams to be
+    # joined first).
+    FORKED = 1
+    # CONDITIONAL_BODY: Created by if_then/if_else/switch/while_loop. Captures
+    # into a non-owned body graph via cuStreamBeginCaptureToGraph. The body
+    # graph's lifetime is tied to a parent graph. Progresses through all three
+    # capture states like PRIMARY.
+    CONDITIONAL_BODY = 2
+
+
+# Tracks the capture lifecycle of a GraphBuilder.
+cdef enum _CaptureState:
+    CAPTURE_NOT_STARTED = 0
+    CAPTURING = 1
+    CAPTURE_ENDED = 2  # Finished, valid handle
+    CLOSED = 3         # No valid handle
+
+
+cdef class GraphBuilder:
     """A graph under construction by stream capture.
 
     A graph groups a set of CUDA kernels and other CUDA operations together and executes
@@ -196,67 +273,124 @@ class GraphBuilder:
     to ambiguity. New graph builders should instead be created through a
     :obj:`~_device.Device`, or a :obj:`~_stream.stream` object.
 
+    .. note::
+
+        Operations recorded during capture reference your memory but do not
+        take ownership of it. As with ordinary stream work, you must keep the
+        operands alive for as long as the completed graph may execute -- for
+        example, the :obj:`~_memory.Buffer` objects passed to :func:`~launch`
+        or :meth:`~_memory.Buffer.copy_to`. Host callbacks added with
+        :meth:`callback` are the exception: the callable (and any copied
+        ``user_data``) are retained for the graph's lifetime. This differs from
+        building a graph explicitly with :class:`~graph.GraphDefinition`, which
+        retains the operands it is given.
+
     """
-
-    class _MembersNeededForFinalize:
-        __slots__ = ("conditional_graph", "graph", "is_join_required", "is_stream_owner", "stream")
-
-        def __init__(self, graph_builder_obj, stream_obj, is_stream_owner, conditional_graph, is_join_required):
-            self.stream = stream_obj
-            self.is_stream_owner = is_stream_owner
-            self.graph = None
-            self.conditional_graph = conditional_graph
-            self.is_join_required = is_join_required
-            weakref.finalize(graph_builder_obj, self.close)
-
-        def close(self):
-            if self.stream:
-                if not self.is_join_required:
-                    capture_status = handle_return(driver.cuStreamGetCaptureInfo(self.stream.handle))[0]
-                    if capture_status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:
-                        # Note how this condition only occures for the primary graph builder
-                        # This is because calling cuStreamEndCapture streams that were split off of the primary
-                        # would error out with CUDA_ERROR_STREAM_CAPTURE_UNJOINED.
-                        # Therefore, it is currently a requirement that users join all split graph builders
-                        # before a graph builder can be clearly destroyed.
-                        handle_return(driver.cuStreamEndCapture(self.stream.handle))
-                if self.is_stream_owner:
-                    self.stream.close()
-            self.stream = None
-            if self.graph:
-                handle_return(driver.cuGraphDestroy(self.graph))
-            self.graph = None
-            self.conditional_graph = None
-
-    __slots__ = ("__weakref__", "_building_ended", "_mnff")
 
     def __init__(self):
         raise NotImplementedError(
-            "directly creating a Graph object can be ambiguous. Please either "
+            "directly creating a GraphBuilder object can be ambiguous. Please either "
             "call Device.create_graph_builder() or stream.create_graph_builder()"
         )
 
-    @classmethod
-    def _init(cls, stream, is_stream_owner, conditional_graph=None, is_join_required=False):
-        self = cls.__new__(cls)
-        self._mnff = GraphBuilder._MembersNeededForFinalize(
-            self, stream, is_stream_owner, conditional_graph, is_join_required
-        )
+    def __dealloc__(self):
+        GB_end_capture_if_needed(self, False)
 
-        self._building_ended = False
+    @staticmethod
+    def _init(Stream stream):
+        cdef GraphBuilder self = GraphBuilder.__new__(GraphBuilder)
+        # _h_graph set by begin_building
+        self._h_stream = stream._h_stream
+        self._kind = PRIMARY
+        self._state = CAPTURE_NOT_STARTED
+        self._stream = stream
         return self
+
+    def close(self):
+        """Destroy the graph builder."""
+        GB_end_capture_if_needed(self, True)
+        self._h_graph.reset()
+        self._h_stream.reset()
+        retry_deferred_cleanup()
+        self._state = CLOSED
+        self._stream = None
 
     @property
     def stream(self) -> Stream:
         """Returns the stream associated with the graph builder."""
-        return self._mnff.stream
+        return self._stream
 
     @property
     def is_join_required(self) -> bool:
         """Returns True if this graph builder must be joined before building is ended."""
-        return self._mnff.is_join_required
+        return self._kind == FORKED
 
-    def begin_building(self, mode="relaxed") -> GraphBuilder:
+    @property
+    def graph_definition(self) -> GraphDefinition:
+        """The captured graph as an explicit :class:`~graph.GraphDefinition`.
+
+        .. versionadded:: 1.1.0
+
+        The returned :class:`~graph.GraphDefinition` is a view of the same
+        graph this builder is producing: nodes added through it appear in
+        subsequent :meth:`complete` and :meth:`debug_dot_print` calls, and
+        the view stays valid even after the builder is closed.
+
+        This lets you mix the capture and explicit APIs on a single graph,
+        for example to inspect what was captured, augment it with extra
+        nodes, or build a conditional body entirely with the explicit API.
+
+        Availability:
+
+        - **Primary builders** (created by :meth:`Device.create_graph_builder`
+          or :meth:`Stream.create_graph_builder`): only after
+          :meth:`end_building`.
+
+        - **Conditional-body builders** (returned by :meth:`if_then`,
+          :meth:`if_else`, :meth:`while_loop`, :meth:`switch`): both before
+          :meth:`begin_building` and after :meth:`end_building`. The body
+          graph already exists when the conditional is created, so you may
+          populate it through this view without ever calling
+          :meth:`begin_building` on the body builder.
+
+        - **Forked builders** (returned by :meth:`split`): never. Forked
+          builders share the primary builder's graph; access it through the
+          primary instead.
+
+        Returns
+        -------
+        GraphDefinition
+            A view of the graph being built.
+
+        Raises
+        ------
+        RuntimeError
+            If the builder is closed, forked, currently building, or (for
+            primary builders) has not started building yet. A
+            :class:`~graph.GraphDefinition` obtained before :meth:`close`
+            keeps working; only fresh access through this property is
+            rejected once the builder is closed.
+        """
+        GB_check_open(self)
+        if self._kind == FORKED:
+            raise RuntimeError(
+                "graph_definition is unavailable on forked graph builders; "
+                "access it through the primary builder instead."
+            )
+        elif self._state == CAPTURING:
+            raise RuntimeError(
+                "graph_definition is unavailable while capture is in "
+                "progress; call end_building() first."
+            )
+        elif self._kind == PRIMARY:
+            if self._state == CAPTURE_NOT_STARTED:
+                raise RuntimeError(
+                    "graph_definition is unavailable before begin_building() on "
+                    "a primary builder; no graph has been created yet."
+                )
+        return GraphDefinition._from_handle(self._h_graph)
+
+    def begin_building(self, mode: str | None = "relaxed") -> GraphBuilder:
         """Begins the building process.
 
         Build `mode` for controlling interaction with other API calls must be one of the following:
@@ -272,64 +406,80 @@ class GraphBuilder:
             Default set to use relaxed.
 
         """
-        if self._building_ended:
-            raise RuntimeError("Cannot resume building after building has ended.")
-        if mode not in ("global", "thread_local", "relaxed"):
-            raise ValueError(f"Unsupported build mode: {mode}")
+        GB_check_open(self)
+        if self._state != CAPTURE_NOT_STARTED:
+            if self._state == CAPTURING:
+                raise RuntimeError("Graph builder is already building.")
+            else:
+                raise RuntimeError("Cannot resume building after building has ended.")
+        cdef cydriver.CUstreamCaptureMode c_mode
         if mode == "global":
-            capture_mode = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_GLOBAL
+            c_mode = cydriver.CU_STREAM_CAPTURE_MODE_GLOBAL
         elif mode == "thread_local":
-            capture_mode = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_THREAD_LOCAL
+            c_mode = cydriver.CU_STREAM_CAPTURE_MODE_THREAD_LOCAL
         elif mode == "relaxed":
-            capture_mode = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_RELAXED
+            c_mode = cydriver.CU_STREAM_CAPTURE_MODE_RELAXED
         else:
             raise ValueError(f"Unsupported build mode: {mode}")
 
-        if self._mnff.conditional_graph:
-            handle_return(
-                driver.cuStreamBeginCaptureToGraph(
-                    self._mnff.stream.handle,
-                    self._mnff.conditional_graph,
-                    None,  # dependencies
-                    None,  # dependencyData
-                    0,  # numDependencies
-                    capture_mode,
-                )
-            )
+        cdef cydriver.CUstream c_stream = as_cu(self._h_stream)
+        cdef cydriver.CUgraph c_graph
+        cdef cydriver.CUstreamCaptureStatus c_status
+        if self._kind == CONDITIONAL_BODY:
+            c_graph = as_cu(self._h_graph)
+            with nogil:
+                HANDLE_RETURN(cydriver.cuStreamBeginCaptureToGraph(
+                    c_stream, c_graph, NULL, NULL, 0, c_mode))
+            self._state = CAPTURING
         else:
-            handle_return(driver.cuStreamBeginCapture(self._mnff.stream.handle, capture_mode))
+            with nogil:
+                HANDLE_RETURN(cydriver.cuStreamBeginCapture(c_stream, c_mode))
+            # Capture is active now; set CAPTURING before the calls below so a
+            # failure in _get_capture_info/create_graph_handle still lets
+            # cleanup end the capture rather than leaving the stream poisoned.
+            self._state = CAPTURING
+            with nogil:
+                # The driver rejects a NULL captureStatus_out, so pass a
+                # stack-local even though we only want the graph handle.
+                _get_capture_info(c_stream, &c_status, &c_graph)
+            self._h_graph = create_graph_handle(c_graph)
         return self
 
     @property
     def is_building(self) -> bool:
         """Returns True if the graph builder is currently building."""
-        capture_status = handle_return(driver.cuStreamGetCaptureInfo(self._mnff.stream.handle))[0]
-        if capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:
+        GB_check_open(self)
+        cdef cydriver.CUstream c_stream = as_cu(self._h_stream)
+        cdef cydriver.CUstreamCaptureStatus status
+        with nogil:
+            _get_capture_info(c_stream, &status, NULL)
+        if status == cydriver.CU_STREAM_CAPTURE_STATUS_NONE:
             return False
-        elif capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
+        elif status == cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
             return True
-        elif capture_status == driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_INVALIDATED:
+        elif status == cydriver.CU_STREAM_CAPTURE_STATUS_INVALIDATED:
             raise RuntimeError(
                 "Build process encountered an error and has been invalidated. Build process must now be ended."
             )
         else:
-            raise NotImplementedError(f"Unsupported capture status type received: {capture_status}")
+            raise NotImplementedError(f"Unsupported capture status type received: {status}")
 
     def end_building(self) -> GraphBuilder:
         """Ends the building process."""
+        GB_check_open(self)
         if not self.is_building:
             raise RuntimeError("Graph builder is not building.")
-        if self._mnff.conditional_graph:
-            self._mnff.conditional_graph = handle_return(driver.cuStreamEndCapture(self.stream.handle))
-        else:
-            self._mnff.graph = handle_return(driver.cuStreamEndCapture(self.stream.handle))
+        cdef cydriver.CUstream c_stream = as_cu(self._h_stream)
+        cdef cydriver.CUgraph c_graph
+        with nogil:
+            HANDLE_RETURN(cydriver.cuStreamEndCapture(c_stream, &c_graph))
 
         # TODO: Resolving https://github.com/NVIDIA/cuda-python/issues/617 would allow us to
         #       resume the build process after the first call to end_building()
-        self._building_ended = True
+        self._state = CAPTURE_ENDED
         return self
 
-    def complete(self, options: GraphCompleteOptions | None = None) -> "Graph":
+    def complete(self, options: GraphCompleteOptions | None = None) -> Graph:
         """Completes the graph builder and returns the built :obj:`~graph.Graph` object.
 
         Parameters
@@ -343,12 +493,13 @@ class GraphBuilder:
             The newly built graph.
 
         """
-        if not self._building_ended:
+        GB_check_open(self)
+        if self._state != CAPTURE_ENDED:
             raise RuntimeError("Graph has not finished building.")
 
-        return _instantiate_graph(self._mnff.graph, options)
+        return _instantiate_graph(self, options)
 
-    def debug_dot_print(self, path, options: GraphDebugPrintOptions | None = None):
+    def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None = None) -> None:
         """Generates a DOT debug file for the graph builder.
 
         Parameters
@@ -359,10 +510,15 @@ class GraphBuilder:
             Customizable dataclass for the debug print options.
 
         """
-        if not self._building_ended:
+        GB_check_open(self)
+        if self._state != CAPTURE_ENDED:
             raise RuntimeError("Graph has not finished building.")
-        flags = options._to_flags() if options else 0
-        handle_return(driver.cuGraphDebugDotPrint(self._mnff.graph, path, flags))
+        cdef unsigned int c_flags = options._to_flags() if options else 0
+        cdef cydriver.CUgraph c_graph = as_cu(self._h_graph)
+        cdef bytes b_path = path.encode('utf-8')
+        cdef const char* c_path = b_path
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphDebugDotPrint(c_graph, c_path, c_flags))
 
     def split(self, count: int) -> tuple[GraphBuilder, ...]:
         """Splits the original graph builder into multiple graph builders.
@@ -384,20 +540,21 @@ class GraphBuilder:
         """
         if count < 2:
             raise ValueError(f"Invalid split count: expecting >= 2, got {count}")
+        GB_check_open(self)
+        if self._state != CAPTURING:
+            raise RuntimeError("Graph builder must be building before it can be split.")
 
-        event = self._mnff.stream.record()
+        event = self._stream.record()
         result = [self]
         for i in range(count - 1):
-            stream = self._mnff.stream.device.create_stream()
+            stream = self._stream.device.create_stream()
             stream.wait(event)
-            result.append(
-                GraphBuilder._init(stream=stream, is_stream_owner=True, conditional_graph=None, is_join_required=True)
-            )
+            result.append(GB_init_forked(stream, self._h_graph))
         event.close()
         return tuple(result)
 
     @staticmethod
-    def join(*graph_builders) -> GraphBuilder:
+    def join(*graph_builders: GraphBuilder) -> GraphBuilder:
         """Joins multiple graph builders into a single graph builder.
 
         The returned builder inherits work dependencies from the provided builders.
@@ -437,12 +594,13 @@ class GraphBuilder:
 
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
+        GB_check_open(self)
         return self.stream.__cuda_stream__()
 
     def _get_conditional_context(self) -> driver.CUcontext:
-        return self._mnff.stream.context.handle
+        return self._stream.context.handle
 
-    def create_condition(self, default_value=None) -> GraphCondition:
+    def create_condition(self, default_value: int | None = None) -> GraphCondition:
         """Create a condition variable for use with conditional nodes.
 
         The returned :class:`GraphCondition` object is passed to conditional-node
@@ -461,6 +619,7 @@ class GraphBuilder:
         GraphCondition
             A condition variable for controlling conditional execution.
         """
+        GB_check_open(self)
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional handles")
         if cy_binding_version() < (12, 3, 0):
@@ -471,7 +630,7 @@ class GraphBuilder:
             default_value = 0
             flags = 0
 
-        status, _, graph, *_, _ = handle_return(driver.cuStreamGetCaptureInfo(self._mnff.stream.handle))
+        status, _, graph, *_, _ = handle_return(driver.cuStreamGetCaptureInfo(self._stream.handle))
         if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
             raise RuntimeError("Cannot create a condition when graph is not being built")
 
@@ -479,42 +638,6 @@ class GraphBuilder:
             driver.cuGraphConditionalHandleCreate(graph, self._get_conditional_context(), default_value, flags)
         )
         return GraphCondition._from_handle(<cydriver.CUgraphConditionalHandle><intptr_t>int(raw_handle))
-
-    def _cond_with_params(self, node_params) -> tuple:
-        # Get current capture info to ensure we're in a valid state
-        status, _, graph, *deps_info, num_dependencies = handle_return(
-            driver.cuStreamGetCaptureInfo(self._mnff.stream.handle)
-        )
-        if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
-            raise RuntimeError("Cannot add conditional node when not actively capturing")
-
-        # Add the conditional node to the graph
-        deps_info_update = [
-            [handle_return(driver.cuGraphAddNode(graph, *deps_info, num_dependencies, node_params))]
-        ] + [None] * (len(deps_info) - 1)
-
-        # Update the stream's capture dependencies
-        handle_return(
-            driver.cuStreamUpdateCaptureDependencies(
-                self._mnff.stream.handle,
-                *deps_info_update,  # dependencies, edgeData
-                1,  # numDependencies
-                driver.CUstreamUpdateCaptureDependencies_flags.CU_STREAM_SET_CAPTURE_DEPENDENCIES,
-            )
-        )
-
-        # Create new graph builders for each condition
-        return tuple(
-            [
-                GraphBuilder._init(
-                    stream=self._mnff.stream.device.create_stream(),
-                    is_stream_owner=True,
-                    conditional_graph=node_params.conditional.phGraph_out[i],
-                    is_join_required=False,
-                )
-                for i in range(node_params.conditional.size)
-            ]
-        )
 
     def if_then(self, condition: GraphCondition) -> GraphBuilder:
         """Adds an if condition branch and returns a new graph builder for it.
@@ -536,6 +659,7 @@ class GraphBuilder:
             The newly created conditional graph builder.
 
         """
+        GB_check_open(self)
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if")
         if cy_binding_version() < (12, 3, 0):
@@ -550,7 +674,7 @@ class GraphBuilder:
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
         node_params.conditional.size = 1
         node_params.conditional.ctx = self._get_conditional_context()
-        return self._cond_with_params(node_params)[0]
+        return GB_cond_with_params(self, node_params)[0]
 
     def if_else(self, condition: GraphCondition) -> tuple[GraphBuilder, GraphBuilder]:
         """Adds an if-else condition branch and returns new graph builders for both branches.
@@ -572,6 +696,7 @@ class GraphBuilder:
             A tuple of two new graph builders, one for the if branch and one for the else branch.
 
         """
+        GB_check_open(self)
         if cy_driver_version() < (12, 8, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if-else")
         if cy_binding_version() < (12, 8, 0):
@@ -586,7 +711,7 @@ class GraphBuilder:
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
         node_params.conditional.size = 2
         node_params.conditional.ctx = self._get_conditional_context()
-        return self._cond_with_params(node_params)
+        return GB_cond_with_params(self, node_params)
 
     def switch(self, condition: GraphCondition, count: int) -> tuple[GraphBuilder, ...]:
         """Adds a switch condition branch and returns new graph builders for all cases.
@@ -611,6 +736,7 @@ class GraphBuilder:
             A tuple of new graph builders, one for each branch.
 
         """
+        GB_check_open(self)
         if cy_driver_version() < (12, 8, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional switch")
         if cy_binding_version() < (12, 8, 0):
@@ -625,7 +751,7 @@ class GraphBuilder:
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_SWITCH
         node_params.conditional.size = count
         node_params.conditional.ctx = self._get_conditional_context()
-        return self._cond_with_params(node_params)
+        return GB_cond_with_params(self, node_params)
 
     def while_loop(self, condition: GraphCondition) -> GraphBuilder:
         """Adds a while loop and returns a new graph builder for it.
@@ -647,6 +773,7 @@ class GraphBuilder:
             The newly created while loop graph builder.
 
         """
+        GB_check_open(self)
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional while loop")
         if cy_binding_version() < (12, 3, 0):
@@ -661,18 +788,9 @@ class GraphBuilder:
         node_params.conditional.type = driver.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_WHILE
         node_params.conditional.size = 1
         node_params.conditional.ctx = self._get_conditional_context()
-        return self._cond_with_params(node_params)[0]
+        return GB_cond_with_params(self, node_params)[0]
 
-    def close(self):
-        """Destroy the graph builder.
-
-        Closes the associated stream if we own it. Borrowed stream
-        object will instead have their references released.
-
-        """
-        self._mnff.close()
-
-    def embed(self, child: GraphBuilder):
+    def embed(self, GraphBuilder child):
         """Embed a previously-built :obj:`~graph.GraphBuilder` as a child node.
 
         Parameters
@@ -680,29 +798,50 @@ class GraphBuilder:
         child : :obj:`~graph.GraphBuilder`
             The child graph builder. Must have finished building.
         """
-        if not child._building_ended:
+        GB_check_open(self)
+        if child._state != CAPTURE_ENDED:
             raise ValueError("Child graph has not finished building.")
 
         if not self.is_building:
             raise ValueError("Parent graph is not being built.")
 
-        stream_handle = self._mnff.stream.handle
+        stream_handle = self._stream.handle
         _, _, graph_out, *deps_info_out, num_dependencies_out = handle_return(
             driver.cuStreamGetCaptureInfo(stream_handle)
         )
 
         # See https://github.com/NVIDIA/cuda-python/pull/879#issuecomment-3211054159
         # for rationale
-        deps_info_trimmed = deps_info_out[:num_dependencies_out]
-        deps_info_update = [
-            [
-                handle_return(
-                    driver.cuGraphAddChildGraphNode(
-                        graph_out, *deps_info_trimmed, num_dependencies_out, child._mnff.graph
-                    )
-                )
-            ]
-        ] + [None] * (len(deps_info_out) - 1)
+        dependencies_out = deps_info_out[0]
+        new_node = handle_return(
+            driver.cuGraphAddChildGraphNode(
+                graph_out, dependencies_out,
+                num_dependencies_out, as_py(child._h_graph)
+            )
+        )
+        cdef cydriver.CUgraphNode c_new_node = (
+            <cydriver.CUgraphNode><intptr_t>int(new_node)
+        )
+        cdef cydriver.CUgraph embedded_graph = NULL
+        cdef cydriver.CUresult rollback_status
+        cdef GraphHandle h_embedded
+        try:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphChildGraphNodeGetGraph(
+                    c_new_node, &embedded_graph))
+            h_embedded = create_child_graph_handle(
+                embedded_graph, self._h_graph, c_new_node)
+            HANDLE_RETURN(graph_clone_attachments(
+                h_embedded, child._h_graph))
+        except:
+            with nogil:
+                rollback_status = cydriver.cuGraphDestroyNode(c_new_node)
+            if rollback_status == cydriver.CUDA_SUCCESS:
+                invalidate_child_graph_state(
+                    self._h_graph, c_new_node)
+            raise
+
+        deps_info_update = [[new_node]] + [None] * (len(deps_info_out) - 1)
         handle_return(
             driver.cuStreamUpdateCaptureDependencies(
                 stream_handle,
@@ -712,7 +851,7 @@ class GraphBuilder:
             )
         )
 
-    def callback(self, fn, *, user_data=None):
+    def callback(self, fn, *, user_data=None) -> None:
         """Add a host callback to the graph during stream capture.
 
         The callback runs on the host CPU when the graph reaches this point
@@ -721,15 +860,22 @@ class GraphBuilder:
         - **Python callable**: Pass any callable. The GIL is acquired
           automatically. The callable must take no arguments; use closures
           or ``functools.partial`` to bind state.
-        - **ctypes function pointer**: Pass a ``ctypes.CFUNCTYPE`` instance.
-          The function receives a single ``void*`` argument (the
-          ``user_data``). The caller must keep the ctypes wrapper alive
-          for the lifetime of the graph.
+        - **ctypes function pointer**: The function receives a single
+          ``void*`` argument (the ``user_data``), and the caller must keep
+          the ctypes wrapper alive for the lifetime of the graph. Its
+          declared prototype must match the driver's ``CUhostFn``
+          (``void (*)(void*)``): ``ctypes.CFUNCTYPE(None, ctypes.c_void_p)``,
+          or ``ctypes.WINFUNCTYPE(None, ctypes.c_void_p)`` on Windows.
 
         .. warning::
 
             Callbacks must not call CUDA API functions. Doing so may
             deadlock or corrupt driver state.
+
+            Use caution when a Python callback retains an object that owns a
+            graph. Any reference cycle involving the callback and a graph that
+            retains it cannot be broken by Python's cyclic garbage collector.
+            Use a weak reference to break such cycles.
 
         Parameters
         ----------
@@ -739,32 +885,200 @@ class GraphBuilder:
             Only for ctypes function pointers. If ``int``, passed as a raw
             pointer (caller manages lifetime). If bytes-like, the data is
             copied and its lifetime is tied to the graph.
+
+        Raises
+        ------
+        TypeError
+            If ``fn`` is a ctypes function pointer whose declared prototype
+            does not match ``CUhostFn``.
+        ValueError
+            If ``user_data`` is given for a Python callable.
         """
-        cdef Stream stream = <Stream>self._mnff.stream
-        cdef cydriver.CUstream c_stream = as_cu(stream._h_stream)
-        cdef cydriver.CUstreamCaptureStatus capture_status
-        cdef cydriver.CUgraph c_graph = NULL
+        GB_callback(self, fn, user_data, False)
 
+
+cdef inline void GB_callback(
+        GraphBuilder gb, object fn, object user_data,
+        bint fail_tail_discovery_for_testing) except *:
+    GB_check_open(gb)
+    cdef Stream stream = gb._stream
+    cdef cydriver.CUstream c_stream = as_cu(stream._h_stream)
+    cdef cydriver.CUstreamCaptureStatus capture_status
+
+    with nogil:
+        _get_capture_info(c_stream, &capture_status, NULL)
+
+    if capture_status != cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
+        raise RuntimeError("Cannot add callback when graph is not being built")
+
+    cdef cydriver.CUhostFn c_fn
+    cdef void* c_user_data = NULL
+    cdef OpaqueHandle fn_owner, data_owner
+    cdef PreparedAttachment prepared
+    _resolve_host_callback(
+        fn, user_data, &c_fn, &c_user_data, &fn_owner, &data_owner)
+    HANDLE_RETURN(graph_prepare_attachment(
+        gb._h_graph, fn_owner, data_owner, &prepared))
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
+
+    # Capturing the host function added a node to the graph; it is now the
+    # stream's sole capture dependency. Attach the callback's owners to it.
+    cdef cydriver.CUgraphNode host_node
+    cdef cydriver.CUresult commit_status
+    try:
+        if fail_tail_discovery_for_testing:
+            raise RuntimeError("forced capture tail discovery failure")
+        host_node = _capture_tail_node(c_stream)
+    except:
+        # CUDA added the callback, but its node cannot be identified.
+        # Retain its owners anonymously to prevent dangling pointers.
+        commit_status = graph_commit_attachment(prepared, NULL)
+        HANDLE_RETURN(commit_status)
+        raise
+    HANDLE_RETURN(graph_commit_attachment(prepared, host_node))
+
+
+def _capture_callback_with_tail_failure_for_testing(
+        GraphBuilder gb, fn, *, user_data=None):
+    """Exercise anonymous attachment retention after node discovery fails."""
+    GB_callback(gb, fn, user_data, True)
+
+
+cdef inline int GB_check_open(GraphBuilder gb) except -1:
+    """Reject operations on a builder that has been closed.
+
+    A CLOSED builder has reset its stream and graph handles, so any method
+    that dereferences them would read a null handle (or, for the cached
+    Stream, a None typed as cdef Stream). Guarding here yields a clear error
+    instead.
+    """
+    if gb._state == CLOSED:
+        raise RuntimeError("Graph builder has been closed.")
+    return 0
+
+
+cdef inline int GB_end_capture_if_needed(GraphBuilder gb, bint check_status) except -1 nogil:
+    """End an in-progress capture if this builder owns it.
+
+    Only a CAPTURING PRIMARY or CONDITIONAL_BODY builder owns the live
+    capture. A FORKED builder must not call cuStreamEndCapture: the driver
+    requires forked streams to be joined first.
+
+    check_status=True checks the driver return (close()); False ignores it
+    (__dealloc__).
+    """
+    cdef cydriver.CUgraph c_graph
+    cdef cydriver.CUresult err
+    cdef cydriver.CUstream c_stream
+    if gb._h_stream and gb._state == CAPTURING and gb._kind != FORKED:
+        c_stream = as_cu(gb._h_stream)
         with nogil:
-            IF CUDA_CORE_BUILD_MAJOR >= 13:
-                HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
-                    c_stream, &capture_status, NULL, &c_graph, NULL, NULL, NULL))
-            ELSE:
-                HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
-                    c_stream, &capture_status, NULL, &c_graph, NULL, NULL))
-
-        if capture_status != cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:
-            raise RuntimeError("Cannot add callback when graph is not being built")
-
-        cdef cydriver.CUhostFn c_fn
-        cdef void* c_user_data = NULL
-        _attach_host_callback_to_graph(c_graph, fn, user_data, &c_fn, &c_user_data)
-
-        with nogil:
-            HANDLE_RETURN(cydriver.cuLaunchHostFunc(c_stream, c_fn, c_user_data))
+            err = cydriver.cuStreamEndCapture(c_stream, &c_graph)
+            if check_status:
+                HANDLE_RETURN(err)
+    return 0
 
 
-class Graph:
+cdef inline GraphBuilder GB_init_forked(Stream stream, GraphHandle h_primary_graph):
+    cdef GraphBuilder gb = GraphBuilder.__new__(GraphBuilder)
+    # A FORKED builder captures into the primary's CUgraph. It holds the
+    # primary's GraphHandle so conditional bodies share its graph hierarchy.
+    gb._h_graph = h_primary_graph
+    gb._h_stream = stream._h_stream
+    gb._kind = FORKED
+    gb._state = CAPTURING
+    gb._stream = stream
+    return gb
+
+
+cdef inline GraphBuilder GB_init_conditional(
+        Stream stream, cydriver.CUgraph cond_graph,
+        GraphBuilder parent, cydriver.CUgraphNode owner_node):
+    cdef GraphBuilder gb = GraphBuilder.__new__(GraphBuilder)
+    gb._h_graph = create_child_graph_handle(
+        cond_graph, parent._h_graph, owner_node)
+    gb._h_stream = stream._h_stream
+    gb._kind = CONDITIONAL_BODY
+    gb._state = CAPTURE_NOT_STARTED
+    gb._stream = stream
+    return gb
+
+
+cdef inline int _get_capture_info(
+        cydriver.CUstream stream,
+        cydriver.CUstreamCaptureStatus* status,
+        cydriver.CUgraph* graph) except?-1 nogil:
+    """Thin wrapper around ``cuStreamGetCaptureInfo`` that papers over the
+    CUDA 12 vs 13 signature change.
+
+    ``status`` must be non-NULL: the driver rejects ``captureStatus_out=NULL``
+    with ``CUDA_ERROR_INVALID_VALUE``. ``graph`` may be NULL when the caller
+    does not need the graph handle.
+    """
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        return HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
+            stream, status, NULL, graph, NULL, NULL, NULL))
+    ELSE:
+        return HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
+            stream, status, NULL, graph, NULL, NULL))
+
+
+cdef inline cydriver.CUgraphNode _capture_tail_node(cydriver.CUstream stream) except *:
+    """Return the node a freshly-captured single-node operation left as the
+    stream's sole capture dependency (e.g. the host node added by
+    ``cuLaunchHostFunc``). The driver advances the stream's dependency set to
+    the new node, so the next captured op would depend on it.
+    """
+    cdef cydriver.CUstreamCaptureStatus status
+    cdef const cydriver.CUgraphNode* deps = NULL
+    cdef size_t num_deps = 0
+    with nogil:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
+                stream, &status, NULL, NULL, &deps, NULL, &num_deps))
+        ELSE:
+            HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(
+                stream, &status, NULL, NULL, &deps, &num_deps))
+    if num_deps != 1:
+        raise RuntimeError(
+            f"expected exactly one capture dependency after a host callback, got {num_deps}")
+    return <cydriver.CUgraphNode>deps[0]
+
+
+cdef inline tuple GB_cond_with_params(GraphBuilder gb, node_params):
+    status, _, graph, *deps_info, num_dependencies = handle_return(
+        driver.cuStreamGetCaptureInfo(gb._stream.handle)
+    )
+    if status != driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
+        raise RuntimeError("Cannot add conditional node when not actively capturing")
+
+    new_node = handle_return(
+        driver.cuGraphAddNode(graph, *deps_info, num_dependencies, node_params))
+    deps_info_update = [[new_node]] + [None] * (len(deps_info) - 1)
+
+    handle_return(
+        driver.cuStreamUpdateCaptureDependencies(
+            gb._stream.handle,
+            *deps_info_update,  # dependencies, edgeData
+            1,  # numDependencies
+            driver.CUstreamUpdateCaptureDependencies_flags.CU_STREAM_SET_CAPTURE_DEPENDENCIES,
+        )
+    )
+
+    return tuple(
+        GB_init_conditional(
+            gb._stream.device.create_stream(),
+            <cydriver.CUgraph><intptr_t>int(node_params.conditional.phGraph_out[i]),
+            gb,
+            <cydriver.CUgraphNode><intptr_t>int(new_node),
+        )
+        for i in range(node_params.conditional.size)
+    )
+
+
+cdef class Graph:
     """An executable graph.
 
     A graph groups a set of CUDA kernels and other CUDA operations together and executes
@@ -775,32 +1089,19 @@ class Graph:
 
     """
 
-    class _MembersNeededForFinalize:
-        __slots__ = "graph"
-
-        def __init__(self, graph_obj, graph):
-            self.graph = graph
-            weakref.finalize(graph_obj, self.close)
-
-        def close(self):
-            if self.graph:
-                handle_return(driver.cuGraphExecDestroy(self.graph))
-                self.graph = None
-
-    __slots__ = ("__weakref__", "_mnff")
-
     def __init__(self):
         raise RuntimeError("directly constructing a Graph instance is not supported")
 
-    @classmethod
-    def _init(cls, graph):
-        self = cls.__new__(cls)
-        self._mnff = Graph._MembersNeededForFinalize(self, graph)
+    @staticmethod
+    cdef Graph _init(GraphExecHandle h_graph_exec):
+        cdef Graph self = Graph.__new__(Graph)
+        self._h_graph_exec = h_graph_exec
         return self
 
-    def close(self):
+    def close(self) -> None:
         """Destroy the graph."""
-        self._mnff.close()
+        self._h_graph_exec.reset()
+        retry_deferred_cleanup()
 
     @property
     def handle(self) -> driver.CUgraphExec:
@@ -812,7 +1113,18 @@ class Graph:
             handle, call ``int()`` on the returned object.
 
         """
-        return self._mnff.graph
+        return as_py(self._h_graph_exec)
+
+    def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
+        """Return a view for updating *node* in this executable graph.
+
+        *node* is a definition node from the graph used to instantiate this
+        executable. Call ``update()`` on the returned view to replace that
+        node's parameters for future launches. Kernel, memcpy, and memset
+        views also support enabling and disabling the node.
+        """
+        return create_executable_node_view(
+            self._h_graph_exec, node)
 
     def update(self, source: "GraphBuilder | GraphDefinition") -> None:
         """Update the graph using a new graph definition.
@@ -826,32 +1138,30 @@ class Graph:
             finished building.
 
         """
-        from cuda.core.graph import GraphDefinition
-
-        cdef cydriver.CUgraph cu_graph
-        cdef cydriver.CUgraphExec cu_exec = <cydriver.CUgraphExec><intptr_t>int(self._mnff.graph)
+        cdef GraphHandle h_source
 
         if isinstance(source, GraphBuilder):
-            if not source._building_ended:
+            if (<GraphBuilder>source)._state == CLOSED:
+                raise ValueError("Source graph builder has been closed.")
+            if (<GraphBuilder>source)._state != CAPTURE_ENDED:
                 raise ValueError("Graph has not finished building.")
-            cu_graph = <cydriver.CUgraph><intptr_t>int(source._mnff.graph)
+            h_source = (<GraphBuilder>source)._h_graph
         elif isinstance(source, GraphDefinition):
-            cu_graph = <cydriver.CUgraph><intptr_t>int(source.handle)
+            h_source = (<GraphDefinition>source)._h_graph
         else:
             raise TypeError(
                 f"expected GraphBuilder or GraphDefinition, got {type(source).__name__}")
 
         cdef cydriver.CUgraphExecUpdateResultInfo result_info
-        cdef cydriver.CUresult err
-        with nogil:
-            err = cydriver.cuGraphExecUpdate(cu_exec, cu_graph, &result_info)
+        cdef cydriver.CUresult err = graph_exec_update(
+            self._h_graph_exec, h_source, &result_info)
         if err == cydriver.CUresult.CUDA_ERROR_GRAPH_EXEC_UPDATE_FAILURE:
             reason = driver.CUgraphExecUpdateResult(result_info.result)
             msg = f"Graph update failed: {reason.__doc__.strip()} ({reason.name})"
             raise CUDAError(msg)
         HANDLE_RETURN(err)
 
-    def upload(self, stream: Stream):
+    def upload(self, stream: Stream) -> None:
         """Uploads the graph in a stream.
 
         Parameters
@@ -860,9 +1170,12 @@ class Graph:
             The stream in which to upload the graph
 
         """
-        handle_return(driver.cuGraphUpload(self._mnff.graph, stream.handle))
+        cdef cydriver.CUgraphExec c_exec = as_cu(self._h_graph_exec)
+        cdef cydriver.CUstream c_stream = <cydriver.CUstream><intptr_t>int(stream.handle)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphUpload(c_exec, c_stream))
 
-    def launch(self, stream: Stream):
+    def launch(self, stream: Stream) -> None:
         """Launches the graph in a stream.
 
         Parameters
@@ -871,4 +1184,7 @@ class Graph:
             The stream in which to launch the graph.
 
         """
-        handle_return(driver.cuGraphLaunch(self._mnff.graph, stream.handle))
+        cdef cydriver.CUgraphExec c_exec = as_cu(self._h_graph_exec)
+        cdef cydriver.CUstream c_stream = <cydriver.CUstream><intptr_t>int(stream.handle)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphLaunch(c_exec, c_stream))

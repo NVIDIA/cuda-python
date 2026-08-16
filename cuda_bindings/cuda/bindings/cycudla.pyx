@@ -1,0 +1,77 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9e8c534ff8b9d4e348af657e66d81b4758d90e7a3b840705267282c5cc4e8093
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    uint32_t,
+    uint64_t,
+    uint8_t,
+)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+from ._internal cimport cudla as _cudla
+
+
+
+
+###############################################################################
+# Wrapper functions
+###############################################################################
+
+cdef cudlaStatus cudlaGetVersion(uint64_t* const version) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaGetVersion(version)
+
+
+cdef cudlaStatus cudlaDeviceGetCount(uint64_t* const pNumDevices) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaDeviceGetCount(pNumDevices)
+
+
+cdef cudlaStatus cudlaCreateDevice(const uint64_t device, cudlaDevHandle* const devHandle, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaCreateDevice(device, devHandle, flags)
+
+
+cdef cudlaStatus cudlaMemRegister(const cudlaDevHandle devHandle, const uint64_t* const ptr, const size_t size, uint64_t** const devPtr, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaMemRegister(devHandle, ptr, size, devPtr, flags)
+
+
+cdef cudlaStatus cudlaModuleLoadFromMemory(const cudlaDevHandle devHandle, const uint8_t* const pModule, const size_t moduleSize, cudlaModule* const hModule, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaModuleLoadFromMemory(devHandle, pModule, moduleSize, hModule, flags)
+
+
+cdef cudlaStatus cudlaModuleGetAttributes(const cudlaModule hModule, const cudlaModuleAttributeType attrType, cudlaModuleAttribute* const attribute) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaModuleGetAttributes(hModule, attrType, attribute)
+
+
+cdef cudlaStatus cudlaModuleUnload(const cudlaModule hModule, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaModuleUnload(hModule, flags)
+
+
+cdef cudlaStatus cudlaSubmitTask(const cudlaDevHandle devHandle, const cudlaTask* const ptrToTasks, const uint32_t numTasks, void* const stream, const uint32_t flags) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaSubmitTask(devHandle, ptrToTasks, numTasks, stream, flags)
+
+
+cdef cudlaStatus cudlaDeviceGetAttribute(const cudlaDevHandle devHandle, const cudlaDevAttributeType attrib, cudlaDevAttribute* const pAttribute) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaDeviceGetAttribute(devHandle, attrib, pAttribute)
+
+
+cdef cudlaStatus cudlaMemUnregister(const cudlaDevHandle devHandle, const uint64_t* const devPtr) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaMemUnregister(devHandle, devPtr)
+
+
+cdef cudlaStatus cudlaGetLastError(const cudlaDevHandle devHandle) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaGetLastError(devHandle)
+
+
+cdef cudlaStatus cudlaDestroyDevice(const cudlaDevHandle devHandle) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaDestroyDevice(devHandle)
+
+
+cdef cudlaStatus cudlaSetTaskTimeoutInMs(const cudlaDevHandle devHandle, const uint32_t timeout) except?_CUDLASTATUS_INTERNAL_LOADING_ERROR nogil:
+    return _cudla._cudlaSetTaskTimeoutInMs(devHandle, timeout)

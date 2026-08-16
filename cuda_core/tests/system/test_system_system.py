@@ -6,16 +6,11 @@
 import os
 
 import pytest
+from cuda_python_test_helpers.arch_check import skip_if_nvml_unsupported
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
+from cuda.bindings import driver
 from cuda.core import system
 from cuda.core._utils.cuda_utils import handle_return
-
-from .conftest import skip_if_nvml_unsupported
 
 
 def test_user_mode_driver_version():
@@ -62,6 +57,9 @@ def test_nvml_version():
 
 @skip_if_nvml_unsupported
 def test_get_process_name():
+    for device in system.Device.get_all_devices():
+        x = device.compute_running_processes
+
     try:
         process_name = system.get_process_name(os.getpid())
     except system.NotFoundError:

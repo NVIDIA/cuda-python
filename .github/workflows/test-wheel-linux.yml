@@ -22,13 +22,37 @@ on:
       nruns:
         type: number
         default: 1
-      # When true, cuda.bindings tests (and the Cython tests that depend on
-      # them) are skipped even when CTK majors match. Callers set this based
-      # on the output of the detect-changes job in ci.yml so PRs that only
-      # touch unrelated modules avoid the expensive bindings test suite.
-      skip-bindings-test:
+      test-pathfinder:
         type: boolean
-        default: false
+        default: true
+      test-bindings:
+        type: boolean
+        default: true
+      test-core:
+        type: boolean
+        default: true
+      test-python:
+        type: boolean
+        default: true
+      run-id:
+        description: >
+          Workflow run ID to download artifacts from.
+          Defaults to the current run when empty.
+        type: string
+        default: ''
+      test-mode:
+        description: >
+          Test mode: 'standard' (default), 'nightly-pytorch',
+          'nightly-numba-cuda', 'nightly-numba-cuda-mlir', or
+          'nightly-cuda-core'.
+        type: string
+        default: 'standard'
+      sha:
+        description: >
+          Commit SHA used to construct artifact names.
+          Defaults to github.sha (current run) when empty.
+        type: string
+        default: ''
 
 defaults:
   run:
@@ -46,7 +70,7 @@ jobs:
       OLD_BRANCH: ${{ steps.compute-matrix.outputs.OLD_BRANCH }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
       - name: Validate Test Type
         run: |
@@ -67,8 +91,13 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".linux[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
-          # Apply matrix filter and wrap in include structure
-          MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
+          # Apply matrix filter; reject custom DRIVER + FLAVOR=wsl (the
+          # in-container driver swap doesn't work under WSL); add a
+          # RUNNER_DRIVER field that maps any custom version back to
+          # 'latest' (the install script swaps the driver itself, so we
+          # need to land on the runner that ships with the most recent
+          # pre-installed driver); wrap in include structure.
+          MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if any(.[]; .DRIVER != "latest" and .DRIVER != "earliest" and .FLAVOR == "wsl") then "Error: custom DRIVER is not supported with FLAVOR=wsl\n" | halt_error(1) else . end | map(. + {RUNNER_DRIVER: (if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)}) | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
 
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
@@ -77,28 +106,31 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
 
   test:
-    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format('(x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}
+    name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
+    timeout-minutes: 60
     needs: compute-matrix
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
-    runs-on: "${{ matrix.FLAVOR || 'linux' }}-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
+    runs-on: "${{ matrix.FLAVOR || 'linux' }}-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
+    # TODO: remove continue-on-error once 3.15 is officially supported
+    continue-on-error: ${{ startsWith(matrix.PY_VER, '3.15') }}
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
-      options: -u root --security-opt seccomp=unconfined --shm-size 16g
-      image: ubuntu:22.04
+      # Custom-DRIVER rows need --privileged --pid=host so install_gpu_driver.sh
+      # can nsenter to the host for the install + refresh the toolkit bind mounts
+      # back inside the container. Stock options for latest/earliest rows.
+      options: ${{ ((matrix.DRIVER == 'latest' || matrix.DRIVER == 'earliest') && '-u root --security-opt seccomp=unconfined --shm-size 16g') || '-u root --security-opt seccomp=unconfined --shm-size 16g --privileged --pid=host' }}
+      image: ubuntu:24.04
       env:
         NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
         PIP_CACHE_DIR: "/tmp/pip-cache"
     steps:
-      - name: Ensure GPU is working
-        run: nvidia-smi
-
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -108,9 +140,21 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          # for artifact fetching, graphics libs, g++ required for cffi in example
-          dependencies: "jq wget libgl1 libegl1 g++"
+          # for artifact fetching, graphics libs, g++ required for cffi in
+          # example; util-linux for `nsenter` (custom-DRIVER rows re-exec
+          # install_gpu_driver.sh onto the host through nsenter)
+          dependencies: "jq wget libgl1 libegl1 g++ util-linux"
           dependent_exes: "jq wget"
+
+      - name: Install GPU driver
+        if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
+        env:
+          DRIVER: ${{ matrix.DRIVER }}
+          GPU_TYPE: ${{ matrix.GPU }}
+        run: ./ci/tools/install_gpu_driver.sh
+
+      - name: Ensure GPU is working
+        run: nvidia-smi
 
       - name: Set environment variables
         env:
@@ -119,32 +163,47 @@ jobs:
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
           PY_VER: ${{ matrix.PY_VER }}
-          SHA: ${{ github.sha }}
-          SKIP_BINDINGS_TEST_OVERRIDE: ${{ inputs.skip-bindings-test && '1' || '0' }}
+          SHA: ${{ inputs.sha || github.sha }}
+          SKIP_BINDINGS_TEST_OVERRIDE: ${{ !inputs.test-bindings && '1' || '0' }}
         run: ./ci/tools/env-vars test
 
+      - name: Apply extra matrix environment variables
+        if: ${{ matrix.ENV }}
+        env:
+          MATRIX_ENV: ${{ toJSON(matrix.ENV) }}
+        run: echo "$MATRIX_ENV" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
+
       - name: Download cuda-pathfinder build artifacts
+        if: ${{ inputs.test-pathfinder || inputs.test-bindings || inputs.test-core || inputs.test-python }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python build artifacts
-        if: ${{ env.BINDINGS_SOURCE == 'main' }}
+        if: ${{ inputs.test-python && env.BINDINGS_SOURCE == 'main' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-python-wheel
           path: .
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda.bindings build artifacts
-        if: ${{ env.BINDINGS_SOURCE == 'main' }}
+        if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
+                env.BINDINGS_SOURCE == 'main' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
-        if: ${{ env.BINDINGS_SOURCE == 'backport' }}
+        if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
+                env.BINDINGS_SOURCE == 'backport' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -160,11 +219,7 @@ jobs:
 
           OLD_BRANCH=${{ needs.compute-matrix.outputs.OLD_BRANCH }}
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s success -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
-          if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
-            echo "LATEST_PRIOR_RUN_ID not found!"
-            exit 1
-          fi
+          LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
 
           gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
           rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
@@ -173,66 +228,102 @@ jobs:
           mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
           rmdir $OLD_BASENAME
 
-          gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
-          ls -al cuda-python-wheel
-          mv cuda-python-wheel/*.whl .
-          rmdir cuda-python-wheel
+          if ${{ inputs.test-python }}; then
+            gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
+            ls -al cuda-python-wheel
+            mv cuda-python-wheel/*.whl .
+            rmdir cuda-python-wheel
+          fi
 
       - name: Display structure of downloaded cuda-python artifacts
+        if: ${{ inputs.test-python && env.BINDINGS_SOURCE != 'published' }}
         run: |
           pwd
-          ls -lahR .
+          ls -lah cuda_python*.whl cuda_pathfinder/
 
       - name: Display structure of downloaded cuda.bindings artifacts
-        if: ${{ env.BINDINGS_SOURCE != 'published' }}
+        if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
+                env.BINDINGS_SOURCE != 'published' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
       - name: Download cuda.bindings Cython tests
-        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-bindings && env.SKIP_CYTHON_TEST == '0' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
-        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-bindings && env.SKIP_CYTHON_TEST == '0' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_CYTHON_TESTS_DIR
 
       - name: Download cuda.core build artifacts
+        if: ${{ inputs.test-core }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core build artifacts
+        if: ${{ inputs.test-core }}
         run: |
           pwd
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
 
       - name: Download cuda.core Cython tests
-        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-core && env.SKIP_CYTHON_TEST == '0' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core Cython tests
-        if: ${{ env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-core && env.SKIP_CYTHON_TEST == '0' }}
         run: |
           pwd
           ls -lahR $CUDA_CORE_CYTHON_TESTS_DIR
 
+      - name: Download cuda.core test binaries
+        if: ${{ inputs.test-core }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
+          path: ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}
+          run-id: ${{ inputs.run-id || github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Display structure of downloaded cuda.core test binaries
+        if: ${{ inputs.test-core }}
+        run: |
+          pwd
+          ls -lahR $CUDA_CORE_TEST_BINARIES_DIR
+
       - name: Set up Python ${{ matrix.PY_VER }}
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ matrix.PY_VER }}
+          # TODO: remove allow-prereleases once 3.15 is officially supported
+          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
         env:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
+
+      - name: Enable Scientific Python Nightly Wheels for Python 3.15
+        if: ${{ (inputs.test-bindings || inputs.test-core || inputs.test-python) &&
+                startsWith(matrix.PY_VER, '3.15') }}
+        run: |
+          echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
+          echo "PIP_ONLY_BINARY=numpy" >> "$GITHUB_ENV"
 
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
@@ -243,7 +334,7 @@ jobs:
           cuda-version: ${{ matrix.CUDA_VER }}
 
       - name: Set up latest cuda_sanitizer_api
-        if: ${{ env.SETUP_SANITIZER == '1' }}
+        if: ${{ (inputs.test-bindings || inputs.test-core) && env.SETUP_SANITIZER == '1' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
@@ -252,12 +343,15 @@ jobs:
           cuda-components: "cuda_sanitizer_api"
 
       - name: Set up compute-sanitizer
+        if: ${{ inputs.test-bindings || inputs.test-core }}
         run: setup-sanitizer
 
       - name: Set up test repetition on nightly runs
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
+      # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
@@ -265,14 +359,14 @@ jobs:
         run: run-tests pathfinder
 
       - name: Run cuda.bindings tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-bindings && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests bindings
 
       - name: Run cuda.bindings benchmarks (smoke test)
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-bindings && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         run: |
           pip install pyperf
           pushd benchmarks/cuda_bindings
@@ -280,21 +374,35 @@ jobs:
           popd
 
       - name: Run cuda.core tests
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-core }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests core
 
       - name: Ensure cuda-python installable
-        if: ${{ env.BINDINGS_SOURCE == 'main' }}
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-python && env.BINDINGS_SOURCE == 'main' }}
         run: |
-          if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install --only-binary=:all: cuda_python*.whl
+          # Package suites install their own dependencies. A metapackage-only
+          # run has no preceding suite, so install the exact local internal
+          # wheels in one transaction while resolving released dependencies
+          # such as cuda-core from the package index.
+          if ${{ inputs.test-bindings || inputs.test-core }}; then
+            dependency_args=(--no-deps)
           else
-            pip install --only-binary=:all: $(ls cuda_python*.whl)[all]
+            dependency_args=(
+              ./cuda_pathfinder/cuda_pathfinder-*.whl
+              "${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-*.whl
+            )
           fi
+          python_requirements=(cuda_python*.whl)
+          if [[ "${{ matrix.LOCAL_CTK }}" != 1 ]]; then
+            python_requirements=("${python_requirements[@]/%/[all]}")
+          fi
+          pip install --only-binary=:all: "${dependency_args[@]}" "${python_requirements[@]}"
 
       - name: Install cuda.pathfinder extra wheels for testing
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
@@ -303,8 +411,145 @@ jobs:
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
+        if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         run: run-tests pathfinder
+
+      # ── Nightly: install wheels + optional dep together ──
+      - name: Install cuda-python wheels + PyTorch
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-pytorch
+
+      - name: Install cuda-python wheels + numba-cuda
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-numba-cuda
+
+      - name: Install cuda-python wheels + numba-cuda-mlir
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-numba-cuda-mlir
+
+      - name: Install main pathfinder/bindings + released cuda-core
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests nightly-cuda-core
+
+      # ── Nightly: run tests ──
+      - name: Run PyTorch interop tests
+        if: ${{ inputs.test-mode == 'nightly-pytorch' }}
+        run: |
+          pushd cuda_core
+          pytest -rxXs -v tests/test_utils.py tests/example_tests/
+          popd
+
+      - name: Run numba-cuda tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda' }}
+        run: python -m numba.runtests numba.cuda.tests
+
+      - name: Checkout numba-cuda-mlir tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          repository: NVIDIA/numba-cuda-mlir
+          ref: v${{ env.NUMBA_CUDA_MLIR_VER }}
+          path: numba-cuda-mlir-released
+
+      - name: Run numba-cuda-mlir tests
+        if: ${{ inputs.test-mode == 'nightly-numba-cuda-mlir' && env.NUMBA_CUDA_MLIR_VER != '' }}
+        run: |
+          pushd numba-cuda-mlir-released
+          # Install this tag's test deps (pytest + plugins + ml-dtypes + ...).
+          pip install --upgrade "pip>=25.1"
+          pip install --group test
+          # Skip tests/benchmarks/ and tests/doc_examples/ — they import the
+          # numba package at collection time, which cuSIMT intentionally does
+          # not depend on. See NVIDIA/numba-cuda-mlir#136.
+          #
+          # Version-gated deselects: when a newer numba-cuda-mlir release
+          # ships with the referenced fix, the guard evaluates false and the
+          # tests get run automatically. If they still fail on the newer
+          # version we hear about it loudly (rather than silently masking).
+          DESELECTS=()
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${NUMBA_CUDA_MLIR_VER}') <= Version('0.4.1') else 1)"; then
+            # NVIDIA/numba-cuda-mlir#135: serial-pytest contamination of
+            # numba_cuda_mlir.cuda.cudadrv from an xfailed test in
+            # test_nrt_comprehensive.py contaminates any later test that
+            # touches cuda.cudadrv.driver. Upstream CI hides it via
+            # `-n auto --dist loadscope`. Which specific tests fail depends
+            # on collection order (we saw different subsets on linux-64 vs
+            # win-64 across runs), so we deselect the union of all tests
+            # #135 lists as vulnerable + test_fortran_contiguous (observed
+            # to hit the same contamination in our runs).
+            #
+            # test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn:
+            # subprocess-invokes `cuobjdump`, not on PATH in the base
+            # ubuntu:24.04 container. (Linux-only; Windows runners ship
+            # cuobjdump with the local CTK. No upstream fix yet — pending
+            # a skip-guard bug to be filed against NVIDIA/numba-cuda-mlir.)
+            DESELECTS+=(
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_default_stream'
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_no_sync_supplied_stream'
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_cuda_array_slicing.py::CudaArraySetting::test_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_no_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_consume_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_no_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_launch_sync_two_streams'
+              --deselect 'tests/numba_cuda_tests/cudapy/test_cuda_array_interface.py::TestCudaArrayInterface::test_fortran_contiguous'
+              --deselect 'tests/numba_cuda_tests/cudadrv/test_nvjitlink.py::TestLinkerDumpAssembly::test_nvjitlink_jit_with_linkable_code_lto_dump_assembly_warn'
+            )
+          fi
+          pytest -rxXs -v \
+            --ignore=tests/benchmarks \
+            --ignore=tests/doc_examples \
+            "${DESELECTS[@]}" \
+            tests/
+          popd
+
+      - name: Checkout released cuda-core tests at matching tag
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_VER != '' }}
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          ref: cuda-core-v${{ env.CUDA_CORE_RELEASED_VER }}
+          path: cuda-core-released
+
+      - name: Run released cuda-core tests
+        if: ${{ inputs.test-mode == 'nightly-cuda-core' && env.CUDA_CORE_RELEASED_VER != '' }}
+        run: |
+          pushd cuda-core-released/cuda_core
+          # Install the released tag's test group so we exercise the exact deps
+          # that cuda-core version shipped with.
+          pip install --upgrade "pip>=25.1"
+          pip install --group "${CUDA_CORE_TEST_GROUP}"
+          # Cap pytest below 9.1: released cuda-core <=1.0.1 has parametrize
+          # patterns that pytest 9.1 rejects; the main-side fix (#2212) has
+          # not yet shipped in a cuda-core release.
+          pip install "pytest<9.1"
+          # Version-gated deselect: drops automatically when a newer
+          # cuda-core release with the wrapper-mapping update ships.
+          DESELECTS=()
+          if python -c "from packaging.version import Version; import sys; sys.exit(0 if Version('${CUDA_CORE_RELEASED_VER}') <= Version('1.0.1') else 1)"; then
+            # NvlinkVersion: v1.0.1's wrapper mapping predates
+            # NvlinkVersion.VERSION_6_0 which main cuda-bindings adds.
+            # Expected drift on this mode until released cuda-core catches up.
+            DESELECTS+=(
+              --deselect 'tests/test_enum_coverage.py::test_wrapper_covers_all_binding_members[NvlinkVersion]'
+            )
+          fi
+          pytest -rxXs -v --randomly-dont-reorganize \
+            "${DESELECTS[@]}" \
+            tests/
+          popd

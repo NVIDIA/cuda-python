@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 """Build cuda_bindings Cython test extensions in-place.
 
 pixi-build's editable install exposes the `cuda` namespace package via a
@@ -12,6 +12,7 @@ it via `include_path=` so cythonize finds the .pxd tree on every platform.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -45,6 +46,13 @@ def main() -> None:
         compiler_directives={"freethreading_compatible": True},
     )
 
+    # `build_ext --inplace` places the compiled .so relative to the current
+    # working directory, but pixi runs this task from the project root. pytest
+    # imports each extension by bare module name (see test_cython.py), which
+    # only resolves when the .so sits in tests/cython (the dir pytest puts on
+    # sys.path). chdir here so the .so lands next to its .pyx regardless of the
+    # invoking cwd.
+    os.chdir(script_dir)
     sys.argv = [sys.argv[0], "build_ext", "--inplace"]
     setup(name="cuda_bindings_cython_tests", ext_modules=ext_modules)
 

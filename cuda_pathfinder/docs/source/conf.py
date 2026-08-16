@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2012-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2012-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration file for the Sphinx documentation builder.
@@ -24,6 +24,15 @@ author = "NVIDIA"
 
 # The full version, including alpha/beta/rc tags
 release = os.environ["SPHINX_CUDA_PATHFINDER_VER"]
+
+
+def _html_baseurl():
+    docs_domain = os.environ.get("CUDA_PYTHON_DOCS_DOMAIN", "https://nvidia.github.io/cuda-python")
+    if int(os.environ.get("BUILD_PREVIEW", 0)):
+        return f"{docs_domain}/pr-preview/pr-{os.environ['PR_NUMBER']}/cuda-pathfinder/latest/"
+    if int(os.environ.get("BUILD_LATEST", 0)):
+        return f"{docs_domain}/cuda-pathfinder/latest/"
+    return f"{docs_domain}/cuda-pathfinder/{release}/"
 
 
 # -- General configuration ---------------------------------------------------
@@ -65,7 +74,7 @@ toc_object_entries_show_parents = "domain"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_baseurl = "docs"
+html_baseurl = _html_baseurl()
 html_theme = "nvidia_sphinx_theme"
 html_theme_options = {
     "switcher": {

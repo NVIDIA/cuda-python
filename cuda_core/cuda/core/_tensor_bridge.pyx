@@ -255,7 +255,7 @@ cdef object _get_aoti_dtype(int32_t dtype_code):
     return result
 
 
-def resolve_aoti_dtype(int32_t dtype_code):
+def resolve_aoti_dtype(int32_t dtype_code) -> numpy.dtype:
     """Python-callable wrapper around _get_aoti_dtype (for lazy resolution)."""
     return _get_aoti_dtype(dtype_code)
 
@@ -331,7 +331,11 @@ cpdef int sync_torch_stream(int32_t device_index,
 # Public API: construct StridedMemoryView from a torch.Tensor
 # ---------------------------------------------------------------------------
 
-def view_as_torch_tensor(object obj, object stream_ptr, view=None):
+def view_as_torch_tensor(
+    object obj,
+    object stream_ptr,
+    view: StridedMemoryView | None = None
+) -> StridedMemoryView:
     """Create/populate a :class:`StridedMemoryView` from a ``torch.Tensor``.
 
     This is a fast path that avoids DLPack/CAI protocol overhead by
@@ -357,9 +361,7 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
     cdef int32_t dtype_code
     cdef int32_t device_type, device_index
     cdef StridedMemoryView buf
-    cdef int itemsize
     cdef intptr_t _stream_ptr_int
-    cdef _StridedLayout layout
 
     # Note: we intentionally skip PyTorch's Python-level __dlpack__ guards
     # (requires_grad, is_conj, is_neg, non-strided layout, wrong-device)
@@ -432,8 +434,8 @@ def view_as_torch_tensor(object obj, object stream_ptr, view=None):
 
     # Build _StridedLayout.  init_from_ptr copies shape/strides so we are
     # safe even though they are borrowed pointers.
-    itemsize = _get_aoti_itemsize(dtype_code)
-    layout = _StridedLayout.__new__(_StridedLayout)
+    cdef int itemsize = _get_aoti_itemsize(dtype_code)
+    cdef _StridedLayout layout = _StridedLayout.__new__(_StridedLayout)
     layout.init_from_ptr(
         <int>ndim,
         sizes_ptr,

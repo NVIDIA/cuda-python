@@ -13,6 +13,8 @@ import re
 import weakref
 
 import pytest
+from conftest import xfail_on_graph_mempool_oom
+from helpers.constants import POOL_SIZE
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
@@ -223,8 +225,6 @@ def sample_kernel_alt(sample_object_code_alt):
 # Fixtures - IPC samples (for pickle tests)
 # =============================================================================
 
-POOL_SIZE = 2097152
-
 
 @pytest.fixture
 def sample_ipc_buffer_descriptor(ipc_device):
@@ -232,7 +232,11 @@ def sample_ipc_buffer_descriptor(ipc_device):
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mr = DeviceMemoryResource(ipc_device, options=options)
     buf = mr.allocate(64, stream=ipc_device.default_stream)
-    return buf.ipc_descriptor
+    descriptor = buf.ipc_descriptor
+    buf.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    ipc_device.sync()
+    return descriptor
 
 
 @pytest.fixture
@@ -278,32 +282,36 @@ def sample_root_node_alt(sample_graphdef_alt):
 def sample_empty_node(sample_graphdef):
     """An EmptyNode created by merging two branches."""
     _skip_if_no_mempool()
-    a = sample_graphdef.allocate(ALLOC_SIZE)
-    b = sample_graphdef.allocate(ALLOC_SIZE)
-    return sample_graphdef.join(a, b)
+    with xfail_on_graph_mempool_oom():
+        a = sample_graphdef.allocate(ALLOC_SIZE)
+        b = sample_graphdef.allocate(ALLOC_SIZE)
+        return sample_graphdef.join(a, b)
 
 
 @pytest.fixture
 def sample_empty_node_alt(sample_graphdef):
     """An alternate EmptyNode from same graph."""
     _skip_if_no_mempool()
-    c = sample_graphdef.allocate(ALLOC_SIZE)
-    d = sample_graphdef.allocate(ALLOC_SIZE)
-    return sample_graphdef.join(c, d)
+    with xfail_on_graph_mempool_oom():
+        c = sample_graphdef.allocate(ALLOC_SIZE)
+        d = sample_graphdef.allocate(ALLOC_SIZE)
+        return sample_graphdef.join(c, d)
 
 
 @pytest.fixture
 def sample_alloc_node(sample_graphdef):
     """An AllocNode."""
     _skip_if_no_mempool()
-    return sample_graphdef.allocate(ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        return sample_graphdef.allocate(ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_alloc_node_alt(sample_graphdef):
     """An alternate AllocNode from same graph."""
     _skip_if_no_mempool()
-    return sample_graphdef.allocate(ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        return sample_graphdef.allocate(ALLOC_SIZE)
 
 
 @pytest.fixture
@@ -328,52 +336,58 @@ def sample_kernel_node_alt(sample_graphdef, init_cuda):
 def sample_free_node(sample_graphdef):
     """A FreeNode."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.allocate(ALLOC_SIZE)
-    return alloc.deallocate(alloc.dptr)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ALLOC_SIZE)
+        return alloc.deallocate(alloc.dptr)
 
 
 @pytest.fixture
 def sample_free_node_alt(sample_graphdef):
     """An alternate FreeNode from same graph."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.allocate(ALLOC_SIZE)
-    return alloc.deallocate(alloc.dptr)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ALLOC_SIZE)
+        return alloc.deallocate(alloc.dptr)
 
 
 @pytest.fixture
 def sample_memset_node(sample_graphdef):
     """A MemsetNode."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.allocate(ALLOC_SIZE)
-    return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ALLOC_SIZE)
+        return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_memset_node_alt(sample_graphdef):
     """An alternate MemsetNode from same graph."""
     _skip_if_no_mempool()
-    alloc = sample_graphdef.allocate(ALLOC_SIZE)
-    return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        alloc = sample_graphdef.allocate(ALLOC_SIZE)
+        return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_memcpy_node(sample_graphdef):
     """A MemcpyNode."""
     _skip_if_no_mempool()
-    src = sample_graphdef.allocate(ALLOC_SIZE)
-    dst = sample_graphdef.allocate(ALLOC_SIZE)
-    dep = sample_graphdef.join(src, dst)
-    return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        src = sample_graphdef.allocate(ALLOC_SIZE)
+        dst = sample_graphdef.allocate(ALLOC_SIZE)
+        dep = sample_graphdef.join(src, dst)
+        return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_memcpy_node_alt(sample_graphdef):
     """An alternate MemcpyNode from same graph."""
     _skip_if_no_mempool()
-    src = sample_graphdef.allocate(ALLOC_SIZE)
-    dst = sample_graphdef.allocate(ALLOC_SIZE)
-    dep = sample_graphdef.join(src, dst)
-    return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
+    with xfail_on_graph_mempool_oom():
+        src = sample_graphdef.allocate(ALLOC_SIZE)
+        dst = sample_graphdef.allocate(ALLOC_SIZE)
+        dep = sample_graphdef.join(src, dst)
+        return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
 
 
 @pytest.fixture
@@ -670,7 +684,8 @@ REPR_PATTERNS = [
     (
         "sample_launch_config",
         r"LaunchConfig\(grid=\(\d+, \d+, \d+\), cluster=.+, block=\(\d+, \d+, \d+\), "
-        r"shmem_size=\d+, is_cooperative=(?:True|False)\)",
+        r"shmem_size=\d+, is_cooperative=(?:True|False), "
+        r"programmatic_stream_serialization=(?:True|False)\)",
     ),
     ("sample_kernel", r"<Kernel handle=0x[0-9a-f]+>"),
     # ObjectCode variations (by code_type)
@@ -735,7 +750,7 @@ def test_hash_distinct_same_type(a_name, b_name, request):
     assert hash(obj_a) != hash(obj_b)  # extremely unlikely
 
 
-@pytest.mark.parametrize("a_name,b_name", itertools.combinations(HASH_TYPES, 2))
+@pytest.mark.parametrize("a_name,b_name", list(itertools.combinations(HASH_TYPES, 2)))
 def test_hash_distinct_cross_type(a_name, b_name, request):
     """Distinct objects of different types have different hashes."""
     obj_a = request.getfixturevalue(a_name)
@@ -759,7 +774,7 @@ def test_equality_basic(fixture_name, request):
         assert obj != obj.handle
 
 
-@pytest.mark.parametrize("a_name,b_name", itertools.combinations(EQ_TYPES, 2))
+@pytest.mark.parametrize("a_name,b_name", list(itertools.combinations(EQ_TYPES, 2)))
 def test_no_cross_type_equality(a_name, b_name, request):
     """No two distinct objects of different types should compare equal."""
     obj_a = request.getfixturevalue(a_name)

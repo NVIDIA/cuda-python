@@ -1,65 +1,71 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.2.0, generator version 0.3.1.dev1422+gf4812259e.d20260318. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5b6e0791dac3bac268169b02ebc748d7375de7189fe7114151716d47791519ad
 
-from libc.stdint cimport intptr_t, uintptr_t
-import threading
+
+# <<<< PREAMBLE CONTENT >>>>
+
+cdef extern from * nogil:
+    """
+    #if defined(_MSC_VER) && !defined(__clang__)
+        #include <intrin.h>
+        static __forceinline int atomic_int_load(int *p) {
+            int v = *(int volatile *)p; _ReadBarrier(); return v;
+        }
+        static __forceinline void atomic_int_store(int *p, int v) {
+            _WriteBarrier(); *(int volatile *)p = v;
+        }
+    #elif defined(__cplusplus)
+        /* GCC/Clang __atomic builtins work in any C++ standard without headers */
+        static inline int atomic_int_load(int *p) {
+            return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            __atomic_store_n(p, v, __ATOMIC_RELEASE);
+        }
+    #else
+        #include <stdatomic.h>
+        static inline int atomic_int_load(int *p) {
+            return (int)atomic_load_explicit((atomic_int *)p, memory_order_acquire);
+        }
+        static inline void atomic_int_store(int *p, int v) {
+            atomic_store_explicit((atomic_int *)p, v, memory_order_release);
+        }
+    #endif
+
+    """
+    cdef int _cyb_atomic_int_load "atomic_int_load"(int *p) nogil
+    cdef void _cyb_atomic_int_store "atomic_int_store"(int *p, int v) nogil
+
+cdef extern from "<dlfcn.h>":
+    void* _cyb_dlsym "dlsym"(void*, const char*) nogil
+    const void * _cyb_RTLD_DEFAULT "RTLD_DEFAULT"
+
+cimport cython as _cyb_cython
+from libc.stdint cimport intptr_t
+from libcpp cimport bool as _cyb_bool
+
+import threading as _cyb_threading
+
+cdef int _cyb___py_cufile_init = 0
+cdef dict _cyb_func_ptrs = None
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport uintptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
-
 from cuda.pathfinder import load_nvidia_dynamic_lib
-
-import cython
-
-
-###############################################################################
-# Extern
-###############################################################################
-
-# You must 'from .utils import NotSupportedError' before using this template
-
-cdef extern from "<dlfcn.h>" nogil:
-    void* dlopen(const char*, int)
-    char* dlerror()
-    void* dlsym(void*, const char*)
-    int dlclose(void*)
-
-    enum:
-        RTLD_LAZY
-        RTLD_NOW
-        RTLD_GLOBAL
-        RTLD_LOCAL
-
-    const void* RTLD_DEFAULT 'RTLD_DEFAULT'
-
-cdef int get_cuda_version():
-    cdef void* handle = NULL
-    cdef int err, driver_ver = 0
-
-    # Load driver to check version
-    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
-    if handle == NULL:
-        err_msg = dlerror()
-        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
-    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
-    if cuDriverGetVersion == NULL:
-        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
-    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
-
-    return driver_ver
-
 
 
 ###############################################################################
 # Wrapper init
 ###############################################################################
 
-cdef object __symbol_lock = threading.Lock()
-cdef bint __py_cufile_init = False
 
 cdef void* __cuFileHandleRegister = NULL
 cdef void* __cuFileHandleDeregister = NULL
@@ -105,345 +111,330 @@ cdef void* __cuFileGetBARSizeInKB = NULL
 cdef void* __cuFileSetParameterPosixPoolSlabArray = NULL
 cdef void* __cuFileGetParameterPosixPoolSlabArray = NULL
 
-
-cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("cufile")._handle_uint
-    return <void*>handle
-
-
 cdef int _init_cufile() except -1 nogil:
-    global __py_cufile_init
-
+    global _cyb___py_cufile_init
     cdef void* handle = NULL
+    with gil, _cyb_symbol_lock:
+        if _cyb___py_cufile_init: return 0
 
-    with gil, __symbol_lock:
-        # Recheck the flag after obtaining the locks
-        if __py_cufile_init:
-            return 0
-        # Load function
         global __cuFileHandleRegister
-        __cuFileHandleRegister = dlsym(RTLD_DEFAULT, 'cuFileHandleRegister')
+        __cuFileHandleRegister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileHandleRegister')
         if __cuFileHandleRegister == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileHandleRegister = dlsym(handle, 'cuFileHandleRegister')
+            __cuFileHandleRegister = _cyb_dlsym(handle, 'cuFileHandleRegister')
 
         global __cuFileHandleDeregister
-        __cuFileHandleDeregister = dlsym(RTLD_DEFAULT, 'cuFileHandleDeregister')
+        __cuFileHandleDeregister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileHandleDeregister')
         if __cuFileHandleDeregister == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileHandleDeregister = dlsym(handle, 'cuFileHandleDeregister')
+            __cuFileHandleDeregister = _cyb_dlsym(handle, 'cuFileHandleDeregister')
 
         global __cuFileBufRegister
-        __cuFileBufRegister = dlsym(RTLD_DEFAULT, 'cuFileBufRegister')
+        __cuFileBufRegister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBufRegister')
         if __cuFileBufRegister == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileBufRegister = dlsym(handle, 'cuFileBufRegister')
+            __cuFileBufRegister = _cyb_dlsym(handle, 'cuFileBufRegister')
 
         global __cuFileBufDeregister
-        __cuFileBufDeregister = dlsym(RTLD_DEFAULT, 'cuFileBufDeregister')
+        __cuFileBufDeregister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBufDeregister')
         if __cuFileBufDeregister == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileBufDeregister = dlsym(handle, 'cuFileBufDeregister')
+            __cuFileBufDeregister = _cyb_dlsym(handle, 'cuFileBufDeregister')
 
         global __cuFileRead
-        __cuFileRead = dlsym(RTLD_DEFAULT, 'cuFileRead')
+        __cuFileRead = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileRead')
         if __cuFileRead == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileRead = dlsym(handle, 'cuFileRead')
+            __cuFileRead = _cyb_dlsym(handle, 'cuFileRead')
 
         global __cuFileWrite
-        __cuFileWrite = dlsym(RTLD_DEFAULT, 'cuFileWrite')
+        __cuFileWrite = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileWrite')
         if __cuFileWrite == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileWrite = dlsym(handle, 'cuFileWrite')
+            __cuFileWrite = _cyb_dlsym(handle, 'cuFileWrite')
 
         global __cuFileDriverOpen
-        __cuFileDriverOpen = dlsym(RTLD_DEFAULT, 'cuFileDriverOpen')
+        __cuFileDriverOpen = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverOpen')
         if __cuFileDriverOpen == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileDriverOpen = dlsym(handle, 'cuFileDriverOpen')
+            __cuFileDriverOpen = _cyb_dlsym(handle, 'cuFileDriverOpen')
 
         global __cuFileDriverClose
-        __cuFileDriverClose = dlsym(RTLD_DEFAULT, 'cuFileDriverClose')
+        __cuFileDriverClose = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverClose')
         if __cuFileDriverClose == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileDriverClose = dlsym(handle, 'cuFileDriverClose')
+            __cuFileDriverClose = _cyb_dlsym(handle, 'cuFileDriverClose')
 
         global __cuFileDriverClose_v2
-        __cuFileDriverClose_v2 = dlsym(RTLD_DEFAULT, 'cuFileDriverClose_v2')
+        __cuFileDriverClose_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverClose_v2')
         if __cuFileDriverClose_v2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileDriverClose_v2 = dlsym(handle, 'cuFileDriverClose_v2')
+            __cuFileDriverClose_v2 = _cyb_dlsym(handle, 'cuFileDriverClose_v2')
 
         global __cuFileUseCount
-        __cuFileUseCount = dlsym(RTLD_DEFAULT, 'cuFileUseCount')
+        __cuFileUseCount = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileUseCount')
         if __cuFileUseCount == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileUseCount = dlsym(handle, 'cuFileUseCount')
+            __cuFileUseCount = _cyb_dlsym(handle, 'cuFileUseCount')
 
         global __cuFileDriverGetProperties
-        __cuFileDriverGetProperties = dlsym(RTLD_DEFAULT, 'cuFileDriverGetProperties')
+        __cuFileDriverGetProperties = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverGetProperties')
         if __cuFileDriverGetProperties == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileDriverGetProperties = dlsym(handle, 'cuFileDriverGetProperties')
+            __cuFileDriverGetProperties = _cyb_dlsym(handle, 'cuFileDriverGetProperties')
 
         global __cuFileDriverSetPollMode
-        __cuFileDriverSetPollMode = dlsym(RTLD_DEFAULT, 'cuFileDriverSetPollMode')
+        __cuFileDriverSetPollMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverSetPollMode')
         if __cuFileDriverSetPollMode == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileDriverSetPollMode = dlsym(handle, 'cuFileDriverSetPollMode')
+            __cuFileDriverSetPollMode = _cyb_dlsym(handle, 'cuFileDriverSetPollMode')
 
         global __cuFileDriverSetMaxDirectIOSize
-        __cuFileDriverSetMaxDirectIOSize = dlsym(RTLD_DEFAULT, 'cuFileDriverSetMaxDirectIOSize')
+        __cuFileDriverSetMaxDirectIOSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverSetMaxDirectIOSize')
         if __cuFileDriverSetMaxDirectIOSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileDriverSetMaxDirectIOSize = dlsym(handle, 'cuFileDriverSetMaxDirectIOSize')
+            __cuFileDriverSetMaxDirectIOSize = _cyb_dlsym(handle, 'cuFileDriverSetMaxDirectIOSize')
 
         global __cuFileDriverSetMaxCacheSize
-        __cuFileDriverSetMaxCacheSize = dlsym(RTLD_DEFAULT, 'cuFileDriverSetMaxCacheSize')
+        __cuFileDriverSetMaxCacheSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverSetMaxCacheSize')
         if __cuFileDriverSetMaxCacheSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileDriverSetMaxCacheSize = dlsym(handle, 'cuFileDriverSetMaxCacheSize')
+            __cuFileDriverSetMaxCacheSize = _cyb_dlsym(handle, 'cuFileDriverSetMaxCacheSize')
 
         global __cuFileDriverSetMaxPinnedMemSize
-        __cuFileDriverSetMaxPinnedMemSize = dlsym(RTLD_DEFAULT, 'cuFileDriverSetMaxPinnedMemSize')
+        __cuFileDriverSetMaxPinnedMemSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverSetMaxPinnedMemSize')
         if __cuFileDriverSetMaxPinnedMemSize == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileDriverSetMaxPinnedMemSize = dlsym(handle, 'cuFileDriverSetMaxPinnedMemSize')
+            __cuFileDriverSetMaxPinnedMemSize = _cyb_dlsym(handle, 'cuFileDriverSetMaxPinnedMemSize')
 
         global __cuFileBatchIOSetUp
-        __cuFileBatchIOSetUp = dlsym(RTLD_DEFAULT, 'cuFileBatchIOSetUp')
+        __cuFileBatchIOSetUp = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIOSetUp')
         if __cuFileBatchIOSetUp == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileBatchIOSetUp = dlsym(handle, 'cuFileBatchIOSetUp')
+            __cuFileBatchIOSetUp = _cyb_dlsym(handle, 'cuFileBatchIOSetUp')
 
         global __cuFileBatchIOSubmit
-        __cuFileBatchIOSubmit = dlsym(RTLD_DEFAULT, 'cuFileBatchIOSubmit')
+        __cuFileBatchIOSubmit = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIOSubmit')
         if __cuFileBatchIOSubmit == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileBatchIOSubmit = dlsym(handle, 'cuFileBatchIOSubmit')
+            __cuFileBatchIOSubmit = _cyb_dlsym(handle, 'cuFileBatchIOSubmit')
 
         global __cuFileBatchIOGetStatus
-        __cuFileBatchIOGetStatus = dlsym(RTLD_DEFAULT, 'cuFileBatchIOGetStatus')
+        __cuFileBatchIOGetStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIOGetStatus')
         if __cuFileBatchIOGetStatus == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileBatchIOGetStatus = dlsym(handle, 'cuFileBatchIOGetStatus')
+            __cuFileBatchIOGetStatus = _cyb_dlsym(handle, 'cuFileBatchIOGetStatus')
 
         global __cuFileBatchIOCancel
-        __cuFileBatchIOCancel = dlsym(RTLD_DEFAULT, 'cuFileBatchIOCancel')
+        __cuFileBatchIOCancel = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIOCancel')
         if __cuFileBatchIOCancel == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileBatchIOCancel = dlsym(handle, 'cuFileBatchIOCancel')
+            __cuFileBatchIOCancel = _cyb_dlsym(handle, 'cuFileBatchIOCancel')
 
         global __cuFileBatchIODestroy
-        __cuFileBatchIODestroy = dlsym(RTLD_DEFAULT, 'cuFileBatchIODestroy')
+        __cuFileBatchIODestroy = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIODestroy')
         if __cuFileBatchIODestroy == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileBatchIODestroy = dlsym(handle, 'cuFileBatchIODestroy')
+            __cuFileBatchIODestroy = _cyb_dlsym(handle, 'cuFileBatchIODestroy')
 
         global __cuFileReadAsync
-        __cuFileReadAsync = dlsym(RTLD_DEFAULT, 'cuFileReadAsync')
+        __cuFileReadAsync = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileReadAsync')
         if __cuFileReadAsync == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileReadAsync = dlsym(handle, 'cuFileReadAsync')
+            __cuFileReadAsync = _cyb_dlsym(handle, 'cuFileReadAsync')
 
         global __cuFileWriteAsync
-        __cuFileWriteAsync = dlsym(RTLD_DEFAULT, 'cuFileWriteAsync')
+        __cuFileWriteAsync = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileWriteAsync')
         if __cuFileWriteAsync == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileWriteAsync = dlsym(handle, 'cuFileWriteAsync')
+            __cuFileWriteAsync = _cyb_dlsym(handle, 'cuFileWriteAsync')
 
         global __cuFileStreamRegister
-        __cuFileStreamRegister = dlsym(RTLD_DEFAULT, 'cuFileStreamRegister')
+        __cuFileStreamRegister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStreamRegister')
         if __cuFileStreamRegister == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileStreamRegister = dlsym(handle, 'cuFileStreamRegister')
+            __cuFileStreamRegister = _cyb_dlsym(handle, 'cuFileStreamRegister')
 
         global __cuFileStreamDeregister
-        __cuFileStreamDeregister = dlsym(RTLD_DEFAULT, 'cuFileStreamDeregister')
+        __cuFileStreamDeregister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStreamDeregister')
         if __cuFileStreamDeregister == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileStreamDeregister = dlsym(handle, 'cuFileStreamDeregister')
+            __cuFileStreamDeregister = _cyb_dlsym(handle, 'cuFileStreamDeregister')
 
         global __cuFileGetVersion
-        __cuFileGetVersion = dlsym(RTLD_DEFAULT, 'cuFileGetVersion')
+        __cuFileGetVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetVersion')
         if __cuFileGetVersion == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetVersion = dlsym(handle, 'cuFileGetVersion')
+            __cuFileGetVersion = _cyb_dlsym(handle, 'cuFileGetVersion')
 
         global __cuFileGetParameterSizeT
-        __cuFileGetParameterSizeT = dlsym(RTLD_DEFAULT, 'cuFileGetParameterSizeT')
+        __cuFileGetParameterSizeT = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterSizeT')
         if __cuFileGetParameterSizeT == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetParameterSizeT = dlsym(handle, 'cuFileGetParameterSizeT')
+            __cuFileGetParameterSizeT = _cyb_dlsym(handle, 'cuFileGetParameterSizeT')
 
         global __cuFileGetParameterBool
-        __cuFileGetParameterBool = dlsym(RTLD_DEFAULT, 'cuFileGetParameterBool')
+        __cuFileGetParameterBool = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterBool')
         if __cuFileGetParameterBool == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetParameterBool = dlsym(handle, 'cuFileGetParameterBool')
+            __cuFileGetParameterBool = _cyb_dlsym(handle, 'cuFileGetParameterBool')
 
         global __cuFileGetParameterString
-        __cuFileGetParameterString = dlsym(RTLD_DEFAULT, 'cuFileGetParameterString')
+        __cuFileGetParameterString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterString')
         if __cuFileGetParameterString == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetParameterString = dlsym(handle, 'cuFileGetParameterString')
+            __cuFileGetParameterString = _cyb_dlsym(handle, 'cuFileGetParameterString')
 
         global __cuFileSetParameterSizeT
-        __cuFileSetParameterSizeT = dlsym(RTLD_DEFAULT, 'cuFileSetParameterSizeT')
+        __cuFileSetParameterSizeT = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetParameterSizeT')
         if __cuFileSetParameterSizeT == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileSetParameterSizeT = dlsym(handle, 'cuFileSetParameterSizeT')
+            __cuFileSetParameterSizeT = _cyb_dlsym(handle, 'cuFileSetParameterSizeT')
 
         global __cuFileSetParameterBool
-        __cuFileSetParameterBool = dlsym(RTLD_DEFAULT, 'cuFileSetParameterBool')
+        __cuFileSetParameterBool = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetParameterBool')
         if __cuFileSetParameterBool == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileSetParameterBool = dlsym(handle, 'cuFileSetParameterBool')
+            __cuFileSetParameterBool = _cyb_dlsym(handle, 'cuFileSetParameterBool')
 
         global __cuFileSetParameterString
-        __cuFileSetParameterString = dlsym(RTLD_DEFAULT, 'cuFileSetParameterString')
+        __cuFileSetParameterString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetParameterString')
         if __cuFileSetParameterString == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileSetParameterString = dlsym(handle, 'cuFileSetParameterString')
+            __cuFileSetParameterString = _cyb_dlsym(handle, 'cuFileSetParameterString')
 
         global __cuFileGetParameterMinMaxValue
-        __cuFileGetParameterMinMaxValue = dlsym(RTLD_DEFAULT, 'cuFileGetParameterMinMaxValue')
+        __cuFileGetParameterMinMaxValue = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterMinMaxValue')
         if __cuFileGetParameterMinMaxValue == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetParameterMinMaxValue = dlsym(handle, 'cuFileGetParameterMinMaxValue')
+            __cuFileGetParameterMinMaxValue = _cyb_dlsym(handle, 'cuFileGetParameterMinMaxValue')
 
         global __cuFileSetStatsLevel
-        __cuFileSetStatsLevel = dlsym(RTLD_DEFAULT, 'cuFileSetStatsLevel')
+        __cuFileSetStatsLevel = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetStatsLevel')
         if __cuFileSetStatsLevel == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileSetStatsLevel = dlsym(handle, 'cuFileSetStatsLevel')
+            __cuFileSetStatsLevel = _cyb_dlsym(handle, 'cuFileSetStatsLevel')
 
         global __cuFileGetStatsLevel
-        __cuFileGetStatsLevel = dlsym(RTLD_DEFAULT, 'cuFileGetStatsLevel')
+        __cuFileGetStatsLevel = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetStatsLevel')
         if __cuFileGetStatsLevel == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetStatsLevel = dlsym(handle, 'cuFileGetStatsLevel')
+            __cuFileGetStatsLevel = _cyb_dlsym(handle, 'cuFileGetStatsLevel')
 
         global __cuFileStatsStart
-        __cuFileStatsStart = dlsym(RTLD_DEFAULT, 'cuFileStatsStart')
+        __cuFileStatsStart = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStatsStart')
         if __cuFileStatsStart == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileStatsStart = dlsym(handle, 'cuFileStatsStart')
+            __cuFileStatsStart = _cyb_dlsym(handle, 'cuFileStatsStart')
 
         global __cuFileStatsStop
-        __cuFileStatsStop = dlsym(RTLD_DEFAULT, 'cuFileStatsStop')
+        __cuFileStatsStop = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStatsStop')
         if __cuFileStatsStop == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileStatsStop = dlsym(handle, 'cuFileStatsStop')
+            __cuFileStatsStop = _cyb_dlsym(handle, 'cuFileStatsStop')
 
         global __cuFileStatsReset
-        __cuFileStatsReset = dlsym(RTLD_DEFAULT, 'cuFileStatsReset')
+        __cuFileStatsReset = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStatsReset')
         if __cuFileStatsReset == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileStatsReset = dlsym(handle, 'cuFileStatsReset')
+            __cuFileStatsReset = _cyb_dlsym(handle, 'cuFileStatsReset')
 
         global __cuFileGetStatsL1
-        __cuFileGetStatsL1 = dlsym(RTLD_DEFAULT, 'cuFileGetStatsL1')
+        __cuFileGetStatsL1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetStatsL1')
         if __cuFileGetStatsL1 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetStatsL1 = dlsym(handle, 'cuFileGetStatsL1')
+            __cuFileGetStatsL1 = _cyb_dlsym(handle, 'cuFileGetStatsL1')
 
         global __cuFileGetStatsL2
-        __cuFileGetStatsL2 = dlsym(RTLD_DEFAULT, 'cuFileGetStatsL2')
+        __cuFileGetStatsL2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetStatsL2')
         if __cuFileGetStatsL2 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetStatsL2 = dlsym(handle, 'cuFileGetStatsL2')
+            __cuFileGetStatsL2 = _cyb_dlsym(handle, 'cuFileGetStatsL2')
 
         global __cuFileGetStatsL3
-        __cuFileGetStatsL3 = dlsym(RTLD_DEFAULT, 'cuFileGetStatsL3')
+        __cuFileGetStatsL3 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetStatsL3')
         if __cuFileGetStatsL3 == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetStatsL3 = dlsym(handle, 'cuFileGetStatsL3')
+            __cuFileGetStatsL3 = _cyb_dlsym(handle, 'cuFileGetStatsL3')
 
         global __cuFileGetBARSizeInKB
-        __cuFileGetBARSizeInKB = dlsym(RTLD_DEFAULT, 'cuFileGetBARSizeInKB')
+        __cuFileGetBARSizeInKB = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetBARSizeInKB')
         if __cuFileGetBARSizeInKB == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetBARSizeInKB = dlsym(handle, 'cuFileGetBARSizeInKB')
+            __cuFileGetBARSizeInKB = _cyb_dlsym(handle, 'cuFileGetBARSizeInKB')
 
         global __cuFileSetParameterPosixPoolSlabArray
-        __cuFileSetParameterPosixPoolSlabArray = dlsym(RTLD_DEFAULT, 'cuFileSetParameterPosixPoolSlabArray')
+        __cuFileSetParameterPosixPoolSlabArray = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetParameterPosixPoolSlabArray')
         if __cuFileSetParameterPosixPoolSlabArray == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileSetParameterPosixPoolSlabArray = dlsym(handle, 'cuFileSetParameterPosixPoolSlabArray')
+            __cuFileSetParameterPosixPoolSlabArray = _cyb_dlsym(handle, 'cuFileSetParameterPosixPoolSlabArray')
 
         global __cuFileGetParameterPosixPoolSlabArray
-        __cuFileGetParameterPosixPoolSlabArray = dlsym(RTLD_DEFAULT, 'cuFileGetParameterPosixPoolSlabArray')
+        __cuFileGetParameterPosixPoolSlabArray = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterPosixPoolSlabArray')
         if __cuFileGetParameterPosixPoolSlabArray == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileGetParameterPosixPoolSlabArray = dlsym(handle, 'cuFileGetParameterPosixPoolSlabArray')
+            __cuFileGetParameterPosixPoolSlabArray = _cyb_dlsym(handle, 'cuFileGetParameterPosixPoolSlabArray')
 
-        __py_cufile_init = True
+        _cyb_atomic_int_store(<int *>&_cyb___py_cufile_init, 1)
         return 0
 
-
 cdef inline int _check_or_init_cufile() except -1 nogil:
-    if __py_cufile_init:
+    if _cyb_atomic_int_load(<int *>&_cyb___py_cufile_init):
         return 0
 
     return _init_cufile()
 
 
-cdef dict func_ptrs = None
-
-
 cpdef dict _inspect_function_pointers():
-    global func_ptrs
-    if func_ptrs is not None:
-        return func_ptrs
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is not None:
+        return _cyb_func_ptrs
 
     _check_or_init_cufile()
     cdef dict data = {}
-
     global __cuFileHandleRegister
     data["__cuFileHandleRegister"] = <intptr_t>__cuFileHandleRegister
 
@@ -572,21 +563,26 @@ cpdef dict _inspect_function_pointers():
 
     global __cuFileGetParameterPosixPoolSlabArray
     data["__cuFileGetParameterPosixPoolSlabArray"] = <intptr_t>__cuFileGetParameterPosixPoolSlabArray
-
-    func_ptrs = data
+    _cyb_func_ptrs = data
     return data
 
 
 cpdef _inspect_function_pointer(str name):
-    global func_ptrs
-    if func_ptrs is None:
-        func_ptrs = _inspect_function_pointers()
-    return func_ptrs[name]
+    global _cyb_func_ptrs
+    if _cyb_func_ptrs is None:
+        _cyb_func_ptrs = _inspect_function_pointers()
+    return _cyb_func_ptrs[name]
+
+
+
+
+cdef void* load_library() except* with gil:
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("cufile")._handle_uint
+    return <void*>handle
 
 
 ###############################################################################
 # Wrapper functions
-###############################################################################
 
 cdef CUfileError_t _cuFileHandleRegister(CUfileHandle_t* fh, CUfileDescr_t* descr) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileHandleRegister
@@ -598,7 +594,7 @@ cdef CUfileError_t _cuFileHandleRegister(CUfileHandle_t* fh, CUfileDescr_t* desc
         fh, descr)
 
 
-@cython.show_performance_hints(False)
+@_cyb_cython.show_performance_hints(False)
 cdef void _cuFileHandleDeregister(CUfileHandle_t fh) except* nogil:
     global __cuFileHandleDeregister
     _check_or_init_cufile()
@@ -699,13 +695,13 @@ cdef CUfileError_t _cuFileDriverGetProperties(CUfileDrvProps_t* props) except?<C
         props)
 
 
-cdef CUfileError_t _cuFileDriverSetPollMode(cpp_bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t _cuFileDriverSetPollMode(_cyb_bool poll, size_t poll_threshold_size) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileDriverSetPollMode
     _check_or_init_cufile()
     if __cuFileDriverSetPollMode == NULL:
         with gil:
             raise FunctionNotFoundError("function cuFileDriverSetPollMode is not found")
-    return (<CUfileError_t (*)(cpp_bool, size_t) noexcept nogil>__cuFileDriverSetPollMode)(
+    return (<CUfileError_t (*)(_cyb_bool, size_t) noexcept nogil>__cuFileDriverSetPollMode)(
         poll, poll_threshold_size)
 
 
@@ -779,7 +775,7 @@ cdef CUfileError_t _cuFileBatchIOCancel(CUfileBatchHandle_t batch_idp) except?<C
         batch_idp)
 
 
-@cython.show_performance_hints(False)
+@_cyb_cython.show_performance_hints(False)
 cdef void _cuFileBatchIODestroy(CUfileBatchHandle_t batch_idp) except* nogil:
     global __cuFileBatchIODestroy
     _check_or_init_cufile()
@@ -850,13 +846,13 @@ cdef CUfileError_t _cuFileGetParameterSizeT(CUFileSizeTConfigParameter_t param, 
         param, value)
 
 
-cdef CUfileError_t _cuFileGetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t _cuFileGetParameterBool(CUFileBoolConfigParameter_t param, _cyb_bool* value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileGetParameterBool
     _check_or_init_cufile()
     if __cuFileGetParameterBool == NULL:
         with gil:
             raise FunctionNotFoundError("function cuFileGetParameterBool is not found")
-    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, cpp_bool*) noexcept nogil>__cuFileGetParameterBool)(
+    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, _cyb_bool*) noexcept nogil>__cuFileGetParameterBool)(
         param, value)
 
 
@@ -880,13 +876,13 @@ cdef CUfileError_t _cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, 
         param, value)
 
 
-cdef CUfileError_t _cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+cdef CUfileError_t _cuFileSetParameterBool(CUFileBoolConfigParameter_t param, _cyb_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     global __cuFileSetParameterBool
     _check_or_init_cufile()
     if __cuFileSetParameterBool == NULL:
         with gil:
             raise FunctionNotFoundError("function cuFileSetParameterBool is not found")
-    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, cpp_bool) noexcept nogil>__cuFileSetParameterBool)(
+    return (<CUfileError_t (*)(CUFileBoolConfigParameter_t, _cyb_bool) noexcept nogil>__cuFileSetParameterBool)(
         param, value)
 
 

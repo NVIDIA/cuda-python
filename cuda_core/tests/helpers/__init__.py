@@ -3,7 +3,6 @@
 
 import functools
 import os
-from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
 from cuda.pathfinder import get_cuda_path_or_home
@@ -23,7 +22,7 @@ if CUDA_PATH is not None:
 
 
 @functools.cache
-def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
+def supports_ipc_mempool(device_id: int | object) -> bool:
     """Return True if mempool IPC via POSIX file descriptor is supported.
 
     Uses cuDeviceGetAttribute(CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES)
@@ -35,10 +34,7 @@ def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
 
     try:
         # Lazy import to avoid hard dependency when not running GPU tests
-        try:
-            from cuda.bindings import driver  # type: ignore
-        except Exception:
-            from cuda import cuda as driver  # type: ignore
+        from cuda.bindings import driver  # type: ignore
 
         # Initialize CUDA
         handle_return(driver.cuInit(0))

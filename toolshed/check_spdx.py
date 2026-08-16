@@ -2,12 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
-import fnmatch
-import os
 import re
 import subprocess
 import sys
-from pathlib import PureWindowsPath
+from pathlib import Path, PureWindowsPath
 
 import pathspec
 
@@ -23,29 +21,25 @@ TOP_LEVEL_FILE_LICENSE_IDENTIFIER = "Apache-2.0"
 # Every top-level directory needs to have an entry here, so new paths
 # can't slip in without a reviewed license decision.
 TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
+    ".agents": "Apache-2.0",
     ".github": "Apache-2.0",
     "benchmarks": "Apache-2.0",
     "ci": "Apache-2.0",
-    "cuda_bindings": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_bindings": "Apache-2.0",
     "cuda_core": "Apache-2.0",
     "cuda_pathfinder": "Apache-2.0",
-    "cuda_python": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "cuda_python": "Apache-2.0",
     "cuda_python_test_helpers": "Apache-2.0",
+    "qa": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
     "scripts": "Apache-2.0",
     "toolshed": "Apache-2.0",
-}
-
-SPECIAL_CASE_LICENSE_IDENTIFIERS = {
-    # key: repo-relative path or glob, value: expected SPDX license identifier
-    "cuda_bindings/benchmarks/*": "Apache-2.0",
-    "cuda_bindings/benchmarks/pytest-legacy/*": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
 }
 
 SPDX_IGNORE_FILENAME = ".spdx-ignore"
 
 
 def load_spdx_ignore():
-    if os.path.exists(SPDX_IGNORE_FILENAME):
+    if Path(SPDX_IGNORE_FILENAME).exists():
         with open(SPDX_IGNORE_FILENAME, encoding="utf-8") as f:
             lines = f.readlines()
     else:
@@ -56,7 +50,7 @@ def load_spdx_ignore():
 
 COPYRIGHT_REGEX = (
     rb"Copyright \(c\) (?P<years>[0-9]{4}(-[0-9]{4})?) "
-    rb"(?P<affiliation>NVIDIA CORPORATION( & AFFILIATES\. All rights reserved\.)?)"
+    rb"(?P<affiliation>NVIDIA CORPORATION & AFFILIATES\. All rights reserved\.)"
 )
 COPYRIGHT_SUB = r"Copyright (c) {} \g<affiliation>"
 CURRENT_YEAR = str(datetime.datetime.now(tz=datetime.timezone.utc).year)
@@ -88,14 +82,6 @@ def get_top_level_directory(normalized_path):
 
 def get_expected_license_identifier(filepath):
     normalized_path = normalize_repo_path(filepath)
-    matching_special_cases = [
-        (prefix, license_identifier)
-        for prefix, license_identifier in SPECIAL_CASE_LICENSE_IDENTIFIERS.items()
-        if fnmatch.fnmatchcase(normalized_path, prefix)
-    ]
-    if matching_special_cases:
-        return max(matching_special_cases, key=lambda item: len(item[0]))[1], None
-
     top_level_directory = get_top_level_directory(normalized_path)
     if top_level_directory is None:
         return TOP_LEVEL_FILE_LICENSE_IDENTIFIER, None

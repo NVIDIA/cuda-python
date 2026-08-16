@@ -19,7 +19,7 @@ pytest-randomly = "*"
 # Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
 [feature.docs.dependencies]
 python = "3.12.*"
-cython = "*"
+cython = ">=3.2.5,<3.3"
 enum_tools = "*"
 make = "*"
 myst-nb = "*"

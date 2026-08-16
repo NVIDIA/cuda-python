@@ -9,18 +9,144 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     them for a release. If you believe the issue needs priority attention
     comment on the issue to notify the team.
 2. You want to implement a feature, improvement, or bug fix:
-    - Please refer to each component's guideline:
+   - Before starting work on an existing issue, please comment on the issue to express your interest and wait to be assigned by a maintainer. This helps avoid redundant effort in case the issue is already being worked on by another contributor or an NVIDIA team member.
+   - Please refer to each component's guideline:
        - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
        - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
        - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
 
 ## Table of Contents
 
-- [Pre-commit](#pre-commit)
-- [Code signing](#code-signing)
-- [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
-- [CI infrastructure overview](#ci-infrastructure-overview)
+- [Contributing to CUDA Python](#contributing-to-cuda-python)
+  - [Table of Contents](#table-of-contents)
+  - [Cloning the repository](#cloning-the-repository)
+    - [Recommended clone](#recommended-clone)
+    - [Fixing an existing clone](#fixing-an-existing-clone)
+    - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
+  - [Type stubs for cuda.core](#type-stubs-for-cudacore)
+  - [Pre-commit](#pre-commit)
+    - [Pre-commit on Windows](#pre-commit-on-windows)
+  - [Signing Your Work](#signing-your-work)
+  - [Code signing](#code-signing)
+  - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
+  - [CI infrastructure overview](#ci-infrastructure-overview)
+    - [CI Pipeline Flow](#ci-pipeline-flow)
+    - [Pipeline Execution Details](#pipeline-execution-details)
+    - [Branch-specific Artifact Flow](#branch-specific-artifact-flow)
+      - [Main Branch](#main-branch)
+      - [Backport Branches](#backport-branches)
+    - [Key Infrastructure Details](#key-infrastructure-details)
+  - [Code coverage](#code-coverage)
 
+
+## Cloning the repository
+
+Every package in this repository derives its version from git tags using
+[`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
+determines whether you can build at all, and whether the version you build is
+correct.** Each package matches its own tag prefix:
+
+| Package | Tag pattern |
+| --- | --- |
+| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.3.1`) |
+| `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
+| `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
+
+Each package sets `root = ".."` in its `[tool.setuptools_scm]` table, meaning the
+version is read from the *repository root* rather than the package directory. A
+working build therefore needs all of the following:
+
+1. **A real git clone.** Source zips and GitHub "Download ZIP" archives have no
+   git metadata and the build fails outright. (Tarballs produced by
+   `git archive` do work, thanks to the `.git_archival.txt` substitutions
+   configured in `.gitattributes`.)
+2. **The full repository**, not just the package subdirectory, because the
+   version lookup walks up to the repository root.
+3. **Tags, reaching back at least as far as the most recent tag** matching the
+   package you are building. `git describe` needs to find that tag; the history
+   between it and your checkout must be present too.
+
+### Recommended clone
+
+The default `git clone` gives you everything you need:
+
+```console
+$ git clone https://github.com/NVIDIA/cuda-python.git
+```
+
+
+
+### Fixing an existing clone
+
+If you already have a shallow clone:
+
+```console
+$ git fetch --unshallow --tags
+```
+
+If you are working from a personal fork, your fork's tags stop tracking upstream
+the moment new releases are cut, which silently yields a stale version. Fetch
+tags from upstream directly:
+
+```console
+$ git remote add upstream https://github.com/NVIDIA/cuda-python.git
+$ git fetch --tags upstream
+```
+
+Keep doing this periodically — a fork that was correct when you created it will
+drift.
+
+### Symptoms of a bad clone
+
+Only case 3 below reports an error. The first two fail *silently*, producing a
+wrong version that surfaces much later as a confusing dependency-resolution or
+version-check failure:
+
+1. **No tags reachable.** The build succeeds and produces a version starting at
+   `0.1.dev`: a `--depth 1` clone yields `0.1.dev1+g0d22cb444`, a full clone made
+   with `--no-tags` yields `0.1.dev2114+g0d22cb444`. Installing `cuda-python`
+   built this way then fails, because its `install_requires` pins
+   `cuda-bindings` to that same bogus version.
+2. **Stale tags** (a fork that has not fetched upstream in a while): you get a
+   plausible-looking but wrong version, e.g. `13.0.4.dev650+g0d22cb44` when the
+   real latest tag is `v13.3.1`. Nothing warns you. Note there is no leading
+   `v` — the tag prefix is stripped by `tag_regex`.
+3. **No git metadata** (source zip): the build fails with
+   `LookupError: setuptools-scm was unable to detect version`.
+
+As a last resort — for example when building inside a container that has no git
+history — you can bypass the lookup entirely:
+
+```console
+$ SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_CORE=1.1.0 pip install ./cuda_core
+```
+
+The environment variable is suffixed with the distribution name, uppercased with
+hyphens replaced by underscores: `..._FOR_CUDA_BINDINGS`, `..._FOR_CUDA_CORE`,
+`..._FOR_CUDA_PATHFINDER`, `..._FOR_CUDA_PYTHON`. Use this only when you
+genuinely cannot provide tags; it is not a substitute for a correct clone.
+
+
+## Type stubs for cuda.core
+
+`cuda.core` is a PEP 561-compliant package: it ships a `py.typed` marker and
+`.pyi` stub files alongside the Cython extensions.  The stubs
+are checked into the repository.
+
+**You do not need to run stubgen-pyx manually.**  A pre-commit hook
+regenerates the corresponding `.pyi` files automatically when you commit.
+The results are then also tested with `mypy`.
+
+A few things to keep in mind:
+
+- **Do not edit `.pyi` files by hand.**  They are regenerated from the Cython
+  sources on every commit that touches those sources; manual edits will be
+  overwritten.
+- **Type annotations belong in the `.pyx`/`.pxd` source.**  stubgen-pyx reads
+  Cython type annotations and docstrings to build the stubs, so keeping the
+  source well-annotated is the right way to improve stub quality.
+- **To run mypy manually (outside of pre-commit)**: `python -m mypy
+  --config-file cuda_core/pyproject.toml
 
 ## Pre-commit
 This project uses [pre-commit.ci](https://pre-commit.ci/) with GitHub Actions. All pull requests are automatically checked for pre-commit compliance, and any pre-commit failures will block merging until resolved.
@@ -28,21 +154,57 @@ This project uses [pre-commit.ci](https://pre-commit.ci/) with GitHub Actions. A
 To set yourself up for running pre-commit checks locally and to catch issues before pushing your changes, follow these steps:
 
 * Install pre-commit with: `pip install pre-commit`
+* Run this once per checkout: `pre-commit install`
 * You can manually check all files at any time by running: `pre-commit run --all-files`
 
 This command runs all configured hooks (such as linters and formatters) across your repository, letting you review and address issues before committing.
 
-**Optional: Enable automatic checks on every commit**
-If you want pre-commit hooks to run automatically each time you make a commit, install the git hook with:
+Installing the hook is required, not optional. Some of the automated checks
+(the SPDX header updater and the `.pyi` stub generator for `cuda_core`) only
+keep the tree consistent if they run on *every* commit. Relying on manual
+`pre-commit run --all-files` invocations means these checks can be skipped
+between commits, leaving stale headers or out-of-date stubs in the history.
+If the hook isn't installed, `pre-commit run` (and CI) will print a visible
+warning reminding you to run `pre-commit install`.
 
-`pre-commit install`
+### Pre-commit on Windows
 
-This sets up a git pre-commit hook so that all configured checks will run before each commit is accepted. If any hook fails, the commit will be blocked until the issues are resolved.
+For development on Windows (not WSL), the `lychee` pre-commit task will not work
+when running `pre-commit run --all-files`.  This problem does not occur if you
+install the pre-commit hook and run it automatically as part of your `git
+commit` workflow.  To resolve this, you can either:
 
-**Note on workflow flexibility**
-Some contributors prefer to commit intermediate or work-in-progress changes that may not pass all pre-commit checks, and only clean up their commits before pushing (for example, by squashing and running `pre-commit run --all-files` manually at the end). If this fits your workflow, you may choose not to run `pre-commit install` and instead rely on manual checks. This approach avoids disruption during iterative development, while still ensuring code quality before code is shared or merged.
+1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
 
-Choose the setup that best fits your workflow and development style.
+2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
+   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+
+## Secret Scanning
+
+The `secret-scan-trufflehog` pre-commit hook scans staged files and installs TruffleHog into its own environment on first run, on Linux, macOS, and Windows. If it flags a secret, remove it before committing, or contact a maintainer if it's a false positive. Secrets are also scanned server-side in CI.
+
+
+## Signing Your Work
+
+Contributions to files licensed under Apache 2.0 must be certified under the
+[Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco).
+Sign off every commit with the `-s` option:
+
+```console
+git commit -s -m "Describe your change"
+```
+
+Git uses your configured name and email address to add a trailer like this to
+the commit message:
+
+```text
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+Use your real name and an email address associated with your contribution. The
+sign-off certifies that you have the right to submit the contribution under the
+DCO below. DCO sign-off is separate from the cryptographic commit signing
+described in the next section; both requirements apply.
 
 
 ## Code signing

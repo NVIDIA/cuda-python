@@ -8,11 +8,7 @@ import ctypes
 import numpy as np
 import pytest
 
-try:
-    from cuda.bindings import nvrtc
-except ImportError:
-    from cuda import nvrtc
-
+from cuda.bindings import nvrtc
 from cuda.core import Device, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import NVRTCError, handle_return
 
@@ -23,15 +19,24 @@ def compile_common_kernels():
     Returns a module with:
     - empty_kernel: does nothing
     - add_one: increments an int pointer by 1
+    - write_launch_dims: encodes the launch dimensions in an int
     """
     code = """
     __global__ void empty_kernel() {}
     __global__ void add_one(int *a) { *a += 1; }
+    __global__ void write_launch_dims(int *a) {
+        if (blockIdx.x == 0 && threadIdx.x == 0) {
+            *a = gridDim.x * 1000 + blockDim.x;
+        }
+    }
     """
     arch = "".join(f"{i}" for i in Device().compute_capability)
     program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
     prog = Program(code, code_type="c++", options=program_options)
-    mod = prog.compile("cubin", name_expressions=("empty_kernel", "add_one"))
+    mod = prog.compile(
+        "cubin",
+        name_expressions=("empty_kernel", "add_one", "write_launch_dims"),
+    )
     return mod
 
 

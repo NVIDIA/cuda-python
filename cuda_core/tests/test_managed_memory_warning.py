@@ -11,9 +11,9 @@ These tests only run on affected platforms (concurrent_managed_access is False).
 import warnings
 
 import pytest
+from conftest import create_managed_memory_resource_or_skip, xfail_if_mempool_oom
 
 import cuda.bindings
-from conftest import xfail_if_mempool_oom
 from cuda.core import Device, ManagedMemoryResource, ManagedMemoryResourceOptions
 from cuda.core._memory._managed_memory_resource import reset_concurrent_access_warning
 from cuda.core._utils.cuda_utils import CUDAError
@@ -28,7 +28,10 @@ requires_cuda_13 = pytest.mark.skipif(
 
 def _make_managed_mr(device_id):
     """Create a ManagedMemoryResource with an explicit device preference."""
-    return ManagedMemoryResource(options=ManagedMemoryResourceOptions(preferred_location=device_id))
+    return create_managed_memory_resource_or_skip(
+        options=ManagedMemoryResourceOptions(preferred_location=device_id),
+        xfail_device=device_id,
+    )
 
 
 @pytest.fixture

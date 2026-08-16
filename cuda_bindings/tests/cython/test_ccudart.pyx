@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # distutils: language=c++
 from libc.string cimport (
@@ -59,11 +59,8 @@ cdef extern from *:
 
 def test_ccudart_interoperable():
     # struct
-    cdef dim3 oldDim, newDim
-    oldDim.x = 1
-    oldDim.y = 2
-    oldDim.z = 3
-    newDim = copy_and_append_dim3(oldDim)
+    cdef dim3 oldDim = [1, 2, 3]
+    cdef dim3 newDim = copy_and_append_dim3(oldDim)
     assert oldDim.x + 1 == newDim.x
     assert oldDim.y + 1 == newDim.y
     assert oldDim.z + 1 == newDim.z

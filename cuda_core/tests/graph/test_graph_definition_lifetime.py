@@ -5,36 +5,85 @@
 
 import ctypes
 import gc
+import subprocess
+import sys
+import textwrap
+import threading
 import time
 import weakref
 
 import pytest
+from conftest import xfail_on_graph_mempool_oom
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
+from cuda_python_test_helpers import under_compute_sanitizer
 
-def _wait_until(predicate, timeout=2.0, interval=0.01):
-    """Poll predicate() until True or timeout, driving gc each iteration.
+# Resource finalization triggered by graph destruction is not synchronous. A
+# CUDA user-object callback transfers each node attachment bundle to a
+# pending-call cleanup queue, which releases each owner from Python's main
+# thread. Release is deterministic at the reference-count level, so the
+# predicate normally flips within milliseconds; this budget only bounds a
+# slow/loaded runner. It stays a hard failure rather than a warning so a real
+# leak still fails the suite.
+# Compute-sanitizer slows everything down, hence the larger ceiling there.
+_FINALIZE_TIMEOUT = 30.0 if under_compute_sanitizer() else 5.0
 
-    Used for assertions about resource cleanup that may be delayed by CUDA's
-    asynchronous user-object destructor pump (DPC) or, on free-threaded
-    Python, by deferred reference-count processing. A bounded poll keeps the
-    test correct without depending on undocumented driver timing guarantees.
+
+class _Sentinel:
+    """Weak-referenceable stand-in for a graph-node attachment owner.
+
+    Bare ``object()`` instances do not support weak references, so tests that
+    observe owner release through a :class:`weakref.ref` use this trivial
+    subclass instead.
     """
+
+
+class _ThreadRecordingCallback:
+    def __init__(self, finalized_threads):
+        self.finalized_threads = finalized_threads
+
+    def __call__(self):
+        pass
+
+    def __del__(self):
+        self.finalized_threads.append(threading.get_ident())
+
+
+def _wait_until(predicate, timeout=None, interval=0.02):
+    """Poll ``predicate()`` until true, or raise AssertionError on timeout.
+
+    Each iteration drives ``gc.collect()`` and reaches bytecode boundaries so
+    pending cleanup can run. Used for resource cleanup that lags graph
+    destruction; see ``_FINALIZE_TIMEOUT``.
+    """
+    if timeout is None:
+        timeout = _FINALIZE_TIMEOUT
     deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
+    while True:
         gc.collect()
         if predicate():
             return
+        if time.monotonic() >= deadline:
+            break
+        time.sleep(0)  # yield the GIL to the driver's finalizer thread
         time.sleep(interval)
+    # Final attempt after one more yield and collection.
+    time.sleep(0)
+    gc.collect()
+    if predicate():
+        return
     raise AssertionError(f"condition not satisfied within {timeout}s")
 
 
 from cuda.core import Device, DeviceMemoryResource, EventOptions, Kernel, LaunchConfig
+from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.version import driver_version
 from cuda.core.graph import (
     ChildGraphNode,
     ConditionalNode,
     GraphDefinition,
+    HostCallbackNode,
     KernelNode,
 )
 
@@ -132,6 +181,52 @@ def test_reconstructed_body_survives_parent_deletion(init_cuda):
     assert body.nodes() == set()
 
 
+@pytest.mark.parametrize("builder, expected_count", _COND_BUILDERS)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroying_conditional_node_releases_branch_attachments(init_cuda, builder, expected_count):
+    """Destroying a conditional owner releases every branch attachment."""
+    graph_def = GraphDefinition()
+    condition = try_create_condition(graph_def)
+    branches = builder(graph_def, condition)
+    callback_refs = []
+
+    for branch in branches:
+
+        def callback():
+            pass
+
+        callback_refs.append(weakref.ref(callback))
+        branch.callback(callback)
+
+    del callback, branches
+    gc.collect()
+    assert len(callback_refs) == expected_count
+    assert all(ref() is not None for ref in callback_refs)
+
+    owner = next(node for node in graph_def.nodes() if isinstance(node, ConditionalNode))
+    owner.destroy()
+    del owner
+
+    _wait_until(lambda: all(ref() is None for ref in callback_refs))
+
+
+@pytest.mark.parametrize("builder, expected_count", _COND_BUILDERS)
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroying_conditional_node_invalidates_branch_handles(init_cuda, builder, expected_count):
+    """Destroying a conditional owner invalidates every branch graph and node."""
+    graph_def = GraphDefinition()
+    condition = try_create_condition(graph_def)
+    branches = builder(graph_def, condition)
+    branch_nodes = [branch.callback(lambda: None) for branch in branches]
+
+    owner = next(node for node in graph_def.nodes() if isinstance(node, ConditionalNode))
+    owner.destroy()
+
+    assert len(branches) == expected_count
+    assert all(int(branch.handle) == 0 for branch in branches)
+    assert all(not node.is_valid for node in branch_nodes)
+
+
 # =============================================================================
 # Child graph (embed) lifetime
 # =============================================================================
@@ -155,6 +250,28 @@ def test_child_graph_survives_parent_deletion(init_cuda):
     gc.collect()
 
     assert len(child_ref.nodes()) == 2
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroyed_child_graph_preserves_python_identity(init_cuda):
+    """Tombstoning does not change graph equality or hashing."""
+    parent = GraphDefinition()
+    first_owner = parent.embed(GraphDefinition())
+    second_owner = parent.embed(GraphDefinition())
+    first = first_owner.child_graph
+    second = second_owner.child_graph
+    first_hash = hash(first)
+    second_hash = hash(second)
+    values = {first: "first", second: "second"}
+
+    first_owner.destroy()
+    second_owner.destroy()
+
+    assert hash(first) == first_hash
+    assert hash(second) == second_hash
+    assert first != second
+    assert values[first] == "first"
+    assert values[second] == "second"
 
 
 def test_nested_child_graph_lifetime(init_cuda):
@@ -183,6 +300,252 @@ def test_nested_child_graph_lifetime(init_cuda):
     assert len(grandchild.nodes()) == 1
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_reconstructed_child_view_releases_node_attachment(init_cuda):
+    """Equivalent child-graph handles share attachment metadata."""
+    parent = GraphDefinition()
+    child_node = parent.embed(GraphDefinition())
+    child_view = child_node.child_graph
+
+    def callback():
+        pass
+
+    callback_weak = weakref.ref(callback)
+    callback_node = child_view.callback(callback)
+    del callback, callback_node, child_view, child_node
+    gc.collect()
+    assert callback_weak() is not None
+
+    reconstructed_child_node = next(node for node in parent.nodes() if isinstance(node, ChildGraphNode))
+    reconstructed_child = reconstructed_child_node.child_graph
+    reconstructed_callback = next(node for node in reconstructed_child.nodes() if isinstance(node, HostCallbackNode))
+    reconstructed_callback.destroy()
+
+    del reconstructed_callback, reconstructed_child, reconstructed_child_node
+    _wait_until(lambda: callback_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_populated_child_clone_releases_attachment_on_node_destroy(init_cuda):
+    """An embedded clone imports metadata for attachments created before embed."""
+
+    def callback():
+        pass
+
+    callback_weak = weakref.ref(callback)
+    child = GraphDefinition()
+    source_callback = child.callback(callback)
+    parent = GraphDefinition()
+    child_node = parent.embed(child)
+    embedded_child = child_node.child_graph
+    embedded_callback = next(node for node in embedded_child.nodes() if isinstance(node, HostCallbackNode))
+
+    del callback, source_callback, child
+    gc.collect()
+    assert callback_weak() is not None
+
+    embedded_callback.destroy()
+    del embedded_callback, embedded_child
+    _wait_until(lambda: callback_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_nested_child_clone_releases_attachment_on_node_destroy(init_cuda):
+    """Attachment metadata is imported recursively through nested child clones."""
+
+    def callback():
+        pass
+
+    callback_weak = weakref.ref(callback)
+    inner = GraphDefinition()
+    inner_callback = inner.callback(callback)
+    middle = GraphDefinition()
+    middle_child = middle.embed(inner)
+    outer = GraphDefinition()
+    outer_child = outer.embed(middle)
+
+    embedded_middle = outer_child.child_graph
+    embedded_child_node = next(node for node in embedded_middle.nodes() if isinstance(node, ChildGraphNode))
+    embedded_inner = embedded_child_node.child_graph
+    embedded_callback = next(node for node in embedded_inner.nodes() if isinstance(node, HostCallbackNode))
+
+    del callback, inner_callback, inner, middle_child, middle
+    gc.collect()
+    assert callback_weak() is not None
+
+    embedded_callback.destroy()
+    del embedded_callback, embedded_inner, embedded_child_node, embedded_middle
+    _wait_until(lambda: callback_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroying_child_node_recursively_releases_subgraph_attachments(init_cuda):
+    """Destroying a child owner releases attachments in all nested clones."""
+
+    def callback():
+        pass
+
+    callback_weak = weakref.ref(callback)
+    inner = GraphDefinition()
+    inner_callback = inner.callback(callback)
+    middle = GraphDefinition()
+    middle_child = middle.embed(inner)
+    outer = GraphDefinition()
+    outer_child = outer.embed(middle)
+
+    del callback, inner_callback, inner, middle_child, middle
+    gc.collect()
+    assert callback_weak() is not None
+
+    outer_child.destroy()
+    del outer_child
+    _wait_until(lambda: callback_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_destroying_child_node_invalidates_embedded_handles(init_cuda):
+    """Destroying a child owner invalidates all embedded graph and node views."""
+    inner = GraphDefinition()
+    inner.callback(lambda: None)
+    middle = GraphDefinition()
+    middle.embed(inner)
+    outer = GraphDefinition()
+    outer_child = outer.embed(middle)
+
+    embedded_middle = outer_child.child_graph
+    embedded_child = next(node for node in embedded_middle.nodes() if isinstance(node, ChildGraphNode))
+    embedded_inner = embedded_child.child_graph
+    embedded_callback = next(node for node in embedded_inner.nodes() if isinstance(node, HostCallbackNode))
+
+    outer_child.destroy()
+
+    assert not outer_child.is_valid
+    assert int(embedded_middle.handle) == 0
+    assert int(embedded_inner.handle) == 0
+    assert not embedded_child.is_valid
+    assert not embedded_callback.is_valid
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_updating_child_node_replaces_embedded_handles(init_cuda):
+    """A successful replacement invalidates only the old embedded hierarchy."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    old_inner = GraphDefinition()
+    old_inner.callback(lambda: None)
+    old_middle = GraphDefinition()
+    old_middle.embed(old_inner)
+    parent = GraphDefinition()
+    child_node = parent.embed(old_middle)
+
+    embedded_middle = child_node.child_graph
+    embedded_child = next(node for node in embedded_middle.nodes() if isinstance(node, ChildGraphNode))
+    embedded_inner = embedded_child.child_graph
+    embedded_callback = next(node for node in embedded_inner.nodes() if isinstance(node, HostCallbackNode))
+
+    # Sources from the destination hierarchy may contain handles CUDA destroys
+    # during replacement, so cuda-core rejects them before mutation.
+    with pytest.raises(CUDAError):
+        child_node.update(embedded_middle)
+    with pytest.raises(CUDAError):
+        child_node.update(parent)
+    assert int(embedded_middle.handle) != 0
+    assert int(embedded_inner.handle) != 0
+    assert embedded_child.is_valid
+    assert embedded_callback.is_valid
+
+    replacement_inner = GraphDefinition()
+    replacement_inner.callback(lambda: None)
+    replacement_middle = GraphDefinition()
+    replacement_middle.embed(replacement_inner)
+    child_node.update(replacement_middle)
+
+    assert child_node.is_valid
+    assert int(embedded_middle.handle) == 0
+    assert int(embedded_inner.handle) == 0
+    assert not embedded_child.is_valid
+    assert not embedded_callback.is_valid
+
+    new_middle = child_node.child_graph
+    new_child = next(node for node in new_middle.nodes() if isinstance(node, ChildGraphNode))
+    assert int(new_middle.handle) != 0
+    assert int(new_child.child_graph.handle) != 0
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_child_update_replaces_nested_attachments(init_cuda):
+    """Replacement drops old owners and imports nested replacement owners."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    def old_callback():
+        pass
+
+    old_callback_weak = weakref.ref(old_callback)
+    old_child = GraphDefinition()
+    old_child.callback(old_callback)
+    parent = GraphDefinition()
+    child_node = parent.embed(old_child)
+
+    del old_callback, old_child
+    gc.collect()
+    assert old_callback_weak() is not None
+
+    def replacement_callback():
+        pass
+
+    replacement_callback_weak = weakref.ref(replacement_callback)
+    replacement_inner = GraphDefinition()
+    replacement_inner.callback(replacement_callback)
+    replacement = GraphDefinition()
+    replacement.embed(replacement_inner)
+    child_node.update(replacement)
+
+    _wait_until(lambda: old_callback_weak() is None)
+    del replacement_callback, replacement_inner, replacement
+    gc.collect()
+    assert replacement_callback_weak() is not None
+
+    embedded = child_node.child_graph
+    embedded_child = next(node for node in embedded.nodes() if isinstance(node, ChildGraphNode))
+    embedded_callback = next(node for node in embedded_child.child_graph.nodes() if isinstance(node, HostCallbackNode))
+    assert embedded_callback.callback is replacement_callback_weak()
+
+    del embedded_callback, embedded_child, embedded
+    child_node.destroy()
+    _wait_until(lambda: replacement_callback_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_builder_embedded_clone_releases_attachment_on_node_destroy(init_cuda):
+    """GraphBuilder.embed imports metadata from the captured child graph."""
+
+    def callback():
+        pass
+
+    callback_weak = weakref.ref(callback)
+    child = Device().create_graph_builder().begin_building()
+    child.callback(callback)
+    child.end_building()
+
+    parent = Device().create_graph_builder().begin_building()
+    parent.embed(child)
+    parent.end_building()
+    parent_def = parent.graph_definition
+    child_node = next(node for node in parent_def.nodes() if isinstance(node, ChildGraphNode))
+    embedded_child = child_node.child_graph
+    embedded_callback = next(node for node in embedded_child.nodes() if isinstance(node, HostCallbackNode))
+
+    del callback, child
+    gc.collect()
+    assert callback_weak() is not None
+
+    embedded_callback.destroy()
+    del embedded_callback, embedded_child
+    _wait_until(lambda: callback_weak() is None)
+
+
 # =============================================================================
 # Event lifetime — event nodes should keep the Event alive
 # =============================================================================
@@ -193,7 +556,8 @@ def test_event_record_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    alloc = g.allocate(1024)
+    with xfail_on_graph_mempool_oom(dev):
+        alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.record(event)
@@ -210,7 +574,8 @@ def test_event_wait_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    alloc = g.allocate(1024)
+    with xfail_on_graph_mempool_oom(dev):
+        alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.wait(event)
@@ -311,11 +676,154 @@ def test_event_survives_graph_clone_and_execution(init_cuda):
     stream = dev.create_stream()
     handle_return(driver.cuGraphLaunch(graph_exec, driver.CUstream(int(stream.handle))))
     stream.sync()
+    handle_return(driver.cuGraphExecDestroy(graph_exec))
+    handle_return(driver.cuGraphDestroy(cloned_cu_graph))
 
 
 # =============================================================================
 # Host callback lifetime — callbacks and user_data tied to graph
 # =============================================================================
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
+    """More than 32 CUDA callbacks drain through one main-thread pending call."""
+    finalized_threads = []
+    main_thread = threading.get_ident()
+    graphs = []
+
+    for _ in range(64):
+        callback = _ThreadRecordingCallback(finalized_threads)
+        graph = GraphDefinition()
+        graph.callback(callback)
+        graphs.append(graph)
+
+    del callback, graph, graphs
+    _wait_until(lambda: len(finalized_threads) == 64)
+    assert set(finalized_threads) == {main_thread}
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_pending_call_queue_saturation_preserves_cleanup(tmp_path):
+    """A full CPython queue neither strands nor mis-threads cleanup."""
+    code = f"timeout = {_FINALIZE_TIMEOUT!r}\n" + textwrap.dedent(
+        """
+        import ctypes
+        import gc
+        import threading
+        import time
+
+        from cuda.core import Device
+        from cuda.core.graph import GraphDefinition
+
+        class ThreadRecordingCallback:
+            def __init__(self, finalized_threads):
+                self.finalized_threads = finalized_threads
+
+            def __call__(self):
+                pass
+
+            def __del__(self):
+                self.finalized_threads.append(threading.get_ident())
+
+        def wait_until(predicate):
+            deadline = time.monotonic() + timeout
+            while True:
+                gc.collect()
+                if predicate():
+                    return
+                if time.monotonic() >= deadline:
+                    break
+                time.sleep(0)
+                time.sleep(0.02)
+            raise AssertionError(f"condition not satisfied within {timeout}s")
+
+        Device(0).set_current()
+
+        pending_callback_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+        add_pending_call = ctypes.pythonapi.Py_AddPendingCall
+        add_pending_call.argtypes = [pending_callback_type, ctypes.c_void_p]
+        add_pending_call.restype = ctypes.c_int
+        make_pending_calls = ctypes.pythonapi.Py_MakePendingCalls
+        make_pending_calls.argtypes = []
+        make_pending_calls.restype = ctypes.c_int
+
+        @pending_callback_type
+        def noop_pending_call(_):
+            return 0
+
+        finalized_threads = []
+        main_thread = threading.get_ident()
+        first_callback = ThreadRecordingCallback(finalized_threads)
+        first_graph = GraphDefinition()
+        first_graph.callback(first_callback)
+        graph_holder = [first_graph]
+        worker_done = threading.Event()
+        queue_was_full = []
+
+        del first_callback, first_graph
+
+        def fill_queue_and_destroy():
+            while add_pending_call(noop_pending_call, None) == 0:
+                pass
+            queue_was_full.append(True)
+            graph_holder.clear()
+            worker_done.set()
+
+        worker = threading.Thread(target=fill_queue_and_destroy)
+        worker.start()
+        assert worker_done.wait(timeout=5)
+        worker.join()
+        assert queue_was_full == [True]
+
+        # Free space before the cuda-core entry that retries cleanup scheduling.
+        assert make_pending_calls() == 0
+
+        retry_builder = Device().create_graph_builder()
+        retry_builder.close()
+
+        wait_until(lambda: len(finalized_threads) == 1)
+        assert set(finalized_threads) == {main_thread}
+        """
+    )
+    result = subprocess.run(  # noqa: S603 - controlled interpreter probe
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        # Isolate the process-global pending-call queue from parallel tests.
+        cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda, tmp_path):
+    """Outstanding graph attachments neither call Python nor hang at shutdown."""
+    code = textwrap.dedent(
+        """
+        from cuda.core import Device
+        from cuda.core.graph import GraphDefinition
+
+        class Callback:
+            def __call__(self):
+                pass
+
+        device = Device()
+        device.set_current()
+        graph = GraphDefinition()
+        graph.callback(Callback())
+        """
+    )
+    result = subprocess.run(  # noqa: S603 - controlled interpreter probe
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=20,
+        # Avoid shadowing the installed package with cuda_core/cuda/core.
+        cwd=tmp_path,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def test_python_callable_callback_survives_del(init_cuda):
@@ -338,6 +846,200 @@ def test_python_callable_callback_survives_del(init_cuda):
     stream.sync()
 
     assert called[0]
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_callback_survives_source_node_deletion(init_cuda):
+    """An instantiated graph independently retains a deleted source node's callback."""
+    called = [False]
+
+    def callback():
+        called[0] = True
+
+    callback_weak = weakref.ref(callback)
+    graph_def = GraphDefinition()
+    node = graph_def.callback(callback)
+    graph = graph_def.instantiate()
+
+    del callback
+    node.destroy()
+    del node, graph_def
+    gc.collect()
+    assert callback_weak() is not None
+
+    stream = Device().create_stream()
+    graph.launch(stream)
+    stream.sync()
+    assert called[0]
+
+    del graph
+    _wait_until(lambda: callback_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_inflight_launch_retains_attachments_until_completion(init_cuda):
+    """An in-flight launch retains the final allocation reference."""
+    from cuda.core._utils._weak_handles import weak_handle
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(8, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+    allocation_weak = weak_handle(buf)
+    callback_started = threading.Event()
+    release_callback = threading.Event()
+
+    def blocking_callback():
+        callback_started.set()
+        assert release_callback.wait(timeout=_FINALIZE_TIMEOUT)
+
+    graph_def = GraphDefinition()
+    copy_node = graph_def.memcpy(dptr, dptr + 4, 4, dst_owner=buf, src_owner=buf)
+    callback_node = copy_node.callback(blocking_callback)
+    graph = graph_def.instantiate()
+
+    buf.close()
+    del buf, blocking_callback, callback_node, copy_node, graph_def
+    gc.collect()
+    assert allocation_weak
+
+    stream = dev.create_stream()
+    graph.launch(stream)
+    assert callback_started.wait(timeout=_FINALIZE_TIMEOUT)
+
+    close_started = threading.Event()
+    close_errors = []
+
+    def close_graph(graph_to_close):
+        close_started.set()
+        try:
+            graph_to_close.close()
+        except BaseException as exc:  # pragma: no cover - surfaced below
+            close_errors.append(exc)
+
+    close_thread = threading.Thread(target=close_graph, args=(graph,))
+    close_thread.start()
+    assert close_started.wait(timeout=_FINALIZE_TIMEOUT)
+    try:
+        time.sleep(0.05)
+        assert allocation_weak
+    finally:
+        release_callback.set()
+        stream.sync()
+        close_thread.join(timeout=_FINALIZE_TIMEOUT)
+
+    assert not close_thread.is_alive()
+    assert close_errors == []
+    del close_graph, close_thread, graph
+    _wait_until(lambda: not allocation_weak)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_callback_survives_source_node_deletion_after_clone(init_cuda):
+    """A clone independently retains a callback removed from its source graph."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    called = [False]
+
+    def callback():
+        called[0] = True
+
+    callback_weak = weakref.ref(callback)
+    graph_def = GraphDefinition()
+    node = graph_def.callback(callback)
+    cloned_graph = handle_return(driver.cuGraphClone(driver.CUgraph(graph_def.handle)))
+
+    node.destroy()
+    del callback, node, graph_def
+    gc.collect()
+    assert callback_weak() is not None
+
+    graph_exec = handle_return(driver.cuGraphInstantiate(cloned_graph, 0))
+    try:
+        stream = Device().create_stream()
+        handle_return(driver.cuGraphLaunch(graph_exec, driver.CUstream(int(stream.handle))))
+        stream.sync()
+        assert called[0]
+    finally:
+        handle_return(driver.cuGraphExecDestroy(graph_exec))
+        handle_return(driver.cuGraphDestroy(cloned_graph))
+
+    _wait_until(lambda: callback_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_attachment_released_only_after_last_executable_is_destroyed(init_cuda):
+    """Each executable independently retains the source node's attachment."""
+    called = [0]
+
+    def callback():
+        called[0] += 1
+
+    callback_weak = weakref.ref(callback)
+    graph_def = GraphDefinition()
+    graph_def.callback(callback)
+    first = graph_def.instantiate()
+    second = graph_def.instantiate()
+
+    del callback, graph_def
+    gc.collect()
+    assert callback_weak() is not None
+
+    del first
+    gc.collect()
+    assert callback_weak() is not None
+
+    stream = Device().create_stream()
+    second.launch(stream)
+    stream.sync()
+    assert called == [1]
+
+    del second
+    _wait_until(lambda: callback_weak() is None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_new_node_attachment_does_not_replace_deleted_node_exec_attachment(
+    init_cuda,
+):
+    """A new source node cannot replace an older executable's attachment."""
+    called = []
+
+    def old_callback():
+        called.append("old")
+
+    def new_callback():
+        called.append("new")
+
+    old_weak = weakref.ref(old_callback)
+    new_weak = weakref.ref(new_callback)
+    graph_def = GraphDefinition()
+    old_node = graph_def.callback(old_callback)
+    old_graph = graph_def.instantiate()
+
+    old_node.destroy()
+    new_node = graph_def.callback(new_callback)
+    new_graph = graph_def.instantiate()
+
+    del old_callback, new_callback, old_node, new_node, graph_def
+    gc.collect()
+    assert old_weak() is not None
+    assert new_weak() is not None
+
+    stream = Device().create_stream()
+    old_graph.launch(stream)
+    new_graph.launch(stream)
+    stream.sync()
+    assert called == ["old", "new"]
+
+    del old_graph
+    _wait_until(lambda: old_weak() is None)
+    assert new_weak() is not None
+
+    del new_graph
+    _wait_until(lambda: new_weak() is None)
 
 
 def test_cfunc_callback_survives_del(init_cuda):
@@ -457,6 +1159,8 @@ def test_kernel_survives_graph_clone_and_execution(init_cuda):
     stream = dev.create_stream()
     handle_return(driver.cuGraphLaunch(graph_exec, driver.CUstream(int(stream.handle))))
     stream.sync()
+    handle_return(driver.cuGraphExecDestroy(graph_exec))
+    handle_return(driver.cuGraphDestroy(cloned_cu_graph))
 
 
 # =============================================================================
@@ -590,3 +1294,414 @@ def test_kernel_args_survive_graph_clone(init_cuda):
     out = (ctypes.c_int * 1)(0)
     handle_return(driver.cuMemcpyDtoH(out, dptr, ctypes.sizeof(ctypes.c_int)))
     assert out[0] == 1
+    handle_return(driver.cuGraphExecDestroy(graph_exec))
+    handle_return(driver.cuGraphDestroy(cloned_cu_graph))
+
+
+# =============================================================================
+# Memcpy/memset Buffer lifetime — operands passed as Buffer objects
+# =============================================================================
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memset_buffer_lifetime(init_cuda):
+    """Memset retains the Buffer allocation after the wrapper is collected."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+
+    g = GraphDefinition()
+    g.memset(buf, 0xAB, 4)
+
+    del buf
+    gc.collect()
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dptr, 4))
+    assert list(out) == [0xAB] * 4
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memset_buffer_survives_close(init_cuda):
+    """Memset retains the allocation when the Buffer wrapper is closed."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+
+    g = GraphDefinition()
+    g.memset(buf, 0xAB, 4)
+    buf.close()
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dptr, 4))
+    assert list(out) == [0xAB] * 4
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memcpy_buffer_lifetime(init_cuda):
+    """Memcpy retains operand allocations after the Buffer wrappers are collected."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    src.fill(0xCD, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dst_dptr = int(dst.handle)
+
+    g = GraphDefinition()
+    g.memcpy(dst, src, 4)
+
+    del src, dst
+    gc.collect()
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
+    assert list(out) == [0xCD] * 4
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memcpy_buffer_survives_close(init_cuda):
+    """Memcpy retains allocations when Buffer wrappers are closed."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    src.fill(0xCD, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dst_dptr = int(dst.handle)
+
+    g = GraphDefinition()
+    g.memcpy(dst, src, 4)
+    src.close()
+    dst.close()
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
+    assert list(out) == [0xCD] * 4
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memcpy_buffer_allocations_released_after_graph_destroyed(init_cuda):
+    """Destroying the graph frees both memcpy operand allocations.
+
+    Each operand's device-pointer handle is observed via a weak handle
+    (see ``cuda.core._utils._weak_handles``), so release is checked at the
+    reference-count level rather than through a driver side effect. With both
+    Buffer wrappers closed, the node attachment is the only remaining owner;
+    destroying the graph releases it and the weak handles expire.
+    """
+    from cuda.core._utils._weak_handles import weak_handle
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+
+    g = GraphDefinition()
+    g.memcpy(dst, src, 4)
+
+    # Observe the allocations, then drop the wrappers' strong references; the
+    # graph attachment remains the sole owner.
+    src_weak = weak_handle(src)
+    dst_weak = weak_handle(dst)
+    src.close()
+    dst.close()
+    assert src_weak and dst_weak  # graph attachment still retains both allocations
+
+    del g
+    _wait_until(lambda: not src_weak and not dst_weak)
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memcpy_buffers_survive_graph_clone(init_cuda):
+    """Cloned graph keeps memcpy operand allocations alive via CUDA user objects."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    src.fill(0xCD, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dst_dptr = int(dst.handle)
+
+    g = GraphDefinition()
+    g.memcpy(dst, src, 4)
+    cloned_cu_graph = handle_return(driver.cuGraphClone(driver.CUgraph(g.handle)))
+
+    del src, dst, g
+    gc.collect()
+
+    graph_exec = handle_return(driver.cuGraphInstantiate(cloned_cu_graph, 0))
+    stream = dev.create_stream()
+    handle_return(driver.cuGraphLaunch(graph_exec, driver.CUstream(int(stream.handle))))
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
+    assert list(out) == [0xCD] * 4
+    handle_return(driver.cuGraphExecDestroy(graph_exec))
+    handle_return(driver.cuGraphDestroy(cloned_cu_graph))
+
+
+# =============================================================================
+# Explicit dst_owner / src_owner for raw pointer operands
+# =============================================================================
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memset_raw_ptr_with_dst_owner(init_cuda):
+    """Raw dst plus Buffer dst_owner retains the allocation after close."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+
+    g = GraphDefinition()
+    g.memset(dptr, 0xAB, 4, dst_owner=buf)
+    buf.close()
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dptr, 4))
+    assert list(out) == [0xAB] * 4
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_attachment_owners_released_after_graph_destroyed(init_cuda):
+    """Destroying the graph releases every per-node attachment owner.
+
+    Raw-pointer operands with explicit sentinel owners make release observable
+    in pure Python: the node's CUDA user object holds strong Python references
+    (via ``make_opaque_py``), and graph destruction drops those references.
+    This exercises the same teardown that releases Buffer device-pointer
+    handles retained for ``dst`` and ``src``.
+    """
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(8, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+
+    dst_owner = _Sentinel()
+    src_owner = _Sentinel()
+    dst_weak = weakref.ref(dst_owner)
+    src_weak = weakref.ref(src_owner)
+
+    g = GraphDefinition()
+    # Non-overlapping 4-byte copy within an 8-byte allocation.
+    g.memcpy(dptr, dptr + 4, 4, dst_owner=dst_owner, src_owner=src_owner)
+
+    del dst_owner, src_owner
+    gc.collect()
+    assert dst_weak() is not None and src_weak() is not None  # graph retains owners
+
+    del g
+    _wait_until(lambda: dst_weak() is None and src_weak() is None)
+
+    buf.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_deleted_memcpy_bundle_survives_in_existing_exec(init_cuda):
+    """Both memcpy owners remain together until an existing exec releases them."""
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(8, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+
+    dst_owner = _Sentinel()
+    src_owner = _Sentinel()
+    dst_weak = weakref.ref(dst_owner)
+    src_weak = weakref.ref(src_owner)
+    graph_def = GraphDefinition()
+    node = graph_def.memcpy(dptr, dptr + 4, 4, dst_owner=dst_owner, src_owner=src_owner)
+    graph = graph_def.instantiate()
+
+    del dst_owner, src_owner
+    node.destroy()
+    del node, graph_def
+    gc.collect()
+    assert dst_weak() is not None and src_weak() is not None
+
+    del graph
+    _wait_until(lambda: dst_weak() is None and src_weak() is None)
+    buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memcpy_raw_ptrs_with_owners(init_cuda):
+    """Raw src/dst plus Buffer owners retain allocations after close."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    src.fill(0xCD, stream=dev.default_stream)
+    dev.default_stream.sync()
+    src_dptr = int(src.handle)
+    dst_dptr = int(dst.handle)
+
+    g = GraphDefinition()
+    g.memcpy(dst_dptr, src_dptr, 4, dst_owner=dst, src_owner=src)
+    src.close()
+    dst.close()
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
+    assert list(out) == [0xCD] * 4
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memcpy_mixed_buffer_and_raw_owner(init_cuda):
+    """Buffer dst and raw src with src_owner retain allocations after close."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    src = mr.allocate(4, stream=dev.default_stream)
+    dst = mr.allocate(4, stream=dev.default_stream)
+    src.fill(0xCD, stream=dev.default_stream)
+    dev.default_stream.sync()
+    src_dptr = int(src.handle)
+    dst_dptr = int(dst.handle)
+
+    g = GraphDefinition()
+    g.memcpy(dst, src_dptr, 4, src_owner=src)
+    src.close()
+    dst.close()
+
+    stream = dev.create_stream()
+    g.instantiate().launch(stream)
+    stream.sync()
+
+    out = (ctypes.c_uint8 * 4)(0)
+    handle_return(driver.cuMemcpyDtoH(out, dst_dptr, 4))
+    assert list(out) == [0xCD] * 4
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memset_closed_buffer_rejected(init_cuda):
+    """Memset rejects a Buffer with no active allocation."""
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+    buf.close()
+
+    g = GraphDefinition()
+    with pytest.raises(ValueError, match="dst Buffer has no active allocation"):
+        g.memset(buf, 0xAB, 4)
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memset_closed_buffer_dst_owner_rejected(init_cuda):
+    """Memset rejects a closed Buffer passed as dst_owner."""
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+    buf.close()
+
+    g = GraphDefinition()
+    with pytest.raises(ValueError, match="dst_owner Buffer has no active allocation"):
+        g.memset(dptr, 0xAB, 4, dst_owner=buf)
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memcpy_closed_buffer_src_owner_rejected(init_cuda):
+    """Memcpy rejects a closed Buffer passed as src_owner."""
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+    buf.close()
+
+    g = GraphDefinition()
+    with pytest.raises(ValueError, match="src_owner Buffer has no active allocation"):
+        g.memcpy(dptr, dptr, 4, src_owner=buf)
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memcpy_buffer_and_dst_owner_rejected(init_cuda):
+    """dst_owner cannot be combined with a Buffer dst operand."""
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+
+    g = GraphDefinition()
+    with pytest.raises(ValueError, match="dst_owner cannot be used when dst is a Buffer"):
+        g.memcpy(buf, buf, 4, dst_owner=object())
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.8")
+def test_memcpy_buffer_and_src_owner_rejected(init_cuda):
+    """src_owner cannot be combined with a Buffer src operand."""
+    _skip_if_no_mempool()
+    dev = Device()
+    mr = DeviceMemoryResource(dev)
+    buf = mr.allocate(4, stream=dev.default_stream)
+    dev.default_stream.sync()
+
+    g = GraphDefinition()
+    with pytest.raises(ValueError, match="src_owner cannot be used when src is a Buffer"):
+        g.memcpy(buf, buf, 4, src_owner=object())

@@ -34,6 +34,7 @@ CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${HOST_
   echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}"
   echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_core/dist")"
   echo "CUDA_CORE_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_core/tests/cython")"
+  echo "CUDA_CORE_TEST_BINARIES_DIR=$(realpath "${REPO_DIR}/cuda_core/tests/test_binaries")"
   echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}"
 } >> $GITHUB_ENV
 
