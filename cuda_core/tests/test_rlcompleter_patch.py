@@ -16,13 +16,13 @@ a fresh subprocess with a controlled combination of `PYTHONINSPECT` and
 `CUDA_CORE_DONT_FIX_TAB_COMPLETION`.
 """
 
-import os
 import subprocess
 import sys
 import tempfile
 import textwrap
 
 import pytest
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 from cuda.core import Device
 
@@ -59,29 +59,18 @@ _PROBE_SCRIPT = textwrap.dedent("""
 
 
 def _run_probe(*, pythoninspect: bool, opt_out: bool = False) -> subprocess.CompletedProcess:
-    env = os.environ.copy()
-    # Don't let parent-environment values bleed into the subprocess.
-    env.pop("CUDA_CORE_DONT_FIX_TAB_COMPLETION", None)
-    # Drop PYTHONPATH so the subprocess can't find a source-tree cuda.core
-    # via an inherited path entry; we want it to import the installed wheel.
-    env.pop("PYTHONPATH", None)
-    if opt_out:
-        env["CUDA_CORE_DONT_FIX_TAB_COMPLETION"] = "1"
-    # `python -c` puts the parent's CWD at the head of sys.path. If pytest is
-    # run from `cuda_core/` (which contains a `cuda/core/` source tree), that
-    # source tree shadows the installed package. Run the subprocess from a
-    # neutral temp dir to avoid this.
     with tempfile.TemporaryDirectory() as tmpdir:
-        return subprocess.run(  # noqa: S603
-            [sys.executable, "-c", _PROBE_SCRIPT],
-            capture_output=True,
-            text=True,
-            env=env,
-            check=False,
-            # PYTHONINSPECT keeps the interpreter alive after `-c`; close stdin
-            # so the implicit REPL exits immediately.
-            stdin=subprocess.DEVNULL,
+        return run_python_snippet(
+            _PROBE_SCRIPT,
             cwd=tmpdir,
+            # Drop PYTHONPATH so the subprocess can't find a source-tree
+            # cuda.core via an inherited path entry; we want it to import the
+            # installed wheel. Clearing the opt-out keeps a parent value from
+            # bleeding in; the scenario re-sets it through extra_env.
+            unset_env=("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "PYTHONPATH"),
+            extra_env={"CUDA_CORE_DONT_FIX_TAB_COMPLETION": "1"} if opt_out else None,
+            # Both callers assert on the exit code themselves.
+            check=False,
         )
 
 
@@ -148,20 +137,13 @@ def test_opt_out_env_var_values(value, expect_patched):
     `ValueError: invalid literal for int() with base 10: ''` out of
     `cuda/core/__init__.py` and made the package unimportable.
     """
-    env = os.environ.copy()
-    env.pop("PYTHONPATH", None)
-    env["CUDA_CORE_DONT_FIX_TAB_COMPLETION"] = value
     # Run from a neutral directory so a source tree next to the test run
     # cannot shadow the installed package (see _run_probe).
     with tempfile.TemporaryDirectory() as tmpdir:
-        result = subprocess.run(  # noqa: S603
-            [sys.executable, "-c", _OPT_OUT_PROBE_SCRIPT],
-            capture_output=True,
-            text=True,
-            env=env,
-            check=False,
-            stdin=subprocess.DEVNULL,
+        result = run_python_snippet(
+            _OPT_OUT_PROBE_SCRIPT,
             cwd=tmpdir,
+            unset_env=("PYTHONPATH",),
+            extra_env={"CUDA_CORE_DONT_FIX_TAB_COMPLETION": value},
         )
-    assert result.returncode == 0, f"stderr: {result.stderr}\nstdout: {result.stdout}"
     assert result.stdout.strip() == f"patched: {expect_patched}", result.stdout

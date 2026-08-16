@@ -5,8 +5,6 @@
 
 import ctypes
 import gc
-import subprocess
-import sys
 import textwrap
 import threading
 import time
@@ -14,6 +12,7 @@ import weakref
 
 import pytest
 from conftest import xfail_on_graph_mempool_oom
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
@@ -786,15 +785,8 @@ def test_pending_call_queue_saturation_preserves_cleanup(tmp_path):
         assert set(finalized_threads) == {main_thread}
         """
     )
-    result = subprocess.run(  # noqa: S603 - controlled interpreter probe
-        [sys.executable, "-c", code],
-        capture_output=True,
-        text=True,
-        timeout=60,
-        # Isolate the process-global pending-call queue from parallel tests.
-        cwd=tmp_path,
-    )
-    assert result.returncode == 0, result.stderr
+    # Isolate the process-global pending-call queue from parallel tests.
+    run_python_snippet(code, cwd=tmp_path, timeout=60)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -815,15 +807,7 @@ def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda, tmp_path):
         graph.callback(Callback())
         """
     )
-    result = subprocess.run(  # noqa: S603 - controlled interpreter probe
-        [sys.executable, "-c", code],
-        capture_output=True,
-        text=True,
-        timeout=20,
-        # Avoid shadowing the installed package with cuda_core/cuda/core.
-        cwd=tmp_path,
-    )
-    assert result.returncode == 0, result.stderr
+    run_python_snippet(code, cwd=tmp_path, timeout=20)
 
 
 def test_python_callable_callback_survives_del(init_cuda):
