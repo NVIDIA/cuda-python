@@ -29,6 +29,10 @@ from cuda.core.typing import DevicePointerType
 
 from cuda.core._memory._copy_attributes cimport _with_attributes_available
 from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-cython-lint
+
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._resource_handles cimport memcpy_with_attributes_async
+
 from cuda.core._stream cimport Stream, Stream_accept, Stream_is_default_token, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
@@ -179,9 +183,11 @@ cdef void _do_copy_with_attributes(
     object options, cydriver.CUstream hstream,
 ):
     IF CUDA_CORE_BUILD_MAJOR >= 13:
+        # Routed through the memcpy_with_attributes_async() C++ shim since
+        # cydriver.cuMemcpyWithAttributesAsync is absent from cuda-bindings < 13.2.
         cdef cydriver.CUmemcpyAttributes cu_attr = _to_cu_memcpy_attributes(options)
         with nogil:
-            HANDLE_RETURN(cydriver.cuMemcpyWithAttributesAsync(dst, src, nbytes, &cu_attr, hstream))
+            HANDLE_RETURN(memcpy_with_attributes_async(dst, src, nbytes, <void*>&cu_attr, hstream))
     ELSE:
         pass  # unreachable: _with_attributes_available() is always False on CUDA 12
 

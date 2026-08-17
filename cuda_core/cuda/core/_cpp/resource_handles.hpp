@@ -146,6 +146,15 @@ extern decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit;
 extern void* p_cuDevSmResourceSplit;
 #endif
 
+// cuMemcpyWithAttributesAsync (13.2+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13020
+extern decltype(&cuMemcpyWithAttributesAsync) p_cuMemcpyWithAttributesAsync;
+#else
+// cuMemcpyWithAttributesAsync doesn't exist in CUDA < 13.2 headers, so use a
+// void* placeholder. The pointer is always null when built against older CUDA.
+extern void* p_cuMemcpyWithAttributesAsync;
+#endif
+
 // ============================================================================
 // NVRTC function pointers
 //
@@ -1109,5 +1118,22 @@ CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
 
 // Returns true if the cuDevSmResourceSplit function pointer is available.
 bool has_sm_resource_split() noexcept;
+
+// ============================================================================
+// cuMemcpyWithAttributesAsync wrapper (13.2+)
+//
+// Calls through p_cuMemcpyWithAttributesAsync if available, otherwise returns
+// CUDA_ERROR_NOT_SUPPORTED. This avoids a direct Cython cimport of the
+// cydriver cdef function, which would fail at module init on cuda-bindings
+// < 13.2 (see https://github.com/NVIDIA/cuda-python/issues/2063).
+// ============================================================================
+
+// attr is void* so the Cython declaration doesn't reference CUmemcpyAttributes
+// (absent from cuda-bindings built against CUDA < 12.8). The C++ side casts it.
+CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t size,
+                                       void* attr, CUstream hStream);
+
+// Returns true if the cuMemcpyWithAttributesAsync function pointer is available.
+bool has_memcpy_with_attributes_async() noexcept;
 
 }  // namespace cuda_core
