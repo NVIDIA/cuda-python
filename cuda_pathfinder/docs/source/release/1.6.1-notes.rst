@@ -15,25 +15,47 @@ Highlights
   CTK libraries available for that architecture through
   ``SUPPORTED_NVIDIA_LIBNAMES``. A known library unavailable for the current
   architecture raises ``DynamicLibNotAvailableError``.
+  (`PR #2393 <https://github.com/NVIDIA/cuda-python/pull/2393>`_)
 
 * Add Windows Arm64 discovery for CUDA 13.4 layouts while retaining legacy
   CUDA 12 wheel directories as x64-only fallbacks. This includes corrected
   architecture-specific locations for cuDLA, NVVM, CUPTI, and cuSPARSELt.
   NVVM binaries found in an unqualified legacy directory are checked for a
   matching PE machine architecture before loading.
+  (`PR #2393 <https://github.com/NVIDIA/cuda-python/pull/2393>`_)
 
 * Add ``UnsupportedArchError`` for unsupported Windows Python platform tags.
+  (`PR #2393 <https://github.com/NVIDIA/cuda-python/pull/2393>`_)
 
 * Make Windows static-library discovery architecture-aware. Searches now use
   the current Python interpreter architecture to select the matching
   ``lib/x64`` or ``lib/arm64`` CUDA Toolkit and wheel directories. CUDA 12
   component-wheel and legacy Conda fallbacks remain x64-only.
+  (`PR #2491 <https://github.com/NVIDIA/cuda-python/pull/2491>`_)
 
 * Fix Windows binary-utility discovery for CUDA 13.4 Arm64 layouts. Prefer the
   Compute Sanitizer launcher, locate standalone Nsight Systems and Nsight
   Compute through their installer registry entries, and select
   architecture-specific executable targets using the native Windows machine
   architecture.
+  (`PR #2586 <https://github.com/NVIDIA/cuda-python/pull/2586>`_)
+
+Bugfixes
+--------
+
+* Ensure :func:`find_nvidia_binary_utility` returns an absolute path when a
+  configured search root is relative. On Windows, dynamic-library loading now
+  warns when registering a dependent-DLL directory fails before falling back
+  to updating ``PATH``.
+  (`PR #2399 <https://github.com/NVIDIA/cuda-python/pull/2399>`_)
+
+Documentation
+-------------
+
+* Document that source builds require Git history and
+  ``cuda-pathfinder-v*`` tags so ``setuptools-scm`` can derive the package
+  version.
+  (`PR #2424 <https://github.com/NVIDIA/cuda-python/pull/2424>`_)
 
 Internal maintenance
 --------------------
@@ -43,7 +65,17 @@ Internal maintenance
   internal ``SUPPORTED_LIBNAMES_WINDOWS*`` and
   ``SITE_PACKAGES_LIBDIRS_WINDOWS*`` tables. Unsuffixed names remain x64
   aliases for backward compatibility.
+  (`PR #2393 <https://github.com/NVIDIA/cuda-python/pull/2393>`_)
 
 * Remove the obsolete descriptor-catalog writer and its catalog-update tools.
   The site-packages collection scripts remain available for gathering library
   paths.
+  (`PR #2393 <https://github.com/NVIDIA/cuda-python/pull/2393>`_)
+
+* Use ``pathlib.Path`` internally for static- and bitcode-library discovery
+  while preserving the public string return types.
+  (`PR #2493 <https://github.com/NVIDIA/cuda-python/pull/2493>`_)
+
+* Isolate Windows Nsight registry discovery in a dedicated internal module and
+  add focused tests; runtime behavior is unchanged.
+  (`PR #2614 <https://github.com/NVIDIA/cuda-python/pull/2614>`_)
