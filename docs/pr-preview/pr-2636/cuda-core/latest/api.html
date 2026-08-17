@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=b4b6e765"></script>
+    <script src="_static/documentation_options.js?v=aec54a8e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev70';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev86';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -875,6 +875,13 @@ on other non-blocking streams.</p>
 </tbody>
 </table>
 </div>
+<p>A <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> records the stream that will order its eventual deallocation.
+Use <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a> to replace that stream without
+closing the buffer. Changing the recorded stream does not synchronize streams;
+the caller must order allocation and every access before the deallocation,
+using events or other CUDA synchronization mechanisms as needed. See
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/5080b3410619034556993a4f649e39c2aa4027db/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+for a complete example.</p>
 </section>
 <section id="cuda-compilation-toolchain">
 <h2>CUDA compilation toolchain<a class="headerlink" href="#cuda-compilation-toolchain" title="Link to this heading">#</a></h2>

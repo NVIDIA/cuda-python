@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b4b6e765"></script>
+    <script src="../_static/documentation_options.js?v=aec54a8e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev70';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev86';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -764,23 +764,24 @@
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Added <a class="reference internal" href="../generated/cuda.core.utils.copy_batch.html#cuda.core.utils.copy_batch" title="cuda.core.utils.copy_batch"><code class="xref py py-func docutils literal notranslate"><span class="pre">utils.copy_batch()</span></code></a>, which submits many buffer-to-buffer copies
-in a single <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> call. Per-copy behavior is controlled
-by the new <a class="reference internal" href="../generated/cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.CopyOptions</span></code></a> dataclass. Requires <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>
-built against CUDA 13, <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 13.0+, and a driver reporting
-CUDA 13.0 or newer; otherwise falls back to a per-copy <code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code>
-loop with options silently ignored. Graph capture and default-stream tokens
-are rejected. Copies within a batch must not alias.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1333">#1333</a>)</p></li>
-<li><p><a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to" title="cuda.core.Buffer.copy_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a> and <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_from" title="cuda.core.Buffer.copy_from"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a> now accept an optional
-<code class="docutils literal notranslate"><span class="pre">options</span></code> keyword argument (<a class="reference internal" href="../generated/cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a>). When both
-<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> and the driver are CUDA 13.2 or newer and the stream is
-not under graph capture, the copy is submitted via
-<code class="docutils literal notranslate"><span class="pre">cuMemcpyWithAttributesAsync</span></code>. On older installs, or when the stream is
-capturing, a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#UserWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserWarning</span></code></a> is emitted and the copy falls back to
-<code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code>; <code class="docutils literal notranslate"><span class="pre">options=None</span></code> (the default) always uses
-<code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code> with no warning.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2365">#2365</a>)</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.CopyOptions</span></code></a> (source access order, location hints,
+overlap mode) for buffer-to-buffer copies. The new
+<a class="reference internal" href="../generated/cuda.core.utils.copy_batch.html#cuda.core.utils.copy_batch" title="cuda.core.utils.copy_batch"><code class="xref py py-func docutils literal notranslate"><span class="pre">utils.copy_batch()</span></code></a> accepts it and submits many copies in a single
+<code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> call, requiring <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> built against CUDA 13
+plus <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>/driver 13.0 or newer. <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to" title="cuda.core.Buffer.copy_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_from" title="cuda.core.Buffer.copy_from"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a> also accept it now, as a new <code class="docutils literal notranslate"><span class="pre">options</span></code> keyword,
+submitting a single copy via <code class="docutils literal notranslate"><span class="pre">cuMemcpyWithAttributesAsync</span></code> and requiring
+<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>/driver 13.2 or newer. Both reject
+<code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> with <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> (<code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code>
+is accepted); <code class="docutils literal notranslate"><span class="pre">copy_batch</span></code> always rejects graph capture, while
+<code class="docutils literal notranslate"><span class="pre">Buffer.copy_to</span></code>/<code class="docutils literal notranslate"><span class="pre">copy_from</span></code> reject it only when <code class="docutils literal notranslate"><span class="pre">options</span></code> is given.
+On an older <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>/driver install, <code class="docutils literal notranslate"><span class="pre">src_access_order</span></code> values
+of <code class="docutils literal notranslate"><span class="pre">STREAM</span></code> and <code class="docutils literal notranslate"><span class="pre">ANY</span></code> silently fall back to plain <code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code>;
+<code class="docutils literal notranslate"><span class="pre">DURING_API_CALL</span></code> raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> instead, since that fallback
+cannot honor its guarantee that all source reads complete before the call
+returns. Copies within a <code class="docutils literal notranslate"><span class="pre">copy_batch</span></code> call must not alias.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1333">#1333</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2365">#2365</a>)</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
@@ -798,6 +799,9 @@ deallocation when the memory resource owns the pointer. It defaults to
 <code class="docutils literal notranslate"><span class="pre">default_stream()</span></code>, which requires a CUDA context to be current so the
 free recipe can pin that context.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2497">#2497</a>)</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a> to change the stream that orders
+a buffer’s eventual deallocation without closing the buffer.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2600">#2600</a>)</p></li>
 <li><p>Explicit calls to <code class="docutils literal notranslate"><span class="pre">deallocate()</span></code> on pool-backed memory resources and
 <a class="reference internal" href="../generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a> now propagate errors from the underlying CUDA
 free operation. Previously, these errors could be suppressed. Automatic
@@ -870,6 +874,15 @@ is a multiple of that default. A green context created from the discovered
 group may therefore span the full GPU and leave an empty remainder. Set
 <code class="docutils literal notranslate"><span class="pre">coscheduled_sm_count</span></code> explicitly when an aligned result is required.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2389">#2389</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ProgramOptions(numba_debug=True)</span></code> now works on the NVVM backend. The
+option was emitted to libNVVM as <code class="docutils literal notranslate"><span class="pre">--numba-debug</span></code>, but libNVVM accepts only
+single-dashed options, so every such compile failed with
+<code class="docutils literal notranslate"><span class="pre">NVVM_ERROR_INVALID_OPTION</span></code>. It is now emitted as <code class="docutils literal notranslate"><span class="pre">-numba-debug</span></code>, matching
+what numba-cuda passes on the NVVM path. The NVRTC backend accepts both
+spellings and was unaffected. The option itself is only recognized by newer
+toolkits; libNVVM from CUDA 12.x does not support it under either spelling and
+still reports <code class="docutils literal notranslate"><span class="pre">NVVM_ERROR_INVALID_OPTION</span></code>.
+(closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2570">#2570</a>)</p></li>
 </ul>
 </section>
 <section id="deprecation-notices">
