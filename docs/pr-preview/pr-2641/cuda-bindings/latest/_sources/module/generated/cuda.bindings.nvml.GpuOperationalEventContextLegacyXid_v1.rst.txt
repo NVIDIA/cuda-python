@@ -1,0 +1,32 @@
+﻿cuda.bindings.nvml.GpuOperationalEventContextLegacyXid\_v1
+==========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuOperationalEventContextLegacyXid_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuOperationalEventContextLegacyXid_v1.__init__
+      ~GpuOperationalEventContextLegacyXid_v1.from_buffer
+      ~GpuOperationalEventContextLegacyXid_v1.from_data
+      ~GpuOperationalEventContextLegacyXid_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuOperationalEventContextLegacyXid_v1.ptr
+      ~GpuOperationalEventContextLegacyXid_v1.xid_code
+   
+   

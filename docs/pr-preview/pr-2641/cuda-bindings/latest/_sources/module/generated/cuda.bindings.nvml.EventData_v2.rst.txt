@@ -1,0 +1,55 @@
+﻿cuda.bindings.nvml.EventData\_v2
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EventData_v2
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EventData_v2.__init__
+      ~EventData_v2.from_buffer
+      ~EventData_v2.from_data
+      ~EventData_v2.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EventData_v2.attributes
+      ~EventData_v2.category_id
+      ~EventData_v2.chiplet_id
+      ~EventData_v2.compute_instance_id
+      ~EventData_v2.data_type
+      ~EventData_v2.event_data
+      ~EventData_v2.event_type
+      ~EventData_v2.gpu_instance_id
+      ~EventData_v2.group_attributes
+      ~EventData_v2.group_cper_size
+      ~EventData_v2.group_cursor
+      ~EventData_v2.group_index
+      ~EventData_v2.group_size
+      ~EventData_v2.instance_id
+      ~EventData_v2.log_level
+      ~EventData_v2.module_event_code
+      ~EventData_v2.module_instance
+      ~EventData_v2.originator
+      ~EventData_v2.ptr
+      ~EventData_v2.scope
+      ~EventData_v2.severity
+      ~EventData_v2.source_module
+      ~EventData_v2.timestamp_usec
+      ~EventData_v2.trace_id
+      ~EventData_v2.uuid
+   
+   

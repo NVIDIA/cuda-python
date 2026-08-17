@@ -1,0 +1,6 @@
+﻿cuda.core.system.NotReadyError
+==============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: NotReadyError

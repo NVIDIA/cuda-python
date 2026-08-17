@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.readv
+==========================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autofunction:: readv

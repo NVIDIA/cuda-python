@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.GpuFabricClique\_v1
+======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuFabricClique_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuFabricClique_v1.__init__
+      ~GpuFabricClique_v1.from_buffer
+      ~GpuFabricClique_v1.from_data
+      ~GpuFabricClique_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuFabricClique_v1.id
+      ~GpuFabricClique_v1.ptr
+      ~GpuFabricClique_v1.type
+   
+   
