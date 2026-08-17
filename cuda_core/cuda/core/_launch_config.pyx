@@ -271,7 +271,9 @@ cpdef object _to_native_launch_config(LaunchConfig config):
     if config.synchronization_policy is not None:
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
-        attr.value.syncPolicy = int(config.synchronization_policy)
+        attr.value.syncPolicy = driver.CUsynchronizationPolicy(
+            int(config.synchronization_policy)
+        )
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)
