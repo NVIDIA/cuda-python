@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.CoolerTarget
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: CoolerTarget
