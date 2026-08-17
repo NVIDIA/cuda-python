@@ -362,6 +362,25 @@ def test_options_copy_from_warns_under_graph_capture(single_copy_stream, pinned_
     dst.close()
 
 
+@pytest.mark.agent_authored(model="Claude Sonnet 5")
+@pytest.mark.parametrize("bad_options", [42, "not-copyoptions", object()])
+def test_copy_to_rejects_invalid_options_type(single_copy_stream, pinned_mr, bad_options):
+    src = pinned_mr.allocate(SIZE)
+    dst = pinned_mr.allocate(SIZE)
+
+    with pytest.raises(TypeError, match="options must be CopyOptions"):
+        src.copy_to(dst, stream=single_copy_stream, options=bad_options)
+
+    with pytest.raises(TypeError, match="options must be CopyOptions"):
+        dst.copy_from(src, stream=single_copy_stream, options=bad_options)
+
+    with pytest.raises(TypeError, match="options must be CopyOptions"):
+        src.copy_to(dst, stream=LEGACY_DEFAULT_STREAM, options="not-copyoptions")
+
+    src.close()
+    dst.close()
+
+
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
 def test_dst_none_with_options(single_copy_device, single_copy_stream, pinned_mr):
     """dst=None auto-allocation works correctly with options on all driver versions."""

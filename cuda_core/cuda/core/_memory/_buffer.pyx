@@ -200,7 +200,12 @@ cdef void _dispatch_buffer_copy(
     if options is None:
         with nogil:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(dst, src, nbytes, as_cu(s._h_stream)))
-    elif _with_attributes_available() and not Stream_is_default_token(s) and not _stream_is_capturing(s):
+        return
+    if not isinstance(options, CopyOptions):
+        raise TypeError(
+            f"{method_name}: options must be CopyOptions, got {type(options).__name__}"
+        )
+    if _with_attributes_available() and not Stream_is_default_token(s) and not _stream_is_capturing(s):
         _do_copy_with_attributes(dst, src, nbytes, options, as_cu(s._h_stream))
     else:
         # Cython cdef frames are invisible on the Python stack, so stacklevel=2
