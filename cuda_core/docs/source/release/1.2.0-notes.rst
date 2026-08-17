@@ -120,6 +120,16 @@ Fixes and enhancements
   ``coscheduled_sm_count`` explicitly when an aligned result is required.
   (`#2389 <https://github.com/NVIDIA/cuda-python/pull/2389>`__)
 
+- ``ProgramOptions(numba_debug=True)`` now works on the NVVM backend. The
+  option was emitted to libNVVM as ``--numba-debug``, but libNVVM accepts only
+  single-dashed options, so every such compile failed with
+  ``NVVM_ERROR_INVALID_OPTION``. It is now emitted as ``-numba-debug``, matching
+  what numba-cuda passes on the NVVM path. The NVRTC backend accepts both
+  spellings and was unaffected. The option itself is only recognized by newer
+  toolkits; libNVVM from CUDA 12.x does not support it under either spelling and
+  still reports ``NVVM_ERROR_INVALID_OPTION``.
+  (closes `#2570 <https://github.com/NVIDIA/cuda-python/issues/2570>`__)
+
 Deprecation Notices
 -------------------
 
