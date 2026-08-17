@@ -5,7 +5,7 @@
 
 import pytest
 from conftest import create_managed_memory_resource_or_skip
-from helpers.buffers import compare_equal_buffers, make_scratch_buffer
+from helpers.buffers import compare_equal_buffers, make_scratch_buffer, set_buffer
 from helpers.copy_batch import assert_managed_holds
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource
@@ -311,9 +311,18 @@ def test_options_copy_from_data_correct(single_copy_device, single_copy_stream, 
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_to_warns_under_graph_capture(single_copy_device, single_copy_stream, pinned_mr):
-    """copy_to warns and falls back to cuMemcpyAsync when the stream is capturing."""
-    src = make_scratch_buffer(single_copy_device, 0xBB, SIZE)
+def test_options_copy_to_warns_under_graph_capture(single_copy_stream, pinned_mr):
+    """copy_to warns and falls back to cuMemcpyAsync when the stream is capturing.
+
+    Both buffers are pinned host memory rather than managed memory: capturing
+    a managed-memory memcpy into a graph fails to instantiate on some driver
+    versions once the process has queried a device's default mempool (for
+    example via ``device.memory_resource``), which most other tests in this
+    suite do. Managed memory itself is not under test here, so pinned-to-pinned
+    keeps this test's result independent of what ran before it.
+    """
+    src = pinned_mr.allocate(SIZE)
+    set_buffer(src, 0xBB)
     dst = pinned_mr.allocate(SIZE)
 
     gb = single_copy_stream.create_graph_builder().begin_building()
@@ -325,15 +334,19 @@ def test_options_copy_to_warns_under_graph_capture(single_copy_device, single_co
 
     assert compare_equal_buffers(src, dst)
 
-    src.close(single_copy_stream)
-    single_copy_stream.sync()
+    src.close()
     dst.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_from_warns_under_graph_capture(single_copy_device, single_copy_stream, pinned_mr):
-    """copy_from warns and falls back to cuMemcpyAsync when the stream is capturing."""
-    src = make_scratch_buffer(single_copy_device, 0xCC, SIZE)
+def test_options_copy_from_warns_under_graph_capture(single_copy_stream, pinned_mr):
+    """copy_from warns and falls back to cuMemcpyAsync when the stream is capturing.
+
+    See ``test_options_copy_to_warns_under_graph_capture`` for why both
+    buffers are pinned host memory rather than managed memory.
+    """
+    src = pinned_mr.allocate(SIZE)
+    set_buffer(src, 0xCC)
     dst = pinned_mr.allocate(SIZE)
 
     gb = single_copy_stream.create_graph_builder().begin_building()
@@ -345,8 +358,7 @@ def test_options_copy_from_warns_under_graph_capture(single_copy_device, single_
 
     assert compare_equal_buffers(src, dst)
 
-    src.close(single_copy_stream)
-    single_copy_stream.sync()
+    src.close()
     dst.close()
 
 
