@@ -74,13 +74,14 @@ def test_register_rejects_non_ipc_memory_resource(mempool_device):
 
 @pytest.mark.skipif(os.name == "nt", reason="IPC allocation handles are not supported on Windows")
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_ipc_allocation_handle_truth_tracks_close():
+def test_ipc_allocation_handle_state_tracks_close():
     read_fd, write_fd = os.pipe()
     handle = IPCAllocationHandle._init(read_fd, None)
     try:
-        assert handle
+        assert not handle.is_closed
         handle.close()
-        assert not handle
+        assert handle.is_closed
+        assert bool(handle) is True  # Preserve backward-compatible truthiness after close.
         with pytest.raises(ValueError, match="is closed"):
             int(handle)
     finally:

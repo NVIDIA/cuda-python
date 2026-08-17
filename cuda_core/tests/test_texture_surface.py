@@ -723,7 +723,8 @@ def test_closed_arrays_rejected_before_active_operations(init_cuda):
     array_resource = ResourceDescriptor.from_opaque_array(arr)
     arr.close()
 
-    assert not arr
+    assert arr.is_closed
+    assert bool(arr) is True  # Preserve backward-compatible truthiness after close.
     with pytest.raises(RuntimeError, match="OpaqueArray has been closed"):
         arr.copy_from(bytearray(8), stream=stream)
     with pytest.raises(RuntimeError, match="OpaqueArray has been closed"):
@@ -742,7 +743,8 @@ def test_closed_arrays_rejected_before_active_operations(init_cuda):
     mip_resource = ResourceDescriptor.from_mipmapped_array(mip)
     mip.close()
 
-    assert not mip
+    assert mip.is_closed
+    assert bool(mip) is True  # Preserve backward-compatible truthiness after close.
     with pytest.raises(RuntimeError, match="MipmappedArray has been closed"):
         mip.get_level(0)
     with pytest.raises(RuntimeError, match="MipmappedArray has been closed"):
@@ -752,7 +754,7 @@ def test_closed_arrays_rejected_before_active_operations(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_texture_and_surface_truth_tracks_close(init_cuda):
+def test_texture_and_surface_state_tracks_close(init_cuda):
     device = Device()
     texture_array = device.create_opaque_array(
         OpaqueArrayOptions(shape=(8,), format=ArrayFormatType.UINT8, num_channels=1)
@@ -761,9 +763,10 @@ def test_texture_and_surface_truth_tracks_close(init_cuda):
         resource=ResourceDescriptor.from_opaque_array(texture_array),
         options=TextureObjectOptions(),
     )
-    assert texture
+    assert not texture.is_closed
     texture.close()
-    assert not texture
+    assert texture.is_closed
+    assert bool(texture) is True  # Preserve backward-compatible truthiness after close.
 
     surface_array = device.create_opaque_array(
         OpaqueArrayOptions(
@@ -774,9 +777,10 @@ def test_texture_and_surface_truth_tracks_close(init_cuda):
         )
     )
     surface = device.create_surface_object(resource=ResourceDescriptor.from_opaque_array(surface_array))
-    assert surface
+    assert not surface.is_closed
     surface.close()
-    assert not surface
+    assert surface.is_closed
+    assert bool(surface) is True  # Preserve backward-compatible truthiness after close.
 
     texture_array.close()
     surface_array.close()

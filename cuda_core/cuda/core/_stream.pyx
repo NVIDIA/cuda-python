@@ -205,8 +205,10 @@ cdef class Stream:
             return
         self._h_stream.reset()
 
-    def __bool__(self) -> bool:
-        return self._h_stream.get() != NULL
+    @property
+    def is_closed(self) -> bool:
+        """Whether this stream has been closed."""
+        return self._h_stream.get() == NULL
 
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
@@ -635,7 +637,7 @@ cpdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
         Stream_check_open(stream)
         return stream
     elif isinstance(arg, GraphBuilder):
-        if not arg:
+        if arg.is_closed:
             raise RuntimeError("GraphBuilder has been closed")
         stream = <Stream>arg.stream
         Stream_check_open(stream)

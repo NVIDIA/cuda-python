@@ -241,7 +241,8 @@ def test_set_current_rejects_closed_context(init_cuda, sm_resource):
     ctx = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
     ctx.close()
 
-    assert not ctx
+    assert ctx.is_closed
+    assert bool(ctx) is True  # Preserve backward-compatible truthiness after close.
     with pytest.raises(RuntimeError, match="Context has been closed"):
         init_cuda.set_current(ctx)
 

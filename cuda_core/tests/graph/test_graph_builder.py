@@ -476,7 +476,8 @@ def test_closed_graph_and_builder_rejected_before_operations(init_cuda):
     graph = graph_def.instantiate()
     graph.close()
 
-    assert not graph
+    assert graph.is_closed
+    assert bool(graph) is True  # Preserve backward-compatible truthiness after close.
     for operation in (
         lambda: graph[node],
         lambda: graph.update(graph_def),
@@ -489,7 +490,8 @@ def test_closed_graph_and_builder_rejected_before_operations(init_cuda):
     builder = device.create_graph_builder()
     other = device.create_graph_builder()
     builder.close()
-    assert not builder
+    assert builder.is_closed
+    assert bool(builder) is True  # Preserve backward-compatible truthiness after close.
     with pytest.raises(RuntimeError, match="Graph builder has been closed"):
         GraphBuilder.join(builder, other)
 

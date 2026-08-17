@@ -282,7 +282,7 @@ cdef class ParamHolder:
         for i, arg in enumerate(kernel_args):
             arg_type = type(arg)
             if arg_type is Buffer:
-                if not arg:
+                if arg.is_closed:
                     raise RuntimeError("Buffer has been closed")
                 # we need the address of where the actual buffer address is stored
                 if type(arg.handle) is int:
@@ -329,7 +329,7 @@ cdef class ParamHolder:
                     continue
                 # If no exact types are found, fallback to slower `isinstance` check
                 elif isinstance(arg, Buffer):
-                    if not arg:
+                    if arg.is_closed:
                         raise RuntimeError("Buffer has been closed")
                     if isinstance(arg.handle, int):
                         prepare_arg[intptr_t](self.data, self.data_addresses, arg.handle, i)

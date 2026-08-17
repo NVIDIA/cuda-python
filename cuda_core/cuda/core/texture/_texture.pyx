@@ -434,8 +434,10 @@ cdef class TextureObject:
         """The underlying ``CUtexObject`` as an integer (64-bit kernel arg)."""
         return as_intptr(self._handle)
 
-    def __bool__(self) -> bool:
-        return self._handle.get() != NULL
+    @property
+    def is_closed(self) -> bool:
+        """Whether this texture object has been closed."""
+        return self._handle.get() == NULL
 
     @property
     def resource(self):

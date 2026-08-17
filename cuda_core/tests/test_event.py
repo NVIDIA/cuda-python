@@ -364,7 +364,7 @@ def test_closed_event_rejected_before_operations(init_cuda):
     other = device.create_event()
     event.close()
 
-    assert not event
+    assert event.is_closed
     for operation in (
         event.sync,
         lambda: event.is_done,

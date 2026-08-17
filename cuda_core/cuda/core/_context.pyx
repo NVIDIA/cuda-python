@@ -74,8 +74,10 @@ cdef class Context:
     def _handle(self) -> cuda.bindings.driver.CUcontext | None:
         return self.handle
 
-    def __bool__(self) -> bool:
-        return self._h_context.get() != NULL
+    @property
+    def is_closed(self) -> bool:
+        """Whether this context has been closed."""
+        return self._h_context.get() == NULL
 
     @property
     def is_green(self) -> bool:

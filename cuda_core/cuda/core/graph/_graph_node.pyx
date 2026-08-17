@@ -105,15 +105,10 @@ cdef class GraphNode:
     def __repr__(self) -> str:
         cdef cydriver.CUgraphNode node = as_cu(self._h_node)
         if node == NULL:
-            if self._is_entry and self:
+            if self._is_entry and self.is_valid:
                 return "<GraphNode entry>"
             return "<GraphNode destroyed>"
         return f"<GraphNode handle=0x{<uintptr_t>node:x}>"
-
-    def __bool__(self) -> bool:
-        if self._is_entry:
-            return as_intptr(graph_node_get_graph(self._h_node)) != 0
-        return as_intptr(self._h_node) != 0
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, GraphNode):
@@ -160,11 +155,14 @@ cdef class GraphNode:
 
     @property
     def is_valid(self) -> bool:
-        """Whether this node is valid (not destroyed).
+        """Whether this node and its graph definition remain valid.
 
         Returns ``False`` after :meth:`destroy` has been called.
         """
-        return bool(self)
+        return (
+            as_intptr(graph_node_get_graph(self._h_node)) != 0
+            and (self._is_entry or as_intptr(self._h_node) != 0)
+        )
 
     def destroy(self) -> None:
         """Destroy this node and remove all its edges from the parent graph.

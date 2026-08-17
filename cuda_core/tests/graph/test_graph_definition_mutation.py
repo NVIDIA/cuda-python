@@ -319,12 +319,14 @@ def test_destroyed_node_and_invalid_child_view_are_rejected(init_cuda):
     embedded = predecessor.embed(child)
     child_view = embedded.child_graph
 
-    assert embedded
-    assert child_view
+    assert embedded.is_valid
+    assert child_view.is_valid
     embedded.destroy()
 
-    assert not embedded
-    assert not child_view
+    assert not embedded.is_valid
+    assert not child_view.is_valid
+    assert bool(embedded) is True  # Preserve backward-compatible truthiness after destruction.
+    assert bool(child_view) is True  # Preserve backward-compatible truthiness after invalidation.
     assert repr(embedded)
     assert repr(child_view)
 

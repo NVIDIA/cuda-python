@@ -88,12 +88,14 @@ cdef class Program:
         self._h_nvrtc.reset()
         self._h_nvvm.reset()
 
-    def __bool__(self) -> bool:
+    @property
+    def is_closed(self) -> bool:
+        """Whether this program has been closed."""
         if self._backend == "NVRTC":
-            return self._h_nvrtc.get() != NULL
+            return self._h_nvrtc.get() == NULL
         if self._backend == "NVVM":
-            return self._h_nvvm.get() != NULL
-        return self._linker is not None and bool(self._linker)
+            return self._h_nvvm.get() == NULL
+        return self._linker is None or self._linker.is_closed
 
     def compile(
         self,
@@ -150,7 +152,7 @@ cdef class Program:
         :class:`~cuda.core.ObjectCode`
             The compiled object code.
         """
-        if not self:
+        if self.is_closed:
             raise RuntimeError("Program has been closed")
         # Mirror Program_init's code_type normalization so callers can pass
         # ``ObjectCodeFormatType.PTX`` or ``"PTX"`` and get the same routing

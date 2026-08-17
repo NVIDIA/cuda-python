@@ -686,8 +686,10 @@ cdef class Buffer:
         # that expect a raw pointer value
         return as_intptr(self._h_ptr)
 
-    def __bool__(self) -> bool:
-        return self._h_ptr.get() != NULL
+    @property
+    def is_closed(self) -> bool:
+        """Whether this buffer has been closed."""
+        return self._h_ptr.get() == NULL
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Buffer):

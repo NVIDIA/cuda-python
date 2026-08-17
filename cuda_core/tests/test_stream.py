@@ -121,7 +121,7 @@ def test_default_stream_close_is_noop(stream, init_cuda):
     stream.close()
     stream.close()
 
-    assert stream
+    assert not stream.is_closed
     assert int(stream.handle) == handle
     assert Stream_accept(stream) is stream
 
@@ -132,12 +132,12 @@ def test_raw_null_stream_is_live_until_closed(init_cuda):
     Device().set_current()
     stream = Stream.from_handle(0)
 
-    assert stream
+    assert not stream.is_closed
     assert Stream_accept(stream) is stream
     assert stream.__cuda_stream__() == (0, 0)
 
     stream.close()
-    assert not stream
+    assert stream.is_closed
     assert int(stream.handle) == 0
 
 
@@ -147,7 +147,7 @@ def test_closed_stream_rejected_before_operations(init_cuda):
     wrapped = StreamWrapper(stream)
     stream.close()
 
-    assert not stream
+    assert stream.is_closed
     for operation in (
         lambda: Stream_accept(stream),
         lambda: Stream_accept(wrapped, allow_stream_protocol=True),
@@ -165,7 +165,7 @@ def test_stream_accept_rejects_closed_graph_builder(init_cuda):
     builder = Device().create_graph_builder()
     builder.close()
 
-    assert not builder
+    assert builder.is_closed
     with pytest.raises(RuntimeError, match="GraphBuilder has been closed"):
         Stream_accept(builder)
 

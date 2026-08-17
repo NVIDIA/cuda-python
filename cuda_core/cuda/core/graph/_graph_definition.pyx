@@ -142,7 +142,9 @@ cdef class GraphDefinition:
     def __hash__(self) -> int:
         return hash(<uintptr_t>self._h_graph.get())
 
-    def __bool__(self) -> bool:
+    @property
+    def is_valid(self) -> bool:
+        """Whether this graph definition remains valid."""
         return as_intptr(self._h_graph) != 0
 
     @property

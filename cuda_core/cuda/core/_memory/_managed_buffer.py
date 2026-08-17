@@ -46,7 +46,7 @@ _ATTR_ACCESSED_BY = _RANGE.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY
 
 
 def _get_int_attr(buf: Buffer, attribute: Any) -> int:
-    if not buf:
+    if buf.is_closed:
         raise RuntimeError("Buffer has been closed")
     return int(handle_return(driver.cuMemRangeGetAttribute(_INT_SIZE, attribute, buf.handle, buf.size)))
 
@@ -57,7 +57,7 @@ def _query_accessed_by(buf: Buffer) -> list[Device | Host]:
     Driver fills an int32 array: device id, ``-1`` = host, ``-2`` = empty.
     Sized to ``cuDeviceGetCount() + 1`` (every visible device plus host).
     """
-    if not buf:
+    if buf.is_closed:
         raise RuntimeError("Buffer has been closed")
     num_devices = handle_return(driver.cuDeviceGetCount())
     n = num_devices + 1
@@ -232,13 +232,13 @@ class ManagedBuffer(Buffer):
     @property
     def accessed_by(self) -> AccessedBySetProxy:
         """Live set-like view of ``set_accessed_by`` locations."""
-        if not self:
+        if self.is_closed:
             raise RuntimeError("Buffer has been closed")
         return AccessedBySetProxy(self)
 
     @accessed_by.setter
     def accessed_by(self, locations: Iterable[Device | Host]) -> None:
-        if not self:
+        if self.is_closed:
             raise RuntimeError("Buffer has been closed")
         # Validate every target before issuing any cuMemAdvise so an invalid
         # element can't leave accessed_by partially mutated.

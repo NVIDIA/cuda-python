@@ -50,8 +50,10 @@ cdef class SurfaceObject:
         """The underlying ``CUsurfObject`` as an integer (64-bit kernel arg)."""
         return as_intptr(self._handle)
 
-    def __bool__(self) -> bool:
-        return self._handle.get() != NULL
+    @property
+    def is_closed(self) -> bool:
+        """Whether this surface object has been closed."""
+        return self._handle.get() == NULL
 
     @property
     def resource(self):

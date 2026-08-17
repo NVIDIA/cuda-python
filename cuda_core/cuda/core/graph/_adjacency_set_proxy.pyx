@@ -7,7 +7,7 @@
 from libc.stddef cimport size_t
 from libcpp.vector cimport vector
 from cuda.bindings cimport cydriver
-from cuda.core.graph._graph_node cimport GraphNode
+from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
 from cuda.core._resource_handles cimport (
     GraphHandle,
     GraphNodeHandle,
@@ -156,8 +156,7 @@ cdef class _AdjacencySetCore:
 
     cdef inline void check_mutation(self, GraphNode other) except *:
         self.check_owner_mutable()
-        if not other:
-            raise RuntimeError("GraphNode has been destroyed")
+        GN_check_valid(other)
         if other._is_entry:
             raise ValueError("The virtual graph entry node cannot be used in an edge")
         if as_cu(graph_node_get_graph(other._h_node)) != as_cu(self._h_graph):

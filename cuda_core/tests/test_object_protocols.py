@@ -717,7 +717,7 @@ REPR_PATTERNS = [
 ]
 
 
-# Types whose truth value reflects whether close() has released their resource.
+# Types whose named state reflects whether close() has released their resource.
 CLOSEABLE_TYPES = [
     "sample_stream",
     "sample_event",
@@ -733,31 +733,33 @@ CLOSEABLE_TYPES = [
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 @pytest.mark.parametrize("fixture_name", CLOSEABLE_TYPES)
-def test_closeable_object_truth_and_safe_inspection(fixture_name, request):
-    """Closing is idempotent, changes truthiness, and leaves inspection safe."""
+def test_closeable_object_state_and_safe_inspection(fixture_name, request):
+    """Closing is idempotent, updates named state, and leaves inspection safe."""
     obj = request.getfixturevalue(fixture_name)
-    assert obj
+    assert not obj.is_closed
 
     obj.close()
-    assert not obj
+    assert obj.is_closed
+    assert bool(obj) is True  # Preserve backward-compatible truthiness after close.
     repr(obj)
     if hasattr(obj, "handle"):
         _ = obj.handle
 
     obj.close()
-    assert not obj
+    assert obj.is_closed
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_graph_object_truth_tracks_invalid_state(sample_graphdef):
-    """Virtual entry nodes are live, while destroyed nodes are false."""
-    assert sample_graphdef
-    assert sample_graphdef._entry
+def test_graph_object_validity_uses_named_state(sample_graphdef):
+    """Graph objects remain truthy when their named validity becomes false."""
+    assert sample_graphdef.is_valid
+    assert sample_graphdef._entry.is_valid
 
     node = sample_graphdef.empty()
-    assert node
+    assert node.is_valid
     node.destroy()
-    assert not node
+    assert not node.is_valid
+    assert bool(node) is True  # Preserve backward-compatible truthiness after destruction.
     assert repr(node)
 
 

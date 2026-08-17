@@ -612,11 +612,11 @@ def test_closed_deallocation_stream_does_not_mutate_buffer():
 
     with pytest.raises(RuntimeError, match="Stream has been closed"):
         buf.set_deallocation_stream(closed_stream)
-    assert buf
+    assert not buf.is_closed
 
     with pytest.raises(RuntimeError, match="Stream has been closed"):
         buf.close(stream=closed_stream)
-    assert buf
+    assert not buf.is_closed
 
     buf.close()
     assert len(telemetry["deallocations"]) == 1
@@ -660,7 +660,8 @@ def test_closed_memory_pool_rejected_before_active_operations(mempool_device):
     peer_access = mr.peer_accessible_by
     mr.close()
 
-    assert not mr
+    assert mr.is_closed
+    assert bool(mr) is True  # Preserve backward-compatible truthiness after close.
     for operation in (
         lambda: mr.allocate(16, stream=mempool_device.default_stream),
         lambda: mr.attributes,

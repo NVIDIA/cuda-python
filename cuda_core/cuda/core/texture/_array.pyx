@@ -370,8 +370,10 @@ cdef class OpaqueArray:
         """The underlying ``CUarray`` as an integer."""
         return as_intptr(self._handle)
 
-    def __bool__(self) -> bool:
-        return self._handle.get() != NULL
+    @property
+    def is_closed(self) -> bool:
+        """Whether this array has been closed."""
+        return self._handle.get() == NULL
 
     @property
     def shape(self):

@@ -231,7 +231,7 @@ class VirtualMemoryResource(MemoryResource):
         """
         if not isinstance(buf, Buffer):
             raise TypeError(f"buf must be a Buffer, got {type(buf).__name__}")
-        if not buf:
+        if buf.is_closed:
             raise RuntimeError("Buffer has been closed")
         if config is not None:
             self.config = config

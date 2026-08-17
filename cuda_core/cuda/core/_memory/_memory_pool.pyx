@@ -133,8 +133,10 @@ cdef class _MemPool(MemoryResource):
         """
         _MP_close(self)
 
-    def __bool__(self) -> bool:
-        return self._h_pool.get() != NULL
+    @property
+    def is_closed(self) -> bool:
+        """Whether this memory resource has been closed."""
+        return self._h_pool.get() == NULL
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.

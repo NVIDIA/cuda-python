@@ -228,7 +228,8 @@ def test_closed_linker_rejects_link_but_preserves_cached_logs(compile_ptx_functi
     info_log = linker.get_info_log()
     linker.close()
 
-    assert not linker
+    assert linker.is_closed
+    assert bool(linker) is True  # Preserve backward-compatible truthiness after close.
     assert linker.get_error_log() == error_log
     assert linker.get_info_log() == info_log
     with pytest.raises(RuntimeError, match="Linker has been closed"):

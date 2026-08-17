@@ -157,8 +157,10 @@ cdef class Event:
         """
         self._h_event.reset()
 
-    def __bool__(self) -> bool:
-        return self._h_event.get() != NULL
+    @property
+    def is_closed(self) -> bool:
+        """Whether this event has been closed."""
+        return self._h_event.get() == NULL
 
     def __isub__(self, other: object):
         return NotImplemented

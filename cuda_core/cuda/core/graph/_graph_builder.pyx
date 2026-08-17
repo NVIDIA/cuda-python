@@ -321,8 +321,10 @@ cdef class GraphBuilder:
         self._state = CLOSED
         self._stream = None
 
-    def __bool__(self) -> bool:
-        return self._state != CLOSED
+    @property
+    def is_closed(self) -> bool:
+        """Whether this graph builder has been closed."""
+        return self._state == CLOSED
 
     @property
     def stream(self) -> Stream:
@@ -1119,8 +1121,10 @@ cdef class Graph:
         self._h_graph_exec.reset()
         retry_deferred_cleanup()
 
-    def __bool__(self) -> bool:
-        return self._h_graph_exec.get() != NULL
+    @property
+    def is_closed(self) -> bool:
+        """Whether this executable graph has been closed."""
+        return self._h_graph_exec.get() == NULL
 
     @property
     def handle(self) -> driver.CUgraphExec:

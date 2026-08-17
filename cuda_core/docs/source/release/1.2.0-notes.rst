@@ -58,10 +58,10 @@ Fixes and enhancements
   a buffer's eventual deallocation without closing the buffer.
   (`#2600 <https://github.com/NVIDIA/cuda-python/issues/2600>`__)
 
-- Resource objects now report their live state through ``bool(obj)`` and reject
-  active operations after they are closed. Cross-object APIs also reject closed
-  streams, events, buffers, contexts, memory pools, graph objects, and texture
-  resources before passing a null handle to CUDA. Closing either default-stream
+- Closeable resource objects now report their state through ``is_closed``, while
+  graph definitions and nodes report their state through ``is_valid``. Active
+  operations reject closed or invalid resources, and cross-object APIs reject
+  them before passing a null handle to CUDA. Closing either default-stream
   singleton remains a no-op because those process-wide tokens must stay valid.
   (`#2627 <https://github.com/NVIDIA/cuda-python/issues/2627>`__)
 

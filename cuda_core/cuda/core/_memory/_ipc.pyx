@@ -129,8 +129,10 @@ cdef class IPCAllocationHandle:
         """Close the handle."""
         self._h_fd.reset()
 
-    def __bool__(self) -> bool:
-        return self._h_fd.get() != NULL and as_intptr(self._h_fd) >= 0
+    @property
+    def is_closed(self) -> bool:
+        """Whether this allocation handle has been closed."""
+        return self._h_fd.get() == NULL or as_intptr(self._h_fd) < 0
 
     def __int__(self) -> int:
         if not self._h_fd or as_intptr(self._h_fd) < 0:
@@ -149,7 +151,7 @@ cdef class IPCAllocationHandle:
 
 
 def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
-    if not alloc_handle:
+    if alloc_handle.is_closed:
         raise RuntimeError("IPCAllocationHandle has been closed")
     check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
@@ -221,7 +223,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
 # ---------------------------
 
 cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
-    if isinstance(alloc_handle, IPCAllocationHandle) and not alloc_handle:
+    if isinstance(alloc_handle, IPCAllocationHandle) and alloc_handle.is_closed:
         raise RuntimeError("IPCAllocationHandle has been closed")
 
     # Quick exit for registry hits.

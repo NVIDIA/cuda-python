@@ -433,10 +433,10 @@ def test_program_close():
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_closed_program_rejects_compile():
     program = Program('extern "C" __global__ void my_kernel() {}', "c++")
-    assert program
+    assert not program.is_closed
     program.close()
 
-    assert not program
+    assert program.is_closed
     with pytest.raises(RuntimeError, match="Program has been closed"):
         program.compile("ptx")
 
