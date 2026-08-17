@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=834e6d0f"></script>
+    <script src="../_static/documentation_options.js?v=654cda43"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev73';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev81';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -898,6 +898,18 @@ asynchronously. Must be passed explicitly; pass
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>Whether this memory resource has been closed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_MemPool.is_closed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.is_device_accessible">
 <span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
 <dd><p>Return True. This memory resource provides device-accessible buffers.</p>
@@ -1037,6 +1049,7 @@ only for IPC-enabled memory resources.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.attributes"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.handle"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_closed"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_handle_owned"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_handle_owned</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.is_host_accessible</span></code></a></li>

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=834e6d0f"></script>
+    <script src="../_static/documentation_options.js?v=654cda43"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev73';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev81';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -880,6 +880,12 @@ thread blocks on <a class="reference internal" href="#cuda.core.Event.sync" titl
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Event.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.Event.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>Whether this event has been closed.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Event.is_done">
 <span class="sig-name descname"><span class="pre">is_done</span></span><a class="headerlink" href="#cuda.core.Event.is_done" title="Link to this definition">#</a></dt>
 <dd><p>Return True if all captured works have been completed, otherwise False.</p>
@@ -960,6 +966,7 @@ thread blocks on <a class="reference internal" href="#cuda.core.Event.sync" titl
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.handle"><code class="docutils literal notranslate"><span class="pre">Event.handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Event.ipc_descriptor</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_blocking_sync"><code class="docutils literal notranslate"><span class="pre">Event.is_blocking_sync</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_closed"><code class="docutils literal notranslate"><span class="pre">Event.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_done"><code class="docutils literal notranslate"><span class="pre">Event.is_done</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_ipc_enabled"><code class="docutils literal notranslate"><span class="pre">Event.is_ipc_enabled</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Event.is_timing_enabled"><code class="docutils literal notranslate"><span class="pre">Event.is_timing_enabled</span></code></a></li>

@@ -26,6 +26,7 @@ cuda.core.Context
 
    
    .. autoattribute:: handle
+   .. autoattribute:: is_closed
    .. autoattribute:: is_green
    .. autoattribute:: resources
    

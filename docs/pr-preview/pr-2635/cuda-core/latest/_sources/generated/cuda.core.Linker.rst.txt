@@ -29,5 +29,6 @@ cuda.core.Linker
 
    
    .. autoattribute:: handle
+   .. autoattribute:: is_closed
    
    
