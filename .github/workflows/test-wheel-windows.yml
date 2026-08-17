@@ -195,18 +195,25 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
-          OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
+          OLD_ARTIFACT_PATTERN="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}-*[0-9a-f]"
           LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
 
-          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
-          rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
-          ls -al $OLD_BASENAME
+          ./ci/tools/retry-gh-run-download \
+            "${LATEST_PRIOR_RUN_ID}" \
+            -p "${OLD_ARTIFACT_PATTERN}" \
+            -R NVIDIA/cuda-python
+          OLD_ARTIFACT_DIR=$(compgen -G "${OLD_ARTIFACT_PATTERN}")
+          test -d "${OLD_ARTIFACT_DIR}"
+          ls -al "${OLD_ARTIFACT_DIR}"
           mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
-          mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
-          rmdir $OLD_BASENAME
+          mv "${OLD_ARTIFACT_DIR}"/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
+          rmdir "${OLD_ARTIFACT_DIR}"
 
           if ${{ env.TEST_PYTHON == 'true' }}; then
-            gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
+            ./ci/tools/retry-gh-run-download \
+              "${LATEST_PRIOR_RUN_ID}" \
+              -p cuda-python-wheel \
+              -R NVIDIA/cuda-python
             ls -al cuda-python-wheel
             mv cuda-python-wheel/*.whl .
             rmdir cuda-python-wheel

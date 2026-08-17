@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+set -euo pipefail
+
+readonly MAX_ATTEMPTS=5
+delay=10
+
+for ((attempt = 1; attempt <= MAX_ATTEMPTS; attempt++)); do
+    if gh run download "$@"; then
+        exit 0
+    fi
+
+    if (( attempt == MAX_ATTEMPTS )); then
+        echo "Artifact download failed after ${MAX_ATTEMPTS} attempts." >&2
+        exit 1
+    fi
+
+    echo "Artifact download failed (attempt ${attempt}/${MAX_ATTEMPTS}); retrying in ${delay}s." >&2
+    sleep "${delay}"
+    delay=$((delay * 2))
+done

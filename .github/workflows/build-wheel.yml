@@ -567,16 +567,20 @@ jobs:
           fi
 
           OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
-          OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
+          OLD_ARTIFACT_PATTERN="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}-*[0-9a-f]"
           LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
           PREV_BINDINGS_DIR="cuda_bindings/dist-prev"
 
-          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
-          rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
-          ls -al $OLD_BASENAME
+          ./ci/tools/retry-gh-run-download \
+            "${LATEST_PRIOR_RUN_ID}" \
+            -p "${OLD_ARTIFACT_PATTERN}" \
+            -R NVIDIA/cuda-python
+          OLD_ARTIFACT_DIR=$(compgen -G "${OLD_ARTIFACT_PATTERN}")
+          test -d "${OLD_ARTIFACT_DIR}"
+          ls -al "${OLD_ARTIFACT_DIR}"
           mkdir -p "${PREV_BINDINGS_DIR}"
-          mv $OLD_BASENAME/*.whl "${PREV_BINDINGS_DIR}"
-          rmdir $OLD_BASENAME
+          mv "${OLD_ARTIFACT_DIR}"/*.whl "${PREV_BINDINGS_DIR}"
+          rmdir "${OLD_ARTIFACT_DIR}"
 
       - name: Constrain previous cuda.core to the downloaded cuda.bindings wheel
         if: ${{ env.BUILD_CORE == 'true' }}
