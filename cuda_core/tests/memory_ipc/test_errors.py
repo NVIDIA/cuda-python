@@ -53,11 +53,9 @@ def test_ipc_allocation_handle_rejects_negative_fd():
 
 
 @pytest.mark.human_authored
-def test_register_rejects_non_ipc_memory_resource():
+def test_register_rejects_non_ipc_memory_resource(mempool_device):
     """register() on a resource without IPC enabled raises instead of dereferencing None."""
-    device = Device()
-    device.set_current()
-    mr = DeviceMemoryResource(device)
+    mr = DeviceMemoryResource(mempool_device)
     assert not mr.is_ipc_enabled
 
     key = uuid.uuid4()
