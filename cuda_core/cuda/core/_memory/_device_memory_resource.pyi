@@ -120,7 +120,7 @@ class DeviceMemoryResource(_MemPool):
     def __cinit__(self, *args, **kwargs) -> None:
         ...
 
-    def __init__(self, device_id: Device | int, options: DeviceMemoryResourceOptions | dict[str, object] | None=None) -> None:
+    def __init__(self, device_id: Device | int, options: DeviceMemoryResourceOptions | None=None) -> None:
         ...
 
     def __reduce__(self) -> tuple[object, ...]:
