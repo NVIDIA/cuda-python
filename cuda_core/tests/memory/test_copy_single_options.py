@@ -10,15 +10,9 @@ from helpers.copy_batch import assert_managed_holds
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource
 from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
-from cuda.core._utils.version import binding_version, driver_version
 from cuda.core.utils import CopyOptions, MemcpyOverlapMode, MemcpySrcAccessOrder
 
 SIZE = 4096
-
-
-def _options_honored():
-    """True when cuMemcpyWithAttributesAsync will be used for options."""
-    return driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
 
 
 @pytest.fixture
@@ -82,16 +76,17 @@ def test_options_none_copy_from_data_correct(single_copy_device, single_copy_str
     ],
 )
 def test_src_access_order_copy_to(single_copy_device, single_copy_stream, pinned_mr, order, marker):
-    """Every src_access_order value is accepted and does not corrupt copy_to."""
+    """Every src_access_order value is accepted and does not corrupt copy_to.
+
+    Whether cuMemcpyWithAttributesAsync actually honors the hint (CUDA 13.2+
+    driver and cuda.bindings) or the call silently falls back to
+    cuMemcpyAsync, the copied bytes must be identical either way.
+    """
     src = make_scratch_buffer(single_copy_device, marker, SIZE)
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=order)
 
-    if _options_honored():
-        src.copy_to(dst, stream=single_copy_stream, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            src.copy_to(dst, stream=single_copy_stream, options=opts)
+    src.copy_to(dst, stream=single_copy_stream, options=opts)
     single_copy_stream.sync()
 
     assert compare_equal_buffers(src, dst)
@@ -116,11 +111,7 @@ def test_src_access_order_copy_from(single_copy_device, single_copy_stream, pinn
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=order)
 
-    if _options_honored():
-        dst.copy_from(src, stream=single_copy_stream, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            dst.copy_from(src, stream=single_copy_stream, options=opts)
+    dst.copy_from(src, stream=single_copy_stream, options=opts)
     single_copy_stream.sync()
 
     assert compare_equal_buffers(src, dst)
@@ -137,11 +128,7 @@ def test_overlap_mode_copies_correctly(single_copy_device, single_copy_stream, p
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(overlap_mode=MemcpyOverlapMode.PREFER_OVERLAP_WITH_COMPUTE)
 
-    if _options_honored():
-        src.copy_to(dst, stream=single_copy_stream, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            src.copy_to(dst, stream=single_copy_stream, options=opts)
+    src.copy_to(dst, stream=single_copy_stream, options=opts)
     single_copy_stream.sync()
 
     assert compare_equal_buffers(src, dst)
@@ -152,12 +139,13 @@ def test_overlap_mode_copies_correctly(single_copy_device, single_copy_stream, p
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_legacy_default_stream_token_falls_back_with_options(single_copy_device):
-    """LEGACY_DEFAULT_STREAM warns and falls back to cuMemcpyAsync with options.
+def test_legacy_default_stream_token_falls_back_with_options(single_copy_device, recwarn):
+    """LEGACY_DEFAULT_STREAM silently falls back to cuMemcpyAsync with options.
 
     cuMemcpyWithAttributesAsync rejects the legacy default-stream token
-    outright with CUDA_ERROR_INVALID_VALUE on every driver version, so
-    this always warns, regardless of the CUDA 13.2 attributes gate.
+    outright with CUDA_ERROR_INVALID_VALUE on every driver version, so this
+    always falls back, regardless of the CUDA 13.2 attributes gate. Matches
+    copy_batch: no warning is raised, options are just silently ignored.
     """
     pinned_mr = LegacyPinnedMemoryResource()
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
@@ -165,8 +153,7 @@ def test_legacy_default_stream_token_falls_back_with_options(single_copy_device)
     src = pinned_mr.allocate(SIZE)
     set_buffer(src, 0x21)
     dst = pinned_mr.allocate(SIZE)
-    with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-        src.copy_to(dst, stream=LEGACY_DEFAULT_STREAM, options=opts)
+    src.copy_to(dst, stream=LEGACY_DEFAULT_STREAM, options=opts)
     single_copy_device.sync()
     assert compare_equal_buffers(src, dst)
     src.close()
@@ -175,12 +162,13 @@ def test_legacy_default_stream_token_falls_back_with_options(single_copy_device)
     src = pinned_mr.allocate(SIZE)
     set_buffer(src, 0x24)
     dst = pinned_mr.allocate(SIZE)
-    with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-        dst.copy_from(src, stream=LEGACY_DEFAULT_STREAM, options=opts)
+    dst.copy_from(src, stream=LEGACY_DEFAULT_STREAM, options=opts)
     single_copy_device.sync()
     assert compare_equal_buffers(src, dst)
     src.close()
     dst.close()
+
+    assert len(recwarn) == 0
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
@@ -195,20 +183,12 @@ def test_per_thread_default_stream_token_accepted_with_options(single_copy_devic
     src = pinned_mr.allocate(SIZE)
     set_buffer(src, 0x22)
     dst = pinned_mr.allocate(SIZE)
-    if _options_honored():
-        src.copy_to(dst, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            src.copy_to(dst, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
+    src.copy_to(dst, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
     single_copy_device.sync()
     assert compare_equal_buffers(src, dst)
 
     set_buffer(src, 0x23)
-    if _options_honored():
-        dst.copy_from(src, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            dst.copy_from(src, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
+    dst.copy_from(src, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
     single_copy_device.sync()
     assert compare_equal_buffers(src, dst)
 
@@ -237,11 +217,7 @@ def test_location_hints_do_not_corrupt_copy(single_copy_device, single_copy_stre
         src_location_hint=dev,
         dst_location_hint=Host(),
     )
-    if _options_honored():
-        src.copy_to(dst, stream=single_copy_stream, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            src.copy_to(dst, stream=single_copy_stream, options=opts)
+    src.copy_to(dst, stream=single_copy_stream, options=opts)
 
     assert_managed_holds(dev, dst, 0x88, stream=single_copy_stream)
 
@@ -265,11 +241,7 @@ def test_host_numa_location_hint(single_copy_device, single_copy_stream):
     src.fill(0x99, stream=single_copy_stream)
 
     opts = CopyOptions(dst_location_hint=Host(numa_id=numa_id))
-    if _options_honored():
-        src.copy_to(dst, stream=single_copy_stream, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            src.copy_to(dst, stream=single_copy_stream, options=opts)
+    src.copy_to(dst, stream=single_copy_stream, options=opts)
 
     assert_managed_holds(dev, dst, 0x99, stream=single_copy_stream)
 
@@ -292,11 +264,7 @@ def test_host_numa_current_location_hint(single_copy_device, single_copy_stream)
     src.fill(0xAB, stream=single_copy_stream)
 
     opts = CopyOptions(dst_location_hint=Host.numa_current())
-    if _options_honored():
-        src.copy_to(dst, stream=single_copy_stream, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            src.copy_to(dst, stream=single_copy_stream, options=opts)
+    src.copy_to(dst, stream=single_copy_stream, options=opts)
 
     assert_managed_holds(dev, dst, 0xAB, stream=single_copy_stream)
 
@@ -313,11 +281,7 @@ def test_options_copy_to_data_correct(single_copy_device, single_copy_stream, pi
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
 
-    if _options_honored():
-        src.copy_to(dst, stream=single_copy_stream, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            src.copy_to(dst, stream=single_copy_stream, options=opts)
+    src.copy_to(dst, stream=single_copy_stream, options=opts)
     single_copy_stream.sync()
 
     assert compare_equal_buffers(src, dst)
@@ -334,11 +298,7 @@ def test_options_copy_from_data_correct(single_copy_device, single_copy_stream, 
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM)
 
-    if _options_honored():
-        dst.copy_from(src, stream=single_copy_stream, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            dst.copy_from(src, stream=single_copy_stream, options=opts)
+    dst.copy_from(src, stream=single_copy_stream, options=opts)
     single_copy_stream.sync()
 
     assert compare_equal_buffers(src, dst)
@@ -349,8 +309,8 @@ def test_options_copy_from_data_correct(single_copy_device, single_copy_stream, 
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_to_warns_under_graph_capture(single_copy_stream, pinned_mr):
-    """copy_to warns and falls back to cuMemcpyAsync when the stream is capturing.
+def test_options_copy_to_falls_back_under_graph_capture(single_copy_stream, pinned_mr, recwarn):
+    """copy_to silently falls back to cuMemcpyAsync when the stream is capturing.
 
     Both buffers are pinned host memory rather than managed memory: capturing
     a managed-memory memcpy into a graph fails to instantiate on some driver
@@ -364,23 +324,23 @@ def test_options_copy_to_warns_under_graph_capture(single_copy_stream, pinned_mr
     dst = pinned_mr.allocate(SIZE)
 
     gb = single_copy_stream.create_graph_builder().begin_building()
-    with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-        src.copy_to(dst, stream=gb, options=CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY))
+    src.copy_to(dst, stream=gb, options=CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY))
     graph = gb.end_building().complete()
     graph.launch(single_copy_stream)
     single_copy_stream.sync()
 
     assert compare_equal_buffers(src, dst)
+    assert len(recwarn) == 0
 
     src.close()
     dst.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_from_warns_under_graph_capture(single_copy_stream, pinned_mr):
-    """copy_from warns and falls back to cuMemcpyAsync when the stream is capturing.
+def test_options_copy_from_falls_back_under_graph_capture(single_copy_stream, pinned_mr, recwarn):
+    """copy_from silently falls back to cuMemcpyAsync when the stream is capturing.
 
-    See ``test_options_copy_to_warns_under_graph_capture`` for why both
+    See ``test_options_copy_to_falls_back_under_graph_capture`` for why both
     buffers are pinned host memory rather than managed memory.
     """
     src = pinned_mr.allocate(SIZE)
@@ -388,13 +348,13 @@ def test_options_copy_from_warns_under_graph_capture(single_copy_stream, pinned_
     dst = pinned_mr.allocate(SIZE)
 
     gb = single_copy_stream.create_graph_builder().begin_building()
-    with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-        dst.copy_from(src, stream=gb, options=CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM))
+    dst.copy_from(src, stream=gb, options=CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM))
     graph = gb.end_building().complete()
     graph.launch(single_copy_stream)
     single_copy_stream.sync()
 
     assert compare_equal_buffers(src, dst)
+    assert len(recwarn) == 0
 
     src.close()
     dst.close()
@@ -427,11 +387,7 @@ def test_dst_none_with_options(single_copy_device, single_copy_stream, pinned_mr
     src.fill(0xF0, stream=single_copy_stream)
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
 
-    if _options_honored():
-        dst = src.copy_to(stream=single_copy_stream, options=opts)
-    else:
-        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-            dst = src.copy_to(stream=single_copy_stream, options=opts)
+    dst = src.copy_to(stream=single_copy_stream, options=opts)
 
     # Read back via pinned buffer to verify bytes.
     host = pinned_mr.allocate(SIZE)
