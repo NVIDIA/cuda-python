@@ -24,7 +24,7 @@ New features
   completed (programmatic dependent launch, PDL). Available starting with
   devices of compute capability 9.0.
   (`#2456 <https://github.com/NVIDIA/cuda-python/pull/2456>`__,
-   `#1334 <https://github.com/NVIDIA/cuda-python/issues/1334>`__)
+  `#1334 <https://github.com/NVIDIA/cuda-python/issues/1334>`__)
 
 Fixes and enhancements
 ----------------------

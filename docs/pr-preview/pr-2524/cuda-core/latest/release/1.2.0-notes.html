@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=48c7fdc2"></script>
+    <script src="../_static/documentation_options.js?v=db47f3b1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev74';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev76';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -763,7 +763,7 @@
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 1.2.0 Release Notes<a class="headerlink" href="#cuda-core-1-2-0-release-notes" title="Link to this heading">#</a></h1>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
-<ul>
+<ul class="simple">
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.utils.copy_batch.html#cuda.core.utils.copy_batch" title="cuda.core.utils.copy_batch"><code class="xref py py-func docutils literal notranslate"><span class="pre">utils.copy_batch()</span></code></a>, which submits many buffer-to-buffer copies
 in a single <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> call. Per-copy behavior is controlled
 by the new <a class="reference internal" href="../generated/cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.CopyOptions</span></code></a> dataclass. Requires <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>
@@ -778,11 +778,8 @@ are rejected. Copies within a batch must not alias.
 begin executing before the preceding kernel in the same stream has fully
 completed (programmatic dependent launch, PDL). Available starting with
 devices of compute capability 9.0.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2456">#2456</a>,</p>
-<blockquote>
-<div><p><a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1334">#1334</a>)</p>
-</div></blockquote>
-</li>
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2456">#2456</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1334">#1334</a>)</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
