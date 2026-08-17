@@ -14,7 +14,9 @@ from conftest import skipif_need_cuda_headers
 from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 from helpers.misc import try_create_condition
+from packaging.version import Version
 
+import cuda.bindings
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, launch
 from cuda.core.graph import GraphBuilder, GraphDefinition
 from cuda.core.graph._graph_builder import (
@@ -732,6 +734,13 @@ def test_pdl_launch_graph_capture(init_cuda):
         maps to a programmatic dependency edge from the programmatic kernel port.
         """
         from cuda.bindings import driver
+
+        # cuda.bindings before 13.3.0 (before 12.9.7 on the 12.x branch) returned
+        # CUgraphEdgeData wrappers backed by a scratch buffer that was freed before the
+        # call returned, so every field reads back as freed heap memory (#1804).
+        version = Version(cuda.bindings.__version__)
+        if version < Version("13.3.0" if version.major >= 13 else "12.9.7"):
+            pytest.skip(f"cuda.bindings {version} returns dangling graph edge data (#1804)")
 
         h_graph = graph_definition.handle
         if driver.CUDA_VERSION >= 13000:
