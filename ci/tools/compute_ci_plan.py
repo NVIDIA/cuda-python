@@ -14,6 +14,7 @@ import subprocess
 from pathlib import PurePosixPath
 
 MODULES = ("pathfinder", "bindings", "core", "python")
+PLATFORMS = ("linux", "windows")
 PACKAGE_MODULES = {
     "cuda_pathfinder": "pathfinder",
     "cuda_bindings": "bindings",
@@ -72,16 +73,16 @@ IGNORED_PREFIXES = (
     "toolshed/",
 )
 
-ALL_TEST_PATHS = {
-    ".github/workflows/test-wheel-linux.yml",
-    ".github/workflows/test-wheel-windows.yml",
-    "ci/test-matrix.yml",
-    "ci/tools/configure_driver_mode.ps1",
-    "ci/tools/guess_latest.sh",
-    "ci/tools/install_gpu_driver.ps1",
-    "ci/tools/install_gpu_driver.sh",
-    "ci/tools/run-tests",
-    "ci/tools/setup-sanitizer",
+TEST_INFRA_PLATFORMS = {
+    ".github/workflows/test-wheel-linux.yml": {"linux"},
+    ".github/workflows/test-wheel-windows.yml": {"windows"},
+    "ci/test-matrix.yml": set(PLATFORMS),
+    "ci/tools/configure_driver_mode.ps1": {"windows"},
+    "ci/tools/guess_latest.sh": {"linux"},
+    "ci/tools/install_gpu_driver.ps1": {"windows"},
+    "ci/tools/install_gpu_driver.sh": {"linux"},
+    "ci/tools/run-tests": set(PLATFORMS),
+    "ci/tools/setup-sanitizer": {"linux"},
 }
 
 INDEPENDENT_GITHUB_PATHS = {
@@ -136,7 +137,7 @@ def compute_workplan(
     """Return the final CI decisions for the supplied changed paths."""
     source_changes: set[str] = set()
     test_changes: set[str] = set()
-    all_tests = False
+    test_platforms: set[str] = set()
     force_all = not merge_base or not baseline_run_id or not baseline_sha
 
     if not force_all:
@@ -165,21 +166,24 @@ def compute_workplan(
                 test_changes.update(("bindings", "core"))
             elif path.startswith("benchmarks/cuda_bindings/"):
                 test_changes.add("bindings")
-            elif path in ALL_TEST_PATHS:
-                all_tests = True
+            elif platforms := TEST_INFRA_PLATFORMS.get(path):
+                test_platforms.update(platforms)
             elif not _is_independent(path):
                 force_all = True
 
     if force_all:
         builds = set(MODULES)
         tests = set(MODULES)
+        test_platforms = set(PLATFORMS)
     else:
         builds: set[str] = set()
-        tests = set(MODULES) if all_tests else set(test_changes)
+        tests = set(MODULES) if test_platforms else set(test_changes)
         for module in source_changes:
             build_impact, test_impact = SOURCE_IMPACT[module]
             builds.update(build_impact)
             tests.update(test_impact)
+        if source_changes or test_changes:
+            test_platforms.update(PLATFORMS)
 
     modules = {
         module: {
@@ -191,9 +195,9 @@ def compute_workplan(
     return {
         "modules": modules,
         "jobs": {
-            "platform_builds": bool(builds or tests),
+            # These gates cover both optional artifact builds and wheel tests.
+            "platforms": {platform: platform in test_platforms for platform in PLATFORMS},
             "sdist_tests": bool(builds),
-            "wheel_tests": bool(tests),
             "core_api_checks": force_all or "core" in source_changes,
         },
         "merge_base": merge_base,

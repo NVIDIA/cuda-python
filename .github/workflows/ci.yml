@@ -391,7 +391,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platform_builds }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
     permissions:
       actions: read
       contents: read
@@ -418,7 +418,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platform_builds }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
     permissions:
       actions: read
       contents: read
@@ -494,7 +494,7 @@ jobs:
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.wheel_tests }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
     permissions:
       actions: read
       contents: read  # This is required for actions/checkout
@@ -522,7 +522,7 @@ jobs:
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.wheel_tests }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
     permissions:
       actions: read
       contents: read  # This is required for actions/checkout
@@ -551,7 +551,7 @@ jobs:
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.wheel_tests }}
+            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
     permissions:
       actions: read
       contents: read  # This is required for actions/checkout
@@ -656,9 +656,9 @@ jobs:
           fi
 
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
-          platform_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platform_builds || false }}"
+          linux_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux || false }}"
+          windows_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows || false }}"
           build_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests || false }}"
-          test_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.wheel_tests || false }}"
           run_core_api_check="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks || false }}"
           is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
           status="success"
@@ -680,15 +680,19 @@ jobs:
           check_result "doc"             "success" "${{ needs.doc.result }}"
           check_result "precommit-windows" "success" "${{ needs.precommit-windows.result }}"
 
-          # Platform builds run whenever any package needs to be built or tested.
-          expected="skipped"
-          if [[ "$doc_only" != "true" && "$platform_selected" == "true" ]]; then
-            expected="success"
+          # Optional platform builds and wheel tests share the platform plan.
+          linux_expected="skipped"
+          if [[ "$doc_only" != "true" && "$linux_selected" == "true" ]]; then
+            linux_expected="success"
           fi
-          check_result "build-linux-aarch64" "$expected" "${{ needs.build-linux-aarch64.result }}"
-          check_result "build-windows"       "$expected" "${{ needs.build-windows.result }}"
+          windows_expected="skipped"
+          if [[ "$doc_only" != "true" && "$windows_selected" == "true" ]]; then
+            windows_expected="success"
+          fi
+          check_result "build-linux-aarch64" "$linux_expected"   "${{ needs.build-linux-aarch64.result }}"
+          check_result "build-windows"       "$windows_expected" "${{ needs.build-windows.result }}"
 
-          # Sdist and wheel tests are independently gated by the effective plan.
+          # Sdist tests follow build selection; wheel tests follow the platform plan.
           expected="skipped"
           if [[ "$doc_only" != "true" && "$build_selected" == "true" ]]; then
             expected="success"
@@ -696,13 +700,9 @@ jobs:
           check_result "test-sdist-linux"   "$expected" "${{ needs.test-sdist-linux.result }}"
           check_result "test-sdist-windows" "$expected" "${{ needs.test-sdist-windows.result }}"
 
-          expected="skipped"
-          if [[ "$doc_only" != "true" && "$test_selected" == "true" ]]; then
-            expected="success"
-          fi
-          check_result "test-linux-64"      "$expected" "${{ needs.test-linux-64.result }}"
-          check_result "test-linux-aarch64" "$expected" "${{ needs.test-linux-aarch64.result }}"
-          check_result "test-windows"       "$expected" "${{ needs.test-windows.result }}"
+          check_result "test-linux-64"      "$linux_expected"   "${{ needs.test-linux-64.result }}"
+          check_result "test-linux-aarch64" "$linux_expected"   "${{ needs.test-linux-aarch64.result }}"
+          check_result "test-windows"       "$windows_expected" "${{ needs.test-windows.result }}"
 
           # API compatibility checks run for cuda_core source changes and for
           # conservative full runs when reusable base artifacts are unavailable.

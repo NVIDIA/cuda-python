@@ -9,6 +9,7 @@ import unittest
 from ci.tools.compute_ci_plan import compute_workplan
 
 ALL_MODULES = {"pathfinder", "bindings", "core", "python"}
+ALL_PLATFORMS = {"linux", "windows"}
 
 
 def plan_for(*paths: str, baseline: bool = True) -> dict[str, object]:
@@ -24,6 +25,15 @@ def selected(plan: dict[str, object], key: str) -> set[str]:
     modules = plan["modules"]
     assert isinstance(modules, dict)
     return {name for name, decision in modules.items() if decision[key]}
+
+
+def selected_platforms(plan: dict[str, object]) -> set[str]:
+    jobs = plan["jobs"]
+    assert isinstance(jobs, dict)
+    platforms = jobs["platforms"]
+    assert isinstance(platforms, dict)
+    assert set(platforms) == ALL_PLATFORMS
+    return {name for name, enabled in platforms.items() if enabled}
 
 
 class ComputeWorkplanTest(unittest.TestCase):
@@ -58,7 +68,37 @@ class ComputeWorkplanTest(unittest.TestCase):
                 plan = plan_for(path)
                 assert selected(plan, "needs_build") == builds
                 assert selected(plan, "needs_test") == tests
+                assert selected_platforms(plan) == ALL_PLATFORMS
+                assert plan["jobs"]["sdist_tests"] == bool(builds)
                 assert plan["jobs"]["core_api_checks"] == core_api
+
+    def test_test_infrastructure_platforms(self) -> None:
+        cases = {
+            ".github/workflows/test-wheel-linux.yml": {"linux"},
+            ".github/workflows/test-wheel-windows.yml": {"windows"},
+            "ci/test-matrix.yml": ALL_PLATFORMS,
+            "ci/tools/configure_driver_mode.ps1": {"windows"},
+            "ci/tools/guess_latest.sh": {"linux"},
+            "ci/tools/install_gpu_driver.ps1": {"windows"},
+            "ci/tools/install_gpu_driver.sh": {"linux"},
+            "ci/tools/run-tests": ALL_PLATFORMS,
+            "ci/tools/setup-sanitizer": {"linux"},
+        }
+
+        for path, platforms in cases.items():
+            with self.subTest(path=path):
+                plan = plan_for(path)
+                assert not selected(plan, "needs_build")
+                assert selected(plan, "needs_test") == ALL_MODULES
+                assert selected_platforms(plan) == platforms
+                assert not plan["jobs"]["sdist_tests"]
+                assert not plan["jobs"]["core_api_checks"]
+
+        mixed_plan = plan_for("ci/tools/install_gpu_driver.sh", "ci/tools/install_gpu_driver.ps1")
+        assert selected_platforms(mixed_plan) == ALL_PLATFORMS
+
+        source_plan = plan_for("ci/tools/install_gpu_driver.sh", "cuda_python/pyproject.toml")
+        assert selected_platforms(source_plan) == ALL_PLATFORMS
 
     def test_ignored_paths_select_no_work(self) -> None:
         for path in (
@@ -73,6 +113,7 @@ class ComputeWorkplanTest(unittest.TestCase):
                 plan = plan_for(path)
                 assert not selected(plan, "needs_build")
                 assert not selected(plan, "needs_test")
+                assert not selected_platforms(plan)
 
     def test_unknown_path_and_missing_baseline_force_all(self) -> None:
         for plan in (
@@ -84,6 +125,7 @@ class ComputeWorkplanTest(unittest.TestCase):
         ):
             assert selected(plan, "needs_build") == ALL_MODULES
             assert selected(plan, "needs_test") == ALL_MODULES
+            assert selected_platforms(plan) == ALL_PLATFORMS
             assert plan["jobs"]["core_api_checks"]
             assert plan["baseline"] == {"run_id": "", "sha": ""}
 
@@ -91,9 +133,8 @@ class ComputeWorkplanTest(unittest.TestCase):
         plan = plan_for("cuda_core/tests/test_device.py", "cuda_python/pyproject.toml")
         assert selected(plan, "needs_build") == {"bindings", "python"}
         assert selected(plan, "needs_test") == {"core", "python"}
-        assert plan["jobs"]["platform_builds"]
+        assert selected_platforms(plan) == ALL_PLATFORMS
         assert plan["jobs"]["sdist_tests"]
-        assert plan["jobs"]["wheel_tests"]
 
 
 if __name__ == "__main__":
