@@ -188,10 +188,10 @@ class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored only when both cuda.bindings and the driver are CUDA 13.2+
-            and the stream is not under graph capture; otherwise a
-            :class:`UserWarning` is emitted and the copy falls back to
-            ``cuMemcpyAsync``.
+            Honored only when cuda.bindings and the driver are both CUDA 13.2+,
+            the stream is not under graph capture, and the stream is not
+            ``LEGACY_DEFAULT_STREAM``. Otherwise a :class:`UserWarning` is
+            emitted and the copy falls back to ``cuMemcpyAsync``.
 
         """
 
@@ -207,11 +207,10 @@ class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored only when both cuda.bindings and the driver are CUDA 13.2+
-            and the stream is not under graph capture; otherwise a
-            :class:`UserWarning` is emitted and the copy falls back to
-            ``cuMemcpyAsync``.
-
+            Honored only when cuda.bindings and the driver are both CUDA 13.2+,
+            the stream is not under graph capture, and the stream is not
+            ``LEGACY_DEFAULT_STREAM``. Otherwise a :class:`UserWarning` is
+            emitted and the copy falls back to ``cuMemcpyAsync``.
         """
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:

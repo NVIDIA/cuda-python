@@ -24,6 +24,7 @@ from cuda.core._memory._copy_enums import _attr_run_starts
 from cuda.core._memory._copy_ops import (
     _normalize_copy_options,
 )
+from cuda.core._stream import PER_THREAD_DEFAULT_STREAM
 from cuda.core.utils import (
     CopyOptions,
     MemcpyOverlapMode,
@@ -240,6 +241,34 @@ class TestCopyBatchOptions:
         srcs, dsts = h2d_bufs
         copy_batch(copy_stream, srcs, dsts, options=CopyOptions())
         copy_stream.sync()
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    def test_options_on_per_thread_default_stream(self, copy_batch_device):
+        """CopyOptions work on PER_THREAD_DEFAULT_STREAM like any explicit stream.
+
+        Unlike LEGACY_DEFAULT_STREAM (rejected outright, see
+        TestCopyBatchStreamSemantics in test_copy_batch.py),
+        PER_THREAD_DEFAULT_STREAM is a real stream to cuMemcpyBatchAsync.
+        """
+        pinned_mr = LegacyPinnedMemoryResource()
+        device_mr = copy_batch_device.memory_resource
+        src = pinned_mr.allocate(COPY_BATCH_SIZE)
+        dst = device_mr.allocate(COPY_BATCH_SIZE, stream=PER_THREAD_DEFAULT_STREAM)
+        set_buffer(src, 44)
+
+        copy_batch(
+            PER_THREAD_DEFAULT_STREAM,
+            [src],
+            [dst],
+            options=CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY),
+        )
+        copy_batch_device.sync()
+
+        assert compare_buffer_to_constant(dst, 44)
+
+        src.close(PER_THREAD_DEFAULT_STREAM)
+        dst.close(PER_THREAD_DEFAULT_STREAM)
+        copy_batch_device.sync()
 
 
 class TestCopyOptionsValidation:

@@ -33,7 +33,7 @@ from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-c
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     from cuda.core._resource_handles cimport memcpy_with_attributes_async
 
-from cuda.core._stream cimport Stream, Stream_accept, Stream_is_default_token, default_stream
+from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
@@ -205,14 +205,15 @@ cdef void _dispatch_buffer_copy(
         raise TypeError(
             f"{method_name}: options must be CopyOptions, got {type(options).__name__}"
         )
-    if _with_attributes_available() and not Stream_is_default_token(s) and not _stream_is_capturing(s):
+    if _with_attributes_available() and not Stream_is_legacy_default_token(s) and not _stream_is_capturing(s):
         _do_copy_with_attributes(dst, src, nbytes, options, as_cu(s._h_stream))
     else:
         # Cython cdef frames are invisible on the Python stack, so stacklevel=2
         # still attributes the warning to the caller of copy_to / copy_from.
         warnings.warn(
             f"{method_name}: CopyOptions are not honored (requires CUDA 13.2+ driver and "
-            "cuda.bindings, and a non-capturing, non-default stream); falling back to cuMemcpyAsync",
+            "cuda.bindings, a non-capturing stream, and not LEGACY_DEFAULT_STREAM); "
+            "falling back to cuMemcpyAsync",
             UserWarning,
             stacklevel=2,
         )
@@ -472,10 +473,10 @@ cdef class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored only when both cuda.bindings and the driver are CUDA 13.2+
-            and the stream is not under graph capture; otherwise a
-            :class:`UserWarning` is emitted and the copy falls back to
-            ``cuMemcpyAsync``.
+            Honored only when cuda.bindings and the driver are both CUDA 13.2+,
+            the stream is not under graph capture, and the stream is not
+            ``LEGACY_DEFAULT_STREAM``. Otherwise a :class:`UserWarning` is
+            emitted and the copy falls back to ``cuMemcpyAsync``.
 
         """
         cdef Stream s = Stream_accept(stream)
@@ -509,11 +510,10 @@ cdef class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored only when both cuda.bindings and the driver are CUDA 13.2+
-            and the stream is not under graph capture; otherwise a
-            :class:`UserWarning` is emitted and the copy falls back to
-            ``cuMemcpyAsync``.
-
+            Honored only when cuda.bindings and the driver are both CUDA 13.2+,
+            the stream is not under graph capture, and the stream is not
+            ``LEGACY_DEFAULT_STREAM``. Otherwise a :class:`UserWarning` is
+            emitted and the copy falls back to ``cuMemcpyAsync``.
         """
         cdef Stream s = Stream_accept(stream)
         cdef size_t dst_size = self._size

@@ -42,7 +42,10 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
         (mirrors :func:`launch`). Does not accept a capturing stream
         (including a :class:`~graph.GraphBuilder`'s underlying stream); use
         :meth:`graph.GraphNode.memcpy` or per-buffer
-        :meth:`Buffer.copy_to` to build copies into a graph.
+        :meth:`Buffer.copy_to` to build copies into a graph. Does not accept
+        ``LEGACY_DEFAULT_STREAM``, which ``cuMemcpyBatchAsync`` rejects
+        outright; ``PER_THREAD_DEFAULT_STREAM`` is a real stream to the
+        driver and is accepted.
     srcs : Sequence[:class:`Buffer`]
         Source buffers. Must be a sequence, not a single Buffer.
     dsts : Sequence[:class:`Buffer`]
@@ -57,10 +60,9 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
     ValueError
         If lengths or sizes mismatch.
     TypeError
-        If a single Buffer is passed instead of a sequence, if a
-        default-stream token (``LEGACY_DEFAULT_STREAM`` /
-        ``PER_THREAD_DEFAULT_STREAM``) is passed, or if the stream is
-        currently in graph capture mode.
+        If a single Buffer is passed instead of a sequence, if
+        ``LEGACY_DEFAULT_STREAM`` is passed, or if the stream is currently
+        in graph capture mode.
 
     Notes
     -----

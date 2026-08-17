@@ -14,8 +14,9 @@ New features
   by the new :class:`utils.CopyOptions` dataclass. Requires ``cuda.core``
   built against CUDA 13, ``cuda.bindings`` 13.0+, and a driver reporting
   CUDA 13.0 or newer; otherwise falls back to a per-copy ``cuMemcpyAsync``
-  loop with options silently ignored. Graph capture and default-stream tokens
-  are rejected. Copies within a batch must not alias.
+  loop with options silently ignored. Graph capture and
+  ``LEGACY_DEFAULT_STREAM`` are rejected (``PER_THREAD_DEFAULT_STREAM`` is
+  accepted). Copies within a batch must not alias.
   (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__)
 - Added the ``programmatic_stream_serialization`` option to
   :class:`LaunchConfig`, which sets
@@ -27,13 +28,13 @@ New features
   `#1334 <https://github.com/NVIDIA/cuda-python/issues/1334>`__)
 
 - :meth:`Buffer.copy_to` and :meth:`Buffer.copy_from` now accept an optional
-  ``options`` keyword argument (:class:`~utils.CopyOptions`). When both
-  ``cuda.bindings`` and the driver are CUDA 13.2 or newer and the stream is
-  not under graph capture, the copy is submitted via
-  ``cuMemcpyWithAttributesAsync``. On older installs, or when the stream is
-  capturing, a :class:`UserWarning` is emitted and the copy falls back to
-  ``cuMemcpyAsync``; ``options=None`` (the default) always uses
-  ``cuMemcpyAsync`` with no warning.
+  ``options`` keyword argument (:class:`~utils.CopyOptions`). When
+  ``cuda.bindings`` and the driver are both CUDA 13.2 or newer, the stream
+  is not under graph capture, and the stream is not
+  ``LEGACY_DEFAULT_STREAM``, the copy is submitted via
+  ``cuMemcpyWithAttributesAsync``. Otherwise a :class:`UserWarning` is
+  emitted and the copy falls back to ``cuMemcpyAsync``; ``options=None``
+  (the default) always uses ``cuMemcpyAsync`` with no warning.
   (`#2365 <https://github.com/NVIDIA/cuda-python/issues/2365>`__)
 
 Fixes and enhancements

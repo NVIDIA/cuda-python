@@ -152,28 +152,66 @@ def test_overlap_mode_copies_correctly(single_copy_device, single_copy_stream, p
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-@pytest.mark.parametrize(
-    "default_stream_token",
-    [LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM],
-    ids=["legacy", "per_thread"],
-)
-def test_default_stream_token_accepted_with_options(single_copy_device, default_stream_token):
-    """Default-stream tokens warn+fallback with options (cuMemcpyWithAttributesAsync rejects them).
+def test_legacy_default_stream_token_falls_back_with_options(single_copy_device):
+    """LEGACY_DEFAULT_STREAM warns and falls back to cuMemcpyAsync with options.
 
-    Unlike copy_batch (which raises TypeError), single-copy accepts the token but
-    falls back to cuMemcpyAsync with a UserWarning because the attributes API does
-    not support default-stream sentinels.
+    cuMemcpyWithAttributesAsync rejects the legacy default-stream token
+    outright with CUDA_ERROR_INVALID_VALUE on every driver version, so
+    this always warns, regardless of the CUDA 13.2 attributes gate.
     """
     pinned_mr = LegacyPinnedMemoryResource()
-    src = pinned_mr.allocate(SIZE)
-    dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
 
-    # A warning is always emitted: on 13.2+ because the attributes API rejects
-    # default-stream tokens; on older drivers for the version-gate reason.
+    src = pinned_mr.allocate(SIZE)
+    set_buffer(src, 0x21)
+    dst = pinned_mr.allocate(SIZE)
     with pytest.warns(UserWarning, match="CopyOptions are not honored"):
-        src.copy_to(dst, stream=default_stream_token, options=opts)
+        src.copy_to(dst, stream=LEGACY_DEFAULT_STREAM, options=opts)
     single_copy_device.sync()
+    assert compare_equal_buffers(src, dst)
+    src.close()
+    dst.close()
+
+    src = pinned_mr.allocate(SIZE)
+    set_buffer(src, 0x24)
+    dst = pinned_mr.allocate(SIZE)
+    with pytest.warns(UserWarning, match="CopyOptions are not honored"):
+        dst.copy_from(src, stream=LEGACY_DEFAULT_STREAM, options=opts)
+    single_copy_device.sync()
+    assert compare_equal_buffers(src, dst)
+    src.close()
+    dst.close()
+
+
+@pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+def test_per_thread_default_stream_token_accepted_with_options(single_copy_device):
+    """PER_THREAD_DEFAULT_STREAM is a real stream to the driver, so options are
+    honored on it just like an explicit stream (subject to the usual CUDA
+    13.2+ attributes gate), unlike LEGACY_DEFAULT_STREAM.
+    """
+    pinned_mr = LegacyPinnedMemoryResource()
+    opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
+
+    src = pinned_mr.allocate(SIZE)
+    set_buffer(src, 0x22)
+    dst = pinned_mr.allocate(SIZE)
+    if _options_honored():
+        src.copy_to(dst, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
+    else:
+        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
+            src.copy_to(dst, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
+    single_copy_device.sync()
+    assert compare_equal_buffers(src, dst)
+
+    set_buffer(src, 0x23)
+    if _options_honored():
+        dst.copy_from(src, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
+    else:
+        with pytest.warns(UserWarning, match="CopyOptions are not honored"):
+            dst.copy_from(src, stream=PER_THREAD_DEFAULT_STREAM, options=opts)
+    single_copy_device.sync()
+    assert compare_equal_buffers(src, dst)
+
     src.close()
     dst.close()
 

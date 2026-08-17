@@ -13,7 +13,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
 from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-cython-lint
 from cuda.core._resource_handles cimport as_cu
-from cuda.core._stream cimport Stream, Stream_accept, Stream_is_default_token
+from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 # cy_driver_version and _attr_run_starts are referenced only from CUDA 13
@@ -110,7 +110,10 @@ def copy_batch(
         (mirrors :func:`launch`). Does not accept a capturing stream
         (including a :class:`~graph.GraphBuilder`\'s underlying stream); use
         :meth:`graph.GraphNode.memcpy` or per-buffer
-        :meth:`Buffer.copy_to` to build copies into a graph.
+        :meth:`Buffer.copy_to` to build copies into a graph. Does not accept
+        ``LEGACY_DEFAULT_STREAM``, which ``cuMemcpyBatchAsync`` rejects
+        outright; ``PER_THREAD_DEFAULT_STREAM`` is a real stream to the
+        driver and is accepted.
     srcs : Sequence[:class:`Buffer`]
         Source buffers. Must be a sequence, not a single Buffer.
     dsts : Sequence[:class:`Buffer`]
@@ -125,10 +128,9 @@ def copy_batch(
     ValueError
         If lengths or sizes mismatch.
     TypeError
-        If a single Buffer is passed instead of a sequence, if a
-        default-stream token (``LEGACY_DEFAULT_STREAM`` /
-        ``PER_THREAD_DEFAULT_STREAM``) is passed, or if the stream is
-        currently in graph capture mode.
+        If a single Buffer is passed instead of a sequence, if
+        ``LEGACY_DEFAULT_STREAM`` is passed, or if the stream is currently
+        in graph capture mode.
 
     Notes
     -----
@@ -162,11 +164,12 @@ def copy_batch(
 
     cdef Stream s = Stream_accept(stream)
 
-    if Stream_is_default_token(s):
+    if Stream_is_legacy_default_token(s):
         raise TypeError(
-            "copy_batch does not accept a default-stream token "
-            "(LEGACY_DEFAULT_STREAM / PER_THREAD_DEFAULT_STREAM); "
-            "pass an explicit stream"
+            "copy_batch does not accept LEGACY_DEFAULT_STREAM; cuMemcpyBatchAsync "
+            "rejects it outright, unlike PER_THREAD_DEFAULT_STREAM, which is a real "
+            "stream to the driver and is accepted. Pass an explicit stream or "
+            "PER_THREAD_DEFAULT_STREAM."
         )
 
     cdef cydriver.CUstreamCaptureStatus _cap_status
