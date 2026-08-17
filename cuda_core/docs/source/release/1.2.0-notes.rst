@@ -44,6 +44,13 @@ Fixes and enhancements
   free operation. Previously, these errors could be suppressed. Automatic
   buffer cleanup remains non-raising and reports failures as warnings.
 
+- Python subclasses of pool-backed memory resources and
+  :class:`GraphMemoryResource` now route buffer teardown from
+  :meth:`MemoryResource.allocate` through :meth:`MemoryResource.deallocate`,
+  matching :meth:`Buffer.from_handle` behavior. Built-in resource types keep
+  the direct C++ deallocation path for interpreter-shutdown safety.
+  (`#2615 <https://github.com/NVIDIA/cuda-python/issues/2615>`__)
+
 - Graph node resources are now retained independently across graph clones,
   executable graphs, updates, node deletion, and in-flight launches. Previously,
   modifying a graph definition could release resources still used by an

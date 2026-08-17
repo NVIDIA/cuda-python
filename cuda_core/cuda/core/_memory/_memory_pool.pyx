@@ -10,7 +10,12 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
+from cuda.core._memory._buffer cimport (
+    Buffer,
+    Buffer_from_deviceptr_handle,
+    MemoryResource,
+    deviceptr_create_owned_by_mr,
+)
 from cuda.core._memory cimport _ipc
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._resource_handles cimport (
@@ -328,20 +333,39 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
                            "a capturing stream (consider using GraphMemoryResource).")
 
 
+cdef inline bint _MP_is_builtin_type(_MemPool self):
+    """Return True for built-in pool MR types (not Python subclasses)."""
+    cdef str name = self.__class__.__name__
+    cdef str mod = self.__class__.__module__
+    return mod.startswith("cuda.core._memory._") and name in (
+        "DeviceMemoryResource",
+        "PinnedMemoryResource",
+        "ManagedMemoryResource",
+    )
+
+
 cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = Buffer):
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
+    cdef cydriver.CUdeviceptr ptr
     cdef DevicePtrHandle h_ptr
+    cdef bint use_direct_deleter = _MP_is_builtin_type(self)
     with nogil:
         check_not_capturing(s)
-        h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
-    if not h_ptr:
-        HANDLE_RETURN(get_last_error())
-        raise RuntimeError(
-            f"Failed to allocate {size} bytes from {self.__class__.__name__}: "
-            "cuda-core returned an empty allocation handle without recording a CUDA error. "
-            "This is an internal cuda-core error; please report it with your CUDA driver, "
-            "CUDA Toolkit, and cuda-python versions."
-        )
+        if use_direct_deleter:
+            h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
+        else:
+            HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&ptr, size, as_cu(self._h_pool), s))
+    if use_direct_deleter:
+        if not h_ptr:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError(
+                f"Failed to allocate {size} bytes from {self.__class__.__name__}: "
+                "cuda-core returned an empty allocation handle without recording a CUDA error. "
+                "This is an internal cuda-core error; please report it with your CUDA driver, "
+                "CUDA Toolkit, and cuda-python versions."
+            )
+        return Buffer_from_deviceptr_handle(h_ptr, size, self, None, cls)
+    h_ptr = deviceptr_create_owned_by_mr(ptr, size, self, stream)
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None, cls)
 
 

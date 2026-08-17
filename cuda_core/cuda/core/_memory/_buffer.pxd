@@ -2,10 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from libc.stddef cimport size_t
+
 from libcpp cimport bool as cpp_bool
 from libcpp.atomic cimport atomic as std_atomic
 
+from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport DevicePtrHandle
+from cuda.core._stream cimport Stream
 
 
 cdef struct _MemAttrs:
@@ -44,6 +48,15 @@ cdef Buffer Buffer_from_deviceptr_handle(
     object ipc_descriptor = *,
     type cls = *,
 )
+
+
+# Wrap a raw device pointer with MR-owned teardown and record the stream.
+cdef DevicePtrHandle deviceptr_create_owned_by_mr(
+    cydriver.CUdeviceptr ptr,
+    size_t size,
+    object mr,
+    Stream stream,
+) except *
 
 
 # Shared argument coercion for the batched free functions (copy_batch,

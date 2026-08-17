@@ -572,6 +572,94 @@ def test_set_deallocation_stream_rejects_none_and_closed_buffer():
         buf.set_deallocation_stream(stream)
 
 
+class _RecordingPoolMR(DeviceMemoryResource):
+    """Pool-backed MR that records deallocate() invocations."""
+
+    def __init__(self, device, options=None):
+        super().__init__(device, options)
+        self.dealloc_calls = []
+
+    def deallocate(self, ptr, size, *, stream):
+        self.dealloc_calls.append((ptr, size, stream))
+        super().deallocate(ptr, size, stream=stream)
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+@pytest.mark.parametrize("pinned", [False, True], ids=["device", "pinned"])
+def test_pool_backed_mr_deallocate_called_on_close(mempool_device, pinned):
+    """Pool-backed mr.allocate() honors overridden deallocate() on close (#2615)."""
+    dev = mempool_device
+    stream = dev.default_stream
+    if pinned:
+        skip_if_pinned_memory_unsupported(dev)
+
+        class RecordingMR(PinnedMemoryResource):
+            def __init__(self, options=None):
+                super().__init__(options)
+                self.dealloc_calls = []
+
+            def deallocate(self, ptr, size, *, stream):
+                self.dealloc_calls.append((ptr, size, stream))
+                super().deallocate(ptr, size, stream=stream)
+
+        mr = RecordingMR(PinnedMemoryResourceOptions(max_size=POOL_SIZE))
+    else:
+
+        class RecordingMR(DeviceMemoryResource):
+            def __init__(self, device, options=None):
+                super().__init__(device, options)
+                self.dealloc_calls = []
+
+            def deallocate(self, ptr, size, *, stream):
+                self.dealloc_calls.append((ptr, size, stream))
+                super().deallocate(ptr, size, stream=stream)
+
+        mr = RecordingMR(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+
+    buf = mr.allocate(1024, stream=stream)
+    assert buf.memory_resource is mr
+    assert len(mr.dealloc_calls) == 0
+    buf.close(stream=stream)
+    stream.sync()
+    assert len(mr.dealloc_calls) == 1
+    assert mr.dealloc_calls[0][1] == 1024
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_pool_backed_mr_deallocate_called_on_gc(mempool_device):
+    """Pool-backed mr.allocate() honors overridden deallocate() on GC (#2615)."""
+    import gc
+
+    dev = mempool_device
+    stream = dev.default_stream
+    mr = _RecordingPoolMR(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    buf = mr.allocate(1024, stream=stream)
+    assert len(mr.dealloc_calls) == 0
+    del buf
+    gc.collect()
+    stream.sync()
+    assert len(mr.dealloc_calls) == 1
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_pool_backed_mr_deallocate_receives_stream(mempool_device):
+    """Pool-backed mr.allocate() forwards close(stream) to deallocate() (#2615)."""
+    dev = mempool_device
+    stream = dev.create_stream()
+    received = {}
+
+    class StreamCapturePoolMR(_RecordingPoolMR):
+        def deallocate(self, ptr, size, *, stream):
+            received["stream"] = stream
+            super().deallocate(ptr, size, stream=stream)
+
+    mr = StreamCapturePoolMR(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    buf = mr.allocate(1024, stream=stream)
+    buf.close(stream=stream)
+    stream.sync()
+    assert received["stream"].handle == stream.handle
+
+
 @pytest.mark.parametrize("buffer_type", [Buffer, ManagedBuffer])
 def test_from_handle_mr_records_default_stream(buffer_type):
     """When a Buffer/ManagedBuffer is minted via :meth:`from_handle` with ``mr``
@@ -2242,25 +2330,36 @@ def test_dmr_handle_and_ownership(mempool_device):
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_dmr_deallocate_frees_pool_pointer(mempool_device):
-    """Closing a Buffer.from_handle(..., mr=mr) view frees the pointer via the Python
-    _MemPool.deallocate path; the pool's in-use bytes drop back."""
+    """Closing a buffer from mr.allocate() frees via deallocate() and returns pool bytes."""
     dev = mempool_device
     stream = dev.default_stream
     mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
     size = 256
-    # Raw pool allocation owned by nobody else, so exactly one owner frees it (no
-    # double free); a Buffer.from_handle view then routes teardown through the
-    # Python deallocate path that mr.allocate()'s C++-direct free would skip.
+    buf = mr.allocate(size, stream=stream)
+    stream.sync()
+    used_after_alloc = mr.attributes.used_mem_current
+    assert used_after_alloc >= size
+    buf.close(stream=stream)
+    stream.sync()
+    assert int(buf.handle) == 0
+    assert mr.attributes.used_mem_current < used_after_alloc
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_dmr_from_handle_deallocate_frees_pool_pointer(mempool_device):
+    """Buffer.from_handle(..., mr=mr) also routes teardown through deallocate()."""
+    dev = mempool_device
+    stream = dev.default_stream
+    mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    size = 256
     ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, mr.handle, stream.handle))
     stream.sync()
     used_after_alloc = mr.attributes.used_mem_current
     assert used_after_alloc >= size
     buf = Buffer.from_handle(int(ptr), size, mr=mr)
-    buf.close(stream)
+    buf.close(stream=stream)
     stream.sync()
     assert int(buf.handle) == 0
-    # In-use bytes fell back, so the pointer was actually returned (buf.handle == 0
-    # alone wouldn't prove it: the deleter callback swallows a failed free).
     assert mr.attributes.used_mem_current < used_after_alloc
 
 

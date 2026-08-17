@@ -7,7 +7,12 @@ from __future__ import annotations
 from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
+from cuda.core._memory._buffer cimport (
+    Buffer,
+    Buffer_from_deviceptr_handle,
+    MemoryResource,
+    deviceptr_create_owned_by_mr,
+)
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     deviceptr_alloc_async,
@@ -208,20 +213,35 @@ cdef inline int check_capturing(cydriver.CUstream s) except?-1 nogil:
                            "a non-capturing stream.")
 
 
+cdef inline bint _GMR_is_builtin_type(cyGraphMemoryResource self):
+    """Return True for the built-in GraphMemoryResource (not Python subclasses)."""
+    cdef str name = self.__class__.__name__
+    cdef str mod = self.__class__.__module__
+    return name == "GraphMemoryResource" and mod == "cuda.core._memory._graph_memory_resource"
+
+
 cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
+    cdef cydriver.CUdeviceptr ptr
     cdef DevicePtrHandle h_ptr
+    cdef bint use_direct_deleter = _GMR_is_builtin_type(self)
     with nogil:
         check_capturing(s)
-        h_ptr = deviceptr_alloc_async(size, stream._h_stream)
-    if not h_ptr:
-        HANDLE_RETURN(get_last_error())
-        raise RuntimeError(
-            f"Failed to allocate {size} bytes from GraphMemoryResource: "
-            "cuda-core returned an empty allocation handle without recording a CUDA error. "
-            "This is an internal cuda-core error; please report it with your CUDA driver, "
-            "CUDA Toolkit, and cuda-python versions."
-        )
+        if use_direct_deleter:
+            h_ptr = deviceptr_alloc_async(size, stream._h_stream)
+        else:
+            HANDLE_RETURN(cydriver.cuMemAllocAsync(&ptr, size, s))
+    if use_direct_deleter:
+        if not h_ptr:
+            HANDLE_RETURN(get_last_error())
+            raise RuntimeError(
+                f"Failed to allocate {size} bytes from GraphMemoryResource: "
+                "cuda-core returned an empty allocation handle without recording a CUDA error. "
+                "This is an internal cuda-core error; please report it with your CUDA driver, "
+                "CUDA Toolkit, and cuda-python versions."
+            )
+        return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
+    h_ptr = deviceptr_create_owned_by_mr(ptr, size, self, stream)
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
