@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=834e6d0f"></script>
+    <script src="../_static/documentation_options.js?v=db47f3b1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev73';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev76';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -864,6 +864,15 @@ is a multiple of that default. A green context created from the discovered
 group may therefore span the full GPU and leave an empty remainder. Set
 <code class="docutils literal notranslate"><span class="pre">coscheduled_sm_count</span></code> explicitly when an aligned result is required.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2389">#2389</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ProgramOptions(numba_debug=True)</span></code> now works on the NVVM backend. The
+option was emitted to libNVVM as <code class="docutils literal notranslate"><span class="pre">--numba-debug</span></code>, but libNVVM accepts only
+single-dashed options, so every such compile failed with
+<code class="docutils literal notranslate"><span class="pre">NVVM_ERROR_INVALID_OPTION</span></code>. It is now emitted as <code class="docutils literal notranslate"><span class="pre">-numba-debug</span></code>, matching
+what numba-cuda passes on the NVVM path. The NVRTC backend accepts both
+spellings and was unaffected. The option itself is only recognized by newer
+toolkits; libNVVM from CUDA 12.x does not support it under either spelling and
+still reports <code class="docutils literal notranslate"><span class="pre">NVVM_ERROR_INVALID_OPTION</span></code>.
+(closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2570">#2570</a>)</p></li>
 </ul>
 </section>
 <section id="deprecation-notices">
