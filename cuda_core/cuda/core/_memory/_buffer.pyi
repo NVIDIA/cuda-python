@@ -188,10 +188,18 @@ class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored only when cuda.bindings and the driver are both CUDA 13.2+,
-            the stream is not under graph capture, and the stream is not
-            ``LEGACY_DEFAULT_STREAM``. Otherwise the copy falls back to
-            ``cuMemcpyAsync`` with ``options`` silently ignored.
+            Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
+            (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
+            or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
+            older than CUDA 13.2, the copy falls back to ``cuMemcpyAsync`` with
+            ``options`` silently ignored.
+
+        Raises
+        ------
+        TypeError
+            If ``options`` is not a :class:`~utils.CopyOptions` instance, or
+            if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
+            or a stream currently in graph capture mode.
 
         """
 
@@ -207,10 +215,18 @@ class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored only when cuda.bindings and the driver are both CUDA 13.2+,
-            the stream is not under graph capture, and the stream is not
-            ``LEGACY_DEFAULT_STREAM``. Otherwise the copy falls back to
-            ``cuMemcpyAsync`` with ``options`` silently ignored.
+            Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
+            (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
+            or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
+            older than CUDA 13.2, the copy falls back to ``cuMemcpyAsync`` with
+            ``options`` silently ignored.
+
+        Raises
+        ------
+        TypeError
+            If ``options`` is not a :class:`~utils.CopyOptions` instance, or
+            if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
+            or a stream currently in graph capture mode.
         """
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:

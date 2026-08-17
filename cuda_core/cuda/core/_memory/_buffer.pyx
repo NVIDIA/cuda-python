@@ -204,12 +204,25 @@ cdef void _dispatch_buffer_copy(
         raise TypeError(
             f"{method_name}: options must be CopyOptions, got {type(options).__name__}"
         )
-    if _with_attributes_available() and not Stream_is_legacy_default_token(s) and not _stream_is_capturing(s):
+    if Stream_is_legacy_default_token(s):
+        raise TypeError(
+            f"{method_name} does not accept LEGACY_DEFAULT_STREAM with options "
+            "(matches copy_batch); cuMemcpyWithAttributesAsync rejects it outright, "
+            "unlike PER_THREAD_DEFAULT_STREAM, which is a real stream to the driver "
+            "and is accepted. Pass an explicit stream, PER_THREAD_DEFAULT_STREAM, "
+            "or options=None."
+        )
+    if _stream_is_capturing(s):
+        raise TypeError(
+            f"{method_name} does not support graph capture with options "
+            "(matches copy_batch); use GraphNode.memcpy to build attributed copies "
+            "into a graph, or pass options=None."
+        )
+    if _with_attributes_available():
         _do_copy_with_attributes(dst, src, nbytes, options, as_cu(s._h_stream))
     else:
-        # Matches copy_batch: options are silently ignored on the fallback
-        # path (pre-13.2 driver/bindings, graph capture, or
-        # LEGACY_DEFAULT_STREAM) rather than warning.
+        # Matches copy_batch: options are silently ignored on the
+        # pre-CUDA-13.2 driver/bindings fallback path.
         with nogil:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(dst, src, nbytes, as_cu(s._h_stream)))
 
@@ -466,10 +479,18 @@ cdef class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored only when cuda.bindings and the driver are both CUDA 13.2+,
-            the stream is not under graph capture, and the stream is not
-            ``LEGACY_DEFAULT_STREAM``. Otherwise the copy falls back to
-            ``cuMemcpyAsync`` with ``options`` silently ignored.
+            Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
+            (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
+            or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
+            older than CUDA 13.2, the copy falls back to ``cuMemcpyAsync`` with
+            ``options`` silently ignored.
+
+        Raises
+        ------
+        TypeError
+            If ``options`` is not a :class:`~utils.CopyOptions` instance, or
+            if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
+            or a stream currently in graph capture mode.
 
         """
         cdef Stream s = Stream_accept(stream)
@@ -503,10 +524,18 @@ cdef class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Honored only when cuda.bindings and the driver are both CUDA 13.2+,
-            the stream is not under graph capture, and the stream is not
-            ``LEGACY_DEFAULT_STREAM``. Otherwise the copy falls back to
-            ``cuMemcpyAsync`` with ``options`` silently ignored.
+            Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
+            (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
+            or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
+            older than CUDA 13.2, the copy falls back to ``cuMemcpyAsync`` with
+            ``options`` silently ignored.
+
+        Raises
+        ------
+        TypeError
+            If ``options`` is not a :class:`~utils.CopyOptions` instance, or
+            if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
+            or a stream currently in graph capture mode.
         """
         cdef Stream s = Stream_accept(stream)
         cdef size_t dst_size = self._size

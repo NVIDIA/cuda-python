@@ -139,36 +139,32 @@ def test_overlap_mode_copies_correctly(single_copy_device, single_copy_stream, p
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_legacy_default_stream_token_falls_back_with_options(single_copy_device, recwarn):
-    """LEGACY_DEFAULT_STREAM silently falls back to cuMemcpyAsync with options.
+def test_legacy_default_stream_token_rejected_with_options(single_copy_device):
+    """LEGACY_DEFAULT_STREAM with options raises TypeError, matching copy_batch.
 
     cuMemcpyWithAttributesAsync rejects the legacy default-stream token
-    outright with CUDA_ERROR_INVALID_VALUE on every driver version, so this
-    always falls back, regardless of the CUDA 13.2 attributes gate. Matches
-    copy_batch: no warning is raised, options are just silently ignored.
+    outright with CUDA_ERROR_INVALID_VALUE on every driver version, so
+    copy_to / copy_from surface this before ever calling the driver, just
+    like copy_batch does. options=None is unaffected: it never touches the
+    attributes path, so LEGACY_DEFAULT_STREAM keeps working as it always has.
     """
     pinned_mr = LegacyPinnedMemoryResource()
+    src = pinned_mr.allocate(SIZE)
+    dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
 
-    src = pinned_mr.allocate(SIZE)
-    set_buffer(src, 0x21)
-    dst = pinned_mr.allocate(SIZE)
-    src.copy_to(dst, stream=LEGACY_DEFAULT_STREAM, options=opts)
+    with pytest.raises(TypeError, match="LEGACY_DEFAULT_STREAM"):
+        src.copy_to(dst, stream=LEGACY_DEFAULT_STREAM, options=opts)
+
+    with pytest.raises(TypeError, match="LEGACY_DEFAULT_STREAM"):
+        dst.copy_from(src, stream=LEGACY_DEFAULT_STREAM, options=opts)
+
+    # options=None never reaches the attributes path, so this keeps working.
+    src.copy_to(dst, stream=LEGACY_DEFAULT_STREAM)
     single_copy_device.sync()
-    assert compare_equal_buffers(src, dst)
+
     src.close()
     dst.close()
-
-    src = pinned_mr.allocate(SIZE)
-    set_buffer(src, 0x24)
-    dst = pinned_mr.allocate(SIZE)
-    dst.copy_from(src, stream=LEGACY_DEFAULT_STREAM, options=opts)
-    single_copy_device.sync()
-    assert compare_equal_buffers(src, dst)
-    src.close()
-    dst.close()
-
-    assert len(recwarn) == 0
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
@@ -309,52 +305,63 @@ def test_options_copy_from_data_correct(single_copy_device, single_copy_stream, 
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_to_falls_back_under_graph_capture(single_copy_stream, pinned_mr, recwarn):
-    """copy_to silently falls back to cuMemcpyAsync when the stream is capturing.
-
-    Both buffers are pinned host memory rather than managed memory: capturing
-    a managed-memory memcpy into a graph fails to instantiate on some driver
-    versions once the process has queried a device's default mempool (for
-    example via ``device.memory_resource``), which most other tests in this
-    suite do. Managed memory itself is not under test here, so pinned-to-pinned
-    keeps this test's result independent of what ran before it.
+def test_options_copy_to_rejected_under_graph_capture(single_copy_stream, pinned_mr):
+    """copy_to with options raises TypeError when the stream is capturing,
+    matching copy_batch. Use GraphNode.memcpy to build attributed copies
+    into a graph instead; options=None keeps working under capture as it
+    always has (captured as a plain cuMemcpyAsync node).
     """
     src = pinned_mr.allocate(SIZE)
-    set_buffer(src, 0xBB)
     dst = pinned_mr.allocate(SIZE)
+    opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY)
 
     gb = single_copy_stream.create_graph_builder().begin_building()
-    src.copy_to(dst, stream=gb, options=CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY))
-    graph = gb.end_building().complete()
-    graph.launch(single_copy_stream)
-    single_copy_stream.sync()
-
-    assert compare_equal_buffers(src, dst)
-    assert len(recwarn) == 0
+    try:
+        with pytest.raises(TypeError, match="graph capture"):
+            src.copy_to(dst, stream=gb, options=opts)
+    finally:
+        gb.end_building()
+        gb.close()
 
     src.close()
     dst.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
-def test_options_copy_from_falls_back_under_graph_capture(single_copy_stream, pinned_mr, recwarn):
-    """copy_from silently falls back to cuMemcpyAsync when the stream is capturing.
+def test_options_copy_from_rejected_under_graph_capture(single_copy_stream, pinned_mr):
+    """Same as the copy_to variant, exercising copy_from instead."""
+    src = pinned_mr.allocate(SIZE)
+    dst = pinned_mr.allocate(SIZE)
+    opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM)
 
-    See ``test_options_copy_to_falls_back_under_graph_capture`` for why both
-    buffers are pinned host memory rather than managed memory.
+    gb = single_copy_stream.create_graph_builder().begin_building()
+    try:
+        with pytest.raises(TypeError, match="graph capture"):
+            dst.copy_from(src, stream=gb, options=opts)
+    finally:
+        gb.end_building()
+        gb.close()
+
+    src.close()
+    dst.close()
+
+
+@pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+def test_options_none_copy_to_still_works_under_graph_capture(single_copy_stream, pinned_mr):
+    """options=None never touches the attributes path, so copy_to keeps
+    working under graph capture exactly as it did before options existed.
     """
     src = pinned_mr.allocate(SIZE)
-    set_buffer(src, 0xCC)
+    set_buffer(src, 0xBB)
     dst = pinned_mr.allocate(SIZE)
 
     gb = single_copy_stream.create_graph_builder().begin_building()
-    dst.copy_from(src, stream=gb, options=CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM))
+    src.copy_to(dst, stream=gb)
     graph = gb.end_building().complete()
     graph.launch(single_copy_stream)
     single_copy_stream.sync()
 
     assert compare_equal_buffers(src, dst)
-    assert len(recwarn) == 0
 
     src.close()
     dst.close()
