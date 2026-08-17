@@ -82,6 +82,8 @@ class TestBufferPeerAccessAfterImport:
         buffer = mr.allocate(NBYTES, stream=dev1.default_stream)
         pgen = PatternGen(dev1, NBYTES)
         pgen.fill_buffer(buffer, seed=False)
+        # IPC import does not carry the exporting process's stream ordering.
+        dev1.sync()
 
         # Spawn child process
         process = mp.Process(target=self.child_main, args=(mr, buffer))
