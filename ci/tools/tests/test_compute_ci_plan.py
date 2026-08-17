@@ -4,20 +4,27 @@
 
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
 
-from ci.tools.compute_ci_plan import compute_workplan
+from ci.tools.compute_ci_plan import _expand_linked_paths, compute_workplan
 
 ALL_MODULES = {"pathfinder", "bindings", "core", "python"}
 ALL_PLATFORMS = {"linux", "windows"}
 
 
-def plan_for(*paths: str, baseline: bool = True) -> dict[str, object]:
+def plan_for(
+    *paths: str,
+    baseline: bool = True,
+    linked_paths: set[str] | None = None,
+) -> dict[str, object]:
     return compute_workplan(
         list(paths),
         merge_base="base",
         baseline_run_id="123" if baseline else "",
         baseline_sha="base" if baseline else "",
+        linked_paths=linked_paths,
     )
 
 
@@ -46,21 +53,23 @@ class ComputeWorkplanTest(unittest.TestCase):
                 False,
             ),
             "cuda_core/cuda/core/_device.py": ({"core"}, {"core", "python"}, True),
+            "cuda_core/cuda/core/examples/demo.py": ({"core"}, {"core", "python"}, True),
             "cuda_python/pyproject.toml": ({"bindings", "python"}, {"python"}, False),
-            "README.md": ({"bindings", "python"}, {"python"}, False),
             "cuda_pathfinder/tests/test_loader.py": (set(), {"pathfinder"}, False),
             "cuda_bindings/examples/0_Introduction/vectorAddDrv.py": (set(), {"bindings"}, False),
+            "cuda_bindings/tests/README.md": (set(), {"bindings"}, False),
             "cuda_core/pytest.ini": (set(), {"core"}, False),
-            "cuda_core/tests/fixtures/pixi.toml": (set(), {"core"}, False),
             "cuda_python/tests/test_import.py": (set(), {"python"}, False),
-            "cuda_python/pixi.toml": ({"bindings", "python"}, {"python"}, False),
             "cuda_python_test_helpers/cuda_python_test_helpers/cuda_utils.py": (
                 set(),
-                {"bindings", "core"},
+                ALL_MODULES,
                 False,
             ),
-            "ci/tools/run-tests": (set(), ALL_MODULES, False),
+            "benchmarks/cuda_bindings/run_pyperf.py": (set(), ALL_MODULES, False),
+            "benchmarks/cuda_core/runner.py": (set(), ALL_MODULES, False),
+            "ci/tools/run-tests": (ALL_MODULES, ALL_MODULES, True),
             "ci/versions.yml": (ALL_MODULES, ALL_MODULES, True),
+            "pytest.ini": (ALL_MODULES, ALL_MODULES, True),
         }
 
         for path, (builds, tests, core_api) in cases.items():
@@ -76,12 +85,10 @@ class ComputeWorkplanTest(unittest.TestCase):
         cases = {
             ".github/workflows/test-wheel-linux.yml": {"linux"},
             ".github/workflows/test-wheel-windows.yml": {"windows"},
-            "ci/test-matrix.yml": ALL_PLATFORMS,
             "ci/tools/configure_driver_mode.ps1": {"windows"},
             "ci/tools/guess_latest.sh": {"linux"},
             "ci/tools/install_gpu_driver.ps1": {"windows"},
             "ci/tools/install_gpu_driver.sh": {"linux"},
-            "ci/tools/run-tests": ALL_PLATFORMS,
             "ci/tools/setup-sanitizer": {"linux"},
         }
 
@@ -104,10 +111,17 @@ class ComputeWorkplanTest(unittest.TestCase):
         for path in (
             "cuda_core/docs/index.rst",
             "cuda_core/pixi.toml",
+            "cuda_core/tests/fixtures/pixi.toml",
             "benchmarks/cuda_bindings/pixi.toml",
             "benchmarks/cuda_bindings/AGENTS.md",
-            ".github/workflows/ci-pixi-source-test.yml",
-            "benchmarks/cuda_core/benchmark.py",
+            "cuda_core/cuda/core/_cpp/DESIGN.md",
+            "cuda_bindings/README.md",
+            "cuda_core/README.md",
+            "new-area/pixi.toml",
+            "notes.md",
+            "diagram.svg",
+            ".github/labeler.yml",
+            ".github/ISSUE_TEMPLATE/bug.yml",
         ):
             with self.subTest(path=path):
                 plan = plan_for(path)
@@ -118,8 +132,10 @@ class ComputeWorkplanTest(unittest.TestCase):
     def test_unknown_path_and_missing_baseline_force_all(self) -> None:
         for plan in (
             plan_for("new-top-level-file"),
-            plan_for("new-area/pixi.toml"),
+            plan_for("new-area/config.toml"),
             plan_for(".github/workflows/new-main-ci-workflow.yml"),
+            plan_for(".github/actions/doc_preview/action.yml"),
+            plan_for("ci/ci-pipeline.svg"),
             plan_for("cuda_core/docs/index.rst", baseline=False),
             compute_workplan([], merge_base="base", baseline_run_id="123", baseline_sha=""),
         ):
@@ -135,6 +151,30 @@ class ComputeWorkplanTest(unittest.TestCase):
         assert selected(plan, "needs_test") == {"core", "python"}
         assert selected_platforms(plan) == ALL_PLATFORMS
         assert plan["jobs"]["sdist_tests"]
+
+    def test_changed_symlink_targets_include_their_consumers(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "cuda_python").mkdir()
+            (root / "cuda_core").mkdir()
+            (root / "README.md").write_text("readme", encoding="utf-8")
+            (root / "cuda_python" / "README.md").symlink_to("../README.md")
+            (root / "cuda_core" / "README.md").symlink_to("../README.md")
+
+            paths = _expand_linked_paths(
+                ["README.md"],
+                ["cuda_python/README.md"],
+                root=root,
+            )
+
+        assert paths == ["README.md", "cuda_python/README.md"]
+        plan = plan_for(*paths, linked_paths={"cuda_python/README.md"})
+        assert selected(plan, "needs_build") == {"bindings", "python"}
+        assert selected(plan, "needs_test") == {"python"}
+
+        removed_link = plan_for("cuda_python/README.md", linked_paths={"cuda_python/README.md"})
+        assert selected(removed_link, "needs_build") == {"bindings", "python"}
+        assert selected(removed_link, "needs_test") == {"python"}
 
 
 if __name__ == "__main__":

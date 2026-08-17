@@ -11,8 +11,9 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
 MODULES = ("pathfinder", "bindings", "core", "python")
 PLATFORMS = ("linux", "windows")
 PACKAGE_MODULES = {
@@ -32,99 +33,30 @@ SOURCE_IMPACT = {
     "python": ({"bindings", "python"}, {"python"}),
 }
 
-IGNORED_BASENAMES = {"AGENTS.md", "CLAUDE.md"}
+IGNORED_BASENAMES = {"AGENTS.md", "CLAUDE.md", "pixi.lock", "pixi.toml"}
+IGNORED_SUFFIXES = {".md", ".svg"}
 IGNORED_PATHS = {
     ".coveragerc",
     ".gitignore",
     ".pre-commit-config.yaml",
     ".spdx-ignore",
-    "CONTRIBUTING.md",
     "LICENSE",
-    "SECURITY.md",
     "context7.json",
     "greptile.json",
-    "pixi.lock",
-    "pixi.toml",
-    "pytest.ini",
     "ruff.toml",
-    "benchmarks/cuda_bindings/pixi.lock",
-    "benchmarks/cuda_bindings/pixi.toml",
-    "ci/.ci-pipeline-regen.md",
-    "ci/ci-pipeline.svg",
-    "ci/cleanup-pr-previews",
-    "ci/tools/check_mempool_hygiene.py",
-    "ci/tools/check_pixi_cuda_version.py",
-    "ci/tools/check_release_notes.py",
-    "ci/tools/download-wheels",
-    "ci/tools/run_pytest_with_stack.py",
-    "ci/tools/validate-release-wheels",
-    "cuda_bindings/pixi.lock",
-    "cuda_bindings/pixi.toml",
-    "cuda_core/pixi.lock",
-    "cuda_core/pixi.toml",
-    "cuda_pathfinder/pixi.lock",
-    "cuda_pathfinder/pixi.toml",
 }
-IGNORED_PREFIXES = (
-    ".agents/",
-    "benchmarks/cuda_core/",
-    "ci/tools/tests/",
-    "cuda_python_test_helpers/",
-    "toolshed/",
-)
+IGNORED_PREFIXES = (".agents/", "toolshed/")
 
+# Only infrastructure exclusive to one OS belongs here; other CI paths force a full run.
 TEST_INFRA_PLATFORMS = {
     ".github/workflows/test-wheel-linux.yml": {"linux"},
     ".github/workflows/test-wheel-windows.yml": {"windows"},
-    "ci/test-matrix.yml": set(PLATFORMS),
     "ci/tools/configure_driver_mode.ps1": {"windows"},
     "ci/tools/guess_latest.sh": {"linux"},
     "ci/tools/install_gpu_driver.ps1": {"windows"},
     "ci/tools/install_gpu_driver.sh": {"linux"},
-    "ci/tools/run-tests": set(PLATFORMS),
     "ci/tools/setup-sanitizer": {"linux"},
 }
-
-INDEPENDENT_GITHUB_PATHS = {
-    ".github/PULL_REQUEST_TEMPLATE.md",
-    ".github/RELEASE-core.md",
-    ".github/actionlint.yaml",
-    ".github/copy-pr-bot.yaml",
-    ".github/dependabot.yml",
-    ".github/labeler.yml",
-}
-INDEPENDENT_WORKFLOWS = {
-    "backport.yml",
-    "bandit.yml",
-    "build-docs.yml",
-    "ci-nightly.yml",
-    "ci-pixi-source-test.yml",
-    "cleanup-pr-previews.yml",
-    "coverage.yml",
-    "pr-auto-label.yml",
-    "pr-metadata-check.yml",
-    "release-cuda-pathfinder.yml",
-    "release-upload.yml",
-    "release.yml",
-    "security-suite.yml",
-    "triagelabel.yml",
-}
-INDEPENDENT_ACTIONS = {"doc_preview", "get_pr_number"}
-
-
-def _is_independent(path: str) -> bool:
-    if path.startswith(IGNORED_PREFIXES):
-        return True
-
-    if path in INDEPENDENT_GITHUB_PATHS or path.startswith(".github/ISSUE_TEMPLATE/"):
-        return True
-
-    parts = PurePosixPath(path).parts
-    if len(parts) >= 3 and parts[:2] == (".github", "workflows"):
-        return parts[2] in INDEPENDENT_WORKFLOWS
-    if len(parts) >= 3 and parts[:2] == (".github", "actions"):
-        return parts[2] in INDEPENDENT_ACTIONS
-    return False
 
 
 def compute_workplan(
@@ -133,8 +65,10 @@ def compute_workplan(
     merge_base: str,
     baseline_run_id: str,
     baseline_sha: str,
+    linked_paths: set[str] | None = None,
 ) -> dict[str, object]:
     """Return the final CI decisions for the supplied changed paths."""
+    linked_paths = linked_paths or set()
     source_changes: set[str] = set()
     test_changes: set[str] = set()
     test_platforms: set[str] = set()
@@ -143,12 +77,20 @@ def compute_workplan(
     if not force_all:
         for path in paths:
             path_parts = PurePosixPath(path).parts
-            if not path_parts or path in IGNORED_PATHS or path_parts[-1] in IGNORED_BASENAMES:
+            if not path_parts:
                 continue
 
-            if path == "README.md":
-                # cuda_python/README.md is a tracked symlink to this sdist input.
-                source_changes.add("python")
+            if platforms := TEST_INFRA_PLATFORMS.get(path):
+                test_platforms.update(platforms)
+                continue
+
+            if path_parts[0] == "ci" or (
+                len(path_parts) >= 2 and path_parts[:2] in {(".github", "actions"), (".github", "workflows")}
+            ):
+                force_all = True
+                break
+
+            if path_parts[0] == ".github" or path_parts[-1] in IGNORED_BASENAMES:
                 continue
 
             module = PACKAGE_MODULES.get(path_parts[0])
@@ -156,20 +98,33 @@ def compute_workplan(
                 relative = path_parts[1:]
                 if relative[0] == "docs":
                     continue
-                if relative[0] in {"tests", "examples"} or (module == "core" and relative == ("pytest.ini",)):
+                if (
+                    any(part in {"test", "tests"} for part in relative[:-1])
+                    or relative[0] == "examples"
+                    or (module == "core" and relative == ("pytest.ini",))
+                ):
                     test_changes.add(module)
+                elif PurePosixPath(path).suffix in IGNORED_SUFFIXES and path not in linked_paths:
+                    continue
                 else:
                     source_changes.add(module)
                 continue
 
-            if path.startswith("cuda_python_test_helpers/cuda_python_test_helpers/"):
-                test_changes.update(("bindings", "core"))
-            elif path.startswith("benchmarks/cuda_bindings/"):
-                test_changes.add("bindings")
-            elif platforms := TEST_INFRA_PLATFORMS.get(path):
-                test_platforms.update(platforms)
-            elif not _is_independent(path):
+            is_test_path = any(part in {"test", "tests"} for part in path_parts[:-1])
+            if is_test_path:
+                test_changes.update(MODULES)
+            elif (
+                path in IGNORED_PATHS
+                or path_parts[-1] in IGNORED_BASENAMES
+                or PurePosixPath(path).suffix in IGNORED_SUFFIXES
+                or path.startswith(IGNORED_PREFIXES)
+            ):
+                continue
+            elif path_parts[0] in {"benchmarks", "cuda_python_test_helpers"}:
+                test_changes.update(MODULES)
+            else:
                 force_all = True
+                break
 
     if force_all:
         builds = set(MODULES)
@@ -208,13 +163,43 @@ def compute_workplan(
     }
 
 
-def _changed_paths(merge_base: str, head: str) -> list[str]:
+def _changed_paths(merge_base: str, head: str) -> tuple[list[str], set[str]]:
     result = subprocess.run(  # noqa: S603 - argv is passed directly to git without a shell.
         ["git", "diff", "--no-renames", "--name-only", "-z", f"{merge_base}...{head}"],  # noqa: S607
         check=True,
+        cwd=REPO_ROOT,
         stdout=subprocess.PIPE,
     )
-    return [path.decode("utf-8", errors="surrogateescape") for path in result.stdout.split(b"\0") if path]
+    paths = [path.decode("utf-8", errors="surrogateescape") for path in result.stdout.split(b"\0") if path]
+    head_symlinks = _tracked_symlink_paths(head)
+    # Base links preserve the packaging impact of deleted or replaced symlinks.
+    linked_paths = set(head_symlinks) | set(_tracked_symlink_paths(merge_base))
+    return _expand_linked_paths(paths, head_symlinks, root=REPO_ROOT), linked_paths
+
+
+def _tracked_symlink_paths(ref: str) -> list[str]:
+    result = subprocess.run(  # noqa: S603 - the Git ref is passed as an argv element.
+        ["git", "ls-tree", "--full-tree", "-r", "-z", ref],  # noqa: S607
+        check=True,
+        cwd=REPO_ROOT,
+        stdout=subprocess.PIPE,
+    )
+    return [
+        entry.partition(b"\t")[2].decode("utf-8", errors="surrogateescape")
+        for entry in result.stdout.split(b"\0")
+        if entry.startswith(b"120000 ")
+    ]
+
+
+def _expand_linked_paths(paths: list[str], symlink_paths: list[str], *, root: Path) -> list[str]:
+    """Include tracked symlinks whose resolved targets changed."""
+    resolved_paths = {(root / path).resolve(strict=False) for path in paths}
+    expanded = list(paths)
+    selected = set(paths)
+    expanded.extend(
+        path for path in symlink_paths if path not in selected and (root / path).resolve(strict=False) in resolved_paths
+    )
+    return expanded
 
 
 def main() -> None:
@@ -231,12 +216,13 @@ def main() -> None:
         parser.error("baseline SHA must match the merge base")
 
     reusable_baseline = bool(args.merge_base and args.baseline_run_id)
-    paths = _changed_paths(args.merge_base, args.head) if reusable_baseline else []
+    paths, linked_paths = _changed_paths(args.merge_base, args.head) if reusable_baseline else ([], set())
     plan = compute_workplan(
         paths,
         merge_base=args.merge_base,
         baseline_run_id=args.baseline_run_id,
         baseline_sha=args.baseline_sha,
+        linked_paths=linked_paths,
     )
     print(json.dumps(plan, separators=(",", ":"), sort_keys=True))
 
