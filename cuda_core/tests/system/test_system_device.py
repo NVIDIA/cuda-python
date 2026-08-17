@@ -590,7 +590,10 @@ def test_clock(subtests):
                 with unsupported_before(device, None):
                     pstate = device.performance_state
 
-                min_, max_ = clock.get_min_max_clock_of_pstate_mhz(pstate)
+                # Individual queries may be unsupported for a clock domain even
+                # on newer devices.
+                with unsupported_before(device, None):
+                    min_, max_ = clock.get_min_max_clock_of_pstate_mhz(pstate)
                 assert isinstance(min_, int)
                 assert min_ >= 0
                 assert isinstance(max_, int)
@@ -601,7 +604,7 @@ def test_clock(subtests):
                 assert isinstance(max_mhz, int)
                 assert max_mhz >= 0
 
-                with unsupported_before(device, DeviceArch.KEPLER):
+                with unsupported_before(device, None):
                     current_mhz = clock.get_current_mhz()
                 assert isinstance(current_mhz, int)
                 assert current_mhz >= 0
