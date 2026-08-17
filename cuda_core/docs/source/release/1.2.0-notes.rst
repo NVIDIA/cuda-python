@@ -14,7 +14,10 @@ New features
   by the new :class:`utils.CopyOptions` dataclass. Requires ``cuda.core``
   built against CUDA 13, ``cuda.bindings`` 13.0+, and a driver reporting
   CUDA 13.0 or newer; otherwise falls back to a per-copy ``cuMemcpyAsync``
-  loop with options silently ignored. Graph capture and
+  loop. On that fallback, ``src_access_order`` values of ``STREAM`` and
+  ``ANY`` are silently ignored (stream-ordered access already satisfies
+  both), while ``DURING_API_CALL`` raises ``RuntimeError`` instead of
+  silently downgrading its stronger guarantee. Graph capture and
   ``LEGACY_DEFAULT_STREAM`` are rejected (``PER_THREAD_DEFAULT_STREAM`` is
   accepted). Copies within a batch must not alias.
   (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__)
@@ -32,8 +35,10 @@ New features
   ``cuMemcpyWithAttributesAsync``. Matching :func:`utils.copy_batch`, passing
   ``options`` together with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
   raises ``TypeError`` (``PER_THREAD_DEFAULT_STREAM`` is accepted). On
-  ``cuda.bindings``/driver older than CUDA 13.2, the copy falls back to
-  ``cuMemcpyAsync`` with ``options`` silently ignored.
+  ``cuda.bindings``/driver older than CUDA 13.2, ``src_access_order`` values
+  of ``STREAM`` and ``ANY`` fall back to ``cuMemcpyAsync`` silently, while
+  ``DURING_API_CALL`` raises ``RuntimeError`` instead of silently
+  downgrading its stronger guarantee.
   (`#2365 <https://github.com/NVIDIA/cuda-python/issues/2365>`__)
 
 Fixes and enhancements

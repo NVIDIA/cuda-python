@@ -40,7 +40,7 @@ import sys
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-from cuda.core._memory._copy_enums import CopyOptions
+from cuda.core._memory._copy_enums import CopyOptions, _reject_unsupported_during_api_call
 from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
@@ -221,8 +221,14 @@ cdef void _dispatch_buffer_copy(
     if _with_attributes_available():
         _do_copy_with_attributes(dst, src, nbytes, options, as_cu(s._h_stream))
     else:
-        # Matches copy_batch: options are silently ignored on the
-        # pre-CUDA-13.2 driver/bindings fallback path.
+        _reject_unsupported_during_api_call(
+            options.src_access_order,
+            "cuda.bindings and the driver to both report CUDA 13.2 or newer "
+            "(cuMemcpyWithAttributesAsync is unavailable here)",
+        )
+        # STREAM and ANY never require access sooner than stream order, so
+        # cuMemcpyAsync satisfies them; options are otherwise silently
+        # ignored on this pre-CUDA-13.2 fallback path, matching copy_batch.
         with nogil:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(dst, src, nbytes, as_cu(s._h_stream)))
 
@@ -482,8 +488,9 @@ cdef class Buffer:
             Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
             (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
             or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
-            older than CUDA 13.2, the copy falls back to ``cuMemcpyAsync`` with
-            ``options`` silently ignored.
+            older than CUDA 13.2, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` fall back to ``cuMemcpyAsync`` silently; ``DURING_API_CALL``
+            raises instead of silently downgrading its guarantee.
 
         Raises
         ------
@@ -491,6 +498,12 @@ cdef class Buffer:
             If ``options`` is not a :class:`~utils.CopyOptions` instance, or
             if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
             or a stream currently in graph capture mode.
+        RuntimeError
+            If ``options.src_access_order`` is ``DURING_API_CALL`` and
+            cuda.bindings/driver older than CUDA 13.2 makes the native
+            ``cuMemcpyWithAttributesAsync`` path unavailable: the
+            ``cuMemcpyAsync`` fallback reads the source in stream order
+            only, which cannot honor that guarantee.
 
         """
         cdef Stream s = Stream_accept(stream)
@@ -527,8 +540,9 @@ cdef class Buffer:
             Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
             (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
             or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
-            older than CUDA 13.2, the copy falls back to ``cuMemcpyAsync`` with
-            ``options`` silently ignored.
+            older than CUDA 13.2, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` fall back to ``cuMemcpyAsync`` silently; ``DURING_API_CALL``
+            raises instead of silently downgrading its guarantee.
 
         Raises
         ------
@@ -536,6 +550,12 @@ cdef class Buffer:
             If ``options`` is not a :class:`~utils.CopyOptions` instance, or
             if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
             or a stream currently in graph capture mode.
+        RuntimeError
+            If ``options.src_access_order`` is ``DURING_API_CALL`` and
+            cuda.bindings/driver older than CUDA 13.2 makes the native
+            ``cuMemcpyWithAttributesAsync`` path unavailable: the
+            ``cuMemcpyAsync`` fallback reads the source in stream order
+            only, which cannot honor that guarantee.
         """
         cdef Stream s = Stream_accept(stream)
         cdef size_t dst_size = self._size

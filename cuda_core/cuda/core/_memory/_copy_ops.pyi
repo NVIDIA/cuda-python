@@ -63,6 +63,11 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
         If a single Buffer is passed instead of a sequence, if
         ``LEGACY_DEFAULT_STREAM`` is passed, or if the stream is currently
         in graph capture mode.
+    RuntimeError
+        If any copy requests ``src_access_order=DURING_API_CALL`` and the
+        native ``cuMemcpyBatchAsync`` path is unavailable (see Notes): the
+        per-copy ``cuMemcpyAsync`` fallback reads the source in stream
+        order only, which cannot honor that guarantee.
 
     Notes
     -----
@@ -81,7 +86,11 @@ def copy_batch(stream: Stream, srcs: Sequence[Buffer], dsts: Sequence[Buffer], *
 
     On pre-CUDA 13 installs the copies fall back to a Python-level loop
     over ``cuMemcpyAsync``, so the potential performance benefit of
-    asynchronous batched copies is not realized. :class:`CopyOptions` are
-    silently ignored on the fallback path.
+    asynchronous batched copies is not realized. ``src_access_order`` values
+    of ``STREAM`` and ``ANY`` are silently ignored on the fallback path
+    (stream-ordered access already satisfies both); ``DURING_API_CALL``
+    raises ``RuntimeError`` instead, since silently downgrading it to
+    stream-ordered access would let a caller reuse the source buffer before
+    the real read happens.
 
     """

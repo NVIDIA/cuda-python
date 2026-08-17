@@ -21,7 +21,11 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 # a pragma to be seen as used.
 from cuda.core._utils.version cimport cy_driver_version  # no-cython-lint
 
-from cuda.core._memory._copy_enums import CopyOptions, _attr_run_starts  # no-cython-lint
+from cuda.core._memory._copy_enums import (
+    CopyOptions,
+    _attr_run_starts,  # no-cython-lint
+    _reject_unsupported_during_api_call,
+)
 
 _SINGLE_COPY_HINT = "Buffer.copy_to / Buffer.copy_from"
 
@@ -131,6 +135,11 @@ def copy_batch(
         If a single Buffer is passed instead of a sequence, if
         ``LEGACY_DEFAULT_STREAM`` is passed, or if the stream is currently
         in graph capture mode.
+    RuntimeError
+        If any copy requests ``src_access_order=DURING_API_CALL`` and the
+        native ``cuMemcpyBatchAsync`` path is unavailable (see Notes): the
+        per-copy ``cuMemcpyAsync`` fallback reads the source in stream
+        order only, which cannot honor that guarantee.
 
     Notes
     -----
@@ -149,8 +158,12 @@ def copy_batch(
 
     On pre-CUDA 13 installs the copies fall back to a Python-level loop
     over ``cuMemcpyAsync``, so the potential performance benefit of
-    asynchronous batched copies is not realized. :class:`CopyOptions` are
-    silently ignored on the fallback path.
+    asynchronous batched copies is not realized. ``src_access_order`` values
+    of ``STREAM`` and ``ANY`` are silently ignored on the fallback path
+    (stream-ordered access already satisfies both); ``DURING_API_CALL``
+    raises ``RuntimeError`` instead, since silently downgrading it to
+    stream-ordered access would let a caller reuse the source buffer before
+    the real read happens.
 
     """
     cdef tuple src_bufs = Buffer_coerce_batch(srcs, "copy_batch", _SINGLE_COPY_HINT)
@@ -211,17 +224,36 @@ cdef void _do_copy_batch(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tu
         if _batch_entry_point_available():
             _do_copy_batch_native(src_bufs, dst_bufs, s, attr_tuple)
         else:
+            _reject_during_api_call_fallback(attr_tuple)
             _do_copy_batch_loop(src_bufs, dst_bufs, s)
     ELSE:
+        _reject_during_api_call_fallback(attr_tuple)
         _do_copy_batch_loop(src_bufs, dst_bufs, s)
+
+
+cdef void _reject_during_api_call_fallback(tuple attr_tuple):
+    """Raise before the per-copy cuMemcpyAsync loop if any copy needs
+    DURING_API_CALL, which that fallback cannot honor (see
+    _reject_unsupported_during_api_call for why this must raise rather than
+    silently ignore the option, unlike STREAM and ANY).
+    """
+    cdef Py_ssize_t i
+    for i in range(len(attr_tuple)):
+        _reject_unsupported_during_api_call(
+            (<object>attr_tuple[i]).src_access_order,
+            "cuda.core built against CUDA 13 headers and cuda.bindings/driver "
+            "13.0 or newer (cuMemcpyBatchAsync is unavailable here)",
+            index=i,
+        )
 
 
 cdef void _do_copy_batch_loop(tuple src_bufs, tuple dst_bufs, Stream s):
     """Per-copy cuMemcpyAsync fallback where the batch entry point is absent.
 
     Issues copies one at a time, so the performance benefit of batching is
-    not realized. Callers guarantee the options are defaults; copy_batch
-    rejects anything else before reaching here.
+    not realized. STREAM and ANY are silently ignored here (satisfied by
+    stream-ordered cuMemcpyAsync regardless); DURING_API_CALL is rejected by
+    _reject_during_api_call_fallback before this is ever called.
     """
     cdef Py_ssize_t n = len(src_bufs)
     cdef Py_ssize_t i

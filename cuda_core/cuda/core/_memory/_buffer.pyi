@@ -191,8 +191,9 @@ class Buffer:
             Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
             (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
             or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
-            older than CUDA 13.2, the copy falls back to ``cuMemcpyAsync`` with
-            ``options`` silently ignored.
+            older than CUDA 13.2, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` fall back to ``cuMemcpyAsync`` silently; ``DURING_API_CALL``
+            raises instead of silently downgrading its guarantee.
 
         Raises
         ------
@@ -200,6 +201,12 @@ class Buffer:
             If ``options`` is not a :class:`~utils.CopyOptions` instance, or
             if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
             or a stream currently in graph capture mode.
+        RuntimeError
+            If ``options.src_access_order`` is ``DURING_API_CALL`` and
+            cuda.bindings/driver older than CUDA 13.2 makes the native
+            ``cuMemcpyWithAttributesAsync`` path unavailable: the
+            ``cuMemcpyAsync`` fallback reads the source in stream order
+            only, which cannot honor that guarantee.
 
         """
 
@@ -218,8 +225,9 @@ class Buffer:
             Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
             (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
             or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
-            older than CUDA 13.2, the copy falls back to ``cuMemcpyAsync`` with
-            ``options`` silently ignored.
+            older than CUDA 13.2, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` fall back to ``cuMemcpyAsync`` silently; ``DURING_API_CALL``
+            raises instead of silently downgrading its guarantee.
 
         Raises
         ------
@@ -227,6 +235,12 @@ class Buffer:
             If ``options`` is not a :class:`~utils.CopyOptions` instance, or
             if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
             or a stream currently in graph capture mode.
+        RuntimeError
+            If ``options.src_access_order`` is ``DURING_API_CALL`` and
+            cuda.bindings/driver older than CUDA 13.2 makes the native
+            ``cuMemcpyWithAttributesAsync`` path unavailable: the
+            ``cuMemcpyAsync`` fallback reads the source in stream order
+            only, which cannot honor that guarantee.
         """
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:

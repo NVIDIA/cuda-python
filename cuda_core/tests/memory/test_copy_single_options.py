@@ -10,9 +10,21 @@ from helpers.copy_batch import assert_managed_holds
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource
 from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
+from cuda.core._utils.version import binding_version, driver_version
 from cuda.core.utils import CopyOptions, MemcpyOverlapMode, MemcpySrcAccessOrder
 
 SIZE = 4096
+
+
+def _options_honored():
+    """True when cuMemcpyWithAttributesAsync will actually be used for options.
+
+    Mirrors _with_attributes_available() in _buffer.pyx. CI runs a matrix
+    that includes pre-CUDA-13.2 driver/bindings combinations (see
+    ci/test-matrix.yml), where this is False and the DURING_API_CALL tests
+    below must expect a RuntimeError instead of a successful copy.
+    """
+    return driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
 
 
 @pytest.fixture
@@ -71,16 +83,18 @@ def test_options_none_copy_from_data_correct(single_copy_device, single_copy_str
     ("order", "marker"),
     [
         (MemcpySrcAccessOrder.STREAM, 0x31),
-        (MemcpySrcAccessOrder.DURING_API_CALL, 0x32),
         (MemcpySrcAccessOrder.ANY, 0x33),
     ],
 )
 def test_src_access_order_copy_to(single_copy_device, single_copy_stream, pinned_mr, order, marker):
-    """Every src_access_order value is accepted and does not corrupt copy_to.
+    """STREAM and ANY are accepted and never corrupt copy_to.
 
-    Whether cuMemcpyWithAttributesAsync actually honors the hint (CUDA 13.2+
-    driver and cuda.bindings) or the call silently falls back to
-    cuMemcpyAsync, the copied bytes must be identical either way.
+    Both are satisfied by stream-ordered access at worst, so whether
+    cuMemcpyWithAttributesAsync actually honors the hint (CUDA 13.2+ driver
+    and cuda.bindings) or the call silently falls back to cuMemcpyAsync, the
+    copied bytes must be identical either way. DURING_API_CALL is different
+    (see test_during_api_call_copy_to): its stronger guarantee cannot be
+    silently downgraded, so it is tested separately.
     """
     src = make_scratch_buffer(single_copy_device, marker, SIZE)
     dst = pinned_mr.allocate(SIZE)
@@ -101,12 +115,14 @@ def test_src_access_order_copy_to(single_copy_device, single_copy_stream, pinned
     ("order", "marker"),
     [
         (MemcpySrcAccessOrder.STREAM, 0x41),
-        (MemcpySrcAccessOrder.DURING_API_CALL, 0x42),
         (MemcpySrcAccessOrder.ANY, 0x43),
     ],
 )
 def test_src_access_order_copy_from(single_copy_device, single_copy_stream, pinned_mr, order, marker):
-    """Every src_access_order value is accepted and does not corrupt copy_from."""
+    """STREAM and ANY are accepted and never corrupt copy_from. See
+    test_src_access_order_copy_to for why DURING_API_CALL is tested
+    separately.
+    """
     src = make_scratch_buffer(single_copy_device, marker, SIZE)
     dst = pinned_mr.allocate(SIZE)
     opts = CopyOptions(src_access_order=order)
@@ -115,6 +131,54 @@ def test_src_access_order_copy_from(single_copy_device, single_copy_stream, pinn
     single_copy_stream.sync()
 
     assert compare_equal_buffers(src, dst)
+
+    src.close(single_copy_stream)
+    single_copy_stream.sync()
+    dst.close()
+
+
+@pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+def test_during_api_call_copy_to(single_copy_device, single_copy_stream, pinned_mr):
+    """DURING_API_CALL is honored on the native (CUDA 13.2+) path.
+
+    On the pre-13.2 fallback it must raise RuntimeError instead of silently
+    downgrading to stream-ordered cuMemcpyAsync, which cannot honor the
+    guarantee that all source reads complete before the call returns (see
+    TestRejectUnsupportedDuringApiCall in test_copy_batch_options.py). CI
+    runs both driver generations (see ci/test-matrix.yml), so this test must
+    handle both outcomes rather than assuming the native path is available.
+    """
+    src = make_scratch_buffer(single_copy_device, 0x32, SIZE)
+    dst = pinned_mr.allocate(SIZE)
+    opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.DURING_API_CALL)
+
+    if _options_honored():
+        src.copy_to(dst, stream=single_copy_stream, options=opts)
+        single_copy_stream.sync()
+        assert compare_equal_buffers(src, dst)
+    else:
+        with pytest.raises(RuntimeError, match="DURING_API_CALL"):
+            src.copy_to(dst, stream=single_copy_stream, options=opts)
+
+    src.close(single_copy_stream)
+    single_copy_stream.sync()
+    dst.close()
+
+
+@pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+def test_during_api_call_copy_from(single_copy_device, single_copy_stream, pinned_mr):
+    """Same as test_during_api_call_copy_to, exercising copy_from instead."""
+    src = make_scratch_buffer(single_copy_device, 0x42, SIZE)
+    dst = pinned_mr.allocate(SIZE)
+    opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.DURING_API_CALL)
+
+    if _options_honored():
+        dst.copy_from(src, stream=single_copy_stream, options=opts)
+        single_copy_stream.sync()
+        assert compare_equal_buffers(src, dst)
+    else:
+        with pytest.raises(RuntimeError, match="DURING_API_CALL"):
+            dst.copy_from(src, stream=single_copy_stream, options=opts)
 
     src.close(single_copy_stream)
     single_copy_stream.sync()
