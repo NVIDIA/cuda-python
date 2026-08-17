@@ -59,7 +59,7 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
 
-    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/generated/cuda.bindings.utils.get_ptx_ver.html" />
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/cuda-bindings/13.3.2/module/generated/cuda.bindings.utils.get_ptx_ver.html" />
     <link rel="icon" href="../../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -119,9 +119,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is built from the development branch!</div>
-</aside>
 
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -1326,7 +1323,7 @@
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ptx</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ptx</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'''</span>
 <span class="gp">... </span><span class="s1">.version 8.8</span>
 <span class="gp">... </span><span class="s1">.target sm_86</span>
 <span class="gp">... </span><span class="s1">.address_size 64</span>
@@ -1335,9 +1332,9 @@
 <span class="gp">... </span><span class="s1">{</span>
 <span class="gp">... </span><span class="s1">    ret;</span>
 <span class="gp">... </span><span class="s1">}</span>
-<span class="gp">... </span><span class="s1">&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">'''</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">get_ptx_ver</span><span class="p">(</span><span class="n">ptx</span><span class="p">)</span>
-<span class="go">&#39;8.8&#39;</span>
+<span class="go">'8.8'</span>
 </pre></div>
 </div>
 </dd></dl>
