@@ -571,7 +571,7 @@ jobs:
           LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
           PREV_BINDINGS_DIR="cuda_bindings/dist-prev"
 
-          ./ci/tools/retry-gh-run-download \
+          gh run download \
             "${LATEST_PRIOR_RUN_ID}" \
             -p "${OLD_ARTIFACT_PATTERN}" \
             -R NVIDIA/cuda-python

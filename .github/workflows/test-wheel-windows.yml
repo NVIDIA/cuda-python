@@ -198,7 +198,7 @@ jobs:
           OLD_ARTIFACT_PATTERN="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}-*[0-9a-f]"
           LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
 
-          ./ci/tools/retry-gh-run-download \
+          gh run download \
             "${LATEST_PRIOR_RUN_ID}" \
             -p "${OLD_ARTIFACT_PATTERN}" \
             -R NVIDIA/cuda-python
@@ -210,7 +210,7 @@ jobs:
           rmdir "${OLD_ARTIFACT_DIR}"
 
           if ${{ env.TEST_PYTHON == 'true' }}; then
-            ./ci/tools/retry-gh-run-download \
+            gh run download \
               "${LATEST_PRIOR_RUN_ID}" \
               -p cuda-python-wheel \
               -R NVIDIA/cuda-python
