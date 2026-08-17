@@ -557,6 +557,15 @@
 </ul>
 </dd>
 </dl>
+<dl class="simple">
+<dt>Windows on ARM (WoA) Note:</dt><dd><p>On Windows, this API aims to return the path to a static library whose
+architecture matches the Python interpreter architecture. For example,
+x64 Python running on an Arm64 machine targets the x64 library, while
+native Arm64 Python targets the Arm64 library. This differs from
+<code class="docutils literal notranslate"><span class="pre">find_nvidia_binary_utility</span></code>, which targets the native machine
+architecture when selecting architecture-specific executables.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

@@ -6,8 +6,43 @@
 ``cuda.core`` 1.2.0 Release Notes
 ==================================
 
+New features
+------------
+
+- Added :func:`utils.copy_batch`, which submits many buffer-to-buffer copies
+  in a single ``cuMemcpyBatchAsync`` call. Per-copy behavior is controlled
+  by the new :class:`utils.CopyOptions` dataclass. Requires ``cuda.core``
+  built against CUDA 13, ``cuda.bindings`` 13.0+, and a driver reporting
+  CUDA 13.0 or newer; otherwise falls back to a per-copy ``cuMemcpyAsync``
+  loop with options silently ignored. Graph capture and default-stream tokens
+  are rejected. Copies within a batch must not alias.
+  (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__)
+
 Fixes and enhancements
 ----------------------
+
+- A :class:`Buffer` is now freed correctly even when the CUDA context current
+  at teardown is not the one it was allocated in, or when no context is current
+  at all. This happens routinely when a buffer is released by the garbage
+  collector on another thread or by deferred CUDA graph cleanup; previously the
+  free could fail or be skipped, leaking the allocation.
+  (`#2497 <https://github.com/NVIDIA/cuda-python/issues/2497>`__)
+
+- :meth:`Buffer.from_handle` and :meth:`ManagedBuffer.from_handle` accept a
+  keyword-only ``stream`` that records the stream used to order the buffer's
+  deallocation when the memory resource owns the pointer. It defaults to
+  ``default_stream()``, which requires a CUDA context to be current so the
+  free recipe can pin that context.
+  (`#2497 <https://github.com/NVIDIA/cuda-python/issues/2497>`__)
+
+- Added :meth:`Buffer.set_deallocation_stream` to change the stream that orders
+  a buffer's eventual deallocation without closing the buffer.
+  (`#2600 <https://github.com/NVIDIA/cuda-python/issues/2600>`__)
+
+- Explicit calls to ``deallocate()`` on pool-backed memory resources and
+  :class:`GraphMemoryResource` now propagate errors from the underlying CUDA
+  free operation. Previously, these errors could be suppressed. Automatic
+  buffer cleanup remains non-raising and reports failures as warnings.
 
 - Graph node resources are now retained independently across graph clones,
   executable graphs, updates, node deletion, and in-flight launches. Previously,
@@ -80,6 +115,18 @@ Fixes and enhancements
   the call could not be guarded with ``try``. A rejected registration no longer
   leaves an entry in the memory resource registry.
   (`#2568 <https://github.com/NVIDIA/cuda-python/issues/2568>`__)
+
+- Starting with CUDA 13.4, unconstrained SM-resource discovery through
+  :meth:`SMResource.split` with ``SMResourceOptions(count=None)`` may return
+  every available SM, even when that count is not divisible by the device's
+  :attr:`SMResource.coscheduled_alignment`. CUDA 13.1 through 13.3 returned an
+  aligned subset for the same request. An omitted or zero
+  ``coscheduled_sm_count`` still selects the driver's default internally, but
+  CUDA 13.4 no longer guarantees that the returned :attr:`SMResource.sm_count`
+  is a multiple of that default. A green context created from the discovered
+  group may therefore span the full GPU and leave an empty remainder. Set
+  ``coscheduled_sm_count`` explicitly when an aligned result is required.
+  (`#2389 <https://github.com/NVIDIA/cuda-python/pull/2389>`__)
 
 Deprecation Notices
 -------------------
