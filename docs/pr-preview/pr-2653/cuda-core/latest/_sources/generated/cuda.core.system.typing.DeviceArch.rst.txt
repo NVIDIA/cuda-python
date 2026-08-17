@@ -1,0 +1,6 @@
+﻿cuda.core.system.typing.DeviceArch
+==================================
+
+.. currentmodule:: cuda.core.system.typing
+
+.. autoenum:: DeviceArch
