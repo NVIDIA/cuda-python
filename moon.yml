@@ -22,7 +22,169 @@ taskOptions:
   cache: false
   runInCI: false
 
+fileGroups:
+  orchestration:
+    - '/.moon/**/*'
+    - '/moon.yml'
+    - '/**/moon.yml'
+    - '/ci/tools/moon_ci.py'
+    - '/ci/tools/moon_fingerprint.py'
+    - '/ci/tools/env-vars'
+    - '/ci/versions.yml'
+    - '/.github/actions/**/*'
+    - '/.github/workflows/ci.yml'
+    - '/.git_archival.txt'
+    - '/.gitattributes'
+    - '/pixi.toml'
+    - '/pixi.lock'
+    - '/pytest.ini'
+    - '/ruff.toml'
+
+  # A new or otherwise unowned path must never silently suppress CI. Known
+  # source, test, docs, and platform inputs are excluded because their precise
+  # gates handle them; anything left forces the complete pipeline.
+  unowned:
+    - '/**/*'
+    - '!/.moon/cache/**/*'
+    - '!/.pixi/**/*'
+    - '!/**/.moon-out/**/*'
+    - '!/**/AGENTS.md'
+    - '!/**/CLAUDE.md'
+    - '!/README.md'
+    - '!/CONTRIBUTING.md'
+    - '!/SECURITY.md'
+    - '!/benchmarks/cuda_bindings/README.md'
+    - '!/benchmarks/cuda_core/README.md'
+    - '!/ci/ci-pipeline.svg'
+    - '!/cuda_bindings/README.md'
+    - '!/cuda_core/README.md'
+    - '!/cuda_python/README.md'
+    - '!/toolshed/README.md'
+    - '!/.agents/**/*'
+    - '!/.github/actions/**/*'
+    - '!/.github/workflows/ci.yml'
+    - '!/.github/workflows/build-docs.yml'
+    - '!/.github/workflows/build-pure-wheel.yml'
+    - '!/.github/workflows/build-wheel.yml'
+    - '!/.github/workflows/test-sdist-linux.yml'
+    - '!/.github/workflows/test-sdist-windows.yml'
+    - '!/.github/workflows/test-wheel-linux.yml'
+    - '!/.github/workflows/test-wheel-windows.yml'
+    - '!/.moon/**/*'
+    - '!/benchmarks/cuda_bindings/benchmarks/**/*'
+    - '!/benchmarks/cuda_bindings/runner/**/*'
+    - '!/benchmarks/cuda_bindings/tests/**/*'
+    - '!/benchmarks/cuda_bindings/compare.py'
+    - '!/benchmarks/cuda_bindings/pixi.lock'
+    - '!/benchmarks/cuda_bindings/pixi.toml'
+    - '!/benchmarks/cuda_bindings/run_cpp.py'
+    - '!/benchmarks/cuda_bindings/run_pyperf.py'
+    - '!/ci/test-matrix.yml'
+    - '!/ci/versions.yml'
+    - '!/ci/tools/configure_driver_mode.ps1'
+    - '!/ci/tools/env-vars'
+    - '!/ci/tools/guess_latest.sh'
+    - '!/ci/tools/install_gpu_driver.ps1'
+    - '!/ci/tools/install_gpu_driver.sh'
+    - '!/ci/tools/merge_cuda_core_wheels.py'
+    - '!/ci/tools/moon_ci.py'
+    - '!/ci/tools/moon_fingerprint.py'
+    - '!/ci/tools/run-tests'
+    - '!/ci/tools/setup-sanitizer'
+    - '!/cuda_bindings/cuda/**/*'
+    - '!/cuda_bindings/docs/**/*'
+    - '!/cuda_bindings/examples/**/*'
+    - '!/cuda_bindings/tests/**/*'
+    - '!/cuda_bindings/.git_archival.txt'
+    - '!/cuda_bindings/DESCRIPTION.rst'
+    - '!/cuda_bindings/LICENSE'
+    - '!/cuda_bindings/MANIFEST.in'
+    - '!/cuda_bindings/build_hooks.py'
+    - '!/cuda_bindings/moon.yml'
+    - '!/cuda_bindings/pixi.lock'
+    - '!/cuda_bindings/pixi.toml'
+    - '!/cuda_bindings/pyproject.toml'
+    - '!/cuda_bindings/setup.py'
+    - '!/cuda_core/cuda/**/*'
+    - '!/cuda_core/docs/**/*'
+    - '!/cuda_core/examples/**/*'
+    - '!/cuda_core/tests/**/*'
+    - '!/cuda_core/.git_archival.txt'
+    - '!/cuda_core/DESCRIPTION.rst'
+    - '!/cuda_core/LICENSE'
+    - '!/cuda_core/MANIFEST.in'
+    - '!/cuda_core/NOTICE'
+    - '!/cuda_core/build_hooks.py'
+    - '!/cuda_core/moon.yml'
+    - '!/cuda_core/pixi.lock'
+    - '!/cuda_core/pixi.toml'
+    - '!/cuda_core/pyproject.toml'
+    - '!/cuda_core/pytest.ini'
+    - '!/cuda_core/setup.py'
+    - '!/cuda_pathfinder/cuda/**/*'
+    - '!/cuda_pathfinder/docs/**/*'
+    - '!/cuda_pathfinder/examples/**/*'
+    - '!/cuda_pathfinder/tests/**/*'
+    - '!/cuda_pathfinder/.git_archival.txt'
+    - '!/cuda_pathfinder/DESCRIPTION.rst'
+    - '!/cuda_pathfinder/LICENSE'
+    - '!/cuda_pathfinder/moon.yml'
+    - '!/cuda_pathfinder/pixi.lock'
+    - '!/cuda_pathfinder/pixi.toml'
+    - '!/cuda_pathfinder/pyproject.toml'
+    - '!/cuda_python/docs/**/*'
+    - '!/cuda_python/DESCRIPTION.rst'
+    - '!/cuda_python/LICENSE'
+    - '!/cuda_python/moon.yml'
+    - '!/cuda_python/pyproject.toml'
+    - '!/cuda_python/setup.py'
+    - '!/cuda_python_test_helpers/**/*'
+    - '!/moon.yml'
+    - '!/pixi.lock'
+    - '!/pixi.toml'
+    - '!/pytest.ini'
+    - '!/ruff.toml'
+    - '!/tests/**/*'
+    - '!/.git_archival.txt'
+    - '!/.gitattributes'
+    - '!/.gitignore'
+    - '!/.pre-commit-config.yaml'
+    - '!/.spdx-ignore'
+    - '!/LICENSE'
+
 tasks:
+  # These two no-op tasks are the only allocation-only nodes. The planner
+  # inspects their tag and never executes them.
+  force-all:
+    inputs:
+      - '@group(orchestration)'
+    tags: [ci-force-all]
+    options:
+      runInCI: true
+
+  force-all-unowned:
+    inputs:
+      - '@group(unowned)'
+    tags: [ci-force-all]
+    options:
+      runInCI: true
+
+  quality-moon-contracts:
+    command: python
+    args: [-m, unittest, ci.tools.tests.test_moon_ci, ci.tools.tests.test_moon_workspace]
+    inputs:
+      - '/.moon/**/*'
+      - '/**/moon.yml'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/moon_fingerprint.py'
+      - '/ci/tools/tests/test_moon_ci.py'
+      - '/ci/tools/tests/test_moon_workspace.py'
+    tags: [ci-quality, runner-quality]
+    type: test
+    options:
+      os: linux
+      runInCI: true
+
   test:
     deps:
       - pathfinder:test

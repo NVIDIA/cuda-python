@@ -19,7 +19,6 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[3]
 EXPECTED_PROJECTS = {
     "root": ".",
-    "ci": "ci",
     "pathfinder": "cuda_pathfinder",
     "bindings": "cuda_bindings",
     "core": "cuda_core",
@@ -60,7 +59,7 @@ EXECUTION_TAG_TARGETS = {
         "root:docs-ci",
     },
     "ci-quality": {
-        "ci:quality-moon-contracts",
+        "root:quality-moon-contracts",
         "core:quality-api-base",
         "core:quality-api-release",
         "bindings-benchmarks:unit-test",
@@ -136,7 +135,7 @@ class MoonWorkspaceContractTest(unittest.TestCase):
     def test_only_force_all_tasks_are_allocation_only(self) -> None:
         self.assertFalse({task["target"] for task in self.tasks if "ci-gate" in task.get("tags", [])})
         forced = {task["target"] for task in self.tasks if "ci-force-all" in task.get("tags", [])}
-        self.assertEqual(forced, {"ci:force-all", "ci:force-all-unowned"})
+        self.assertEqual(forced, {"root:force-all", "root:force-all-unowned"})
         for target in forced:
             task = self.by_target[target]
             self.assertEqual(task["command"], "noop")
@@ -172,7 +171,7 @@ class MoonWorkspaceContractTest(unittest.TestCase):
             affected("benchmarks/cuda_bindings/tests/test_runner.py"),
         )
         self.assertIn(
-            "ci:force-all-unowned",
+            "root:force-all-unowned",
             affected("benchmarks/cuda_bindings/new_helper.py"),
         )
 
@@ -289,13 +288,15 @@ class MoonWorkspaceContractTest(unittest.TestCase):
         base = self.by_target["core:quality-api-base"]
         self.assertIn("${CUDA_CORE_API_RELEASE_BASE}", release["args"])
         self.assertIn("${CUDA_CORE_API_MERGE_BASE}", base["args"])
-        self.assertEqual(self.by_target["ci:quality-moon-contracts"]["args"][:2], ["-m", "unittest"])
+        self.assertEqual(self.by_target["root:quality-moon-contracts"]["args"][:2], ["-m", "unittest"])
         for target in (release, base, self.by_target["bindings-benchmarks:unit-test"]):
             self.assertEqual(target["command"], "uvx")
             self.assertIn("--no-managed-python", target["args"])
             self.assertIn("--no-python-downloads", target["args"])
 
     def test_local_pixi_tasks_remain_available_and_skip_ci(self) -> None:
+        for target in ("root:test", "root:docs", "root:pure-wheel"):
+            self.assertFalse(self.by_target[target]["options"]["runInCI"])
         for target in ("pathfinder:test", "bindings:test", "core:test"):
             task = self.by_target[target]
             self.assertEqual(task["args"][:2], ["ci/tools/moon_ci.py", "pixi-test"])
@@ -317,6 +318,8 @@ class MoonWorkspaceContractTest(unittest.TestCase):
         self.assertIn("syncProjects: false", workspace)
         self.assertIn("syncWorkspace: false", workspace)
         self.assertIn("verifyIntegrity: true", workspace)
+        self.assertNotIn("experiments:", workspace)
+        self.assertNotIn("remoteCandidates:", workspace)
         self.assertFalse((REPO_ROOT / ".moon" / "toolchains.yml").exists())
 
     def test_generated_cache_and_output_roots_are_ignored(self) -> None:

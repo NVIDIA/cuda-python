@@ -8,7 +8,6 @@ versionConstraint: '=2.5.1'
 
 projects:
   root: '.'
-  ci: 'ci'
   pathfinder: 'cuda_pathfinder'
   bindings: 'cuda_bindings'
   core: 'cuda_core'
@@ -17,12 +16,7 @@ projects:
   bindings-benchmarks: 'benchmarks/cuda_bindings'
 
 vcs:
-  client: git
-  provider: github
   defaultBranch: main
-  remoteCandidates:
-    - origin
-    - upstream
 
 pipeline:
   installDependencies: false
@@ -32,10 +26,5 @@ pipeline:
 cache:
   cas:
     verifyIntegrity: true
-
-experiments:
-  asyncAffectedTracking: false
-  asyncGraphBuilding: false
-  nativeFileHashing: false
 
 telemetry: false
