@@ -77,6 +77,14 @@ Memory management
    ManagedMemoryResourceOptions
    VirtualMemoryResourceOptions
 
+A :class:`Buffer` records the stream that will order its eventual deallocation.
+Use :meth:`Buffer.set_deallocation_stream` to replace that stream without
+closing the buffer. Changing the recorded stream does not synchronize streams;
+the caller must order allocation and every access before the deallocation,
+using events or other CUDA synchronization mechanisms as needed. See
+:cuda-core-example:`buffer_deallocation_stream.py <buffer_deallocation_stream.py>`
+for a complete example.
+
 
 CUDA compilation toolchain
 --------------------------

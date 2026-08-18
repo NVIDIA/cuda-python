@@ -9,14 +9,33 @@
 New features
 ------------
 
-- Added :func:`utils.copy_batch`, which submits many buffer-to-buffer copies
-  in a single ``cuMemcpyBatchAsync`` call. Per-copy behavior is controlled
-  by the new :class:`utils.CopyOptions` dataclass. Requires ``cuda.core``
-  built against CUDA 13, ``cuda.bindings`` 13.0+, and a driver reporting
-  CUDA 13.0 or newer; otherwise falls back to a per-copy ``cuMemcpyAsync``
-  loop with options silently ignored. Graph capture and default-stream tokens
-  are rejected. Copies within a batch must not alias.
-  (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__)
+- Added :class:`utils.CopyOptions` (source access order, location hints,
+  overlap mode) for buffer-to-buffer copies. The new
+  :func:`utils.copy_batch` accepts it and submits many copies in a single
+  ``cuMemcpyBatchAsync`` call, requiring ``cuda.core`` built against CUDA 13
+  plus ``cuda.bindings``/driver 13.0 or newer. :meth:`Buffer.copy_to` and
+  :meth:`Buffer.copy_from` also accept it now, as a new ``options`` keyword,
+  submitting a single copy via ``cuMemcpyWithAttributesAsync`` and requiring
+  ``cuda.bindings``/driver 13.2 or newer. Both reject
+  ``LEGACY_DEFAULT_STREAM`` with ``TypeError`` (``PER_THREAD_DEFAULT_STREAM``
+  is accepted); ``copy_batch`` always rejects graph capture, while
+  ``Buffer.copy_to``/``copy_from`` reject it only when ``options`` is given.
+  On an older ``cuda.bindings``/driver install, ``src_access_order`` values
+  of ``STREAM`` and ``ANY`` silently fall back to plain ``cuMemcpyAsync``;
+  ``DURING_API_CALL`` raises ``RuntimeError`` instead, since that fallback
+  cannot honor its guarantee that all source reads complete before the call
+  returns. Copies within a ``copy_batch`` call must not alias.
+  (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__,
+  `#2365 <https://github.com/NVIDIA/cuda-python/issues/2365>`__)
+
+- Added the ``programmatic_stream_serialization`` option to
+  :class:`LaunchConfig`, which sets
+  ``cudaLaunchAttributeProgrammaticStreamSerialization`` so a kernel can
+  begin executing before the preceding kernel in the same stream has fully
+  completed (programmatic dependent launch, PDL). Available starting with
+  devices of compute capability 9.0.
+  (`#2456 <https://github.com/NVIDIA/cuda-python/pull/2456>`__,
+  `#1334 <https://github.com/NVIDIA/cuda-python/issues/1334>`__)
 
 Fixes and enhancements
 ----------------------
@@ -34,6 +53,10 @@ Fixes and enhancements
   ``default_stream()``, which requires a CUDA context to be current so the
   free recipe can pin that context.
   (`#2497 <https://github.com/NVIDIA/cuda-python/issues/2497>`__)
+
+- Added :meth:`Buffer.set_deallocation_stream` to change the stream that orders
+  a buffer's eventual deallocation without closing the buffer.
+  (`#2600 <https://github.com/NVIDIA/cuda-python/issues/2600>`__)
 
 - Explicit calls to ``deallocate()`` on pool-backed memory resources and
   :class:`GraphMemoryResource` now propagate errors from the underlying CUDA
@@ -104,6 +127,14 @@ Fixes and enhancements
   Windows, both ``ctypes.CFUNCTYPE`` and ``ctypes.WINFUNCTYPE`` are accepted.
   (`#2439 <https://github.com/NVIDIA/cuda-python/issues/2439>`__)
 
+- :meth:`DeviceMemoryResource.register` and
+  :meth:`PinnedMemoryResource.register` now raise ``RuntimeError`` when the
+  memory resource does not have IPC enabled. Previously they dereferenced a
+  ``None`` attribute and terminated the process with a segmentation fault, so
+  the call could not be guarded with ``try``. A rejected registration no longer
+  leaves an entry in the memory resource registry.
+  (`#2568 <https://github.com/NVIDIA/cuda-python/issues/2568>`__)
+
 - Starting with CUDA 13.4, unconstrained SM-resource discovery through
   :meth:`SMResource.split` with ``SMResourceOptions(count=None)`` may return
   every available SM, even when that count is not divisible by the device's
@@ -115,6 +146,16 @@ Fixes and enhancements
   group may therefore span the full GPU and leave an empty remainder. Set
   ``coscheduled_sm_count`` explicitly when an aligned result is required.
   (`#2389 <https://github.com/NVIDIA/cuda-python/pull/2389>`__)
+
+- ``ProgramOptions(numba_debug=True)`` now works on the NVVM backend. The
+  option was emitted to libNVVM as ``--numba-debug``, but libNVVM accepts only
+  single-dashed options, so every such compile failed with
+  ``NVVM_ERROR_INVALID_OPTION``. It is now emitted as ``-numba-debug``, matching
+  what numba-cuda passes on the NVVM path. The NVRTC backend accepts both
+  spellings and was unaffected. The option itself is only recognized by newer
+  toolkits; libNVVM from CUDA 12.x does not support it under either spelling and
+  still reports ``NVVM_ERROR_INVALID_OPTION``.
+  (closes `#2570 <https://github.com/NVIDIA/cuda-python/issues/2570>`__)
 
 Deprecation Notices
 -------------------

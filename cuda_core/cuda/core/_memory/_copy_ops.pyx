@@ -9,13 +9,11 @@ from collections.abc import Sequence
 IF CUDA_CORE_BUILD_MAJOR >= 13:
     from libcpp.vector cimport vector
 
-from libc.string cimport memset
-
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
-from cuda.core._memory._location cimport to_cumemlocation
+from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-cython-lint
 from cuda.core._resource_handles cimport as_cu
-from cuda.core._stream cimport Stream, Stream_accept, Stream_is_default_token
+from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 # cy_driver_version and _attr_run_starts are referenced only from CUDA 13
@@ -23,8 +21,11 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 # a pragma to be seen as used.
 from cuda.core._utils.version cimport cy_driver_version  # no-cython-lint
 
-from cuda.core._memory._copy_enums import CopyOptions, _attr_run_starts  # no-cython-lint
-from cuda.core._memory._managed_location import _coerce_location
+from cuda.core._memory._copy_enums import (
+    CopyOptions,
+    _attr_run_starts,  # no-cython-lint
+    _reject_unsupported_during_api_call,
+)
 
 _SINGLE_COPY_HINT = "Buffer.copy_to / Buffer.copy_from"
 
@@ -87,24 +88,6 @@ def _normalize_copy_options(
     )
 
 
-cdef cydriver.CUmemcpyAttributes _to_cu_memcpy_attributes(object attr):
-    """Convert a CopyOptions to a cydriver.CUmemcpyAttributes struct."""
-    cdef cydriver.CUmemcpyAttributes cu_attr
-    memset(&cu_attr, 0, sizeof(cydriver.CUmemcpyAttributes))
-    cu_attr.srcAccessOrder = <cydriver.CUmemcpySrcAccessOrder>(<int>attr._to_driver_enum())
-    cu_attr.flags = <unsigned int>(<int>attr._to_driver_flags())
-
-    cdef object src_loc = _coerce_location(attr.src_location_hint, allow_none=True)
-    cdef object dst_loc = _coerce_location(attr.dst_location_hint, allow_none=True)
-
-    if src_loc is not None:
-        cu_attr.srcLocHint = to_cumemlocation(src_loc.kind, src_loc.id)
-    if dst_loc is not None:
-        cu_attr.dstLocHint = to_cumemlocation(dst_loc.kind, dst_loc.id)
-
-    return cu_attr
-
-
 def copy_batch(
     stream: Stream,
     srcs: Sequence[Buffer],
@@ -131,7 +114,10 @@ def copy_batch(
         (mirrors :func:`launch`). Does not accept a capturing stream
         (including a :class:`~graph.GraphBuilder`\'s underlying stream); use
         :meth:`graph.GraphNode.memcpy` or per-buffer
-        :meth:`Buffer.copy_to` to build copies into a graph.
+        :meth:`Buffer.copy_to` to build copies into a graph. Does not accept
+        ``LEGACY_DEFAULT_STREAM``, which ``cuMemcpyBatchAsync`` rejects
+        outright; ``PER_THREAD_DEFAULT_STREAM`` is a real stream to the
+        driver and is accepted.
     srcs : Sequence[:class:`Buffer`]
         Source buffers. Must be a sequence, not a single Buffer.
     dsts : Sequence[:class:`Buffer`]
@@ -146,10 +132,14 @@ def copy_batch(
     ValueError
         If lengths or sizes mismatch.
     TypeError
-        If a single Buffer is passed instead of a sequence, if a
-        default-stream token (``LEGACY_DEFAULT_STREAM`` /
-        ``PER_THREAD_DEFAULT_STREAM``) is passed, or if the stream is
-        currently in graph capture mode.
+        If a single Buffer is passed instead of a sequence, if
+        ``LEGACY_DEFAULT_STREAM`` is passed, or if the stream is currently
+        in graph capture mode.
+    RuntimeError
+        If any copy requests ``src_access_order=DURING_API_CALL`` and the
+        native ``cuMemcpyBatchAsync`` path is unavailable (see Notes): the
+        per-copy ``cuMemcpyAsync`` fallback reads the source in stream
+        order only, which cannot honor that guarantee.
 
     Notes
     -----
@@ -168,8 +158,12 @@ def copy_batch(
 
     On pre-CUDA 13 installs the copies fall back to a Python-level loop
     over ``cuMemcpyAsync``, so the potential performance benefit of
-    asynchronous batched copies is not realized. :class:`CopyOptions` are
-    silently ignored on the fallback path.
+    asynchronous batched copies is not realized. ``src_access_order`` values
+    of ``STREAM`` and ``ANY`` are silently ignored on the fallback path
+    (stream-ordered access already satisfies both); ``DURING_API_CALL``
+    raises ``RuntimeError`` instead, since silently downgrading it to
+    stream-ordered access would let a caller reuse the source buffer before
+    the real read happens.
 
     """
     cdef tuple src_bufs = Buffer_coerce_batch(srcs, "copy_batch", _SINGLE_COPY_HINT)
@@ -183,11 +177,12 @@ def copy_batch(
 
     cdef Stream s = Stream_accept(stream)
 
-    if Stream_is_default_token(s):
+    if Stream_is_legacy_default_token(s):
         raise TypeError(
-            "copy_batch does not accept a default-stream token "
-            "(LEGACY_DEFAULT_STREAM / PER_THREAD_DEFAULT_STREAM); "
-            "pass an explicit stream"
+            "copy_batch does not accept LEGACY_DEFAULT_STREAM; cuMemcpyBatchAsync "
+            "rejects it outright, unlike PER_THREAD_DEFAULT_STREAM, which is a real "
+            "stream to the driver and is accepted. Pass an explicit stream or "
+            "PER_THREAD_DEFAULT_STREAM."
         )
 
     cdef cydriver.CUstreamCaptureStatus _cap_status
@@ -229,17 +224,36 @@ cdef void _do_copy_batch(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tu
         if _batch_entry_point_available():
             _do_copy_batch_native(src_bufs, dst_bufs, s, attr_tuple)
         else:
+            _reject_during_api_call_fallback(attr_tuple)
             _do_copy_batch_loop(src_bufs, dst_bufs, s)
     ELSE:
+        _reject_during_api_call_fallback(attr_tuple)
         _do_copy_batch_loop(src_bufs, dst_bufs, s)
+
+
+cdef void _reject_during_api_call_fallback(tuple attr_tuple):
+    """Raise before the per-copy cuMemcpyAsync loop if any copy needs
+    DURING_API_CALL, which that fallback cannot honor (see
+    _reject_unsupported_during_api_call for why this must raise rather than
+    silently ignore the option, unlike STREAM and ANY).
+    """
+    cdef Py_ssize_t i
+    for i in range(len(attr_tuple)):
+        _reject_unsupported_during_api_call(
+            (<object>attr_tuple[i]).src_access_order,
+            "cuda.core built against CUDA 13 headers and cuda.bindings/driver "
+            "13.0 or newer (cuMemcpyBatchAsync is unavailable here)",
+            index=i,
+        )
 
 
 cdef void _do_copy_batch_loop(tuple src_bufs, tuple dst_bufs, Stream s):
     """Per-copy cuMemcpyAsync fallback where the batch entry point is absent.
 
     Issues copies one at a time, so the performance benefit of batching is
-    not realized. Callers guarantee the options are defaults; copy_batch
-    rejects anything else before reaching here.
+    not realized. STREAM and ANY are silently ignored here (satisfied by
+    stream-ordered cuMemcpyAsync regardless); DURING_API_CALL is rejected by
+    _reject_during_api_call_fallback before this is ever called.
     """
     cdef Py_ssize_t n = len(src_bufs)
     cdef Py_ssize_t i

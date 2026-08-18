@@ -466,6 +466,11 @@ class ProgramOptions:
         Load NVIDIA's `libdevice <https://docs.nvidia.com/cuda/libdevice-users-guide/>`_
         math builtins library. Only supported for the NVVM backend.
         Default: False
+    numba_debug : bool, optional
+        Emit the debug information layout expected by Numba. Recognized only by
+        newer toolkits; compilers that do not support it reject the option with
+        an error.
+        Default: False
     """
 
     name: str | None = "default_program"
@@ -1220,6 +1225,24 @@ cdef inline list _prepare_nvrtc_options_impl(object opts):
     return [o.encode() for o in options]
 
 
+cpdef void _assert_single_dashed_nvvm_options(options: list[str]) except *:
+    """Guard against emitting a double-dashed option to libNVVM.
+
+    libNVVM's parser accepts only single-dashed options and rejects the
+    double-dashed spelling of every option with NVVM_ERROR_INVALID_OPTION
+    (see #2570). Every option on this path is generated from typed fields, so
+    a double dash can only mean a bug in ``cuda.core`` rather than bad user
+    input. Fail here, naming the option, instead of leaving the user with
+    libNVVM's opaque error.
+    """
+    for option in options:
+        if option.startswith("--"):
+            raise RuntimeError(
+                f"Internal error: NVVM option {option!r} is double-dashed. libNVVM accepts "
+                f"only single-dashed options; emit {option[1:]!r} instead."
+            )
+
+
 cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
     """Build NVVM-specific compiler options."""
     options = []
@@ -1232,8 +1255,10 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
     options.append(f"-arch={arch}")
     if opts.debug is not None and opts.debug:
         options.append("-g")
+    # libNVVM only accepts single-dashed options; the double-dashed spelling
+    # accepted by NVRTC is rejected with NVVM_ERROR_INVALID_OPTION.
     if opts.numba_debug:
-        options.append("--numba-debug")
+        options.append("-numba-debug")
     if opts.device_code_optimize is False:
         options.append("-opt=0")
     elif opts.device_code_optimize is True:
@@ -1312,6 +1337,8 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
         unsupported.append("minimal")
     if unsupported:
         raise CUDAError(f"The following options are not supported by NVVM backend: {', '.join(unsupported)}")
+
+    _assert_single_dashed_nvvm_options(options)
 
     if as_bytes:
         return [o.encode() for o in options]

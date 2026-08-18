@@ -148,7 +148,7 @@ cdef class DeviceMemoryResource(_MemPool):
     def __init__(
         self,
         device_id: Device | int,
-        options: DeviceMemoryResourceOptions | dict[str, object] | None = None
+        options: DeviceMemoryResourceOptions | None = None
     ) -> None:
         _DMR_init(self, device_id, options)
 
