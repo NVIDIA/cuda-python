@@ -531,7 +531,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          SKIP=lychee pre-commit run --all-files
+          SKIP=lychee pre-commit run --all-files --show-diff-on-failure
 
   checks:
     name: Check job status
