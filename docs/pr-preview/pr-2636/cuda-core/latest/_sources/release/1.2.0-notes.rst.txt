@@ -28,6 +28,15 @@ New features
   (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__,
   `#2365 <https://github.com/NVIDIA/cuda-python/issues/2365>`__)
 
+- Added the ``programmatic_stream_serialization`` option to
+  :class:`LaunchConfig`, which sets
+  ``cudaLaunchAttributeProgrammaticStreamSerialization`` so a kernel can
+  begin executing before the preceding kernel in the same stream has fully
+  completed (programmatic dependent launch, PDL). Available starting with
+  devices of compute capability 9.0.
+  (`#2456 <https://github.com/NVIDIA/cuda-python/pull/2456>`__,
+  `#1334 <https://github.com/NVIDIA/cuda-python/issues/1334>`__)
+
 Fixes and enhancements
 ----------------------
 
