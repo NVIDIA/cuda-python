@@ -206,6 +206,7 @@ cdef class Stream:
         # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
         cdef cydriver.CUresult res_code
+        cdef int sync_policy
         with nogil:
             res_code = cydriver.cuCtxGetStreamPriorityRange(&high, &low)
         if res_code != cydriver.CUresult.CUDA_SUCCESS:
@@ -246,7 +247,7 @@ cdef class Stream:
         self._priority = prio
         if sync_policy_opt is not None:
             validated = _validate_synchronization_policy(sync_policy_opt)
-            cdef int sync_policy = int(validated)
+            sync_policy = int(validated)
             with nogil:
                 Stream_apply_synchronization_policy(self, sync_policy)
             self._synchronization_policy = sync_policy
