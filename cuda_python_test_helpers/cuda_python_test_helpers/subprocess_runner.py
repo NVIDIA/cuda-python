@@ -8,6 +8,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import tempfile
 from collections.abc import Mapping
 
 __all__ = ["run_python_snippet"]
@@ -16,7 +17,7 @@ __all__ = ["run_python_snippet"]
 def run_python_snippet(
     code: str,
     *,
-    cwd: str | os.PathLike[str],
+    cwd: str | os.PathLike[str] | None = None,
     timeout: float | None = None,
     extra_env: Mapping[str, str] | None = None,
     unset_env: tuple[str, ...] = (),
@@ -29,9 +30,8 @@ def run_python_snippet(
 
     Args:
         code: Python source for the child interpreter.
-        cwd: Directory to run from. Required: ``python -c`` puts the working
-            directory at the head of the child's ``sys.path``, so it must name
-            a directory that holds no importable ``cuda`` package.
+        cwd: Directory to run from. When omitted, an empty temporary directory
+            is created and cleaned up after the child exits.
         timeout: Seconds before ``subprocess.TimeoutExpired`` is raised.
         extra_env: Environment entries to set on top of the parent environment.
         unset_env: Environment variable names to remove from the child. Applied
@@ -43,23 +43,29 @@ def run_python_snippet(
     Returns:
         The completed process, with ``stdout`` and ``stderr`` as ``str``.
     """
-    assert cwd
     env = os.environ.copy()
     for name in unset_env:
         env.pop(name, None)
     if extra_env:
         env.update(extra_env)
 
-    result = subprocess.run(  # noqa: S603
-        [sys.executable, "-c", code],
-        capture_output=True,
-        text=True,
-        env=env,
-        check=False,
-        cwd=os.fspath(cwd),
-        timeout=timeout,
-        stdin=subprocess.DEVNULL,
-    )
+    def run(cwd: str | os.PathLike[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(  # noqa: S603
+            [sys.executable, "-c", code],
+            capture_output=True,
+            text=True,
+            env=env,
+            check=False,
+            cwd=os.fspath(cwd),
+            timeout=timeout,
+            stdin=subprocess.DEVNULL,
+        )
+
+    if cwd is None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = run(tmpdir)
+    else:
+        result = run(cwd)
     if check:
         assert result.returncode == 0, (
             f"subprocess exited with code {result.returncode}\nstdout: {result.stdout}\nstderr: {result.stderr}"

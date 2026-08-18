@@ -703,7 +703,7 @@ def test_user_object_cleanup_is_coalesced_on_python_thread(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_pending_call_queue_saturation_preserves_cleanup(tmp_path):
+def test_pending_call_queue_saturation_preserves_cleanup():
     """A full CPython queue neither strands nor mis-threads cleanup."""
     code = f"timeout = {_FINALIZE_TIMEOUT!r}\n" + textwrap.dedent(
         """
@@ -785,12 +785,11 @@ def test_pending_call_queue_saturation_preserves_cleanup(tmp_path):
         assert set(finalized_threads) == {main_thread}
         """
     )
-    # Isolate the process-global pending-call queue from parallel tests.
-    run_python_snippet(code, cwd=tmp_path, timeout=60)
+    run_python_snippet(code, timeout=60)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda, tmp_path):
+def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda):
     """Outstanding graph attachments neither call Python nor hang at shutdown."""
     code = textwrap.dedent(
         """
@@ -807,7 +806,7 @@ def test_pending_cleanup_is_safe_during_python_shutdown(init_cuda, tmp_path):
         graph.callback(Callback())
         """
     )
-    run_python_snippet(code, cwd=tmp_path, timeout=20)
+    run_python_snippet(code, timeout=20)
 
 
 def test_python_callable_callback_survives_del(init_cuda):

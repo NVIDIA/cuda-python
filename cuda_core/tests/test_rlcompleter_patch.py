@@ -18,7 +18,6 @@ a fresh subprocess with a controlled combination of `PYTHONINSPECT` and
 
 import subprocess
 import sys
-import tempfile
 import textwrap
 
 import pytest
@@ -59,16 +58,14 @@ _PROBE_SCRIPT = textwrap.dedent("""
 
 
 def _run_probe(*, pythoninspect: bool, opt_out: bool = False) -> subprocess.CompletedProcess:
-    with tempfile.TemporaryDirectory() as tmpdir:
-        return run_python_snippet(
-            _PROBE_SCRIPT,
-            cwd=tmpdir,
-            # The child must import the installed wheel, not a source tree
-            # reachable through an inherited PYTHONPATH.
-            unset_env=("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "PYTHONPATH"),
-            extra_env={"CUDA_CORE_DONT_FIX_TAB_COMPLETION": "1"} if opt_out else None,
-            check=False,
-        )
+    return run_python_snippet(
+        _PROBE_SCRIPT,
+        # The child must import the installed wheel, not a source tree
+        # reachable through an inherited PYTHONPATH.
+        unset_env=("CUDA_CORE_DONT_FIX_TAB_COMPLETION", "PYTHONPATH"),
+        extra_env={"CUDA_CORE_DONT_FIX_TAB_COMPLETION": "1"} if opt_out else None,
+        check=False,
+    )
 
 
 def test_patched_completion_succeeds_on_non_ipc_resource():
@@ -134,11 +131,9 @@ def test_opt_out_env_var_values(value, expect_patched):
     `ValueError: invalid literal for int() with base 10: ''` out of
     `cuda/core/__init__.py` and made the package unimportable.
     """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        result = run_python_snippet(
-            _OPT_OUT_PROBE_SCRIPT,
-            cwd=tmpdir,
-            unset_env=("PYTHONPATH",),
-            extra_env={"CUDA_CORE_DONT_FIX_TAB_COMPLETION": value},
-        )
+    result = run_python_snippet(
+        _OPT_OUT_PROBE_SCRIPT,
+        unset_env=("PYTHONPATH",),
+        extra_env={"CUDA_CORE_DONT_FIX_TAB_COMPLETION": value},
+    )
     assert result.stdout.strip() == f"patched: {expect_patched}", result.stdout

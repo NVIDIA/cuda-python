@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
-import os.path
 import shutil
 import textwrap
 
@@ -1288,7 +1287,7 @@ def test_array_setter_no_double_free_after_clearing_with_empty_list():
         params.attrs = [cuda.CUlaunchAttribute() for _ in range(8)]
         """
     )
-    run_python_snippet(code, cwd=os.path.dirname(__file__))
+    run_python_snippet(code)
 
 
 def test_dealloc_clears_array_field_in_external_struct():
