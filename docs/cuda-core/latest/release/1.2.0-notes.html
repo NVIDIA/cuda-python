@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9725d46a"></script>
+    <script src="../_static/documentation_options.js?v=335d5073"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev78';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev79';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -772,6 +772,14 @@ CUDA 13.0 or newer; otherwise falls back to a per-copy <code class="docutils lit
 loop with options silently ignored. Graph capture and default-stream tokens
 are rejected. Copies within a batch must not alias.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1333">#1333</a>)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">programmatic_stream_serialization</span></code> option to
+<a class="reference internal" href="../generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>, which sets
+<code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeProgrammaticStreamSerialization</span></code> so a kernel can
+begin executing before the preceding kernel in the same stream has fully
+completed (programmatic dependent launch, PDL). Available starting with
+devices of compute capability 9.0.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2456">#2456</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1334">#1334</a>)</p></li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
