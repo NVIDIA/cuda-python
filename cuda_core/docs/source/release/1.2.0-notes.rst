@@ -17,6 +17,14 @@ New features
   loop with options silently ignored. Graph capture and default-stream tokens
   are rejected. Copies within a batch must not alias.
   (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__)
+- Added the ``programmatic_stream_serialization`` option to
+  :class:`LaunchConfig`, which sets
+  ``cudaLaunchAttributeProgrammaticStreamSerialization`` so a kernel can
+  begin executing before the preceding kernel in the same stream has fully
+  completed (programmatic dependent launch, PDL). Available starting with
+  devices of compute capability 9.0.
+  (`#2456 <https://github.com/NVIDIA/cuda-python/pull/2456>`__,
+  `#1334 <https://github.com/NVIDIA/cuda-python/issues/1334>`__)
 
 Fixes and enhancements
 ----------------------
