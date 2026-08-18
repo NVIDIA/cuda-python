@@ -1479,7 +1479,8 @@ Default: False</p>
 newer toolkits; compilers that do not support it reject the option with
 an error. Applies only to the NVVM and NVRTC compilation backends –
 <code class="docutils literal notranslate"><span class="pre">code_type=&quot;ptx&quot;</span></code> is processed by the linker, which cannot honor it,
-and raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> if this option is enabled.
+so enabling this option there emits a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#UserWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserWarning</span></code></a> and the
+option is ignored.
 Default: None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
