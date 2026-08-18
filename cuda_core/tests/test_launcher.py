@@ -452,6 +452,31 @@ def test_launch_config_cluster_scheduling_policy_rejects_pre_hopper_cc(monkeypat
 
 
 @pytest.mark.agent_authored(model="composer-2.5-fast")
+def test_to_native_launch_config_cluster_and_policy(monkeypatch):
+    """Cluster dimension and scheduling policy produce two launch attributes."""
+    from cuda.bindings import driver
+    from cuda.core import _launch_config as _lc_mod
+    from cuda.core._launch_config import _to_native_launch_config
+
+    class _FakeDev:
+        compute_capability = (9, 0)
+
+    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
+
+    config = LaunchConfig(
+        grid=(2, 1, 1),
+        block=32,
+        cluster=(2, 1, 1),
+        cluster_scheduling_policy_preference=ClusterSchedulingPolicyType.SPREAD,
+    )
+    native = _to_native_launch_config(config)
+    assert native.numAttrs == 2
+    attr_ids = {attr.id for attr in native.attrs}
+    assert driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION in attr_ids
+    assert driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE in attr_ids
+
+
+@pytest.mark.agent_authored(model="composer-2.5-fast")
 def test_launch_cluster_scheduling_policy_smoke(get_saxpy_kernel_cubin):
     """Smoke-test launching with cluster scheduling policy on Hopper+."""
     dev = Device()
