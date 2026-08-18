@@ -186,8 +186,7 @@ class LinkerOptions:
         .. deprecated:: 1.2.0
             Setting this option emits a :class:`DeprecationWarning`. It has never
             had an effect on any linking backend and will be removed in
-            ``cuda.core`` 2.0.0, the next major-version boundary permitted by the
-            :doc:`support policy <support>`. Use
+            ``cuda.core`` 2.0.0. Use
             :attr:`ProgramOptions.numba_debug` on an NVVM or NVRTC compilation
             path instead.
     """
