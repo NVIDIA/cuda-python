@@ -24,3 +24,4 @@ cdef class Stream:
 cpdef Stream default_stream()
 cpdef Stream Stream_accept(arg, bint allow_stream_protocol=*)
 cdef bint Stream_is_default_token(Stream self) noexcept nogil
+cdef bint Stream_is_legacy_default_token(Stream self) noexcept nogil

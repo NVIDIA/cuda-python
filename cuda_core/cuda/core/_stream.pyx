@@ -493,6 +493,18 @@ cdef inline bint Stream_is_default_token(Stream self) noexcept nogil:
     return h == <uintptr_t>cydriver.CU_STREAM_LEGACY or h == <uintptr_t>cydriver.CU_STREAM_PER_THREAD
 
 
+cdef inline bint Stream_is_legacy_default_token(Stream self) noexcept nogil:
+    """Return True only for CU_STREAM_LEGACY.
+
+    Unlike CU_STREAM_PER_THREAD, the legacy default stream token is rejected
+    outright (CUDA_ERROR_INVALID_VALUE) by cuMemcpyWithAttributesAsync and
+    cuMemcpyBatchAsync; CU_STREAM_PER_THREAD is a real stream to those entry
+    points and is accepted normally. Use this narrower check, not
+    Stream_is_default_token, wherever that distinction matters.
+    """
+    return <uintptr_t>as_cu(self._h_stream) == <uintptr_t>cydriver.CU_STREAM_LEGACY
+
+
 cdef inline int Stream_get_ctx(Stream self, ContextHandle* h_context) except?-1 nogil:
     """Resolve the stream's context handle into ``h_context``."""
     cdef cydriver.CUcontext ctx

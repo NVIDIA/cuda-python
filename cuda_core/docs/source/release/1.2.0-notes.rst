@@ -9,14 +9,25 @@
 New features
 ------------
 
-- Added :func:`utils.copy_batch`, which submits many buffer-to-buffer copies
-  in a single ``cuMemcpyBatchAsync`` call. Per-copy behavior is controlled
-  by the new :class:`utils.CopyOptions` dataclass. Requires ``cuda.core``
-  built against CUDA 13, ``cuda.bindings`` 13.0+, and a driver reporting
-  CUDA 13.0 or newer; otherwise falls back to a per-copy ``cuMemcpyAsync``
-  loop with options silently ignored. Graph capture and default-stream tokens
-  are rejected. Copies within a batch must not alias.
-  (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__)
+- Added :class:`utils.CopyOptions` (source access order, location hints,
+  overlap mode) for buffer-to-buffer copies. The new
+  :func:`utils.copy_batch` accepts it and submits many copies in a single
+  ``cuMemcpyBatchAsync`` call, requiring ``cuda.core`` built against CUDA 13
+  plus ``cuda.bindings``/driver 13.0 or newer. :meth:`Buffer.copy_to` and
+  :meth:`Buffer.copy_from` also accept it now, as a new ``options`` keyword,
+  submitting a single copy via ``cuMemcpyWithAttributesAsync`` and requiring
+  ``cuda.bindings``/driver 13.2 or newer. Both reject
+  ``LEGACY_DEFAULT_STREAM`` with ``TypeError`` (``PER_THREAD_DEFAULT_STREAM``
+  is accepted); ``copy_batch`` always rejects graph capture, while
+  ``Buffer.copy_to``/``copy_from`` reject it only when ``options`` is given.
+  On an older ``cuda.bindings``/driver install, ``src_access_order`` values
+  of ``STREAM`` and ``ANY`` silently fall back to plain ``cuMemcpyAsync``;
+  ``DURING_API_CALL`` raises ``RuntimeError`` instead, since that fallback
+  cannot honor its guarantee that all source reads complete before the call
+  returns. Copies within a ``copy_batch`` call must not alias.
+  (`#1333 <https://github.com/NVIDIA/cuda-python/issues/1333>`__,
+  `#2365 <https://github.com/NVIDIA/cuda-python/issues/2365>`__)
+
 - Added the ``programmatic_stream_serialization`` option to
   :class:`LaunchConfig`, which sets
   ``cudaLaunchAttributeProgrammaticStreamSerialization`` so a kernel can

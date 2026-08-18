@@ -243,6 +243,36 @@ def test_buffer_copy_from():
     buffer_copy_from(DummyPinnedMemoryResource(device), device, check=True)
 
 
+def test_buffer_copy_to_size_mismatch_raises():
+    device = Device()
+    device.set_current()
+    mr = DummyDeviceMemoryResource(device)
+    stream = device.create_stream()
+    src_buffer = mr.allocate(size=1024)
+    dst_buffer = mr.allocate(size=2048)
+
+    with pytest.raises(ValueError, match="buffer sizes mismatch"):
+        src_buffer.copy_to(dst_buffer, stream=stream)
+
+    dst_buffer.close()
+    src_buffer.close()
+
+
+def test_buffer_copy_from_size_mismatch_raises():
+    device = Device()
+    device.set_current()
+    mr = DummyDeviceMemoryResource(device)
+    stream = device.create_stream()
+    src_buffer = mr.allocate(size=1024)
+    dst_buffer = mr.allocate(size=2048)
+
+    with pytest.raises(ValueError, match="buffer sizes mismatch"):
+        dst_buffer.copy_from(src_buffer, stream=stream)
+
+    dst_buffer.close()
+    src_buffer.close()
+
+
 def _bytes_repeat(pattern: bytes, size: int) -> bytes:
     assert len(pattern) > 0
     assert size % len(pattern) == 0
