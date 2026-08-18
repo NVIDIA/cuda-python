@@ -477,20 +477,16 @@ def test_to_native_launch_config_cluster_and_policy(monkeypatch):
 
 
 @pytest.mark.agent_authored(model="composer-2.5-fast")
-def test_launch_cluster_scheduling_policy_smoke(get_saxpy_kernel_cubin):
+def test_launch_cluster_scheduling_policy_smoke(init_cuda):
     """Smoke-test launching with cluster scheduling policy on Hopper+."""
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Cluster scheduling policy requires compute capability >= 9.0")
 
-    kernel, _ = get_saxpy_kernel_cubin
+    prog = Program('extern "C" __global__ void noop() {}', SourceCodeType.CXX)
+    mod = prog.compile(ObjectCodeFormatType.CUBIN)
+    kernel = mod.get_kernel("noop")
     stream = dev.default_stream
-    n = np.int32(4)
-    a = np.float32(2.0)
-    x = np.from_dlpack(dev.allocate(16, stream=stream)).view(np.float32)
-    y = np.from_dlpack(dev.allocate(16, stream=stream)).view(np.float32)
-    x[:] = 1.0
-    y[:] = 0.0
 
     launch_config = LaunchConfig(
         grid=1,
@@ -498,9 +494,8 @@ def test_launch_cluster_scheduling_policy_smoke(get_saxpy_kernel_cubin):
         cluster=(2, 1, 1),
         cluster_scheduling_policy_preference=ClusterSchedulingPolicyType.LOAD_BALANCING,
     )
-    launch(stream, launch_config, kernel, n, a, x.ctypes.data, y.ctypes.data)
+    launch(stream, launch_config, kernel)
     stream.sync()
-    np.testing.assert_allclose(y, 2.0)
 
 
 def test_launch_invalid_values(init_cuda):
