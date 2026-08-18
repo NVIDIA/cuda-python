@@ -83,7 +83,7 @@ repos:
 
       - id: stubgen-pyx-cuda-core
         name: Generate .pyi stubs for cuda_core
-        entry: stubgen-pyx cuda_core/cuda --continue-on-error --include-private
+        entry: python -X utf8 -m stubgen_pyx cuda_core/cuda --continue-on-error --include-private
         language: python
         files: ^cuda_core/cuda/.*\.(pyx|pxd)$
         pass_filenames: false
