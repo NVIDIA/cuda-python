@@ -20,7 +20,21 @@ import sys
 
 args = sys.argv[1:]
 if args[:2] == ["run", "list"]:
-    print(os.environ["FAKE_RUNS"])
+    runs = json.loads(os.environ["FAKE_RUNS"])
+    try:
+        status = args[args.index("--status") + 1]
+        limit = int(args[args.index("--limit") + 1])
+    except (ValueError, IndexError):
+        print("run list requires --status and --limit", file=sys.stderr)
+        raise SystemExit(2)
+    if status == "success":
+        runs = [run for run in runs if run["conclusion"] == "success"]
+    elif status == "completed":
+        runs = [run for run in runs if run["status"] == "completed"]
+    else:
+        print(f"unsupported status filter: {status}", file=sys.stderr)
+        raise SystemExit(2)
+    print(json.dumps(runs[:limit]))
     raise SystemExit(0)
 
 if args[:1] == ["api"]:
@@ -90,6 +104,28 @@ def _lookup(fake_gh, runs, artifacts, *args, workflow="CI"):
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 class TestBranchLookup:
+    def test_filters_successful_runs_before_applying_limit(self, fake_gh):
+        runs = [
+            _run(
+                run_id,
+                "2026-08-13T12:00:00Z",
+                conclusion="failure",
+            )
+            for run_id in range(200, 100, -1)
+        ]
+        runs.append(_run(50, "2026-08-12T12:00:00Z"))
+
+        result = _lookup(
+            fake_gh,
+            runs,
+            {},
+            "--branch",
+            "12.9.x",
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "50"
+
     def test_selects_newest_run_with_filename_workflow_selector(self, fake_gh):
         runs = [
             _run(100, "2026-08-10T12:00:00Z"),
