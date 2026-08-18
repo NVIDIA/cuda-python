@@ -1,0 +1,6 @@
+﻿cuda.core.typing.SynchronizationPolicyType
+==========================================
+
+.. currentmodule:: cuda.core.typing
+
+.. autoenum:: SynchronizationPolicyType
