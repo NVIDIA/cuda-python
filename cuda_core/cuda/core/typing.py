@@ -5,6 +5,7 @@
 """Public type aliases, protocols, and enumerations used in cuda.core API signatures."""
 
 import sys
+from enum import IntEnum
 from typing import TYPE_CHECKING
 from typing import Literal as _Literal
 from typing import TypeAlias as _TypeAlias
@@ -47,6 +48,7 @@ __all__ = [
     "ProcessStateType",
     "ReadModeType",
     "SourceCodeType",
+    "SynchronizationPolicyType",
     "VirtualMemoryAccessType",
     "VirtualMemoryAllocationType",
     "VirtualMemoryGranularityType",
@@ -122,6 +124,24 @@ class PCHStatusType(StrEnum):
     CREATED = "created"
     NOT_ATTEMPTED = "not_attempted"
     FAILED = "failed"
+
+
+class SynchronizationPolicyType(IntEnum):
+    """CPU wait policy when synchronizing a stream from the host.
+
+    Maps to ``cuda.bindings.driver.CUsynchronizationPolicy`` and is applied via
+    ``cuStreamSetAttribute`` with ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY``.
+
+    * ``AUTO`` — driver selects the policy (default for new streams).
+    * ``SPIN`` — busy-wait on the CPU (lowest latency).
+    * ``YIELD`` — yield the CPU while waiting.
+    * ``BLOCKING_SYNC`` — block in the OS scheduler while waiting.
+    """
+
+    AUTO = driver.CUsynchronizationPolicy.CU_SYNC_POLICY_AUTO
+    SPIN = driver.CUsynchronizationPolicy.CU_SYNC_POLICY_SPIN
+    YIELD = driver.CUsynchronizationPolicy.CU_SYNC_POLICY_YIELD
+    BLOCKING_SYNC = driver.CUsynchronizationPolicy.CU_SYNC_POLICY_BLOCKING_SYNC
 
 
 class GraphConditionalType(StrEnum):

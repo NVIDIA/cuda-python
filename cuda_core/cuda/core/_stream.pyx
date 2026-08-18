@@ -49,6 +49,53 @@ if TYPE_CHECKING:
 
 __all__ = ['LEGACY_DEFAULT_STREAM', 'PER_THREAD_DEFAULT_STREAM', 'Stream', 'StreamOptions']
 
+cdef int _SYNC_POLICY_ATTR_ID = (
+    cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
+)
+
+
+cdef object _validate_synchronization_policy(object policy):
+    from cuda.core.typing import SynchronizationPolicyType
+
+    if policy is None:
+        raise TypeError("synchronization_policy must not be None")
+    if isinstance(policy, SynchronizationPolicyType):
+        return policy
+    try:
+        value = int(policy)
+    except (TypeError, ValueError) as exc:
+        raise TypeError(
+            "Stream.synchronization_policy must be a SynchronizationPolicyType, "
+            f"cuda.bindings.driver.CUsynchronizationPolicy, or int; got {type(policy).__name__}"
+        ) from exc
+    try:
+        return SynchronizationPolicyType(value)
+    except ValueError as exc:
+        raise ValueError(
+            f"Stream.synchronization_policy must be one of "
+            f"{[member.name for member in SynchronizationPolicyType]}; got {policy!r}"
+        ) from exc
+
+
+cdef int Stream_query_synchronization_policy(Stream self) except?-1 nogil:
+    cdef cydriver.CUstreamAttrValue value
+    HANDLE_RETURN(cydriver.cuStreamGetAttribute(
+        as_cu(self._h_stream),
+        <cydriver.CUstreamAttrID>_SYNC_POLICY_ATTR_ID,
+        &value,
+    ))
+    return <int>value.syncPolicy
+
+
+cdef void Stream_apply_synchronization_policy(Stream self, int policy) except * nogil:
+    cdef cydriver.CUstreamAttrValue value
+    value.syncPolicy = <cydriver.CUsynchronizationPolicy>policy
+    HANDLE_RETURN(cydriver.cuStreamSetAttribute(
+        as_cu(self._h_stream),
+        <cydriver.CUstreamAttrID>_SYNC_POLICY_ATTR_ID,
+        &value,
+    ))
+
 
 @dataclass
 cdef class StreamOptions:
@@ -61,11 +108,16 @@ cdef class StreamOptions:
     priority : int, optional
         Stream priority where lower number represents a
         higher priority. (Default to lowest priority)
+    synchronization_policy : SynchronizationPolicyType | None, optional
+        CPU wait policy applied when synchronizing this stream from the host.
+        Maps to ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY`` via
+        ``cuStreamSetAttribute``. (Default to None, leaving the driver default)
 
     """
 
     nonblocking : cython.bint = True
     priority: int | None = None
+    synchronization_policy: object = None
 
 
 class IsStreamType(Protocol):
@@ -110,6 +162,7 @@ cdef class Stream:
         s._device_id = -1  # lazy init'd (invalid sentinel)
         s._nonblocking = -1  # lazy init'd
         s._priority = INT32_MIN  # lazy init'd
+        s._synchronization_policy = INT32_MIN  # lazy init'd
         return s
 
     @classmethod
@@ -146,6 +199,7 @@ cdef class Stream:
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
         nonblocking = opts.nonblocking
         priority = opts.priority
+        sync_policy_opt = opts.synchronization_policy
 
         cdef unsigned int flags = (cydriver.CUstream_flags.CU_STREAM_NON_BLOCKING if nonblocking
                                    else cydriver.CUstream_flags.CU_STREAM_DEFAULT)
@@ -190,6 +244,12 @@ cdef class Stream:
         cdef Stream self = Stream._from_handle(cls, h_stream)
         self._nonblocking = int(nonblocking)
         self._priority = prio
+        if sync_policy_opt is not None:
+            validated = _validate_synchronization_policy(sync_policy_opt)
+            cdef int sync_policy = int(validated)
+            with nogil:
+                Stream_apply_synchronization_policy(self, sync_policy)
+            self._synchronization_policy = sync_policy
         if device_id is not None:
             self._device_id = device_id
         return self
@@ -250,6 +310,35 @@ cdef class Stream:
                 HANDLE_RETURN(cydriver.cuStreamGetPriority(as_cu(self._h_stream), &prio))
             self._priority = prio
         return self._priority
+
+    @property
+    def synchronization_policy(self):
+        """Return the stream's CPU wait policy for host-side synchronization.
+
+        Maps to ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY``, queried via
+        ``cuStreamGetAttribute``.
+        """
+        from cuda.core.typing import SynchronizationPolicyType
+
+        cdef int policy
+        if self._synchronization_policy == INT32_MIN or Stream_is_default_token(self):
+            with nogil:
+                policy = Stream_query_synchronization_policy(self)
+            if not Stream_is_default_token(self):
+                self._synchronization_policy = policy
+        else:
+            policy = self._synchronization_policy
+        return SynchronizationPolicyType(policy)
+
+    @synchronization_policy.setter
+    def synchronization_policy(self, object policy):
+        """Set the stream's CPU wait policy for subsequent work on this stream."""
+        cdef object validated = _validate_synchronization_policy(policy)
+        cdef int value = int(validated)
+        with nogil:
+            Stream_apply_synchronization_policy(self, value)
+        if not Stream_is_default_token(self):
+            self._synchronization_policy = value
 
     def sync(self) -> None:
         """Synchronize the stream."""

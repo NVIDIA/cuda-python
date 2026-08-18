@@ -13,6 +13,7 @@ cdef class Stream:
         int _device_id
         int _nonblocking
         int _priority
+        int _synchronization_policy
         object __weakref__
 
     @staticmethod

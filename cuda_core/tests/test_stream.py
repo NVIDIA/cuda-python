@@ -469,3 +469,90 @@ def test_created_stream_keeps_its_own_context():
     finally:
         dev0.set_current()
         stream.close()
+
+
+# ============================================================================
+# Stream synchronization policy tests
+# ============================================================================
+
+
+@pytest.mark.parametrize(
+    "policy",
+    [
+        "AUTO",
+        "SPIN",
+        "YIELD",
+        "BLOCKING_SYNC",
+    ],
+)
+def test_stream_synchronization_policy_set_get(init_cuda, policy):
+    from cuda.core.typing import SynchronizationPolicyType
+
+    stream = Device().create_stream()
+    enum_policy = SynchronizationPolicyType[policy]
+    stream.synchronization_policy = enum_policy
+    assert stream.synchronization_policy == enum_policy
+    stream.close()
+
+
+@pytest.mark.parametrize("invalid_policy", ["spin", -1, 99])
+def test_stream_synchronization_policy_invalid(init_cuda, invalid_policy):
+    stream = Device().create_stream()
+    with pytest.raises((TypeError, ValueError)):
+        stream.synchronization_policy = invalid_policy
+    stream.close()
+
+
+def test_stream_synchronization_policy_default(init_cuda):
+    from cuda.core.typing import SynchronizationPolicyType
+
+    stream = Device().create_stream()
+    assert stream.synchronization_policy == SynchronizationPolicyType.AUTO
+    stream.close()
+
+
+def test_stream_options_synchronization_policy(init_cuda):
+    from cuda.core.typing import SynchronizationPolicyType
+
+    stream = Device().create_stream(
+        options=StreamOptions(synchronization_policy=SynchronizationPolicyType.YIELD)
+    )
+    assert stream.synchronization_policy == SynchronizationPolicyType.YIELD
+    stream.close()
+
+
+@pytest.mark.parametrize(
+    "policy",
+    [
+        "AUTO",
+        "SPIN",
+        "YIELD",
+        "BLOCKING_SYNC",
+    ],
+)
+@pytest.mark.agent_authored(model="composer-2.5")
+def test_stream_synchronization_policy_launch_and_sync(init_cuda, policy):
+    """Stream-level sync policy is applied via cuStreamSetAttribute and survives launch+sync."""
+    import cuda.bindings
+    from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
+    from cuda.core._utils.version import driver_version
+    from cuda.core.typing import ObjectCodeFormatType, SourceCodeType, SynchronizationPolicyType
+
+    if int(cuda.bindings.__version__.split(".")[0]) >= 13 and driver_version()[0] < 13:
+        pytest.skip("CUDA 13 bindings produce modules incompatible with CUDA 12 drivers")
+
+    dev = Device()
+    dev.set_current()
+    stream = dev.create_stream()
+    stream.synchronization_policy = SynchronizationPolicyType[policy]
+
+    code = 'extern "C" __global__ void noop() {}'
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    program = Program(code, SourceCodeType.CXX, options=ProgramOptions(arch=f"sm_{arch}"))
+    mod = program.compile(ObjectCodeFormatType.CUBIN)
+    ker = mod.get_kernel("noop")
+
+    launch(stream, LaunchConfig(grid=1, block=1), ker)
+    stream.sync()
+    assert stream.synchronization_policy == SynchronizationPolicyType[policy]
+    stream.close()

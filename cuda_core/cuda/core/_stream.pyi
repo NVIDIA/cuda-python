@@ -25,10 +25,13 @@ class StreamOptions:
     priority : int, optional
         Stream priority where lower number represents a
         higher priority. (Default to lowest priority)
+    synchronization_policy : SynchronizationPolicyType | None, optional
+        CPU wait policy applied when synchronizing this stream from the host.
 
     """
     nonblocking: cython.bint = True
     priority: int | None = None
+    synchronization_policy: object = None
 
 class IsStreamType(Protocol):
 
@@ -109,6 +112,14 @@ class Stream:
     @property
     def priority(self) -> int:
         """Return the stream priority."""
+
+    @property
+    def synchronization_policy(self):
+        """Return the stream's CPU wait policy for host-side synchronization."""
+
+    @synchronization_policy.setter
+    def synchronization_policy(self, policy) -> None:
+        """Set the stream's CPU wait policy for subsequent work on this stream."""
 
     def sync(self) -> None:
         """Synchronize the stream."""
