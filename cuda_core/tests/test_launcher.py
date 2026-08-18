@@ -15,7 +15,6 @@ import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
 
-from cuda.bindings import driver
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -27,7 +26,7 @@ from cuda.core import (
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
-from cuda.core.typing import ObjectCodeFormatType, SourceCodeType, SynchronizationPolicyType
+from cuda.core.typing import ObjectCodeFormatType, SourceCodeType
 
 
 def test_launch_config_init(init_cuda):
@@ -201,114 +200,6 @@ def test_to_native_launch_config_pdl():
     assert attr.value.programmaticStreamSerializationAllowed == 1, (
         f"Expected programmaticStreamSerializationAllowed=1, got {attr.value.programmaticStreamSerializationAllowed}"
     )
-
-
-@pytest.mark.parametrize(
-    ("policy", "expected_value"),
-    [
-        (SynchronizationPolicyType.AUTO, driver.CUsynchronizationPolicy.CU_SYNC_POLICY_AUTO),
-        (SynchronizationPolicyType.SPIN, driver.CUsynchronizationPolicy.CU_SYNC_POLICY_SPIN),
-        (SynchronizationPolicyType.YIELD, driver.CUsynchronizationPolicy.CU_SYNC_POLICY_YIELD),
-        (
-            SynchronizationPolicyType.BLOCKING_SYNC,
-            driver.CUsynchronizationPolicy.CU_SYNC_POLICY_BLOCKING_SYNC,
-        ),
-        (driver.CUsynchronizationPolicy.CU_SYNC_POLICY_SPIN, driver.CUsynchronizationPolicy.CU_SYNC_POLICY_SPIN),
-    ],
-)
-def test_to_native_launch_config_synchronization_policy(policy, expected_value):
-    """LaunchConfig.synchronization_policy maps to CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY."""
-    from cuda.core._launch_config import _to_native_launch_config
-
-    config = LaunchConfig(grid=1, block=1, synchronization_policy=policy)
-    assert config.synchronization_policy == SynchronizationPolicyType(int(expected_value))
-
-    native = _to_native_launch_config(config)
-    assert native.numAttrs == 1
-    attr = native.attrs[0]
-    assert attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
-    assert attr.value.syncPolicy == expected_value
-
-
-def test_launch_config_synchronization_policy_default():
-    config = LaunchConfig(grid=1, block=1)
-    assert config.synchronization_policy is None
-
-    from cuda.core._launch_config import _to_native_launch_config
-
-    native = _to_native_launch_config(config)
-    assert native.numAttrs == 0
-
-
-@pytest.mark.parametrize("invalid_policy", ["spin", -1, 99])
-def test_launch_config_synchronization_policy_invalid(invalid_policy):
-    with pytest.raises((TypeError, ValueError)):
-        LaunchConfig(grid=1, block=1, synchronization_policy=invalid_policy)
-
-
-def test_to_native_launch_config_synchronization_policy_with_cooperative(monkeypatch):
-    """synchronization_policy can be combined with other launch attributes."""
-    from cuda.core import _launch_config as _lc_mod
-    from cuda.core._launch_config import _to_native_launch_config
-
-    class _FakeProps:
-        cooperative_launch = True
-
-    class _FakeDev:
-        properties = _FakeProps()
-
-    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
-
-    config = LaunchConfig(
-        grid=1,
-        block=1,
-        is_cooperative=True,
-        synchronization_policy=SynchronizationPolicyType.SPIN,
-    )
-    native = _to_native_launch_config(config)
-    assert native.numAttrs == 2
-    attr_ids = {attr.id for attr in native.attrs}
-    assert driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE in attr_ids
-    assert driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY in attr_ids
-    sync_attrs = [
-        attr
-        for attr in native.attrs
-        if attr.id == driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY
-    ]
-    assert len(sync_attrs) == 1
-    assert sync_attrs[0].value.syncPolicy == driver.CUsynchronizationPolicy.CU_SYNC_POLICY_SPIN
-
-
-@pytest.mark.parametrize(
-    "policy",
-    [
-        SynchronizationPolicyType.AUTO,
-        SynchronizationPolicyType.SPIN,
-        SynchronizationPolicyType.YIELD,
-        SynchronizationPolicyType.BLOCKING_SYNC,
-    ],
-)
-def test_launch_with_synchronization_policy(init_cuda, policy):
-    """Driver accepts per-launch synchronization policies on a real kernel launch."""
-    import cuda.bindings
-    from cuda.core._utils.version import driver_version
-
-    if int(cuda.bindings.__version__.split(".")[0]) >= 13 and driver_version()[0] < 13:
-        pytest.skip("CUDA 13 bindings produce modules incompatible with CUDA 12 drivers")
-
-    dev = Device()
-    dev.set_current()
-    stream = dev.create_stream()
-
-    code = 'extern "C" __global__ void noop() {}'
-    arch = "".join(f"{i}" for i in dev.compute_capability)
-    program = Program(code, SourceCodeType.CXX, options=ProgramOptions(arch=f"sm_{arch}"))
-    mod = program.compile(ObjectCodeFormatType.CUBIN)
-    ker = mod.get_kernel("noop")
-
-    config = LaunchConfig(grid=1, block=1, synchronization_policy=policy)
-    launch(stream, config, ker)
-    stream.sync()
 
 
 @skipif_need_cuda_headers

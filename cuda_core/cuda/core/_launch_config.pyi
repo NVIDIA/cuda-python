@@ -39,12 +39,9 @@ class LaunchConfig:
         Whether to allow programmatic stream serialization (PDL). When True,
         the kernel may overlap with a previous kernel in the same stream that
         signals completion via programmatic means.
-    synchronization_policy : SynchronizationPolicyType | None, optional
-        CPU wait policy applied when synchronizing the launch stream after this
-        kernel. Maps to ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY``.
     """
 
-    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, synchronization_policy: object=None) -> None:
+    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters
@@ -61,8 +58,6 @@ class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         programmatic_stream_serialization : bool, optional
             Whether to allow programmatic stream serialization / PDL (default: False)
-        synchronization_policy : SynchronizationPolicyType | None, optional
-            CPU wait policy for synchronizing the launch stream (default: None)
         """
 
     def _identity(self) -> tuple[Any, ...]:
@@ -76,7 +71,7 @@ class LaunchConfig:
 
     def __hash__(self) -> int:
         ...
-_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization', 'synchronization_policy')
+_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization')
 __all__ = ['LaunchConfig']
 
 def _to_native_launch_config(config: LaunchConfig) -> object:

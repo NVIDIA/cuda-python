@@ -35,7 +35,6 @@ CUDA runtime
    typing.ProcessStateType
    typing.ReadModeType
    typing.SourceCodeType
-   typing.SynchronizationPolicyType
    typing.VirtualMemoryAccessType
    typing.VirtualMemoryAllocationType
    typing.VirtualMemoryGranularityType

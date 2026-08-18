@@ -685,7 +685,7 @@ REPR_PATTERNS = [
         "sample_launch_config",
         r"LaunchConfig\(grid=\(\d+, \d+, \d+\), cluster=.+, block=\(\d+, \d+, \d+\), "
         r"shmem_size=\d+, is_cooperative=(?:True|False), "
-        r"programmatic_stream_serialization=(?:True|False), synchronization_policy=(?:None|SynchronizationPolicyType\.\w+)\)",
+        r"programmatic_stream_serialization=(?:True|False)\)",
     ),
     ("sample_kernel", r"<Kernel handle=0x[0-9a-f]+>"),
     # ObjectCode variations (by code_type)
