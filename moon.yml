@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/project.json
+
+language: unknown
+layer: automation
+dependsOn:
+  - id: pathfinder
+    scope: development
+  - id: bindings
+    scope: development
+  - id: core
+    scope: development
+  - id: metapackage
+    scope: development
+toolchains:
+  default: system
+
+taskOptions:
+  cache: false
+  runInCI: false
+
+tasks:
+  test:
+    deps:
+      - pathfinder:test
+      - bindings:test
+      - core:test
+    inputs: []
+    options:
+      runDepsInParallel: false
+
+  docs:
+    deps:
+      - pathfinder:docs
+      - bindings:docs
+      - core:docs
+    inputs: []
+    options:
+      runDepsInParallel: false
+
+  docs-ci:
+    command: python
+    args: [ci/tools/moon_ci.py, docs-ci]
+    env:
+      CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
+    inputs:
+      - {project: pathfinder, group: package}
+      - {project: pathfinder, group: docs}
+      - {project: bindings, group: package}
+      - {project: bindings, group: docs}
+      - {project: core, group: package}
+      - {project: core, group: docs}
+      - {project: metapackage, group: package}
+      - {project: metapackage, group: docs}
+      - '/ci/tools/moon_ci.py'
+      - '/.github/workflows/build-docs.yml'
+    outputs:
+      - '.moon-out/docs'
+    tags: [ci-docs]
+    options:
+      runInCI: true
+
+  pure-wheel:
+    deps:
+      - pathfinder:wheel-pure
+      - metapackage:wheel-pure
+    inputs: []

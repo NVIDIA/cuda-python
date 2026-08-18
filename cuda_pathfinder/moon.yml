@@ -1,0 +1,177 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/project.json
+
+language: unknown
+layer: library
+toolchains:
+  default: system
+
+taskOptions:
+  cache: false
+  runFromWorkspaceRoot: true
+  runInCI: false
+
+fileGroups:
+  package:
+    - '.git_archival.txt'
+    - 'cuda/**/*'
+    - 'DESCRIPTION.rst'
+    - 'LICENSE'
+    - 'pyproject.toml'
+  tests:
+    - 'examples/**/*'
+    - 'tests/**/*'
+    - 'pixi.toml'
+    - 'pixi.lock'
+  docs:
+    - 'docs/**/*'
+    - 'pixi.toml'
+    - 'pixi.lock'
+
+tasks:
+  test:
+    command: python
+    args:
+      - ci/tools/moon_ci.py
+      - pixi-test
+      - pathfinder
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '/ci/tools/moon_ci.py'
+    type: test
+
+  test-installed-linux:
+    command: python
+    args: [ci/tools/moon_ci.py, installed-test, pathfinder]
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/run-tests'
+      - '/ci/test-matrix.yml'
+      - '/ci/tools/env-vars'
+      - '/tests/**/*'
+      - '/.github/workflows/build-pure-wheel.yml'
+      - '/ci/tools/guess_latest.sh'
+      - '/ci/tools/install_gpu_driver.sh'
+      - '/.github/workflows/test-wheel-linux.yml'
+    tags: [ci-test-linux]
+    type: test
+    options:
+      runInCI: true
+
+  test-installed-linux-strict:
+    command: python
+    args: [ci/tools/moon_ci.py, installed-test, pathfinder]
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/run-tests'
+      - '/ci/test-matrix.yml'
+      - '/ci/tools/env-vars'
+      - '/tests/**/*'
+      - '/.github/workflows/build-pure-wheel.yml'
+      - '/ci/tools/guess_latest.sh'
+      - '/ci/tools/install_gpu_driver.sh'
+      - '/.github/workflows/test-wheel-linux.yml'
+    tags: [ci-test-linux]
+    type: test
+    options:
+      runInCI: true
+
+  test-installed-windows:
+    command: python
+    args: [ci/tools/moon_ci.py, installed-test, pathfinder]
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/run-tests'
+      - '/ci/test-matrix.yml'
+      - '/ci/tools/env-vars'
+      - '/tests/**/*'
+      - '/.github/workflows/build-pure-wheel.yml'
+      - '/ci/tools/configure_driver_mode.ps1'
+      - '/ci/tools/install_gpu_driver.ps1'
+      - '/.github/workflows/test-wheel-windows.yml'
+    tags: [ci-test-windows]
+    type: test
+    options:
+      runInCI: true
+
+  test-installed-windows-strict:
+    command: python
+    args: [ci/tools/moon_ci.py, installed-test, pathfinder]
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/run-tests'
+      - '/ci/test-matrix.yml'
+      - '/ci/tools/env-vars'
+      - '/tests/**/*'
+      - '/.github/workflows/build-pure-wheel.yml'
+      - '/ci/tools/configure_driver_mode.ps1'
+      - '/ci/tools/install_gpu_driver.ps1'
+      - '/.github/workflows/test-wheel-windows.yml'
+    tags: [ci-test-windows]
+    type: test
+    options:
+      runInCI: true
+
+  docs:
+    command: python
+    args: [ci/tools/moon_ci.py, pixi-docs, pathfinder]
+    inputs:
+      - '@group(package)'
+      - '@group(docs)'
+      - '/ci/tools/moon_ci.py'
+      - '/.github/workflows/build-docs.yml'
+
+  wheel-pure:
+    command: python
+    args: [ci/tools/moon_ci.py, pure-wheel, pathfinder]
+    inputs:
+      - '@group(package)'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/moon_fingerprint.py'
+      - '/.github/workflows/build-pure-wheel.yml'
+    outputs:
+      - '.moon-out/wheel-pure'
+    checks:
+      - check: fingerprint
+        script: python ci/tools/moon_fingerprint.py pathfinder portable
+        hash: stdout
+    tags: [ci-wheel-pure]
+    type: build
+    options:
+      cache: true
+      cacheKey: wheel-pure-v2
+      runInCI: true
+
+  sdist:
+    command: python
+    args: [ci/tools/moon_ci.py, sdist, pathfinder]
+    inputs:
+      - '@group(package)'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/moon_fingerprint.py'
+      - '/.github/workflows/test-sdist-linux.yml'
+      - '/.github/workflows/test-sdist-windows.yml'
+    outputs:
+      - '.moon-out/sdist'
+    checks:
+      - check: fingerprint
+        script: python ci/tools/moon_fingerprint.py pathfinder sdist
+        hash: stdout
+    tags: [ci-sdist]
+    type: build
+    options:
+      cache: true
+      cacheKey: sdist-v2
+      runInCI: true

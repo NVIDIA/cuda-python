@@ -178,6 +178,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' }}
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
+      actions: read
       id-token: write
       contents: write
       pull-requests: write

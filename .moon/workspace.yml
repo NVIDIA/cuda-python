@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/workspace.json
+
+versionConstraint: '=2.5.1'
+
+projects:
+  root: '.'
+  ci: 'ci'
+  pathfinder: 'cuda_pathfinder'
+  bindings: 'cuda_bindings'
+  core: 'cuda_core'
+  metapackage: 'cuda_python'
+  test-helpers: 'cuda_python_test_helpers'
+  bindings-benchmarks: 'benchmarks/cuda_bindings'
+
+vcs:
+  client: git
+  provider: github
+  defaultBranch: main
+  remoteCandidates:
+    - origin
+    - upstream
+
+pipeline:
+  installDependencies: false
+  syncProjects: false
+  syncWorkspace: false
+
+cache:
+  cas:
+    verifyIntegrity: true
+
+experiments:
+  asyncAffectedTracking: false
+  asyncGraphBuilding: false
+  nativeFileHashing: false
+
+telemetry: false

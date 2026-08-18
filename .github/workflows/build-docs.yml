@@ -28,6 +28,28 @@ on:
         required: false
         default: ${{ github.run_id }}
         type: string
+      portable-run-id:
+        description: >
+          Workflow run ID containing cuda.pathfinder and metapackage wheels.
+          Falls back to run-id when empty.
+        required: false
+        default: ""
+        type: string
+      sha:
+        description: "Commit SHA used in native wheel artifact names"
+        required: false
+        default: ${{ github.sha }}
+        type: string
+      moon-base:
+        description: "Base revision used by Moon affected checks"
+        required: false
+        default: ""
+        type: string
+      force-all:
+        description: "Force selected Moon tasks"
+        required: false
+        default: false
+        type: boolean
       is-release:
         description: "Are we building release docs?"
         required: false
@@ -57,8 +79,17 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
-          fetch-depth: 1
+          fetch-depth: 0
+          filter: blob:none
           ref: ${{ inputs.git-tag }}
+
+      - name: Set up Moon
+        if: ${{ !inputs.is-release && inputs.component == 'all' }}
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095  # v0.6.4
+        with:
+          moon-version: "2.5.1"
+          auto-install: false
+          auto-setup: false
 
       - name: Read build CTK version
         run: |
@@ -113,8 +144,8 @@ jobs:
               DOCS_GITHUB_REF="${GITHUB_REF_NAME}"
             fi
           else
-            FILE_HASH="${{ github.sha }}"
-            DOCS_GITHUB_REF="${{ github.sha }}"
+            FILE_HASH="${{ inputs.sha }}"
+            DOCS_GITHUB_REF="${{ inputs.sha }}"
           fi
 
           # make outputs from the previous job as env vars
@@ -133,7 +164,7 @@ jobs:
         with:
           name: cuda-python-wheel
           path: .
-          run-id: ${{ inputs.run-id }}
+          run-id: ${{ inputs.portable-run-id || inputs.run-id }}
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-python artifacts
@@ -146,7 +177,7 @@ jobs:
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
-          run-id: ${{ inputs.run-id }}
+          run-id: ${{ inputs.portable-run-id || inputs.run-id }}
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-pathfinder artifacts
@@ -160,6 +191,8 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ inputs.is-release }}
@@ -182,6 +215,8 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Download cuda.core build artifacts
         if: ${{ inputs.is-release }}
@@ -229,18 +264,22 @@ jobs:
 
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
+        env:
+          MOON_BASE: ${{ inputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
         run: |
-          pushd cuda_python/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            ./build_all_docs.sh latest-only
+            moon ci root:docs-ci --upstream none --downstream none ${{ inputs.force-all && '--force' || '' }}
+            mv .moon-out/docs/* artifacts/docs/
           else
+            pushd cuda_python/docs/
             ./build_all_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
+            ls -l build
+            popd
+            mv cuda_python/docs/build/html/* artifacts/docs/
           fi
-          ls -l build
-          popd
-          mv cuda_python/docs/build/html/* artifacts/docs/
 
       - name: Build component docs
         if: ${{ inputs.component != 'all' }}

@@ -1,0 +1,80 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/project.json
+
+language: unknown
+layer: tool
+dependsOn:
+  - id: bindings
+    scope: development
+  - id: pathfinder
+    scope: development
+toolchains:
+  default: system
+
+taskOptions:
+  cache: false
+  runFromWorkspaceRoot: true
+  runInCI: false
+
+fileGroups:
+  benchmarks:
+    - 'benchmarks/**/*'
+    - 'runner/**/*'
+    - 'compare.py'
+    - 'run_cpp.py'
+    - 'run_pyperf.py'
+    - 'pixi.toml'
+    - 'pixi.lock'
+
+tasks:
+  bench:
+    command: python
+    args: [ci/tools/moon_ci.py, pixi-test, bindings-benchmarks, --task, bench, --environment, source]
+    inputs:
+      - '@group(benchmarks)'
+      - '/cuda_bindings/**/*'
+      - '/ci/tools/moon_ci.py'
+
+  smoke:
+    command: python
+    args:
+      - ci/tools/moon_ci.py
+      - pixi-test
+      - bindings-benchmarks
+      - --task
+      - bench-smoke-test
+      - --environment
+      - source
+    inputs:
+      - '@group(benchmarks)'
+      - '/cuda_bindings/**/*'
+      - '/ci/tools/moon_ci.py'
+
+  smoke-linux:
+    command: python
+    args:
+      - ci/tools/moon_ci.py
+      - pixi-test
+      - bindings-benchmarks
+      - --task
+      - bench-smoke-test
+      - --environment
+      - source
+    inputs:
+      - '@group(benchmarks)'
+      - {project: bindings, group: package}
+      - {project: pathfinder, group: package}
+      - '/ci/tools/moon_ci.py'
+      - '/ci/test-matrix.yml'
+      - '/ci/tools/env-vars'
+      - '/ci/tools/guess_latest.sh'
+      - '/ci/tools/install_gpu_driver.sh'
+      - '/tests/**/*'
+      - '/.github/workflows/test-wheel-linux.yml'
+    tags: [ci-test-linux]
+    type: test
+    options:
+      runInCI: true

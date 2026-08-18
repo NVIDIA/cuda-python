@@ -30,6 +30,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
   - [CI infrastructure overview](#ci-infrastructure-overview)
+    - [Local and CI task orchestration with Moon](#local-and-ci-task-orchestration-with-moon)
     - [CI Pipeline Flow](#ci-pipeline-flow)
     - [Pipeline Execution Details](#pipeline-execution-details)
     - [Branch-specific Artifact Flow](#branch-specific-artifact-flow)
@@ -252,6 +253,40 @@ By making a contribution to this project, I certify that:
 ## CI infrastructure overview
 
 The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and releases multiple components across different platforms. This section provides a visual overview of our CI infrastructure to help contributors understand the build and release process.
+
+### Local and CI task orchestration with Moon
+
+The draft CI orchestration spike uses [Moon 2.5.1](https://moonrepo.dev/moon) as the task graph and execution
+engine for both local development and CI. Moon uses only the system toolchain in this repository: it does not
+install, select, or configure Python, and it does not create Python environments. Existing Pixi and uv commands
+remain supported and can still be invoked directly; Moon delegates to the environment that the contributor or CI
+runner has already prepared.
+
+Use Moon to inspect the graph, run one task locally, or execute the affected portion of the graph as CI does:
+
+```console
+$ moon projects
+$ moon tasks
+$ moon run <project>:<task>
+$ moon run metapackage:wheel-pure
+$ moon run root:test
+$ moon run root:pure-wheel
+$ MOON_BASE=origin/main MOON_HEAD=HEAD moon ci ':#ci-test-linux' --downstream none
+```
+
+CI workers follow Moon's CI model: after GitHub Actions provisions the required Python, CUDA toolkit, compiler, or
+GPU, the worker invokes a tagged `moon ci` target group. Moon owns affected selection, task dependencies, command
+execution, cache hits, and output hydration. GitHub Actions retains heterogeneous runner allocation, credentials,
+and release or Pages publishing. The explicit `--downstream none` keeps work from crossing those runner-class
+boundaries; upstream dependencies remain part of the Moon task graph where they share a cache and environment.
+
+For ephemeral runners, CI uploads the portable `.moon/cache/hashes` and `.moon/cache/outputs` directories as
+ordinary immutable GitHub workflow artifacts. A later producer restores the lane-qualified artifact from the
+successful trusted `main` run at the exact merge-base commit, then runs `moon ci`; GitHub transports the local cache
+while Moon alone interprets its hashes and hydrates task outputs. Conventional wheel artifacts remain the
+cross-runner input to GPU tests and release tooling. Missing or incomplete cache artifacts conservatively allocate
+the producer runners and start with an empty cache. Generated `.moon/cache` and `.moon-out` directories are ignored
+by Git.
 
 ### CI Pipeline Flow
 

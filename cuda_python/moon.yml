@@ -1,0 +1,122 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/project.json
+
+language: unknown
+layer: library
+dependsOn:
+  - pathfinder
+  - bindings
+  - core
+toolchains:
+  default: system
+
+taskOptions:
+  cache: false
+  runFromWorkspaceRoot: true
+  runInCI: false
+
+fileGroups:
+  package:
+    - 'DESCRIPTION.rst'
+    - 'LICENSE'
+    - 'pyproject.toml'
+    - 'setup.py'
+  docs:
+    - 'docs/**/*'
+
+tasks:
+  wheel-pure:
+    command: python
+    args: [ci/tools/moon_ci.py, pure-wheel, metapackage]
+    inputs:
+      - '@group(package)'
+      - {project: bindings, group: package}
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/moon_fingerprint.py'
+      - '/.github/workflows/build-pure-wheel.yml'
+    outputs:
+      - '.moon-out/wheel-pure'
+    checks:
+      - check: fingerprint
+        script: python ci/tools/moon_fingerprint.py metapackage portable
+        hash: stdout
+    tags: [ci-wheel-pure]
+    type: build
+    options:
+      cache: true
+      cacheKey: wheel-pure-v2
+      runInCI: true
+
+  sdist:
+    command: python
+    args: [ci/tools/moon_ci.py, sdist, metapackage]
+    inputs:
+      - '@group(package)'
+      - {project: bindings, group: package}
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/moon_fingerprint.py'
+      - '/.github/workflows/test-sdist-linux.yml'
+      - '/.github/workflows/test-sdist-windows.yml'
+    outputs:
+      - '.moon-out/sdist'
+    checks:
+      - check: fingerprint
+        script: python ci/tools/moon_fingerprint.py metapackage sdist
+        hash: stdout
+    tags: [ci-sdist]
+    type: build
+    options:
+      cache: true
+      cacheKey: sdist-v2
+      runInCI: true
+
+  test-installed-linux:
+    command: python
+    args: [ci/tools/moon_ci.py, metapackage-install-test]
+    inputs:
+      - '@group(package)'
+      - {project: pathfinder, group: package}
+      - {project: bindings, group: package}
+      - {project: core, group: package}
+      - '/cuda_core/.moon-out/wheel-merged/*.whl'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/test-matrix.yml'
+      - '/ci/tools/env-vars'
+      - '/tests/**/*'
+      - '/ci/tools/merge_cuda_core_wheels.py'
+      - '/.github/workflows/build-pure-wheel.yml'
+      - '/.github/workflows/build-wheel.yml'
+      - '/ci/tools/guess_latest.sh'
+      - '/ci/tools/install_gpu_driver.sh'
+      - '/.github/workflows/test-wheel-linux.yml'
+    tags: [ci-test-linux]
+    type: test
+    options:
+      runInCI: true
+
+  test-installed-windows:
+    command: python
+    args: [ci/tools/moon_ci.py, metapackage-install-test]
+    inputs:
+      - '@group(package)'
+      - {project: pathfinder, group: package}
+      - {project: bindings, group: package}
+      - {project: core, group: package}
+      - '/cuda_core/.moon-out/wheel-merged/*.whl'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/test-matrix.yml'
+      - '/ci/tools/env-vars'
+      - '/tests/**/*'
+      - '/ci/tools/merge_cuda_core_wheels.py'
+      - '/.github/workflows/build-pure-wheel.yml'
+      - '/.github/workflows/build-wheel.yml'
+      - '/ci/tools/configure_driver_mode.ps1'
+      - '/ci/tools/install_gpu_driver.ps1'
+      - '/.github/workflows/test-wheel-windows.yml'
+    tags: [ci-test-windows]
+    type: test
+    options:
+      runInCI: true

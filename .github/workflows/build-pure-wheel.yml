@@ -1,0 +1,143 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Build portable wheels with Moon"
+
+on:
+  workflow_call:
+    inputs:
+      build-pathfinder:
+        required: true
+        type: boolean
+      build-metapackage:
+        required: true
+        type: boolean
+      moon-base:
+        required: true
+        type: string
+      baseline-run-id:
+        required: false
+        default: ""
+        type: string
+      force-all:
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up Moon
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095  # v0.6.4
+        with:
+          moon-version: "2.5.1"
+          auto-install: false
+          auto-setup: false
+
+      - name: Install externally managed build tools
+        run: >-
+          python -m pip install
+          "setuptools>=80"
+          "setuptools-scm[simple]>=8,!=10.1"
+          "twine"
+          "wheel"
+
+      - name: Restore trusted exact-base Moon cache
+        if: ${{ inputs.baseline-run-id != '' && !inputs.force-all }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: moon-cache-build-portable
+          path: .moon/cache
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.baseline-run-id }}
+
+      - name: Restore unchanged cuda.pathfinder wheel
+        if: ${{ !inputs.build-pathfinder && inputs.baseline-run-id != '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: cuda-pathfinder-wheel
+          path: cuda_pathfinder/.moon-out/wheel-pure
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.baseline-run-id }}
+
+      - name: Restore unchanged cuda-python metapackage wheel
+        if: ${{ !inputs.build-metapackage && inputs.baseline-run-id != '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: cuda-python-wheel
+          path: cuda_python/.moon-out/wheel-pure
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.baseline-run-id }}
+
+      - name: Build affected portable wheels with Moon
+        env:
+          CUDA_PYTHON_LANE: portable-py312
+          MOON_BASE: ${{ inputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
+          MOON_FORCE_ALL: ${{ inputs.force-all && 'true' || 'false' }}
+        run: |
+          args=()
+          if [[ "${MOON_FORCE_ALL}" == "true" ]]; then
+            args+=(--force)
+          fi
+          moon ci ':#ci-wheel-pure' --downstream none "${args[@]}"
+
+      - name: Validate portable wheels
+        run: |
+          test "$(find cuda_pathfinder/.moon-out/wheel-pure -maxdepth 1 -name '*.whl' -type f | wc -l)" -eq 1
+          test "$(find cuda_python/.moon-out/wheel-pure -maxdepth 1 -name '*.whl' -type f | wc -l)" -eq 1
+          python -m twine check --strict \
+            cuda_pathfinder/.moon-out/wheel-pure/*.whl \
+            cuda_python/.moon-out/wheel-pure/*.whl
+
+      - name: Upload cuda.pathfinder wheel
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: cuda-pathfinder-wheel
+          path: cuda_pathfinder/.moon-out/wheel-pure/*.whl
+          if-no-files-found: error
+          overwrite: true
+
+      - name: Upload cuda-python metapackage wheel
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: cuda-python-wheel
+          path: cuda_python/.moon-out/wheel-pure/*.whl
+          if-no-files-found: error
+          overwrite: true
+
+      # Moon documents hashes/ and outputs/ as the portable subset of its
+      # local cache. GitHub artifacts provide trusted exact-run transport;
+      # Moon remains responsible for hashes, hits, and output hydration.
+      - name: Upload portable Moon cache
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: moon-cache-build-portable
+          path: |
+            .moon/cache/hashes
+            .moon/cache/outputs
+          if-no-files-found: error
+          include-hidden-files: true
+          overwrite: true
+          retention-days: 30

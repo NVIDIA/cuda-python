@@ -40,6 +40,10 @@ on:
           Defaults to the current run when empty.
         type: string
         default: ''
+      portable-run-id:
+        description: "Workflow run ID containing cuda.pathfinder and metapackage wheels"
+        type: string
+        default: ''
       test-mode:
         description: >
           Test mode: 'standard' (default), 'nightly-pytorch',
@@ -53,6 +57,14 @@ on:
           Defaults to github.sha (current run) when empty.
         type: string
         default: ''
+      moon-base:
+        description: "Base revision used by Moon affected checks"
+        type: string
+        default: ''
+      force-all:
+        description: "Force selected Moon tasks"
+        type: boolean
+        default: false
 
 jobs:
   compute-matrix:
@@ -100,6 +112,10 @@ jobs:
     timeout-minutes: 60
     # The build stage could fail but we want the CI to keep moving.
     needs: compute-matrix
+    env:
+      CUDA_PYTHON_LANE: test-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cuda${{ matrix.CUDA_VER }}
+      MOON_BASE: ${{ inputs.moon-base }}
+      MOON_HEAD: ${{ github.sha }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
@@ -110,6 +126,17 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: Set up Moon
+        if: ${{ inputs.test-mode == 'standard' }}
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095  # v0.6.4
+        with:
+          moon-version: "2.5.1"
+          auto-install: false
+          auto-setup: false
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -168,7 +195,7 @@ jobs:
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
-          run-id: ${{ inputs.run-id || github.run_id }}
+          run-id: ${{ inputs.portable-run-id || inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python build artifacts
@@ -177,7 +204,7 @@ jobs:
         with:
           name: cuda-python-wheel
           path: .
-          run-id: ${{ inputs.run-id || github.run_id }}
+          run-id: ${{ inputs.portable-run-id || inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda.bindings build artifacts
@@ -233,7 +260,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
-          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+          path: cuda_bindings/.moon-out/cython-tests
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -241,10 +268,10 @@ jobs:
         if: ${{ inputs.test-bindings && env.SKIP_CYTHON_TEST == '0' }}
         run: |
           Get-Location
-          Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
+          Get-ChildItem -Recurse -Force cuda_bindings/.moon-out/cython-tests | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core build artifacts
-        if: ${{ inputs.test-core }}
+        if: ${{ inputs.test-core || (inputs.test-python && env.BINDINGS_SOURCE == 'main') }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
@@ -253,32 +280,32 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core build artifacts
-        if: ${{ inputs.test-core }}
+        if: ${{ inputs.test-core || (inputs.test-python && env.BINDINGS_SOURCE == 'main') }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core Cython tests
-        if: ${{ inputs.test-core && env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-core }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
-          path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
+          path: cuda_core/.moon-out/cython-tests
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core Cython tests
-        if: ${{ inputs.test-core && env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ inputs.test-core }}
         run: |
           Get-Location
-          Get-ChildItem -Recurse -Force $env:CUDA_CORE_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
+          Get-ChildItem -Recurse -Force cuda_core/.moon-out/cython-tests | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core test binaries
         if: ${{ inputs.test-core }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
-          path: ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}
+          path: cuda_core/.moon-out/test-binaries
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -286,7 +313,7 @@ jobs:
         if: ${{ inputs.test-core }}
         run: |
           Get-Location
-          Get-ChildItem -Recurse -Force $env:CUDA_CORE_TEST_BINARIES_DIR | Select-Object Mode, LastWriteTime, Length, FullName
+          Get-ChildItem -Recurse -Force cuda_core/.moon-out/test-binaries | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Set up Python ${{ matrix.PY_VER }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
@@ -332,7 +359,7 @@ jobs:
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: see_what_works
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests pathfinder
+        run: moon ci pathfinder:test-installed-windows --upstream none --downstream none ${{ (inputs.force-all || inputs.build-type != 'pull-request') && '--force' || '' }}
 
       - name: Run cuda.bindings tests
         if: ${{ inputs.test-mode == 'standard' && inputs.test-bindings && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
@@ -340,7 +367,7 @@ jobs:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests bindings
+        run: moon ci bindings:test-installed-windows --upstream none --downstream none ${{ (inputs.force-all || inputs.build-type != 'pull-request') && '--force' || '' }}
 
       - name: Run cuda.core tests
         if: ${{ inputs.test-mode == 'standard' && inputs.test-core }}
@@ -348,28 +375,11 @@ jobs:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests core
+        run: moon ci core:test-installed-windows --upstream none --downstream none ${{ (inputs.force-all || inputs.build-type != 'pull-request') && '--force' || '' }}
 
       - name: Ensure cuda-python installable
         if: ${{ inputs.test-mode == 'standard' && inputs.test-python && env.BINDINGS_SOURCE == 'main' }}
-        run: |
-          # Package suites install their own dependencies. A metapackage-only
-          # run has no preceding suite, so install the exact local internal
-          # wheels in one transaction while resolving released dependencies
-          # such as cuda-core from the package index.
-          if ('${{ inputs.test-bindings || inputs.test-core }}' -eq 'true') {
-            $dependencyArgs = @('--no-deps')
-          } else {
-            $dependencyArgs = @(
-              (Get-Item ./cuda_pathfinder/cuda_pathfinder-*.whl).FullName
-              (Get-Item "$env:CUDA_BINDINGS_ARTIFACTS_DIR/cuda_bindings-*.whl").FullName
-            )
-          }
-          $pythonRequirements = @((Get-Item ./cuda_python*.whl).FullName)
-          if ('${{ matrix.LOCAL_CTK }}' -ne '1') {
-            $pythonRequirements = @($pythonRequirements | ForEach-Object { "$($_)[all]" })
-          }
-          pip install --only-binary=:all: @dependencyArgs @pythonRequirements
+        run: moon ci metapackage:test-installed-windows --upstream none --downstream none ${{ (inputs.force-all || inputs.build-type != 'pull-request') && '--force' || '' }}
 
       - name: Install cuda.pathfinder extra wheels for testing
         if: ${{ inputs.test-mode == 'standard' && inputs.test-pathfinder }}
@@ -387,7 +397,7 @@ jobs:
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests pathfinder
+        run: moon ci pathfinder:test-installed-windows-strict --upstream none --downstream none ${{ (inputs.force-all || inputs.build-type != 'pull-request') && '--force' || '' }}
 
       # ── Nightly: install wheels + optional dep together ──
       - name: Install Visual C++ Redistributable (required by PyTorch on Windows)

@@ -14,19 +14,11 @@ on:
       prev-cuda-version:
         required: true
         type: string
-      build-pathfinder:
-        required: false
-        type: boolean
-        default: true
       build-bindings:
         required: false
         type: boolean
         default: true
       build-core:
-        required: false
-        type: boolean
-        default: true
-      build-python:
         required: false
         type: boolean
         default: true
@@ -46,6 +38,19 @@ on:
         required: false
         type: string
         default: ""
+      portable-run-id:
+        description: "Workflow run containing the selected portable wheels"
+        required: true
+        type: string
+      moon-base:
+        description: "Base revision used by Moon affected checks"
+        required: true
+        type: string
+      force-all:
+        description: "Force selected Moon tasks when no reusable baseline exists"
+        required: false
+        type: boolean
+        default: false
 
 defaults:
   run:
@@ -117,6 +122,22 @@ jobs:
           # see https://github.com/actions/setup-python/issues/871
           python-version: "3.12"
 
+      - name: Set up Moon
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095  # v0.6.4
+        with:
+          moon-version: "2.5.1"
+          auto-install: false
+          auto-setup: false
+
+      - name: Restore trusted exact-base Moon cache
+        if: ${{ inputs.baseline-run-id != '' && !inputs.force-all }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: moon-cache-build-${{ inputs.host-platform }}-py${{ matrix.python-version }}
+          path: .moon/cache
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.baseline-run-id }}
+
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') && (inputs.build-bindings || inputs.build-core || inputs.test-bindings || inputs.test-core) }}
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
@@ -156,26 +177,16 @@ jobs:
         run: |
           env
 
-      - name: Install twine
-        run: |
-          pip install twine
+      - name: Install externally managed build tools
+        run: python -m pip install "cibuildwheel==4.1.1" twine wheel
 
-      # To keep the build workflow simple, all matrix jobs will build a wheel for later use within this workflow.
-      - name: Build and check cuda.pathfinder wheel
-        if: ${{ inputs.build-pathfinder }}
-        run: |
-          pushd cuda_pathfinder
-          pip wheel -v --no-deps .
-          popd
-
-      - name: Download reusable cuda.pathfinder wheel
-        if: ${{ !inputs.build-pathfinder }}
+      - name: Download cuda.pathfinder wheel from the portable producer
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
-          path: cuda_pathfinder
+          path: cuda_pathfinder/.moon-out/wheel-pure
           github-token: ${{ github.token }}
-          run-id: ${{ inputs.baseline-run-id }}
+          run-id: ${{ inputs.portable-run-id }}
 
       - name: List the cuda.pathfinder artifacts directory
         run: |
@@ -184,37 +195,8 @@ jobs:
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) cuda_pathfinder/*.whl
-          ls -lahR cuda_pathfinder
-
-      # We only need/want a single pure python wheel, pick linux-64 index 0.
-      # This is what we will use for testing & releasing.
-      - name: Check cuda.pathfinder wheel
-        if: ${{ inputs.build-pathfinder && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        run: |
-          twine check --strict cuda_pathfinder/*.whl
-
-      - name: Constrain builds to the local cuda.pathfinder wheel
-        if: ${{ inputs.build-bindings }}
-        run: |
-          pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
-          test "${#pathfinder_wheels[@]}" -eq 1
-          test -f "${pathfinder_wheels[0]}"
-          mkdir -p wheel-constraints
-          if [[ "${{ inputs.host-platform }}" == win* ]]; then
-            pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
-          else
-            pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
-          fi
-          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
-
-      - name: Upload cuda.pathfinder build artifacts
-        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: cuda-pathfinder-wheel
-          path: cuda_pathfinder/*.whl
-          if-no-files-found: error
+          $CHOWN -R $(whoami) cuda_pathfinder/.moon-out/wheel-pure/*.whl
+          ls -lahR cuda_pathfinder/.moon-out/wheel-pure
 
       - name: Set up mini CTK
         if: ${{ inputs.build-bindings || inputs.build-core || inputs.test-bindings || inputs.test-core }}
@@ -226,11 +208,11 @@ jobs:
 
       - name: Build cuda.bindings wheel
         if: ${{ inputs.build-bindings }}
-        uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c  # v4.1.1
-        with:
-          package-dir: ./cuda_bindings/
-          output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+        run: moon ci bindings:wheel-current --upstream none --downstream none ${{ inputs.force-all && '--force' || '' }}
         env:
+          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.cuda-version }}
+          MOON_BASE: ${{ inputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
           CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
@@ -243,8 +225,6 @@ jobs:
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            PIP_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
-            PIP_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
@@ -258,8 +238,6 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            PIP_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
-            PIP_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host/${{ env.SCCACHE_PATH }}" --show-adv-stats &&
@@ -283,7 +261,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}-${{ inputs.baseline-sha }}
-          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          path: cuda_bindings/.moon-out/wheel-current
           github-token: ${{ github.token }}
           run-id: ${{ inputs.baseline-run-id }}
 
@@ -294,50 +272,29 @@ jobs:
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
-          ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          $CHOWN -R $(whoami) cuda_bindings/.moon-out/wheel-current
+          ls -lahR cuda_bindings/.moon-out/wheel-current
 
       - name: Check cuda.bindings wheel
         if: ${{ inputs.build-bindings }}
         run: |
-          twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
-
-      - name: Constrain cuda.core to the local cuda.bindings wheel
-        if: ${{ inputs.build-core }}
-        run: |
-          pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
-          bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-"${BUILD_CUDA_MAJOR}".*.whl)
-          test "${#pathfinder_wheels[@]}" -eq 1
-          test "${#bindings_wheels[@]}" -eq 1
-          test -f "${pathfinder_wheels[0]}"
-          test -f "${bindings_wheels[0]}"
-          mkdir -p wheel-constraints
-          if [[ "${{ inputs.host-platform }}" == win* ]]; then
-            pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
-            bindings_uri="file:///$(cygpath -am "${bindings_wheels[0]}")"
-          else
-            pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
-            bindings_uri="file:///host$(realpath "${bindings_wheels[0]}")"
-          fi
-          {
-            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
-            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
-          } | tee wheel-constraints/cuda-core.txt
+          twine check --strict cuda_bindings/.moon-out/wheel-current/*.whl
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          path: cuda_bindings/.moon-out/wheel-current/*.whl
           if-no-files-found: error
+          overwrite: true
 
       - name: Build cuda.core wheel
         if: ${{ inputs.build-core }}
-        uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c  # v4.1.1
-        with:
-          package-dir: ./cuda_core/
-          output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+        run: moon ci core:wheel-current --upstream none --downstream none ${{ inputs.force-all && '--force' || '' }}
         env:
+          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.cuda-version }}
+          MOON_BASE: ${{ inputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
           CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
@@ -351,8 +308,6 @@ jobs:
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
-            PIP_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
-            PIP_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
@@ -367,8 +322,6 @@ jobs:
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
-            PIP_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core.txt)"
-            PIP_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core.txt)"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host${{ env.SCCACHE_PATH }}" --show-adv-stats &&
@@ -387,7 +340,7 @@ jobs:
           label: "cuda.core"
           build-step: "Build cuda.core wheel"
 
-      - name: List the cuda.core artifacts directory and rename
+      - name: List the current cuda.core artifacts
         if: ${{ inputs.build-core }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
@@ -395,66 +348,50 @@ jobs:
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-          # Rename wheel to include CUDA version suffix
-          mkdir -p "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_CUDA_MAJOR}"
-          for wheel in ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl; do
-            if [[ -f "${wheel}" ]]; then
-              base_name=$(basename "${wheel}" .whl)
-              new_name="${base_name}.cu${BUILD_CUDA_MAJOR}.whl"
-              mv "${wheel}" "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_CUDA_MAJOR}/${new_name}"
-              echo "Renamed wheel to: ${new_name}"
-            fi
-          done
-
-          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          $CHOWN -R $(whoami) cuda_core/.moon-out/wheel-current
+          ls -lahR cuda_core/.moon-out/wheel-current
 
       - name: Download reusable cuda.core wheel
         if: ${{ !inputs.build-core }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}-${{ inputs.baseline-sha }}
-          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          path: cuda_core/.moon-out/wheel-merged
           github-token: ${{ github.token }}
           run-id: ${{ inputs.baseline-run-id }}
 
-      # We only need/want a single pure python wheel, pick linux-64 index 0.
-      - name: Build and check cuda-python wheel
-        if: ${{ inputs.build-python && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+      - name: Stage reusable cuda.core wheel for Cython test assets
+        if: ${{ !inputs.build-core && inputs.test-core }}
         run: |
-          pushd cuda_python
-          pip wheel -v --no-deps .
-          twine check --strict *.whl
-          popd
+          mkdir -p cuda_core/.moon-out/wheel-current
+          cp cuda_core/.moon-out/wheel-merged/*.whl cuda_core/.moon-out/wheel-current/
 
-      - name: Download reusable cuda-python wheel
-        if: ${{ !inputs.build-python && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+      - name: Restore reusable cuda.bindings Cython test assets
+        if: ${{ inputs.test-bindings && inputs.baseline-run-id != '' && !inputs.force-all }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          name: cuda-python-wheel
-          path: cuda_python
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}-${{ inputs.baseline-sha }}-tests
+          path: cuda_bindings/.moon-out/cython-tests
           github-token: ${{ github.token }}
           run-id: ${{ inputs.baseline-run-id }}
 
-      - name: List the cuda-python artifacts directory
-        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        run: |
-          if [[ "${{ inputs.host-platform }}" == win* ]]; then
-            export CHOWN=chown
-          else
-            export CHOWN="sudo chown"
-          fi
-          $CHOWN -R $(whoami) cuda_python/*.whl
-          ls -lahR cuda_python
-
-      - name: Upload cuda-python build artifacts
-        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      - name: Restore reusable cuda.core Cython test assets
+        if: ${{ inputs.test-core && inputs.baseline-run-id != '' && !inputs.force-all }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          name: cuda-python-wheel
-          path: cuda_python/*.whl
-          if-no-files-found: error
+          name: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}-${{ inputs.baseline-sha }}-tests
+          path: cuda_core/.moon-out/cython-tests
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.baseline-run-id }}
+
+      - name: Restore reusable cuda.core test binaries
+        if: ${{ inputs.test-core && inputs.baseline-run-id != '' && !inputs.force-all }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}-${{ inputs.baseline-sha }}-test-binaries
+          path: cuda_core/.moon-out/test-binaries
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.baseline-run-id }}
 
       - name: Set up Python
         id: setup-python2
@@ -489,7 +426,7 @@ jobs:
       - name: Install cuda.pathfinder (required for next step)
         if: ${{ inputs.test-bindings || inputs.test-core }}
         run: |
-          pip install cuda_pathfinder/*.whl
+          pip install cuda_pathfinder/.moon-out/wheel-pure/*.whl
 
       - name: Hide GNU link.exe so Meson finds MSVC link.exe
         if: ${{ startsWith(inputs.host-platform, 'win') && (inputs.test-bindings || inputs.test-core) }}
@@ -500,45 +437,37 @@ jobs:
 
       - name: Build cuda.bindings Cython tests
         if: ${{ inputs.test-bindings }}
-        run: |
-          pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
-          pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
-          popd
+        env:
+          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.cuda-version }}
+          MOON_BASE: ${{ inputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
+        run: moon ci bindings:cython-test-assets --upstream none --downstream none ${{ inputs.force-all && '--force' || '' }}
 
       - name: Upload cuda.bindings Cython tests
         if: ${{ inputs.test-bindings }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
-          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
+          path: cuda_bindings/.moon-out/cython-tests/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
+          overwrite: true
 
       - name: Build cuda.core Cython tests
         if: ${{ inputs.test-core }}
-        run: |
-          pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
-          if ${{ inputs.build-core }}; then
-            core_wheel=$(find "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_CUDA_MAJOR}" -maxdepth 1 -type f -name '*.whl' -print -quit)
-          else
-            core_wheel=$(find "${{ env.CUDA_CORE_ARTIFACTS_DIR }}" -maxdepth 1 -type f -name '*.whl' -print -quit)
-          fi
-          if [[ -z "${core_wheel}" ]]; then
-            echo "No cuda.core wheel found" >&2
-            exit 1
-          fi
-          pip install "${core_wheel}" --group ./cuda_core/pyproject.toml:test
-          pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
-          popd
+        env:
+          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.cuda-version }}
+          MOON_BASE: ${{ inputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
+        run: moon ci core:cython-test-assets --upstream none --downstream none ${{ inputs.force-all && '--force' || '' }}
 
       - name: Upload cuda.core Cython tests
         if: ${{ inputs.test-core }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
-          path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
+          path: cuda_core/.moon-out/cython-tests/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
+          overwrite: true
 
       # Note: This overwrites CUDA_PATH etc
       - name: Set up mini CTK
@@ -552,9 +481,11 @@ jobs:
 
       - name: Build cuda.core test binaries
         if: ${{ inputs.test-core }}
-        run: |
-          nvcc --version
-          python "${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/build_test_binaries.py"
+        env:
+          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.prev-cuda-version }}
+          MOON_BASE: ${{ inputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
+        run: moon ci core:test-binaries --upstream none --downstream none ${{ inputs.force-all && '--force' || '' }}
 
       - name: Upload cuda.core test binaries
         if: ${{ inputs.test-core }}
@@ -562,10 +493,11 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
           path: |
-            ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.o
-            ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.a
-            ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.lib
+            cuda_core/.moon-out/test-binaries/*.o
+            cuda_core/.moon-out/test-binaries/*.a
+            cuda_core/.moon-out/test-binaries/*.lib
           if-no-files-found: error
+          overwrite: true
 
       - name: Download cuda.bindings build artifacts from the prior branch
         if: ${{ inputs.build-core }}
@@ -587,7 +519,7 @@ jobs:
           OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
           LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
-          PREV_BINDINGS_DIR="cuda_bindings/dist-prev"
+          PREV_BINDINGS_DIR="cuda_bindings/.moon-out/wheel-previous"
 
           gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
           rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
@@ -596,35 +528,13 @@ jobs:
           mv $OLD_BASENAME/*.whl "${PREV_BINDINGS_DIR}"
           rmdir $OLD_BASENAME
 
-      - name: Constrain previous cuda.core to the downloaded cuda.bindings wheel
-        if: ${{ inputs.build-core }}
-        run: |
-          pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
-          bindings_wheels=(cuda_bindings/dist-prev/cuda_bindings-"${BUILD_PREV_CUDA_MAJOR}".*.whl)
-          test "${#pathfinder_wheels[@]}" -eq 1
-          test "${#bindings_wheels[@]}" -eq 1
-          test -f "${pathfinder_wheels[0]}"
-          test -f "${bindings_wheels[0]}"
-          mkdir -p wheel-constraints
-          if [[ "${{ inputs.host-platform }}" == win* ]]; then
-            pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
-            bindings_uri="file:///$(cygpath -am "${bindings_wheels[0]}")"
-          else
-            pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
-            bindings_uri="file:///host$(realpath "${bindings_wheels[0]}")"
-          fi
-          {
-            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
-            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
-          } | tee wheel-constraints/cuda-core-prev.txt
-
       - name: Build cuda.core wheel
         if: ${{ inputs.build-core }}
-        uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c  # v4.1.1
-        with:
-          package-dir: ./cuda_core/
-          output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+        run: moon ci core:wheel-previous --upstream none --downstream none ${{ inputs.force-all && '--force' || '' }}
         env:
+          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.prev-cuda-version }}
+          MOON_BASE: ${{ inputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
           CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
@@ -638,8 +548,6 @@ jobs:
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
-            PIP_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core-prev.txt
-            PIP_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core-prev.txt
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
@@ -654,8 +562,6 @@ jobs:
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
-            PIP_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core-prev.txt)"
-            PIP_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-core-prev.txt)"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host${{ env.SCCACHE_PATH }}" --show-adv-stats &&
@@ -674,7 +580,7 @@ jobs:
           label: "cuda.core (prev CTK)"
           build-step: "Build cuda.core wheel"
 
-      - name: List the cuda.core artifacts directory and rename
+      - name: List the previous cuda.core artifacts
         if: ${{ inputs.build-core }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
@@ -682,39 +588,39 @@ jobs:
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-          # Rename wheel to include CUDA version suffix
-          mkdir -p "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_PREV_CUDA_MAJOR}"
-          for wheel in ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl; do
-            if [[ -f "${wheel}" ]]; then
-              base_name=$(basename "${wheel}" .whl)
-              new_name="${base_name}.cu${BUILD_PREV_CUDA_MAJOR}.whl"
-              mv "${wheel}" "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_PREV_CUDA_MAJOR}/${new_name}"
-              echo "Renamed wheel to: ${new_name}"
-            fi
-          done
-
-          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          $CHOWN -R $(whoami) cuda_core/.moon-out/wheel-previous
+          ls -lahR cuda_core/.moon-out/wheel-previous
 
       - name: Merge cuda.core wheels
         if: ${{ inputs.build-core }}
-        run: |
-          pip install wheel
-          python ci/tools/merge_cuda_core_wheels.py \
-            "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/cuda_core*.whl \
-            "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \
-            --output-dir "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
+        env:
+          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.cuda-version }}-${{ inputs.prev-cuda-version }}
+          MOON_BASE: ${{ inputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
+        run: moon ci core:wheel-merge --upstream none --downstream none ${{ inputs.force-all && '--force' || '' }}
 
       - name: Check cuda.core wheel
         if: ${{ inputs.build-core }}
         run: |
-          twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+          twine check --strict cuda_core/.moon-out/wheel-merged/*.whl
 
       - name: Upload cuda.core build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+          path: cuda_core/.moon-out/wheel-merged/*.whl
           if-no-files-found: error
+          overwrite: true
+
+      - name: Upload Moon cache for this build lane
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: moon-cache-build-${{ inputs.host-platform }}-py${{ matrix.python-version }}
+          path: |
+            .moon/cache/hashes
+            .moon/cache/outputs
+          if-no-files-found: error
+          include-hidden-files: true
+          overwrite: true
+          retention-days: 30
