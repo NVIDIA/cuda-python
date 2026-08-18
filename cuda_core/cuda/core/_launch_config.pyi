@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from cuda.core.typing import ClusterSchedulingPolicyType
+
 
 class LaunchConfig:
     """Customizable launch options.
@@ -39,9 +41,12 @@ class LaunchConfig:
         Whether to allow programmatic stream serialization (PDL). When True,
         the kernel may overlap with a previous kernel in the same stream that
         signals completion via programmatic means.
+    cluster_scheduling_policy_preference : ClusterSchedulingPolicyType, optional
+        Cluster scheduling policy for the launch. When omitted, the driver uses
+        the kernel function's default policy.
     """
 
-    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False) -> None:
+    def __init__(self, grid: int | tuple[int, ...] | None=None, cluster: int | tuple[int, ...] | None=None, block: int | tuple[int, ...] | None=None, shmem_size: int | None=None, is_cooperative: bool=False, programmatic_stream_serialization: bool=False, cluster_scheduling_policy_preference: ClusterSchedulingPolicyType | None=None) -> None:
         """Initialize LaunchConfig with validation.
 
         Parameters
@@ -58,6 +63,8 @@ class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         programmatic_stream_serialization : bool, optional
             Whether to allow programmatic stream serialization / PDL (default: False)
+        cluster_scheduling_policy_preference : ClusterSchedulingPolicyType, optional
+            Cluster scheduling policy for the launch (default: None)
         """
 
     def _identity(self) -> tuple[Any, ...]:
@@ -71,7 +78,7 @@ class LaunchConfig:
 
     def __hash__(self) -> int:
         ...
-_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization')
+_LAUNCH_CONFIG_ATTRS = ('grid', 'cluster', 'block', 'shmem_size', 'is_cooperative', 'programmatic_stream_serialization', 'cluster_scheduling_policy_preference')
 __all__ = ['LaunchConfig']
 
 def _to_native_launch_config(config: LaunchConfig) -> object:
@@ -87,3 +94,6 @@ def _to_native_launch_config(config: LaunchConfig) -> object:
     driver.CUlaunchConfig
         Native CUDA driver launch configuration
     """
+
+def _validate_cluster_scheduling_policy_preference(value):
+    ...

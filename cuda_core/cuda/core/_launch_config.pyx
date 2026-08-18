@@ -12,6 +12,8 @@ from cuda.core._utils.cuda_utils import (
     cast_to_3_tuple,
     driver,
 )
+from cuda.core._utils.validators import format_or_list
+from cuda.core.typing import ClusterSchedulingPolicyType
 
 _LAUNCH_CONFIG_ATTRS = (
     'grid',
@@ -20,7 +22,22 @@ _LAUNCH_CONFIG_ATTRS = (
     'shmem_size',
     'is_cooperative',
     'programmatic_stream_serialization',
+    'cluster_scheduling_policy_preference',
 )
+
+
+def _validate_cluster_scheduling_policy_preference(value):
+    if value is None:
+        return None
+    if isinstance(value, ClusterSchedulingPolicyType):
+        return value
+    try:
+        return ClusterSchedulingPolicyType(int(value))
+    except (TypeError, ValueError):
+        valid = format_or_list(ClusterSchedulingPolicyType)
+        raise ValueError(
+            f"{value!r} is not a valid ClusterSchedulingPolicyType. Must be {valid}"
+        ) from None
 
 __all__ = ['LaunchConfig']
 
@@ -59,6 +76,9 @@ cdef class LaunchConfig:
         Whether to allow programmatic stream serialization (PDL). When True,
         the kernel may overlap with a previous kernel in the same stream that
         signals completion via programmatic means.
+    cluster_scheduling_policy_preference : ClusterSchedulingPolicyType, optional
+        Cluster scheduling policy for the launch. When omitted, the driver uses
+        the kernel function's default policy.
     """
 
     # TODO: expand LaunchConfig to include other attributes
@@ -72,6 +92,7 @@ cdef class LaunchConfig:
         shmem_size: int | None = None,
         is_cooperative: bool = False,
         programmatic_stream_serialization: bool = False,
+        cluster_scheduling_policy_preference: ClusterSchedulingPolicyType | None = None,
     ) -> None:
         """Initialize LaunchConfig with validation.
 
@@ -89,21 +110,30 @@ cdef class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         programmatic_stream_serialization : bool, optional
             Whether to allow programmatic stream serialization / PDL (default: False)
+        cluster_scheduling_policy_preference : ClusterSchedulingPolicyType, optional
+            Cluster scheduling policy for the launch (default: None)
         """
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
         self.block = cast_to_3_tuple("LaunchConfig.block", block)
 
+        validated_policy = _validate_cluster_scheduling_policy_preference(
+            cluster_scheduling_policy_preference
+        )
+
         # FIXME: Calling Device() strictly speaking is not quite right; we should instead
         # look up the device from stream. We probably need to defer the checks related to
         # device compute capability or attributes.
         # thread block clusters are supported starting H100
-        if cluster is not None:
+        cc = None
+        if cluster is not None or validated_policy is not None:
             cc = Device().compute_capability
             if cc < (9, 0):
                 raise CUDAError(
-                    f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
+                    "cluster launch attributes are not supported on devices with "
+                    f"compute capability < 9.0 (got {cc})"
                 )
+        if cluster is not None:
             self.cluster = cast_to_3_tuple("LaunchConfig.cluster", cluster)
         else:
             self.cluster = None
@@ -116,6 +146,7 @@ cdef class LaunchConfig:
 
         self.is_cooperative = is_cooperative
         self.programmatic_stream_serialization = programmatic_stream_serialization
+        self.cluster_scheduling_policy_preference = validated_policy
 
         if self.is_cooperative and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
@@ -167,6 +198,11 @@ cdef class LaunchConfig:
         if self.programmatic_stream_serialization:
             attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
             attr.value.programmaticStreamSerializationAllowed = 1
+            self._attrs.push_back(attr)
+
+        if self.cluster_scheduling_policy_preference is not None:
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+            attr.value.clusterSchedulingPolicyPreference = int(self.cluster_scheduling_policy_preference)
             self._attrs.push_back(attr)
 
         drv_cfg.numAttrs = self._attrs.size()
@@ -228,6 +264,12 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION
         attr.value.programmaticStreamSerializationAllowed = 1
+        attrs.append(attr)
+
+    if config.cluster_scheduling_policy_preference is not None:
+        attr = driver.CUlaunchAttribute()
+        attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+        attr.value.clusterSchedulingPolicyPreference = int(config.cluster_scheduling_policy_preference)
         attrs.append(attr)
 
     drv_cfg.numAttrs = len(attrs)

@@ -5,6 +5,7 @@
 """Public type aliases, protocols, and enumerations used in cuda.core API signatures."""
 
 import sys
+from enum import IntEnum
 from typing import TYPE_CHECKING
 from typing import Literal as _Literal
 from typing import TypeAlias as _TypeAlias
@@ -34,6 +35,7 @@ from cuda.core._utils.cuda_utils import driver
 __all__ = [
     "AddressModeType",
     "ArrayFormatType",
+    "ClusterSchedulingPolicyType",
     "CompilerBackendType",
     "DevicePointerType",
     "DeviceResourcesType",
@@ -62,6 +64,22 @@ DevicePointerType: _TypeAlias = driver.CUdeviceptr | int | None
 
 
 ProcessStateType = _Literal["running", "locked", "checkpointed", "failed"]
+
+
+class ClusterSchedulingPolicyType(IntEnum):
+    """Cluster scheduling policy for :class:`~cuda.core.LaunchConfig`.
+
+    Corresponds to ``CUclusterSchedulingPolicy`` from the CUDA driver API.
+    Valid for graph nodes and kernel launches on Hopper+ (compute capability >= 9.0).
+
+    * ``DEFAULT`` — driver default scheduling within a cluster.
+    * ``SPREAD`` — spread blocks within a cluster across SMs.
+    * ``LOAD_BALANCING`` — allow hardware load-balancing of cluster blocks.
+    """
+
+    DEFAULT = driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_DEFAULT
+    SPREAD = driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_SPREAD
+    LOAD_BALANCING = driver.CUclusterSchedulingPolicy.CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING
 
 
 class SourceCodeType(StrEnum):
