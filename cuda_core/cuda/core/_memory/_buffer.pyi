@@ -188,12 +188,15 @@ class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
-            (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
-            or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
-            older than CUDA 13.2, ``src_access_order`` values of ``STREAM``
-            and ``ANY`` fall back to ``cuMemcpyAsync`` silently; ``DURING_API_CALL``
-            raises instead of silently downgrading its guarantee.
+            Honored when cuda.bindings and the driver are both CUDA 13.2 or
+            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
+            capturing stream either, since a graph cannot represent these
+            attributes; use :meth:`graph.GraphNode.memcpy` for a plain,
+            non-attributed copy node, or pass ``options=None``. On an older
+            cuda.bindings/driver, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` are silently ignored; ``DURING_API_CALL`` raises
+            instead of silently downgrading its guarantee.
 
         Raises
         ------
@@ -203,10 +206,8 @@ class Buffer:
             or a stream currently in graph capture mode.
         RuntimeError
             If ``options.src_access_order`` is ``DURING_API_CALL`` and
-            cuda.bindings/driver older than CUDA 13.2 makes the native
-            ``cuMemcpyWithAttributesAsync`` path unavailable: the
-            ``cuMemcpyAsync`` fallback reads the source in stream order
-            only, which cannot honor that guarantee.
+            cuda.bindings or the driver is older than CUDA 13.2: falling
+            back to a plain copy cannot honor that guarantee.
 
         """
 
@@ -222,12 +223,15 @@ class Buffer:
             asynchronous copy
         options : :class:`~utils.CopyOptions`, optional
             Transfer hints (source access order, location hints, overlap mode).
-            Not accepted with ``LEGACY_DEFAULT_STREAM`` or a capturing stream
-            (matches :func:`utils.copy_batch`); use ``PER_THREAD_DEFAULT_STREAM``
-            or :meth:`graph.GraphNode.memcpy` instead. On cuda.bindings/driver
-            older than CUDA 13.2, ``src_access_order`` values of ``STREAM``
-            and ``ANY`` fall back to ``cuMemcpyAsync`` silently; ``DURING_API_CALL``
-            raises instead of silently downgrading its guarantee.
+            Honored when cuda.bindings and the driver are both CUDA 13.2 or
+            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
+            capturing stream either, since a graph cannot represent these
+            attributes; use :meth:`graph.GraphNode.memcpy` for a plain,
+            non-attributed copy node, or pass ``options=None``. On an older
+            cuda.bindings/driver, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` are silently ignored; ``DURING_API_CALL`` raises
+            instead of silently downgrading its guarantee.
 
         Raises
         ------
@@ -237,10 +241,8 @@ class Buffer:
             or a stream currently in graph capture mode.
         RuntimeError
             If ``options.src_access_order`` is ``DURING_API_CALL`` and
-            cuda.bindings/driver older than CUDA 13.2 makes the native
-            ``cuMemcpyWithAttributesAsync`` path unavailable: the
-            ``cuMemcpyAsync`` fallback reads the source in stream order
-            only, which cannot honor that guarantee.
+            cuda.bindings or the driver is older than CUDA 13.2: falling
+            back to a plain copy cannot honor that guarantee.
         """
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:
