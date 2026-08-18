@@ -72,7 +72,8 @@ the test that creates them.
 and injects its fixtures; nothing should import it by name with
 `from conftest import ...`. Keeping it off the import path is what allows
 pytest to build the correct fixture hierarchy from multiple `conftest.py` files
-at different directory levels.
+at different directory levels. See the pytest docs:
+https://docs.pytest.org/en/stable/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
 
 Keep the two kinds of shared test code in their proper places:
 
@@ -89,9 +90,10 @@ pytest automatically makes its fixtures available to tests in that directory
 and propagates fixtures from parent `conftest.py` files downward — no
 `__init__.py` is required for this to work.
 
-The suite uses pytest's default `prepend` import mode. `pytest.ini` sets
-`pythonpath = tests` so that every test file, regardless of how deep it sits,
-can resolve `from helpers.xxx import ...` against the `tests/` root.
-Without that setting, test files in subdirectories without `__init__.py`
-would get their own subdirectory prepended to `sys.path` instead of `tests/`,
-and the `helpers` package would not be found.
+The suite uses pytest's default `prepend` import mode
+(https://docs.pytest.org/en/stable/explanation/goodpractices.html#choosing-an-import-mode).
+`pytest.ini` sets `pythonpath = tests` so that every test file, regardless of
+how deep it sits, can resolve `from helpers.xxx import ...` against the
+`tests/` root. Without that setting, test files in subdirectories without
+`__init__.py` would get their own subdirectory prepended to `sys.path` instead
+of `tests/`, and the `helpers` package would not be found.
