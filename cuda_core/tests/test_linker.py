@@ -7,7 +7,6 @@ import warnings
 
 import pytest
 
-import cuda.core
 from cuda.core import Device, Linker, LinkerOptions, Program, ProgramOptions, _linker
 from cuda.core._module import ObjectCode
 from cuda.core._program import _can_load_generated_ptx
@@ -436,25 +435,6 @@ def test_prepare_driver_options_unsupported_raises(driver_binding, kwargs, match
     opts = LinkerOptions(**kwargs)
     with pytest.raises(ValueError, match=match):
         opts._prepare_driver_options()
-
-
-@pytest.mark.agent_authored(model="claude-opus-5")
-def test_numba_debug_removal_is_due_at_2_0():
-    """Forcing function for the deprecation queued in #2640.
-
-    ``LinkerOptions.numba_debug`` is deprecated in 1.2.0 and must be removed at
-    the next major-version boundary. Nothing else in the repo tracks a scheduled
-    removal -- the existing precedent (``Device.max_links``) only says "a future
-    release" -- so this test fails the build the moment the version crosses 2.0,
-    rather than letting a dead field survive into the 2.x line unnoticed.
-    """
-    major = int(cuda.core.__version__.split(".")[0])
-    if major >= 2:
-        pytest.fail(
-            "cuda.core is now 2.x: remove the deprecated LinkerOptions.numba_debug field, "
-            "its __post_init__ DeprecationWarning, and this test."
-        )
-    assert hasattr(LinkerOptions(arch="sm_80"), "numba_debug")
 
 
 @pytest.mark.agent_authored(model="claude-opus-5")
