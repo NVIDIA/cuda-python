@@ -41,10 +41,9 @@ def _cufile_driver_session():
 def cufile_env_json(monkeypatch):
     """Set CUFILE_ENV_PATH_JSON environment variable for async tests."""
     # Get absolute path to cufile.json in the same directory as this test file
-    test_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(test_dir, "cufile.json")
-    assert os.path.isfile(config_path)
-    monkeypatch.setenv("CUFILE_ENV_PATH_JSON", config_path)
+    config_path = pathlib.Path(__file__).resolve().parent / "cufile.json"
+    assert config_path.is_file()
+    monkeypatch.setenv("CUFILE_ENV_PATH_JSON", str(config_path))
     logging.info(f"Using cuFile config: {config_path}")
 
 
@@ -1452,7 +1451,7 @@ def test_set_get_parameter_bool():
 @pytest.mark.usefixtures("ctx", "cufile_env_json")
 def test_set_get_parameter_string(tmp_path):
     """Test setting and getting string parameters with cuFile validation."""
-    temp_dir = tempfile.gettempdir()
+    temp_dir = pathlib.Path(tempfile.gettempdir())
     # must be set to avoid getter error when testing ENV_LOGFILE_PATH...
     os.environ["CUFILE_LOGFILE_PATH"] = ""
 
@@ -1460,12 +1459,12 @@ def test_set_get_parameter_string(tmp_path):
         (cufile.StringConfigParameter.LOGGING_LEVEL, "INFO", "DEBUG"),  # Test logging level
         (
             cufile.StringConfigParameter.ENV_LOGFILE_PATH,
-            os.path.join(temp_dir, "cufile.log"),
+            str(temp_dir / "cufile.log"),
             str(tmp_path / "cufile.log"),
         ),  # Test environment log file path
         (
             cufile.StringConfigParameter.LOG_DIR,
-            os.path.join(temp_dir, "cufile_logs"),
+            str(temp_dir / "cufile_logs"),
             str(tmp_path),
         ),  # Test log directory
     )
