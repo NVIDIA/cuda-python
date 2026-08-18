@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c1345e5a"></script>
+    <script src="../_static/documentation_options.js?v=52b45029"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev80';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev82';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -871,6 +871,13 @@ default <code class="docutils literal notranslate"><span class="pre">c_int</span
 and <code class="docutils literal notranslate"><span class="pre">argtypes</span></code> (or cast it to the prototype above) before passing it. On
 Windows, both <code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE</span></code> and <code class="docutils literal notranslate"><span class="pre">ctypes.WINFUNCTYPE</span></code> are accepted.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2439">#2439</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.register" title="cuda.core.DeviceMemoryResource.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.register()</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.register" title="cuda.core.PinnedMemoryResource.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PinnedMemoryResource.register()</span></code></a> now raise <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> when the
+memory resource does not have IPC enabled. Previously they dereferenced a
+<code class="docutils literal notranslate"><span class="pre">None</span></code> attribute and terminated the process with a segmentation fault, so
+the call could not be guarded with <code class="docutils literal notranslate"><span class="pre">try</span></code>. A rejected registration no longer
+leaves an entry in the memory resource registry.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2568">#2568</a>)</p></li>
 <li><p>Starting with CUDA 13.4, unconstrained SM-resource discovery through
 <a class="reference internal" href="../generated/cuda.core.SMResource.html#cuda.core.SMResource.split" title="cuda.core.SMResource.split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SMResource.split()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">SMResourceOptions(count=None)</span></code> may return
 every available SM, even when that count is not divisible by the device’s

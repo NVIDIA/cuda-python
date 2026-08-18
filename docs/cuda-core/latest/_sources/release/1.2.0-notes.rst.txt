@@ -127,6 +127,14 @@ Fixes and enhancements
   Windows, both ``ctypes.CFUNCTYPE`` and ``ctypes.WINFUNCTYPE`` are accepted.
   (`#2439 <https://github.com/NVIDIA/cuda-python/issues/2439>`__)
 
+- :meth:`DeviceMemoryResource.register` and
+  :meth:`PinnedMemoryResource.register` now raise ``RuntimeError`` when the
+  memory resource does not have IPC enabled. Previously they dereferenced a
+  ``None`` attribute and terminated the process with a segmentation fault, so
+  the call could not be guarded with ``try``. A rejected registration no longer
+  leaves an entry in the memory resource registry.
+  (`#2568 <https://github.com/NVIDIA/cuda-python/issues/2568>`__)
+
 - Starting with CUDA 13.4, unconstrained SM-resource discovery through
   :meth:`SMResource.split` with ``SMResourceOptions(count=None)`` may return
   every available SM, even when that count is not divisible by the device's
