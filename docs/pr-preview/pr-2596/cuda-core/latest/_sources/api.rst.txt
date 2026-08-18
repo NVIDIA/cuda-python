@@ -77,6 +77,14 @@ Memory management
    ManagedMemoryResourceOptions
    VirtualMemoryResourceOptions
 
+A :class:`Buffer` records the stream that will order its eventual deallocation.
+Use :meth:`Buffer.set_deallocation_stream` to replace that stream without
+closing the buffer. Changing the recorded stream does not synchronize streams;
+the caller must order allocation and every access before the deallocation,
+using events or other CUDA synchronization mechanisms as needed. See
+:cuda-core-example:`buffer_deallocation_stream.py <buffer_deallocation_stream.py>`
+for a complete example.
+
 
 CUDA compilation toolchain
 --------------------------
@@ -377,6 +385,7 @@ Utility functions
    :toctree: generated/
 
    utils.args_viewable_as_strided_memory
+   utils.copy_batch
    utils.prefetch_batch
    utils.discard_batch
    utils.discard_prefetch_batch
@@ -384,3 +393,20 @@ Utility functions
    :template: autosummary/cyclass.rst
 
    utils.StridedMemoryView
+
+Data transfer options
+`````````````````````
+
+.. currentmodule:: cuda.core
+
+.. autosummary::
+   :toctree: generated/
+
+   :template: dataclass.rst
+
+   utils.CopyOptions
+
+   :template: class.rst
+
+   utils.MemcpySrcAccessOrder
+   utils.MemcpyOverlapMode

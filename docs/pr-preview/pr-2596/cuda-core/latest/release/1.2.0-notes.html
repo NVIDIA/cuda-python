@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=bd9e13b0"></script>
+    <script src="../_static/documentation_options.js?v=993dc0e4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev41';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev85';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -650,10 +650,14 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.discard_batch.html">cuda.core.utils.discard_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.discard_prefetch_batch.html">cuda.core.utils.discard_prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.CopyOptions.html">cuda.core.utils.CopyOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.MemcpySrcAccessOrder.html">cuda.core.utils.MemcpySrcAccessOrder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.MemcpyOverlapMode.html">cuda.core.utils.MemcpyOverlapMode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api_nvml.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -757,9 +761,59 @@
                   
   <section id="cuda-core-1-2-0-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 1.2.0 Release Notes<a class="headerlink" href="#cuda-core-1-2-0-release-notes" title="Link to this heading">#</a></h1>
+<section id="new-features">
+<h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.CopyOptions</span></code></a> (source access order, location hints,
+overlap mode) for buffer-to-buffer copies. The new
+<a class="reference internal" href="../generated/cuda.core.utils.copy_batch.html#cuda.core.utils.copy_batch" title="cuda.core.utils.copy_batch"><code class="xref py py-func docutils literal notranslate"><span class="pre">utils.copy_batch()</span></code></a> accepts it and submits many copies in a single
+<code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> call, requiring <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> built against CUDA 13
+plus <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>/driver 13.0 or newer. <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_to" title="cuda.core.Buffer.copy_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.copy_from" title="cuda.core.Buffer.copy_from"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a> also accept it now, as a new <code class="docutils literal notranslate"><span class="pre">options</span></code> keyword,
+submitting a single copy via <code class="docutils literal notranslate"><span class="pre">cuMemcpyWithAttributesAsync</span></code> and requiring
+<code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>/driver 13.2 or newer. Both reject
+<code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> with <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> (<code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code>
+is accepted); <code class="docutils literal notranslate"><span class="pre">copy_batch</span></code> always rejects graph capture, while
+<code class="docutils literal notranslate"><span class="pre">Buffer.copy_to</span></code>/<code class="docutils literal notranslate"><span class="pre">copy_from</span></code> reject it only when <code class="docutils literal notranslate"><span class="pre">options</span></code> is given.
+On an older <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>/driver install, <code class="docutils literal notranslate"><span class="pre">src_access_order</span></code> values
+of <code class="docutils literal notranslate"><span class="pre">STREAM</span></code> and <code class="docutils literal notranslate"><span class="pre">ANY</span></code> silently fall back to plain <code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code>;
+<code class="docutils literal notranslate"><span class="pre">DURING_API_CALL</span></code> raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> instead, since that fallback
+cannot honor its guarantee that all source reads complete before the call
+returns. Copies within a <code class="docutils literal notranslate"><span class="pre">copy_batch</span></code> call must not alias.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1333">#1333</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2365">#2365</a>)</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">programmatic_stream_serialization</span></code> option to
+<a class="reference internal" href="../generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>, which sets
+<code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeProgrammaticStreamSerialization</span></code> so a kernel can
+begin executing before the preceding kernel in the same stream has fully
+completed (programmatic dependent launch, PDL). Available starting with
+devices of compute capability 9.0.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2456">#2456</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/1334">#1334</a>)</p></li>
+</ul>
+</section>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>A <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is now freed correctly even when the CUDA context current
+at teardown is not the one it was allocated in, or when no context is current
+at all. This happens routinely when a buffer is released by the garbage
+collector on another thread or by deferred CUDA graph cleanup; previously the
+free could fail or be skipped, leaking the allocation.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2497">#2497</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_handle" title="cuda.core.Buffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a> and <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.from_handle" title="cuda.core.ManagedBuffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ManagedBuffer.from_handle()</span></code></a> accept a
+keyword-only <code class="docutils literal notranslate"><span class="pre">stream</span></code> that records the stream used to order the buffer’s
+deallocation when the memory resource owns the pointer. It defaults to
+<code class="docutils literal notranslate"><span class="pre">default_stream()</span></code>, which requires a CUDA context to be current so the
+free recipe can pin that context.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2497">#2497</a>)</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a> to change the stream that orders
+a buffer’s eventual deallocation without closing the buffer.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2600">#2600</a>)</p></li>
+<li><p>Explicit calls to <code class="docutils literal notranslate"><span class="pre">deallocate()</span></code> on pool-backed memory resources and
+<a class="reference internal" href="../generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a> now propagate errors from the underlying CUDA
+free operation. Previously, these errors could be suppressed. Automatic
+buffer cleanup remains non-raising and reports failures as warnings.</p></li>
 <li><p>Graph node resources are now retained independently across graph clones,
 executable graphs, updates, node deletion, and in-flight launches. Previously,
 modifying a graph definition could release resources still used by an
@@ -817,6 +871,33 @@ default <code class="docutils literal notranslate"><span class="pre">c_int</span
 and <code class="docutils literal notranslate"><span class="pre">argtypes</span></code> (or cast it to the prototype above) before passing it. On
 Windows, both <code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE</span></code> and <code class="docutils literal notranslate"><span class="pre">ctypes.WINFUNCTYPE</span></code> are accepted.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2439">#2439</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.register" title="cuda.core.DeviceMemoryResource.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.register()</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.register" title="cuda.core.PinnedMemoryResource.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PinnedMemoryResource.register()</span></code></a> now raise <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> when the
+memory resource does not have IPC enabled. Previously they dereferenced a
+<code class="docutils literal notranslate"><span class="pre">None</span></code> attribute and terminated the process with a segmentation fault, so
+the call could not be guarded with <code class="docutils literal notranslate"><span class="pre">try</span></code>. A rejected registration no longer
+leaves an entry in the memory resource registry.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2568">#2568</a>)</p></li>
+<li><p>Starting with CUDA 13.4, unconstrained SM-resource discovery through
+<a class="reference internal" href="../generated/cuda.core.SMResource.html#cuda.core.SMResource.split" title="cuda.core.SMResource.split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SMResource.split()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">SMResourceOptions(count=None)</span></code> may return
+every available SM, even when that count is not divisible by the device’s
+<a class="reference internal" href="../generated/cuda.core.SMResource.html#cuda.core.SMResource.coscheduled_alignment" title="cuda.core.SMResource.coscheduled_alignment"><code class="xref py py-attr docutils literal notranslate"><span class="pre">SMResource.coscheduled_alignment</span></code></a>. CUDA 13.1 through 13.3 returned an
+aligned subset for the same request. An omitted or zero
+<code class="docutils literal notranslate"><span class="pre">coscheduled_sm_count</span></code> still selects the driver’s default internally, but
+CUDA 13.4 no longer guarantees that the returned <a class="reference internal" href="../generated/cuda.core.SMResource.html#cuda.core.SMResource.sm_count" title="cuda.core.SMResource.sm_count"><code class="xref py py-attr docutils literal notranslate"><span class="pre">SMResource.sm_count</span></code></a>
+is a multiple of that default. A green context created from the discovered
+group may therefore span the full GPU and leave an empty remainder. Set
+<code class="docutils literal notranslate"><span class="pre">coscheduled_sm_count</span></code> explicitly when an aligned result is required.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2389">#2389</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ProgramOptions(numba_debug=True)</span></code> now works on the NVVM backend. The
+option was emitted to libNVVM as <code class="docutils literal notranslate"><span class="pre">--numba-debug</span></code>, but libNVVM accepts only
+single-dashed options, so every such compile failed with
+<code class="docutils literal notranslate"><span class="pre">NVVM_ERROR_INVALID_OPTION</span></code>. It is now emitted as <code class="docutils literal notranslate"><span class="pre">-numba-debug</span></code>, matching
+what numba-cuda passes on the NVVM path. The NVRTC backend accepts both
+spellings and was unaffected. The option itself is only recognized by newer
+toolkits; libNVVM from CUDA 12.x does not support it under either spelling and
+still reports <code class="docutils literal notranslate"><span class="pre">NVVM_ERROR_INVALID_OPTION</span></code>.
+(closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2570">#2570</a>)</p></li>
 </ul>
 </section>
 <section id="deprecation-notices">
@@ -869,6 +950,7 @@ per the <a class="reference external" href="https://devguide.python.org/versions
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecation-notices">Deprecation Notices</a></li>
 </ul>

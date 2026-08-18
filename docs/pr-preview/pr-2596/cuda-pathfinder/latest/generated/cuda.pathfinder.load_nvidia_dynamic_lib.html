@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d6a008b6"></script>
+    <script src="../_static/documentation_options.js?v=e15882dc"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.6.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.6.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -586,6 +586,14 @@ it, leading to crashes or subtle failures.</p>
 </dd>
 </dl>
 <dl>
+<dt>Windows on ARM (WoA) Note:</dt><dd><p>On Windows, this API aims to load a dynamic library whose architecture
+matches the Python interpreter architecture. For example, x64 Python
+running on an Arm64 machine targets an x64 DLL, while native Arm64 Python
+targets an Arm64 DLL. A library loaded into the Python process must be
+compatible with that process. This differs from
+<code class="docutils literal notranslate"><span class="pre">find_nvidia_binary_utility</span></code>, which targets the native machine
+architecture when selecting architecture-specific executables.</p>
+</dd>
 <dt>Search order:</dt><dd><ol class="arabic" start="0">
 <li><p><strong>Already loaded in the current process</strong></p>
 <ul class="simple">
