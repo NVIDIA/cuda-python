@@ -79,7 +79,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          expected=(moon-lane-build-portable)
+          expected=()
           python_versions=(310 311 312 313 314 314t 315 315t)
           host_platforms=(linux-64 linux-aarch64 win-64)
           for host_platform in "${host_platforms[@]}"; do

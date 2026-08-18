@@ -17,6 +17,7 @@ taskOptions:
   cache: false
   runFromWorkspaceRoot: true
   runInCI: false
+  shell: false
 
 fileGroups:
   package:
@@ -29,48 +30,161 @@ fileGroups:
 
 tasks:
   wheel-pure:
-    command: python
-    args: [-m, ci.tools.build_artifacts, pure-wheel, metapackage]
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        if [[ -L cuda_python/.moon-out || ( -e cuda_python/.moon-out && ! -d cuda_python/.moon-out ) ]]; then
+          echo "refusing to use non-directory output root: cuda_python/.moon-out" >&2
+          exit 1
+        fi
+        if [[ -L cuda_python/.moon-out/wheel-pure || ( -e cuda_python/.moon-out/wheel-pure && ! -d cuda_python/.moon-out/wheel-pure ) ]]; then
+          echo "refusing to replace non-directory output: cuda_python/.moon-out/wheel-pure" >&2
+          exit 1
+        fi
+        mkdir -p cuda_python/.moon-out
+        rm -rf -- cuda_python/.moon-out/wheel-pure
+        mkdir -p cuda_python/.moon-out/wheel-pure
+
+        # CI explicitly opts into the bindings version from its trusted staged
+        # wheel. Ordinary local builds always use the checkout's SCM version,
+        # even when an output from an earlier build is still present.
+        USE_STAGED_BINDINGS_VERSION=$(printenv CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION || true)
+        if [[ -n "$USE_STAGED_BINDINGS_VERSION" && "$USE_STAGED_BINDINGS_VERSION" != "1" ]]; then
+          echo "CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION must be unset or 1" >&2
+          exit 1
+        fi
+        if [[ "$USE_STAGED_BINDINGS_VERSION" == "1" ]]; then
+          shopt -s nullglob
+          set -- cuda_bindings/.moon-out/wheel-current/*.whl
+          [[ $# -eq 1 ]] || {
+            echo "expected one staged cuda.bindings wheel, found $#" >&2
+            exit 1
+          }
+          BINDINGS_VERSION=$(python -c "import email, sys, zipfile; archive = zipfile.ZipFile(sys.argv[1]); names = [name for name in archive.namelist() if name.endswith('.dist-info/METADATA')]; assert len(names) == 1, names; print(email.message_from_bytes(archive.read(names[0]))['Version'])" "$1")
+          export SETUPTOOLS_SCM_PRETEND_VERSION="$BINDINGS_VERSION"
+          export SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_PYTHON="$BINDINGS_VERSION"
+        fi
+        python -m pip wheel --verbose --no-deps \
+          --wheel-dir cuda_python/.moon-out/wheel-pure ./cuda_python
+        shopt -s nullglob
+        set -- cuda_python/.moon-out/wheel-pure/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda-python metapackage wheel, found $#" >&2
+          exit 1
+        }
     inputs:
       - '@group(package)'
       - {project: bindings, group: package}
-      - '/ci/tools/artifacts.py'
-      - '/ci/tools/build_artifacts.py'
-      - '/ci/tools/moon_fingerprint.py'
-      - '/.github/workflows/build-pure-wheel.yml'
+      - '/cuda_bindings/.moon-out/wheel-current/*.whl'
+      - '/.github/workflows/build-wheel.yml'
     outputs:
       - '.moon-out/wheel-pure'
     checks:
-      - check: fingerprint
-        script: python ci/tools/moon_fingerprint.py metapackage portable
+      - &metapackage_scm_fingerprint
+        check: fingerprint
+        script: git describe --always --dirty --tags --long --match 'v*[0-9]*'
         hash: stdout
-    tags: [ci-wheel-pure, runner-build-portable]
+      - &scm_environment_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import hashlib, os;
+          names = sorted(name for name in os.environ
+          if name in ('CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION', 'SOURCE_DATE_EPOCH')
+          or name.startswith(('SETUPTOOLS_SCM_', 'VCS_VERSIONING_')));
+          payload = '\0'.join(name + '=' + os.environ[name] for name in names);
+          print(hashlib.sha256(payload.encode()).hexdigest())"
+        hash: stdout
+      - &python_runtime_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import platform, sysconfig;
+          print(platform.python_implementation(), platform.python_version(),
+          sysconfig.get_config_var('SOABI') or '', sep='\n')"
+        hash: stdout
+      - &python_build_tools_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import importlib.metadata as metadata;
+          names = ('build', 'cibuildwheel', 'packaging', 'pip', 'setuptools', 'setuptools-scm', 'wheel');
+          normalize = lambda value: value.lower().replace('_', '-');
+          versions = {normalize(dist.metadata['Name']): dist.version for dist in metadata.distributions() if dist.metadata['Name']};
+          print(*(name + '=' + versions.get(name, '<not-installed>') for name in names), sep='\n')"
+        hash: stdout
     type: build
     options:
       cache: true
-      cacheKey: wheel-pure-v2
+      cacheKey: wheel-pure-v3
       priority: critical
       runInCI: true
 
   sdist:
-    command: python
-    args: [-m, ci.tools.build_artifacts, sdist, metapackage]
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        if [[ -L cuda_python/.moon-out || ( -e cuda_python/.moon-out && ! -d cuda_python/.moon-out ) ]]; then
+          echo "refusing to use non-directory output root: cuda_python/.moon-out" >&2
+          exit 1
+        fi
+        if [[ -L cuda_python/.moon-out/sdist || ( -e cuda_python/.moon-out/sdist && ! -d cuda_python/.moon-out/sdist ) ]]; then
+          echo "refusing to replace non-directory output: cuda_python/.moon-out/sdist" >&2
+          exit 1
+        fi
+        mkdir -p cuda_python/.moon-out
+        rm -rf -- cuda_python/.moon-out/sdist
+        mkdir -p cuda_python/.moon-out/sdist
+        python -m build --sdist --outdir cuda_python/.moon-out/sdist cuda_python
+        shopt -s nullglob
+        set -- cuda_python/.moon-out/sdist/*.tar.gz
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda-python source distribution, found $#" >&2
+          exit 1
+        }
+        ARCHIVE=$1
+        python -m pip wheel --no-deps \
+          --wheel-dir cuda_python/.moon-out/sdist "$ARCHIVE"
+        set -- cuda_python/.moon-out/sdist/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda-python wheel from source distribution, found $#" >&2
+          exit 1
+        }
     deps:
       - target: bindings:sdist
         cacheStrategy: outputs
     inputs:
       - '@group(package)'
       - {project: bindings, group: package}
-      - '/ci/tools/artifacts.py'
-      - '/ci/tools/build_artifacts.py'
-      - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/test-sdist-linux.yml'
       - '/.github/workflows/test-sdist-windows.yml'
     outputs:
       - '.moon-out/sdist'
     checks:
+      - *metapackage_scm_fingerprint
+      - *scm_environment_fingerprint
+      - *python_runtime_fingerprint
+      - *python_build_tools_fingerprint
       - check: fingerprint
-        script: python ci/tools/moon_fingerprint.py metapackage sdist
+        script: >-
+          python -c "import platform;
+          print(platform.system(), platform.machine(), sep='\n')"
+        hash: stdout
+      - check: fingerprint
+        script: >-
+          python -c "import hashlib, os;
+          names = ('BUILD_CUDA_MAJOR', 'BUILD_CUDA_VER', 'BUILD_PREV_CUDA_MAJOR',
+          'CC', 'CIBW_BEFORE_BUILD_LINUX', 'CIBW_BEFORE_BUILD_WINDOWS',
+          'CIBW_BEFORE_TEST_LINUX', 'CIBW_BUILD', 'CIBW_ENABLE', 'CIBW_TEST_COMMAND',
+          'CL', 'CPLUS_INCLUDE_PATH', 'CXX', 'CUDA_CORE_BUILD_MAJOR', 'CUDA_PATH',
+          'CUDA_PYTHON_COVERAGE', 'CUDA_PYTHON_LANE', 'CUDA_PYTHON_PARALLEL_LEVEL', 'CUDA_VER',
+          'HOST_PLATFORM', 'PY_EXT_SUFFIX', 'PY_VER', 'SCCACHE_CACHE_SIZE',
+          'SCCACHE_DIR', 'SCCACHE_PATH');
+          payload = '\0'.join(name + '=' + os.environ.get(name, '<unset>') for name in names);
+          print(hashlib.sha256(payload.encode()).hexdigest())"
         hash: stdout
     tags: [ci-sdist, runner-sdist-linux, runner-sdist-windows]
     type: build
@@ -82,18 +196,21 @@ tasks:
   test-installed-linux:
     command: bash
     args: [ci/tools/run-tests, metapackage]
+    deps:
+      - target: metapackage:wheel-pure
+        cacheStrategy: outputs
     inputs:
       - '@group(package)'
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
       - {project: core, group: package}
       - '/cuda_core/.moon-out/wheel-merged/*.whl'
+      - '/cuda_python/.moon-out/wheel-pure/*.whl'
       - '/ci/tools/run-tests'
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
       - '/tests/**/*'
       - '/ci/tools/merge_cuda_core_wheels.py'
-      - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
       - '/ci/tools/guess_latest.sh'
       - '/ci/tools/install_gpu_driver.sh'
@@ -108,18 +225,21 @@ tasks:
   test-installed-windows:
     command: bash
     args: [ci/tools/run-tests, metapackage]
+    deps:
+      - target: metapackage:wheel-pure
+        cacheStrategy: outputs
     inputs:
       - '@group(package)'
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
       - {project: core, group: package}
       - '/cuda_core/.moon-out/wheel-merged/*.whl'
+      - '/cuda_python/.moon-out/wheel-pure/*.whl'
       - '/ci/tools/run-tests'
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
       - '/tests/**/*'
       - '/ci/tools/merge_cuda_core_wheels.py'
-      - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
       - '/ci/tools/configure_driver_mode.ps1'
       - '/ci/tools/install_gpu_driver.ps1'
@@ -134,6 +254,9 @@ tasks:
   docs-ci:
     command: bash
     args: [cuda_python/docs/build_docs.sh, moon-ci]
+    deps:
+      - target: metapackage:wheel-pure
+        cacheStrategy: outputs
     env:
       CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
     inputs:
@@ -142,6 +265,7 @@ tasks:
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
       - {project: core, group: package}
+      - '/cuda_python/.moon-out/wheel-pure/*.whl'
       - '/cuda_python/docs/environment-docs.yml'
       - '/.github/workflows/build-docs.yml'
     outputs:

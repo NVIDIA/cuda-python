@@ -45,7 +45,6 @@ jobs:
       moon-base-run-id: ${{ steps.baseline.outputs.moon-base-run-id }}
       moon-base-sha: ${{ steps.baseline.outputs.moon-base-sha }}
       moon-force-all: ${{ steps.lanes.outputs.force-all }}
-      build-portable: ${{ steps.lanes.outputs.build-portable }}
       build-linux-64: ${{ steps.lanes.outputs.build-linux-64 }}
       build-linux-aarch64: ${{ steps.lanes.outputs.build-linux-aarch64 }}
       build-windows: ${{ steps.lanes.outputs.build-windows }}
@@ -154,7 +153,6 @@ jobs:
               )"
 
               expected=(
-                moon-lane-build-portable
                 moon-lane-sdist-linux-64
                 moon-lane-sdist-win-64
               )
@@ -251,7 +249,6 @@ jobs:
           echo "force-all=${force_all}" >> "$GITHUB_OUTPUT"
 
           lanes=(
-            build-portable:runner-build-portable
             build-linux-64:runner-build-linux-64
             build-linux-aarch64:runner-build-linux-aarch64
             build-windows:runner-build-windows
@@ -375,39 +372,16 @@ jobs:
           --downstream none
           ${{ fromJSON(needs.gate.outputs.moon-force-all) && '--force' || '' }}
 
-  build-portable:
-    name: Build portable wheels
-    needs:
-      - gate
-    if: >-
-      ${{ github.repository_owner == 'nvidia' &&
-          !fromJSON(needs.gate.outputs.skip) &&
-          fromJSON(needs.gate.outputs.build-portable) &&
-          (!fromJSON(needs.gate.outputs.doc-only) ||
-           fromJSON(needs.gate.outputs.moon-force-all)) }}
-    permissions:
-      actions: read
-      contents: read
-    uses: ./.github/workflows/build-pure-wheel.yml
-    with:
-      moon-base: ${{ needs.gate.outputs.moon-base }}
-      baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
-      force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
-
   # Native builds remain split by platform so their tests can start as soon as
   # the corresponding platform finishes. Each reusable workflow owns its
-  # eight-version Python matrix and per-row Moon lane bundle.
+  # eight-version Python matrix and bundles the cheap pathfinder wheel with
+  # each row; the Linux/Python 3.12 row also publishes the metapackage.
   build-linux-64:
     name: Build linux-64, CUDA ${{ needs.gate.outputs.cuda-build-ver }}
     needs:
       - gate
-      - build-portable
     if: >-
-      ${{ always() &&
-          github.repository_owner == 'nvidia' &&
-          needs.gate.result == 'success' &&
-          (needs.build-portable.result == 'success' ||
-           needs.build-portable.result == 'skipped') &&
+      ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
           fromJSON(needs.gate.outputs.build-linux-64) &&
           (!fromJSON(needs.gate.outputs.doc-only) ||
@@ -421,7 +395,6 @@ jobs:
       cuda-version: ${{ needs.gate.outputs.cuda-build-ver }}
       prev-cuda-version: ${{ needs.gate.outputs.cuda-prev-build-ver }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
-      portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
@@ -429,13 +402,8 @@ jobs:
     name: Build linux-aarch64, CUDA ${{ needs.gate.outputs.cuda-build-ver }}
     needs:
       - gate
-      - build-portable
     if: >-
-      ${{ always() &&
-          github.repository_owner == 'nvidia' &&
-          needs.gate.result == 'success' &&
-          (needs.build-portable.result == 'success' ||
-           needs.build-portable.result == 'skipped') &&
+      ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
           !fromJSON(needs.gate.outputs.doc-only) &&
           fromJSON(needs.gate.outputs.build-linux-aarch64) }}
@@ -448,7 +416,6 @@ jobs:
       cuda-version: ${{ needs.gate.outputs.cuda-build-ver }}
       prev-cuda-version: ${{ needs.gate.outputs.cuda-prev-build-ver }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
-      portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
@@ -456,13 +423,8 @@ jobs:
     name: Build win-64, CUDA ${{ needs.gate.outputs.cuda-build-ver }}
     needs:
       - gate
-      - build-portable
     if: >-
-      ${{ always() &&
-          github.repository_owner == 'nvidia' &&
-          needs.gate.result == 'success' &&
-          (needs.build-portable.result == 'success' ||
-           needs.build-portable.result == 'skipped') &&
+      ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
           !fromJSON(needs.gate.outputs.doc-only) &&
           fromJSON(needs.gate.outputs.build-windows) }}
@@ -475,7 +437,6 @@ jobs:
       cuda-version: ${{ needs.gate.outputs.cuda-build-ver }}
       prev-cuda-version: ${{ needs.gate.outputs.cuda-prev-build-ver }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
-      portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
@@ -525,14 +486,11 @@ jobs:
     name: Test linux-64
     needs:
       - gate
-      - build-portable
       - build-linux-64
     if: >-
       ${{ always() &&
           github.repository_owner == 'nvidia' &&
           needs.gate.result == 'success' &&
-          (needs.build-portable.result == 'success' ||
-           needs.build-portable.result == 'skipped') &&
           (needs.build-linux-64.result == 'success' ||
            needs.build-linux-64.result == 'skipped') &&
           !fromJSON(needs.gate.outputs.skip) &&
@@ -550,7 +508,6 @@ jobs:
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       run-id: ${{ needs.build-linux-64.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       sha: ${{ needs.build-linux-64.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
-      portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
@@ -558,14 +515,11 @@ jobs:
     name: Test linux-aarch64
     needs:
       - gate
-      - build-portable
       - build-linux-aarch64
     if: >-
       ${{ always() &&
           github.repository_owner == 'nvidia' &&
           needs.gate.result == 'success' &&
-          (needs.build-portable.result == 'success' ||
-           needs.build-portable.result == 'skipped') &&
           (needs.build-linux-aarch64.result == 'success' ||
            needs.build-linux-aarch64.result == 'skipped') &&
           !fromJSON(needs.gate.outputs.skip) &&
@@ -583,7 +537,6 @@ jobs:
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       run-id: ${{ needs.build-linux-aarch64.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       sha: ${{ needs.build-linux-aarch64.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
-      portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
@@ -591,14 +544,11 @@ jobs:
     name: Test win-64
     needs:
       - gate
-      - build-portable
       - build-windows
     if: >-
       ${{ always() &&
           github.repository_owner == 'nvidia' &&
           needs.gate.result == 'success' &&
-          (needs.build-portable.result == 'success' ||
-           needs.build-portable.result == 'skipped') &&
           (needs.build-windows.result == 'success' ||
            needs.build-windows.result == 'skipped') &&
           !fromJSON(needs.gate.outputs.skip) &&
@@ -616,7 +566,6 @@ jobs:
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       run-id: ${{ needs.build-windows.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       sha: ${{ needs.build-windows.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
-      portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
@@ -624,14 +573,11 @@ jobs:
     name: Docs
     needs:
       - gate
-      - build-portable
       - build-linux-64
     if: >-
       ${{ always() &&
           github.repository_owner == 'nvidia' &&
           needs.gate.result == 'success' &&
-          (needs.build-portable.result == 'success' ||
-           needs.build-portable.result == 'skipped') &&
           (needs.build-linux-64.result == 'success' ||
            needs.build-linux-64.result == 'skipped') &&
           !fromJSON(needs.gate.outputs.skip) &&
@@ -646,7 +592,6 @@ jobs:
       is-release: ${{ github.ref_type == 'tag' }}
       run-id: ${{ needs.build-linux-64.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       sha: ${{ github.sha }}
-      portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
 
   precommit-windows:
     name: Pre-commit on Windows
@@ -684,7 +629,6 @@ jobs:
     needs:
       - gate
       - quality
-      - build-portable
       - build-linux-64
       - build-linux-aarch64
       - build-windows
@@ -730,12 +674,10 @@ jobs:
           doc_only="${{ needs.gate.outputs.doc-only }}"
           force_all="${{ needs.gate.outputs.moon-force-all }}"
 
-          portable=false
           linux_64=false
           linux_aarch64=false
           windows=false
           if [[ "${doc_only}" != "true" || "${force_all}" == "true" ]]; then
-            portable="${{ needs.gate.outputs.build-portable }}"
             linux_64="${{ needs.gate.outputs.build-linux-64 }}"
           fi
           if [[ "${doc_only}" != "true" ]]; then
@@ -743,7 +685,6 @@ jobs:
             windows="${{ needs.gate.outputs.build-windows }}"
           fi
 
-          check_result build-portable "$(expected_for "${portable}")" "${{ needs.build-portable.result }}"
           check_result build-linux-64 "$(expected_for "${linux_64}")" "${{ needs.build-linux-64.result }}"
           check_result build-linux-aarch64 "$(expected_for "${linux_aarch64}")" "${{ needs.build-linux-aarch64.result }}"
           check_result build-windows "$(expected_for "${windows}")" "${{ needs.build-windows.result }}"

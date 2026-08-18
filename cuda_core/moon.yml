@@ -20,6 +20,7 @@ taskOptions:
   cache: false
   runFromWorkspaceRoot: true
   runInCI: false
+  shell: false
 
 fileGroups:
   package:
@@ -45,8 +46,110 @@ fileGroups:
 
 tasks:
   wheel-current:
-    command: python
-    args: [-m, ci.tools.build_artifacts, native-wheel, core, --lane, current]
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        reset_directory() {
+          local DIRECTORY="$1"
+          local ROOT
+          ROOT=$(dirname -- "$DIRECTORY")
+          if [[ -L "$ROOT" || ( -e "$ROOT" && ! -d "$ROOT" ) ]]; then
+            echo "refusing to use non-directory output root: $ROOT" >&2
+            exit 1
+          fi
+          if [[ -L "$DIRECTORY" || ( -e "$DIRECTORY" && ! -d "$DIRECTORY" ) ]]; then
+            echo "refusing to replace non-directory output: $DIRECTORY" >&2
+            exit 1
+          fi
+          mkdir -p "$ROOT"
+          rm -rf -- "$DIRECTORY"
+          mkdir -p "$DIRECTORY"
+        }
+
+        CUDA_MAJOR=$(printenv BUILD_CUDA_MAJOR || true)
+        if [[ -z "$CUDA_MAJOR" ]]; then
+          CUDA_VERSION=$(printenv BUILD_CUDA_VER || true)
+          if [[ -z "$CUDA_VERSION" ]]; then
+            CUDA_VERSION=$(printenv CUDA_VER || true)
+          fi
+          CUDA_MAJOR=$(cut -d . -f 1 <<< "$CUDA_VERSION")
+        fi
+        if [[ -z "$CUDA_MAJOR" ]] && command -v nvcc >/dev/null; then
+          CUDA_MAJOR=$(nvcc --version | sed -n 's/.*release \([0-9][0-9]*\).*/\1/p' | head -n 1)
+        fi
+        [[ "$CUDA_MAJOR" =~ ^[0-9]+$ ]] || {
+          echo "set BUILD_CUDA_MAJOR/BUILD_CUDA_VER or activate a toolkit with nvcc" >&2
+          exit 1
+        }
+        OUTPUT=cuda_core/.moon-out/wheel-current
+        CONSTRAINTS=cuda_core/.moon-out/constraints-current
+        reset_directory "$OUTPUT"
+        reset_directory "$CONSTRAINTS"
+
+        shopt -s nullglob
+        set -- cuda_pathfinder/.moon-out/wheel-pure/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda.pathfinder wheel, found $#" >&2
+          exit 1
+        }
+        PATHFINDER_WHEEL=$1
+        set -- cuda_bindings/.moon-out/wheel-current/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one current cuda.bindings wheel, found $#" >&2
+          exit 1
+        }
+        BINDINGS_WHEEL=$1
+
+        CONSTRAINT_FILE="$CONSTRAINTS/build.txt"
+        HOST_PLATFORM_RESOLVED=$(printenv HOST_PLATFORM || true)
+        if [[ -z "$HOST_PLATFORM_RESOLVED" ]]; then
+          HOST_PLATFORM_RESOLVED=$(python -c "import platform; print('win-64' if platform.system() == 'Windows' else 'linux-' + platform.machine())")
+        fi
+        if [[ "$HOST_PLATFORM_RESOLVED" == win* ]]; then
+          PATHFINDER_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$PATHFINDER_WHEEL")
+          BINDINGS_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$BINDINGS_WHEEL")
+          CONSTRAINT_HOST=$(cygpath -w "$(pwd)/$CONSTRAINT_FILE")
+          {
+            printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI"
+            printf 'cuda-bindings @ %s\n' "$BINDINGS_URI"
+          } > "$CONSTRAINT_FILE"
+          CIBW_ENVIRONMENT_BASE=$(printenv CIBW_ENVIRONMENT_WINDOWS || true)
+          export CIBW_ENVIRONMENT_WINDOWS="$CIBW_ENVIRONMENT_BASE PIP_BUILD_CONSTRAINT=\"$CONSTRAINT_HOST\" PIP_CONSTRAINT=\"$CONSTRAINT_HOST\" CUDA_CORE_BUILD_MAJOR=$CUDA_MAJOR"
+        else
+          PATHFINDER_URI=$(python -c "from pathlib import Path; import sys; print(Path('/host' + Path(sys.argv[1]).resolve().as_posix()).as_uri())" "$PATHFINDER_WHEEL")
+          BINDINGS_URI=$(python -c "from pathlib import Path; import sys; print(Path('/host' + Path(sys.argv[1]).resolve().as_posix()).as_uri())" "$BINDINGS_WHEEL")
+          CONSTRAINT_HOST=$(realpath "$CONSTRAINT_FILE")
+          CONSTRAINT_CONTAINER="/host$CONSTRAINT_HOST"
+          {
+            printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI"
+            printf 'cuda-bindings @ %s\n' "$BINDINGS_URI"
+          } > "$CONSTRAINT_FILE"
+          CIBW_ENVIRONMENT_BASE=$(printenv CIBW_ENVIRONMENT_LINUX || true)
+          export CIBW_ENVIRONMENT_LINUX="$CIBW_ENVIRONMENT_BASE PIP_BUILD_CONSTRAINT=\"$CONSTRAINT_CONTAINER\" PIP_CONSTRAINT=\"$CONSTRAINT_CONTAINER\" CUDA_CORE_BUILD_MAJOR=$CUDA_MAJOR"
+        fi
+        export PIP_BUILD_CONSTRAINT="$CONSTRAINT_HOST"
+        export PIP_CONSTRAINT="$CONSTRAINT_HOST"
+        export CUDA_CORE_BUILD_MAJOR="$CUDA_MAJOR"
+
+        python -m cibuildwheel --output-dir "$OUTPUT" cuda_core
+        if [[ "$HOST_PLATFORM_RESOLVED" != win* ]] && find "$OUTPUT" ! -user "$(id -u)" -print -quit | grep -q .; then
+          command -v sudo >/dev/null || {
+            echo "cibuildwheel output is not owned by this user and sudo was not found: $OUTPUT" >&2
+            exit 1
+          }
+          sudo chown -R "$(id -u):$(id -g)" "$OUTPUT"
+        fi
+        set -- "$OUTPUT"/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one current cuda.core wheel, found $#" >&2
+          exit 1
+        }
+        WHEEL=$1
+        WHEEL_WITHOUT_SUFFIX=$(printf '%s\n' "$WHEEL" | sed 's/\.whl$//')
+        mv -- "$WHEEL" "$WHEEL_WITHOUT_SUFFIX.cu$CUDA_MAJOR.whl"
     deps:
       - target: bindings:wheel-current
         cacheStrategy: outputs
@@ -63,19 +166,62 @@ tasks:
       - {project: bindings, group: package}
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
       - '/cuda_bindings/.moon-out/wheel-current/*.whl'
-      - '/ci/tools/artifacts.py'
-      - '/ci/tools/build_artifacts.py'
-      - '/ci/tools/moon_fingerprint.py'
       - '/ci/tools/env-vars'
       - '/ci/tools/merge_cuda_core_wheels.py'
       - '/ci/versions.yml'
-      - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
     outputs:
       - '.moon-out/wheel-current'
     checks:
-      - check: fingerprint
-        script: python ci/tools/moon_fingerprint.py core native
+      - &core_scm_fingerprint
+        check: fingerprint
+        script: git describe --always --dirty --tags --long --match 'cuda-core-v*[0-9]*'
+        hash: stdout
+      - &scm_environment_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import hashlib, os;
+          names = sorted(name for name in os.environ
+          if name == 'SOURCE_DATE_EPOCH' or name.startswith(('SETUPTOOLS_SCM_', 'VCS_VERSIONING_')));
+          payload = '\0'.join(name + '=' + os.environ[name] for name in names);
+          print(hashlib.sha256(payload.encode()).hexdigest())"
+        hash: stdout
+      - &native_environment_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import hashlib, os, re;
+          names = {'BUILD_CUDA_MAJOR', 'BUILD_CUDA_VER', 'BUILD_PREV_CUDA_MAJOR',
+          'CC',
+          'CL', 'CPLUS_INCLUDE_PATH', 'CXX', 'CUDA_CORE_BUILD_MAJOR', 'CUDA_PATH',
+          'CUDA_PYTHON_COVERAGE', 'CUDA_PYTHON_LANE', 'CUDA_PYTHON_PARALLEL_LEVEL', 'CUDA_VER',
+          'HOST_PLATFORM', 'PY_EXT_SUFFIX', 'PY_VER', 'SCCACHE_CACHE_SIZE',
+          'SCCACHE_DIR', 'SCCACHE_PATH'};
+          names.update(name for name in os.environ if name.startswith('CIBW_'));
+          redact = lambda value: re.sub(r'(?i)\\bACTIONS_[A-Z0-9_]+=(?:\"[^\"]*\"|\\S+)', 'ACTIONS_VALUE=<redacted>', value);
+          payload = '\0'.join(name + '=' + redact(os.environ.get(name, '<unset>')) for name in sorted(names));
+          print(hashlib.sha256(payload.encode()).hexdigest())"
+        hash: stdout
+      - &python_runtime_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import platform, sysconfig;
+          print(platform.python_implementation(), platform.python_version(),
+          sysconfig.get_config_var('SOABI') or '', sep='\n')"
+        hash: stdout
+      - &python_platform_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import platform;
+          print(platform.system(), platform.machine(), sep='\n')"
+        hash: stdout
+      - &python_build_tools_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import importlib.metadata as metadata;
+          names = ('build', 'cibuildwheel', 'packaging', 'pip', 'setuptools', 'setuptools-scm', 'wheel');
+          normalize = lambda value: value.lower().replace('_', '-');
+          versions = {normalize(dist.metadata['Name']): dist.version for dist in metadata.distributions() if dist.metadata['Name']};
+          print(*(name + '=' + versions.get(name, '<not-installed>') for name in names), sep='\n')"
         hash: stdout
     tags:
       - ci-wheel-current
@@ -90,8 +236,103 @@ tasks:
       runInCI: true
 
   wheel-previous:
-    command: python
-    args: [-m, ci.tools.build_artifacts, native-wheel, core, --lane, previous]
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        reset_directory() {
+          local DIRECTORY="$1"
+          local ROOT
+          ROOT=$(dirname -- "$DIRECTORY")
+          if [[ -L "$ROOT" || ( -e "$ROOT" && ! -d "$ROOT" ) ]]; then
+            echo "refusing to use non-directory output root: $ROOT" >&2
+            exit 1
+          fi
+          if [[ -L "$DIRECTORY" || ( -e "$DIRECTORY" && ! -d "$DIRECTORY" ) ]]; then
+            echo "refusing to replace non-directory output: $DIRECTORY" >&2
+            exit 1
+          fi
+          mkdir -p "$ROOT"
+          rm -rf -- "$DIRECTORY"
+          mkdir -p "$DIRECTORY"
+        }
+
+        CUDA_MAJOR=$(printenv BUILD_PREV_CUDA_MAJOR || true)
+        [[ "$CUDA_MAJOR" =~ ^[0-9]+$ ]] || {
+          echo "BUILD_PREV_CUDA_MAJOR must be a numeric CUDA major version" >&2
+          exit 1
+        }
+        OUTPUT=cuda_core/.moon-out/wheel-previous
+        CONSTRAINTS=cuda_core/.moon-out/constraints-previous
+        reset_directory "$OUTPUT"
+        reset_directory "$CONSTRAINTS"
+
+        shopt -s nullglob
+        set -- cuda_pathfinder/.moon-out/wheel-pure/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda.pathfinder wheel, found $#" >&2
+          exit 1
+        }
+        PATHFINDER_WHEEL=$1
+        set -- cuda_bindings/.moon-out/wheel-previous/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one previous cuda.bindings wheel, found $#" >&2
+          exit 1
+        }
+        BINDINGS_WHEEL=$1
+
+        CONSTRAINT_FILE="$CONSTRAINTS/build.txt"
+        HOST_PLATFORM_RESOLVED=$(printenv HOST_PLATFORM || true)
+        if [[ -z "$HOST_PLATFORM_RESOLVED" ]]; then
+          HOST_PLATFORM_RESOLVED=$(python -c "import platform; print('win-64' if platform.system() == 'Windows' else 'linux-' + platform.machine())")
+        fi
+        if [[ "$HOST_PLATFORM_RESOLVED" == win* ]]; then
+          PATHFINDER_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$PATHFINDER_WHEEL")
+          BINDINGS_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$BINDINGS_WHEEL")
+          CONSTRAINT_HOST=$(cygpath -w "$(pwd)/$CONSTRAINT_FILE")
+          {
+            printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI"
+            printf 'cuda-bindings @ %s\n' "$BINDINGS_URI"
+          } > "$CONSTRAINT_FILE"
+          CIBW_ENVIRONMENT_BASE=$(printenv CIBW_ENVIRONMENT_WINDOWS || true)
+          export CIBW_ENVIRONMENT_WINDOWS="$CIBW_ENVIRONMENT_BASE PIP_BUILD_CONSTRAINT=\"$CONSTRAINT_HOST\" PIP_CONSTRAINT=\"$CONSTRAINT_HOST\" CUDA_CORE_BUILD_MAJOR=$CUDA_MAJOR"
+        else
+          PATHFINDER_URI=$(python -c "from pathlib import Path; import sys; print(Path('/host' + Path(sys.argv[1]).resolve().as_posix()).as_uri())" "$PATHFINDER_WHEEL")
+          BINDINGS_URI=$(python -c "from pathlib import Path; import sys; print(Path('/host' + Path(sys.argv[1]).resolve().as_posix()).as_uri())" "$BINDINGS_WHEEL")
+          CONSTRAINT_HOST=$(realpath "$CONSTRAINT_FILE")
+          CONSTRAINT_CONTAINER="/host$CONSTRAINT_HOST"
+          {
+            printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI"
+            printf 'cuda-bindings @ %s\n' "$BINDINGS_URI"
+          } > "$CONSTRAINT_FILE"
+          CIBW_ENVIRONMENT_BASE=$(printenv CIBW_ENVIRONMENT_LINUX || true)
+          export CIBW_ENVIRONMENT_LINUX="$CIBW_ENVIRONMENT_BASE PIP_BUILD_CONSTRAINT=\"$CONSTRAINT_CONTAINER\" PIP_CONSTRAINT=\"$CONSTRAINT_CONTAINER\" CUDA_CORE_BUILD_MAJOR=$CUDA_MAJOR"
+        fi
+        export PIP_BUILD_CONSTRAINT="$CONSTRAINT_HOST"
+        export PIP_CONSTRAINT="$CONSTRAINT_HOST"
+        export CUDA_CORE_BUILD_MAJOR="$CUDA_MAJOR"
+
+        python -m cibuildwheel --output-dir "$OUTPUT" cuda_core
+        if [[ "$HOST_PLATFORM_RESOLVED" != win* ]] && find "$OUTPUT" ! -user "$(id -u)" -print -quit | grep -q .; then
+          command -v sudo >/dev/null || {
+            echo "cibuildwheel output is not owned by this user and sudo was not found: $OUTPUT" >&2
+            exit 1
+          }
+          sudo chown -R "$(id -u):$(id -g)" "$OUTPUT"
+        fi
+        set -- "$OUTPUT"/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one previous cuda.core wheel, found $#" >&2
+          exit 1
+        }
+        WHEEL=$1
+        WHEEL_WITHOUT_SUFFIX=$(printf '%s\n' "$WHEEL" | sed 's/\.whl$//')
+        mv -- "$WHEEL" "$WHEEL_WITHOUT_SUFFIX.cu$CUDA_MAJOR.whl"
+    deps:
+      - target: pathfinder:wheel-pure
+        cacheStrategy: outputs
     env:
       BUILD_PREV_CUDA_MAJOR: '${BUILD_PREV_CUDA_MAJOR}'
       CIBW_BUILD: '${CIBW_BUILD}'
@@ -104,19 +345,18 @@ tasks:
       - {project: bindings, group: package}
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
       - '/cuda_bindings/.moon-out/wheel-previous/*.whl'
-      - '/ci/tools/artifacts.py'
-      - '/ci/tools/build_artifacts.py'
-      - '/ci/tools/moon_fingerprint.py'
       - '/ci/tools/env-vars'
       - '/ci/versions.yml'
-      - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
     outputs:
       - '.moon-out/wheel-previous'
     checks:
-      - check: fingerprint
-        script: python ci/tools/moon_fingerprint.py core previous
-        hash: stdout
+      - *core_scm_fingerprint
+      - *scm_environment_fingerprint
+      - *native_environment_fingerprint
+      - *python_runtime_fingerprint
+      - *python_platform_fingerprint
+      - *python_build_tools_fingerprint
     tags:
       - runner-build-linux-64
       - runner-build-linux-aarch64
@@ -148,16 +388,17 @@ tasks:
       - {project: bindings, group: package}
       - '/cuda_core/.moon-out/wheel-current/*.whl'
       - '/cuda_core/.moon-out/wheel-previous/*.whl'
-      - '/ci/tools/moon_fingerprint.py'
       - '/ci/tools/merge_cuda_core_wheels.py'
-      - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
     outputs:
       - '.moon-out/wheel-merged'
     checks:
-      - check: fingerprint
-        script: python ci/tools/moon_fingerprint.py core native
-        hash: stdout
+      - *core_scm_fingerprint
+      - *scm_environment_fingerprint
+      - *native_environment_fingerprint
+      - *python_runtime_fingerprint
+      - *python_platform_fingerprint
+      - *python_build_tools_fingerprint
     tags:
       - runner-build-linux-64
       - runner-build-linux-aarch64
@@ -169,8 +410,89 @@ tasks:
       runInCI: true
 
   sdist:
-    command: python
-    args: [-m, ci.tools.build_artifacts, sdist, core]
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        CUDA_MAJOR=$(printenv BUILD_CUDA_MAJOR || true)
+        if [[ -z "$CUDA_MAJOR" ]]; then
+          CUDA_VERSION=$(printenv BUILD_CUDA_VER || true)
+          if [[ -z "$CUDA_VERSION" ]]; then
+            CUDA_VERSION=$(printenv CUDA_VER || true)
+          fi
+          CUDA_MAJOR=$(cut -d . -f 1 <<< "$CUDA_VERSION")
+        fi
+        if [[ -z "$CUDA_MAJOR" ]] && command -v nvcc >/dev/null; then
+          CUDA_MAJOR=$(nvcc --version | sed -n 's/.*release \([0-9][0-9]*\).*/\1/p' | head -n 1)
+        fi
+        [[ "$CUDA_MAJOR" =~ ^[0-9]+$ ]] || {
+          echo "set BUILD_CUDA_MAJOR/BUILD_CUDA_VER or activate a toolkit with nvcc" >&2
+          exit 1
+        }
+        if [[ -L cuda_core/.moon-out || ( -e cuda_core/.moon-out && ! -d cuda_core/.moon-out ) ]]; then
+          echo "refusing to use non-directory output root: cuda_core/.moon-out" >&2
+          exit 1
+        fi
+        if [[ -L cuda_core/.moon-out/sdist || ( -e cuda_core/.moon-out/sdist && ! -d cuda_core/.moon-out/sdist ) ]]; then
+          echo "refusing to replace non-directory output: cuda_core/.moon-out/sdist" >&2
+          exit 1
+        fi
+        mkdir -p cuda_core/.moon-out
+        rm -rf -- cuda_core/.moon-out/sdist
+        mkdir -p cuda_core/.moon-out/sdist
+
+        shopt -s nullglob
+        set -- cuda_pathfinder/.moon-out/sdist/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda.pathfinder sdist wheel, found $#" >&2
+          exit 1
+        }
+        PATHFINDER_WHEEL=$1
+        set -- cuda_bindings/.moon-out/sdist/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda.bindings sdist wheel, found $#" >&2
+          exit 1
+        }
+        BINDINGS_WHEEL=$1
+        CONSTRAINT_FILE=$(mktemp)
+        trap 'rm -f "$CONSTRAINT_FILE"' EXIT
+        HOST_PLATFORM_RESOLVED=$(printenv HOST_PLATFORM || true)
+        if [[ -z "$HOST_PLATFORM_RESOLVED" ]]; then
+          HOST_PLATFORM_RESOLVED=$(python -c "import platform; print('win-64' if platform.system() == 'Windows' else 'linux-' + platform.machine())")
+        fi
+        if [[ "$HOST_PLATFORM_RESOLVED" == win* ]]; then
+          PATHFINDER_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$PATHFINDER_WHEEL")
+          BINDINGS_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$BINDINGS_WHEEL")
+          CONSTRAINT_HOST=$(cygpath -w "$CONSTRAINT_FILE")
+        else
+          PATHFINDER_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$PATHFINDER_WHEEL")
+          BINDINGS_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$BINDINGS_WHEEL")
+          CONSTRAINT_HOST=$(realpath "$CONSTRAINT_FILE")
+        fi
+        {
+          printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI"
+          printf 'cuda-bindings @ %s\n' "$BINDINGS_URI"
+        } > "$CONSTRAINT_FILE"
+        export PIP_BUILD_CONSTRAINT="$CONSTRAINT_HOST"
+        export PIP_CONSTRAINT="$CONSTRAINT_HOST"
+        export CUDA_CORE_BUILD_MAJOR="$CUDA_MAJOR"
+
+        python -m build --sdist --outdir cuda_core/.moon-out/sdist cuda_core
+        set -- cuda_core/.moon-out/sdist/*.tar.gz
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda.core source distribution, found $#" >&2
+          exit 1
+        }
+        ARCHIVE=$1
+        python -m pip wheel --no-deps \
+          --wheel-dir cuda_core/.moon-out/sdist "$ARCHIVE"
+        set -- cuda_core/.moon-out/sdist/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda.core wheel from source distribution, found $#" >&2
+          exit 1
+        }
     deps:
       - target: pathfinder:sdist
         cacheStrategy: outputs
@@ -186,17 +508,17 @@ tasks:
       - '@group(package)'
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
-      - '/ci/tools/artifacts.py'
-      - '/ci/tools/build_artifacts.py'
-      - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/test-sdist-linux.yml'
       - '/.github/workflows/test-sdist-windows.yml'
     outputs:
       - '.moon-out/sdist'
     checks:
-      - check: fingerprint
-        script: python ci/tools/moon_fingerprint.py core sdist
-        hash: stdout
+      - *core_scm_fingerprint
+      - *scm_environment_fingerprint
+      - *native_environment_fingerprint
+      - *python_runtime_fingerprint
+      - *python_platform_fingerprint
+      - *python_build_tools_fingerprint
     tags: [ci-sdist, runner-sdist-linux, runner-sdist-windows]
     type: build
     options:
@@ -220,14 +542,37 @@ tasks:
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
       - '/cuda_bindings/.moon-out/wheel-current/*.whl'
       - '/cuda_core/.moon-out/wheel-current/*.whl'
-      - '/ci/tools/moon_fingerprint.py'
-      - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
     outputs:
       - '.moon-out/cython-tests'
     checks:
-      - check: fingerprint
-        script: python ci/tools/moon_fingerprint.py core test-assets
+      - *core_scm_fingerprint
+      - *scm_environment_fingerprint
+      - *native_environment_fingerprint
+      - *python_runtime_fingerprint
+      - *python_platform_fingerprint
+      - *python_build_tools_fingerprint
+      - &python_test_tools_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import importlib.metadata as metadata;
+          names = ('cython', 'numpy');
+          normalize = lambda value: value.lower().replace('_', '-');
+          versions = {normalize(dist.metadata['Name']): dist.version for dist in metadata.distributions() if dist.metadata['Name']};
+          print(*(name + '=' + versions.get(name, '<not-installed>') for name in names), sep='\n')"
+        hash: stdout
+      - &native_tools_fingerprint
+        check: fingerprint
+        script: >-
+          python -c "import os, shlex, shutil, subprocess, sysconfig;
+          commands = {'cc', 'c++', 'cl', 'nvcc'};
+          configured = (os.environ.get('CC') or sysconfig.get_config_var('CC') or '',
+          os.environ.get('CXX') or sysconfig.get_config_var('CXX') or '');
+          commands.update(token for value in configured for token in shlex.split(value, posix=os.name != 'nt') if token and not token.startswith('-'));
+          print(*(command + '=' + str(result.returncode) + '\n' + result.stdout.strip()
+          for command in sorted(commands) if (path := shutil.which(command))
+          for result in (subprocess.run([path, '--version'], check=False, stdout=subprocess.PIPE,
+          stderr=subprocess.STDOUT, text=True, timeout=10),)), sep='\n')"
         hash: stdout
     tags:
       - ci-build-cython-assets
@@ -256,14 +601,18 @@ tasks:
       - {project: bindings, group: package}
       - 'tests/test_binaries/build_test_binaries.py'
       - 'tests/test_binaries/saxpy.cu'
-      - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/build-wheel.yml'
     outputs:
       - '.moon-out/test-binaries'
     checks:
-      - check: fingerprint
-        script: python ci/tools/moon_fingerprint.py core test-assets
-        hash: stdout
+      - *core_scm_fingerprint
+      - *scm_environment_fingerprint
+      - *native_environment_fingerprint
+      - *python_runtime_fingerprint
+      - *python_platform_fingerprint
+      - *python_build_tools_fingerprint
+      - *python_test_tools_fingerprint
+      - *native_tools_fingerprint
     tags:
       - runner-build-linux-64
       - runner-build-linux-aarch64
@@ -276,8 +625,18 @@ tasks:
       runInCI: true
 
   test:
-    command: python
-    args: [ci/tools/run_pixi_test.py, core]
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        PIXI_ENVIRONMENT=$(printenv PIXI_ENVIRONMENT_NAME || true)
+        if [[ -n "$PIXI_ENVIRONMENT" ]]; then
+          exec pixi run --manifest-path cuda_core/pixi.toml \
+            --environment "$PIXI_ENVIRONMENT" test
+        fi
+        exec pixi run --manifest-path cuda_core/pixi.toml test
     inputs:
       - '@group(package)'
       - '@group(tests)'
@@ -287,7 +646,6 @@ tasks:
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
       - '/tests/**/*'
-      - '/ci/tools/run_pixi_test.py'
     type: test
 
   test-installed-linux:
@@ -304,7 +662,6 @@ tasks:
       - '/ci/tools/env-vars'
       - '/tests/**/*'
       - '/ci/tools/merge_cuda_core_wheels.py'
-      - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
       - '/ci/tools/guess_latest.sh'
       - '/ci/tools/install_gpu_driver.sh'
@@ -331,7 +688,6 @@ tasks:
       - '/ci/tools/env-vars'
       - '/tests/**/*'
       - '/ci/tools/merge_cuda_core_wheels.py'
-      - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
       - '/ci/tools/configure_driver_mode.ps1'
       - '/ci/tools/install_gpu_driver.ps1'

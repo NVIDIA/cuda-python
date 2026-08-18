@@ -13,11 +13,44 @@ taskOptions:
   cache: false
   runFromWorkspaceRoot: true
   runInCI: false
+  shell: false
 
 tasks:
+  # GitHub Actions runs this after changing to the test Python/toolkit phase.
+  # The canonical wheel inputs are therefore staged by the preceding build
+  # phase instead of being executable task dependencies in this project.
   prepare-test-assets:
-    command: python
-    args: [-m, ci.tools.prepare_test_assets]
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        shopt -s nullglob
+        set -- cuda_pathfinder/.moon-out/wheel-pure/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda.pathfinder wheel, found $#" >&2
+          exit 1
+        }
+        PATHFINDER_WHEEL=$1
+        set -- cuda_bindings/.moon-out/wheel-current/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda.bindings wheel, found $#" >&2
+          exit 1
+        }
+        BINDINGS_WHEEL=$1
+        set -- cuda_core/.moon-out/wheel-current/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one cuda.core wheel, found $#" >&2
+          exit 1
+        }
+        CORE_WHEEL=$1
+        python -m pip install \
+          "$PATHFINDER_WHEEL" \
+          "$BINDINGS_WHEEL" \
+          "$CORE_WHEEL" \
+          --group cuda_bindings/pyproject.toml:test \
+          --group cuda_core/pyproject.toml:test
     inputs:
       - '/cuda_pathfinder/pyproject.toml'
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
@@ -25,8 +58,6 @@ tasks:
       - '/cuda_bindings/.moon-out/wheel-current/*.whl'
       - '/cuda_core/pyproject.toml'
       - '/cuda_core/.moon-out/wheel-current/*.whl'
-      - '/ci/tools/artifacts.py'
-      - '/ci/tools/prepare_test_assets.py'
       - '/.github/workflows/build-wheel.yml'
     options:
       os: [linux, windows]

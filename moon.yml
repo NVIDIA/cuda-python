@@ -21,17 +21,13 @@ toolchains:
 taskOptions:
   cache: false
   runInCI: false
+  shell: false
 
 fileGroups:
   orchestration:
     - '/.moon/**/*'
     - '/moon.yml'
     - '/**/moon.yml'
-    - '/ci/tools/artifacts.py'
-    - '/ci/tools/build_artifacts.py'
-    - '/ci/tools/prepare_test_assets.py'
-    - '/ci/tools/run_pixi_test.py'
-    - '/ci/tools/moon_fingerprint.py'
     - '/ci/tools/env-vars'
     - '/ci/versions.yml'
     - '/.github/actions/**/*'
@@ -67,7 +63,6 @@ fileGroups:
     - '!/.github/actions/**/*'
     - '!/.github/workflows/ci.yml'
     - '!/.github/workflows/build-docs.yml'
-    - '!/.github/workflows/build-pure-wheel.yml'
     - '!/.github/workflows/build-wheel.yml'
     - '!/.github/workflows/test-sdist-linux.yml'
     - '!/.github/workflows/test-sdist-windows.yml'
@@ -90,11 +85,6 @@ fileGroups:
     - '!/ci/tools/install_gpu_driver.ps1'
     - '!/ci/tools/install_gpu_driver.sh'
     - '!/ci/tools/merge_cuda_core_wheels.py'
-    - '!/ci/tools/artifacts.py'
-    - '!/ci/tools/build_artifacts.py'
-    - '!/ci/tools/prepare_test_assets.py'
-    - '!/ci/tools/run_pixi_test.py'
-    - '!/ci/tools/moon_fingerprint.py'
     - '!/ci/tools/run-tests'
     - '!/ci/tools/setup-sanitizer'
     - '!/ci/tools/tests/test_moon_tasks.py'
@@ -183,12 +173,7 @@ tasks:
     inputs:
       - '/.moon/**/*'
       - '/**/moon.yml'
-      - '/ci/tools/artifacts.py'
-      - '/ci/tools/build_artifacts.py'
-      - '/ci/tools/prepare_test_assets.py'
       - '/ci/tools/run-tests'
-      - '/ci/tools/run_pixi_test.py'
-      - '/ci/tools/moon_fingerprint.py'
       - '/ci/tools/tests/test_moon_tasks.py'
       - '/ci/tools/tests/test_moon_workspace.py'
     tags: [ci-quality, runner-quality]
@@ -237,7 +222,6 @@ tasks:
       - '/cuda_core/.moon-out/docs-ci/**/*'
       - '/cuda_python/.moon-out/docs-ci/**/*'
       - '/cuda_python/docs/assemble_moon_docs.sh'
-      - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
       - '/.github/workflows/build-docs.yml'
     outputs:

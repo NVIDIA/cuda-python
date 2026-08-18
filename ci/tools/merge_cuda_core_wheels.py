@@ -28,21 +28,24 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+
+def _wheel_from_directory(directory: Path) -> Path:
+    wheels = sorted(path for path in directory.glob("*.whl") if path.is_file())
+    if len(wheels) != 1:
+        raise ValueError(f"expected one wheel in {directory}, found {len(wheels)}")
+    return wheels[0]
 
 
-def _validated_moon_output(path: Path) -> Path:
-    repo_root = Path(os.path.abspath(REPO_ROOT))
-    output_root = repo_root / "cuda_core" / ".moon-out"
-    output = Path(os.path.abspath(path if path.is_absolute() else repo_root / path))
-    if output_root not in output.parents:
-        raise ValueError(f"clean output must be below {output_root}: {output}")
-    current = output
-    while current != repo_root:
-        if current.is_symlink():
-            raise ValueError(f"output path must not traverse a symlink: {current}")
-        current = current.parent
-    return output
+def _clean_output_wheels(output_dir: Path) -> None:
+    """Remove wheel files without recursively deleting the caller's directory."""
+    if output_dir.is_symlink():
+        raise ValueError(f"output path must not be a symlink: {output_dir}")
+    if output_dir.exists() and not output_dir.is_dir():
+        raise ValueError(f"output path is not a directory: {output_dir}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for wheel in output_dir.glob("*.whl"):
+        if wheel.is_file() or wheel.is_symlink():
+            wheel.unlink()
 
 
 def run_command(cmd: list[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
@@ -234,7 +237,11 @@ def main():
         help="Directory containing exactly one input wheel (may be repeated)",
     )
     parser.add_argument("--output-dir", "-o", default="dist", help="Output directory for merged wheel")
-    parser.add_argument("--clean-output", action="store_true", help="Remove the output directory before merging")
+    parser.add_argument(
+        "--clean-output",
+        action="store_true",
+        help="Remove existing wheel files from the output directory before merging",
+    )
 
     args = parser.parse_args()
 
@@ -255,22 +262,24 @@ def main():
 
     for directory_value in args.wheel_dir:
         directory = Path(directory_value)
-        selected = sorted(path for path in directory.glob("*.whl") if path.is_file())
-        if len(selected) != 1:
-            print(f"Error: Expected one wheel in {directory}, found {len(selected)}", file=sys.stderr)
+        try:
+            wheel = _wheel_from_directory(directory)
+        except ValueError as error:
+            print(f"Error: {error}", file=sys.stderr)
             sys.exit(1)
-        wheels.append(selected[0])
+        wheels.append(wheel)
 
     if not wheels:
         print("Error: No wheels provided", file=sys.stderr)
         sys.exit(1)
 
-    output_dir = _validated_moon_output(Path(args.output_dir)) if args.clean_output else Path(args.output_dir)
-    if args.clean_output and output_dir.exists():
-        if output_dir.is_symlink() or not output_dir.is_dir():
-            print(f"Error: Refusing to replace non-directory output: {output_dir}", file=sys.stderr)
+    output_dir = Path(args.output_dir)
+    if args.clean_output:
+        try:
+            _clean_output_wheels(output_dir)
+        except ValueError as error:
+            print(f"Error: {error}", file=sys.stderr)
             sys.exit(1)
-        shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Check that we have wheel tool available

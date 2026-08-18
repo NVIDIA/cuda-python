@@ -286,14 +286,30 @@ tasks, stage the matching previous-branch `cuda.bindings` wheel, activate the pr
 `core:wheel-previous`, then run `core:wheel-merge`. CI follows the same staged sequence and lets Moon parallelize
 independent work within each phase.
 
-For ephemeral runners, CI uploads the portable `.moon/cache/hashes` and `.moon/cache/outputs` directories as
+The Cython test-asset tasks have a similar environment boundary. CI changes from the wheel-build interpreter to the
+test interpreter before running `bindings:cython-test-assets` or `core:cython-test-assets`, so their pathfinder,
+bindings, and core wheels are staged inputs rather than executable Moon dependencies. To run either task locally,
+first build or copy exactly one current wheel for each package into its corresponding `.moon-out` directory.
+
+For ephemeral runners, CI uploads Moon's `.moon/cache/hashes` and `.moon/cache/outputs` directories as
 ordinary immutable GitHub workflow artifacts. A later producer restores the lane-qualified artifact from the
 successful trusted `main` run at the exact merge-base commit, then runs `moon ci`; GitHub transports the local cache
 while Moon alone interprets its hashes and hydrates task outputs. Lane bundles also carry Moon's canonical task
 outputs between heterogeneous build and test runners, while conventional named wheel artifacts remain available for
-release tooling. Context-sensitive documentation is rebuilt as four parallel Moon tasks whenever its runner is
+release tooling. Native build lanes include the inexpensive cuda-pathfinder wheel directly; the Linux/Python 3.12
+lane also carries the cuda-python metapackage used by docs and releases. Context-sensitive documentation is rebuilt as four parallel Moon tasks whenever its runner is
 selected. Missing or incomplete cache artifacts conservatively allocate the producer runners and start with an empty
 cache. Generated `.moon/cache` and `.moon-out` directories are ignored by Git.
+
+CI sets `CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION=1` when the metapackage must match a trusted staged
+`cuda.bindings` development wheel. Leave this variable unset for normal local builds; `root:pure-wheel` then derives
+the metapackage version from the current checkout and ignores any stale staged bindings output.
+
+The draft reuses only immutable cache artifacts from a successful trusted `main` run at the exact merge-base. It does
+not yet treat wheel or sdist tasks as hermetic enough for a general cross-revision remote cache: their isolated build
+environments still resolve ranged build dependencies and rely on runner/container compiler and repair-tool images.
+Before enabling that broader cache, pin the isolated build constraints and immutable toolchain images (and include
+their identities in task fingerprints), or leave those producer tasks out of the persistent cache.
 
 ### CI Pipeline Flow
 
