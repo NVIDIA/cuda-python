@@ -514,9 +514,7 @@ def test_stream_synchronization_policy_default(init_cuda):
 def test_stream_options_synchronization_policy(init_cuda):
     from cuda.core.typing import SynchronizationPolicyType
 
-    stream = Device().create_stream(
-        options=StreamOptions(synchronization_policy=SynchronizationPolicyType.YIELD)
-    )
+    stream = Device().create_stream(options=StreamOptions(synchronization_policy=SynchronizationPolicyType.YIELD))
     assert stream.synchronization_policy == SynchronizationPolicyType.YIELD
     stream.close()
 

@@ -27,6 +27,8 @@ class StreamOptions:
         higher priority. (Default to lowest priority)
     synchronization_policy : SynchronizationPolicyType | None, optional
         CPU wait policy applied when synchronizing this stream from the host.
+        Maps to ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY`` via
+        ``cuStreamSetAttribute``. (Default to None, leaving the driver default)
 
     """
     nonblocking: cython.bint = True
@@ -115,10 +117,14 @@ class Stream:
 
     @property
     def synchronization_policy(self):
-        """Return the stream's CPU wait policy for host-side synchronization."""
+        """Return the stream's CPU wait policy for host-side synchronization.
+
+        Maps to ``CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY``, queried via
+        ``cuStreamGetAttribute``.
+        """
 
     @synchronization_policy.setter
-    def synchronization_policy(self, policy) -> None:
+    def synchronization_policy(self, policy: object):
         """Set the stream's CPU wait policy for subsequent work on this stream."""
 
     def sync(self) -> None:
