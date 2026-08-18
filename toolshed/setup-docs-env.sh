@@ -51,7 +51,6 @@ conda create -y -n "${ENV_NAME}" \
     sphinx-copybutton \
     myst-nb \
     enum_tools \
-    sphinx-toolbox \
     pyclibrary
 
 conda activate "${ENV_NAME}"
