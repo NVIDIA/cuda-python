@@ -87,6 +87,13 @@ cdef int Stream_query_synchronization_policy(Stream self) except?-1 nogil:
     return <int>value.syncPolicy
 
 
+cdef int Stream_normalize_queried_sync_policy(int policy) nogil:
+    # cuStreamGetAttribute may return -1 when the attribute was never set.
+    if policy < 0:
+        return <int>cydriver.CUsynchronizationPolicy_enum.CU_SYNC_POLICY_AUTO
+    return policy
+
+
 cdef void Stream_apply_synchronization_policy(Stream self, int policy) except * nogil:
     cdef cydriver.CUstreamAttrValue value
     value.syncPolicy = <cydriver.CUsynchronizationPolicy>policy
@@ -325,6 +332,7 @@ cdef class Stream:
         if self._synchronization_policy == INT32_MIN or Stream_is_default_token(self):
             with nogil:
                 policy = Stream_query_synchronization_policy(self)
+                policy = Stream_normalize_queried_sync_policy(policy)
             if not Stream_is_default_token(self):
                 self._synchronization_policy = policy
         else:
