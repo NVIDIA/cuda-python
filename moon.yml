@@ -29,8 +29,6 @@ tasks:
       - bindings:test
       - core:test
     inputs: []
-    options:
-      runDepsInParallel: false
 
   docs:
     deps:
@@ -38,14 +36,19 @@ tasks:
       - bindings:docs
       - core:docs
     inputs: []
-    options:
-      runDepsInParallel: false
 
   docs-ci:
     command: python
-    args: [ci/tools/moon_ci.py, docs-ci]
-    env:
-      CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
+    args: [ci/tools/moon_ci.py, docs-assemble]
+    deps:
+      - target: pathfinder:docs-ci
+        cacheStrategy: outputs
+      - target: bindings:docs-ci
+        cacheStrategy: outputs
+      - target: core:docs-ci
+        cacheStrategy: outputs
+      - target: metapackage:docs-ci
+        cacheStrategy: outputs
     inputs:
       - {project: pathfinder, group: package}
       - {project: pathfinder, group: docs}
@@ -55,12 +58,20 @@ tasks:
       - {project: core, group: docs}
       - {project: metapackage, group: package}
       - {project: metapackage, group: docs}
+      - '/cuda_pathfinder/.moon-out/docs-ci/**/*'
+      - '/cuda_bindings/.moon-out/docs-ci/**/*'
+      - '/cuda_core/.moon-out/docs-ci/**/*'
+      - '/cuda_python/.moon-out/docs-ci/**/*'
       - '/ci/tools/moon_ci.py'
+      - '/.github/workflows/build-pure-wheel.yml'
+      - '/.github/workflows/build-wheel.yml'
       - '/.github/workflows/build-docs.yml'
     outputs:
       - '.moon-out/docs'
-    tags: [ci-docs]
+    tags: [ci-docs, runner-docs]
+    type: build
     options:
+      os: linux
       runInCI: true
 
   pure-wheel:

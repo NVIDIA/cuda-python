@@ -26,7 +26,7 @@ on:
     inputs:
       run-id:
         description: >
-          Override the CI run ID to download artifacts from.
+          Override the Moon-native CI run ID to download lane artifacts from.
           Leave empty to auto-detect the latest successful main run.
         type: string
         default: ''
@@ -50,10 +50,24 @@ jobs:
 
   find-wheels:
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
       HEAD_SHA: ${{ steps.find.outputs.head_sha }}
       CUDA_BUILD_VER: ${{ steps.find.outputs.cuda_build_ver }}
+      PYTORCH_LINUX_64_MATRIX: ${{ steps.matrices.outputs.pytorch_linux_64 }}
+      PYTORCH_LINUX_ARM64_MATRIX: ${{ steps.matrices.outputs.pytorch_linux_arm64 }}
+      PYTORCH_WINDOWS_MATRIX: ${{ steps.matrices.outputs.pytorch_windows }}
+      NUMBA_LINUX_64_MATRIX: ${{ steps.matrices.outputs.numba_linux_64 }}
+      NUMBA_LINUX_ARM64_MATRIX: ${{ steps.matrices.outputs.numba_linux_arm64 }}
+      NUMBA_WINDOWS_MATRIX: ${{ steps.matrices.outputs.numba_windows }}
+      MLIR_LINUX_64_MATRIX: ${{ steps.matrices.outputs.mlir_linux_64 }}
+      MLIR_WINDOWS_MATRIX: ${{ steps.matrices.outputs.mlir_windows }}
+      CORE_LINUX_64_MATRIX: ${{ steps.matrices.outputs.core_linux_64 }}
+      CORE_WINDOWS_MATRIX: ${{ steps.matrices.outputs.core_windows }}
+      STANDARD_LINUX_ARM64_MATRIX: ${{ steps.matrices.outputs.standard_linux_arm64 }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -65,16 +79,91 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          expected=(moon-lane-build-portable)
+          python_versions=(310 311 312 313 314 314t 315 315t)
+          host_platforms=(linux-64 linux-aarch64 win-64)
+          for host_platform in "${host_platforms[@]}"; do
+            for python_version in "${python_versions[@]}"; do
+              expected+=("moon-lane-build-${host_platform}-py${python_version}")
+            done
+          done
+
+          has_moon_lanes() {
+            local run_id=$1
+            local artifacts artifact_name artifact_valid
+            artifacts="$(
+              gh api --paginate --slurp \
+                "repos/${{ github.repository }}/actions/runs/${run_id}/artifacts?per_page=100" \
+                | jq -c '[.[].artifacts[]]'
+            )"
+            for artifact_name in "${expected[@]}"; do
+              artifact_valid="$(
+                jq \
+                  --arg name "${artifact_name}" \
+                  '[.[] | select(.name == $name)] |
+                  length == 1 and
+                  (.[0].expired | not) and
+                  .[0].size_in_bytes > 0 and
+                  ((.[0].digest // "") |
+                    test("^sha256:[0-9a-fA-F]{64}$"))' \
+                  <<< "${artifacts}"
+              )"
+              if [[ "${artifact_valid}" != "true" ]]; then
+                return 1
+              fi
+            done
+          }
+
           if [[ -n "${{ inputs.run-id }}" ]]; then
             RUN_ID="${{ inputs.run-id }}"
-            HEAD_SHA=$(gh run view "$RUN_ID" \
-              -R "${{ github.repository }}" \
-              --json headSha | jq -r '.headSha')
+            RUN="$(gh api "repos/${{ github.repository }}/actions/runs/${RUN_ID}")"
+            if ! jq -e '
+              .head_branch == "main" and
+              .event == "push" and
+              .conclusion == "success" and
+              .path == ".github/workflows/ci.yml" and
+              .head_repository.full_name == "${{ github.repository }}"
+            ' <<< "${RUN}" > /dev/null; then
+              echo "::error::Run ${RUN_ID} is not a successful trusted push run on main."
+              exit 1
+            fi
+            HEAD_SHA="$(jq -r '.head_sha' <<< "${RUN}")"
+            if ! has_moon_lanes "${RUN_ID}"; then
+              echo "::error::Run ${RUN_ID} does not contain the required Moon lane artifacts."
+              exit 1
+            fi
           else
-            # lookup-run-id --branch --head-sha prints two lines: run_id then head_sha
-            OUTPUT=$(./ci/tools/lookup-run-id --branch main --head-sha "${{ github.repository }}" "CI")
-            RUN_ID=$(echo "$OUTPUT" | sed -n '1p')
-            HEAD_SHA=$(echo "$OUTPUT" | sed -n '2p')
+            RUN_ID=""
+            HEAD_SHA=""
+            RUNS="$(gh run list \
+              --repo "${{ github.repository }}" \
+              --workflow ci.yml \
+              --branch main \
+              --event push \
+              --status success \
+              --limit 20 \
+              --json databaseId,headSha,headBranch,event,conclusion,createdAt)"
+            while IFS=$'\t' read -r candidate candidate_sha; do
+              if has_moon_lanes "${candidate}"; then
+                RUN_ID="${candidate}"
+                HEAD_SHA="${candidate_sha}"
+                break
+              fi
+            done < <(
+              jq -r '
+                sort_by(.createdAt) | reverse | .[] |
+                select(
+                  .headBranch == "main" and
+                  .event == "push" and
+                  .conclusion == "success"
+                ) |
+                [.databaseId, .headSha] | @tsv
+              ' <<< "${RUNS}"
+            )
+            if [[ -z "${RUN_ID}" ]]; then
+              echo "::error::No recent successful main CI run contains the required Moon lane artifacts."
+              exit 1
+            fi
           fi
 
           if [[ -z "$HEAD_SHA" || "$HEAD_SHA" == "null" ]]; then
@@ -97,6 +186,45 @@ jobs:
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
           echo "cuda_build_ver=$CUDA_BUILD_VER" >> $GITHUB_OUTPUT
 
+      - name: Compute nightly test matrices
+        id: matrices
+        run: |
+          emit_matrix() {
+            local output_name="$1"
+            local os="$2"
+            local arch="$3"
+            local mode="$4"
+            local matrix
+            matrix=$(yq -o=json ".${os}.nightly" ci/test-matrix.yml | jq -c \
+              --arg arch "${arch}" --arg mode "${mode}" '
+                map(select(.ARCH == $arch and .ENV.MODE == $mode))
+                | if length == 0 then
+                    error("empty nightly matrix")
+                  elif any(.[];
+                    .DRIVER != "latest" and
+                    .DRIVER != "earliest" and
+                    .FLAVOR == "wsl") then
+                    error("Custom DRIVER is not supported with FLAVOR=wsl")
+                  else
+                    {include: map(. + {RUNNER_DRIVER: (
+                      if .DRIVER == "latest" or .DRIVER == "earliest"
+                      then .DRIVER else "latest" end)})}
+                  end')
+            echo "${output_name}=${matrix}" >> "$GITHUB_OUTPUT"
+          }
+
+          emit_matrix pytorch_linux_64 linux amd64 nightly-pytorch
+          emit_matrix pytorch_linux_arm64 linux arm64 nightly-pytorch
+          emit_matrix pytorch_windows windows amd64 nightly-pytorch
+          emit_matrix numba_linux_64 linux amd64 nightly-numba-cuda
+          emit_matrix numba_linux_arm64 linux arm64 nightly-numba-cuda
+          emit_matrix numba_windows windows amd64 nightly-numba-cuda
+          emit_matrix mlir_linux_64 linux amd64 nightly-numba-cuda-mlir
+          emit_matrix mlir_windows windows amd64 nightly-numba-cuda-mlir
+          emit_matrix core_linux_64 linux amd64 nightly-cuda-core
+          emit_matrix core_windows windows amd64 nightly-cuda-core
+          emit_matrix standard_linux_arm64 linux arm64 nightly-standard
+
   # ── PyTorch interop tests ──
 
   test-pytorch-linux:
@@ -115,7 +243,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
+      matrix: ${{ needs.find-wheels.outputs.PYTORCH_LINUX_64_MATRIX }}
 
   test-pytorch-linux-aarch64:
     name: "Nightly PyTorch (linux-aarch64)"
@@ -133,7 +261,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
+      matrix: ${{ needs.find-wheels.outputs.PYTORCH_LINUX_ARM64_MATRIX }}
 
   test-pytorch-windows:
     name: "Nightly PyTorch (win-64)"
@@ -151,7 +279,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
+      matrix: ${{ needs.find-wheels.outputs.PYTORCH_WINDOWS_MATRIX }}
 
   # ── numba-cuda tests ──
 
@@ -171,7 +299,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
+      matrix: ${{ needs.find-wheels.outputs.NUMBA_LINUX_64_MATRIX }}
 
   test-numba-cuda-linux-aarch64:
     name: "Nightly numba-cuda (linux-aarch64)"
@@ -189,7 +317,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
+      matrix: ${{ needs.find-wheels.outputs.NUMBA_LINUX_ARM64_MATRIX }}
 
   test-numba-cuda-windows:
     name: "Nightly numba-cuda (win-64)"
@@ -207,7 +335,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
+      matrix: ${{ needs.find-wheels.outputs.NUMBA_WINDOWS_MATRIX }}
 
   # ── numba-cuda-mlir tests ──
 
@@ -227,7 +355,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda-mlir"))'
+      matrix: ${{ needs.find-wheels.outputs.MLIR_LINUX_64_MATRIX }}
 
   test-numba-cuda-mlir-windows:
     name: "Nightly numba-cuda-mlir (win-64)"
@@ -245,7 +373,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda-mlir"))'
+      matrix: ${{ needs.find-wheels.outputs.MLIR_WINDOWS_MATRIX }}
 
   # ── Released cuda-core against main pathfinder/bindings ──
 
@@ -265,7 +393,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-cuda-core"))'
+      matrix: ${{ needs.find-wheels.outputs.CORE_LINUX_64_MATRIX }}
 
   test-cuda-core-windows:
     name: "Nightly cuda-core (win-64)"
@@ -283,7 +411,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-cuda-core"))'
+      matrix: ${{ needs.find-wheels.outputs.CORE_WINDOWS_MATRIX }}
 
   # ── Standard tests on nightly-only runners ──
 
@@ -303,7 +431,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: standard
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-standard"))'
+      matrix: ${{ needs.find-wheels.outputs.STANDARD_LINUX_ARM64_MATRIX }}
 
   # ── Status check ──
 

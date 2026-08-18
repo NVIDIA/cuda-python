@@ -65,18 +65,24 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py bindings native
         hash: stdout
-    tags: [ci-wheel-current]
+    tags:
+      - ci-wheel-current
+      - runner-build-linux-64
+      - runner-build-linux-aarch64
+      - runner-build-windows
     type: build
     options:
       cache: true
       cacheKey: wheel-current-v2
+      priority: critical
       runInCI: true
 
   sdist:
     command: python
     args: [ci/tools/moon_ci.py, sdist, bindings]
     deps:
-      - pathfinder:sdist
+      - target: pathfinder:sdist
+        cacheStrategy: outputs
     env:
       BUILD_CUDA_VER: '${BUILD_CUDA_VER}'
       CUDA_PATH: '${CUDA_PATH}'
@@ -95,7 +101,7 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py bindings sdist
         hash: stdout
-    tags: [ci-sdist]
+    tags: [ci-sdist, runner-sdist-linux, runner-sdist-windows]
     type: build
     options:
       cache: true
@@ -105,6 +111,8 @@ tasks:
   cython-test-assets:
     command: python
     args: [ci/tools/moon_ci.py, cython-test-assets, bindings]
+    deps:
+      - test-helpers:prepare-test-assets
     inputs:
       - '@group(package)'
       - 'tests/cython/**/*'
@@ -121,11 +129,16 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py bindings test-assets
         hash: stdout
-    tags: [ci-build-test-assets]
+    tags:
+      - ci-build-cython-assets
+      - runner-build-linux-64
+      - runner-build-linux-aarch64
+      - runner-build-windows
     type: build
     options:
       cache: true
       cacheKey: cython-test-assets-v2
+      os: [linux, windows]
       runInCI: true
 
   test:
@@ -162,9 +175,11 @@ tasks:
       - '/ci/tools/install_gpu_driver.sh'
       - '/ci/tools/setup-sanitizer'
       - '/.github/workflows/test-wheel-linux.yml'
-    tags: [ci-test-linux]
+    tags: [ci-test-linux, runner-test-linux]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: linux
       runInCI: true
 
   test-installed-windows:
@@ -185,17 +200,39 @@ tasks:
       - '/ci/tools/configure_driver_mode.ps1'
       - '/ci/tools/install_gpu_driver.ps1'
       - '/.github/workflows/test-wheel-windows.yml'
-    tags: [ci-test-windows]
+    tags: [ci-test-windows, runner-test-windows]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: windows
       runInCI: true
 
   docs:
-    command: python
-    args: [ci/tools/moon_ci.py, pixi-docs, bindings]
+    command: pixi
+    args: [run, --manifest-path, cuda_bindings/pixi.toml, --environment, docs, build-docs]
     inputs:
       - '@group(package)'
       - '@group(docs)'
-      - '/cuda_pathfinder/**/*'
+      - {project: pathfinder, group: package}
+      - {project: pathfinder, group: docs}
+      - '/.github/workflows/build-docs.yml'
+
+  docs-ci:
+    command: python
+    args: [ci/tools/moon_ci.py, docs-component, bindings]
+    env:
+      CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
+    inputs:
+      - '@group(package)'
+      - '@group(docs)'
+      - {project: pathfinder, group: package}
+      - '/cuda_python/docs/environment-docs.yml'
       - '/ci/tools/moon_ci.py'
       - '/.github/workflows/build-docs.yml'
+    outputs:
+      - '.moon-out/docs-ci'
+    tags: [ci-docs, runner-docs]
+    type: build
+    options:
+      os: linux
+      runInCI: true

@@ -28,41 +28,37 @@ fileGroups:
     - 'run_pyperf.py'
     - 'pixi.toml'
     - 'pixi.lock'
+  tests:
+    - 'runner/**/*'
+    - 'benchmarks/**/*'
+    - 'tests/**/*'
+    - 'pixi.toml'
+    - 'pixi.lock'
 
 tasks:
   bench:
-    command: python
-    args: [ci/tools/moon_ci.py, pixi-test, bindings-benchmarks, --task, bench, --environment, source]
+    command: pixi
+    args: [run, --manifest-path, benchmarks/cuda_bindings/pixi.toml, --environment, source, bench]
     inputs:
       - '@group(benchmarks)'
       - '/cuda_bindings/**/*'
-      - '/ci/tools/moon_ci.py'
 
   smoke:
-    command: python
+    command: pixi
     args:
-      - ci/tools/moon_ci.py
-      - pixi-test
-      - bindings-benchmarks
-      - --task
-      - bench-smoke-test
+      - run
+      - --manifest-path
+      - benchmarks/cuda_bindings/pixi.toml
       - --environment
       - source
+      - bench-smoke-test
     inputs:
       - '@group(benchmarks)'
       - '/cuda_bindings/**/*'
-      - '/ci/tools/moon_ci.py'
 
   smoke-linux:
     command: python
-    args:
-      - ci/tools/moon_ci.py
-      - pixi-test
-      - bindings-benchmarks
-      - --task
-      - bench-smoke-test
-      - --environment
-      - source
+    args: [ci/tools/moon_ci.py, bindings-benchmark-smoke]
     inputs:
       - '@group(benchmarks)'
       - {project: bindings, group: package}
@@ -74,7 +70,27 @@ tasks:
       - '/ci/tools/install_gpu_driver.sh'
       - '/tests/**/*'
       - '/.github/workflows/test-wheel-linux.yml'
-    tags: [ci-test-linux]
+    tags: [ci-test-linux, runner-test-linux]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: linux
+      runInCI: true
+
+  unit-test:
+    command: uvx
+    args:
+      - --no-managed-python
+      - --no-python-downloads
+      - --from
+      - pytest
+      - pytest
+      - --noconftest
+      - benchmarks/cuda_bindings/tests
+    inputs:
+      - '@group(tests)'
+    tags: [ci-quality, runner-quality]
+    type: test
+    options:
+      os: linux
       runInCI: true

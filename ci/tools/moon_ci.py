@@ -23,42 +23,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PROJECT_PATHS = {
     "root": Path("."),
-    "ci": Path("ci"),
     "pathfinder": Path("cuda_pathfinder"),
     "bindings": Path("cuda_bindings"),
     "core": Path("cuda_core"),
     "metapackage": Path("cuda_python"),
     "bindings-benchmarks": Path("benchmarks/cuda_bindings"),
 }
-DOC_TASKS = {
-    "pathfinder": "build-docs",
-    "bindings": "build-docs",
-    "core": "docs-build",
-}
 PACKAGE_PROJECTS = ("pathfinder", "bindings", "core", "metapackage")
 CYTHON_PROJECTS = ("bindings", "core")
-GATE_MARKERS = {
-    "force-all",
-    "force-all-unowned",
-    "build-portable",
-    "build-linux-64",
-    "build-linux-aarch64",
-    "build-windows",
-    "test-sdist-linux",
-    "test-sdist-windows",
-    "test-linux",
-    "test-windows",
-    "docs",
-    "core-api",
-    "build-pathfinder",
-    "build-bindings",
-    "build-core",
-    "build-metapackage",
-    "test-pathfinder",
-    "test-bindings",
-    "test-core",
-    "test-metapackage",
-}
 
 
 def _run(
@@ -153,30 +125,6 @@ def _copy_files(source: Path, output: Path, patterns: tuple[str, ...]) -> None:
     _reset_output(output)
     for source_path in selected:
         shutil.copy2(source_path, output / source_path.name)
-
-
-def _gate(args: argparse.Namespace) -> None:
-    if args.marker not in GATE_MARKERS:
-        raise ValueError(f"unknown CI gate marker: {args.marker}")
-    output = _output_path("ci", f"ci-gates/{args.marker}")
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text("true\n", encoding="utf-8")
-
-
-def _pixi_run(project: str, task: str, *, environment: str | None, extra: list[str]) -> None:
-    manifest = _project_path(project) / "pixi.toml"
-    if not manifest.is_file():
-        raise FileNotFoundError(f"Pixi manifest not found: {manifest}")
-    pixi = shutil.which("pixi")
-    if pixi is None:
-        raise RuntimeError("pixi is required for this task but was not found on PATH")
-    command = [pixi, "run", "--manifest-path", str(manifest)]
-    selected_environment = environment or os.environ.get("PIXI_ENVIRONMENT_NAME")
-    if selected_environment:
-        command.extend(["--environment", selected_environment])
-    command.append(task)
-    command.extend(extra)
-    _run(command)
 
 
 def _pure_wheel(args: argparse.Namespace) -> None:
@@ -369,62 +317,129 @@ def _merge_core_wheels(_args: argparse.Namespace) -> None:
 
 
 def _pixi_test(args: argparse.Namespace) -> None:
-    _pixi_run(args.project, args.task, environment=args.environment, extra=args.extra)
+    pixi = shutil.which("pixi")
+    if pixi is None:
+        raise RuntimeError("pixi is required for this task but was not found on PATH")
+    command = [pixi, "run", "--manifest-path", str(_project_path(args.project) / "pixi.toml")]
+    # A nested Pixi invocation otherwise falls back to the package's default
+    # environment instead of the cu12/cu13 environment selected at the root.
+    environment = os.environ.get("PIXI_ENVIRONMENT_NAME")
+    if environment:
+        command.extend(["--environment", environment])
+    command.append("test")
+    _run(command)
 
 
-def _pixi_docs(args: argparse.Namespace) -> None:
-    _pixi_run(args.project, DOC_TASKS[args.project], environment="docs", extra=[])
-
-
-def _docs_ci(_args: argparse.Namespace) -> None:
-    bash = shutil.which("bash")
-    if bash is None:
-        raise RuntimeError("bash is required to build the combined documentation")
+def _docs_arguments() -> list[str]:
     latest_only = (os.environ.get("CUDA_PYTHON_DOCS_LATEST_ONLY") or "true").lower()
     if latest_only not in {"0", "1", "false", "true"}:
         raise ValueError("CUDA_PYTHON_DOCS_LATEST_ONLY must be true, false, 1, or 0")
-    arguments = [bash, "build_all_docs.sh"]
-    if latest_only in {"1", "true"}:
-        arguments.append("latest-only")
-    docs_root = _project_path("metapackage") / "docs"
-    _run(arguments, cwd=docs_root)
+    return ["latest-only"] if latest_only in {"1", "true"} else []
+
+
+def _docs_component(args: argparse.Namespace) -> None:
+    bash = shutil.which("bash")
+    if bash is None:
+        raise RuntimeError("bash is required to build documentation")
+    docs_root = _project_path(args.project) / "docs"
+    build = docs_root / "build"
+    if build.exists():
+        if build.is_symlink() or not build.is_dir():
+            raise ValueError(f"refusing to replace non-directory docs output: {build}")
+        shutil.rmtree(build)
+    _run([bash, "build_docs.sh", *_docs_arguments()], cwd=docs_root)
     source = docs_root / "build" / "html"
-    if not source.is_dir():
-        raise RuntimeError(f"combined documentation output not found: {source}")
-    output = _output_path("root", "docs")
+    if source.is_symlink() or not source.is_dir():
+        raise RuntimeError(f"documentation output not found: {source}")
+    output = _output_path(args.project, "docs-ci")
     _reset_output(output)
     shutil.copytree(source, output, dirs_exist_ok=True)
 
 
+def _docs_assemble(_args: argparse.Namespace) -> None:
+    output = _output_path("root", "docs")
+    _reset_output(output)
+    shutil.copytree(_output_path("metapackage", "docs-ci"), output, dirs_exist_ok=True)
+    for project, destination in (
+        ("bindings", "cuda-bindings"),
+        ("core", "cuda-core"),
+        ("pathfinder", "cuda-pathfinder"),
+    ):
+        source = _output_path(project, "docs-ci")
+        if source.is_symlink() or not source.is_dir():
+            raise RuntimeError(f"documentation component output not found: {source}")
+        shutil.copytree(source, output / destination)
+
+
+def _prepare_test_assets(_args: argparse.Namespace) -> None:
+    wheels = [
+        _artifact_wheel("pathfinder", "pure"),
+        _artifact_wheel("bindings", "current"),
+        _artifact_wheel("core", "current"),
+    ]
+    groups = [
+        _project_path("bindings") / "pyproject.toml",
+        _project_path("core") / "pyproject.toml",
+    ]
+    command = [sys.executable, "-m", "pip", "install", *(str(wheel) for wheel in wheels)]
+    for pyproject in groups:
+        command.extend(["--group", f"{pyproject}:test"])
+    _run(command)
+
+
 def _cython_test_assets(args: argparse.Namespace) -> None:
     source = _project_path(args.project) / "tests" / "cython"
-    wheels = [_artifact_wheel("pathfinder", "pure")]
-    if args.project == "bindings":
-        wheels.append(_artifact_wheel("bindings", "current"))
-    else:
-        wheels.extend(
-            [
-                _artifact_wheel("bindings", "current"),
-                _artifact_wheel("core", "current"),
-            ]
-        )
-    _run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            *(str(wheel) for wheel in wheels),
-            "--group",
-            f"{_project_path(args.project) / 'pyproject.toml'}:test",
-        ]
-    )
     bash = shutil.which("bash")
     if bash is None:
         raise RuntimeError("bash is required to build Cython test extensions")
     _run([bash, "build_tests.sh"], cwd=source)
     output = _output_path(args.project, "cython-tests")
     _copy_files(source, output, ("test_*.so", "test_*.pyd", "test_*.dylib"))
+
+
+def _prepare_pathfinder_strict(_args: argparse.Namespace) -> None:
+    cuda_major = os.environ.get("TEST_CUDA_MAJOR", "")
+    if not cuda_major.isdigit():
+        raise RuntimeError("TEST_CUDA_MAJOR must be a numeric CUDA major version")
+    _run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "--only-binary=:all:",
+            "--verbose",
+            str(_artifact_wheel("pathfinder", "pure")),
+            "--group",
+            f"{_project_path('pathfinder') / 'pyproject.toml'}:test-cu{cuda_major}",
+        ]
+    )
+    _run([sys.executable, "-m", "pip", "list"])
+
+
+def _bindings_benchmark_smoke(_args: argparse.Namespace) -> None:
+    if os.environ.get("SKIP_CUDA_BINDINGS_TEST") == "1":
+        print("Skipping cuda.bindings benchmarks for this declared compatibility lane.", flush=True)
+        return
+    _run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            str(_artifact_wheel("pathfinder", "pure")),
+            str(_artifact_wheel("bindings", "current")),
+            "pyperf",
+        ]
+    )
+    _run(
+        [
+            sys.executable,
+            str(_project_path("bindings-benchmarks") / "run_pyperf.py"),
+            "--debug-single-value",
+        ],
+        cwd=_project_path("bindings-benchmarks"),
+    )
 
 
 def _core_test_binaries(_args: argparse.Namespace) -> None:
@@ -444,6 +459,9 @@ def _stage_files(source: Path, destination: Path, pattern: str) -> None:
 
 
 def _installed_test(args: argparse.Namespace) -> None:
+    if args.project == "bindings" and os.environ.get("SKIP_CUDA_BINDINGS_TEST") == "1":
+        print("Skipping cuda.bindings tests for this declared compatibility lane.", flush=True)
+        return
     pathfinder_wheel = _artifact_wheel("pathfinder", "pure")
     if pathfinder_wheel.parent != _project_path("pathfinder"):
         _stage_files(pathfinder_wheel.parent, _project_path("pathfinder"), pathfinder_wheel.name)
@@ -469,6 +487,9 @@ def _installed_test(args: argparse.Namespace) -> None:
 
 
 def _metapackage_install_test(_args: argparse.Namespace) -> None:
+    if os.environ.get("BINDINGS_SOURCE") != "main":
+        print("Skipping the metapackage smoke test because BINDINGS_SOURCE is not main.", flush=True)
+        return
     wheels = [
         _artifact_wheel("pathfinder", "pure"),
         _artifact_wheel("bindings", "current"),
@@ -495,10 +516,6 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    gate = subparsers.add_parser("gate", help="write one affected CI allocation marker")
-    gate.add_argument("marker", choices=tuple(sorted(GATE_MARKERS)))
-    gate.set_defaults(handler=_gate)
-
     pure_wheel = subparsers.add_parser("pure-wheel", help="build one pure-Python wheel")
     pure_wheel.add_argument("project", choices=("pathfinder", "metapackage"))
     pure_wheel.set_defaults(handler=_pure_wheel)
@@ -515,23 +532,35 @@ def _parser() -> argparse.ArgumentParser:
     merge_wheels = subparsers.add_parser("merge-core-wheels", help="merge current and previous CUDA wheels")
     merge_wheels.set_defaults(handler=_merge_core_wheels)
 
-    pixi_test = subparsers.add_parser("pixi-test", help="run an existing Pixi test or benchmark task")
-    pixi_test.add_argument("project", choices=("pathfinder", "bindings", "core", "bindings-benchmarks"))
-    pixi_test.add_argument("--task", default="test")
-    pixi_test.add_argument("--environment")
-    pixi_test.add_argument("extra", nargs="*")
+    pixi_test = subparsers.add_parser("pixi-test", help="run a package test in the caller-selected Pixi environment")
+    pixi_test.add_argument("project", choices=("pathfinder", "bindings", "core"))
     pixi_test.set_defaults(handler=_pixi_test)
 
-    pixi_docs = subparsers.add_parser("pixi-docs", help="run an existing Pixi documentation task")
-    pixi_docs.add_argument("project", choices=tuple(DOC_TASKS))
-    pixi_docs.set_defaults(handler=_pixi_docs)
+    docs_component = subparsers.add_parser("docs-component", help="build and stage one documentation component")
+    docs_component.add_argument("project", choices=PACKAGE_PROJECTS)
+    docs_component.set_defaults(handler=_docs_component)
 
-    docs_ci = subparsers.add_parser("docs-ci", help="build and stage the combined CI documentation")
-    docs_ci.set_defaults(handler=_docs_ci)
+    docs_assemble = subparsers.add_parser("docs-assemble", help="assemble staged documentation components")
+    docs_assemble.set_defaults(handler=_docs_assemble)
+
+    prepare_assets = subparsers.add_parser(
+        "prepare-test-assets", help="install the shared inputs for native test-asset builds"
+    )
+    prepare_assets.set_defaults(handler=_prepare_test_assets)
 
     cython_assets = subparsers.add_parser("cython-test-assets", help="build and stage Cython tests")
     cython_assets.add_argument("project", choices=CYTHON_PROJECTS)
     cython_assets.set_defaults(handler=_cython_test_assets)
+
+    pathfinder_strict = subparsers.add_parser(
+        "prepare-pathfinder-strict", help="install CUDA-specific pathfinder test dependencies"
+    )
+    pathfinder_strict.set_defaults(handler=_prepare_pathfinder_strict)
+
+    benchmark_smoke = subparsers.add_parser(
+        "bindings-benchmark-smoke", help="run the bindings benchmark smoke test when the lane supports it"
+    )
+    benchmark_smoke.set_defaults(handler=_bindings_benchmark_smoke)
 
     core_binaries = subparsers.add_parser("core-test-binaries", help="build and stage cuda.core test binaries")
     core_binaries.set_defaults(handler=_core_test_binaries)
@@ -550,8 +579,6 @@ def _parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = _parser().parse_args()
-    if getattr(args, "extra", None) and args.extra[0] == "--":
-        args.extra = args.extra[1:]
     args.handler(args)
 
 

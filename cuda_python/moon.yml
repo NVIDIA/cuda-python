@@ -43,16 +43,20 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py metapackage portable
         hash: stdout
-    tags: [ci-wheel-pure]
+    tags: [ci-wheel-pure, runner-build-portable]
     type: build
     options:
       cache: true
       cacheKey: wheel-pure-v2
+      priority: critical
       runInCI: true
 
   sdist:
     command: python
     args: [ci/tools/moon_ci.py, sdist, metapackage]
+    deps:
+      - target: bindings:sdist
+        cacheStrategy: outputs
     inputs:
       - '@group(package)'
       - {project: bindings, group: package}
@@ -66,7 +70,7 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py metapackage sdist
         hash: stdout
-    tags: [ci-sdist]
+    tags: [ci-sdist, runner-sdist-linux, runner-sdist-windows]
     type: build
     options:
       cache: true
@@ -92,9 +96,11 @@ tasks:
       - '/ci/tools/guess_latest.sh'
       - '/ci/tools/install_gpu_driver.sh'
       - '/.github/workflows/test-wheel-linux.yml'
-    tags: [ci-test-linux]
+    tags: [ci-test-linux, runner-test-linux]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: linux
       runInCI: true
 
   test-installed-windows:
@@ -116,7 +122,31 @@ tasks:
       - '/ci/tools/configure_driver_mode.ps1'
       - '/ci/tools/install_gpu_driver.ps1'
       - '/.github/workflows/test-wheel-windows.yml'
-    tags: [ci-test-windows]
+    tags: [ci-test-windows, runner-test-windows]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: windows
+      runInCI: true
+
+  docs-ci:
+    command: python
+    args: [ci/tools/moon_ci.py, docs-component, metapackage]
+    env:
+      CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
+    inputs:
+      - '@group(package)'
+      - '@group(docs)'
+      - {project: pathfinder, group: package}
+      - {project: bindings, group: package}
+      - {project: core, group: package}
+      - '/cuda_python/docs/environment-docs.yml'
+      - '/ci/tools/moon_ci.py'
+      - '/.github/workflows/build-docs.yml'
+    outputs:
+      - '.moon-out/docs-ci'
+    tags: [ci-docs, runner-docs]
+    type: build
+    options:
+      os: linux
       runInCI: true

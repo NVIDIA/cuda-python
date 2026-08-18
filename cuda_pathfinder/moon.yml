@@ -34,10 +34,7 @@ fileGroups:
 tasks:
   test:
     command: python
-    args:
-      - ci/tools/moon_ci.py
-      - pixi-test
-      - pathfinder
+    args: [ci/tools/moon_ci.py, pixi-test, pathfinder]
     inputs:
       - '@group(package)'
       - '@group(tests)'
@@ -59,9 +56,34 @@ tasks:
       - '/ci/tools/guess_latest.sh'
       - '/ci/tools/install_gpu_driver.sh'
       - '/.github/workflows/test-wheel-linux.yml'
-    tags: [ci-test-linux]
+    env:
+      CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
+      CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
+      CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: see_what_works
+    tags: [ci-test-linux, runner-test-linux]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: linux
+      runInCI: true
+
+  prepare-strict-linux:
+    command: python
+    args: [ci/tools/moon_ci.py, prepare-pathfinder-strict]
+    deps:
+      - pathfinder:test-installed-linux
+    env:
+      TEST_CUDA_MAJOR: '${TEST_CUDA_MAJOR}'
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
+      - '/ci/tools/moon_ci.py'
+      - '/.github/workflows/test-wheel-linux.yml'
+    tags: [ci-test-linux, runner-test-linux]
+    options:
+      mutex: ci-python-gpu
+      os: linux
       runInCI: true
 
   test-installed-linux-strict:
@@ -79,9 +101,17 @@ tasks:
       - '/ci/tools/guess_latest.sh'
       - '/ci/tools/install_gpu_driver.sh'
       - '/.github/workflows/test-wheel-linux.yml'
-    tags: [ci-test-linux]
+    deps:
+      - pathfinder:prepare-strict-linux
+    env:
+      CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
+      CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
+      CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
+    tags: [ci-test-linux, runner-test-linux]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: linux
       runInCI: true
 
   test-installed-windows:
@@ -99,9 +129,34 @@ tasks:
       - '/ci/tools/configure_driver_mode.ps1'
       - '/ci/tools/install_gpu_driver.ps1'
       - '/.github/workflows/test-wheel-windows.yml'
-    tags: [ci-test-windows]
+    env:
+      CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
+      CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
+      CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: see_what_works
+    tags: [ci-test-windows, runner-test-windows]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: windows
+      runInCI: true
+
+  prepare-strict-windows:
+    command: python
+    args: [ci/tools/moon_ci.py, prepare-pathfinder-strict]
+    deps:
+      - pathfinder:test-installed-windows
+    env:
+      TEST_CUDA_MAJOR: '${TEST_CUDA_MAJOR}'
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
+      - '/ci/tools/moon_ci.py'
+      - '/.github/workflows/test-wheel-windows.yml'
+    tags: [ci-test-windows, runner-test-windows]
+    options:
+      mutex: ci-python-gpu
+      os: windows
       runInCI: true
 
   test-installed-windows-strict:
@@ -119,19 +174,45 @@ tasks:
       - '/ci/tools/configure_driver_mode.ps1'
       - '/ci/tools/install_gpu_driver.ps1'
       - '/.github/workflows/test-wheel-windows.yml'
-    tags: [ci-test-windows]
+    deps:
+      - pathfinder:prepare-strict-windows
+    env:
+      CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
+      CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
+      CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
+    tags: [ci-test-windows, runner-test-windows]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: windows
       runInCI: true
 
   docs:
-    command: python
-    args: [ci/tools/moon_ci.py, pixi-docs, pathfinder]
+    command: pixi
+    args: [run, --manifest-path, cuda_pathfinder/pixi.toml, --environment, docs, build-docs]
     inputs:
       - '@group(package)'
       - '@group(docs)'
+      - '/.github/workflows/build-docs.yml'
+
+  docs-ci:
+    command: python
+    args: [ci/tools/moon_ci.py, docs-component, pathfinder]
+    env:
+      CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
+    inputs:
+      - '@group(package)'
+      - '@group(docs)'
+      - '/cuda_python/docs/environment-docs.yml'
       - '/ci/tools/moon_ci.py'
       - '/.github/workflows/build-docs.yml'
+    outputs:
+      - '.moon-out/docs-ci'
+    tags: [ci-docs, runner-docs]
+    type: build
+    options:
+      os: linux
+      runInCI: true
 
   wheel-pure:
     command: python
@@ -147,11 +228,12 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py pathfinder portable
         hash: stdout
-    tags: [ci-wheel-pure]
+    tags: [ci-wheel-pure, runner-build-portable]
     type: build
     options:
       cache: true
       cacheKey: wheel-pure-v2
+      priority: critical
       runInCI: true
 
   sdist:
@@ -169,7 +251,7 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py pathfinder sdist
         hash: stdout
-    tags: [ci-sdist]
+    tags: [ci-sdist, runner-sdist-linux, runner-sdist-windows]
     type: build
     options:
       cache: true

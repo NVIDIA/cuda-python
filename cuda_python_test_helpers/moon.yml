@@ -8,3 +8,25 @@ language: unknown
 layer: library
 toolchains:
   default: system
+
+taskOptions:
+  cache: false
+  runFromWorkspaceRoot: true
+  runInCI: false
+
+tasks:
+  prepare-test-assets:
+    command: python
+    args: [ci/tools/moon_ci.py, prepare-test-assets]
+    inputs:
+      - '/cuda_pathfinder/pyproject.toml'
+      - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
+      - '/cuda_bindings/pyproject.toml'
+      - '/cuda_bindings/.moon-out/wheel-current/*.whl'
+      - '/cuda_core/pyproject.toml'
+      - '/cuda_core/.moon-out/wheel-current/*.whl'
+      - '/ci/tools/moon_ci.py'
+      - '/.github/workflows/build-wheel.yml'
+    options:
+      os: [linux, windows]
+      runInCI: true

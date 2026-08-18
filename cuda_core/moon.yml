@@ -47,6 +47,9 @@ tasks:
   wheel-current:
     command: python
     args: [ci/tools/moon_ci.py, native-wheel, core, --lane, current]
+    deps:
+      - target: bindings:wheel-current
+        cacheStrategy: outputs
     env:
       BUILD_CUDA_MAJOR: '${BUILD_CUDA_MAJOR}'
       BUILD_CUDA_VER: '${BUILD_CUDA_VER}'
@@ -73,11 +76,16 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py core native
         hash: stdout
-    tags: [ci-wheel-current]
+    tags:
+      - ci-wheel-current
+      - runner-build-linux-64
+      - runner-build-linux-aarch64
+      - runner-build-windows
     type: build
     options:
       cache: true
       cacheKey: wheel-current-v2
+      priority: critical
       runInCI: true
 
   wheel-previous:
@@ -98,7 +106,6 @@ tasks:
       - '/ci/tools/moon_ci.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/ci/tools/env-vars'
-      - '/ci/tools/merge_cuda_core_wheels.py'
       - '/ci/versions.yml'
       - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
@@ -108,16 +115,23 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py core previous
         hash: stdout
-    tags: [ci-wheel-previous]
+    tags:
+      - runner-build-linux-64
+      - runner-build-linux-aarch64
+      - runner-build-windows
     type: build
     options:
       cache: true
       cacheKey: wheel-previous-v2
+      priority: critical
       runInCI: true
 
   wheel-merge:
     command: python
     args: [ci/tools/moon_ci.py, merge-core-wheels]
+    # Current and previous CUDA toolkits are provisioned outside Moon, so the
+    # two input wheels are deliberately staged in separate invocations before
+    # this task merges their declared outputs.
     inputs:
       - '@group(package)'
       - {project: pathfinder, group: package}
@@ -135,7 +149,10 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py core native
         hash: stdout
-    tags: [ci-wheel-merge]
+    tags:
+      - runner-build-linux-64
+      - runner-build-linux-aarch64
+      - runner-build-windows
     type: build
     options:
       cache: true
@@ -146,8 +163,10 @@ tasks:
     command: python
     args: [ci/tools/moon_ci.py, sdist, core]
     deps:
-      - pathfinder:sdist
-      - bindings:sdist
+      - target: pathfinder:sdist
+        cacheStrategy: outputs
+      - target: bindings:sdist
+        cacheStrategy: outputs
     env:
       BUILD_CUDA_MAJOR: '${BUILD_CUDA_MAJOR}'
       BUILD_CUDA_VER: '${BUILD_CUDA_VER}'
@@ -168,7 +187,7 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py core sdist
         hash: stdout
-    tags: [ci-sdist]
+    tags: [ci-sdist, runner-sdist-linux, runner-sdist-windows]
     type: build
     options:
       cache: true
@@ -178,6 +197,8 @@ tasks:
   cython-test-assets:
     command: python
     args: [ci/tools/moon_ci.py, cython-test-assets, core]
+    deps:
+      - test-helpers:prepare-test-assets
     inputs:
       - '@group(package)'
       - 'tests/cython/**/*'
@@ -196,11 +217,16 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py core test-assets
         hash: stdout
-    tags: [ci-build-test-assets]
+    tags:
+      - ci-build-cython-assets
+      - runner-build-linux-64
+      - runner-build-linux-aarch64
+      - runner-build-windows
     type: build
     options:
       cache: true
       cacheKey: cython-test-assets-v2
+      os: [linux, windows]
       runInCI: true
 
   test-binaries:
@@ -224,11 +250,15 @@ tasks:
       - check: fingerprint
         script: python ci/tools/moon_fingerprint.py core test-assets
         hash: stdout
-    tags: [ci-build-test-assets]
+    tags:
+      - runner-build-linux-64
+      - runner-build-linux-aarch64
+      - runner-build-windows
     type: build
     options:
       cache: true
       cacheKey: test-binaries-v2
+      os: [linux, windows]
       runInCI: true
 
   test:
@@ -267,9 +297,11 @@ tasks:
       - '/ci/tools/install_gpu_driver.sh'
       - '/ci/tools/setup-sanitizer'
       - '/.github/workflows/test-wheel-linux.yml'
-    tags: [ci-test-linux]
+    tags: [ci-test-linux, runner-test-linux]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: linux
       runInCI: true
 
   test-installed-windows:
@@ -292,18 +324,94 @@ tasks:
       - '/ci/tools/configure_driver_mode.ps1'
       - '/ci/tools/install_gpu_driver.ps1'
       - '/.github/workflows/test-wheel-windows.yml'
-    tags: [ci-test-windows]
+    tags: [ci-test-windows, runner-test-windows]
     type: test
     options:
+      mutex: ci-python-gpu
+      os: windows
       runInCI: true
 
   docs:
-    command: python
-    args: [ci/tools/moon_ci.py, pixi-docs, core]
+    command: pixi
+    args: [run, --manifest-path, cuda_core/pixi.toml, --environment, docs, docs-build]
     inputs:
       - '@group(package)'
       - '@group(docs)'
-      - '/cuda_pathfinder/**/*'
-      - '/cuda_bindings/**/*'
+      - {project: pathfinder, group: package}
+      - {project: pathfinder, group: docs}
+      - {project: bindings, group: package}
+      - {project: bindings, group: docs}
+      - '/.github/workflows/build-docs.yml'
+
+  docs-ci:
+    command: python
+    args: [ci/tools/moon_ci.py, docs-component, core]
+    env:
+      CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
+    inputs:
+      - '@group(package)'
+      - '@group(docs)'
+      - {project: pathfinder, group: package}
+      - {project: bindings, group: package}
+      - '/cuda_python/docs/environment-docs.yml'
       - '/ci/tools/moon_ci.py'
       - '/.github/workflows/build-docs.yml'
+    outputs:
+      - '.moon-out/docs-ci'
+    tags: [ci-docs, runner-docs]
+    type: build
+    options:
+      os: linux
+      runInCI: true
+
+  quality-api-release:
+    command: uvx
+    args:
+      - --no-managed-python
+      - --no-python-downloads
+      - griffe
+      - check
+      - cuda.core
+      - --search
+      - cuda_core
+      - --find-stubs-packages
+      - --against
+      - '${CUDA_CORE_API_RELEASE_BASE}'
+      - --format
+      - github
+    env:
+      CUDA_CORE_API_RELEASE_BASE: '${CUDA_CORE_API_RELEASE_BASE}'
+    inputs:
+      - 'cuda/core/**/*'
+      - '/.github/actions/griffe-api-check/action.yml'
+    tags: [ci-quality, runner-quality]
+    type: test
+    options:
+      os: linux
+      runInCI: true
+
+  quality-api-base:
+    command: uvx
+    args:
+      - --no-managed-python
+      - --no-python-downloads
+      - griffe
+      - check
+      - cuda.core
+      - --search
+      - cuda_core
+      - --find-stubs-packages
+      - --against
+      - '${CUDA_CORE_API_MERGE_BASE}'
+      - --format
+      - github
+    env:
+      CUDA_CORE_API_MERGE_BASE: '${CUDA_CORE_API_MERGE_BASE}'
+    inputs:
+      - 'cuda/core/**/*'
+      - '/.github/actions/griffe-api-check/action.yml'
+    tags: [ci-quality, runner-quality]
+    type: test
+    options:
+      os: linux
+      runInCI: true

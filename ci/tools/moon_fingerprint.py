@@ -14,6 +14,8 @@ import importlib.metadata
 import json
 import os
 import platform
+import shlex
+import shutil
 import subprocess
 import sysconfig
 from pathlib import Path
@@ -49,17 +51,23 @@ LANE_VARIABLES = (
     "BUILD_CUDA_MAJOR",
     "BUILD_CUDA_VER",
     "BUILD_PREV_CUDA_MAJOR",
+    "CC",
     "CIBW_ARCHS",
     "CIBW_BUILD",
     "CIBW_ENABLE",
+    "CL",
+    "CPLUS_INCLUDE_PATH",
+    "CXX",
     "CUDA_CORE_BUILD_MAJOR",
     "CUDA_PATH",
     "CUDA_PYTHON_LANE",
     "CUDA_VER",
     "HOST_PLATFORM",
+    "PY_EXT_SUFFIX",
     "PY_VER",
 )
 PYTHON_TOOLS = ("build", "cibuildwheel", "packaging", "pip", "setuptools", "setuptools-scm", "wheel")
+TEST_ASSET_PYTHON_TOOLS = ("Cython", "numpy")
 
 
 def _git_describe(pattern: str) -> str:
@@ -78,6 +86,39 @@ def _distribution_version(name: str) -> str:
         return importlib.metadata.version(name)
     except importlib.metadata.PackageNotFoundError:
         return "<not-installed>"
+
+
+def _configured_compilers() -> set[str]:
+    commands = {"cc", "c++", "cl", "nvcc"}
+    for variable, config_var in (("CC", "CC"), ("CXX", "CXX")):
+        configured = os.environ.get(variable) or sysconfig.get_config_var(config_var) or ""
+        try:
+            tokens = shlex.split(configured, posix=os.name != "nt")
+        except ValueError:
+            tokens = []
+        commands.update(token for token in tokens if token and not token.startswith("-"))
+    return commands
+
+
+def _native_tool_identities() -> dict[str, dict[str, object]]:
+    identities: dict[str, dict[str, object]] = {}
+    for command in sorted(_configured_compilers()):
+        executable = shutil.which(command)
+        if executable is None:
+            continue
+        result = subprocess.run(  # noqa: S603 - commands are resolved compiler executables, not shell input.
+            [executable, "--version"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            timeout=10,
+        )
+        identities[command] = {
+            "output": result.stdout.strip(),
+            "returncode": result.returncode,
+        }
+    return identities
 
 
 def _scm_environment(project: str) -> dict[str, str]:
@@ -103,6 +144,7 @@ def _scm_identity(project: str) -> dict[str, object]:
 
 
 def fingerprint(project: str, lane: str) -> str:
+    python_tools = PYTHON_TOOLS + (TEST_ASSET_PYTHON_TOOLS if lane == "test-assets" else ())
     payload: dict[str, object] = {
         "lane": lane,
         "project": project,
@@ -111,7 +153,7 @@ def fingerprint(project: str, lane: str) -> str:
             "soabi": sysconfig.get_config_var("SOABI") or "",
             "version": platform.python_version(),
         },
-        "python_tools": {name: _distribution_version(name) for name in PYTHON_TOOLS},
+        "python_tools": {name: _distribution_version(name) for name in python_tools},
         "scm": _scm_identity(project),
     }
     if lane != "portable":
@@ -121,6 +163,8 @@ def fingerprint(project: str, lane: str) -> str:
                 "platform": {"machine": platform.machine(), "system": platform.system()},
             }
         )
+    if lane == "test-assets":
+        payload["native_tools"] = _native_tool_identities()
     encoded = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
     return hashlib.sha256(encoded).hexdigest()
 

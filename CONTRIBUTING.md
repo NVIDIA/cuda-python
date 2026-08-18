@@ -271,7 +271,7 @@ $ moon run <project>:<task>
 $ moon run metapackage:wheel-pure
 $ moon run root:test
 $ moon run root:pure-wheel
-$ MOON_BASE=origin/main MOON_HEAD=HEAD moon ci ':#ci-test-linux' --downstream none
+$ MOON_BASE=origin/main MOON_HEAD=HEAD moon ci ':#ci-test-linux' --upstream deep --downstream none
 ```
 
 CI workers follow Moon's CI model: after GitHub Actions provisions the required Python, CUDA toolkit, compiler, or
@@ -280,13 +280,20 @@ execution, cache hits, and output hydration. GitHub Actions retains heterogeneou
 and release or Pages publishing. The explicit `--downstream none` keeps work from crossing those runner-class
 boundaries; upstream dependencies remain part of the Moon task graph where they share a cache and environment.
 
+The current and previous CUDA variants of `cuda.core` are intentionally separate tasks because Moon does not
+provision or switch CUDA toolkits. For a local merged wheel, activate the current toolkit and run the current wheel
+tasks, stage the matching previous-branch `cuda.bindings` wheel, activate the previous toolkit and run
+`core:wheel-previous`, then run `core:wheel-merge`. CI follows the same staged sequence and lets Moon parallelize
+independent work within each phase.
+
 For ephemeral runners, CI uploads the portable `.moon/cache/hashes` and `.moon/cache/outputs` directories as
 ordinary immutable GitHub workflow artifacts. A later producer restores the lane-qualified artifact from the
 successful trusted `main` run at the exact merge-base commit, then runs `moon ci`; GitHub transports the local cache
-while Moon alone interprets its hashes and hydrates task outputs. Conventional wheel artifacts remain the
-cross-runner input to GPU tests and release tooling. Missing or incomplete cache artifacts conservatively allocate
-the producer runners and start with an empty cache. Generated `.moon/cache` and `.moon-out` directories are ignored
-by Git.
+while Moon alone interprets its hashes and hydrates task outputs. Lane bundles also carry Moon's canonical task
+outputs between heterogeneous build and test runners, while conventional named wheel artifacts remain available for
+release tooling. Context-sensitive documentation is rebuilt as four parallel Moon tasks whenever its runner is
+selected. Missing or incomplete cache artifacts conservatively allocate the producer runners and start with an empty
+cache. Generated `.moon/cache` and `.moon-out` directories are ignored by Git.
 
 ### CI Pipeline Flow
 

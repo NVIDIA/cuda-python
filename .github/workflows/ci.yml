@@ -27,7 +27,7 @@ on:
 
 jobs:
   # This is the only unconditional planning runner. Moon owns affected
-  # detection and writes marker outputs before any expensive runner is started.
+  # detection and identifies runner classes before expensive jobs are started.
   gate:
     name: Plan affected CI lanes
     runs-on: ubuntu-latest
@@ -44,25 +44,20 @@ jobs:
       moon-head: ${{ steps.baseline.outputs.moon-head }}
       moon-base-run-id: ${{ steps.baseline.outputs.moon-base-run-id }}
       moon-base-sha: ${{ steps.baseline.outputs.moon-base-sha }}
-      moon-force-all: ${{ steps.markers.outputs.force-all }}
-      build-portable: ${{ steps.markers.outputs.build-portable }}
-      build-linux-64: ${{ steps.markers.outputs.build-linux-64 }}
-      build-linux-aarch64: ${{ steps.markers.outputs.build-linux-aarch64 }}
-      build-windows: ${{ steps.markers.outputs.build-windows }}
-      test-sdist-linux: ${{ steps.markers.outputs.test-sdist-linux }}
-      test-sdist-windows: ${{ steps.markers.outputs.test-sdist-windows }}
-      test-linux: ${{ steps.markers.outputs.test-linux }}
-      test-windows: ${{ steps.markers.outputs.test-windows }}
-      docs: ${{ steps.markers.outputs.docs }}
-      core-api: ${{ steps.markers.outputs.core-api }}
-      build-pathfinder: ${{ steps.markers.outputs.build-pathfinder }}
-      build-bindings: ${{ steps.markers.outputs.build-bindings }}
-      build-core: ${{ steps.markers.outputs.build-core }}
-      build-metapackage: ${{ steps.markers.outputs.build-metapackage }}
-      test-pathfinder: ${{ steps.markers.outputs.test-pathfinder }}
-      test-bindings: ${{ steps.markers.outputs.test-bindings }}
-      test-core: ${{ steps.markers.outputs.test-core }}
-      test-metapackage: ${{ steps.markers.outputs.test-metapackage }}
+      moon-force-all: ${{ steps.lanes.outputs.force-all }}
+      build-portable: ${{ steps.lanes.outputs.build-portable }}
+      build-linux-64: ${{ steps.lanes.outputs.build-linux-64 }}
+      build-linux-aarch64: ${{ steps.lanes.outputs.build-linux-aarch64 }}
+      build-windows: ${{ steps.lanes.outputs.build-windows }}
+      sdist-linux: ${{ steps.lanes.outputs.sdist-linux }}
+      sdist-windows: ${{ steps.lanes.outputs.sdist-windows }}
+      test-linux: ${{ steps.lanes.outputs.test-linux }}
+      test-windows: ${{ steps.lanes.outputs.test-windows }}
+      docs: ${{ steps.lanes.outputs.docs }}
+      quality: ${{ steps.lanes.outputs.quality }}
+      test-linux-64-matrix: ${{ steps.matrices.outputs.test-linux-64 }}
+      test-linux-aarch64-matrix: ${{ steps.matrices.outputs.test-linux-aarch64 }}
+      test-windows-matrix: ${{ steps.matrices.outputs.test-windows }}
     defaults:
       run:
         shell: bash --noprofile --norc -euo pipefail {0}
@@ -112,7 +107,6 @@ jobs:
           IS_PR: ${{ startsWith(github.ref_name, 'pull-request/') }}
           SKIP: ${{ steps.directives.outputs.skip }}
           BASE_REF: ${{ steps.directives.outputs.base-ref }}
-          CUDA_BUILD_VER: ${{ steps.vars.outputs.cuda-build-ver }}
         run: |
           head="$(git rev-parse HEAD)"
           base="${head}"
@@ -160,27 +154,15 @@ jobs:
               )"
 
               expected=(
-                cuda-pathfinder-wheel
-                cuda-python-wheel
-                moon-cache-build-portable
-                moon-cache-sdist-linux-64
-                moon-cache-sdist-win-64
+                moon-lane-build-portable
+                moon-lane-sdist-linux-64
+                moon-lane-sdist-win-64
               )
-              python_versions=(3.10 3.11 3.12 3.13 3.14 3.14t 3.15 3.15t)
+              python_versions=(310 311 312 313 314 314t 315 315t)
               host_platforms=(linux-64 linux-aarch64 win-64)
               for host_platform in "${host_platforms[@]}"; do
                 for python_version in "${python_versions[@]}"; do
-                  python_version_formatted="${python_version//./}"
-                  bindings_artifact="cuda-bindings-python${python_version_formatted}-cuda${CUDA_BUILD_VER}-${host_platform}-${base}"
-                  core_artifact="cuda-core-python${python_version_formatted}-${host_platform}-${base}"
-                  expected+=(
-                    "${bindings_artifact}"
-                    "${bindings_artifact}-tests"
-                    "${core_artifact}"
-                    "${core_artifact}-tests"
-                    "${core_artifact}-test-binaries"
-                  )
-                  expected+=("moon-cache-build-${host_platform}-py${python_version}")
+                  expected+=("moon-lane-build-${host_platform}-py${python_version}")
                 done
               done
 
@@ -230,72 +212,108 @@ jobs:
           auto-install: false
           auto-setup: false
 
-      - name: Validate Moon CI contracts
-        if: ${{ steps.directives.outputs.skip != 'true' }}
-        run: python -m unittest ci.tools.tests.test_moon_ci ci.tools.tests.test_moon_workspace
-
-      - name: Materialize affected CI markers with Moon
+      - name: Query affected Moon tasks
         if: ${{ steps.directives.outputs.skip != 'true' }}
         env:
           MOON_BASE: ${{ steps.baseline.outputs.moon-base }}
           MOON_HEAD: ${{ steps.baseline.outputs.moon-head }}
-          MOON_FORCE_ALL: ${{ steps.baseline.outputs.moon-force-all }}
+          FORCE_ALL: ${{ steps.baseline.outputs.moon-force-all }}
         run: |
-          args=()
-          if [[ "${MOON_FORCE_ALL}" == "true" ]]; then
-            args+=(--force)
+          args=(query tasks)
+          if [[ "${FORCE_ALL}" == "true" ]]; then
+            moon "${args[@]}" > .moon-affected-tasks.json
+          else
+            moon "${args[@]}" \
+              --affected \
+              --upstream none \
+              --downstream deep \
+              > .moon-affected-tasks.json
           fi
-          moon ci ':#ci-gate' --downstream none "${args[@]}"
 
-      - name: Publish lane and module markers
-        id: markers
+      - name: Publish affected runner lanes
+        id: lanes
         if: ${{ always() }}
         env:
           SKIP: ${{ steps.directives.outputs.skip }}
           FORCE_ALL: ${{ steps.baseline.outputs.moon-force-all }}
         run: |
-          force_all="${FORCE_ALL}"
-          if [[ -f "ci/.moon-out/ci-gates/force-all" ||
-                -f "ci/.moon-out/ci-gates/force-all-unowned" ]]; then
+          force_all="${FORCE_ALL:-true}"
+          has_tag() {
+            jq -e --arg tag "$1" \
+              'any(.tasks[][]; (.tags // []) | any(. == $tag))' \
+              .moon-affected-tasks.json > /dev/null
+          }
+
+          if [[ "${SKIP}" != "true" &&
+                -f .moon-affected-tasks.json ]] && has_tag ci-force-all; then
             force_all=true
           fi
           echo "force-all=${force_all}" >> "$GITHUB_OUTPUT"
 
-          markers=(
-            build-portable
-            build-linux-64
-            build-linux-aarch64
-            build-windows
-            test-sdist-linux
-            test-sdist-windows
-            test-linux
-            test-windows
-            docs
-            core-api
-            build-pathfinder
-            build-bindings
-            build-core
-            build-metapackage
-            test-pathfinder
-            test-bindings
-            test-core
-            test-metapackage
+          lanes=(
+            build-portable:runner-build-portable
+            build-linux-64:runner-build-linux-64
+            build-linux-aarch64:runner-build-linux-aarch64
+            build-windows:runner-build-windows
+            sdist-linux:runner-sdist-linux
+            sdist-windows:runner-sdist-windows
+            test-linux:runner-test-linux
+            test-windows:runner-test-windows
+            docs:runner-docs
+            quality:runner-quality
           )
-          for marker in "${markers[@]}"; do
+          for lane in "${lanes[@]}"; do
+            output="${lane%%:*}"
+            tag="${lane#*:}"
             selected=false
             if [[ "${SKIP}" != "true" ]] &&
                { [[ "${force_all}" == "true" ]] ||
-                 [[ -f "ci/.moon-out/ci-gates/${marker}" ]]; }; then
+                 has_tag "${tag}"; }; then
               selected=true
             fi
-            echo "${marker}=${selected}" >> "$GITHUB_OUTPUT"
+            echo "${output}=${selected}" >> "$GITHUB_OUTPUT"
           done
 
-  api-check-core-vs-release:
-    name: API check (cuda_core vs. latest release)
+      - name: Build GPU test matrices
+        id: matrices
+        if: ${{ steps.directives.outputs.skip != 'true' }}
+        run: |
+          build_matrix() {
+            local platform=$1
+            local arch=$2
+            yq -o json ".${platform}.\"pull-request\"" ci/test-matrix.yml \
+              | jq -c --arg arch "${arch}" '
+                  map(select(.ARCH == $arch))
+                  | if length == 0 then
+                      error("Empty " + $arch + " GPU matrix")
+                    elif any(.[];
+                      .DRIVER != "latest" and
+                      .DRIVER != "earliest" and
+                      .FLAVOR == "wsl") then
+                      error("Custom DRIVER is not supported with FLAVOR=wsl")
+                    else
+                      {include: map(. + {
+                        RUNNER_DRIVER: (
+                          if .DRIVER == "latest" or .DRIVER == "earliest"
+                          then .DRIVER
+                          else "latest"
+                          end
+                        )
+                      })}
+                    end'
+          }
+
+          {
+            echo "test-linux-64=$(build_matrix linux amd64)"
+            echo "test-linux-aarch64=$(build_matrix linux arm64)"
+            echo "test-windows=$(build_matrix windows amd64)"
+          } >> "$GITHUB_OUTPUT"
+
+  quality:
+    name: Moon contracts and API compatibility
     if: >-
       ${{ !fromJSON(needs.gate.outputs.skip) &&
-          fromJSON(needs.gate.outputs.core-api) }}
+          fromJSON(needs.gate.outputs.quality) }}
     runs-on: ubuntu-latest
     needs:
       - gate
@@ -305,8 +323,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           filter: blob:none
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39  # v8.2.0
+        with:
+          enable-cache: false
+
+      - name: Set up Moon
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095  # v0.6.4
+        with:
+          moon-version: "2.5.1"
+          auto-install: false
+          auto-setup: false
 
       - name: Find latest release tag
         id: latest-tag
@@ -323,47 +354,26 @@ jobs:
           fi
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
-      - name: Fetch release tag
+      - name: Fetch comparison refs
         shell: bash --noprofile --norc -euo pipefail {0}
         run: |
           git fetch --depth=1 --filter=blob:none origin \
             "refs/tags/${{ steps.latest-tag.outputs.tag }}:refs/tags/${{ steps.latest-tag.outputs.tag }}"
+          git fetch --depth=1 --filter=blob:none origin \
+            "${{ needs.gate.outputs.moon-base }}"
 
-      - name: Check cuda_core public API
-        uses: ./.github/actions/griffe-api-check
-        with:
-          package-name: cuda.core
-          package-dir: cuda_core
-          merge-base: ${{ steps.latest-tag.outputs.tag }}
-
-  api-check-core-vs-base:
-    name: API check (cuda_core vs. merge base)
-    if: >-
-      ${{ startsWith(github.ref_name, 'pull-request/') &&
-          !fromJSON(needs.gate.outputs.skip) &&
-          fromJSON(needs.gate.outputs.core-api) }}
-    runs-on: ubuntu-latest
-    needs:
-      - gate
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-        with:
-          fetch-depth: 1
-          filter: blob:none
-
-      - name: Fetch merge base commit
+      - name: Run affected quality tasks with Moon
         shell: bash --noprofile --norc -euo pipefail {0}
-        run: git fetch --depth=1 --filter=blob:none origin "${{ needs.gate.outputs.moon-base }}"
-
-      - name: Check cuda_core public API
-        uses: ./.github/actions/griffe-api-check
-        with:
-          package-name: cuda.core
-          package-dir: cuda_core
-          merge-base: ${{ needs.gate.outputs.moon-base }}
+        env:
+          CUDA_CORE_API_MERGE_BASE: ${{ needs.gate.outputs.moon-base }}
+          CUDA_CORE_API_RELEASE_BASE: ${{ steps.latest-tag.outputs.tag }}
+          MOON_BASE: ${{ needs.gate.outputs.moon-base }}
+          MOON_HEAD: ${{ github.sha }}
+        run: >-
+          moon ci ':#ci-quality'
+          --upstream none
+          --downstream none
+          ${{ fromJSON(needs.gate.outputs.moon-force-all) && '--force' || '' }}
 
   build-portable:
     name: Build portable wheels
@@ -380,15 +390,13 @@ jobs:
       contents: read
     uses: ./.github/workflows/build-pure-wheel.yml
     with:
-      build-pathfinder: ${{ fromJSON(needs.gate.outputs.build-pathfinder) }}
-      build-metapackage: ${{ fromJSON(needs.gate.outputs.build-metapackage) }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
   # Native builds remain split by platform so their tests can start as soon as
   # the corresponding platform finishes. Each reusable workflow owns its
-  # eight-version Python matrix and per-row Moon cache artifact.
+  # eight-version Python matrix and per-row Moon lane bundle.
   build-linux-64:
     name: Build linux-64, CUDA ${{ needs.gate.outputs.cuda-build-ver }}
     needs:
@@ -412,12 +420,7 @@ jobs:
       host-platform: linux-64
       cuda-version: ${{ needs.gate.outputs.cuda-build-ver }}
       prev-cuda-version: ${{ needs.gate.outputs.cuda-prev-build-ver }}
-      build-bindings: ${{ fromJSON(needs.gate.outputs.build-bindings) }}
-      build-core: ${{ fromJSON(needs.gate.outputs.build-core) }}
-      test-bindings: ${{ fromJSON(needs.gate.outputs.test-bindings) }}
-      test-core: ${{ fromJSON(needs.gate.outputs.test-core) }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
-      baseline-sha: ${{ needs.gate.outputs.moon-base-sha }}
       portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
@@ -444,12 +447,7 @@ jobs:
       host-platform: linux-aarch64
       cuda-version: ${{ needs.gate.outputs.cuda-build-ver }}
       prev-cuda-version: ${{ needs.gate.outputs.cuda-prev-build-ver }}
-      build-bindings: ${{ fromJSON(needs.gate.outputs.build-bindings) }}
-      build-core: ${{ fromJSON(needs.gate.outputs.build-core) }}
-      test-bindings: ${{ fromJSON(needs.gate.outputs.test-bindings) }}
-      test-core: ${{ fromJSON(needs.gate.outputs.test-core) }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
-      baseline-sha: ${{ needs.gate.outputs.moon-base-sha }}
       portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
@@ -476,12 +474,7 @@ jobs:
       host-platform: win-64
       cuda-version: ${{ needs.gate.outputs.cuda-build-ver }}
       prev-cuda-version: ${{ needs.gate.outputs.cuda-prev-build-ver }}
-      build-bindings: ${{ fromJSON(needs.gate.outputs.build-bindings) }}
-      build-core: ${{ fromJSON(needs.gate.outputs.build-core) }}
-      test-bindings: ${{ fromJSON(needs.gate.outputs.test-bindings) }}
-      test-core: ${{ fromJSON(needs.gate.outputs.test-core) }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
-      baseline-sha: ${{ needs.gate.outputs.moon-base-sha }}
       portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
@@ -496,7 +489,7 @@ jobs:
       ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
           !fromJSON(needs.gate.outputs.doc-only) &&
-          fromJSON(needs.gate.outputs.test-sdist-linux) }}
+          fromJSON(needs.gate.outputs.sdist-linux) }}
     permissions:
       actions: read
       contents: read
@@ -516,7 +509,7 @@ jobs:
       ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
           !fromJSON(needs.gate.outputs.doc-only) &&
-          fromJSON(needs.gate.outputs.test-sdist-windows) }}
+          fromJSON(needs.gate.outputs.sdist-windows) }}
     permissions:
       actions: read
       contents: read
@@ -553,11 +546,8 @@ jobs:
       build-type: pull-request
       host-platform: linux-64
       build-ctk-ver: ${{ needs.gate.outputs.cuda-build-ver }}
+      matrix: ${{ needs.gate.outputs.test-linux-64-matrix }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
-      test-pathfinder: ${{ fromJSON(needs.gate.outputs.test-pathfinder) }}
-      test-bindings: ${{ fromJSON(needs.gate.outputs.test-bindings) }}
-      test-core: ${{ fromJSON(needs.gate.outputs.test-core) }}
-      test-python: ${{ fromJSON(needs.gate.outputs.test-metapackage) }}
       run-id: ${{ needs.build-linux-64.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       sha: ${{ needs.build-linux-64.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
       portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
@@ -589,11 +579,8 @@ jobs:
       build-type: pull-request
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.gate.outputs.cuda-build-ver }}
+      matrix: ${{ needs.gate.outputs.test-linux-aarch64-matrix }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
-      test-pathfinder: ${{ fromJSON(needs.gate.outputs.test-pathfinder) }}
-      test-bindings: ${{ fromJSON(needs.gate.outputs.test-bindings) }}
-      test-core: ${{ fromJSON(needs.gate.outputs.test-core) }}
-      test-python: ${{ fromJSON(needs.gate.outputs.test-metapackage) }}
       run-id: ${{ needs.build-linux-aarch64.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       sha: ${{ needs.build-linux-aarch64.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
       portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
@@ -625,11 +612,8 @@ jobs:
       build-type: pull-request
       host-platform: win-64
       build-ctk-ver: ${{ needs.gate.outputs.cuda-build-ver }}
+      matrix: ${{ needs.gate.outputs.test-windows-matrix }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
-      test-pathfinder: ${{ fromJSON(needs.gate.outputs.test-pathfinder) }}
-      test-bindings: ${{ fromJSON(needs.gate.outputs.test-bindings) }}
-      test-core: ${{ fromJSON(needs.gate.outputs.test-core) }}
-      test-python: ${{ fromJSON(needs.gate.outputs.test-metapackage) }}
       run-id: ${{ needs.build-windows.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
       sha: ${{ needs.build-windows.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
       portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
@@ -661,10 +645,8 @@ jobs:
     with:
       is-release: ${{ github.ref_type == 'tag' }}
       run-id: ${{ needs.build-linux-64.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
-      sha: ${{ needs.build-linux-64.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
+      sha: ${{ github.sha }}
       portable-run-id: ${{ needs.build-portable.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
-      moon-base: ${{ needs.gate.outputs.moon-base }}
-      force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
   precommit-windows:
     name: Pre-commit on Windows
@@ -701,8 +683,7 @@ jobs:
     permissions: {}
     needs:
       - gate
-      - api-check-core-vs-release
-      - api-check-core-vs-base
+      - quality
       - build-portable
       - build-linux-64
       - build-linux-aarch64
@@ -772,8 +753,8 @@ jobs:
           test_linux=false
           test_windows=false
           if [[ "${doc_only}" != "true" ]]; then
-            sdist_linux="${{ needs.gate.outputs.test-sdist-linux }}"
-            sdist_windows="${{ needs.gate.outputs.test-sdist-windows }}"
+            sdist_linux="${{ needs.gate.outputs.sdist-linux }}"
+            sdist_windows="${{ needs.gate.outputs.sdist-windows }}"
             test_linux="${{ needs.gate.outputs.test-linux }}"
             test_windows="${{ needs.gate.outputs.test-windows }}"
           fi
@@ -783,13 +764,7 @@ jobs:
           check_result test-linux-aarch64 "$(expected_for "${test_linux}")" "${{ needs.test-linux-aarch64.result }}"
           check_result test-windows "$(expected_for "${test_windows}")" "${{ needs.test-windows.result }}"
 
-          core_api="${{ needs.gate.outputs.core-api }}"
-          core_api_base=false
-          if [[ "${GITHUB_REF_NAME}" == pull-request/* ]]; then
-            core_api_base="${core_api}"
-          fi
-          check_result api-check-core-vs-release "$(expected_for "${core_api}")" "${{ needs.api-check-core-vs-release.result }}"
-          check_result api-check-core-vs-base "$(expected_for "${core_api_base}")" "${{ needs.api-check-core-vs-base.result }}"
+          check_result quality "$(expected_for "${{ needs.gate.outputs.quality }}")" "${{ needs.quality.result }}"
           check_result doc "$(expected_for "${{ needs.gate.outputs.docs }}")" "${{ needs.doc.result }}"
           check_result precommit-windows success "${{ needs.precommit-windows.result }}"
 

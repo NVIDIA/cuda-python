@@ -6,17 +6,6 @@ $schema: https://moonrepo.dev/schemas/v2/project.json
 
 language: unknown
 layer: automation
-dependsOn:
-  - id: pathfinder
-    scope: development
-  - id: bindings
-    scope: development
-  - id: core
-    scope: development
-  - id: metapackage
-    scope: development
-  - id: bindings-benchmarks
-    scope: development
 toolchains:
   default: system
 
@@ -26,9 +15,8 @@ taskOptions:
   runFromWorkspaceRoot: true
   runInCI: true
 
-# Runner allocation is modeled as ordinary affected Moon tasks. Package-owned
-# file groups remain the source of truth; these tasks only map them onto the
-# heterogeneous runner classes that GitHub Actions must allocate.
+# Runner allocation tags live on the real build and test tasks. This project
+# only owns the two conservative catch-all inputs and the Moon contract test.
 fileGroups:
   orchestration:
     - '/.moon/**/*'
@@ -47,46 +35,6 @@ fileGroups:
     - '/pixi.lock'
     - '/pytest.ini'
     - '/ruff.toml'
-
-  test-common:
-    - '/tests/**/*'
-    - '/ci/test-matrix.yml'
-    - '/ci/tools/env-vars'
-  test-library-runner:
-    - '/ci/tools/run-tests'
-  test-helpers:
-    - '/cuda_python_test_helpers/**/*'
-  test-assets-bindings:
-    - '/cuda_bindings/tests/cython/**/*'
-  test-assets-core:
-    - '/cuda_core/tests/cython/**/*'
-    - '/cuda_core/tests/test_binaries/**/*'
-
-  build-portable:
-    - '/.github/workflows/build-pure-wheel.yml'
-  build-native-common:
-    - '/.github/workflows/build-wheel.yml'
-    - '/.github/actions/fetch_ctk/**/*'
-    - '/ci/versions.yml'
-    - '/ci/tools/env-vars'
-  build-native-core:
-    - '/ci/tools/merge_cuda_core_wheels.py'
-  sdist-linux:
-    - '/.github/workflows/test-sdist-linux.yml'
-  sdist-windows:
-    - '/.github/workflows/test-sdist-windows.yml'
-  test-linux-common:
-    - '/.github/workflows/test-wheel-linux.yml'
-    - '/ci/tools/guess_latest.sh'
-    - '/ci/tools/install_gpu_driver.sh'
-  test-linux-native:
-    - '/ci/tools/setup-sanitizer'
-  test-windows-common:
-    - '/.github/workflows/test-wheel-windows.yml'
-    - '/ci/tools/configure_driver_mode.ps1'
-    - '/ci/tools/install_gpu_driver.ps1'
-  docs:
-    - '/.github/workflows/build-docs.yml'
 
   # A new or otherwise unowned path must never silently suppress CI. Known
   # source, test, docs, and platform inputs are excluded because their precise
@@ -119,7 +67,14 @@ fileGroups:
     - '!/.github/workflows/test-wheel-linux.yml'
     - '!/.github/workflows/test-wheel-windows.yml'
     - '!/.moon/**/*'
-    - '!/benchmarks/cuda_bindings/**/*'
+    - '!/benchmarks/cuda_bindings/benchmarks/**/*'
+    - '!/benchmarks/cuda_bindings/runner/**/*'
+    - '!/benchmarks/cuda_bindings/tests/**/*'
+    - '!/benchmarks/cuda_bindings/compare.py'
+    - '!/benchmarks/cuda_bindings/pixi.lock'
+    - '!/benchmarks/cuda_bindings/pixi.toml'
+    - '!/benchmarks/cuda_bindings/run_cpp.py'
+    - '!/benchmarks/cuda_bindings/run_pyperf.py'
     - '!/ci/moon.yml'
     - '!/ci/test-matrix.yml'
     - '!/ci/versions.yml'
@@ -195,279 +150,29 @@ fileGroups:
     - '!/LICENSE'
 
 tasks:
-  gate-force-all:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, force-all]
+  # These two no-op tasks are the only allocation-only nodes. The planner
+  # inspects their tag and never executes them.
+  force-all:
     inputs:
       - '@group(orchestration)'
-    outputs: ['.moon-out/ci-gates/force-all']
-    tags: [ci-gate]
+    tags: [ci-force-all]
 
-  gate-force-all-unowned:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, force-all-unowned]
+  force-all-unowned:
     inputs:
       - '@group(unowned)'
-    outputs: ['.moon-out/ci-gates/force-all-unowned']
-    tags: [ci-gate]
+    tags: [ci-force-all]
 
-  gate-build-portable:
+  quality-moon-contracts:
     command: python
-    args: [ci/tools/moon_ci.py, gate, build-portable]
+    args: [-m, unittest, ci.tools.tests.test_moon_ci, ci.tools.tests.test_moon_workspace]
     inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: metapackage, group: package}
-      - '@group(build-portable)'
-    outputs: ['.moon-out/ci-gates/build-portable']
-    tags: [ci-gate]
-
-  gate-build-linux-64:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, build-linux-64]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: core, group: package}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-      - '@group(build-native-core)'
-      - '@group(test-assets-bindings)'
-      - '@group(test-assets-core)'
-    outputs: ['.moon-out/ci-gates/build-linux-64']
-    tags: [ci-gate]
-
-  gate-build-linux-aarch64:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, build-linux-aarch64]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: core, group: package}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-      - '@group(build-native-core)'
-      - '@group(test-assets-bindings)'
-      - '@group(test-assets-core)'
-    outputs: ['.moon-out/ci-gates/build-linux-aarch64']
-    tags: [ci-gate]
-
-  gate-build-windows:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, build-windows]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: core, group: package}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-      - '@group(build-native-core)'
-      - '@group(test-assets-bindings)'
-      - '@group(test-assets-core)'
-    outputs: ['.moon-out/ci-gates/build-windows']
-    tags: [ci-gate]
-
-  gate-test-sdist-linux:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, test-sdist-linux]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: core, group: package}
-      - {project: metapackage, group: package}
-      - '@group(sdist-linux)'
-    outputs: ['.moon-out/ci-gates/test-sdist-linux']
-    tags: [ci-gate]
-
-  gate-test-sdist-windows:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, test-sdist-windows]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: core, group: package}
-      - {project: metapackage, group: package}
-      - '@group(sdist-windows)'
-    outputs: ['.moon-out/ci-gates/test-sdist-windows']
-    tags: [ci-gate]
-
-  gate-test-linux:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, test-linux]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: pathfinder, group: tests}
-      - {project: bindings, group: package}
-      - {project: bindings, group: tests}
-      - {project: core, group: package}
-      - {project: core, group: tests}
-      - {project: metapackage, group: package}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-      - '@group(build-native-core)'
-      - '@group(test-common)'
-      - '@group(test-library-runner)'
-      - '@group(test-helpers)'
-      - {project: bindings-benchmarks, group: benchmarks}
-      - '@group(test-linux-common)'
-      - '@group(test-linux-native)'
-    outputs: ['.moon-out/ci-gates/test-linux']
-    tags: [ci-gate]
-
-  gate-test-windows:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, test-windows]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: pathfinder, group: tests}
-      - {project: bindings, group: package}
-      - {project: bindings, group: tests}
-      - {project: core, group: package}
-      - {project: core, group: tests}
-      - {project: metapackage, group: package}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-      - '@group(build-native-core)'
-      - '@group(test-common)'
-      - '@group(test-library-runner)'
-      - '@group(test-helpers)'
-      - '@group(test-windows-common)'
-    outputs: ['.moon-out/ci-gates/test-windows']
-    tags: [ci-gate]
-
-  gate-docs:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, docs]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: pathfinder, group: docs}
-      - {project: bindings, group: package}
-      - {project: bindings, group: docs}
-      - {project: core, group: package}
-      - {project: core, group: docs}
-      - {project: metapackage, group: package}
-      - {project: metapackage, group: docs}
-      - '@group(docs)'
-    outputs: ['.moon-out/ci-gates/docs']
-    tags: [ci-gate]
-
-  gate-core-api:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, core-api]
-    inputs:
-      - '/cuda_core/cuda/core/**/*'
-    outputs: ['.moon-out/ci-gates/core-api']
-    tags: [ci-gate]
-
-  gate-build-pathfinder:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, build-pathfinder]
-    inputs:
-      - {project: pathfinder, group: package}
-      - '@group(build-portable)'
-    outputs: ['.moon-out/ci-gates/build-pathfinder']
-    tags: [ci-gate]
-
-  gate-build-bindings:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, build-bindings]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-    outputs: ['.moon-out/ci-gates/build-bindings']
-    tags: [ci-gate]
-
-  gate-build-core:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, build-core]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: core, group: package}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-      - '@group(build-native-core)'
-    outputs: ['.moon-out/ci-gates/build-core']
-    tags: [ci-gate]
-
-  gate-build-metapackage:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, build-metapackage]
-    inputs:
-      - {project: bindings, group: package}
-      - {project: metapackage, group: package}
-      - '@group(build-portable)'
-    outputs: ['.moon-out/ci-gates/build-metapackage']
-    tags: [ci-gate]
-
-  gate-test-pathfinder:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, test-pathfinder]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: pathfinder, group: tests}
-      - '@group(build-portable)'
-      - '@group(test-common)'
-      - '@group(test-library-runner)'
-      - '@group(test-linux-common)'
-      - '@group(test-windows-common)'
-    outputs: ['.moon-out/ci-gates/test-pathfinder']
-    tags: [ci-gate]
-
-  gate-test-bindings:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, test-bindings]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: bindings, group: tests}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-      - '@group(test-common)'
-      - '@group(test-library-runner)'
-      - '@group(test-helpers)'
-      - {project: bindings-benchmarks, group: benchmarks}
-      - '@group(test-linux-common)'
-      - '@group(test-linux-native)'
-      - '@group(test-windows-common)'
-    outputs: ['.moon-out/ci-gates/test-bindings']
-    tags: [ci-gate]
-
-  gate-test-core:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, test-core]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: core, group: package}
-      - {project: core, group: tests}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-      - '@group(build-native-core)'
-      - '@group(test-common)'
-      - '@group(test-library-runner)'
-      - '@group(test-helpers)'
-      - '@group(test-linux-common)'
-      - '@group(test-linux-native)'
-      - '@group(test-windows-common)'
-    outputs: ['.moon-out/ci-gates/test-core']
-    tags: [ci-gate]
-
-  gate-test-metapackage:
-    command: python
-    args: [ci/tools/moon_ci.py, gate, test-metapackage]
-    inputs:
-      - {project: pathfinder, group: package}
-      - {project: bindings, group: package}
-      - {project: core, group: package}
-      - {project: metapackage, group: package}
-      - '@group(build-portable)'
-      - '@group(build-native-common)'
-      - '@group(build-native-core)'
-      - '@group(test-common)'
-      - '@group(test-linux-common)'
-      - '@group(test-windows-common)'
-    outputs: ['.moon-out/ci-gates/test-metapackage']
-    tags: [ci-gate]
+      - '/.moon/**/*'
+      - '/**/moon.yml'
+      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/moon_fingerprint.py'
+      - '/ci/tools/tests/test_moon_ci.py'
+      - '/ci/tools/tests/test_moon_workspace.py'
+    tags: [ci-quality, runner-quality]
+    type: test
+    options:
+      os: linux

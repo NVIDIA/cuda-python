@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# These tests intentionally use stdlib unittest so the allocation job has no
-# third-party Python dependency.
+# These tests intentionally use stdlib unittest so Moon's contract task does
+# not need a separately managed Python test environment.
 # ruff: noqa: PT009
 
 from __future__ import annotations
@@ -27,41 +27,17 @@ EXPECTED_PROJECTS = {
     "test-helpers": "cuda_python_test_helpers",
     "bindings-benchmarks": "benchmarks/cuda_bindings",
 }
-GATE_MARKERS = {
-    "force-all",
-    "force-all-unowned",
-    "build-portable",
-    "build-linux-64",
-    "build-linux-aarch64",
-    "build-windows",
-    "test-sdist-linux",
-    "test-sdist-windows",
-    "test-linux",
-    "test-windows",
-    "docs",
-    "core-api",
-    "build-pathfinder",
-    "build-bindings",
-    "build-core",
-    "build-metapackage",
-    "test-pathfinder",
-    "test-bindings",
-    "test-core",
-    "test-metapackage",
-}
-TAG_TARGETS = {
+EXECUTION_TAG_TARGETS = {
     "ci-wheel-pure": {"pathfinder:wheel-pure", "metapackage:wheel-pure"},
     "ci-wheel-current": {"bindings:wheel-current", "core:wheel-current"},
-    "ci-wheel-previous": {"core:wheel-previous"},
-    "ci-wheel-merge": {"core:wheel-merge"},
-    "ci-build-test-assets": {
+    "ci-build-cython-assets": {
         "bindings:cython-test-assets",
         "core:cython-test-assets",
-        "core:test-binaries",
     },
     "ci-sdist": {"pathfinder:sdist", "bindings:sdist", "core:sdist", "metapackage:sdist"},
     "ci-test-linux": {
         "pathfinder:test-installed-linux",
+        "pathfinder:prepare-strict-linux",
         "pathfinder:test-installed-linux-strict",
         "bindings:test-installed-linux",
         "core:test-installed-linux",
@@ -70,13 +46,47 @@ TAG_TARGETS = {
     },
     "ci-test-windows": {
         "pathfinder:test-installed-windows",
+        "pathfinder:prepare-strict-windows",
         "pathfinder:test-installed-windows-strict",
         "bindings:test-installed-windows",
         "core:test-installed-windows",
         "metapackage:test-installed-windows",
     },
-    "ci-docs": {"root:docs-ci"},
+    "ci-docs": {
+        "pathfinder:docs-ci",
+        "bindings:docs-ci",
+        "core:docs-ci",
+        "metapackage:docs-ci",
+        "root:docs-ci",
+    },
+    "ci-quality": {
+        "ci:quality-moon-contracts",
+        "core:quality-api-base",
+        "core:quality-api-release",
+        "bindings-benchmarks:unit-test",
+    },
 }
+RUNNER_TAG_TARGETS = {
+    "runner-build-portable": EXECUTION_TAG_TARGETS["ci-wheel-pure"],
+    "runner-build-linux-64": {
+        "bindings:wheel-current",
+        "core:wheel-current",
+        "bindings:cython-test-assets",
+        "core:cython-test-assets",
+        "core:wheel-previous",
+        "core:test-binaries",
+        "core:wheel-merge",
+    },
+    "runner-sdist-linux": EXECUTION_TAG_TARGETS["ci-sdist"],
+    "runner-sdist-windows": EXECUTION_TAG_TARGETS["ci-sdist"],
+    "runner-test-linux": EXECUTION_TAG_TARGETS["ci-test-linux"],
+    "runner-test-windows": EXECUTION_TAG_TARGETS["ci-test-windows"],
+    "runner-docs": EXECUTION_TAG_TARGETS["ci-docs"],
+    "runner-quality": EXECUTION_TAG_TARGETS["ci-quality"],
+}
+RUNNER_TAG_TARGETS["runner-build-linux-aarch64"] = RUNNER_TAG_TARGETS["runner-build-linux-64"]
+RUNNER_TAG_TARGETS["runner-build-windows"] = RUNNER_TAG_TARGETS["runner-build-linux-64"]
+
 CACHED_OUTPUTS = {
     "pathfinder:wheel-pure": ".moon-out/wheel-pure",
     "pathfinder:sdist": ".moon-out/sdist",
@@ -92,6 +102,7 @@ CACHED_OUTPUTS = {
     "metapackage:wheel-pure": ".moon-out/wheel-pure",
     "metapackage:sdist": ".moon-out/sdist",
 }
+FINGERPRINTED_TARGETS = set(CACHED_OUTPUTS)
 
 
 class MoonWorkspaceContractTest(unittest.TestCase):
@@ -117,34 +128,60 @@ class MoonWorkspaceContractTest(unittest.TestCase):
     def test_projects_use_only_the_system_toolchain(self) -> None:
         projects = self.moon_json("projects", "--json")
         by_id = {project["id"]: project for project in projects}
-        self.assertEqual(
-            {project_id: project["source"] for project_id, project in by_id.items()},
-            EXPECTED_PROJECTS,
-        )
+        self.assertEqual({project_id: project["source"] for project_id, project in by_id.items()}, EXPECTED_PROJECTS)
         for project in by_id.values():
             self.assertEqual(project["language"], "unknown")
             self.assertEqual(project["toolchains"], ["system"])
 
-    def test_ci_gates_are_real_uncached_marker_tasks(self) -> None:
-        expected_targets = {f"ci:gate-{marker}" for marker in GATE_MARKERS}
-        tagged = {task["target"] for task in self.tasks if "ci-gate" in task.get("tags", [])}
-        self.assertEqual(tagged, expected_targets)
-        for marker in GATE_MARKERS:
-            task = self.by_target[f"ci:gate-{marker}"]
-            self.assertEqual(task["command"], "python")
-            self.assertEqual(task["args"], ["ci/tools/moon_ci.py", "gate", marker])
+    def test_only_force_all_tasks_are_allocation_only(self) -> None:
+        self.assertFalse({task["target"] for task in self.tasks if "ci-gate" in task.get("tags", [])})
+        forced = {task["target"] for task in self.tasks if "ci-force-all" in task.get("tags", [])}
+        self.assertEqual(forced, {"ci:force-all", "ci:force-all-unowned"})
+        for target in forced:
+            task = self.by_target[target]
+            self.assertEqual(task["command"], "noop")
             self.assertFalse(task["options"]["cache"])
-            self.assertFalse(task["options"]["internal"])
             self.assertTrue(task["options"]["runInCI"])
-            self.assertEqual(task["outputs"], [{"file": f".moon-out/ci-gates/{marker}"}])
+            self.assertFalse(task.get("outputs"))
 
-    def test_ci_tags_select_the_intended_real_tasks(self) -> None:
-        for tag, expected in TAG_TARGETS.items():
+    def test_benchmark_inputs_are_owned_without_hiding_new_paths(self) -> None:
+        def affected(path: str) -> set[str]:
+            result = subprocess.run(  # noqa: S603 - the binary is explicitly selected in setUpClass.
+                [
+                    self.moon,
+                    "query",
+                    "tasks",
+                    "--affected",
+                    "stdin",
+                    "--upstream",
+                    "none",
+                    "--downstream",
+                    "deep",
+                ],
+                cwd=REPO_ROOT,
+                check=True,
+                input=path,
+                text=True,
+                stdout=subprocess.PIPE,
+            )
+            queried = json.loads(result.stdout)
+            return {task["target"] for project in queried["tasks"].values() for task in project.values()}
+
+        self.assertIn(
+            "bindings-benchmarks:unit-test",
+            affected("benchmarks/cuda_bindings/tests/test_runner.py"),
+        )
+        self.assertIn(
+            "ci:force-all-unowned",
+            affected("benchmarks/cuda_bindings/new_helper.py"),
+        )
+
+    def test_execution_and_runner_tags_select_real_tasks(self) -> None:
+        for tag, expected in {**EXECUTION_TAG_TARGETS, **RUNNER_TAG_TARGETS}.items():
             selected = {task["target"] for task in self.tasks if tag in task.get("tags", [])}
             self.assertEqual(selected, expected, tag)
             for target in selected:
-                self.assertNotEqual(self.by_target[target]["command"], "noop")
-                self.assertTrue(self.by_target[target]["options"]["runInCI"])
+                self.assertTrue(self.by_target[target]["options"]["runInCI"], target)
 
     def test_cached_producers_have_explicit_non_overlapping_outputs(self) -> None:
         cached = {task["target"] for task in self.tasks if task["options"]["cache"]}
@@ -154,201 +191,123 @@ class MoonWorkspaceContractTest(unittest.TestCase):
             task = self.by_target[target]
             self.assertEqual(task["outputs"], [{"file": output}])
             self.assertTrue(task.get("inputs"))
-            self.assertTrue(task.get("checks"))
-            self.assertNotIn("CUDA_PYTHON_TOOL_VERSIONS", task.get("env") or {})
-            self.assertIn({"file": "/ci/tools/moon_fingerprint.py"}, task["inputs"])
             project = target.split(":", maxsplit=1)[0]
             self.assertNotIn((project, output), destinations)
             destinations.add((project, output))
+        for target in FINGERPRINTED_TARGETS:
+            task = self.by_target[target]
+            self.assertTrue(task.get("checks"), target)
+            self.assertIn({"file": "/ci/tools/moon_fingerprint.py"}, task["inputs"])
 
-    def test_tests_and_docs_are_uncached(self) -> None:
-        ci_test_targets = set().union(
-            TAG_TARGETS["ci-test-linux"], TAG_TARGETS["ci-test-windows"], TAG_TARGETS["ci-docs"]
-        )
-        for target in ci_test_targets:
-            self.assertFalse(self.by_target[target]["options"]["cache"])
+    def test_same_environment_build_dependencies_use_output_bytes(self) -> None:
+        expected = {
+            "core:wheel-current": {"bindings:wheel-current"},
+            "bindings:sdist": {"pathfinder:sdist"},
+            "core:sdist": {"pathfinder:sdist", "bindings:sdist"},
+            "metapackage:sdist": {"bindings:sdist"},
+            "root:docs-ci": {
+                "pathfinder:docs-ci",
+                "bindings:docs-ci",
+                "core:docs-ci",
+                "metapackage:docs-ci",
+            },
+        }
+        for target, dependencies in expected.items():
+            configured = {dep["target"] for dep in self.by_target[target]["deps"]}
+            self.assertEqual(configured, dependencies, target)
+            self.assertTrue(all(dep["cacheStrategy"] == "outputs" for dep in self.by_target[target]["deps"]), target)
 
-    def test_cross_runner_tasks_do_not_execute_producer_dependencies(self) -> None:
-        for tag in (
-            "ci-test-linux",
-            "ci-test-windows",
-            "ci-build-test-assets",
-            "ci-wheel-current",
-            "ci-wheel-previous",
-        ):
-            for target in TAG_TARGETS[tag]:
+    def test_native_asset_preparation_is_shared(self) -> None:
+        prep = self.by_target["test-helpers:prepare-test-assets"]
+        self.assertFalse(prep["options"]["cache"])
+        for target in ("bindings:cython-test-assets", "core:cython-test-assets"):
+            deps = {dep["target"] for dep in self.by_target[target]["deps"]}
+            self.assertEqual(deps, {"test-helpers:prepare-test-assets"})
+
+    def test_platform_test_tasks_are_serialized_and_os_scoped(self) -> None:
+        for tag, operating_system in (("ci-test-linux", "linux"), ("ci-test-windows", "windows")):
+            for target in EXECUTION_TAG_TARGETS[tag]:
+                options = self.by_target[target]["options"]
+                self.assertEqual(options.get("mutex"), "ci-python-gpu", target)
+                self.assertEqual(options.get("os"), [operating_system], target)
+
+        # Package tests install their own prerequisites. Cross-package deps
+        # would force unaffected test suites to run merely to serialize the
+        # shared interpreter; the mutex provides that serialization instead.
+        for target in EXECUTION_TAG_TARGETS["ci-test-linux"] | EXECUTION_TAG_TARGETS["ci-test-windows"]:
+            if not target.startswith("pathfinder:"):
                 self.assertFalse(self.by_target[target].get("deps"), target)
-        self.assertFalse(self.by_target["core:wheel-merge"].get("deps"))
 
-    def test_native_producers_hash_downloaded_wheel_bytes(self) -> None:
-        required_globs = {
-            "bindings:wheel-current": {"/cuda_pathfinder/.moon-out/wheel-pure/*.whl"},
-            "core:wheel-current": {
-                "/cuda_pathfinder/.moon-out/wheel-pure/*.whl",
-                "/cuda_bindings/.moon-out/wheel-current/*.whl",
-            },
-            "core:wheel-previous": {
-                "/cuda_pathfinder/.moon-out/wheel-pure/*.whl",
-                "/cuda_bindings/.moon-out/wheel-previous/*.whl",
-            },
-        }
-        for target, expected in required_globs.items():
-            configured = {
-                item["glob"] for item in self.by_target[target]["inputs"] if isinstance(item, dict) and "glob" in item
-            }
-            self.assertTrue(expected.issubset(configured), target)
-
-    def test_metapackage_install_smoke_tracks_runtime_inputs(self) -> None:
-        for target in ("metapackage:test-installed-linux", "metapackage:test-installed-windows"):
-            inputs = self.by_target[target]["inputs"]
-            self.assertIn({"project": "pathfinder", "group": "package"}, inputs)
-            self.assertIn({"project": "bindings", "group": "package"}, inputs)
-            self.assertIn({"project": "core", "group": "package"}, inputs)
-            input_globs = {item["glob"] for item in inputs if isinstance(item, dict) and "glob" in item}
-            self.assertIn("/cuda_core/.moon-out/wheel-merged/*.whl", input_globs)
-        self.assertIn(
-            {"project": "core", "group": "package"},
-            self.by_target["ci:gate-test-metapackage"]["inputs"],
-        )
-
-    def test_cross_runner_producer_inputs_reach_exact_consumers(self) -> None:
-        portable_workflow = {"file": "/.github/workflows/build-pure-wheel.yml"}
-        portable_consumers = {
-            "bindings:wheel-current",
-            "core:wheel-current",
-            "core:wheel-previous",
-            "core:wheel-merge",
-            "bindings:cython-test-assets",
-            "core:cython-test-assets",
-            "pathfinder:test-installed-linux",
-            "pathfinder:test-installed-linux-strict",
-            "pathfinder:test-installed-windows",
-            "pathfinder:test-installed-windows-strict",
-            "bindings:test-installed-linux",
-            "bindings:test-installed-windows",
-            "core:test-installed-linux",
-            "core:test-installed-windows",
-            "metapackage:test-installed-linux",
-            "metapackage:test-installed-windows",
-        }
-        for target in portable_consumers:
-            self.assertIn(portable_workflow, self.by_target[target]["inputs"], target)
-
-        native_workflow = {"file": "/.github/workflows/build-wheel.yml"}
-        native_test_consumers = {
-            "bindings:test-installed-linux",
-            "bindings:test-installed-windows",
-            "core:test-installed-linux",
-            "core:test-installed-windows",
-            "metapackage:test-installed-linux",
-            "metapackage:test-installed-windows",
-        }
-        for target in native_test_consumers:
-            self.assertIn(native_workflow, self.by_target[target]["inputs"], target)
-
-        merge_helper = {"file": "/ci/tools/merge_cuda_core_wheels.py"}
-        merge_test_consumers = {
-            "core:test-installed-linux",
-            "core:test-installed-windows",
-            "metapackage:test-installed-linux",
-            "metapackage:test-installed-windows",
-        }
-        for target in merge_test_consumers:
-            self.assertIn(merge_helper, self.by_target[target]["inputs"], target)
-
-    def test_cross_runner_producer_inputs_reach_matching_gates(self) -> None:
-        gate_expectations = {
-            "@group(build-portable)": {
-                "gate-build-portable",
-                "gate-build-linux-64",
-                "gate-build-linux-aarch64",
-                "gate-build-windows",
-                "gate-build-pathfinder",
-                "gate-build-bindings",
-                "gate-build-core",
-                "gate-build-metapackage",
-                "gate-test-linux",
-                "gate-test-windows",
-                "gate-test-pathfinder",
-                "gate-test-bindings",
-                "gate-test-core",
-                "gate-test-metapackage",
-            },
-            "@group(build-native-common)": {
-                "gate-build-linux-64",
-                "gate-build-linux-aarch64",
-                "gate-build-windows",
-                "gate-build-bindings",
-                "gate-build-core",
-                "gate-test-linux",
-                "gate-test-windows",
-                "gate-test-bindings",
-                "gate-test-core",
-                "gate-test-metapackage",
-            },
-            "@group(build-native-core)": {
-                "gate-build-linux-64",
-                "gate-build-linux-aarch64",
-                "gate-build-windows",
-                "gate-build-core",
-                "gate-test-linux",
-                "gate-test-windows",
-                "gate-test-core",
-                "gate-test-metapackage",
-            },
-        }
-        for producer_group, expected_gates in gate_expectations.items():
-            actual_gates = {
-                task["id"]
-                for task in self.tasks
-                if "ci-gate" in task.get("tags", []) and producer_group in task["inputs"]
-            }
-            self.assertEqual(actual_gates, expected_gates, producer_group)
-
-    def test_installed_test_runner_does_not_select_metapackage_smoke(self) -> None:
-        runner_group = "@group(test-library-runner)"
-        for gate in ("gate-test-pathfinder", "gate-test-bindings", "gate-test-core"):
-            self.assertIn(runner_group, self.by_target[f"ci:{gate}"]["inputs"])
-        self.assertNotIn(runner_group, self.by_target["ci:gate-test-metapackage"]["inputs"])
+    def test_pathfinder_strictness_and_preparation_are_in_the_graph(self) -> None:
+        for operating_system in ("linux", "windows"):
+            normal = self.by_target[f"pathfinder:test-installed-{operating_system}"]
+            prepare = self.by_target[f"pathfinder:prepare-strict-{operating_system}"]
+            strict = self.by_target[f"pathfinder:test-installed-{operating_system}-strict"]
+            self.assertEqual(normal["env"]["CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS"], "see_what_works")
+            self.assertEqual(strict["env"]["CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS"], "all_must_work")
+            self.assertEqual({dep["target"] for dep in prepare["deps"]}, {normal["target"]})
+            self.assertEqual({dep["target"] for dep in strict["deps"]}, {prepare["target"]})
 
     def test_platform_test_tasks_track_provider_setup(self) -> None:
-        linux_targets = TAG_TARGETS["ci-test-linux"]
-        windows_targets = TAG_TARGETS["ci-test-windows"]
-        for target in linux_targets:
+        for target in EXECUTION_TAG_TARGETS["ci-test-linux"]:
             inputs = self.by_target[target]["inputs"]
-            self.assertIn({"file": "/ci/tools/guess_latest.sh"}, inputs, target)
-            self.assertIn({"file": "/ci/tools/install_gpu_driver.sh"}, inputs, target)
-        for target in windows_targets:
+            if "bindings-benchmarks" not in target and "prepare-strict" not in target:
+                self.assertIn({"file": "/ci/tools/guess_latest.sh"}, inputs, target)
+                self.assertIn({"file": "/ci/tools/install_gpu_driver.sh"}, inputs, target)
+        for target in EXECUTION_TAG_TARGETS["ci-test-windows"]:
             inputs = self.by_target[target]["inputs"]
-            self.assertIn({"file": "/ci/tools/configure_driver_mode.ps1"}, inputs, target)
-            self.assertIn({"file": "/ci/tools/install_gpu_driver.ps1"}, inputs, target)
-        for target in ("bindings:test-installed-linux", "core:test-installed-linux"):
-            self.assertIn({"file": "/ci/tools/setup-sanitizer"}, self.by_target[target]["inputs"])
+            if "prepare-strict" not in target:
+                self.assertIn({"file": "/ci/tools/configure_driver_mode.ps1"}, inputs, target)
+                self.assertIn({"file": "/ci/tools/install_gpu_driver.ps1"}, inputs, target)
 
-    def test_docs_gate_and_task_share_package_owned_groups(self) -> None:
-        docs = self.by_target["root:docs-ci"]["inputs"]
-        gate = self.by_target["ci:gate-docs"]["inputs"]
-        external_groups = [item for item in docs if isinstance(item, dict) and "project" in item]
-        for group in external_groups:
-            self.assertIn(group, gate)
+    def test_docs_components_run_in_parallel_before_assembly(self) -> None:
+        docs = self.by_target["root:docs-ci"]
+        self.assertFalse(docs["options"]["cache"])
+        self.assertTrue(docs["options"]["runDepsInParallel"])
+        self.assertEqual(docs["args"], ["ci/tools/moon_ci.py", "docs-assemble"])
+        root_inputs = docs["inputs"]
+        self.assertIn({"project": "core", "group": "package"}, root_inputs)
+        self.assertIn({"project": "metapackage", "group": "docs"}, root_inputs)
+        self.assertIn({"file": "/.github/workflows/build-pure-wheel.yml"}, root_inputs)
+        self.assertIn({"file": "/.github/workflows/build-wheel.yml"}, root_inputs)
+        for target in EXECUTION_TAG_TARGETS["ci-docs"] - {"root:docs-ci"}:
+            task = self.by_target[target]
+            self.assertFalse(task["options"]["cache"])
+            self.assertEqual(task["args"][:2], ["ci/tools/moon_ci.py", "docs-component"])
+            self.assertIn({"file": "/cuda_python/docs/environment-docs.yml"}, task["inputs"])
 
-    def test_core_merge_changes_materialize_all_core_wheel_phases(self) -> None:
-        merge_helper = {"file": "/ci/tools/merge_cuda_core_wheels.py"}
-        for target in ("core:wheel-current", "core:wheel-previous", "core:wheel-merge"):
-            self.assertIn(merge_helper, self.by_target[target]["inputs"])
+        metapackage_inputs = self.by_target["metapackage:docs-ci"]["inputs"]
+        for project in (
+            "pathfinder",
+            "bindings",
+            "core",
+        ):
+            self.assertIn({"project": project, "group": "package"}, metapackage_inputs)
+
+    def test_quality_tasks_use_external_refs_and_one_selector(self) -> None:
+        release = self.by_target["core:quality-api-release"]
+        base = self.by_target["core:quality-api-base"]
+        self.assertIn("${CUDA_CORE_API_RELEASE_BASE}", release["args"])
+        self.assertIn("${CUDA_CORE_API_MERGE_BASE}", base["args"])
+        self.assertEqual(self.by_target["ci:quality-moon-contracts"]["args"][:2], ["-m", "unittest"])
+        for target in (release, base, self.by_target["bindings-benchmarks:unit-test"]):
+            self.assertEqual(target["command"], "uvx")
+            self.assertIn("--no-managed-python", target["args"])
+            self.assertIn("--no-python-downloads", target["args"])
 
     def test_local_pixi_tasks_remain_available_and_skip_ci(self) -> None:
+        for target in ("pathfinder:test", "bindings:test", "core:test"):
+            task = self.by_target[target]
+            self.assertEqual(task["args"][:2], ["ci/tools/moon_ci.py", "pixi-test"])
+            self.assertFalse(task["options"]["runInCI"])
         for target in (
-            "pathfinder:test",
-            "bindings:test",
-            "core:test",
             "pathfinder:docs",
             "bindings:docs",
             "core:docs",
             "bindings-benchmarks:bench",
         ):
             task = self.by_target[target]
-            self.assertIn("pixi-", " ".join(task.get("args", [])))
+            self.assertEqual(task["command"], "pixi")
             self.assertFalse(task["options"]["runInCI"])
 
     def test_workspace_disables_python_and_dependency_management(self) -> None:
