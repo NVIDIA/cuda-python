@@ -111,6 +111,13 @@ decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit = nullptr;
 void* p_cuDevSmResourceSplit = nullptr;
 #endif
 
+// cuMemcpyWithAttributesAsync (13.2+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13020
+decltype(&cuMemcpyWithAttributesAsync) p_cuMemcpyWithAttributesAsync = nullptr;
+#else
+void* p_cuMemcpyWithAttributesAsync = nullptr;
+#endif
+
 // NVRTC function pointers
 decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram = nullptr;
 
@@ -2832,6 +2839,27 @@ CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
 
 bool has_sm_resource_split() noexcept {
     return p_cuDevSmResourceSplit != nullptr;
+}
+
+// ============================================================================
+// cuMemcpyWithAttributesAsync wrapper
+// ============================================================================
+
+CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t size,
+                                       void* attr, CUstream hStream) {
+#if CUDA_VERSION >= 13020
+    if (!p_cuMemcpyWithAttributesAsync) {
+        return CUDA_ERROR_NOT_SUPPORTED;
+    }
+    return p_cuMemcpyWithAttributesAsync(
+        dst, src, size, static_cast<CUmemcpyAttributes*>(attr), hStream);
+#else
+    return CUDA_ERROR_NOT_SUPPORTED;
+#endif
+}
+
+bool has_memcpy_with_attributes_async() noexcept {
+    return p_cuMemcpyWithAttributesAsync != nullptr;
 }
 
 }  // namespace cuda_core

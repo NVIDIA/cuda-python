@@ -2,6 +2,7 @@
 
 from typing import TypedDict
 
+from cuda.core._memory._copy_enums import CopyOptions
 from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._memory._pinned_memory_resource import PinnedMemoryResource
@@ -149,7 +150,7 @@ class Buffer:
         """
     def __enter__(self): ...
     def __exit__(self, exc_type, exc_val, exc_tb): ...
-    def copy_to(self, dst: Buffer | None=None, *, stream: Stream | GraphBuilder) -> Buffer:
+    def copy_to(self, dst: Buffer | None=None, *, stream: Stream | GraphBuilder, options: CopyOptions | None=None) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -164,9 +165,31 @@ class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
+        options : :class:`~utils.CopyOptions`, optional
+            Transfer hints (source access order, location hints, overlap mode).
+            Honored when cuda.bindings and the driver are both CUDA 13.2 or
+            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
+            capturing stream either, since a graph cannot represent these
+            attributes; use :meth:`graph.GraphNode.memcpy` for a plain,
+            non-attributed copy node, or pass ``options=None``. On an older
+            cuda.bindings/driver, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` are silently ignored; ``DURING_API_CALL`` raises
+            instead of silently downgrading its guarantee.
+
+        Raises
+        ------
+        TypeError
+            If ``options`` is not a :class:`~utils.CopyOptions` instance, or
+            if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
+            or a stream currently in graph capture mode.
+        RuntimeError
+            If ``options.src_access_order`` is ``DURING_API_CALL`` and
+            cuda.bindings or the driver is older than CUDA 13.2: falling
+            back to a plain copy cannot honor that guarantee.
 
         """
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder) -> None:
+    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder, options: CopyOptions | None=None) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
@@ -176,7 +199,28 @@ class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
+        options : :class:`~utils.CopyOptions`, optional
+            Transfer hints (source access order, location hints, overlap mode).
+            Honored when cuda.bindings and the driver are both CUDA 13.2 or
+            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
+            capturing stream either, since a graph cannot represent these
+            attributes; use :meth:`graph.GraphNode.memcpy` for a plain,
+            non-attributed copy node, or pass ``options=None``. On an older
+            cuda.bindings/driver, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` are silently ignored; ``DURING_API_CALL`` raises
+            instead of silently downgrading its guarantee.
 
+        Raises
+        ------
+        TypeError
+            If ``options`` is not a :class:`~utils.CopyOptions` instance, or
+            if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
+            or a stream currently in graph capture mode.
+        RuntimeError
+            If ``options.src_access_order`` is ``DURING_API_CALL`` and
+            cuda.bindings or the driver is older than CUDA 13.2: falling
+            back to a plain copy cannot honor that guarantee.
         """
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:
         """Fill this buffer with a repeating byte pattern.
