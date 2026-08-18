@@ -30,11 +30,12 @@ fileGroups:
 tasks:
   wheel-pure:
     command: python
-    args: [ci/tools/moon_ci.py, pure-wheel, metapackage]
+    args: [-m, ci.tools.build_artifacts, pure-wheel, metapackage]
     inputs:
       - '@group(package)'
       - {project: bindings, group: package}
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/artifacts.py'
+      - '/ci/tools/build_artifacts.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/build-pure-wheel.yml'
     outputs:
@@ -53,14 +54,15 @@ tasks:
 
   sdist:
     command: python
-    args: [ci/tools/moon_ci.py, sdist, metapackage]
+    args: [-m, ci.tools.build_artifacts, sdist, metapackage]
     deps:
       - target: bindings:sdist
         cacheStrategy: outputs
     inputs:
       - '@group(package)'
       - {project: bindings, group: package}
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/artifacts.py'
+      - '/ci/tools/build_artifacts.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/test-sdist-linux.yml'
       - '/.github/workflows/test-sdist-windows.yml'
@@ -78,15 +80,15 @@ tasks:
       runInCI: true
 
   test-installed-linux:
-    command: python
-    args: [ci/tools/moon_ci.py, metapackage-install-test]
+    command: bash
+    args: [ci/tools/run-tests, metapackage]
     inputs:
       - '@group(package)'
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
       - {project: core, group: package}
       - '/cuda_core/.moon-out/wheel-merged/*.whl'
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/run-tests'
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
       - '/tests/**/*'
@@ -104,15 +106,15 @@ tasks:
       runInCI: true
 
   test-installed-windows:
-    command: python
-    args: [ci/tools/moon_ci.py, metapackage-install-test]
+    command: bash
+    args: [ci/tools/run-tests, metapackage]
     inputs:
       - '@group(package)'
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
       - {project: core, group: package}
       - '/cuda_core/.moon-out/wheel-merged/*.whl'
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/run-tests'
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
       - '/tests/**/*'
@@ -130,8 +132,8 @@ tasks:
       runInCI: true
 
   docs-ci:
-    command: python
-    args: [ci/tools/moon_ci.py, docs-component, metapackage]
+    command: bash
+    args: [cuda_python/docs/build_docs.sh, moon-ci]
     env:
       CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
     inputs:
@@ -141,7 +143,6 @@ tasks:
       - {project: bindings, group: package}
       - {project: core, group: package}
       - '/cuda_python/docs/environment-docs.yml'
-      - '/ci/tools/moon_ci.py'
       - '/.github/workflows/build-docs.yml'
     outputs:
       - '.moon-out/docs-ci'

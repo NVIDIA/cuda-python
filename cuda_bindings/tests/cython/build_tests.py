@@ -12,7 +12,9 @@ it via `include_path=` so cythonize finds the .pxd tree on every platform.
 
 from __future__ import annotations
 
+import argparse
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -32,8 +34,32 @@ def _bindings_source_root() -> Path:
     return root
 
 
+def _output_directory(script_dir: Path, value: str) -> Path:
+    project_root = script_dir.parents[1]
+    output_root = project_root / ".moon-out"
+    requested = Path(value)
+    output = Path(os.path.abspath(requested if requested.is_absolute() else project_root.parent / requested))
+    if output_root not in output.parents:
+        raise ValueError(f"output must be below {output_root}: {output}")
+    current = output
+    while current != project_root:
+        if current.is_symlink():
+            raise ValueError(f"output path must not traverse a symlink: {current}")
+        current = current.parent
+    if output.exists():
+        if not output.is_dir():
+            raise ValueError(f"refusing to replace non-directory output: {output}")
+        shutil.rmtree(output)
+    output.mkdir(parents=True)
+    return output
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output-dir")
+    args = parser.parse_args()
     script_dir = Path(__file__).resolve().parent
+    output = _output_directory(script_dir, args.output_dir) if args.output_dir else None
     # Avoid appending the absolute checkout path under build/temp: the
     # concatenated path can exceed Windows' path limit. These files are siblings.
     os.chdir(script_dir)
@@ -51,8 +77,25 @@ def main() -> None:
 
     # pytest imports each extension by bare module name (see test_cython.py),
     # so build in-place next to its .pyx regardless of the invoking cwd.
-    sys.argv = [sys.argv[0], "build_ext", "--inplace"]
+    sys.argv = [sys.argv[0], "build_ext"]
+    if output is None:
+        sys.argv.append("--inplace")
+    else:
+        build_temp = output / ".build-temp"
+        sys.argv.extend(["--build-lib", str(output), "--build-temp", str(build_temp)])
     setup(name="cuda_bindings_cython_tests", ext_modules=ext_modules)
+    if output is not None:
+        if build_temp.exists():
+            shutil.rmtree(build_temp)
+        for source in pyx_files:
+            matches = [
+                path
+                for pattern in (f"{Path(source).stem}*.so", f"{Path(source).stem}*.pyd", f"{Path(source).stem}*.dylib")
+                for path in output.glob(pattern)
+                if path.is_file()
+            ]
+            if len(matches) != 1:
+                raise RuntimeError(f"expected one extension for {source} in {output}, found {len(matches)}")
 
 
 if __name__ == "__main__":

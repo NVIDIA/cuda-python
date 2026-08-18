@@ -38,11 +38,25 @@ fileGroups:
     - 'docs/**/*'
     - 'pixi.toml'
     - 'pixi.lock'
+  benchmarks:
+    - '/benchmarks/cuda_bindings/benchmarks/**/*'
+    - '/benchmarks/cuda_bindings/runner/**/*'
+    - '/benchmarks/cuda_bindings/compare.py'
+    - '/benchmarks/cuda_bindings/run_cpp.py'
+    - '/benchmarks/cuda_bindings/run_pyperf.py'
+    - '/benchmarks/cuda_bindings/pixi.toml'
+    - '/benchmarks/cuda_bindings/pixi.lock'
+  benchmark-tests:
+    - '/benchmarks/cuda_bindings/runner/**/*'
+    - '/benchmarks/cuda_bindings/benchmarks/**/*'
+    - '/benchmarks/cuda_bindings/tests/**/*'
+    - '/benchmarks/cuda_bindings/pixi.toml'
+    - '/benchmarks/cuda_bindings/pixi.lock'
 
 tasks:
   wheel-current:
     command: python
-    args: [ci/tools/moon_ci.py, native-wheel, bindings, --lane, current]
+    args: [-m, ci.tools.build_artifacts, native-wheel, bindings, --lane, current]
     env:
       BUILD_CUDA_VER: '${BUILD_CUDA_VER}'
       CIBW_BUILD: '${CIBW_BUILD}'
@@ -53,7 +67,8 @@ tasks:
       - '@group(package)'
       - {project: pathfinder, group: package}
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/artifacts.py'
+      - '/ci/tools/build_artifacts.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/ci/tools/env-vars'
       - '/ci/versions.yml'
@@ -79,7 +94,7 @@ tasks:
 
   sdist:
     command: python
-    args: [ci/tools/moon_ci.py, sdist, bindings]
+    args: [-m, ci.tools.build_artifacts, sdist, bindings]
     deps:
       - target: pathfinder:sdist
         cacheStrategy: outputs
@@ -91,7 +106,8 @@ tasks:
     inputs:
       - '@group(package)'
       - {project: pathfinder, group: package}
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/artifacts.py'
+      - '/ci/tools/build_artifacts.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/test-sdist-linux.yml'
       - '/.github/workflows/test-sdist-windows.yml'
@@ -109,8 +125,11 @@ tasks:
       runInCI: true
 
   cython-test-assets:
-    command: python
-    args: [ci/tools/moon_ci.py, cython-test-assets, bindings]
+    command: bash
+    args:
+      - cuda_bindings/tests/cython/build_tests.sh
+      - --output-dir
+      - cuda_bindings/.moon-out/cython-tests
     deps:
       - test-helpers:prepare-test-assets
     inputs:
@@ -119,7 +138,6 @@ tasks:
       - {project: pathfinder, group: package}
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
       - '/cuda_bindings/.moon-out/wheel-current/*.whl'
-      - '/ci/tools/moon_ci.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
@@ -143,7 +161,7 @@ tasks:
 
   test:
     command: python
-    args: [ci/tools/moon_ci.py, pixi-test, bindings]
+    args: [ci/tools/run_pixi_test.py, bindings]
     inputs:
       - '@group(package)'
       - '@group(tests)'
@@ -153,18 +171,97 @@ tasks:
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
       - '/tests/**/*'
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/run_pixi_test.py'
     type: test
 
+  bench:
+    command: pixi
+    args: [run, --manifest-path, benchmarks/cuda_bindings/pixi.toml, --environment, source, bench]
+    inputs:
+      - '@group(benchmarks)'
+      - '/cuda_bindings/**/*'
+
+  smoke:
+    command: pixi
+    args:
+      - run
+      - --manifest-path
+      - benchmarks/cuda_bindings/pixi.toml
+      - --environment
+      - source
+      - bench-smoke-test
+    inputs:
+      - '@group(benchmarks)'
+      - '/cuda_bindings/**/*'
+
+  smoke-linux:
+    script: |
+      set -euo pipefail
+      if [[ "${SKIP_CUDA_BINDINGS_TEST:-0}" == "1" ]]; then
+        echo "Skipping cuda.bindings benchmarks for this declared compatibility lane."
+        exit 0
+      fi
+      shopt -s nullglob
+      pathfinder_wheels=(cuda_pathfinder/.moon-out/wheel-pure/*.whl)
+      bindings_wheels=(cuda_bindings/.moon-out/wheel-current/*.whl)
+      [[ ${#pathfinder_wheels[@]} -eq 1 ]] || {
+        echo "expected one pathfinder wheel, found ${#pathfinder_wheels[@]}" >&2
+        exit 1
+      }
+      [[ ${#bindings_wheels[@]} -eq 1 ]] || {
+        echo "expected one bindings wheel, found ${#bindings_wheels[@]}" >&2
+        exit 1
+      }
+      python -m pip install \
+        "${pathfinder_wheels[0]}" \
+        "${bindings_wheels[0]}" \
+        pyperf
+      python benchmarks/cuda_bindings/run_pyperf.py --debug-single-value
+    inputs:
+      - '@group(benchmarks)'
+      - '@group(package)'
+      - {project: pathfinder, group: package}
+      - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
+      - '/cuda_bindings/.moon-out/wheel-current/*.whl'
+      - '/ci/test-matrix.yml'
+      - '/ci/tools/env-vars'
+      - '/ci/tools/guess_latest.sh'
+      - '/ci/tools/install_gpu_driver.sh'
+      - '/tests/**/*'
+      - '/.github/workflows/test-wheel-linux.yml'
+    tags: [ci-test-linux, runner-test-linux]
+    type: test
+    options:
+      mutex: ci-python-gpu
+      os: linux
+      runInCI: true
+
+  unit-test:
+    command: uvx
+    args:
+      - --no-managed-python
+      - --no-python-downloads
+      - --from
+      - pytest
+      - pytest
+      - --noconftest
+      - benchmarks/cuda_bindings/tests
+    inputs:
+      - '@group(benchmark-tests)'
+    tags: [ci-quality, runner-quality]
+    type: test
+    options:
+      os: linux
+      runInCI: true
+
   test-installed-linux:
-    command: python
-    args: [ci/tools/moon_ci.py, installed-test, bindings]
+    command: bash
+    args: [ci/tools/run-tests, bindings]
     inputs:
       - '@group(package)'
       - '@group(tests)'
       - {project: pathfinder, group: package}
       - '/cuda_python_test_helpers/**/*'
-      - '/ci/tools/moon_ci.py'
       - '/ci/tools/run-tests'
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
@@ -183,14 +280,13 @@ tasks:
       runInCI: true
 
   test-installed-windows:
-    command: python
-    args: [ci/tools/moon_ci.py, installed-test, bindings]
+    command: bash
+    args: [ci/tools/run-tests, bindings]
     inputs:
       - '@group(package)'
       - '@group(tests)'
       - {project: pathfinder, group: package}
       - '/cuda_python_test_helpers/**/*'
-      - '/ci/tools/moon_ci.py'
       - '/ci/tools/run-tests'
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
@@ -218,8 +314,8 @@ tasks:
       - '/.github/workflows/build-docs.yml'
 
   docs-ci:
-    command: python
-    args: [ci/tools/moon_ci.py, docs-component, bindings]
+    command: bash
+    args: [cuda_bindings/docs/build_docs.sh, moon-ci]
     env:
       CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
     inputs:
@@ -227,7 +323,6 @@ tasks:
       - '@group(docs)'
       - {project: pathfinder, group: package}
       - '/cuda_python/docs/environment-docs.yml'
-      - '/ci/tools/moon_ci.py'
       - '/.github/workflows/build-docs.yml'
     outputs:
       - '.moon-out/docs-ci'

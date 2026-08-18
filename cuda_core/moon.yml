@@ -46,7 +46,7 @@ fileGroups:
 tasks:
   wheel-current:
     command: python
-    args: [ci/tools/moon_ci.py, native-wheel, core, --lane, current]
+    args: [-m, ci.tools.build_artifacts, native-wheel, core, --lane, current]
     deps:
       - target: bindings:wheel-current
         cacheStrategy: outputs
@@ -63,7 +63,8 @@ tasks:
       - {project: bindings, group: package}
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
       - '/cuda_bindings/.moon-out/wheel-current/*.whl'
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/artifacts.py'
+      - '/ci/tools/build_artifacts.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/ci/tools/env-vars'
       - '/ci/tools/merge_cuda_core_wheels.py'
@@ -90,7 +91,7 @@ tasks:
 
   wheel-previous:
     command: python
-    args: [ci/tools/moon_ci.py, native-wheel, core, --lane, previous]
+    args: [-m, ci.tools.build_artifacts, native-wheel, core, --lane, previous]
     env:
       BUILD_PREV_CUDA_MAJOR: '${BUILD_PREV_CUDA_MAJOR}'
       CIBW_BUILD: '${CIBW_BUILD}'
@@ -103,7 +104,8 @@ tasks:
       - {project: bindings, group: package}
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
       - '/cuda_bindings/.moon-out/wheel-previous/*.whl'
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/artifacts.py'
+      - '/ci/tools/build_artifacts.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/ci/tools/env-vars'
       - '/ci/versions.yml'
@@ -128,7 +130,15 @@ tasks:
 
   wheel-merge:
     command: python
-    args: [ci/tools/moon_ci.py, merge-core-wheels]
+    args:
+      - ci/tools/merge_cuda_core_wheels.py
+      - --wheel-dir
+      - cuda_core/.moon-out/wheel-current
+      - --wheel-dir
+      - cuda_core/.moon-out/wheel-previous
+      - --output-dir
+      - cuda_core/.moon-out/wheel-merged
+      - --clean-output
     # Current and previous CUDA toolkits are provisioned outside Moon, so the
     # two input wheels are deliberately staged in separate invocations before
     # this task merges their declared outputs.
@@ -138,7 +148,6 @@ tasks:
       - {project: bindings, group: package}
       - '/cuda_core/.moon-out/wheel-current/*.whl'
       - '/cuda_core/.moon-out/wheel-previous/*.whl'
-      - '/ci/tools/moon_ci.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/ci/tools/merge_cuda_core_wheels.py'
       - '/.github/workflows/build-pure-wheel.yml'
@@ -161,7 +170,7 @@ tasks:
 
   sdist:
     command: python
-    args: [ci/tools/moon_ci.py, sdist, core]
+    args: [-m, ci.tools.build_artifacts, sdist, core]
     deps:
       - target: pathfinder:sdist
         cacheStrategy: outputs
@@ -177,7 +186,8 @@ tasks:
       - '@group(package)'
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/artifacts.py'
+      - '/ci/tools/build_artifacts.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/test-sdist-linux.yml'
       - '/.github/workflows/test-sdist-windows.yml'
@@ -195,8 +205,11 @@ tasks:
       runInCI: true
 
   cython-test-assets:
-    command: python
-    args: [ci/tools/moon_ci.py, cython-test-assets, core]
+    command: bash
+    args:
+      - cuda_core/tests/cython/build_tests.sh
+      - --output-dir
+      - cuda_core/.moon-out/cython-tests
     deps:
       - test-helpers:prepare-test-assets
     inputs:
@@ -207,7 +220,6 @@ tasks:
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
       - '/cuda_bindings/.moon-out/wheel-current/*.whl'
       - '/cuda_core/.moon-out/wheel-current/*.whl'
-      - '/ci/tools/moon_ci.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
@@ -231,7 +243,10 @@ tasks:
 
   test-binaries:
     command: python
-    args: [ci/tools/moon_ci.py, core-test-binaries]
+    args:
+      - cuda_core/tests/test_binaries/build_test_binaries.py
+      - --output-dir
+      - cuda_core/.moon-out/test-binaries
     env:
       CUDA_PATH: '${CUDA_PATH}'
       HOST_PLATFORM: '${HOST_PLATFORM}'
@@ -241,7 +256,6 @@ tasks:
       - {project: bindings, group: package}
       - 'tests/test_binaries/build_test_binaries.py'
       - 'tests/test_binaries/saxpy.cu'
-      - '/ci/tools/moon_ci.py'
       - '/ci/tools/moon_fingerprint.py'
       - '/.github/workflows/build-wheel.yml'
     outputs:
@@ -263,7 +277,7 @@ tasks:
 
   test:
     command: python
-    args: [ci/tools/moon_ci.py, pixi-test, core]
+    args: [ci/tools/run_pixi_test.py, core]
     inputs:
       - '@group(package)'
       - '@group(tests)'
@@ -273,19 +287,18 @@ tasks:
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
       - '/tests/**/*'
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/run_pixi_test.py'
     type: test
 
   test-installed-linux:
-    command: python
-    args: [ci/tools/moon_ci.py, installed-test, core]
+    command: bash
+    args: [ci/tools/run-tests, core]
     inputs:
       - '@group(package)'
       - '@group(tests)'
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
       - '/cuda_python_test_helpers/**/*'
-      - '/ci/tools/moon_ci.py'
       - '/ci/tools/run-tests'
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
@@ -305,15 +318,14 @@ tasks:
       runInCI: true
 
   test-installed-windows:
-    command: python
-    args: [ci/tools/moon_ci.py, installed-test, core]
+    command: bash
+    args: [ci/tools/run-tests, core]
     inputs:
       - '@group(package)'
       - '@group(tests)'
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
       - '/cuda_python_test_helpers/**/*'
-      - '/ci/tools/moon_ci.py'
       - '/ci/tools/run-tests'
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
@@ -344,8 +356,8 @@ tasks:
       - '/.github/workflows/build-docs.yml'
 
   docs-ci:
-    command: python
-    args: [ci/tools/moon_ci.py, docs-component, core]
+    command: bash
+    args: [cuda_core/docs/build_docs.sh, moon-ci]
     env:
       CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
     inputs:
@@ -354,7 +366,6 @@ tasks:
       - {project: pathfinder, group: package}
       - {project: bindings, group: package}
       - '/cuda_python/docs/environment-docs.yml'
-      - '/ci/tools/moon_ci.py'
       - '/.github/workflows/build-docs.yml'
     outputs:
       - '.moon-out/docs-ci'

@@ -20,4 +20,4 @@ fi
 # PYTHONPATH separator handling and surfaces import errors as exceptions.
 # nthreads=1 inside the driver mirrors the previous `-j 1` to side-step
 # any process-pool issues and keep builds deterministic.
-python "${SCRIPTPATH}/build_tests.py"
+python "${SCRIPTPATH}/build_tests.py" "$@"

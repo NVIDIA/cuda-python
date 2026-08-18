@@ -27,7 +27,10 @@ fileGroups:
     - '/.moon/**/*'
     - '/moon.yml'
     - '/**/moon.yml'
-    - '/ci/tools/moon_ci.py'
+    - '/ci/tools/artifacts.py'
+    - '/ci/tools/build_artifacts.py'
+    - '/ci/tools/prepare_test_assets.py'
+    - '/ci/tools/run_pixi_test.py'
     - '/ci/tools/moon_fingerprint.py'
     - '/ci/tools/env-vars'
     - '/ci/versions.yml'
@@ -87,10 +90,15 @@ fileGroups:
     - '!/ci/tools/install_gpu_driver.ps1'
     - '!/ci/tools/install_gpu_driver.sh'
     - '!/ci/tools/merge_cuda_core_wheels.py'
-    - '!/ci/tools/moon_ci.py'
+    - '!/ci/tools/artifacts.py'
+    - '!/ci/tools/build_artifacts.py'
+    - '!/ci/tools/prepare_test_assets.py'
+    - '!/ci/tools/run_pixi_test.py'
     - '!/ci/tools/moon_fingerprint.py'
     - '!/ci/tools/run-tests'
     - '!/ci/tools/setup-sanitizer'
+    - '!/ci/tools/tests/test_moon_tasks.py'
+    - '!/ci/tools/tests/test_moon_workspace.py'
     - '!/cuda_bindings/cuda/**/*'
     - '!/cuda_bindings/docs/**/*'
     - '!/cuda_bindings/examples/**/*'
@@ -171,13 +179,17 @@ tasks:
 
   quality-moon-contracts:
     command: python
-    args: [-m, unittest, ci.tools.tests.test_moon_ci, ci.tools.tests.test_moon_workspace]
+    args: [-m, unittest, ci.tools.tests.test_moon_tasks, ci.tools.tests.test_moon_workspace]
     inputs:
       - '/.moon/**/*'
       - '/**/moon.yml'
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/artifacts.py'
+      - '/ci/tools/build_artifacts.py'
+      - '/ci/tools/prepare_test_assets.py'
+      - '/ci/tools/run-tests'
+      - '/ci/tools/run_pixi_test.py'
       - '/ci/tools/moon_fingerprint.py'
-      - '/ci/tools/tests/test_moon_ci.py'
+      - '/ci/tools/tests/test_moon_tasks.py'
       - '/ci/tools/tests/test_moon_workspace.py'
     tags: [ci-quality, runner-quality]
     type: test
@@ -200,8 +212,8 @@ tasks:
     inputs: []
 
   docs-ci:
-    command: python
-    args: [ci/tools/moon_ci.py, docs-assemble]
+    command: bash
+    args: [cuda_python/docs/assemble_moon_docs.sh]
     deps:
       - target: pathfinder:docs-ci
         cacheStrategy: outputs
@@ -224,7 +236,7 @@ tasks:
       - '/cuda_bindings/.moon-out/docs-ci/**/*'
       - '/cuda_core/.moon-out/docs-ci/**/*'
       - '/cuda_python/.moon-out/docs-ci/**/*'
-      - '/ci/tools/moon_ci.py'
+      - '/cuda_python/docs/assemble_moon_docs.sh'
       - '/.github/workflows/build-pure-wheel.yml'
       - '/.github/workflows/build-wheel.yml'
       - '/.github/workflows/build-docs.yml'

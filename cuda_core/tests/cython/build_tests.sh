@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 UNAME=$(uname)
@@ -19,4 +19,4 @@ fi
 # Use a Python driver so the cuda.bindings source root is resolved at
 # runtime and passed via Cython's include_path -- avoids platform-specific
 # PYTHONPATH separator handling and surfaces import errors as exceptions.
-python "${SCRIPTPATH}/build_tests.py"
+python "${SCRIPTPATH}/build_tests.py" "$@"

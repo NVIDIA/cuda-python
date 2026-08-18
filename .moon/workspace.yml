@@ -13,7 +13,6 @@ projects:
   core: 'cuda_core'
   metapackage: 'cuda_python'
   test-helpers: 'cuda_python_test_helpers'
-  bindings-benchmarks: 'benchmarks/cuda_bindings'
 
 vcs:
   defaultBranch: main

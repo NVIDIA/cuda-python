@@ -28,6 +28,22 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _validated_moon_output(path: Path) -> Path:
+    repo_root = Path(os.path.abspath(REPO_ROOT))
+    output_root = repo_root / "cuda_core" / ".moon-out"
+    output = Path(os.path.abspath(path if path.is_absolute() else repo_root / path))
+    if output_root not in output.parents:
+        raise ValueError(f"clean output must be below {output_root}: {output}")
+    current = output
+    while current != repo_root:
+        if current.is_symlink():
+            raise ValueError(f"output path must not traverse a symlink: {current}")
+        current = current.parent
+    return output
+
 
 def run_command(cmd: list[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
     """Run a command with error handling."""
@@ -210,8 +226,15 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
 def main():
     """Main merge script."""
     parser = argparse.ArgumentParser(description="Merge CUDA-specific wheels into a single multi-CUDA wheel")
-    parser.add_argument("wheels", nargs="+", help="Paths to the CUDA-specific wheels to merge")
+    parser.add_argument("wheels", nargs="*", help="Paths to the CUDA-specific wheels to merge")
+    parser.add_argument(
+        "--wheel-dir",
+        action="append",
+        default=[],
+        help="Directory containing exactly one input wheel (may be repeated)",
+    )
     parser.add_argument("--output-dir", "-o", default="dist", help="Output directory for merged wheel")
+    parser.add_argument("--clean-output", action="store_true", help="Remove the output directory before merging")
 
     args = parser.parse_args()
 
@@ -230,11 +253,25 @@ def main():
             sys.exit(1)
         wheels.append(wheel)
 
+    for directory_value in args.wheel_dir:
+        directory = Path(directory_value)
+        selected = sorted(path for path in directory.glob("*.whl") if path.is_file())
+        if len(selected) != 1:
+            print(f"Error: Expected one wheel in {directory}, found {len(selected)}", file=sys.stderr)
+            sys.exit(1)
+        wheels.append(selected[0])
+
     if not wheels:
         print("Error: No wheels provided", file=sys.stderr)
         sys.exit(1)
 
-    output_dir = Path(args.output_dir)
+    output_dir = _validated_moon_output(Path(args.output_dir)) if args.clean_output else Path(args.output_dir)
+    if args.clean_output and output_dir.exists():
+        if output_dir.is_symlink() or not output_dir.is_dir():
+            print(f"Error: Refusing to replace non-directory output: {output_dir}", file=sys.stderr)
+            sys.exit(1)
+        shutil.rmtree(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Check that we have wheel tool available
     try:
@@ -245,6 +282,9 @@ def main():
 
     # Merge the wheels
     merged_wheel = merge_wheels(wheels, output_dir)
+    output_wheels = sorted(path for path in output_dir.glob("*.whl") if path.is_file())
+    if len(output_wheels) != 1:
+        raise RuntimeError(f"expected one merged wheel in {output_dir}, found {len(output_wheels)}")
     print(f"\nMerge complete! Output: {merged_wheel}")
 
 

@@ -24,7 +24,6 @@ EXPECTED_PROJECTS = {
     "core": "cuda_core",
     "metapackage": "cuda_python",
     "test-helpers": "cuda_python_test_helpers",
-    "bindings-benchmarks": "benchmarks/cuda_bindings",
 }
 EXECUTION_TAG_TARGETS = {
     "ci-wheel-pure": {"pathfinder:wheel-pure", "metapackage:wheel-pure"},
@@ -41,7 +40,7 @@ EXECUTION_TAG_TARGETS = {
         "bindings:test-installed-linux",
         "core:test-installed-linux",
         "metapackage:test-installed-linux",
-        "bindings-benchmarks:smoke-linux",
+        "bindings:smoke-linux",
     },
     "ci-test-windows": {
         "pathfinder:test-installed-windows",
@@ -62,7 +61,7 @@ EXECUTION_TAG_TARGETS = {
         "root:quality-moon-contracts",
         "core:quality-api-base",
         "core:quality-api-release",
-        "bindings-benchmarks:unit-test",
+        "bindings:unit-test",
     },
 }
 RUNNER_TAG_TARGETS = {
@@ -143,7 +142,7 @@ class MoonWorkspaceContractTest(unittest.TestCase):
             self.assertTrue(task["options"]["runInCI"])
             self.assertFalse(task.get("outputs"))
 
-    def test_benchmark_inputs_are_owned_without_hiding_new_paths(self) -> None:
+    def test_precise_inputs_are_owned_without_hiding_new_paths(self) -> None:
         def affected(path: str) -> set[str]:
             result = subprocess.run(  # noqa: S603 - the binary is explicitly selected in setUpClass.
                 [
@@ -166,14 +165,26 @@ class MoonWorkspaceContractTest(unittest.TestCase):
             queried = json.loads(result.stdout)
             return {task["target"] for project in queried["tasks"].values() for task in project.values()}
 
-        self.assertIn(
-            "bindings-benchmarks:unit-test",
-            affected("benchmarks/cuda_bindings/tests/test_runner.py"),
-        )
+        known = affected("benchmarks/cuda_bindings/tests/test_runner.py")
+        self.assertIn("bindings:unit-test", known)
+        self.assertNotIn("root:force-all-unowned", known)
         self.assertIn(
             "root:force-all-unowned",
             affected("benchmarks/cuda_bindings/new_helper.py"),
         )
+        quality = affected("ci/tools/tests/test_moon_tasks.py")
+        self.assertIn("root:quality-moon-contracts", quality)
+        self.assertNotIn("root:force-all-unowned", quality)
+
+    def test_bindings_benchmark_smoke_uses_materialized_wheels(self) -> None:
+        task = self.by_target["bindings:smoke-linux"]
+        self.assertIn("${SKIP_CUDA_BINDINGS_TEST:-0}", task["script"])
+        self.assertIn("cuda_pathfinder/.moon-out/wheel-pure/*.whl", task["script"])
+        self.assertIn("cuda_bindings/.moon-out/wheel-current/*.whl", task["script"])
+        self.assertIn("${#pathfinder_wheels[@]} -eq 1", task["script"])
+        self.assertIn("${#bindings_wheels[@]} -eq 1", task["script"])
+        self.assertIn("benchmarks/cuda_bindings/run_pyperf.py", task["script"])
+        self.assertNotIn("moon_ci.py", str(task["inputs"]))
 
     def test_execution_and_runner_tags_select_real_tasks(self) -> None:
         for tag, expected in {**EXECUTION_TAG_TARGETS, **RUNNER_TAG_TARGETS}.items():
@@ -197,6 +208,52 @@ class MoonWorkspaceContractTest(unittest.TestCase):
             task = self.by_target[target]
             self.assertTrue(task.get("checks"), target)
             self.assertIn({"file": "/ci/tools/moon_fingerprint.py"}, task["inputs"])
+
+    def test_tasks_use_focused_commands_instead_of_an_omnibus_dispatcher(self) -> None:
+        artifact_commands = {
+            "pathfinder:wheel-pure": ["pure-wheel", "pathfinder"],
+            "pathfinder:sdist": ["sdist", "pathfinder"],
+            "bindings:wheel-current": ["native-wheel", "bindings", "--lane", "current"],
+            "bindings:sdist": ["sdist", "bindings"],
+            "core:wheel-current": ["native-wheel", "core", "--lane", "current"],
+            "core:wheel-previous": ["native-wheel", "core", "--lane", "previous"],
+            "core:sdist": ["sdist", "core"],
+            "metapackage:wheel-pure": ["pure-wheel", "metapackage"],
+            "metapackage:sdist": ["sdist", "metapackage"],
+        }
+        for target, arguments in artifact_commands.items():
+            task = self.by_target[target]
+            self.assertEqual(task["command"], "python")
+            self.assertEqual(task["args"], ["-m", "ci.tools.build_artifacts", *arguments])
+            self.assertIn({"file": "/ci/tools/artifacts.py"}, task["inputs"])
+            self.assertIn({"file": "/ci/tools/build_artifacts.py"}, task["inputs"])
+
+        for target, project in {
+            "pathfinder:test-installed-linux": "pathfinder",
+            "pathfinder:test-installed-linux-strict": "pathfinder",
+            "pathfinder:test-installed-windows": "pathfinder",
+            "pathfinder:test-installed-windows-strict": "pathfinder",
+            "bindings:test-installed-linux": "bindings",
+            "bindings:test-installed-windows": "bindings",
+            "core:test-installed-linux": "core",
+            "core:test-installed-windows": "core",
+            "metapackage:test-installed-linux": "metapackage",
+            "metapackage:test-installed-windows": "metapackage",
+        }.items():
+            task = self.by_target[target]
+            if task["command"] != "noop":
+                self.assertEqual(task["command"], "bash")
+                self.assertEqual(task["args"], ["ci/tools/run-tests", project])
+
+        self.assertEqual(
+            self.by_target["test-helpers:prepare-test-assets"]["args"],
+            ["-m", "ci.tools.prepare_test_assets"],
+        )
+        self.assertIn("--clean-output", self.by_target["core:wheel-merge"]["args"])
+        self.assertIn("--output-dir", self.by_target["core:test-binaries"]["args"])
+        for target in ("bindings:cython-test-assets", "core:cython-test-assets"):
+            self.assertEqual(self.by_target[target]["command"], "bash")
+            self.assertIn("--output-dir", self.by_target[target]["args"])
 
     def test_same_environment_build_dependencies_use_output_bytes(self) -> None:
         expected = {
@@ -250,7 +307,7 @@ class MoonWorkspaceContractTest(unittest.TestCase):
     def test_platform_test_tasks_track_provider_setup(self) -> None:
         for target in EXECUTION_TAG_TARGETS["ci-test-linux"]:
             inputs = self.by_target[target]["inputs"]
-            if "bindings-benchmarks" not in target and "prepare-strict" not in target:
+            if "prepare-strict" not in target:
                 self.assertIn({"file": "/ci/tools/guess_latest.sh"}, inputs, target)
                 self.assertIn({"file": "/ci/tools/install_gpu_driver.sh"}, inputs, target)
         for target in EXECUTION_TAG_TARGETS["ci-test-windows"]:
@@ -263,7 +320,8 @@ class MoonWorkspaceContractTest(unittest.TestCase):
         docs = self.by_target["root:docs-ci"]
         self.assertFalse(docs["options"]["cache"])
         self.assertTrue(docs["options"]["runDepsInParallel"])
-        self.assertEqual(docs["args"], ["ci/tools/moon_ci.py", "docs-assemble"])
+        self.assertEqual(docs["command"], "bash")
+        self.assertEqual(docs["args"], ["cuda_python/docs/assemble_moon_docs.sh"])
         root_inputs = docs["inputs"]
         self.assertIn({"project": "core", "group": "package"}, root_inputs)
         self.assertIn({"project": "metapackage", "group": "docs"}, root_inputs)
@@ -272,7 +330,8 @@ class MoonWorkspaceContractTest(unittest.TestCase):
         for target in EXECUTION_TAG_TARGETS["ci-docs"] - {"root:docs-ci"}:
             task = self.by_target[target]
             self.assertFalse(task["options"]["cache"])
-            self.assertEqual(task["args"][:2], ["ci/tools/moon_ci.py", "docs-component"])
+            self.assertEqual(task["command"], "bash")
+            self.assertEqual(task["args"][-1], "moon-ci")
             self.assertIn({"file": "/cuda_python/docs/environment-docs.yml"}, task["inputs"])
 
         metapackage_inputs = self.by_target["metapackage:docs-ci"]["inputs"]
@@ -289,7 +348,7 @@ class MoonWorkspaceContractTest(unittest.TestCase):
         self.assertIn("${CUDA_CORE_API_RELEASE_BASE}", release["args"])
         self.assertIn("${CUDA_CORE_API_MERGE_BASE}", base["args"])
         self.assertEqual(self.by_target["root:quality-moon-contracts"]["args"][:2], ["-m", "unittest"])
-        for target in (release, base, self.by_target["bindings-benchmarks:unit-test"]):
+        for target in (release, base, self.by_target["bindings:unit-test"]):
             self.assertEqual(target["command"], "uvx")
             self.assertIn("--no-managed-python", target["args"])
             self.assertIn("--no-python-downloads", target["args"])
@@ -299,17 +358,23 @@ class MoonWorkspaceContractTest(unittest.TestCase):
             self.assertFalse(self.by_target[target]["options"]["runInCI"])
         for target in ("pathfinder:test", "bindings:test", "core:test"):
             task = self.by_target[target]
-            self.assertEqual(task["args"][:2], ["ci/tools/moon_ci.py", "pixi-test"])
+            self.assertEqual(task["args"][:1], ["ci/tools/run_pixi_test.py"])
             self.assertFalse(task["options"]["runInCI"])
         for target in (
             "pathfinder:docs",
             "bindings:docs",
             "core:docs",
-            "bindings-benchmarks:bench",
+            "bindings:bench",
         ):
             task = self.by_target[target]
             self.assertEqual(task["command"], "pixi")
             self.assertFalse(task["options"]["runInCI"])
+
+    def test_omnibus_moon_helper_is_removed(self) -> None:
+        self.assertFalse((REPO_ROOT / "ci" / "tools" / "moon_ci.py").exists())
+        for task in self.tasks:
+            self.assertNotIn({"file": "/ci/tools/moon_ci.py"}, task.get("inputs", []), task["target"])
+            self.assertNotIn("ci/tools/moon_ci.py", task.get("args", []), task["target"])
 
     def test_workspace_disables_python_and_dependency_management(self) -> None:
         workspace = (REPO_ROOT / ".moon" / "workspace.yml").read_text(encoding="utf-8")

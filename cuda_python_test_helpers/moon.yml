@@ -17,7 +17,7 @@ taskOptions:
 tasks:
   prepare-test-assets:
     command: python
-    args: [ci/tools/moon_ci.py, prepare-test-assets]
+    args: [-m, ci.tools.prepare_test_assets]
     inputs:
       - '/cuda_pathfinder/pyproject.toml'
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
@@ -25,7 +25,8 @@ tasks:
       - '/cuda_bindings/.moon-out/wheel-current/*.whl'
       - '/cuda_core/pyproject.toml'
       - '/cuda_core/.moon-out/wheel-current/*.whl'
-      - '/ci/tools/moon_ci.py'
+      - '/ci/tools/artifacts.py'
+      - '/ci/tools/prepare_test_assets.py'
       - '/.github/workflows/build-wheel.yml'
     options:
       os: [linux, windows]

@@ -5,13 +5,36 @@
 
 set -ex
 
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+cd "${SCRIPT_DIR}"
+
+MOON_CI="0"
 if [[ "$#" == "0" ]]; then
     LATEST_ONLY="0"
 elif [[ "$#" == "1" && "$1" == "latest-only" ]]; then
     LATEST_ONLY="1"
+elif [[ "$#" == "1" && "$1" == "moon-ci" ]]; then
+    MOON_CI="1"
+    DOCS_LATEST_ONLY="${CUDA_PYTHON_DOCS_LATEST_ONLY:-true}"
+    case "${DOCS_LATEST_ONLY,,}" in
+        1|true) LATEST_ONLY="1" ;;
+        0|false) LATEST_ONLY="0" ;;
+        *)
+            echo "CUDA_PYTHON_DOCS_LATEST_ONLY must be true, false, 1, or 0" >&2
+            exit 1
+            ;;
+    esac
 else
-    echo "usage: ./build_docs.sh [latest-only]"
+    echo "usage: ./build_docs.sh [latest-only|moon-ci]"
     exit 1
+fi
+
+if [[ "${MOON_CI}" == "1" ]]; then
+    if [[ -L build || ( -e build && ! -d build ) ]]; then
+        echo "refusing to replace non-directory docs build output: ${SCRIPT_DIR}/build" >&2
+        exit 1
+    fi
+    rm -rf build
 fi
 
 # SPHINX_CUDA_PATHFINDER_VER is used to create a subdir under build/html
@@ -57,3 +80,25 @@ fi
 
 # ensure that the Sphinx reference uses the latest docs
 cp build/html/latest/objects.inv build/html
+
+if [[ "${MOON_CI}" == "1" ]]; then
+    SOURCE="${SCRIPT_DIR}/build/html"
+    OUTPUT_ROOT="${SCRIPT_DIR}/../.moon-out"
+    OUTPUT="${OUTPUT_ROOT}/docs-ci"
+    if [[ -L "${SOURCE}" || ! -d "${SOURCE}" ]]; then
+        echo "documentation output not found: ${SOURCE}" >&2
+        exit 1
+    fi
+    if [[ -L "${OUTPUT_ROOT}" || ( -e "${OUTPUT_ROOT}" && ! -d "${OUTPUT_ROOT}" ) ]]; then
+        echo "refusing to use non-directory Moon output root: ${OUTPUT_ROOT}" >&2
+        exit 1
+    fi
+    if [[ -L "${OUTPUT}" || ( -e "${OUTPUT}" && ! -d "${OUTPUT}" ) ]]; then
+        echo "refusing to replace non-directory Moon docs output: ${OUTPUT}" >&2
+        exit 1
+    fi
+    mkdir -p "${OUTPUT_ROOT}"
+    rm -rf "${OUTPUT}"
+    mkdir -p "${OUTPUT}"
+    cp -aL "${SOURCE}/." "${OUTPUT}/"
+fi
