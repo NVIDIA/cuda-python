@@ -316,8 +316,11 @@ class ProgramOptions:
     numba_debug : bool, optional
         Emit the debug information layout expected by Numba. Recognized only by
         newer toolkits; compilers that do not support it reject the option with
-        an error.
-        Default: False
+        an error. Applies only to the NVVM and NVRTC compilation backends --
+        ``code_type="ptx"`` is processed by the linker, which cannot honor it,
+        so enabling this option there emits a :class:`UserWarning` and the
+        option is ignored.
+        Default: None
     """
     name: str | None = 'default_program'
     arch: str | None = None

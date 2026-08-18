@@ -177,6 +177,19 @@ class LinkerOptions:
     no_cache : bool, optional
         Do not cache the intermediate steps of nvJitLink.
         Default: False.
+    numba_debug : bool, optional
+        Non-functional. ``numba_debug`` is an NVVM/NVRTC *compiler* option;
+        neither nvJitLink nor the driver's cuLink API recognizes it, so no
+        linking backend can honor it and the value is ignored.
+        Default: None.
+
+        .. deprecated:: 1.2.0
+            Setting this option emits a :class:`DeprecationWarning`. It has never
+            had an effect on any linking backend and will be removed in
+            ``cuda.core`` 2.0.0, the next major-version boundary permitted by the
+            :doc:`support policy <support>`. Use
+            :attr:`ProgramOptions.numba_debug` on an NVVM or NVRTC compilation
+            path instead.
     """
     name: str | None = '<default linker>'
     arch: str | None = None
