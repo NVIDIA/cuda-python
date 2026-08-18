@@ -231,7 +231,7 @@ def test_context_handle_alias_and_closed_queries(init_cuda, sm_resource):
     ctx.close()
     assert ctx.handle is None
     assert ctx.is_green is False
-    with pytest.raises(RuntimeError, match="Cannot query resources"):
+    with pytest.raises(RuntimeError, match="Context has been closed"):
         _ = ctx.resources
 
 
