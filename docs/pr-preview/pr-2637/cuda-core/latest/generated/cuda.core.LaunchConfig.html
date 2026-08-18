@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e2a76d55"></script>
+    <script src="../_static/documentation_options.js?v=92030474"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev88';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev93';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -776,7 +776,6 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">shmem_size:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">is_cooperative:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">programmatic_stream_serialization:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">synchronization_policy:</span> <span class="pre">object</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.LaunchConfig" title="Link to this definition">#</a></dt>
@@ -864,18 +863,6 @@ signals completion via programmatic means.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LaunchConfig.synchronization_policy">
-<span class="sig-name descname"><span class="pre">synchronization_policy</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.synchronization_policy" title="Link to this definition">#</a></dt>
-<dd><p>CPU wait policy applied when synchronizing the launch stream after this
-kernel. Maps to <code class="docutils literal notranslate"><span class="pre">CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.typing.SynchronizationPolicyType.html#cuda.core.typing.SynchronizationPolicyType" title="cuda.core.typing.SynchronizationPolicyType">SynchronizationPolicyType</a> | None, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -936,7 +923,6 @@ kernel. Maps to <code class="docutils literal notranslate"><span class="pre">CU_
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.shmem_size"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.shmem_size</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.is_cooperative"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.is_cooperative</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.programmatic_stream_serialization"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.programmatic_stream_serialization</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.synchronization_policy"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.synchronization_policy</span></code></a></li>
 </ul>
 </li>
 </ul>

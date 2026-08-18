@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e2a76d55"></script>
+    <script src="../_static/documentation_options.js?v=92030474"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev88';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev93';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -961,6 +961,14 @@ context at call time.</p>
 </div>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Stream.synchronization_policy">
+<span class="sig-name descname"><span class="pre">synchronization_policy</span></span><a class="headerlink" href="#cuda.core.Stream.synchronization_policy" title="Link to this definition">#</a></dt>
+<dd><p>Return the stream’s CPU wait policy for host-side synchronization.</p>
+<p>Maps to <code class="docutils literal notranslate"><span class="pre">CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY</span></code>, queried via
+<code class="docutils literal notranslate"><span class="pre">cuStreamGetAttribute</span></code>.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1028,6 +1036,7 @@ context at call time.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.is_nonblocking"><code class="docutils literal notranslate"><span class="pre">Stream.is_nonblocking</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.priority"><code class="docutils literal notranslate"><span class="pre">Stream.priority</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.resources"><code class="docutils literal notranslate"><span class="pre">Stream.resources</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.synchronization_policy"><code class="docutils literal notranslate"><span class="pre">Stream.synchronization_policy</span></code></a></li>
 </ul>
 </li>
 </ul>
