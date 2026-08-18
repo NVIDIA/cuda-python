@@ -13,7 +13,7 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
-from conftest import skipif_need_cuda_headers
+from cuda_python_test_helpers.marks import skipif_need_cuda_headers
 
 from cuda.core import (
     Device,

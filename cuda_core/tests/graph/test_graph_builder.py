@@ -10,8 +10,7 @@ import weakref
 import helpers
 import numpy as np
 import pytest
-from conftest import skipif_need_cuda_headers
-from cuda_python_test_helpers.marks import requires_module
+from cuda_python_test_helpers.marks import requires_module, skipif_need_cuda_headers
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 from helpers.misc import try_create_condition
 from packaging.version import Version

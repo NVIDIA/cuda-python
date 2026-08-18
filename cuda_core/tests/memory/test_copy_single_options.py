@@ -4,9 +4,9 @@
 """CopyOptions support for Buffer.copy_to / Buffer.copy_from (issue #2365)."""
 
 import pytest
-from conftest import create_managed_memory_resource_or_skip
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer, set_buffer
 from helpers.copy_batch import assert_managed_holds
+from helpers.memory import create_managed_memory_resource_or_skip
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource
 from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM

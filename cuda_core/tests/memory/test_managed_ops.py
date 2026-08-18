@@ -4,8 +4,8 @@
 import mmap
 
 import pytest
-from conftest import create_managed_memory_resource_or_skip
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource
+from helpers.memory import create_managed_memory_resource_or_skip
 
 from cuda.bindings import driver
 from cuda.core import Device, Host, ManagedBuffer
