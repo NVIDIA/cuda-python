@@ -191,13 +191,6 @@ cdef class MipmappedArray:
             f"num_levels={self._num_levels})"
         )
 
-
-cdef int MipmappedArray_check_open(MipmappedArray self) except -1:
-    if not self._handle:
-        raise RuntimeError("MipmappedArray has been closed")
-    return 0
-
-
 def _create_mipmapped_array(options):
     """Allocate a new :class:`MipmappedArray` on the current device.
 

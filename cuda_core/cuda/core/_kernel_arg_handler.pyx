@@ -17,6 +17,7 @@ from typing import Sequence, Any
 import numpy
 
 from cuda.core._memory import Buffer
+from cuda.core._memory._buffer cimport Buffer as cyBuffer, Buffer_check_open
 from cuda.core._tensor_map import TensorMapDescriptor as _TensorMapDescriptor_py
 from cuda.core._tensor_map cimport TensorMapDescriptor
 from cuda.core.graph._graph_definition cimport GraphCondition
@@ -282,8 +283,7 @@ cdef class ParamHolder:
         for i, arg in enumerate(kernel_args):
             arg_type = type(arg)
             if arg_type is Buffer:
-                if arg.is_closed:
-                    raise RuntimeError("Buffer has been closed")
+                Buffer_check_open(<cyBuffer>arg)
                 # we need the address of where the actual buffer address is stored
                 if type(arg.handle) is int:
                     # see note below on handling int arguments
@@ -329,8 +329,7 @@ cdef class ParamHolder:
                     continue
                 # If no exact types are found, fallback to slower `isinstance` check
                 elif isinstance(arg, Buffer):
-                    if arg.is_closed:
-                        raise RuntimeError("Buffer has been closed")
+                    Buffer_check_open(<cyBuffer>arg)
                     if isinstance(arg.handle, int):
                         prepare_arg[intptr_t](self.data, self.data_addresses, arg.handle, i)
                         continue

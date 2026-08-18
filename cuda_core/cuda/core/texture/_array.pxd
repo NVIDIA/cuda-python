@@ -21,7 +21,10 @@ cdef class OpaqueArray:
     cpdef close(self)
 
 
-cdef int OpaqueArray_check_open(OpaqueArray self) except -1
+cdef inline int OpaqueArray_check_open(OpaqueArray self) except -1:
+    if not self._handle:
+        raise RuntimeError("OpaqueArray has been closed")
+    return 0
 
 
 # Wrap an existing OpaqueArrayHandle as a OpaqueArray, querying the driver for the

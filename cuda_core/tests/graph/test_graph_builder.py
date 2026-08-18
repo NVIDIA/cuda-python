@@ -216,7 +216,7 @@ def test_graph_complete_after_close_forked(init_cuda):
 
     # join() closes the non-root builder (right); it must now be rejected, not crash.
     GraphBuilder.join(left, right)
-    with pytest.raises(RuntimeError, match="^Graph builder has been closed."):
+    with pytest.raises(RuntimeError, match="^GraphBuilder has been closed"):
         right.complete()
 
 
@@ -234,7 +234,7 @@ def test_graph_update_after_source_close(init_cuda):
     source.end_building()
     source.close()
 
-    with pytest.raises(RuntimeError, match="^Graph builder has been closed."):
+    with pytest.raises(RuntimeError, match="^GraphBuilder has been closed"):
         graph.update(source)
 
 
@@ -492,7 +492,7 @@ def test_closed_graph_and_builder_rejected_before_operations(init_cuda):
     builder.close()
     assert builder.is_closed
     assert bool(builder) is True  # Preserve backward-compatible truthiness after close.
-    with pytest.raises(RuntimeError, match="Graph builder has been closed"):
+    with pytest.raises(RuntimeError, match="GraphBuilder has been closed"):
         GraphBuilder.join(builder, other)
 
 

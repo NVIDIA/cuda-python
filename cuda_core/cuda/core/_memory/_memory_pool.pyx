@@ -362,13 +362,6 @@ cdef inline void _MP_deallocate(
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 
-
-cdef int MP_check_open(_MemPool self) except -1:
-    if not self._h_pool:
-        raise RuntimeError(f"{self.__class__.__name__} has been closed")
-    return 0
-
-
 cdef inline _MP_close(_MemPool self):
     if not self._h_pool:
         return

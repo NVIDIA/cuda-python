@@ -80,6 +80,12 @@ def _resolve_peer_device_id(value: Device | int | None) -> int:
 
 # ---- driver-touching helpers (cdef inline, called from .pyx code) -----------
 
+cdef inline DeviceMemoryResource _check_peer_access_open(object mr):
+    cdef DeviceMemoryResource mr_typed = <DeviceMemoryResource>mr
+    MP_check_open(mr_typed)
+    return mr_typed
+
+
 cdef inline tuple _query_peer_access_ids(DeviceMemoryResource mr):
     """Return the current peer device IDs as a sorted tuple of ints.
 
@@ -239,35 +245,29 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
     # --- abstract MutableSet methods ---
 
     def __contains__(self, value: object) -> bool:
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
+        cdef DeviceMemoryResource mr = _check_peer_access_open(self._mr)
         try:
             dev_id = _resolve_peer_device_id(value)
         except (TypeError, ValueError):
             return False
-        cdef DeviceMemoryResource mr = <DeviceMemoryResource>self._mr
         if dev_id == mr._dev_id:
             return False
         return _peer_access_includes(mr, dev_id)
 
     def __iter__(self) -> Iterator[Device]:
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
+        cdef DeviceMemoryResource mr = _check_peer_access_open(self._mr)
         from cuda.core._device import Device
 
-        return iter(Device(dev_id) for dev_id in _query_peer_access_ids(self._mr))
+        return iter(Device(dev_id) for dev_id in _query_peer_access_ids(mr))
 
     def __len__(self) -> int:
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
-        return len(_query_peer_access_ids(self._mr))
+        cdef DeviceMemoryResource mr = _check_peer_access_open(self._mr)
+        return len(_query_peer_access_ids(mr))
 
     def add(self, value: Device | int) -> None:
         """Grant peer access from ``value`` to allocations in this pool."""
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
+        cdef DeviceMemoryResource mr = _check_peer_access_open(self._mr)
         dev_id = _resolve_peer_device_id(value)
-        cdef DeviceMemoryResource mr = <DeviceMemoryResource>self._mr
         if dev_id == mr._dev_id:
             return
         if _peer_access_includes(mr, dev_id):
@@ -279,13 +279,11 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
 
     def discard(self, value: Device | int) -> None:
         """Revoke peer access from ``value`` to allocations in this pool."""
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
+        cdef DeviceMemoryResource mr = _check_peer_access_open(self._mr)
         try:
             dev_id = _resolve_peer_device_id(value)
         except (TypeError, ValueError):
             return
-        cdef DeviceMemoryResource mr = <DeviceMemoryResource>self._mr
         if dev_id == mr._dev_id:
             return
         if not _peer_access_includes(mr, dev_id):
@@ -296,14 +294,12 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
 
     def clear(self) -> None:
         """Revoke all peer access in a single driver call."""
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
+        _check_peer_access_open(self._mr)
         self._apply((), _query_peer_access_ids(self._mr))
 
     def update(self, *others: Iterable[Device | int]) -> None:
         """Grant peer access to every device in ``others`` in one driver call."""
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
+        _check_peer_access_open(self._mr)
         to_add = []
         for other in others:
             to_add.extend(other)
@@ -312,8 +308,7 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
 
     def difference_update(self, *others: Iterable[Device | int]) -> None:
         """Revoke peer access for every device in ``others`` in one driver call."""
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
+        _check_peer_access_open(self._mr)
         revoke_ids = set()
         for other in others:
             for value in other:
@@ -328,8 +323,7 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
 
     def intersection_update(self, *others: Iterable[Device | int]) -> None:
         """Restrict peer access to the intersection in a single driver call."""
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
+        _check_peer_access_open(self._mr)
         keep_ids = None
         for other in others:
             ids = set()
@@ -348,8 +342,7 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
 
     def symmetric_difference_update(self, other: Iterable[Device | int]) -> None:
         """Toggle peer access for every device in ``other`` in one driver call."""
-        if self._mr.is_closed:
-            raise RuntimeError("DeviceMemoryResource has been closed")
+        _check_peer_access_open(self._mr)
         toggle_ids = set()
         for value in other:
             try:
@@ -396,7 +389,7 @@ class PeerAccessibleBySetProxy(MutableSet["Device"]):
         """
         from cuda.core._device import Device
 
-        cdef DeviceMemoryResource mr = <DeviceMemoryResource>self._mr
+        cdef DeviceMemoryResource mr = _check_peer_access_open(self._mr)
         owner_id = mr._dev_id
         owner = Device(owner_id)
         current = _query_peer_access_ids(mr)

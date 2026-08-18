@@ -23,4 +23,7 @@ cdef class Event:
 
 
 cdef Event Event_accept(object arg)
-cdef int Event_check_open(Event self) except -1
+cdef inline int Event_check_open(Event self) except -1:
+    if not self._h_event:
+        raise RuntimeError("Event has been closed")
+    return 0

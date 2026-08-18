@@ -431,9 +431,3 @@ cdef class GraphDefinition:
     def handle(self) -> driver.CUgraph:
         """Return the underlying driver CUgraph handle."""
         return as_py(self._h_graph)
-
-
-cdef int GD_check_valid(GraphDefinition self) except -1:
-    if as_intptr(self._h_graph) == 0:
-        raise RuntimeError("GraphDefinition is no longer valid")
-    return 0

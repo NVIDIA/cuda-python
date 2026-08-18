@@ -737,15 +737,6 @@ cdef inline GraphNode GN_create_impl(GraphNodeHandle h_node):
         (<GraphNode>n)._h_node = h_node
         return n
 
-
-cdef int GN_check_valid(GraphNode self) except -1:
-    if as_intptr(graph_node_get_graph(self._h_node)) == 0:
-        raise RuntimeError("GraphNode belongs to an invalid GraphDefinition")
-    if not self._is_entry and as_intptr(self._h_node) == 0:
-        raise RuntimeError("GraphNode has been destroyed")
-    return 0
-
-
 cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, ParamHolder ker_args):
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)

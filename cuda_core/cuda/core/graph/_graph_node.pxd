@@ -5,7 +5,13 @@
 from libc.stddef cimport size_t
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport GraphHandle, GraphNodeHandle, OpaqueHandle
+from cuda.core._resource_handles cimport (
+    GraphHandle,
+    GraphNodeHandle,
+    OpaqueHandle,
+    as_intptr,
+    graph_node_get_graph,
+)
 
 
 cdef class GraphNode:
@@ -18,7 +24,12 @@ cdef class GraphNode:
     cdef GraphNode _create(GraphHandle h_graph, cydriver.CUgraphNode node)
 
 
-cdef int GN_check_valid(GraphNode self) except -1
+cdef inline int GN_check_valid(GraphNode self) except -1:
+    if as_intptr(graph_node_get_graph(self._h_node)) == 0:
+        raise RuntimeError("GraphNode belongs to an invalid GraphDefinition")
+    if not self._is_entry and as_intptr(self._h_node) == 0:
+        raise RuntimeError("GraphNode has been destroyed")
+    return 0
 
 
 cdef OpaqueHandle _resolve_memcpy_operand(

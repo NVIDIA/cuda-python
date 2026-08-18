@@ -20,4 +20,7 @@ cdef class MipmappedArray:
     cpdef close(self)
 
 
-cdef int MipmappedArray_check_open(MipmappedArray self) except -1
+cdef inline int MipmappedArray_check_open(MipmappedArray self) except -1:
+    if not self._handle:
+        raise RuntimeError("MipmappedArray has been closed")
+    return 0

@@ -507,13 +507,6 @@ cpdef Stream default_stream():
     else:
         return LEGACY_DEFAULT_STREAM
 
-
-cdef int Stream_check_open(Stream self) except -1:
-    if not self._h_stream:
-        raise RuntimeError("Stream has been closed")
-    return 0
-
-
 cdef inline bint Stream_is_default_token(Stream self) noexcept nogil:
     """Return True for CU_STREAM_LEGACY and CU_STREAM_PER_THREAD.
 
@@ -637,8 +630,6 @@ cpdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
         Stream_check_open(stream)
         return stream
     elif isinstance(arg, GraphBuilder):
-        if arg.is_closed:
-            raise RuntimeError("GraphBuilder has been closed")
         stream = <Stream>arg.stream
         Stream_check_open(stream)
         return stream

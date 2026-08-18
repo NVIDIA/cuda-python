@@ -882,13 +882,6 @@ cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint):
         out.append(item)
     return tuple(out)
 
-
-cdef int Buffer_check_open(Buffer self) except -1:
-    if not self._h_ptr:
-        raise RuntimeError("Buffer has been closed")
-    return 0
-
-
 cdef inline void Buffer_set_deallocation_stream(Buffer self, object stream):
     """Validate and replace a live buffer's deallocation recipe."""
     Buffer_check_open(self)

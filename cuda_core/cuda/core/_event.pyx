@@ -342,13 +342,6 @@ cdef class Event:
         if h_ctx and dev_id >= 0:
             return Context._from_handle(Context, h_ctx, dev_id)
 
-
-cdef int Event_check_open(Event self) except -1:
-    if not self._h_event:
-        raise RuntimeError("Event has been closed")
-    return 0
-
-
 cdef Event Event_accept(object arg):
     if not isinstance(arg, Event):
         raise TypeError(f"Event expected, got {type(arg).__name__}")

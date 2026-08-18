@@ -25,7 +25,3 @@ cdef class Graph:
 
     @staticmethod
     cdef Graph _init(GraphExecHandle h_graph_exec)
-
-
-cdef int GB_check_open(GraphBuilder self) except -1
-cdef int Graph_check_open(Graph self) except -1

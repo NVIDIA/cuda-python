@@ -973,7 +973,7 @@ cdef inline int GB_check_open(GraphBuilder gb) except -1:
     instead.
     """
     if gb._state == CLOSED:
-        raise RuntimeError("Graph builder has been closed.")
+        raise RuntimeError("GraphBuilder has been closed")
     return 0
 
 
@@ -1220,7 +1220,7 @@ cdef class Graph:
             HANDLE_RETURN(cydriver.cuGraphLaunch(c_exec, c_stream))
 
 
-cdef int Graph_check_open(Graph self) except -1:
+cdef inline int Graph_check_open(Graph self) except -1:
     if not self._h_graph_exec:
         raise RuntimeError("Graph has been closed")
     return 0

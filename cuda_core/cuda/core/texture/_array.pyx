@@ -484,13 +484,6 @@ cdef class OpaqueArray:
             f"num_channels={self._num_channels})"
         )
 
-
-cdef int OpaqueArray_check_open(OpaqueArray self) except -1:
-    if not self._handle:
-        raise RuntimeError("OpaqueArray has been closed")
-    return 0
-
-
 cdef OpaqueArray _array_from_handle(OpaqueArrayHandle h, int device_id):
     """Wrap an existing OpaqueArrayHandle as a OpaqueArray, querying the driver for the
     array's shape/format/channels/surface-flag metadata.

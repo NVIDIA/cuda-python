@@ -110,6 +110,12 @@ cdef class IPCBufferDescriptor:
         return <const void*><const char*>(self._payload)
 
 
+cdef inline int IPCAllocationHandle_check_open(IPCAllocationHandle self) except -1:
+    if not self._h_fd or as_intptr(self._h_fd) < 0:
+        raise RuntimeError("IPCAllocationHandle has been closed")
+    return 0
+
+
 cdef class IPCAllocationHandle:
     """Shareable handle to an IPC-enabled device memory pool."""
 
@@ -151,8 +157,7 @@ cdef class IPCAllocationHandle:
 
 
 def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
-    if alloc_handle.is_closed:
-        raise RuntimeError("IPCAllocationHandle has been closed")
+    IPCAllocationHandle_check_open(alloc_handle)
     check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
     return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
@@ -223,8 +228,8 @@ cdef Buffer Buffer_from_ipc_descriptor(
 # ---------------------------
 
 cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
-    if isinstance(alloc_handle, IPCAllocationHandle) and alloc_handle.is_closed:
-        raise RuntimeError("IPCAllocationHandle has been closed")
+    if isinstance(alloc_handle, IPCAllocationHandle):
+        IPCAllocationHandle_check_open(<IPCAllocationHandle>alloc_handle)
 
     # Quick exit for registry hits.
     uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
