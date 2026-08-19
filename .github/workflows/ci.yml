@@ -195,17 +195,20 @@ jobs:
           if ! python_versions=$(yq -r '.jobs.build.strategy.matrix."python-version"[]' .github/workflows/build-wheel.yml); then
             unavailable
           fi
-          if [[ -z "${python_versions}" ]]; then
+          if ! platforms=$(yq -r '.platforms[]' ci/test-matrix.yml); then
+            unavailable
+          fi
+          if [[ -z "${python_versions}" || -z "${platforms}" ]]; then
             unavailable
           fi
           while IFS= read -r python_version; do
             python=${python_version//./}
-            for platform in linux-64 linux-aarch64 win-64; do
+            while IFS= read -r platform; do
               binding="cuda-bindings-python${python}-cuda${cuda_version}-${platform}-${merge_base}"
               core="cuda-core-python${python}-${platform}-${merge_base}"
               has_artifact "$binding" || missing+=("$binding")
               has_artifact "$core" || missing+=("$core")
-            done
+            done <<< "${platforms}"
           done <<< "${python_versions}"
 
           if (( ${#missing[@]} != 0 )); then
