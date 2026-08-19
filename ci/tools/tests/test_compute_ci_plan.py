@@ -23,7 +23,6 @@ def plan_for(
         list(paths),
         merge_base="base",
         baseline_run_id="123" if baseline else "",
-        baseline_sha="base" if baseline else "",
         linked_paths=linked_paths,
     )
 
@@ -137,7 +136,7 @@ class ComputeWorkplanTest(unittest.TestCase):
             plan_for(".github/actions/doc_preview/action.yml"),
             plan_for("ci/ci-pipeline.svg"),
             plan_for("cuda_core/docs/index.rst", baseline=False),
-            compute_workplan([], merge_base="base", baseline_run_id="123", baseline_sha=""),
+            compute_workplan([], merge_base="", baseline_run_id="123"),
         ):
             assert selected(plan, "needs_build") == ALL_MODULES
             assert selected(plan, "needs_test") == ALL_MODULES
@@ -151,6 +150,7 @@ class ComputeWorkplanTest(unittest.TestCase):
         assert selected(plan, "needs_test") == {"core", "python"}
         assert selected_platforms(plan) == ALL_PLATFORMS
         assert plan["jobs"]["sdist_tests"]
+        assert plan["baseline"] == {"run_id": "123", "sha": "base"}
 
     def test_changed_symlink_targets_include_their_consumers(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

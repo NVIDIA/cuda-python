@@ -16,12 +16,7 @@ from pathlib import Path, PurePosixPath
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MODULES = ("pathfinder", "bindings", "core", "python")
 PLATFORMS = ("linux", "windows")
-PACKAGE_MODULES = {
-    "cuda_pathfinder": "pathfinder",
-    "cuda_bindings": "bindings",
-    "cuda_core": "core",
-    "cuda_python": "python",
-}
+PACKAGE_MODULES = {f"cuda_{module}": module for module in MODULES}
 
 # Source changes have different build and test consumers. In particular,
 # cuda-python source needs a same-version bindings wheel, while a core-only
@@ -49,13 +44,13 @@ IGNORED_PREFIXES = (".agents/", "toolshed/")
 
 # Only infrastructure exclusive to one OS belongs here; other CI paths force a full run.
 TEST_INFRA_PLATFORMS = {
-    ".github/workflows/test-wheel-linux.yml": {"linux"},
-    ".github/workflows/test-wheel-windows.yml": {"windows"},
-    "ci/tools/configure_driver_mode.ps1": {"windows"},
-    "ci/tools/guess_latest.sh": {"linux"},
-    "ci/tools/install_gpu_driver.ps1": {"windows"},
-    "ci/tools/install_gpu_driver.sh": {"linux"},
-    "ci/tools/setup-sanitizer": {"linux"},
+    ".github/workflows/test-wheel-linux.yml": "linux",
+    ".github/workflows/test-wheel-windows.yml": "windows",
+    "ci/tools/configure_driver_mode.ps1": "windows",
+    "ci/tools/guess_latest.sh": "linux",
+    "ci/tools/install_gpu_driver.ps1": "windows",
+    "ci/tools/install_gpu_driver.sh": "linux",
+    "ci/tools/setup-sanitizer": "linux",
 }
 
 
@@ -64,7 +59,6 @@ def compute_workplan(
     *,
     merge_base: str,
     baseline_run_id: str,
-    baseline_sha: str,
     linked_paths: set[str] | None = None,
 ) -> dict[str, object]:
     """Return the final CI decisions for the supplied changed paths."""
@@ -72,7 +66,7 @@ def compute_workplan(
     source_changes: set[str] = set()
     test_changes: set[str] = set()
     test_platforms: set[str] = set()
-    force_all = not merge_base or not baseline_run_id or not baseline_sha
+    force_all = not merge_base or not baseline_run_id
 
     if not force_all:
         for path in paths:
@@ -80,8 +74,8 @@ def compute_workplan(
             if not path_parts:
                 continue
 
-            if platforms := TEST_INFRA_PLATFORMS.get(path):
-                test_platforms.update(platforms)
+            if platform := TEST_INFRA_PLATFORMS.get(path):
+                test_platforms.add(platform)
                 continue
 
             if path_parts[0] == "ci" or (
@@ -115,7 +109,6 @@ def compute_workplan(
                 test_changes.update(MODULES)
             elif (
                 path in IGNORED_PATHS
-                or path_parts[-1] in IGNORED_BASENAMES
                 or PurePosixPath(path).suffix in IGNORED_SUFFIXES
                 or path.startswith(IGNORED_PREFIXES)
             ):
@@ -158,35 +151,32 @@ def compute_workplan(
         "merge_base": merge_base,
         "baseline": {
             "run_id": baseline_run_id if not force_all else "",
-            "sha": baseline_sha if not force_all else "",
+            "sha": merge_base if not force_all else "",
         },
     }
 
 
-def _changed_paths(merge_base: str, head: str) -> tuple[list[str], set[str]]:
-    result = subprocess.run(  # noqa: S603 - argv is passed directly to git without a shell.
-        ["git", "diff", "--no-renames", "--name-only", "-z", f"{merge_base}...{head}"],  # noqa: S607
-        check=True,
+def _git_output(*args: str) -> bytes:
+    return subprocess.check_output(  # noqa: S603 - argv is passed directly without a shell.
+        ["git", *args],  # noqa: S607
         cwd=REPO_ROOT,
-        stdout=subprocess.PIPE,
     )
-    paths = [path.decode("utf-8", errors="surrogateescape") for path in result.stdout.split(b"\0") if path]
-    head_symlinks = _tracked_symlink_paths(head)
+
+
+def _changed_paths(merge_base: str) -> tuple[list[str], set[str]]:
+    output = _git_output("diff", "--no-renames", "--name-only", "-z", merge_base, "HEAD")
+    paths = [path.decode("utf-8", errors="surrogateescape") for path in output.split(b"\0") if path]
+    head_symlinks = _tracked_symlink_paths("HEAD")
     # Base links preserve the packaging impact of deleted or replaced symlinks.
     linked_paths = set(head_symlinks) | set(_tracked_symlink_paths(merge_base))
     return _expand_linked_paths(paths, head_symlinks, root=REPO_ROOT), linked_paths
 
 
 def _tracked_symlink_paths(ref: str) -> list[str]:
-    result = subprocess.run(  # noqa: S603 - the Git ref is passed as an argv element.
-        ["git", "ls-tree", "--full-tree", "-r", "-z", ref],  # noqa: S607
-        check=True,
-        cwd=REPO_ROOT,
-        stdout=subprocess.PIPE,
-    )
+    output = _git_output("ls-tree", "--full-tree", "-r", "-z", ref)
     return [
         entry.partition(b"\t")[2].decode("utf-8", errors="surrogateescape")
-        for entry in result.stdout.split(b"\0")
+        for entry in output.split(b"\0")
         if entry.startswith(b"120000 ")
     ]
 
@@ -205,23 +195,15 @@ def _expand_linked_paths(paths: list[str], symlink_paths: list[str], *, root: Pa
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--merge-base", default="")
-    parser.add_argument("--head", default="HEAD")
     parser.add_argument("--baseline-run-id", default="")
-    parser.add_argument("--baseline-sha", default="")
     args = parser.parse_args()
 
-    if bool(args.baseline_run_id) != bool(args.baseline_sha):
-        parser.error("baseline run ID and SHA must be supplied together")
-    if args.baseline_sha and args.baseline_sha != args.merge_base:
-        parser.error("baseline SHA must match the merge base")
-
     reusable_baseline = bool(args.merge_base and args.baseline_run_id)
-    paths, linked_paths = _changed_paths(args.merge_base, args.head) if reusable_baseline else ([], set())
+    paths, linked_paths = _changed_paths(args.merge_base) if reusable_baseline else ([], set())
     plan = compute_workplan(
         paths,
         merge_base=args.merge_base,
         baseline_run_id=args.baseline_run_id,
-        baseline_sha=args.baseline_sha,
         linked_paths=linked_paths,
     )
     print(json.dumps(plan, separators=(",", ":"), sort_keys=True))

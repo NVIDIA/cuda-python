@@ -48,9 +48,13 @@ jobs:
 
   should-skip:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       skip: ${{ steps.get-should-skip.outputs.skip }}
       doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
+      base-ref: ${{ steps.get-should-skip.outputs.base_ref }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -62,15 +66,19 @@ jobs:
           set -euxo pipefail
           if ${{ startsWith(github.ref_name, 'pull-request/') }}; then
             pr_number="$(grep -Po '(\d+)$' <<< '${{ github.ref_name }}')"
-            pr_title="$(gh pr view "${pr_number}" --json title --jq '.title')"
+            pr="$(gh pr view "${pr_number}" --json baseRefName,title)"
+            pr_title="$(jq -r '.title' <<< "${pr}")"
+            base_ref="$(jq -r '.baseRefName' <<< "${pr}")"
             skip="$(echo "${pr_title}" | grep -q '\[no-ci\]' && echo true || echo false)"
             doc_only="$(echo "${pr_title}" | grep -q '\[doc-only\]' && echo true || echo false)"
           else
             skip=false
             doc_only=false
+            base_ref=""
           fi
           echo "skip=${skip}" >> "$GITHUB_OUTPUT"
           echo "doc_only=${doc_only}" >> "$GITHUB_OUTPUT"
+          echo "base_ref=${base_ref}" >> "$GITHUB_OUTPUT"
 
   # Detect which packages were touched by the PR so downstream build and test
   # jobs can avoid rebuilding/retesting packages unaffected by the change.
@@ -93,10 +101,10 @@ jobs:
   # paths" baseline for those events.
   detect-changes:
     runs-on: ubuntu-latest
+    needs: should-skip
     permissions:
       actions: read
       contents: read
-      pull-requests: read
     outputs:
       workplan: ${{ steps.workplan.outputs.workplan }}
     steps:
@@ -108,32 +116,15 @@ jobs:
           fetch-depth: 0
           filter: blob:none
 
-      # copy-pr-bot pushes every PR (whether it targets main or a backport
-      # branch such as 12.9.x) to pull-request/<N>, so the base branch
-      # cannot be inferred from github.ref_name. Look it up via the
-      # upstream PR metadata so change detection is rooted at the right place.
-      - name: Resolve PR base branch
-        id: pr-info
-        if: ${{ startsWith(github.ref_name, 'pull-request/') }}
-        uses: nv-gha-runners/get-pr-info@main
-
       - name: Resolve PR merge base
         id: merge-base
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         env:
-          # GitHub Actions evaluates step-level `env:` expressions eagerly —
-          # the step's `if:` gate does NOT short-circuit them. On non-PR
-          # events (push/tag/schedule), `pr-info` is skipped and its outputs
-          # are empty strings, so `fromJSON('')` would raise a template error
-          # and fail the step despite `if:` being false. Guard the
-          # `fromJSON` call with a short-circuit so the expression resolves
-          # to an empty string on non-PR events; the step is still gated
-          # off by `if:`, so `BASE_REF` is never consumed there.
-          BASE_REF: ${{ steps.pr-info.outputs.pr-info && fromJSON(steps.pr-info.outputs.pr-info).base.ref || '' }}
+          BASE_REF: ${{ needs.should-skip.outputs.base-ref }}
         run: |
           set -euo pipefail
           if [[ -z "${BASE_REF}" ]]; then
-            echo "Could not resolve PR base branch from get-pr-info output" >&2
+            echo "Could not resolve PR base branch" >&2
             exit 1
           fi
 
@@ -144,14 +135,13 @@ jobs:
         id: baseline
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         env:
-          BASE_REF: ${{ steps.pr-info.outputs.pr-info && fromJSON(steps.pr-info.outputs.pr-info).base.ref || '' }}
+          BASE_REF: ${{ needs.should-skip.outputs.base-ref }}
           MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
 
           unavailable() {
-            echo "available=false" >> "$GITHUB_OUTPUT"
             echo "No complete reusable artifact set was found; this run will build and test everything." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           }
@@ -180,8 +170,8 @@ jobs:
           # PR diff base. Using the latest base-branch run is unsafe for a PR
           # that was opened before newer changes landed on that branch.
           run_id=$(jq -r '.[0].databaseId // empty' <<< "$runs")
-          baseline_sha=$(jq -r '.[0].headSha // empty' <<< "$runs")
-          if [[ -z "${run_id}" || "${baseline_sha}" != "${merge_base}" ]]; then
+          run_sha=$(jq -r '.[0].headSha // empty' <<< "$runs")
+          if [[ -z "${run_id}" || "${run_sha}" != "${merge_base}" ]]; then
             unavailable
           fi
 
@@ -211,8 +201,8 @@ jobs:
           while IFS= read -r python_version; do
             python=${python_version//./}
             for platform in linux-64 linux-aarch64 win-64; do
-              binding="cuda-bindings-python${python}-cuda${cuda_version}-${platform}-${baseline_sha}"
-              core="cuda-core-python${python}-${platform}-${baseline_sha}"
+              binding="cuda-bindings-python${python}-cuda${cuda_version}-${platform}-${merge_base}"
+              core="cuda-core-python${python}-${platform}-${merge_base}"
               has_artifact "$binding" || missing+=("$binding")
               has_artifact "$core" || missing+=("$core")
             done
@@ -223,14 +213,10 @@ jobs:
             unavailable
           fi
 
-          {
-            echo "available=true"
-            echo "run_id=${run_id}"
-            echo "sha=${baseline_sha}"
-          } >> "$GITHUB_OUTPUT"
+          echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
           {
             echo
-            echo "Reusable artifacts: run \`${run_id}\` at \`${baseline_sha}\` on \`${BASE_REF}\`."
+            echo "Reusable artifacts: run \`${run_id}\` at \`${merge_base}\` on \`${BASE_REF}\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Test CI workplan planner
@@ -240,20 +226,12 @@ jobs:
         id: workplan
         env:
           MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
-          BASELINE_AVAILABLE: ${{ steps.baseline.outputs.available }}
           BASELINE_RUN_ID: ${{ steps.baseline.outputs.run_id }}
-          BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
         run: |
           set -euo pipefail
-          args=(--head "$GITHUB_SHA")
-          if [[ -n "$MERGE_BASE" ]]; then
-            args+=(--merge-base "$MERGE_BASE")
-          fi
-          if [[ "$BASELINE_AVAILABLE" == "true" ]]; then
-            args+=(--baseline-run-id "$BASELINE_RUN_ID" --baseline-sha "$BASELINE_SHA")
-          fi
-
-          workplan=$(python3 ci/tools/compute_ci_plan.py "${args[@]}")
+          workplan=$(python3 ci/tools/compute_ci_plan.py \
+            --merge-base "$MERGE_BASE" \
+            --baseline-run-id "$BASELINE_RUN_ID")
           echo "workplan=$workplan" >> "$GITHUB_OUTPUT"
           {
             echo
@@ -640,6 +618,8 @@ jobs:
       - precommit-windows
     steps:
       - name: Exit
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
         run: |
           # GitHub treats `result == 'skipped'` as success for required
           # status checks (see CCCL gate comment + cccl#605). The previous
@@ -663,7 +643,8 @@ jobs:
           is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
           status="success"
           check_result() {
-            name=$1; expected=$2; result=$3
+            local name=$1 expected=$2 result
+            result=$(jq -r --arg name "$name" '.[$name].result // "missing"' <<< "$NEEDS_JSON")
             echo "Checking $name: result='$result' (expected '$expected')"
             if [[ "$result" != "$expected" ]]; then
               echo "::error::$name did not match expected result"
@@ -673,12 +654,12 @@ jobs:
 
           # Control jobs, the universal linux build, docs, and Windows
           # pre-commit checks always run.
-          check_result "ci-vars"         "success" "${{ needs.ci-vars.result }}"
-          check_result "should-skip"     "success" "${{ needs.should-skip.result }}"
-          check_result "detect-changes"  "success" "${{ needs.detect-changes.result }}"
-          check_result "build-linux-64"  "success" "${{ needs.build-linux-64.result }}"
-          check_result "doc"             "success" "${{ needs.doc.result }}"
-          check_result "precommit-windows" "success" "${{ needs.precommit-windows.result }}"
+          check_result "ci-vars"           "success"
+          check_result "should-skip"       "success"
+          check_result "detect-changes"    "success"
+          check_result "build-linux-64"    "success"
+          check_result "doc"               "success"
+          check_result "precommit-windows" "success"
 
           # Optional platform builds and wheel tests share the platform plan.
           linux_expected="skipped"
@@ -689,29 +670,29 @@ jobs:
           if [[ "$doc_only" != "true" && "$windows_selected" == "true" ]]; then
             windows_expected="success"
           fi
-          check_result "build-linux-aarch64" "$linux_expected"   "${{ needs.build-linux-aarch64.result }}"
-          check_result "build-windows"       "$windows_expected" "${{ needs.build-windows.result }}"
+          check_result "build-linux-aarch64" "$linux_expected"
+          check_result "build-windows"       "$windows_expected"
 
           # Sdist tests follow build selection; wheel tests follow the platform plan.
           expected="skipped"
           if [[ "$doc_only" != "true" && "$build_selected" == "true" ]]; then
             expected="success"
           fi
-          check_result "test-sdist-linux"   "$expected" "${{ needs.test-sdist-linux.result }}"
-          check_result "test-sdist-windows" "$expected" "${{ needs.test-sdist-windows.result }}"
+          check_result "test-sdist-linux"   "$expected"
+          check_result "test-sdist-windows" "$expected"
 
-          check_result "test-linux-64"      "$linux_expected"   "${{ needs.test-linux-64.result }}"
-          check_result "test-linux-aarch64" "$linux_expected"   "${{ needs.test-linux-aarch64.result }}"
-          check_result "test-windows"       "$windows_expected" "${{ needs.test-windows.result }}"
+          check_result "test-linux-64"      "$linux_expected"
+          check_result "test-linux-aarch64" "$linux_expected"
+          check_result "test-windows"       "$windows_expected"
 
           # API compatibility checks run for cuda_core source changes and for
           # conservative full runs when reusable base artifacts are unavailable.
           expected="skipped"
           if [[ "$run_core_api_check" == "true" ]]; then expected="success"; fi
-          check_result "api-check-core-vs-release" "$expected" "${{ needs.api-check-core-vs-release.result }}"
+          check_result "api-check-core-vs-release" "$expected"
 
           expected="skipped"
           if [[ "$is_pr" == "true" && "$run_core_api_check" == "true" ]]; then expected="success"; fi
-          check_result "api-check-core-vs-base" "$expected" "${{ needs.api-check-core-vs-base.result }}"
+          check_result "api-check-core-vs-base" "$expected"
 
           [[ "$status" == "success" ]]
