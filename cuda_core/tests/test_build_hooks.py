@@ -25,9 +25,6 @@ from unittest import mock
 
 import pytest
 
-# build_hooks.py imports scikit-build-core at the top level, so skip if not available.
-pytest.importorskip("scikit_build_core")
-
 
 def _load_build_hooks():
     """Load build_hooks module from source without permanently modifying sys.path.

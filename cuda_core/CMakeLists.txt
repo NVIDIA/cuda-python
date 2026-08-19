@@ -14,7 +14,7 @@ find_package(
 find_package(Cython 3.2.5...<3.3 MODULE REQUIRED)
 include(UseCython)
 
-set(CUDA_PYTHON_COVERAGE "$ENV{CUDA_PYTHON_COVERAGE}" CACHE STRING "Build Cython line tracing support")
+option(CUDA_PYTHON_COVERAGE "Build Cython line tracing support" "$ENV{CUDA_PYTHON_COVERAGE}")
 
 if(DEFINED ENV{CUDA_PATH} AND NOT "$ENV{CUDA_PATH}" STREQUAL "")
   set(_cuda_core_cuda_root "$ENV{CUDA_PATH}")
@@ -70,9 +70,6 @@ if(WIN32)
   endif()
 endif()
 
-if(CUDA_PYTHON_COVERAGE STREQUAL "")
-  set(CUDA_PYTHON_COVERAGE OFF)
-endif()
 if(CUDA_PYTHON_COVERAGE)
   set(_coverage_directive -X linetrace=True)
 endif()
@@ -83,7 +80,6 @@ endif()
 
 set(_cuda_core_source_root "${CMAKE_CURRENT_SOURCE_DIR}/cuda/core")
 set(_cython_common_args
-  -3
   -Werror
   -X embedsignature=True
   -X warn.deprecated.IF=False
@@ -124,96 +120,13 @@ if(WIN32 AND _python_freethreaded)
   target_compile_definitions(cuda_core_extension_settings INTERFACE Py_GIL_DISABLED=1)
 endif()
 
-set(_cuda_core_modules
-  _context
-  _device
-  _device_resources
-  _dlpack
-  _event
-  _graphics
-  _kernel_arg_handler
-  _launch_config
-  _launcher
-  _layout
-  _linker
-  _memory/_buffer
-  _memory/_copy_attributes
-  _memory/_copy_ops
-  _memory/_device_memory_resource
-  _memory/_graph_memory_resource
-  _memory/_ipc
-  _memory/_managed_memory_ops
-  _memory/_managed_memory_resource
-  _memory/_memory_pool
-  _memory/_peer_access_utils
-  _memory/_pinned_memory_resource
-  _memoryview
-  _module
-  _program
-  _resource_handles
-  _stream
-  _tensor_bridge
-  _tensor_map
-  _utils/_weak_handles
-  _utils/_wsl_locale
-  _utils/cuda_utils
-  _utils/version
-  graph/_adjacency_set_proxy
-  graph/_graph_builder
-  graph/_graph_definition
-  graph/_graph_node
-  graph/_host_callback
-  graph/_subclasses
-  system/_device
-  system/_nvml_context
-  system/_system
-  system/_system_events
-  texture/_array
-  texture/_mipmapped_array
-  texture/_surface
-  texture/_texture
-)
-
 file(
-  GLOB_RECURSE _cuda_core_module_sources
+  GLOB_RECURSE _cuda_core_modules
   CONFIGURE_DEPENDS
   RELATIVE "${_cuda_core_source_root}"
   "${_cuda_core_source_root}/*.pyx"
 )
-list(TRANSFORM _cuda_core_module_sources REPLACE "\\.pyx$" "")
-set(_cuda_core_listed_modules ${_cuda_core_modules})
-list(SORT _cuda_core_module_sources)
-list(SORT _cuda_core_listed_modules)
-if(NOT "${_cuda_core_module_sources}" STREQUAL "${_cuda_core_listed_modules}")
-  message(FATAL_ERROR "Update _cuda_core_modules to match the cuda.core .pyx files")
-endif()
-
-# Stage regular wheels through CMake to keep them independent of ignored,
-# in-place extension artifacts. Editable builds map these files to the live
-# source tree instead.
-if(NOT SKBUILD_STATE STREQUAL "editable")
-  install(
-    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cuda/"
-    DESTINATION cuda
-    FILES_MATCHING
-      PATTERN "*.h"
-      PATTERN "*.hpp"
-      PATTERN "*.pxd"
-      PATTERN "*.py"
-      PATTERN "*.pyi"
-      PATTERN "py.typed"
-  )
-  if(CUDA_PYTHON_COVERAGE)
-    install(
-      DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cuda/"
-      DESTINATION cuda
-      FILES_MATCHING
-        PATTERN "*.cpp"
-        PATTERN "*.pxi"
-        PATTERN "*.pyx"
-    )
-  endif()
-endif()
+list(TRANSFORM _cuda_core_modules REPLACE "\\.pyx$" "")
 
 if(MSVC)
   set(_aoti_shim_def "${_cuda_core_source_root}/_include/aoti_shim.def")
@@ -249,27 +162,19 @@ function(cuda_core_add_cython_module module_path)
   set(target_name "cuda_core${target_suffix}")
   set(pyx_file "${_cuda_core_source_root}/${module_path}.pyx")
   set(cython_cpp "${CMAKE_CURRENT_BINARY_DIR}/cython/${module_path}.cpp")
-  cmake_path(GET cython_cpp PARENT_PATH cython_output_directory)
-  file(MAKE_DIRECTORY "${cython_output_directory}")
   cmake_path(GET module_path FILENAME module_filename)
   cmake_path(GET module_path PARENT_PATH module_directory)
-  if(module_directory)
-    set(install_directory "cuda/core/${module_directory}")
-    set(module_output_directory "${CMAKE_CURRENT_BINARY_DIR}/extensions/${module_directory}")
-  else()
-    set(install_directory "cuda/core")
-    set(module_output_directory "${CMAKE_CURRENT_BINARY_DIR}/extensions")
-  endif()
+  set(install_directory "cuda/core/${module_directory}")
+  set(module_output_directory "${CMAKE_CURRENT_BINARY_DIR}/extensions/${module_directory}")
 
   cython_transpile(
     "${pyx_file}"
     LANGUAGE CXX
     OUTPUT "${cython_cpp}"
-    OUTPUT_VARIABLE generated_cpp
     CYTHON_ARGS ${_cython_common_args} --module-name "${module_name}"
   )
 
-  set(module_sources "${generated_cpp}")
+  set(module_sources "${cython_cpp}")
   if(module_path STREQUAL "_resource_handles")
     list(APPEND module_sources "${_cuda_core_source_root}/_cpp/resource_handles.cpp")
   elseif(module_path STREQUAL "_tensor_map")
@@ -293,7 +198,7 @@ function(cuda_core_add_cython_module module_path)
   target_link_libraries("${target_name}" PRIVATE cuda_core_extension_settings)
 
   if(CUDA_PYTHON_COVERAGE)
-    install(FILES "${generated_cpp}" DESTINATION "${install_directory}")
+    install(FILES "${cython_cpp}" DESTINATION "${install_directory}")
   endif()
 
   if(MSVC AND module_path STREQUAL "_tensor_bridge")

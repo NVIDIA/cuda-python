@@ -221,7 +221,6 @@ cython = ">=3.2.5,<3.3"
 cython-cmake = ">=0.2.2,<0.4"
 cuda-nvrtc-dev = "*"
 cuda-bindings = "*"
-cuda-pathfinder = "*"
 dlpack = "*"
 
 [package.target.linux-64.host-dependencies]

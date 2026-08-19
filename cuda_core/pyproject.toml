@@ -108,9 +108,8 @@ provider = "scikit_build_core.metadata.setuptools_scm"
 
 [tool.scikit-build]
 minimum-version = "build-system.requires"
-cmake.version = "CMakeLists.txt"
 build-dir = "build/{wheel_tag}"
-wheel.packages = []
+wheel.packages = ["cuda"]
 wheel.reproducible = true
 wheel.exclude = [
     "**/*.cpp",
@@ -120,19 +119,17 @@ wheel.exclude = [
     "**/*.pyx",
 ]
 sdist.include = [
+    "cuda/core/_cpp/*.cpp",
     "cuda/core/_version.py",
 ]
-sdist.reproducible = true
 sdist.exclude = [
-    "**/__pycache__/**",
+    "**/*.cpp",
     "**/*.dll",
     "**/*.dylib",
     "**/*.o",
-    "**/*.pyc",
     "**/*.pyd",
     "**/*.so",
     "cython_debug/**",
-    "tests/cython/*.cpp",
     "tests/cython/build/**",
 ]
 
@@ -151,7 +148,6 @@ wheel.exclude = [
 
 [[tool.scikit-build.overrides]]
 if.state = "editable"
-wheel.packages = ["cuda"]
 cmake.build-type = "Debug"
 
 [[tool.scikit-build.overrides]]
