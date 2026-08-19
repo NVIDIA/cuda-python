@@ -104,7 +104,7 @@ if [[ "${MODE}" == "branch" ]]; then
         --repo "${REPOSITORY}" \
         --branch "${REF}" \
         --workflow "${WORKFLOW_NAME}" \
-        --status completed \
+        --status success \
         --json databaseId,workflowName,status,conclusion,headSha,headBranch,createdAt,url \
         --limit 100)
 
