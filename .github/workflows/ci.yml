@@ -486,7 +486,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
+      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-linux-aarch64:
@@ -511,7 +511,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
+      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-windows:
@@ -536,7 +536,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
+      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
   doc:
     name: Docs
@@ -584,7 +584,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          SKIP=lychee pre-commit run --all-files
+          SKIP=lychee,check-pixi-cuda-version pre-commit run --all-files
 
   checks:
     name: Check job status

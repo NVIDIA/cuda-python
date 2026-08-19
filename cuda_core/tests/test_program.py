@@ -93,12 +93,16 @@ def _check_nvvm_arch(arch: str) -> bool:
 
 
 def _check_nvvm_supports_numba_debug() -> bool:
-    """Check if the installed libNVVM recognizes --numba-debug (CTK 13.2+)."""
+    """Check if the installed libNVVM recognizes -numba-debug.
+
+    libNVVM only accepts single-dashed options, so the double-dashed spelling
+    used by NVRTC is rejected by every libNVVM version.
+    """
     if not _has_check_nvvm_compiler_options():
         return False
     from cuda.bindings.utils import check_nvvm_compiler_options
 
-    return check_nvvm_compiler_options(["--numba-debug"])
+    return check_nvvm_compiler_options(["-numba-debug"])
 
 
 @pytest.fixture(scope="session")
@@ -312,8 +316,10 @@ options = [
     ProgramOptions(prec_div=True),
     ProgramOptions(prec_sqrt=True),
     ProgramOptions(fma=True),
-    # Plumb-through; no-op at link time. See #1287.
-    ProgramOptions(debug=True, numba_debug=True),
+    # ``numba_debug`` is deliberately absent: it was listed here as a link-time
+    # no-op (#1287), but no linker backend accepts it, so it was dropped
+    # silently (#2640). The PTX path now warns; see
+    # test_ptx_program_numba_debug_warns_and_is_ignored.
 ]
 if not is_culink_backend:
     options += [
@@ -762,18 +768,53 @@ def test_program_options_as_bytes_nvvm_unsupported_option():
 
 @nvvm_available
 def test_nvvm_program_options_as_bytes_numba_debug():
-    """numba_debug must be plumbed through to libNVVM as --numba-debug
-    (see #1287)."""
+    """numba_debug must be plumbed through to libNVVM as -numba-debug
+    (see #1287, #2570). libNVVM rejects the double-dashed spelling."""
     options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
     nvvm_bytes = options.as_bytes("nvvm")
-    assert b"--numba-debug" in nvvm_bytes
+    assert b"-numba-debug" in nvvm_bytes
+    assert b"--numba-debug" not in nvvm_bytes
     assert b"-g" in nvvm_bytes
+
+
+@pytest.mark.agent_authored(model="claude-opus-5[1m]")
+def test_nvvm_options_reject_double_dash():
+    """The guard must name a double-dashed option rather than let libNVVM
+    reject it with an opaque error (see #2570)."""
+    from cuda.core._program import _assert_single_dashed_nvvm_options
+
+    _assert_single_dashed_nvvm_options(["-arch=compute_80", "-g", "-numba-debug"])
+
+    with pytest.raises(RuntimeError, match=r"--numba-debug.*double-dashed"):
+        _assert_single_dashed_nvvm_options(["-arch=compute_80", "--numba-debug"])
+
+
+@nvvm_available
+@pytest.mark.agent_authored(model="claude-opus-5[1m]")
+def test_nvvm_program_options_as_bytes_all_single_dashed():
+    """Every option cuda.core emits to libNVVM must be single-dashed, because
+    libNVVM rejects the double-dashed spelling of all of them (see #2570).
+    This covers every NVVM-supported field of ProgramOptions."""
+    options = ProgramOptions(
+        arch="sm_80",
+        debug=True,
+        numba_debug=True,
+        device_code_optimize=True,
+        ftz=True,
+        prec_sqrt=True,
+        prec_div=True,
+        fma=True,
+    )
+    nvvm_bytes = options.as_bytes("nvvm")
+    assert nvvm_bytes, "expected at least one emitted option"
+    offenders = [o for o in nvvm_bytes if o.startswith(b"--")]
+    assert not offenders, f"double-dashed options are rejected by libNVVM: {offenders}"
 
 
 @nvvm_available
 @pytest.mark.skipif(
     not _check_nvvm_supports_numba_debug(),
-    reason="installed libNVVM does not recognize --numba-debug (needs CTK 13.2+)",
+    reason="installed libNVVM does not recognize -numba-debug",
 )
 def test_nvvm_program_numba_debug(init_cuda, nvvm_ir):
     options = ProgramOptions(arch="sm_80", debug=True, numba_debug=True)
@@ -829,6 +870,34 @@ def test_ptx_program_extra_sources_unsupported(ptx_code_object):
     options = ProgramOptions(extra_sources=[("module1", b"data")])
     with pytest.raises(ValueError, match="extra_sources is not supported by the PTX backend"):
         Program(ptx_code_object.code.decode(), "ptx", options)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_ptx_program_numba_debug_warns_and_is_ignored(init_cuda, ptx_code_object):
+    """PTX inputs go to the linker, which cannot honor numba_debug (#2640).
+
+    It used to be forwarded into ``LinkerOptions`` and dropped without a word,
+    so the compile appeared to succeed with the option applied. It is still
+    ignored -- no linker can do anything with it -- but no longer silently.
+
+    ``UserWarning``, not ``DeprecationWarning``: ``ProgramOptions.numba_debug``
+    is not deprecated, it is supported on NVVM/NVRTC and merely inapplicable to
+    this backend.
+    """
+    with pytest.warns(UserWarning, match="numba_debug is ignored for code_type='ptx'"):
+        program = Program(ptx_code_object.code.decode(), "ptx", ProgramOptions(numba_debug=True))
+    assert program.compile("cubin") is not None
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("value", [None, False])
+def test_ptx_program_numba_debug_unset_or_false_does_not_warn(init_cuda, ptx_code_object, value):
+    """The gate is truthiness: only an enabled ``numba_debug`` asks for
+    something the PTX path cannot deliver, so ``False`` is not worth a warning."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        program = Program(ptx_code_object.code.decode(), "ptx", ProgramOptions(numba_debug=value))
+    assert program.compile("cubin") is not None
 
 
 def test_ptx_program_handle_is_linker_handle(init_cuda, ptx_code_object):

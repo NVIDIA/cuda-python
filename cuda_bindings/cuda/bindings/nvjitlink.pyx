@@ -4,12 +4,47 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f722861e068fe62c47806f8fc7757afc24a313435cc14026e1b4f59d1b7f2be7
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=aa44e59efcaf2832770b60a168b74cc79bc06d1a35dcbf78c90f7917f3c900a4
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
+cimport cpython as _cyb_cpython
+from libc.stdint cimport (
+    intptr_t,
+    uint32_t,
+)
+
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
+
+cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
+    cdef intptr_t ptr
+    cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
+    if not readonly:
+        flags |= _cyb_cpython.PyBUF_WRITABLE
+    cdef int status = -1
+    cdef _cyb_cpython.Py_buffer view
+    if isinstance(buf, int):
+        ptr = <intptr_t>buf
+    else:
+        try:
+            status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
+            if size != -1:
+                assert view.len == size
+            assert view.ndim == 1
+        except Exception as e:
+            adj = "writable " if not readonly else ""
+            raise ValueError(
+                "buf must be either a Python int representing the pointer "
+                f"address to a valid buffer, or a 1D contiguous {adj}"
+                f"buffer, of size {size}"
+            ) from e
+        else:
+            ptr = <intptr_t>view.buf
+        finally:
+            if status == 0:
+                _cyb_cpython.PyBuffer_Release(&view)
+    return ptr
 
 
 # <<<< END OF PREAMBLE CONTENT >>>>
@@ -17,7 +52,7 @@ from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 cimport cython  # NOQA
 
 from ._internal.utils cimport (get_resource_ptr, get_nested_resource_ptr, nested_resource, nullable_unique_ptr,
-                               get_buffer_pointer, get_resource_ptrs)
+                               get_resource_ptrs)
 
 from libcpp.vector cimport vector
 
@@ -153,7 +188,7 @@ cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
 
     .. seealso:: `nvJitLinkAddData`
     """
-    cdef void* _data_ = get_buffer_pointer(data, size, readonly=True)
+    cdef void* _data_ = <void *>_cyb_get_buffer_pointer(data, size, readonly=True)
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
@@ -222,7 +257,7 @@ cpdef get_linked_cubin(intptr_t handle, cubin):
 
     .. seealso:: `nvJitLinkGetLinkedCubin`
     """
-    cdef void* _cubin_ = get_buffer_pointer(cubin, -1, readonly=False)
+    cdef void* _cubin_ = <void *>_cyb_get_buffer_pointer(cubin, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetLinkedCubin(<Handle>handle, <void*>_cubin_)
     check_status(__status__)
@@ -255,7 +290,7 @@ cpdef get_linked_ptx(intptr_t handle, ptx):
 
     .. seealso:: `nvJitLinkGetLinkedPtx`
     """
-    cdef void* _ptx_ = get_buffer_pointer(ptx, -1, readonly=False)
+    cdef void* _ptx_ = <void *>_cyb_get_buffer_pointer(ptx, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetLinkedPtx(<Handle>handle, <char*>_ptx_)
     check_status(__status__)
@@ -288,7 +323,7 @@ cpdef get_error_log(intptr_t handle, log):
 
     .. seealso:: `nvJitLinkGetErrorLog`
     """
-    cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
+    cdef void* _log_ = <void *>_cyb_get_buffer_pointer(log, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetErrorLog(<Handle>handle, <char*>_log_)
     check_status(__status__)
@@ -321,7 +356,7 @@ cpdef get_info_log(intptr_t handle, log):
 
     .. seealso:: `nvJitLinkGetInfoLog`
     """
-    cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
+    cdef void* _log_ = <void *>_cyb_get_buffer_pointer(log, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetInfoLog(<Handle>handle, <char*>_log_)
     check_status(__status__)
@@ -373,7 +408,7 @@ cpdef get_linked_ltoir(intptr_t handle, ltoir):
 
     .. seealso:: `nvJitLinkGetLinkedLTOIR`
     """
-    cdef void* _ltoir_ = get_buffer_pointer(ltoir, -1, readonly=False)
+    cdef void* _ltoir_ = <void *>_cyb_get_buffer_pointer(ltoir, -1, readonly=False)
     with nogil:
         __status__ = nvJitLinkGetLinkedLTOIR(<Handle>handle, <void*>_ltoir_)
     check_status(__status__)

@@ -128,7 +128,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
         const DevicePtrHandle& h) noexcept nogil
-    void set_deallocation_stream "cuda_core::set_deallocation_stream" (
+    cydriver.CUresult set_deallocation_stream "cuda_core::set_deallocation_stream" (
         const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
     # Library handles
@@ -243,6 +243,14 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         unsigned int flags, void* groupParams) nogil
     bint has_sm_resource_split "cuda_core::has_sm_resource_split" () noexcept nogil
 
+    # cuMemcpyWithAttributesAsync (13.2+ wrapper — avoids direct cydriver cimport)
+    # attr is void* to avoid referencing CUmemcpyAttributes (absent from
+    # cuda-bindings built against CUDA < 12.8). The C++ side casts it.
+    cydriver.CUresult memcpy_with_attributes_async "cuda_core::memcpy_with_attributes_async" (
+        cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
+        void* attr, cydriver.CUstream hStream) nogil
+    bint has_memcpy_with_attributes_async "cuda_core::has_memcpy_with_attributes_async" () noexcept nogil
+
     # Array / mipmapped-array / texture / surface handles (PR #467)
     OpaqueArrayHandle create_array_handle "cuda_core::create_array_handle" (
         const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
@@ -293,6 +301,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuDevicePrimaryCtxRetain "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRetain)"
     void* p_cuDevicePrimaryCtxRelease "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRelease)"
     void* p_cuCtxGetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetCurrent)"
+    void* p_cuCtxSetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxSetCurrent)"
     void* p_cuGreenCtxCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxCreate)"
     void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
     void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
@@ -371,6 +380,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # SM resource split (13.1+)
     void* p_cuDevSmResourceSplit "reinterpret_cast<void*&>(cuda_core::p_cuDevSmResourceSplit)"
 
+    # cuMemcpyWithAttributesAsync (13.2+)
+    void* p_cuMemcpyWithAttributesAsync "reinterpret_cast<void*&>(cuda_core::p_cuMemcpyWithAttributesAsync)"
+
     # NVRTC
     void* p_nvrtcDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvrtcDestroyProgram)"
 
@@ -397,6 +409,7 @@ cdef void* _get_optional_driver_fn(str name):
 
 cdef void _init_driver_fn_pointers() noexcept:
     global p_cuDevicePrimaryCtxRetain, p_cuDevicePrimaryCtxRelease, p_cuCtxGetCurrent
+    global p_cuCtxSetCurrent
     global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
     global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
     global p_cuStreamCreateWithPriority, p_cuStreamDestroy
@@ -416,6 +429,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
     global p_cuDevSmResourceSplit
+    global p_cuMemcpyWithAttributesAsync
     global p_cuArray3DCreate, p_cuArrayDestroy
     global p_cuMipmappedArrayCreate, p_cuMipmappedArrayDestroy, p_cuMipmappedArrayGetLevel
     global p_cuTexObjectCreate, p_cuTexObjectDestroy
@@ -425,6 +439,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
     p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
     p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
+    p_cuCtxSetCurrent = _get_driver_fn("cuCtxSetCurrent")
     p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
     p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
     p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")
@@ -502,6 +517,9 @@ cdef void _init_driver_fn_pointers() noexcept:
 
     # SM resource split (13.1+ — may not exist in older cuda-bindings)
     p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
+
+    # cuMemcpyWithAttributesAsync (13.2+ — may not exist in older cuda-bindings)
+    p_cuMemcpyWithAttributesAsync = _get_optional_driver_fn("cuMemcpyWithAttributesAsync")
 
 _init_driver_fn_pointers()
 initialize_deferred_cleanup()
