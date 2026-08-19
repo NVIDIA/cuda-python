@@ -56,8 +56,9 @@ def pytest_configure(config):
 
 @pytest.hookimpl(wrapper=True)
 def pytest_runtest_makereport(item, call):
-    # Captures machine state on the first CUDA OOM of a session; see issue
-    # #2381 and helpers/oom_diagnostics.py for why this is latched.
+    # Runs the OOM reason checker on the first CUDA OOM of a session; see
+    # issue #2381 and helpers/oom_diagnostics.py for why this is latched and
+    # what it checks (host VA exhaustion vs. physical device memory).
     report = yield
     from helpers import oom_diagnostics
 
