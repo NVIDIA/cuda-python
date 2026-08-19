@@ -243,6 +243,14 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         unsigned int flags, void* groupParams) nogil
     bint has_sm_resource_split "cuda_core::has_sm_resource_split" () noexcept nogil
 
+    # cuMemcpyWithAttributesAsync (13.2+ wrapper — avoids direct cydriver cimport)
+    # attr is void* to avoid referencing CUmemcpyAttributes (absent from
+    # cuda-bindings built against CUDA < 12.8). The C++ side casts it.
+    cydriver.CUresult memcpy_with_attributes_async "cuda_core::memcpy_with_attributes_async" (
+        cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
+        void* attr, cydriver.CUstream hStream) nogil
+    bint has_memcpy_with_attributes_async "cuda_core::has_memcpy_with_attributes_async" () noexcept nogil
+
     # Array / mipmapped-array / texture / surface handles (PR #467)
     OpaqueArrayHandle create_array_handle "cuda_core::create_array_handle" (
         const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
@@ -372,6 +380,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # SM resource split (13.1+)
     void* p_cuDevSmResourceSplit "reinterpret_cast<void*&>(cuda_core::p_cuDevSmResourceSplit)"
 
+    # cuMemcpyWithAttributesAsync (13.2+)
+    void* p_cuMemcpyWithAttributesAsync "reinterpret_cast<void*&>(cuda_core::p_cuMemcpyWithAttributesAsync)"
+
     # NVRTC
     void* p_nvrtcDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvrtcDestroyProgram)"
 
@@ -418,6 +429,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
     global p_cuDevSmResourceSplit
+    global p_cuMemcpyWithAttributesAsync
     global p_cuArray3DCreate, p_cuArrayDestroy
     global p_cuMipmappedArrayCreate, p_cuMipmappedArrayDestroy, p_cuMipmappedArrayGetLevel
     global p_cuTexObjectCreate, p_cuTexObjectDestroy
@@ -505,6 +517,9 @@ cdef void _init_driver_fn_pointers() noexcept:
 
     # SM resource split (13.1+ — may not exist in older cuda-bindings)
     p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
+
+    # cuMemcpyWithAttributesAsync (13.2+ — may not exist in older cuda-bindings)
+    p_cuMemcpyWithAttributesAsync = _get_optional_driver_fn("cuMemcpyWithAttributesAsync")
 
 _init_driver_fn_pointers()
 initialize_deferred_cleanup()

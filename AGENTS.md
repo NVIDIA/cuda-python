@@ -14,16 +14,30 @@ guide for package-specific conventions and workflows.
 
 # Pull requests
 
-**Never push branches or commits to the canonical upstream repository. Treat
-it as read-only.** Branch creation and pushes for pull-request work must go to
-an approved fork associated with the contributor. The fork may be owned by the
-contributor's personal account or by an organization.
+Treat the canonical upstream repository as read-only by default. For normal
+pull-request work, push branches and commits to an approved fork associated
+with the contributor. The fork may be owned by the contributor's personal
+account or by an organization.
 
-Before pushing, run `git remote -v` and confirm that the intended push remote
-points to a fork of the pull-request base, not to the base repository itself.
-Compare complete `OWNER/REPOSITORY` names; do not rely on remote names such as
-`origin` or `upstream`, or on the owner alone. Do not use `git push upstream`
-or any command that writes to the upstream remote.
+Before any push, run `git remote -v` and verify the complete
+`OWNER/REPOSITORY` of the intended destination. For normal pull-request work,
+confirm that the destination is a fork of the pull-request base. Do not rely
+on remote names such as `origin` or `upstream`, or on the owner alone.
+
+An upstream push is allowed when the user explicitly requests it and provides
+a rationale for why the upstream repository is needed, such as testing
+`.github/workflows`, triggering CI from a designated upstream ref, or other
+infrastructure work.
+
+For an authorized upstream push, verify the exact source and destination refs
+against the user's request. If the repository and refspec are unambiguous,
+proceed; do not require the user to perform the push manually solely because
+the destination is upstream.
+
+Authorization is limited to the requested ref update. It does not authorize
+pushing to a default or protected branch, force-pushing, creating tags, or
+deleting refs unless the user separately and explicitly requests those
+operations.
 
 
 # General
