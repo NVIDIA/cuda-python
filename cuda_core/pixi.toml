@@ -213,7 +213,7 @@ CUDA_HOME = "$PREFIX/Library"
 [package.host-dependencies]
 python = "*"
 cuda-version = "*"
-cmake = ">=3.21"
+cmake = ">=3.30.3"
 ninja = "*"
 scikit-build-core = ">=1"
 setuptools-scm = ">=8"

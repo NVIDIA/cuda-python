@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.21...4.4)
+# FindPython 3.30.3 propagates Py_GIL_DISABLED through Python::Module on Windows.
+cmake_minimum_required(VERSION 3.30.3...4.4)
 
 project(cuda_core LANGUAGES CXX)
 
@@ -55,21 +56,6 @@ elseif(NOT "${_cuda_core_build_major}" STREQUAL "${_cuda_header_major}")
 endif()
 message(STATUS "Building cuda-core for CUDA ${_cuda_core_build_major} using ${_cuda_core_cuda_root}")
 
-if(WIN32)
-  execute_process(
-    COMMAND
-      "${Python_EXECUTABLE}" -c
-      "import sysconfig; print(int(bool(sysconfig.get_config_var('Py_GIL_DISABLED'))))"
-    RESULT_VARIABLE _python_freethreaded_result
-    OUTPUT_VARIABLE _python_freethreaded
-    ERROR_VARIABLE _python_freethreaded_error
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  if(NOT _python_freethreaded_result STREQUAL "0")
-    message(FATAL_ERROR "Could not determine whether Python is free-threaded.\n${_python_freethreaded_error}")
-  endif()
-endif()
-
 if(CUDA_PYTHON_COVERAGE)
   set(_coverage_directive -X linetrace=True)
 endif()
@@ -114,12 +100,6 @@ if(CUDA_PYTHON_COVERAGE)
       CYTHON_USE_SYS_MONITORING=0
   )
 endif()
-if(WIN32 AND _python_freethreaded)
-  # Windows shares Python headers between GIL and free-threaded builds, so
-  # extension builds must supply the ABI selection macro themselves.
-  target_compile_definitions(cuda_core_extension_settings INTERFACE Py_GIL_DISABLED=1)
-endif()
-
 file(
   GLOB_RECURSE _cuda_core_modules
   CONFIGURE_DEPENDS
