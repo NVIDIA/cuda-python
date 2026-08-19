@@ -3,7 +3,7 @@
 
 import numpy as np
 import pytest
-from conftest import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
+from helpers.memory import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
 
 from cuda.core import (
     Device,
