@@ -521,6 +521,31 @@ def test_find_binary_without_site_packages_entry(monkeypatch, mocker):
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_find_binary_empty_conda_prefix_does_not_search_cwd(tmp_path, monkeypatch, mocker):
+    # An empty CONDA_PREFIX means "not in a conda environment", the same rule
+    # every other pathfinder search step applies. Treating it as a prefix joins
+    # to a bare "bin", which resolves against the process CWD and reopens the
+    # #2119 binary-planting hazard.
+    cwd = tmp_path / "cwd"
+    decoy_dir = cwd / "bin"
+    decoy_dir.mkdir(parents=True)
+    decoy = decoy_dir / "nvcc"
+    decoy.write_text("")
+    decoy.chmod(0o700)
+    monkeypatch.chdir(cwd)
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
+    mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    monkeypatch.setenv("CONDA_PREFIX", "")
+    mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
+    mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
+
+    assert find_nvidia_binary_utility("nvcc") is None
+
+
+@pytest.mark.usefixtures("clear_find_binary_cache")
 def test_find_binary_cache_negative_result(monkeypatch, mocker):
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
     mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
