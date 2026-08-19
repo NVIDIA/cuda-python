@@ -41,7 +41,8 @@ jobs:
       CUDA_VER: ${{ inputs.cuda-version }}
       HOST_PLATFORM: ${{ inputs.host-platform }}
       MOON_BASE: ${{ inputs.moon-base }}
-      MOON_FORCE_ALL: ${{ inputs.force-all && 'true' || 'false' }}
+      # Only canonical outputs cross runners; upstream-none also omits hash deps.
+      MOON_CACHE: "off"
       MOON_HEAD: ${{ github.sha }}
       PY_VER: "3.12"
     steps:
@@ -66,7 +67,9 @@ jobs:
           auto-setup: false
 
       - name: Install build tools
-        run: python -m pip install "pip>=25.3" build
+        run: >-
+          python -m pip install --constraint ci/build-constraints.txt
+          "pip>=25.3" "build==1.5.0"
 
       # Cython packages need CTK + sccache.
       # The env vars ACTIONS_CACHE_SERVICE_V2, ACTIONS_RESULTS_URL, and ACTIONS_RUNTIME_TOKEN
@@ -91,8 +94,6 @@ jobs:
           enable-apt: true
 
       - name: Set environment variables
-        env:
-          SHA: ${{ github.sha }}
         run: ./ci/tools/env-vars build
 
       - name: Restore trusted exact-base Moon lane
@@ -115,45 +116,37 @@ jobs:
         run: |
           export CC="sccache cc"
           export CXX="sccache c++"
-          args=()
-          if [[ "${MOON_FORCE_ALL}" == "true" ]]; then
+          args=(--upstream none --downstream none)
+          if [[ "${{ inputs.force-all }}" == "true" ]]; then
             args+=(--force)
           fi
-          # Preserve affected granularity while retaining the package build
-          # order. cuda.core and the metapackage are independent after their
-          # shared prerequisites and can run in parallel.
-          moon ci pathfinder:sdist --upstream none --downstream none "${args[@]}"
-          moon ci bindings:sdist --upstream none --downstream none "${args[@]}"
-          moon ci core:sdist metapackage:sdist --upstream none --downstream none "${args[@]}"
+          # Moon 2.5.1 drops dependency ordering with upstream-none, so stage
+          # consumers explicitly while retaining parallel independent peers.
+          moon ci pathfinder:sdist "${args[@]}"
+          moon ci bindings:sdist "${args[@]}"
+          moon ci core:sdist metapackage:sdist "${args[@]}"
 
       - name: Validate sdist outputs
         run: |
-          validated=0
           for project in cuda_pathfinder cuda_bindings cuda_core cuda_python; do
             output="${project}/.moon-out/sdist"
-            if [[ ! -d "${output}" ]]; then
-              continue
-            fi
+            test -d "${output}"
             test "$(find "${output}" -maxdepth 1 -name '*.tar.gz' -type f | wc -l)" -eq 1
             test "$(find "${output}" -maxdepth 1 -name '*.whl' -type f | wc -l)" -eq 1
-            validated=$((validated + 1))
           done
-          test "${validated}" -gt 0
 
       - name: Show sccache stats
         if: ${{ always() }}
         run: sccache --show-stats
 
-      # GitHub transports Moon's portable cache between trusted exact runs;
-      # Moon remains responsible for hashes, hits, and output hydration.
+      # GitHub transports canonical outputs between trusted exact-base runs.
+      # Moon's hash and output caches remain local to each runner.
       - name: Upload sdist Moon lane
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: moon-lane-sdist-${{ inputs.host-platform }}
           path: |
-            .moon/cache/hashes
-            .moon/cache/outputs
             cuda_pathfinder/.moon-out/sdist
             cuda_bindings/.moon-out/sdist
             cuda_core/.moon-out/sdist

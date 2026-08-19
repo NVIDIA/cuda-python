@@ -36,7 +36,7 @@ copy_component() {
     cp -aL "${source}/." "${destination}/"
 }
 
-copy_component "${REPO_ROOT}/cuda_python/.moon-out/docs-ci" "${OUTPUT}"
-copy_component "${REPO_ROOT}/cuda_bindings/.moon-out/docs-ci" "${OUTPUT}/cuda-bindings"
-copy_component "${REPO_ROOT}/cuda_core/.moon-out/docs-ci" "${OUTPUT}/cuda-core"
-copy_component "${REPO_ROOT}/cuda_pathfinder/.moon-out/docs-ci" "${OUTPUT}/cuda-pathfinder"
+copy_component "${REPO_ROOT}/cuda_python/docs/build/html" "${OUTPUT}"
+copy_component "${REPO_ROOT}/cuda_bindings/docs/build/html" "${OUTPUT}/cuda-bindings"
+copy_component "${REPO_ROOT}/cuda_core/docs/build/html" "${OUTPUT}/cuda-core"
+copy_component "${REPO_ROOT}/cuda_pathfinder/docs/build/html" "${OUTPUT}/cuda-pathfinder"

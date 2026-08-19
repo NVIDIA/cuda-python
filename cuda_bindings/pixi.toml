@@ -150,10 +150,10 @@ libnvfatbin = "*"
 libcufile = "*"
 
 [target.linux.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
+cmd = ["python", "$PIXI_PROJECT_ROOT/tests/cython/build_tests.py"]
 
 [target.win-64.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]
+cmd = ["python", "$PIXI_PROJECT_ROOT/tests/cython/build_tests.py"]
 
 [target.linux.tasks.test]
 cmd = [

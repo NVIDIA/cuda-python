@@ -37,7 +37,7 @@ subpackage in the `cuda-python` monorepo.
 
 - **Primary tests**: `pytest tests/`
 - **Cython tests**:
-  - build: `tests/cython/build_tests.sh` (or platform equivalent)
+  - build: `pixi run build-cython-tests`
   - run: `pytest tests/cython/`
 - **Examples**: example coverage is pytest-based under `examples/`.
 - **Benchmarks**: run with `pytest --benchmark-only benchmarks/` when needed.

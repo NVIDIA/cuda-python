@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -28,15 +28,7 @@ fi
 
 echo "${TOOLS_PATH}" >> $GITHUB_PATH
 echo "CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
-CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${HOST_PLATFORM}"
-{
-  echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}"
-  echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}"
-  echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_core/dist")"
-  echo "CUDA_CORE_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_core/tests/cython")"
-  echo "CUDA_CORE_TEST_BINARIES_DIR=$(realpath "${REPO_DIR}/cuda_core/tests/test_binaries")"
-  echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}"
-} >> $GITHUB_ENV
+echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
 
 if [[ "${1}" == "build" ]]; then
   # platform is handled by the default value of platform (`auto`) in cibuildwheel
@@ -45,14 +37,20 @@ if [[ "${1}" == "build" ]]; then
   BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
   echo "BUILD_CUDA_MAJOR=${BUILD_CUDA_MAJOR}" >> $GITHUB_ENV
   echo "BUILD_PREV_CUDA_MAJOR=$((${BUILD_CUDA_MAJOR} - 1))" >> $GITHUB_ENV
-  CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CUDA_VER}-${HOST_PLATFORM}"
+  if [[ -n "${SHA:-}" ]]; then
+    CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CUDA_VER}-${HOST_PLATFORM}"
+    CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${HOST_PLATFORM}"
+    {
+      echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
+      echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}"
+    } >> $GITHUB_ENV
+  fi
   # Enforce an explicit cache dir so that we can reuse this path later
   echo "SCCACHE_DIR=${HOME}/.cache/sccache" >> $GITHUB_ENV
   echo "SCCACHE_CACHE_SIZE=1G" >> $GITHUB_ENV
 elif [[ "${1}" == "test" ]]; then
   BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${BUILD_CUDA_VER})"
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
-  CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CUDA_VER}-${HOST_PLATFORM}"
 
   # BINDINGS_SOURCE controls which cuda-bindings to install at test time:
   #   main      — use the just-built bindings wheel from this CI run
@@ -105,10 +103,3 @@ elif [[ "${1}" == "test" ]]; then
     echo "TEST_CUDA_MINOR=${TEST_CUDA_MINOR}"
   } >> $GITHUB_ENV
 fi
-
-{
-  echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}"
-  echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
-  echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/dist")"
-  echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/tests/cython")"
-} >> $GITHUB_ENV

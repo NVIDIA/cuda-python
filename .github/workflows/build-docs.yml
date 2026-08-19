@@ -28,11 +28,6 @@ on:
         required: false
         default: ${{ github.run_id }}
         type: string
-      sha:
-        description: "Commit SHA used in native wheel artifact names"
-        required: false
-        default: ${{ github.sha }}
-        type: string
       is-release:
         description: "Are we building release docs?"
         required: false
@@ -99,7 +94,6 @@ jobs:
           environment-file: ./cuda_python/docs/environment-docs.yml
           miniforge-version: latest
           conda-remove-defaults: "true"
-          python-version: 3.12
 
       - name: Check conda env
         run: |
@@ -117,7 +111,7 @@ jobs:
 
       - name: Set environment variables
         run: |
-          PYTHON_VERSION_FORMATTED="312"  # see above
+          PYTHON_VERSION_FORMATTED="$(python -c 'import sys; print(f"{sys.version_info.major}{sys.version_info.minor}")')"
           REPO_DIR=$(pwd)
 
           if [[ ${{ inputs.is-release }} == "true" ]]; then
@@ -126,21 +120,18 @@ jobs:
             if [[ -z "${DOCS_GITHUB_REF}" ]]; then
               DOCS_GITHUB_REF="${GITHUB_REF_NAME}"
             fi
+
+            CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
+            echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
+            echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+            CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CTK_VER}-linux-64"
+            echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
+            echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           else
-            FILE_HASH="${{ inputs.sha }}"
-            DOCS_GITHUB_REF="${{ inputs.sha }}"
+            DOCS_GITHUB_REF="${GITHUB_SHA}"
           fi
 
-          # make outputs from the previous job as env vars
-          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
           echo "CUDA_PYTHON_DOCS_GITHUB_REF=${DOCS_GITHUB_REF}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
-          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CTK_VER}-linux-64"
-          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
       - name: Download universal release wheels
         if: ${{ inputs.is-release }}
@@ -193,20 +184,14 @@ jobs:
           CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION: "1"
         run: moon run metapackage:wheel-pure
 
-      - name: Install all packages
+      - name: Install release packages
+        if: ${{ inputs.is-release }}
         run: |
-          if [[ "${{ inputs.is-release }}" == "true" ]]; then
-            pip install cuda-pathfinder-wheel/*.whl
-            pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
-            pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl
-            # Subpackages are already installed from release artifacts above.
-            pip install --no-deps cuda-python-wheel/*.whl
-          else
-            pip install cuda_pathfinder/.moon-out/wheel-pure/*.whl
-            pip install cuda_bindings/.moon-out/wheel-current/*.whl
-            pip install cuda_core/.moon-out/wheel-merged/*.whl
-            pip install --no-deps cuda_python/.moon-out/wheel-pure/*.whl
-          fi
+          pip install cuda-pathfinder-wheel/*.whl
+          pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
+          pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl
+          # Subpackages are already installed from release artifacts above.
+          pip install --no-deps cuda-python-wheel/*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number
@@ -221,8 +206,6 @@ jobs:
 
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
-        env:
-          CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION: "1"
         run: |
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
             # Render context differs between main, PR previews, and releases,
@@ -245,23 +228,37 @@ jobs:
         if: ${{ inputs.component != 'all' }}
         run: |
           COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
-          pushd ${COMPONENT}/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            ./build_docs.sh latest-only
+            case "${{ inputs.component }}" in
+              cuda-pathfinder) MOON_PROJECT=pathfinder ;;
+              cuda-bindings) MOON_PROJECT=bindings ;;
+              cuda-core) MOON_PROJECT=core ;;
+              cuda-python) MOON_PROJECT=metapackage ;;
+              *)
+                echo "unsupported docs component: ${{ inputs.component }}" >&2
+                exit 1
+                ;;
+            esac
+            moon ci "${MOON_PROJECT}:docs-ci" --force --upstream deep --downstream none
           else
+            pushd "${COMPONENT}/docs/"
             ./build_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
+            ls -l build
+            popd
           fi
-          ls -l build
-          popd
           if [[ "${{ inputs.component }}" != "cuda-python" ]]; then
             TARGET="${{ inputs.component }}"
-            mkdir -p artifacts/docs/${TARGET}
+            mkdir -p "artifacts/docs/${TARGET}"
           else
             TARGET=""
           fi
-          mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
+          if [[ "${{ inputs.is-release }}" == "false" ]]; then
+            cp -aL "${COMPONENT}/docs/build/html/." "artifacts/docs/${TARGET}/"
+          else
+            mv "${COMPONENT}"/docs/build/html/* "artifacts/docs/${TARGET}"
+          fi
 
       - name: Write rendered docs file list
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}

@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/tasks.json
+
+inheritedBy:
+  tag: pixi-package
+
+fileGroups:
+  tests:
+    - 'examples/**/*'
+    - 'tests/**/*'
+    - 'pixi.toml'
+    - 'pixi.lock'
+    - 'pytest.ini'
+  docs:
+    - 'docs/**/*'
+    - 'pixi.toml'
+    - 'pixi.lock'
+
+tasks:
+  test:
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        PIXI_ENVIRONMENT=$(printenv PIXI_ENVIRONMENT_NAME || true)
+        if [[ -n "$PIXI_ENVIRONMENT" ]]; then
+          exec pixi run --manifest-path $projectSource/pixi.toml \
+            --environment "$PIXI_ENVIRONMENT" test
+        fi
+        exec pixi run --manifest-path $projectSource/pixi.toml test
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+    type: test
+
+  docs:
+    command: pixi
+    args: [run, --manifest-path, '$projectSource/pixi.toml', --environment, docs]
+    inputs:
+      - '@group(package)'
+      - '@group(docs)'
+      - '/.github/workflows/build-docs.yml'

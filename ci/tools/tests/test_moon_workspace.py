@@ -4,18 +4,23 @@
 
 # These tests intentionally use stdlib unittest so Moon's contract task does
 # not need a separately managed Python test environment.
-# ruff: noqa: PT009
+# ruff: noqa: PT009, PT027
 
 from __future__ import annotations
 
 import json
 import os
+import re
+import runpy
 import shutil
 import subprocess
+import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 EXPECTED_PROJECTS = {
@@ -27,7 +32,16 @@ EXPECTED_PROJECTS = {
     "test-helpers": "cuda_python_test_helpers",
 }
 EXECUTION_TAG_TARGETS = {
-    "ci-wheel-current": {"bindings:wheel-current", "core:wheel-current"},
+    "ci-build-native": {
+        "pathfinder:wheel-pure",
+        "bindings:wheel-current",
+        "core:wheel-current",
+        "bindings:cython-test-assets",
+        "core:cython-test-assets",
+        "core:wheel-previous",
+        "core:test-binaries",
+        "core:wheel-merge",
+    },
     "ci-build-cython-assets": {
         "bindings:cython-test-assets",
         "core:cython-test-assets",
@@ -64,26 +78,14 @@ EXECUTION_TAG_TARGETS = {
         "bindings:unit-test",
     },
 }
-RUNNER_TAG_TARGETS = {
-    "runner-build-linux-64": {
-        "pathfinder:wheel-pure",
-        "bindings:wheel-current",
-        "core:wheel-current",
-        "bindings:cython-test-assets",
-        "core:cython-test-assets",
-        "core:wheel-previous",
-        "core:test-binaries",
-        "core:wheel-merge",
-    },
-    "runner-sdist-linux": EXECUTION_TAG_TARGETS["ci-sdist"],
-    "runner-sdist-windows": EXECUTION_TAG_TARGETS["ci-sdist"],
-    "runner-test-linux": EXECUTION_TAG_TARGETS["ci-test-linux"],
-    "runner-test-windows": EXECUTION_TAG_TARGETS["ci-test-windows"],
-    "runner-docs": EXECUTION_TAG_TARGETS["ci-docs"],
-    "runner-quality": EXECUTION_TAG_TARGETS["ci-quality"],
+
+INTERNAL_FINGERPRINT_TARGETS = {
+    *(f"{project}:fingerprint-package" for project in ("pathfinder", "bindings", "core", "metapackage")),
+    "test-helpers:fingerprint-python-context",
+    "test-helpers:fingerprint-python-build",
+    "test-helpers:fingerprint-native-context",
+    "test-helpers:fingerprint-test-assets",
 }
-RUNNER_TAG_TARGETS["runner-build-linux-aarch64"] = RUNNER_TAG_TARGETS["runner-build-linux-64"]
-RUNNER_TAG_TARGETS["runner-build-windows"] = RUNNER_TAG_TARGETS["runner-build-linux-64"]
 
 CACHED_OUTPUTS = {
     "pathfinder:wheel-pure": ".moon-out/wheel-pure",
@@ -101,6 +103,22 @@ CACHED_OUTPUTS = {
     "metapackage:sdist": ".moon-out/sdist",
 }
 FINGERPRINTED_TARGETS = set(CACHED_OUTPUTS)
+SCM_FINGERPRINTED_TARGETS = FINGERPRINTED_TARGETS - {
+    "bindings:cython-test-assets",
+    "core:cython-test-assets",
+    "core:test-binaries",
+    "core:wheel-merge",
+}
+NATIVE_FINGERPRINTED_TARGETS = {
+    "bindings:wheel-current",
+    "bindings:sdist",
+    "bindings:cython-test-assets",
+    "core:wheel-current",
+    "core:wheel-previous",
+    "core:sdist",
+    "core:cython-test-assets",
+    "core:test-binaries",
+}
 
 
 class MoonWorkspaceContractTest(unittest.TestCase):
@@ -110,6 +128,7 @@ class MoonWorkspaceContractTest(unittest.TestCase):
         if not cls.moon:
             raise unittest.SkipTest("Moon is not installed; set MOON_BIN to test the workspace")
         cls.tasks = cls.moon_json("tasks", "--json")
+        cls.tasks.extend(cls.moon_json("task", target, "--json") for target in INTERNAL_FINGERPRINT_TARGETS)
         cls.by_target = {task["target"]: task for task in cls.tasks}
 
     @classmethod
@@ -143,19 +162,25 @@ class MoonWorkspaceContractTest(unittest.TestCase):
             self.assertFalse(task.get("outputs"))
 
     def test_precise_inputs_are_owned_without_hiding_new_paths(self) -> None:
-        def affected(path: str) -> set[str]:
+        def affected(
+            path: str,
+            *,
+            upstream: str = "none",
+            downstream: str = "deep",
+        ) -> set[str]:
+            arguments = [
+                self.moon,
+                "query",
+                "tasks",
+                "--affected",
+                "stdin",
+                "--upstream",
+                upstream,
+                "--downstream",
+                downstream,
+            ]
             result = subprocess.run(  # noqa: S603 - the binary is explicitly selected in setUpClass.
-                [
-                    self.moon,
-                    "query",
-                    "tasks",
-                    "--affected",
-                    "stdin",
-                    "--upstream",
-                    "none",
-                    "--downstream",
-                    "deep",
-                ],
+                arguments,
                 cwd=REPO_ROOT,
                 check=True,
                 input=path,
@@ -175,6 +200,109 @@ class MoonWorkspaceContractTest(unittest.TestCase):
         quality = affected("ci/tools/tests/test_moon_tasks.py")
         self.assertIn("root:quality-moon-contracts", quality)
         self.assertNotIn("root:force-all-unowned", quality)
+        nightly = affected(".github/workflows/ci-nightly.yml")
+        self.assertIn("root:quality-moon-contracts", nightly)
+        self.assertNotIn("root:force-all-unowned", nightly)
+        for quality_input in (
+            ".gitignore",
+            ".github/workflows/build-docs.yml",
+            ".github/workflows/build-wheel.yml",
+            ".github/workflows/ci-nightly.yml",
+            ".github/workflows/ci.yml",
+            ".github/workflows/test-sdist-linux.yml",
+            ".github/workflows/test-sdist-windows.yml",
+            ".github/workflows/test-wheel-linux.yml",
+            ".github/workflows/test-wheel-windows.yml",
+            "ci/tools/env-vars",
+            "ci/build-matrix.yml",
+            "ci/test-matrix.yml",
+            "ci/tools/merge_cuda_core_wheels.py",
+            "ci/tools/run-tests",
+            "cuda_bindings/tests/cython/build_tests.py",
+            "cuda_bindings/docs/build_docs.sh",
+            "cuda_core/tests/cython/build_tests.py",
+            "cuda_core/docs/build_docs.sh",
+            "cuda_pathfinder/docs/build_docs.sh",
+            "cuda_python/docs/assemble_moon_docs.sh",
+            "cuda_python/docs/build_component_docs.sh",
+            "cuda_python/docs/build_docs.sh",
+            "cuda_python/docs/environment-docs.yml",
+            "cuda_python_test_helpers/cuda_python_test_helpers/cython_test_builder.py",
+        ):
+            self.assertIn("root:quality-moon-contracts", affected(quality_input), quality_input)
+
+        metapackage_only = affected("cuda_python/pyproject.toml")
+        self.assertTrue(
+            {
+                "metapackage:wheel-pure",
+                "metapackage:sdist",
+                "metapackage:test-installed-linux",
+                "metapackage:test-installed-windows",
+                "metapackage:docs-ci",
+            }
+            <= metapackage_only,
+        )
+        self.assertFalse(
+            any("ci-build-native" in self.by_target[target].get("tags", []) for target in metapackage_only),
+        )
+
+        current_wheels = {"bindings:wheel-current", "core:wheel-current"}
+        pathfinder_direct = affected("cuda_pathfinder/cuda/__init__.py", downstream="none")
+        bindings_direct = affected("cuda_bindings/cuda/__init__.py", downstream="none")
+        self.assertTrue(
+            (
+                current_wheels
+                | {
+                    "bindings:sdist",
+                    "core:sdist",
+                    "core:wheel-previous",
+                    "metapackage:sdist",
+                    "metapackage:wheel-pure",
+                }
+            )
+            <= pathfinder_direct
+        )
+        self.assertTrue(
+            (current_wheels | {"core:sdist", "metapackage:sdist", "metapackage:wheel-pure"}) <= bindings_direct
+        )
+
+        for path, target in (
+            ("cuda_pathfinder/docs/source/index.rst", "pathfinder:sdist"),
+            ("cuda_bindings/tests/test_basics.py", "bindings:sdist"),
+            ("cuda_core/README.md", "core:sdist"),
+            ("cuda_python/docs/source/index.rst", "metapackage:sdist"),
+        ):
+            self.assertIn(target, affected(path, downstream="none"), path)
+
+    def test_native_build_matrix_is_direct_and_covers_test_python_versions(self) -> None:
+        matrix_text = (REPO_ROOT / "ci" / "build-matrix.yml").read_text(encoding="utf-8")
+        matrix = json.loads("\n".join(line for line in matrix_text.splitlines() if not line.lstrip().startswith("#")))
+        self.assertEqual(set(matrix), {"include"})
+        rows = matrix["include"]
+        self.assertIsInstance(rows, list)
+        self.assertTrue(rows)
+
+        versions: set[str] = set()
+        formatted_versions: set[str] = set()
+        for row in rows:
+            self.assertEqual(set(row), {"python-version", "python-version-formatted"})
+            version = row["python-version"]
+            formatted = row["python-version-formatted"]
+            self.assertIsInstance(version, str)
+            self.assertIsInstance(formatted, str)
+            self.assertRegex(version, r"^3\.(?:0|[1-9][0-9]*)t?$")
+            self.assertRegex(formatted, r"^3[0-9]+t?$")
+            self.assertEqual(formatted, version.replace(".", ""))
+            self.assertNotIn(version, versions)
+            self.assertNotIn(formatted, formatted_versions)
+            versions.add(version)
+            formatted_versions.add(formatted)
+
+        self.assertIn("3.12", versions)
+        test_matrix = (REPO_ROOT / "ci" / "test-matrix.yml").read_text(encoding="utf-8")
+        test_versions = set(re.findall(r"\bPY_VER:\s*'([^']+)'", test_matrix))
+        self.assertTrue(test_versions)
+        self.assertLessEqual(test_versions, versions)
 
     def test_bindings_benchmark_smoke_uses_materialized_wheels(self) -> None:
         task = self.by_target["bindings:smoke-linux"]
@@ -185,12 +313,13 @@ class MoonWorkspaceContractTest(unittest.TestCase):
         self.assertIn("benchmarks/cuda_bindings/run_pyperf.py", task["script"])
         self.assertNotIn("moon_ci.py", str(task["inputs"]))
 
-    def test_execution_and_runner_tags_select_real_tasks(self) -> None:
-        for tag, expected in {**EXECUTION_TAG_TARGETS, **RUNNER_TAG_TARGETS}.items():
+    def test_semantic_execution_tags_select_real_tasks(self) -> None:
+        for tag, expected in EXECUTION_TAG_TARGETS.items():
             selected = {task["target"] for task in self.tasks if tag in task.get("tags", [])}
             self.assertEqual(selected, expected, tag)
             for target in selected:
                 self.assertTrue(self.by_target[target]["options"]["runInCI"], target)
+        self.assertFalse({tag for task in self.tasks for tag in task.get("tags", []) if tag.startswith("runner-")})
 
     def test_cached_producers_have_explicit_non_overlapping_outputs(self) -> None:
         cached = {task["target"] for task in self.tasks if task["options"]["cache"]}
@@ -205,21 +334,91 @@ class MoonWorkspaceContractTest(unittest.TestCase):
             destinations.add((project, output))
         for target in FINGERPRINTED_TARGETS:
             task = self.by_target[target]
-            self.assertTrue(task.get("checks"), target)
-            scripts = [check["script"] for check in task["checks"]]
-            self.assertTrue(any("git describe" in script for script in scripts), target)
+            self.assertFalse(task.get("checks"), target)
+            self.assertNotIn("cacheKey", task["options"], target)
+            closure: set[str] = set()
+            pending = [dependency["target"] for dependency in task.get("deps", [])]
+            while pending:
+                dependency = pending.pop()
+                if dependency in closure:
+                    continue
+                closure.add(dependency)
+                pending.extend(dep["target"] for dep in self.by_target[dependency].get("deps", []))
+            fingerprint_tasks = [self.by_target[dependency] for dependency in closure if "fingerprint" in dependency]
+            self.assertTrue(fingerprint_tasks, target)
+            scripts = [
+                check["script"]
+                for fingerprint_task in fingerprint_tasks
+                for check in fingerprint_task.get("checks", [])
+            ]
             self.assertTrue(any("SETUPTOOLS_SCM_" in script for script in scripts), target)
             self.assertTrue(any("python_implementation" in script for script in scripts), target)
+            if target in SCM_FINGERPRINTED_TARGETS:
+                self.assertTrue(any("'git', 'describe'" in script for script in scripts), target)
             self.assertFalse(task.get("inputEnv"), target)
             self.assertNotIn("moon_fingerprint.py", json.dumps(task), target)
             self.assertNotIn("ACTIONS_RUNTIME", "\n".join(scripts), target)
 
-        for target in ("bindings:wheel-current", "core:wheel-current", "core:wheel-previous"):
-            scripts = "\n".join(check["script"] for check in self.by_target[target]["checks"])
+        for target in NATIVE_FINGERPRINTED_TARGETS:
+            closure: set[str] = set()
+            pending = [dep["target"] for dep in self.by_target[target]["deps"]]
+            while pending:
+                dependency = pending.pop()
+                if dependency in closure:
+                    continue
+                closure.add(dependency)
+                pending.extend(dep["target"] for dep in self.by_target[dependency].get("deps", []))
+            scripts = "\n".join(
+                check["script"] for dependency in closure for check in self.by_target[dependency].get("checks", [])
+            )
             self.assertIn("CUDA_PYTHON_COVERAGE", scripts, target)
+            self.assertIn("CUDA_HOME", scripts, target)
+            self.assertIn("CFLAGS", scripts, target)
+            self.assertIn("LDFLAGS", scripts, target)
             self.assertIn("name.startswith('CIBW_')", scripts, target)
             self.assertIn("ACTIONS_VALUE=<redacted>", scripts, target)
             self.assertIn("hashlib.sha256", scripts, target)
+
+        fingerprint_tasks = [task for task in self.tasks if "fingerprint" in task["target"]]
+        self.assertEqual({task["target"] for task in fingerprint_tasks}, INTERNAL_FINGERPRINT_TARGETS)
+        for task in fingerprint_tasks:
+            self.assertEqual(task["command"], "noop", task["target"])
+            self.assertFalse(task["options"]["cache"], task["target"])
+            self.assertTrue(task["options"]["internal"], task["target"])
+            self.assertTrue(task["options"]["runInCI"], task["target"])
+            self.assertTrue(task.get("checks"), task["target"])
+
+        expected_patterns = {
+            "pathfinder": "cuda-pathfinder-v*[0-9]*",
+            "bindings": "v*[0-9]*",
+            "core": "cuda-core-v*[0-9]*",
+            "metapackage": "v*[0-9]*",
+        }
+        for project, pattern in expected_patterns.items():
+            script = self.by_target[f"{project}:fingerprint-package"]["checks"][0]["script"]
+            self.assertIn(pattern, script)
+            self.assertNotIn("CUDA_PYTHON_SCM_TAG_PATTERN", script)
+
+    def test_fingerprint_checks_execute_without_task_environment(self) -> None:
+        bash = shutil.which("bash")
+        self.assertIsNotNone(bash)
+        assert bash is not None
+        scripts = {
+            check["script"]
+            for target in INTERNAL_FINGERPRINT_TARGETS
+            for check in self.by_target[target].get("checks", [])
+        }
+        for script in scripts:
+            result = subprocess.run(  # noqa: S603 - Bash executes checked-in Moon configuration.
+                [bash, "-c", script],
+                cwd=REPO_ROOT,
+                check=False,
+                env=os.environ,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            self.assertEqual(result.returncode, 0, f"{script}\n{result.stdout}")
 
     def test_artifact_commands_are_encoded_in_moon(self) -> None:
         artifact_commands = {
@@ -239,13 +438,31 @@ class MoonWorkspaceContractTest(unittest.TestCase):
             self.assertFalse(task["options"]["shell"], target)
             self.assertEqual(task["args"][:3], ["-euo", "pipefail", "-c"])
             self.assertIn(expected_command, task["args"][3])
-            self.assertIn(".moon-out/", task["args"][3])
+            self.assertIn(".moon-out", task["args"][3])
             self.assertIn("[[ $# -eq 1 ]]", task["args"][3])
+            self.assertIn({"file": "/ci/build-constraints.txt"}, task["inputs"])
+            self.assertIn("ci/build-constraints.txt", task["args"][3])
+            self.assertIn("PIP_BUILD_CONSTRAINT", task["args"][3])
+            self.assertIn("PIP_CONSTRAINT", task["args"][3])
+            self.assertIn("SOURCE_DATE_EPOCH=$(printenv SOURCE_DATE_EPOCH || true)", task["args"][3])
+            self.assertIn("git log -1 --format=%ct HEAD", task["args"][3])
+            if target.endswith(":sdist"):
+                self.assertIn("@group(sdist)", task["inputs"])
+                self.assertNotIn("@group(package)", task["inputs"])
+
+        for target in ("bindings:wheel-current", "core:wheel-current", "core:wheel-previous"):
+            self.assertIn("SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH", self.by_target[target]["args"][3])
 
         metapackage = self.by_target["metapackage:wheel-pure"]
         self.assertIn({"glob": "/cuda_bindings/.moon-out/wheel-current/*.whl", "cache": True}, metapackage["inputs"])
         self.assertIn("CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION", metapackage["args"][3])
         self.assertIn("SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_PYTHON", metapackage["args"][3])
+
+        current = self.by_target["core:wheel-current"]
+        previous = self.by_target["core:wheel-previous"]
+        self.assertEqual(current["args"], previous["args"])
+        self.assertEqual(current["env"]["CUDA_PYTHON_WHEEL_VARIANT"], "current")
+        self.assertEqual(previous["env"]["CUDA_PYTHON_WHEEL_VARIANT"], "previous")
 
     def test_metapackage_uses_staged_bindings_version_only_when_requested(self) -> None:
         bash = shutil.which("bash")
@@ -255,6 +472,9 @@ class MoonWorkspaceContractTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary_directory:
             workspace = Path(temporary_directory)
+            constraints = workspace / "ci" / "build-constraints.txt"
+            constraints.parent.mkdir()
+            constraints.write_text("setuptools==83.0.0\n", encoding="utf-8")
             bindings = workspace / "cuda_bindings" / ".moon-out" / "wheel-current"
             bindings.mkdir(parents=True)
             (bindings / "stale.whl").touch()
@@ -282,6 +502,7 @@ touch cuda_python/.moon-out/wheel-pure/cuda_python.whl
                     **os.environ,
                     "COMMAND_LOG": str(command_log),
                     "PATH": f"{fake_python.parent}{os.pathsep}{os.environ['PATH']}",
+                    "SOURCE_DATE_EPOCH": "1234567890",
                 }
                 environment.pop("CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION", None)
                 if mode is not None:
@@ -313,6 +534,149 @@ touch cuda_python/.moon-out/wheel-pure/cuda_python.whl
         for task in self.tasks:
             if task["command"] not in {"noop", "set"}:
                 self.assertFalse(task["options"]["shell"], task["target"])
+
+    def test_cython_asset_builds_isolate_generated_sources_in_moon_output(self) -> None:
+        def exercise_builder(project: str) -> None:
+            with tempfile.TemporaryDirectory() as temporary_directory:
+                root = Path(temporary_directory)
+                script_dir = root / project / "tests" / "cython"
+                script_dir.mkdir(parents=True)
+                script = script_dir / "build_tests.py"
+                shutil.copy2(REPO_ROOT / project / "tests" / "cython" / "build_tests.py", script)
+                (script_dir / "test_probe.pyx").write_text("# cython probe\n", encoding="utf-8")
+
+                bindings_init = root / "bindings-source" / "cuda" / "bindings" / "__init__.py"
+                bindings_init.parent.mkdir(parents=True)
+                bindings_init.touch()
+                cuda_root = root / "cuda-toolkit"
+                (cuda_root / "include").mkdir(parents=True)
+                if project == "cuda_core":
+                    (root / project / "cuda" / "core" / "_include").mkdir(parents=True)
+
+                cython_calls: list[dict[str, Any]] = []
+                setup_calls: list[list[str]] = []
+
+                def fake_cythonize(sources: list[str], **options: Any) -> list[str]:
+                    cython_calls.append(dict(options))
+                    source = Path(sources[0])
+                    generated_dir = Path(options["build_dir"]) if "build_dir" in options else source.parent
+                    if not source.is_absolute() and "build_dir" not in options:
+                        generated_dir = Path.cwd()
+                    generated_dir.mkdir(parents=True, exist_ok=True)
+                    (generated_dir / "test_probe.cpp").write_text("// generated\n", encoding="utf-8")
+                    return ["fake-extension"]
+
+                def fake_setup(**_: Any) -> None:
+                    setup_calls.append(sys.argv.copy())
+                    if "--build-temp" in sys.argv:
+                        build_temp = Path(sys.argv[sys.argv.index("--build-temp") + 1])
+                        build_temp.mkdir(parents=True)
+                    if "--build-lib" in sys.argv:
+                        build_lib = Path(sys.argv[sys.argv.index("--build-lib") + 1])
+                        build_lib.mkdir(parents=True, exist_ok=True)
+                        (build_lib / "test_probe.fake.so").touch()
+
+                cython_package = types.ModuleType("Cython")
+                cython_build = types.ModuleType("Cython.Build")
+                setuptools = types.ModuleType("setuptools")
+                cuda = types.ModuleType("cuda")
+                cuda_bindings = types.ModuleType("cuda.bindings")
+                cython_package.__dict__["__path__"] = []
+                cython_build.__dict__["cythonize"] = fake_cythonize
+                setuptools.__dict__["setup"] = fake_setup
+                cuda.__dict__["__path__"] = []
+                cuda.__dict__["bindings"] = cuda_bindings
+                cuda_bindings.__dict__["__file__"] = str(bindings_init)
+                fake_modules = {
+                    "Cython": cython_package,
+                    "Cython.Build": cython_build,
+                    "setuptools": setuptools,
+                    "cuda": cuda,
+                    "cuda.bindings": cuda_bindings,
+                }
+
+                def run_builder(*arguments: str) -> None:
+                    original_argv = sys.argv
+                    original_cwd = Path.cwd()
+                    helper_source = str(REPO_ROOT / "cuda_python_test_helpers")
+                    try:
+                        sys.argv = [str(script), *arguments]
+                        sys.path.insert(0, helper_source)
+                        with (
+                            mock.patch.dict(os.environ, {"CUDA_HOME": str(cuda_root)}),
+                            mock.patch.dict(sys.modules, fake_modules),
+                        ):
+                            runpy.run_path(str(script), run_name="__main__")
+                    finally:
+                        sys.argv = original_argv
+                        sys.path.remove(helper_source)
+                        os.chdir(original_cwd)
+
+                output = root / project / ".moon-out" / "cython-tests"
+                run_builder("--output-dir", str(output))
+                self.assertEqual(cython_calls[0]["build_dir"], str(output / ".cython-build"))
+                self.assertFalse((output / ".cython-build").exists())
+                self.assertFalse((output / ".build-temp").exists())
+                self.assertFalse((script_dir / "test_probe.cpp").exists())
+                self.assertIn("--build-lib", setup_calls[0])
+
+                run_builder()
+                self.assertNotIn("build_dir", cython_calls[1])
+                self.assertIn("--inplace", setup_calls[1])
+                self.assertTrue((script_dir / "test_probe.cpp").is_file())
+
+        for project in ("cuda_bindings", "cuda_core"):
+            with self.subTest(project=project):
+                exercise_builder(project)
+
+    def test_shared_cython_builder_confines_outputs_and_preserves_include_flags(self) -> None:
+        helper_source = str(REPO_ROOT / "cuda_python_test_helpers")
+        sys.path.insert(0, helper_source)
+        try:
+            from cuda_python_test_helpers.cython_test_builder import (
+                _output_directory,
+                _set_compiler_include_paths,
+            )
+        finally:
+            sys.path.remove(helper_source)
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            script_dir = root / "cuda_bindings" / "tests" / "cython"
+            script_dir.mkdir(parents=True)
+            output = root / "cuda_bindings" / ".moon-out" / "cython-tests"
+            output.mkdir(parents=True)
+            (output / "stale.so").touch()
+
+            self.assertEqual(
+                _output_directory(script_dir, "cuda_bindings/.moon-out/cython-tests"),
+                output,
+            )
+            self.assertEqual(list(output.iterdir()), [])
+            with self.assertRaisesRegex(ValueError, "output must be below"):
+                _output_directory(script_dir, str(script_dir))
+
+        posix_environment = {"CPLUS_INCLUDE_PATH": "/existing/include"}
+        _set_compiler_include_paths(
+            [Path("/core/include"), Path("/cuda/include")],
+            environ=posix_environment,
+            platform_name="posix",
+        )
+        self.assertEqual(
+            posix_environment,
+            {"CPLUS_INCLUDE_PATH": "/core/include:/cuda/include:/existing/include"},
+        )
+
+        windows_environment = {"CL": "/D EXISTING"}
+        _set_compiler_include_paths(
+            [Path("C:/core include"), Path("C:/CUDA/include")],
+            environ=windows_environment,
+            platform_name="nt",
+        )
+        self.assertEqual(
+            windows_environment,
+            {"CL": '/I"C:/core include" /I"C:/CUDA/include" /D EXISTING'},
+        )
 
     def test_embedded_bash_preserves_runtime_variables_for_moon(self) -> None:
         scripts: dict[str, str] = {}
@@ -357,9 +721,10 @@ touch cuda_python/.moon-out/wheel-pure/cuda_python.whl
             "metapackage:test-installed-windows": "metapackage",
         }.items():
             task = self.by_target[target]
-            if task["command"] != "noop":
-                self.assertEqual(task["command"], "bash")
-                self.assertEqual(task["args"], ["ci/tools/run-tests", project])
+            if target.endswith(("windows", "windows-strict")) and task["command"] == "noop":
+                continue
+            self.assertEqual(task["command"], "bash")
+            self.assertEqual(task["args"], ["ci/tools/run-tests", project])
 
         preparation = self.by_target["test-helpers:prepare-test-assets"]
         self.assertEqual(preparation["command"], "bash")
@@ -367,21 +732,31 @@ touch cuda_python/.moon-out/wheel-pure/cuda_python.whl
         self.assertIn("python -m pip install", preparation["args"][3])
         self.assertIn("--clean-output", self.by_target["core:wheel-merge"]["args"])
         self.assertIn("--output-dir", self.by_target["core:test-binaries"]["args"])
-        for target in ("bindings:cython-test-assets", "core:cython-test-assets"):
-            self.assertEqual(self.by_target[target]["command"], "bash")
-            self.assertIn("--output-dir", self.by_target[target]["args"])
+        for target, driver in (
+            ("bindings:cython-test-assets", "cuda_bindings/tests/cython/build_tests.py"),
+            ("core:cython-test-assets", "cuda_core/tests/cython/build_tests.py"),
+        ):
+            task = self.by_target[target]
+            self.assertEqual(task["command"], "python")
+            self.assertEqual(task["args"][0], driver)
+            self.assertIn("--output-dir", task["args"])
+            self.assertEqual(task["env"]["PYTHONPATH"], "cuda_python_test_helpers")
+            self.assertIn(
+                {"file": "/cuda_python_test_helpers/cuda_python_test_helpers/cython_test_builder.py"},
+                task["inputs"],
+            )
 
     def test_same_environment_build_dependencies_use_output_bytes(self) -> None:
         expected = {
             "bindings:wheel-current": {"pathfinder:wheel-pure"},
-            "core:wheel-current": {"bindings:wheel-current"},
+            "core:wheel-current": {"pathfinder:wheel-pure", "bindings:wheel-current"},
             "core:wheel-previous": {"pathfinder:wheel-pure"},
+            "core:wheel-merge": {"core:wheel-previous"},
             "bindings:sdist": {"pathfinder:sdist"},
             "core:sdist": {"pathfinder:sdist", "bindings:sdist"},
-            "metapackage:sdist": {"bindings:sdist"},
+            "metapackage:sdist": set(),
             "metapackage:test-installed-linux": {"metapackage:wheel-pure"},
             "metapackage:test-installed-windows": {"metapackage:wheel-pure"},
-            "metapackage:docs-ci": {"metapackage:wheel-pure"},
             "root:docs-ci": {
                 "pathfinder:docs-ci",
                 "bindings:docs-ci",
@@ -390,16 +765,114 @@ touch cuda_python/.moon-out/wheel-pure/cuda_python.whl
             },
         }
         for target, dependencies in expected.items():
-            configured = {dep["target"] for dep in self.by_target[target]["deps"]}
+            configured = {dep["target"] for dep in self.by_target[target]["deps"] if dep["cacheStrategy"] == "outputs"}
             self.assertEqual(configured, dependencies, target)
-            self.assertTrue(all(dep["cacheStrategy"] == "outputs" for dep in self.by_target[target]["deps"]), target)
 
     def test_native_asset_preparation_is_shared(self) -> None:
         prep = self.by_target["test-helpers:prepare-test-assets"]
+        fingerprint = self.by_target["test-helpers:fingerprint-test-assets"]
+        native_context = self.by_target["test-helpers:fingerprint-native-context"]
         self.assertFalse(prep["options"]["cache"])
+        self.assertIn("pip install --force-reinstall --no-deps", prep["args"][3])
+        self.assertEqual(
+            {dep["target"] for dep in fingerprint["deps"]},
+            {prep["target"], native_context["target"]},
+        )
+        self.assertEqual(
+            {dep["target"] for dep in native_context["deps"]},
+            {"test-helpers:fingerprint-python-context"},
+        )
         for target in ("bindings:cython-test-assets", "core:cython-test-assets"):
             deps = {dep["target"] for dep in self.by_target[target]["deps"]}
-            self.assertEqual(deps, {"test-helpers:prepare-test-assets"})
+            self.assertEqual(deps, {fingerprint["target"]})
+
+    def test_cibuildwheel_host_is_restored_after_target_assets(self) -> None:
+        workflow = (REPO_ROOT / ".github" / "workflows" / "build-wheel.yml").read_text(encoding="utf-8")
+        target_setup = workflow.index("id: setup-python2")
+        target_install = workflow.index("- name: Install target-Python build tools", target_setup)
+        target_assets = workflow.index("- name: Build target-Python test assets with Moon", target_install)
+        host_restore = workflow.index("- name: Restore cibuildwheel host Python", target_assets)
+        previous_build = workflow.index("- name: Build previous-CTK outputs and merge wheels with Moon", host_restore)
+
+        self.assertIn("python-version: ${{ matrix.python-version }}", workflow[target_setup:target_install])
+        self.assertNotIn("cibuildwheel", workflow[target_install:target_assets])
+        self.assertIn('python-version: "3.12"', workflow[host_restore:previous_build])
+
+    def test_workflows_stage_moon_phases_and_pin_standard_nightly_source(self) -> None:
+        build = (REPO_ROOT / ".github" / "workflows" / "build-wheel.yml").read_text(encoding="utf-8")
+        self.assertIn('MOON_CACHE: "off"', build)
+        current_calls = (
+            "moon ci pathfinder:wheel-pure",
+            "moon ci bindings:wheel-current",
+            'moon ci "${targets[@]}"',
+        )
+        current_positions = tuple(build.index(call) for call in current_calls)
+        self.assertEqual(current_positions, tuple(sorted(current_positions)))
+        previous = build.index("moon ci core:wheel-previous core:test-binaries")
+        merge = build.index("moon ci core:wheel-merge", previous)
+        self.assertLess(previous, merge)
+        self.assertIn("cuda_bindings/.moon-out/wheel-previous", build)
+        for obsolete_upload in (
+            "Upload cuda.bindings Cython tests",
+            "Upload cuda.core Cython tests",
+            "Upload cuda.core test binaries",
+        ):
+            self.assertNotIn(obsolete_upload, build)
+
+        for workflow_name in ("test-sdist-linux.yml", "test-sdist-windows.yml"):
+            workflow = (REPO_ROOT / ".github" / "workflows" / workflow_name).read_text(encoding="utf-8")
+            self.assertIn('MOON_CACHE: "off"', workflow)
+            positions = tuple(
+                workflow.index(call)
+                for call in (
+                    "moon ci pathfinder:sdist",
+                    "moon ci bindings:sdist",
+                    "moon ci core:sdist metapackage:sdist",
+                )
+            )
+            self.assertEqual(positions, tuple(sorted(positions)), workflow_name)
+
+        for workflow_name in ("test-wheel-linux.yml", "test-wheel-windows.yml"):
+            workflow = (REPO_ROOT / ".github" / "workflows" / workflow_name).read_text(encoding="utf-8")
+            self.assertIn("source-ref:", workflow)
+            self.assertIn("ref: ${{ inputs.source-ref || github.sha }}", workflow)
+            self.assertIn("MOON_HEAD: ${{ inputs.source-ref || github.sha }}", workflow)
+            self.assertNotIn("lookup-run-id", workflow)
+
+        nightly = (REPO_ROOT / ".github" / "workflows" / "ci-nightly.yml").read_text(encoding="utf-8")
+        self.assertIn("HEAD_SHA: ${{ steps.find.outputs.head_sha }}", nightly)
+        self.assertEqual(nightly.count("source-ref:"), 1)
+        standard = nightly[nightly.index("test-standard-linux-aarch64:") :]
+        self.assertIn("source-ref: ${{ needs.find-wheels.outputs.HEAD_SHA }}", standard)
+
+    def test_cross_phase_assets_keep_only_required_context_and_source_proxies(self) -> None:
+        current = self.by_target["core:wheel-current"]
+        self.assertNotIn({"file": "/ci/tools/merge_cuda_core_wheels.py"}, current["inputs"])
+
+        previous = self.by_target["core:wheel-previous"]
+        for project in ("pathfinder", "bindings"):
+            self.assertIn({"project": project, "group": "package"}, previous["inputs"])
+
+        for target in ("metapackage:wheel-pure", "metapackage:sdist"):
+            for project in ("pathfinder", "bindings"):
+                self.assertIn({"project": project, "group": "package"}, self.by_target[target]["inputs"])
+
+        merge = self.by_target["core:wheel-merge"]
+        self.assertEqual(
+            {dependency["target"] for dependency in merge["deps"]},
+            {"test-helpers:fingerprint-python-build", "core:wheel-previous"},
+        )
+        for project in ("pathfinder", "bindings"):
+            self.assertIn({"project": project, "group": "package"}, merge["inputs"])
+        self.assertIn("@group(package)", merge["inputs"])
+
+        binaries = self.by_target["core:test-binaries"]
+        self.assertEqual(
+            {dependency["target"] for dependency in binaries["deps"]},
+            {"test-helpers:fingerprint-native-context"},
+        )
+        self.assertFalse(any(isinstance(value, dict) and "project" in value for value in binaries["inputs"]))
+        self.assertNotIn("@group(package)", binaries["inputs"])
 
     def test_platform_test_tasks_are_serialized_and_os_scoped(self) -> None:
         for tag, operating_system in (("ci-test-linux", "linux"), ("ci-test-windows", "windows")):
@@ -441,26 +914,79 @@ touch cuda_python/.moon-out/wheel-pure/cuda_python.whl
         docs = self.by_target["root:docs-ci"]
         self.assertFalse(docs["options"]["cache"])
         self.assertTrue(docs["options"]["runDepsInParallel"])
-        self.assertEqual(docs["command"], "bash")
-        self.assertEqual(docs["args"], ["cuda_python/docs/assemble_moon_docs.sh"])
-        root_inputs = docs["inputs"]
-        self.assertIn({"project": "core", "group": "package"}, root_inputs)
-        self.assertIn({"project": "metapackage", "group": "docs"}, root_inputs)
-        self.assertIn({"file": "/.github/workflows/build-wheel.yml"}, root_inputs)
-        for target in EXECUTION_TAG_TARGETS["ci-docs"] - {"root:docs-ci"}:
+        self.assertEqual(docs["outputs"], [{"file": ".moon-out/docs"}])
+
+        preparation = self.by_target["test-helpers:prepare-docs"]
+        self.assertFalse(preparation["options"]["cache"])
+        self.assertFalse(preparation.get("deps"))
+        preparation_script = preparation["args"][3]
+        self.assertIn("python -m pip install --force-reinstall", preparation_script)
+        metapackage_install = preparation_script.split("python -m pip install --force-reinstall --no-deps", 1)[1]
+        self.assertIn('"$METAPACKAGE_WHEEL"', metapackage_install)
+        for component_wheel in ("PATHFINDER_WHEEL", "BINDINGS_WHEEL", "CORE_WHEEL"):
+            self.assertNotIn(f'"${component_wheel}"', metapackage_install)
+        for wheel_input in (
+            "/cuda_pathfinder/.moon-out/wheel-pure/*.whl",
+            "/cuda_bindings/.moon-out/wheel-current/*.whl",
+            "/cuda_core/.moon-out/wheel-merged/*.whl",
+            "/cuda_python/.moon-out/wheel-pure/*.whl",
+        ):
+            self.assertIn({"glob": wheel_input, "cache": True}, preparation["inputs"])
+
+        component_targets = EXECUTION_TAG_TARGETS["ci-docs"] - {"root:docs-ci"}
+        for target in component_targets:
             task = self.by_target[target]
             self.assertFalse(task["options"]["cache"])
-            self.assertEqual(task["command"], "bash")
-            self.assertEqual(task["args"][-1], "moon-ci")
+            self.assertEqual(task["outputs"], [{"file": "docs/build/html"}])
+            self.assertEqual({dependency["target"] for dependency in task["deps"]}, {preparation["target"]})
             self.assertIn({"file": "/cuda_python/docs/environment-docs.yml"}, task["inputs"])
+            self.assertIn({"file": "/cuda_python/docs/build_component_docs.sh"}, task["inputs"])
 
-        metapackage_inputs = self.by_target["metapackage:docs-ci"]["inputs"]
-        for project in (
-            "pathfinder",
-            "bindings",
-            "core",
+        graph = self.moon_json("action-graph", "root:docs-ci", "--json")
+        targets_by_node = {
+            int(node): action["params"]["target"]
+            for node, action in graph["data"].items()
+            if action["action"] == "run-task"
+        }
+        self.assertEqual(
+            set(targets_by_node.values()),
+            {"root:docs-ci", preparation["target"], *component_targets},
+        )
+        edges = {
+            (targets_by_node[parent], targets_by_node[dependency]) for parent, dependency, _ in graph["graph"]["edges"]
+        }
+        self.assertEqual(
+            edges,
+            {
+                *(("root:docs-ci", target) for target in component_targets),
+                *((target, preparation["target"]) for target in component_targets),
+            },
+        )
+
+        workflow = (REPO_ROOT / ".github" / "workflows" / "build-docs.yml").read_text(encoding="utf-8")
+        assembler = (REPO_ROOT / "cuda_python" / "docs" / "assemble_moon_docs.sh").read_text(encoding="utf-8")
+        component_builder = (REPO_ROOT / "cuda_python" / "docs" / "build_component_docs.sh").read_text(encoding="utf-8")
+        self.assertIn("moon run metapackage:wheel-pure", workflow)
+        self.assertIn("moon ci root:docs-ci", workflow)
+        self.assertIn('moon ci "${MOON_PROJECT}:docs-ci"', workflow)
+        self.assertIn('cp -aL "${COMPONENT}/docs/build/html/."', workflow)
+        self.assertNotIn(".moon-out/docs-ci", workflow)
+        for project in ("cuda_pathfinder", "cuda_bindings", "cuda_core", "cuda_python"):
+            self.assertIn(f"/{project}/docs/build/html", assembler)
+        self.assertNotIn(".moon-out/docs-ci", assembler)
+        self.assertNotIn("pip install cuda_pathfinder/.moon-out", workflow)
+        for project, component in (
+            ("cuda_pathfinder", "cuda-pathfinder"),
+            ("cuda_bindings", "cuda-bindings"),
+            ("cuda_core", "cuda-core"),
+            ("cuda_python", "cuda-python"),
         ):
-            self.assertIn({"project": project, "group": "package"}, metapackage_inputs)
+            wrapper = (REPO_ROOT / project / "docs" / "build_docs.sh").read_text(encoding="utf-8")
+            self.assertIn("build_component_docs.sh", wrapper)
+            self.assertIn(component, wrapper)
+            self.assertIn(f"{component})", component_builder)
+        docs_environment = (REPO_ROOT / "cuda_python" / "docs" / "environment-docs.yml").read_text(encoding="utf-8")
+        self.assertIn("- python =3.12", docs_environment)
 
     def test_quality_tasks_use_external_refs_and_one_selector(self) -> None:
         release = self.by_target["core:quality-api-release"]
@@ -509,17 +1035,12 @@ touch cuda_python/.moon-out/wheel-pure/cuda_python.whl
             for filename in removed:
                 self.assertNotIn(filename, serialized, task["target"])
 
-    def test_universal_wheels_share_existing_runner_lanes(self) -> None:
+    def test_universal_wheels_share_native_build_lanes(self) -> None:
         self.assertFalse((REPO_ROOT / ".github" / "workflows" / "build-pure-wheel.yml").exists())
         self.assertFalse({task["target"] for task in self.tasks if "ci-wheel-pure" in task.get("tags", [])})
-        self.assertFalse({task["target"] for task in self.tasks if "runner-build-portable" in task.get("tags", [])})
         pathfinder = self.by_target["pathfinder:wheel-pure"]
-        self.assertTrue(
-            {"runner-build-linux-64", "runner-build-linux-aarch64", "runner-build-windows"} <= set(pathfinder["tags"])
-        )
-        self.assertFalse(
-            {tag for tag in self.by_target["metapackage:wheel-pure"].get("tags", []) if tag.startswith("runner-")}
-        )
+        self.assertIn("ci-build-native", pathfinder["tags"])
+        self.assertNotIn("ci-build-native", self.by_target["metapackage:wheel-pure"].get("tags", []))
         self.assertNotIn(
             "build-pure-wheel.yml",
             "\n".join(path.read_text(encoding="utf-8") for path in REPO_ROOT.rglob("moon.yml")),
@@ -551,6 +1072,17 @@ touch cuda_python/.moon-out/wheel-pure/cuda_python.whl
         ignore = (REPO_ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
         self.assertIn(".moon/cache/", ignore)
         self.assertIn(".moon-out/", ignore)
+
+    def test_cross_run_artifacts_transport_canonical_outputs_only(self) -> None:
+        for relative_path in (
+            ".github/workflows/build-wheel.yml",
+            ".github/workflows/test-sdist-linux.yml",
+            ".github/workflows/test-sdist-windows.yml",
+        ):
+            workflow = (REPO_ROOT / relative_path).read_text(encoding="utf-8")
+            self.assertIn(".moon-out/", workflow, relative_path)
+            self.assertNotIn(".moon/cache/hashes", workflow, relative_path)
+            self.assertNotIn(".moon/cache/outputs", workflow, relative_path)
 
 
 if __name__ == "__main__":

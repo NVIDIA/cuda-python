@@ -38,18 +38,21 @@ jobs:
     outputs:
       cuda-build-ver: ${{ steps.vars.outputs.cuda-build-ver }}
       cuda-prev-build-ver: ${{ steps.vars.outputs.cuda-prev-build-ver }}
+      build-python-matrix: ${{ steps.build-matrix.outputs.python }}
       skip: ${{ steps.directives.outputs.skip }}
-      doc-only: ${{ steps.directives.outputs.doc-only }}
       moon-base: ${{ steps.baseline.outputs.moon-base }}
-      moon-head: ${{ steps.baseline.outputs.moon-head }}
       moon-base-run-id: ${{ steps.baseline.outputs.moon-base-run-id }}
-      moon-base-sha: ${{ steps.baseline.outputs.moon-base-sha }}
       moon-force-all: ${{ steps.lanes.outputs.force-all }}
       build-linux-64: ${{ steps.lanes.outputs.build-linux-64 }}
+      build-linux-64-force: ${{ steps.lanes.outputs.build-linux-64-force }}
       build-linux-aarch64: ${{ steps.lanes.outputs.build-linux-aarch64 }}
+      build-linux-aarch64-force: ${{ steps.lanes.outputs.build-linux-aarch64-force }}
       build-windows: ${{ steps.lanes.outputs.build-windows }}
+      build-windows-force: ${{ steps.lanes.outputs.build-windows-force }}
       sdist-linux: ${{ steps.lanes.outputs.sdist-linux }}
+      sdist-linux-force: ${{ steps.lanes.outputs.sdist-linux-force }}
       sdist-windows: ${{ steps.lanes.outputs.sdist-windows }}
+      sdist-windows-force: ${{ steps.lanes.outputs.sdist-windows-force }}
       test-linux: ${{ steps.lanes.outputs.test-linux }}
       test-windows: ${{ steps.lanes.outputs.test-windows }}
       docs: ${{ steps.lanes.outputs.docs }}
@@ -75,6 +78,14 @@ jobs:
         run: |
           echo "cuda-build-ver=$(yq '.cuda.build.version' ci/versions.yml)" >> "$GITHUB_OUTPUT"
           echo "cuda-prev-build-ver=$(yq '.cuda.prev_build.version' ci/versions.yml)" >> "$GITHUB_OUTPUT"
+
+      - name: Read native build matrix
+        id: build-matrix
+        run: |
+          # The file is already shaped as a GitHub Actions matrix. Structural
+          # and cross-matrix invariants are enforced by Moon contract tests.
+          matrix="$(yq -o json -I=0 '.' ci/build-matrix.yml)"
+          echo "python=${matrix}" >> "$GITHUB_OUTPUT"
 
       - name: Read PR title directives
         id: directives
@@ -106,10 +117,16 @@ jobs:
           IS_PR: ${{ startsWith(github.ref_name, 'pull-request/') }}
           SKIP: ${{ steps.directives.outputs.skip }}
           BASE_REF: ${{ steps.directives.outputs.base-ref }}
+          BUILD_PYTHON_MATRIX: ${{ steps.build-matrix.outputs.python }}
         run: |
           head="$(git rev-parse HEAD)"
           base="${head}"
           base_run_id=""
+          baseline_build_linux_64=false
+          baseline_build_linux_aarch64=false
+          baseline_build_windows=false
+          baseline_sdist_linux=false
+          baseline_sdist_windows=false
           force_all=true
 
           if [[ "${SKIP}" != "true" && "${IS_PR}" == "true" ]]; then
@@ -146,48 +163,59 @@ jobs:
             )"
 
             if [[ -n "${candidate}" ]]; then
+              base_run_id="${candidate}"
               artifacts="$(
                 gh api --paginate --slurp \
                   "repos/${GITHUB_REPOSITORY}/actions/runs/${candidate}/artifacts?per_page=100" \
                   | jq -c '[.[].artifacts[]]'
               )"
 
-              expected=(
-                moon-lane-sdist-linux-64
-                moon-lane-sdist-win-64
-              )
-              python_versions=(310 311 312 313 314 314t 315 315t)
-              host_platforms=(linux-64 linux-aarch64 win-64)
-              for host_platform in "${host_platforms[@]}"; do
-                for python_version in "${python_versions[@]}"; do
-                  expected+=("moon-lane-build-${host_platform}-py${python_version}")
-                done
-              done
+              artifact_valid() {
+                jq -e --arg name "$1" '
+                  [.[] | select(.name == $name)] |
+                  length == 1 and
+                  (.[0].expired | not) and
+                  .[0].size_in_bytes > 0 and
+                  ((.[0].digest // "") |
+                    test("^sha256:[0-9a-fA-F]{64}$"))
+                ' <<< "${artifacts}" > /dev/null
+              }
+              build_lane_valid() {
+                local host_platform=$1
+                local python_version
+                while IFS= read -r python_version; do
+                  if ! artifact_valid "moon-lane-build-${host_platform}-py${python_version}"; then
+                    return 1
+                  fi
+                done < <(jq -r '.include[]."python-version-formatted"' <<< "${BUILD_PYTHON_MATRIX}")
+              }
 
-              complete=true
-              for artifact_name in "${expected[@]}"; do
-                artifact_valid="$(
-                  jq \
-                    --arg name "${artifact_name}" \
-                    '[.[] | select(.name == $name)] |
-                    length == 1 and
-                    (.[0].expired | not) and
-                    .[0].size_in_bytes > 0 and
-                    ((.[0].digest // "") |
-                      test("^sha256:[0-9a-fA-F]{64}$"))' \
-                    <<< "${artifacts}"
-                )"
-                if [[ "${artifact_valid}" != "true" ]]; then
-                  echo "No unique valid ${artifact_name} in run ${candidate}; forcing all lanes."
-                  complete=false
-                fi
-              done
-
-              if [[ "${complete}" == "true" ]]; then
-                base_run_id="${candidate}"
-                force_all=false
+              if build_lane_valid linux-64; then
+                baseline_build_linux_64=true
               fi
+              if build_lane_valid linux-aarch64; then
+                baseline_build_linux_aarch64=true
+              fi
+              if build_lane_valid win-64; then
+                baseline_build_windows=true
+              fi
+              if artifact_valid moon-lane-sdist-linux-64; then
+                baseline_sdist_linux=true
+              fi
+              if artifact_valid moon-lane-sdist-win-64; then
+                baseline_sdist_windows=true
+              fi
+              echo "Exact baseline ${candidate}:" \
+                "linux-64=${baseline_build_linux_64}," \
+                "linux-aarch64=${baseline_build_linux_aarch64}," \
+                "win-64=${baseline_build_windows}," \
+                "sdist-linux=${baseline_sdist_linux}," \
+                "sdist-windows=${baseline_sdist_windows}"
             fi
+
+            # Missing artifacts are recovered only when an affected consumer
+            # needs their lane; they do not turn an unrelated PR into full CI.
+            force_all=false
           elif [[ "${SKIP}" != "true" ]]; then
             # Push, tag, schedule, and manual runs deliberately exercise the
             # full pipeline and publish a complete baseline for future PRs.
@@ -196,10 +224,13 @@ jobs:
 
           {
             echo "moon-base=${base}"
-            echo "moon-head=${head}"
             echo "moon-base-run-id=${base_run_id}"
-            echo "moon-base-sha=${base}"
             echo "moon-force-all=${force_all}"
+            echo "baseline-build-linux-64=${baseline_build_linux_64}"
+            echo "baseline-build-linux-aarch64=${baseline_build_linux_aarch64}"
+            echo "baseline-build-windows=${baseline_build_windows}"
+            echo "baseline-sdist-linux=${baseline_sdist_linux}"
+            echo "baseline-sdist-windows=${baseline_sdist_windows}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Set up Moon
@@ -214,7 +245,7 @@ jobs:
         if: ${{ steps.directives.outputs.skip != 'true' }}
         env:
           MOON_BASE: ${{ steps.baseline.outputs.moon-base }}
-          MOON_HEAD: ${{ steps.baseline.outputs.moon-head }}
+          MOON_HEAD: ${{ github.sha }}
           FORCE_ALL: ${{ steps.baseline.outputs.moon-force-all }}
         run: |
           args=(query tasks)
@@ -232,6 +263,12 @@ jobs:
         id: lanes
         if: ${{ always() }}
         env:
+          BASELINE_BUILD_LINUX_64: ${{ steps.baseline.outputs.baseline-build-linux-64 }}
+          BASELINE_BUILD_LINUX_AARCH64: ${{ steps.baseline.outputs.baseline-build-linux-aarch64 }}
+          BASELINE_BUILD_WINDOWS: ${{ steps.baseline.outputs.baseline-build-windows }}
+          BASELINE_SDIST_LINUX: ${{ steps.baseline.outputs.baseline-sdist-linux }}
+          BASELINE_SDIST_WINDOWS: ${{ steps.baseline.outputs.baseline-sdist-windows }}
+          DOC_ONLY: ${{ steps.directives.outputs.doc-only }}
           SKIP: ${{ steps.directives.outputs.skip }}
           FORCE_ALL: ${{ steps.baseline.outputs.moon-force-all }}
         run: |
@@ -248,28 +285,78 @@ jobs:
           fi
           echo "force-all=${force_all}" >> "$GITHUB_OUTPUT"
 
-          lanes=(
-            build-linux-64:runner-build-linux-64
-            build-linux-aarch64:runner-build-linux-aarch64
-            build-windows:runner-build-windows
-            sdist-linux:runner-sdist-linux
-            sdist-windows:runner-sdist-windows
-            test-linux:runner-test-linux
-            test-windows:runner-test-windows
-            docs:runner-docs
-            quality:runner-quality
-          )
-          for lane in "${lanes[@]}"; do
-            output="${lane%%:*}"
-            tag="${lane#*:}"
-            selected=false
-            if [[ "${SKIP}" != "true" ]] &&
-               { [[ "${force_all}" == "true" ]] ||
-                 has_tag "${tag}"; }; then
-              selected=true
+          selected() {
+            [[ "${SKIP}" != "true" ]] &&
+              { [[ "${force_all}" == "true" ]] || has_tag "$1"; }
+          }
+          force_lane() {
+            if [[ "${force_all}" == "true" || "$1" != "true" ]]; then
+              echo true
+            else
+              echo false
             fi
-            echo "${output}=${selected}" >> "$GITHUB_OUTPUT"
-          done
+          }
+
+          build_native=false
+          sdist=false
+          test_linux=false
+          test_windows=false
+          docs=false
+          quality=false
+          if selected ci-build-native; then build_native=true; fi
+          if selected ci-sdist; then sdist=true; fi
+          if selected ci-test-linux; then test_linux=true; fi
+          if selected ci-test-windows; then test_windows=true; fi
+          if selected ci-docs; then docs=true; fi
+          if selected ci-quality; then quality=true; fi
+
+          build_linux_64=false
+          build_linux_aarch64=false
+          build_windows=false
+          if [[ "${SKIP}" != "true" ]]; then
+            if [[ "${DOC_ONLY}" == "true" ]]; then
+              if [[ "${force_all}" == "true" ||
+                    ("${docs}" == "true" && "${BASELINE_BUILD_LINUX_64}" != "true") ]]; then
+                build_linux_64=true
+              fi
+              sdist=false
+              test_linux=false
+              test_windows=false
+            else
+              if [[ "${build_native}" == "true" ||
+                    (("${test_linux}" == "true" || "${docs}" == "true") &&
+                     "${BASELINE_BUILD_LINUX_64}" != "true") ]]; then
+                build_linux_64=true
+              fi
+              if [[ "${build_native}" == "true" ||
+                    ("${test_linux}" == "true" &&
+                     "${BASELINE_BUILD_LINUX_AARCH64}" != "true") ]]; then
+                build_linux_aarch64=true
+              fi
+              if [[ "${build_native}" == "true" ||
+                    ("${test_windows}" == "true" &&
+                     "${BASELINE_BUILD_WINDOWS}" != "true") ]]; then
+                build_windows=true
+              fi
+            fi
+          fi
+
+          {
+            echo "build-linux-64=${build_linux_64}"
+            echo "build-linux-aarch64=${build_linux_aarch64}"
+            echo "build-windows=${build_windows}"
+            echo "sdist-linux=${sdist}"
+            echo "sdist-windows=${sdist}"
+            echo "test-linux=${test_linux}"
+            echo "test-windows=${test_windows}"
+            echo "docs=${docs}"
+            echo "quality=${quality}"
+            echo "build-linux-64-force=$(force_lane "${BASELINE_BUILD_LINUX_64}")"
+            echo "build-linux-aarch64-force=$(force_lane "${BASELINE_BUILD_LINUX_AARCH64}")"
+            echo "build-windows-force=$(force_lane "${BASELINE_BUILD_WINDOWS}")"
+            echo "sdist-linux-force=$(force_lane "${BASELINE_SDIST_LINUX}")"
+            echo "sdist-windows-force=$(force_lane "${BASELINE_SDIST_WINDOWS}")"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build GPU test matrices
         id: matrices
@@ -383,9 +470,7 @@ jobs:
     if: >-
       ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
-          fromJSON(needs.gate.outputs.build-linux-64) &&
-          (!fromJSON(needs.gate.outputs.doc-only) ||
-           fromJSON(needs.gate.outputs.moon-force-all)) }}
+          fromJSON(needs.gate.outputs.build-linux-64) }}
     permissions:
       actions: read
       contents: read
@@ -396,7 +481,8 @@ jobs:
       prev-cuda-version: ${{ needs.gate.outputs.cuda-prev-build-ver }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
-      force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
+      python-matrix: ${{ needs.gate.outputs.build-python-matrix }}
+      force-all: ${{ fromJSON(needs.gate.outputs.build-linux-64-force) }}
 
   build-linux-aarch64:
     name: Build linux-aarch64, CUDA ${{ needs.gate.outputs.cuda-build-ver }}
@@ -405,7 +491,6 @@ jobs:
     if: >-
       ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
-          !fromJSON(needs.gate.outputs.doc-only) &&
           fromJSON(needs.gate.outputs.build-linux-aarch64) }}
     permissions:
       actions: read
@@ -417,7 +502,8 @@ jobs:
       prev-cuda-version: ${{ needs.gate.outputs.cuda-prev-build-ver }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
-      force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
+      python-matrix: ${{ needs.gate.outputs.build-python-matrix }}
+      force-all: ${{ fromJSON(needs.gate.outputs.build-linux-aarch64-force) }}
 
   build-windows:
     name: Build win-64, CUDA ${{ needs.gate.outputs.cuda-build-ver }}
@@ -426,7 +512,6 @@ jobs:
     if: >-
       ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
-          !fromJSON(needs.gate.outputs.doc-only) &&
           fromJSON(needs.gate.outputs.build-windows) }}
     permissions:
       actions: read
@@ -438,7 +523,8 @@ jobs:
       prev-cuda-version: ${{ needs.gate.outputs.cuda-prev-build-ver }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
-      force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
+      python-matrix: ${{ needs.gate.outputs.build-python-matrix }}
+      force-all: ${{ fromJSON(needs.gate.outputs.build-windows-force) }}
 
   # GitHub allocates each platform lane; Moon selects the affected sdist tasks
   # and their declared package dependencies inside the reusable workflow.
@@ -449,7 +535,6 @@ jobs:
     if: >-
       ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
-          !fromJSON(needs.gate.outputs.doc-only) &&
           fromJSON(needs.gate.outputs.sdist-linux) }}
     permissions:
       actions: read
@@ -460,7 +545,7 @@ jobs:
       cuda-version: ${{ needs.gate.outputs.cuda-build-ver }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
-      force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
+      force-all: ${{ fromJSON(needs.gate.outputs.sdist-linux-force) }}
 
   test-sdist-windows:
     name: Test sdist win-64
@@ -469,7 +554,6 @@ jobs:
     if: >-
       ${{ github.repository_owner == 'nvidia' &&
           !fromJSON(needs.gate.outputs.skip) &&
-          !fromJSON(needs.gate.outputs.doc-only) &&
           fromJSON(needs.gate.outputs.sdist-windows) }}
     permissions:
       actions: read
@@ -480,7 +564,7 @@ jobs:
       cuda-version: ${{ needs.gate.outputs.cuda-build-ver }}
       baseline-run-id: ${{ needs.gate.outputs.moon-base-run-id }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
-      force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
+      force-all: ${{ fromJSON(needs.gate.outputs.sdist-windows-force) }}
 
   test-linux-64:
     name: Test linux-64
@@ -494,20 +578,17 @@ jobs:
           (needs.build-linux-64.result == 'success' ||
            needs.build-linux-64.result == 'skipped') &&
           !fromJSON(needs.gate.outputs.skip) &&
-          !fromJSON(needs.gate.outputs.doc-only) &&
           fromJSON(needs.gate.outputs.test-linux) }}
     permissions:
       actions: read
       contents: read
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
-      build-type: pull-request
       host-platform: linux-64
       build-ctk-ver: ${{ needs.gate.outputs.cuda-build-ver }}
       matrix: ${{ needs.gate.outputs.test-linux-64-matrix }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       run-id: ${{ needs.build-linux-64.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
-      sha: ${{ needs.build-linux-64.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
@@ -523,20 +604,17 @@ jobs:
           (needs.build-linux-aarch64.result == 'success' ||
            needs.build-linux-aarch64.result == 'skipped') &&
           !fromJSON(needs.gate.outputs.skip) &&
-          !fromJSON(needs.gate.outputs.doc-only) &&
           fromJSON(needs.gate.outputs.test-linux) }}
     permissions:
       actions: read
       contents: read
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
-      build-type: pull-request
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.gate.outputs.cuda-build-ver }}
       matrix: ${{ needs.gate.outputs.test-linux-aarch64-matrix }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       run-id: ${{ needs.build-linux-aarch64.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
-      sha: ${{ needs.build-linux-aarch64.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
@@ -552,20 +630,17 @@ jobs:
           (needs.build-windows.result == 'success' ||
            needs.build-windows.result == 'skipped') &&
           !fromJSON(needs.gate.outputs.skip) &&
-          !fromJSON(needs.gate.outputs.doc-only) &&
           fromJSON(needs.gate.outputs.test-windows) }}
     permissions:
       actions: read
       contents: read
     uses: ./.github/workflows/test-wheel-windows.yml
     with:
-      build-type: pull-request
       host-platform: win-64
       build-ctk-ver: ${{ needs.gate.outputs.cuda-build-ver }}
       matrix: ${{ needs.gate.outputs.test-windows-matrix }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       run-id: ${{ needs.build-windows.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
-      sha: ${{ needs.build-windows.result == 'success' && github.sha || needs.gate.outputs.moon-base-sha }}
       moon-base: ${{ needs.gate.outputs.moon-base }}
       force-all: ${{ fromJSON(needs.gate.outputs.moon-force-all) }}
 
@@ -591,7 +666,6 @@ jobs:
     with:
       is-release: ${{ github.ref_type == 'tag' }}
       run-id: ${{ needs.build-linux-64.result == 'success' && github.run_id || needs.gate.outputs.moon-base-run-id }}
-      sha: ${{ github.sha }}
 
   precommit-windows:
     name: Pre-commit on Windows
@@ -671,39 +745,14 @@ jobs:
             exit
           fi
 
-          doc_only="${{ needs.gate.outputs.doc-only }}"
-          force_all="${{ needs.gate.outputs.moon-force-all }}"
-
-          linux_64=false
-          linux_aarch64=false
-          windows=false
-          if [[ "${doc_only}" != "true" || "${force_all}" == "true" ]]; then
-            linux_64="${{ needs.gate.outputs.build-linux-64 }}"
-          fi
-          if [[ "${doc_only}" != "true" ]]; then
-            linux_aarch64="${{ needs.gate.outputs.build-linux-aarch64 }}"
-            windows="${{ needs.gate.outputs.build-windows }}"
-          fi
-
-          check_result build-linux-64 "$(expected_for "${linux_64}")" "${{ needs.build-linux-64.result }}"
-          check_result build-linux-aarch64 "$(expected_for "${linux_aarch64}")" "${{ needs.build-linux-aarch64.result }}"
-          check_result build-windows "$(expected_for "${windows}")" "${{ needs.build-windows.result }}"
-
-          sdist_linux=false
-          sdist_windows=false
-          test_linux=false
-          test_windows=false
-          if [[ "${doc_only}" != "true" ]]; then
-            sdist_linux="${{ needs.gate.outputs.sdist-linux }}"
-            sdist_windows="${{ needs.gate.outputs.sdist-windows }}"
-            test_linux="${{ needs.gate.outputs.test-linux }}"
-            test_windows="${{ needs.gate.outputs.test-windows }}"
-          fi
-          check_result test-sdist-linux "$(expected_for "${sdist_linux}")" "${{ needs.test-sdist-linux.result }}"
-          check_result test-sdist-windows "$(expected_for "${sdist_windows}")" "${{ needs.test-sdist-windows.result }}"
-          check_result test-linux-64 "$(expected_for "${test_linux}")" "${{ needs.test-linux-64.result }}"
-          check_result test-linux-aarch64 "$(expected_for "${test_linux}")" "${{ needs.test-linux-aarch64.result }}"
-          check_result test-windows "$(expected_for "${test_windows}")" "${{ needs.test-windows.result }}"
+          check_result build-linux-64 "$(expected_for "${{ needs.gate.outputs.build-linux-64 }}")" "${{ needs.build-linux-64.result }}"
+          check_result build-linux-aarch64 "$(expected_for "${{ needs.gate.outputs.build-linux-aarch64 }}")" "${{ needs.build-linux-aarch64.result }}"
+          check_result build-windows "$(expected_for "${{ needs.gate.outputs.build-windows }}")" "${{ needs.build-windows.result }}"
+          check_result test-sdist-linux "$(expected_for "${{ needs.gate.outputs.sdist-linux }}")" "${{ needs.test-sdist-linux.result }}"
+          check_result test-sdist-windows "$(expected_for "${{ needs.gate.outputs.sdist-windows }}")" "${{ needs.test-sdist-windows.result }}"
+          check_result test-linux-64 "$(expected_for "${{ needs.gate.outputs.test-linux }}")" "${{ needs.test-linux-64.result }}"
+          check_result test-linux-aarch64 "$(expected_for "${{ needs.gate.outputs.test-linux }}")" "${{ needs.test-linux-aarch64.result }}"
+          check_result test-windows "$(expected_for "${{ needs.gate.outputs.test-windows }}")" "${{ needs.test-windows.result }}"
 
           check_result quality "$(expected_for "${{ needs.gate.outputs.quality }}")" "${{ needs.quality.result }}"
           check_result doc "$(expected_for "${{ needs.gate.outputs.docs }}")" "${{ needs.doc.result }}"

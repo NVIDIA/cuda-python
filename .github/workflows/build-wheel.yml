@@ -22,6 +22,10 @@ on:
         description: "Base revision used by Moon affected checks"
         required: true
         type: string
+      python-matrix:
+        description: "Python ABI rows provisioned by GitHub Actions"
+        required: true
+        type: string
       force-all:
         description: "Force selected Moon tasks when no reusable baseline exists"
         required: false
@@ -40,20 +44,14 @@ jobs:
   build:
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - {python-version: "3.10", python-version-formatted: "310"}
-          - {python-version: "3.11", python-version-formatted: "311"}
-          - {python-version: "3.12", python-version-formatted: "312"}
-          - {python-version: "3.13", python-version-formatted: "313"}
-          - {python-version: "3.14", python-version-formatted: "314"}
-          - {python-version: "3.14t", python-version-formatted: "314t"}
-          - {python-version: "3.15", python-version-formatted: "315"}
-          - {python-version: "3.15t", python-version-formatted: "315t"}
+      matrix: ${{ fromJSON(inputs.python-matrix) }}
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
                  (inputs.host-platform == 'win-64' && 'windows-2022') }}
+    env:
+      # Only canonical outputs cross runners; upstream-none also omits hash deps.
+      MOON_CACHE: "off"
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -104,7 +102,7 @@ jobs:
           auto-install: false
           auto-setup: false
 
-      - name: Restore trusted exact-base Moon cache
+      - name: Restore trusted exact-base Moon lane
         if: ${{ inputs.baseline-run-id != '' && !inputs.force-all }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
@@ -153,7 +151,9 @@ jobs:
           env
 
       - name: Install externally managed build tools
-        run: python -m pip install "cibuildwheel==4.1.1" twine wheel
+        run: >-
+          python -m pip install --constraint ci/build-constraints.txt
+          "pip>=25.3" "cibuildwheel==4.1.1" "twine==7.0.0" wheel
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -165,7 +165,6 @@ jobs:
       - name: Build current wheels with Moon
         env:
           CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION: "1"
-          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.cuda-version }}
           MOON_BASE: ${{ inputs.moon-base }}
           MOON_HEAD: ${{ github.sha }}
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
@@ -197,19 +196,26 @@ jobs:
           # Run the test stage so the sccache summary hook is not skipped.
           CIBW_TEST_COMMAND: 'echo "ok!"'
         run: |
-          args=()
+          args=(--upstream none --downstream none)
           if [[ "${{ inputs.force-all }}" == "true" ]]; then
             args+=(--force)
           fi
-          # Moon owns the pathfinder -> bindings -> core build chain.
-          moon ci core:wheel-current --upstream deep --downstream none "${args[@]}"
-          # The metapackage is needed only in the Linux/Python 3.12 lane used
-          # by docs and release publication. Run it after bindings so its exact
-          # development pin is derived from the wheel that this lane produced.
+
+          # Moon 2.5.1 drops dependency ordering with upstream-none, so each
+          # producer/consumer boundary is an explicit completed phase.
+          moon ci pathfinder:wheel-pure "${args[@]}"
+          moon ci bindings:wheel-current "${args[@]}"
+
+          # The CI-only metapackage mode reads the staged bindings wheel but
+          # intentionally has no executable dependency (local pure builds
+          # must not require a native toolkit). Keep this phase boundary;
+          # Moon can still build core and the metapackage in parallel.
+          targets=(core:wheel-current)
           if [[ "${{ inputs.host-platform }}" == "linux-64" &&
                 "${{ matrix.python-version-formatted }}" == "312" ]]; then
-            moon ci metapackage:wheel-pure --upstream none --downstream none "${args[@]}"
+            targets+=(metapackage:wheel-pure)
           fi
+          moon ci "${targets[@]}" "${args[@]}"
 
       - name: Set up Python
         id: setup-python2
@@ -220,7 +226,9 @@ jobs:
           allow-prereleases: ${{ startsWith(matrix.python-version, '3.15') }}
 
       - name: Install target-Python build tools
-        run: python -m pip install "cibuildwheel==4.1.1" twine wheel
+        run: >-
+          python -m pip install --constraint ci/build-constraints.txt
+          "pip>=25.3" wheel
 
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
         if: ${{ startsWith(matrix.python-version, '3.15') }}
@@ -251,19 +259,20 @@ jobs:
 
       - name: Build target-Python test assets with Moon
         env:
-          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.cuda-version }}
           MOON_BASE: ${{ inputs.moon-base }}
           MOON_HEAD: ${{ github.sha }}
         run: |
-          args=()
-          if [[ "${{ inputs.force-all }}" == "true" ]]; then
-            args+=(--force)
-          fi
-          # Install the shared test groups before Moon fingerprints the compiler
-          # and resolved Cython/NumPy versions for the cached binary outputs.
-          moon ci test-helpers:prepare-test-assets --force --upstream none --downstream none
-          moon ci bindings:cython-test-assets core:cython-test-assets \
-            --upstream none --downstream none "${args[@]}"
+          moon ci ':#ci-build-cython-assets' \
+            --upstream deep --downstream none \
+            ${{ inputs.force-all && '--force' || '' }}
+
+      # cibuildwheel can target CPython 3.10, but its host interpreter must be
+      # Python 3.11 or newer. Keep the target interpreter through the Cython
+      # asset phase, then return to the same 3.12 host used for current wheels.
+      - name: Restore cibuildwheel host Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: "3.12"
 
       # Note: This overwrites CUDA_PATH etc
       - name: Set up previous mini CTK
@@ -305,7 +314,6 @@ jobs:
 
       - name: Build previous-CTK outputs and merge wheels with Moon
         env:
-          CUDA_PYTHON_LANE: ${{ inputs.host-platform }}-py${{ matrix.python-version }}-cuda${{ inputs.prev-cuda-version }}
           MOON_BASE: ${{ inputs.moon-base }}
           MOON_HEAD: ${{ github.sha }}
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
@@ -337,15 +345,15 @@ jobs:
           CIBW_BEFORE_TEST_LINUX: '"/host/${{ env.SCCACHE_PATH }}" --show-adv-stats'
           CIBW_TEST_COMMAND: 'echo "ok!"'
         run: |
-          args=()
+          args=(--upstream none --downstream none)
           if [[ "${{ inputs.force-all }}" == "true" ]]; then
             args+=(--force)
           fi
-          # The previous-CTK wheel and test binaries are independent, so Moon
-          # builds them in parallel. The merge then consumes the selected or
-          # restored current and previous wheel outputs.
-          moon ci core:wheel-previous core:test-binaries --upstream none --downstream none "${args[@]}"
-          moon ci core:wheel-merge --upstream none --downstream none "${args[@]}"
+
+          # The previous wheel and test binaries are independent; the merge
+          # starts only after that producer phase has completed.
+          moon ci core:wheel-previous core:test-binaries "${args[@]}"
+          moon ci core:wheel-merge "${args[@]}"
 
       - name: Validate native lane outputs
         run: |
@@ -358,10 +366,12 @@ jobs:
             cuda_pathfinder/.moon-out cuda_bindings/.moon-out cuda_core/.moon-out
           test "$(find cuda_pathfinder/.moon-out/wheel-pure -maxdepth 1 -name '*.whl' -type f | wc -l)" -eq 1
           test "$(find cuda_bindings/.moon-out/wheel-current -maxdepth 1 -name '*.whl' -type f | wc -l)" -eq 1
+          test "$(find cuda_bindings/.moon-out/wheel-previous -maxdepth 1 -name '*.whl' -type f | wc -l)" -eq 1
           test "$(find cuda_core/.moon-out/wheel-merged -maxdepth 1 -name '*.whl' -type f | wc -l)" -eq 1
           wheels=(
             cuda_pathfinder/.moon-out/wheel-pure/*.whl
             cuda_bindings/.moon-out/wheel-current/*.whl
+            cuda_bindings/.moon-out/wheel-previous/*.whl
             cuda_core/.moon-out/wheel-merged/*.whl
           )
           if [[ "${{ inputs.host-platform }}" == "linux-64" &&
@@ -400,33 +410,6 @@ jobs:
           if-no-files-found: error
           overwrite: true
 
-      - name: Upload cuda.bindings Cython tests
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
-          path: cuda_bindings/.moon-out/cython-tests/test_*${{ env.PY_EXT_SUFFIX }}
-          if-no-files-found: error
-          overwrite: true
-
-      - name: Upload cuda.core Cython tests
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
-          path: cuda_core/.moon-out/cython-tests/test_*${{ env.PY_EXT_SUFFIX }}
-          if-no-files-found: error
-          overwrite: true
-
-      - name: Upload cuda.core test binaries
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
-          path: |
-            cuda_core/.moon-out/test-binaries/*.o
-            cuda_core/.moon-out/test-binaries/*.a
-            cuda_core/.moon-out/test-binaries/*.lib
-          if-no-files-found: error
-          overwrite: true
-
       - name: Upload cuda.core build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
@@ -441,11 +424,10 @@ jobs:
         with:
           name: moon-lane-build-${{ inputs.host-platform }}-py${{ matrix.python-version-formatted }}
           path: |
-            .moon/cache/hashes
-            .moon/cache/outputs
             cuda_pathfinder/.moon-out/wheel-pure
             cuda_python/.moon-out/wheel-pure
             cuda_bindings/.moon-out/wheel-current
+            cuda_bindings/.moon-out/wheel-previous
             cuda_bindings/.moon-out/cython-tests
             cuda_core/.moon-out/wheel-current
             cuda_core/.moon-out/wheel-previous

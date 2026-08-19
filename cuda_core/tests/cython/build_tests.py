@@ -1,102 +1,16 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-"""Build cuda_core Cython test extensions in-place.
+"""Build cuda_core Cython test extensions."""
 
-pixi-build's editable install exposes the `cuda` namespace package via a
-PEP 660 finder hook. Python's import machinery honors the hook, but
-Cython's filesystem .pxd resolver only walks real directories on sys.path,
-so `cimport cuda.bindings.*` fails to locate the .pxd files. We resolve
-the namespace package's source root from `cuda.bindings.__file__` and pass
-it via `include_path=` so cythonize finds the .pxd tree on every platform.
-"""
-
-from __future__ import annotations
-
-import argparse
-import os
-import shutil
-import sys
-from pathlib import Path
-
-from Cython.Build import cythonize
-from setuptools import setup
-
-import cuda.bindings
-
-
-def _bindings_source_root() -> Path:
-    # cuda.bindings.__file__ -> .../<root>/cuda/bindings/__init__.py
-    root = Path(cuda.bindings.__file__).resolve().parents[2]
-    if not (root / "cuda" / "bindings").is_dir():
-        raise RuntimeError(
-            f"cuda.bindings source tree not found at {root}; pixi-build editable install layout may have changed."
-        )
-    return root
-
-
-def _output_directory(script_dir: Path, value: str) -> Path:
-    project_root = script_dir.parents[1]
-    output_root = project_root / ".moon-out"
-    requested = Path(value)
-    output = Path(os.path.abspath(requested if requested.is_absolute() else project_root.parent / requested))
-    if output_root not in output.parents:
-        raise ValueError(f"output must be below {output_root}: {output}")
-    current = output
-    while current != project_root:
-        if current.is_symlink():
-            raise ValueError(f"output path must not traverse a symlink: {current}")
-        current = current.parent
-    if output.exists():
-        if not output.is_dir():
-            raise ValueError(f"refusing to replace non-directory output: {output}")
-        shutil.rmtree(output)
-    output.mkdir(parents=True)
-    return output
+from cuda_python_test_helpers.cython_test_builder import build_cython_tests
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output-dir")
-    args = parser.parse_args()
-    script_dir = Path(__file__).resolve().parent
-    output = _output_directory(script_dir, args.output_dir) if args.output_dir else None
-    pyx_files = sorted(str(p) for p in script_dir.glob("test_*.pyx"))
-    if not pyx_files:
-        raise SystemExit(f"no test_*.pyx files under {script_dir}")
-
-    ext_modules = cythonize(
-        pyx_files,
-        language_level=3,
-        include_path=[str(_bindings_source_root())],
-        compiler_directives={"freethreading_compatible": True},
+    build_cython_tests(
+        script_file=__file__,
+        distribution_name="cuda_core_cython_tests",
+        include_core_headers=True,
     )
-
-    # `build_ext --inplace` places the compiled .so relative to the current
-    # working directory, but pixi runs this task from the project root. pytest
-    # imports each extension by bare module name (see test_cython.py), which
-    # only resolves when the .so sits in tests/cython (the dir pytest puts on
-    # sys.path). chdir here so the .so lands next to its .pyx regardless of the
-    # invoking cwd.
-    os.chdir(script_dir)
-    sys.argv = [sys.argv[0], "build_ext"]
-    if output is None:
-        sys.argv.append("--inplace")
-    else:
-        build_temp = output / ".build-temp"
-        sys.argv.extend(["--build-lib", str(output), "--build-temp", str(build_temp)])
-    setup(name="cuda_core_cython_tests", ext_modules=ext_modules)
-    if output is not None:
-        if build_temp.exists():
-            shutil.rmtree(build_temp)
-        for source in pyx_files:
-            matches = [
-                path
-                for pattern in (f"{Path(source).stem}*.so", f"{Path(source).stem}*.pyd", f"{Path(source).stem}*.dylib")
-                for path in output.glob(pattern)
-                if path.is_file()
-            ]
-            if len(matches) != 1:
-                raise RuntimeError(f"expected one extension for {source} in {output}, found {len(matches)}")
 
 
 if __name__ == "__main__":

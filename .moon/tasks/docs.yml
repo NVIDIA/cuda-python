@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/tasks.json
+
+inheritedBy:
+  tag: docs-package
+
+tasks:
+  docs-ci:
+    command: bash
+    args: ['$projectSource/docs/build_docs.sh', moon-ci]
+    deps:
+      - test-helpers:prepare-docs
+    env:
+      CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
+    inputs:
+      - '@group(package)'
+      - '@group(docs)'
+      - '/cuda_python/docs/build_component_docs.sh'
+      - '/cuda_python/docs/environment-docs.yml'
+      - '/.github/workflows/build-docs.yml'
+    outputs:
+      - 'docs/build/html'
+    tags: [ci-docs]
+    type: build
+    options:
+      os: linux
+      runInCI: true

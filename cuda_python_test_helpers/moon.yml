@@ -6,9 +6,6 @@ $schema: https://moonrepo.dev/schemas/v2/project.json
 
 language: unknown
 layer: library
-toolchains:
-  default: system
-
 taskOptions:
   cache: false
   runFromWorkspaceRoot: true
@@ -16,6 +13,95 @@ taskOptions:
   shell: false
 
 tasks:
+  # These context checks are safe to run beside dependency installation: they
+  # do not enumerate the environment that pip is mutating.
+  fingerprint-python-context:
+    inputs: []
+    checks:
+      - check: fingerprint
+        script: >-
+          python -c "import hashlib, os;
+          names = sorted(name for name in os.environ
+          if name == 'SOURCE_DATE_EPOCH' or name.startswith(('SETUPTOOLS_SCM_', 'VCS_VERSIONING_')));
+          payload = '\0'.join(name + '=' + os.environ[name] for name in names);
+          print(hashlib.sha256(payload.encode()).hexdigest())"
+        hash: stdout
+      - check: fingerprint
+        script: >-
+          python -c "import platform, sysconfig;
+          print(platform.python_implementation(), platform.python_version(),
+          sysconfig.get_config_var('SOABI') or '', sep='\n')"
+        hash: stdout
+    type: build
+    options:
+      internal: true
+      runInCI: true
+
+  # Cached package builds also hash the complete installed distribution set.
+  # Keep this separate from python-context because test setup mutates it.
+  fingerprint-python-build:
+    deps:
+      - target: test-helpers:fingerprint-python-context
+        cacheStrategy: hash
+    inputs: []
+    checks:
+      - check: fingerprint
+        script: >-
+          python -c "import importlib.metadata as metadata;
+          normalize = lambda value: value.lower().replace('_', '-');
+          versions = sorted((normalize(dist.metadata['Name']), dist.version)
+          for dist in metadata.distributions() if dist.metadata['Name']);
+          print(*(name + '=' + version for name, version in versions), sep='\n')"
+        hash: stdout
+    type: build
+    options:
+      internal: true
+      runInCI: true
+
+  fingerprint-native-context:
+    deps:
+      - target: test-helpers:fingerprint-python-context
+        cacheStrategy: hash
+    inputs: []
+    checks:
+      - check: fingerprint
+        script: >-
+          python -c "import hashlib, os, re;
+          names = {'AR', 'ARFLAGS', 'BUILD_CUDA_MAJOR', 'BUILD_CUDA_VER', 'BUILD_PREV_CUDA_MAJOR',
+          'CC', 'CFLAGS', 'CL', 'CPPFLAGS', 'CPLUS_INCLUDE_PATH', 'CXX', 'CXXFLAGS',
+          'CUDA_CORE_BUILD_MAJOR', 'CUDA_HOME', 'CUDA_PATH',
+          'CUDA_PYTHON_COVERAGE', 'CUDA_PYTHON_PARALLEL_LEVEL', 'CUDA_VER',
+          'HOST_PLATFORM', 'INCLUDE', 'LD', 'LDFLAGS', 'LDSHARED', 'LIB', 'LIBPATH',
+          'NM', 'NVCCFLAGS', 'NVCC_APPEND_FLAGS', 'NVCC_PREPEND_FLAGS',
+          'PY_EXT_SUFFIX', 'PY_VER', 'RANLIB',
+          'SCCACHE_CACHE_SIZE', 'SCCACHE_DIR', 'SCCACHE_PATH', 'STRIP', '_CL_'};
+          names.update(name for name in os.environ if name.startswith('CIBW_'));
+          redact = lambda value: re.sub(r'(?i)\\bACTIONS_[A-Z0-9_]+=(?:\"[^\"]*\"|\\S+)', 'ACTIONS_VALUE=<redacted>', value);
+          payload = '\0'.join(name + '=' + redact(os.environ.get(name, '<unset>')) for name in sorted(names));
+          print(hashlib.sha256(payload.encode()).hexdigest())"
+        hash: stdout
+      - check: fingerprint
+        script: >-
+          python -c "import platform;
+          print(platform.system(), platform.machine(), sep='\n')"
+        hash: stdout
+      - check: fingerprint
+        script: >-
+          python -c "import os, shlex, shutil, subprocess, sysconfig;
+          commands = {'cc', 'c++', 'cl', 'nvcc'};
+          configured = (os.environ.get('CC') or sysconfig.get_config_var('CC') or '',
+          os.environ.get('CXX') or sysconfig.get_config_var('CXX') or '');
+          commands.update(token for value in configured for token in shlex.split(value, posix=os.name != 'nt') if token and not token.startswith('-'));
+          print(*(command + '=' + path + '\n' + str(result.returncode) + '\n' + result.stdout.strip()
+          for command in sorted(commands) if (path := shutil.which(command))
+          for result in (subprocess.run([path, '--version'], check=False, stdout=subprocess.PIPE,
+          stderr=subprocess.STDOUT, text=True, timeout=10),)), sep='\n')"
+        hash: stdout
+    type: build
+    options:
+      internal: true
+      runInCI: true
+
   # GitHub Actions runs this after changing to the test Python/toolkit phase.
   # The canonical wheel inputs are therefore staged by the preceding build
   # phase instead of being executable task dependencies in this project.
@@ -45,10 +131,11 @@ tasks:
           exit 1
         }
         CORE_WHEEL=$1
-        python -m pip install \
+        python -m pip install --force-reinstall --no-deps \
           "$PATHFINDER_WHEEL" \
           "$BINDINGS_WHEEL" \
-          "$CORE_WHEEL" \
+          "$CORE_WHEEL"
+        python -m pip install \
           --group cuda_bindings/pyproject.toml:test \
           --group cuda_core/pyproject.toml:test
     inputs:
@@ -61,4 +148,71 @@ tasks:
       - '/.github/workflows/build-wheel.yml'
     options:
       os: [linux, windows]
+      runInCI: true
+
+  # Test dependencies are installed by prepare-test-assets. Keep the package
+  # versions behind that mutation, while sharing the unchanged platform,
+  # compiler, and environment context with native package builds.
+  fingerprint-test-assets:
+    deps:
+      - target: test-helpers:prepare-test-assets
+      - target: test-helpers:fingerprint-native-context
+        cacheStrategy: hash
+    inputs: []
+    checks:
+      - check: fingerprint
+        script: >-
+          python -c "import importlib.metadata as metadata;
+          names = ('build', 'cibuildwheel', 'cython', 'numpy', 'packaging', 'pip', 'setuptools', 'setuptools-scm', 'wheel');
+          normalize = lambda value: value.lower().replace('_', '-');
+          versions = {normalize(dist.metadata['Name']): dist.version for dist in metadata.distributions() if dist.metadata['Name']};
+          print(*(name + '=' + versions.get(name, '<not-installed>') for name in names), sep='\n')"
+        hash: stdout
+    type: build
+    options:
+      internal: true
+      os: [linux, windows]
+      runInCI: true
+
+  # Documentation runs after the workflow has staged one wheel per package.
+  # Keep these as raw inputs: depending on the producers would introduce a
+  # metapackage/docs project cycle and rebuild already-staged artifacts.
+  prepare-docs:
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        one_wheel() {
+          local LABEL="$1"
+          shift
+          [[ $# -eq 1 ]] || {
+            echo "expected one $LABEL wheel, found $#" >&2
+            exit 1
+          }
+          printf '%s\n' "$1"
+        }
+
+        shopt -s nullglob
+        PATHFINDER_WHEEL=$(one_wheel cuda.pathfinder cuda_pathfinder/.moon-out/wheel-pure/*.whl)
+        BINDINGS_WHEEL=$(one_wheel cuda.bindings cuda_bindings/.moon-out/wheel-current/*.whl)
+        CORE_WHEEL=$(one_wheel cuda.core cuda_core/.moon-out/wheel-merged/*.whl)
+        METAPACKAGE_WHEEL=$(one_wheel cuda-python cuda_python/.moon-out/wheel-pure/*.whl)
+
+        python -m pip install --force-reinstall \
+          "$PATHFINDER_WHEEL" \
+          "$BINDINGS_WHEEL" \
+          "$CORE_WHEEL"
+        python -m pip install --force-reinstall --no-deps \
+          "$METAPACKAGE_WHEEL"
+    inputs:
+      - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
+      - '/cuda_bindings/.moon-out/wheel-current/*.whl'
+      - '/cuda_core/.moon-out/wheel-merged/*.whl'
+      - '/cuda_python/.moon-out/wheel-pure/*.whl'
+      - '/.github/workflows/build-docs.yml'
+    type: build
+    options:
+      os: linux
       runInCI: true

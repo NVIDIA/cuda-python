@@ -93,7 +93,6 @@ jobs:
           HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
           LOCAL_CTK: ${{ env.LOCAL_CTK }}
           PY_VER: ${{ env.PY_VER }}
-          SHA: ${{ github.sha }}
         run: |
           ./ci/tools/env-vars test
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
@@ -119,10 +118,15 @@ jobs:
           python -m venv .venv
 
       - name: Install pip with build-constraint support
-        run: .venv/bin/python -m pip install "pip>=25.3"
+        run: >-
+          .venv/bin/python -m pip install
+          --constraint ci/build-constraints.txt pip
 
       - name: Build and install cuda-pathfinder wheel
         run: |
+          BUILD_CONSTRAINTS="$(realpath ci/build-constraints.txt)"
+          export PIP_BUILD_CONSTRAINT="${BUILD_CONSTRAINTS}"
+          export PIP_CONSTRAINT="${BUILD_CONSTRAINTS}"
           .venv/bin/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
           .venv/bin/pip install -v ./wheels/cuda_pathfinder*.whl --group ./cuda_pathfinder/pyproject.toml:test
 
@@ -133,7 +137,8 @@ jobs:
           test -f "${pathfinder_wheels[0]}"
           mkdir -p wheel-constraints
           pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
-          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
+          cp ci/build-constraints.txt wheel-constraints/cuda-bindings.txt
+          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" >> wheel-constraints/cuda-bindings.txt
 
       - name: Build and install cuda-bindings wheel
         run: |
@@ -154,10 +159,11 @@ jobs:
           mkdir -p wheel-constraints
           pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
           bindings_uri="file://$(realpath "${bindings_wheels[0]}")"
+          cp ci/build-constraints.txt wheel-constraints/cuda-core.txt
           {
             printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
             printf 'cuda-bindings @ %s\n' "${bindings_uri}"
-          } | tee wheel-constraints/cuda-core.txt
+          } >> wheel-constraints/cuda-core.txt
 
       - name: Build and install cuda-core
         run: |
@@ -168,7 +174,7 @@ jobs:
 
       - name: Install coverage tools
         run: |
-          .venv/bin/pip install coverage pytest-cov Cython
+          .venv/bin/pip install --constraint ci/build-constraints.txt coverage pytest-cov Cython
 
       - name: Set cuda package install root
         run: |
@@ -260,7 +266,11 @@ jobs:
 
       - name: Build cuda.pathfinder wheel
         run: |
-          .venv/Scripts/python -m pip install "pip>=25.3" wheel setuptools Cython
+          .venv/Scripts/python -m pip install \
+            --constraint ci/build-constraints.txt pip wheel setuptools Cython
+          BUILD_CONSTRAINTS="$(cygpath -w "$(pwd)/ci/build-constraints.txt")"
+          export PIP_BUILD_CONSTRAINT="${BUILD_CONSTRAINTS}"
+          export PIP_CONSTRAINT="${BUILD_CONSTRAINTS}"
           .venv/Scripts/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
 
       - name: Constrain builds to the local cuda.pathfinder wheel
@@ -270,7 +280,8 @@ jobs:
           test -f "${pathfinder_wheels[0]}"
           mkdir -p wheel-constraints
           pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
-          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
+          cp ci/build-constraints.txt wheel-constraints/cuda-bindings.txt
+          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" >> wheel-constraints/cuda-bindings.txt
 
       - name: Build cuda.bindings wheel
         run: |
@@ -291,10 +302,11 @@ jobs:
           mkdir -p wheel-constraints
           pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
           bindings_uri="file:///$(cygpath -am "${bindings_wheels[0]}")"
+          cp ci/build-constraints.txt wheel-constraints/cuda-core.txt
           {
             printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
             printf 'cuda-bindings @ %s\n' "${bindings_uri}"
-          } | tee wheel-constraints/cuda-core.txt
+          } >> wheel-constraints/cuda-core.txt
 
       - name: Build cuda.core wheel
         run: |
@@ -308,7 +320,7 @@ jobs:
       # `cuda` is a namespace package.
       - name: Repair the Windows wheels
         run: |
-          .venv/Scripts/pip install delvewheel
+          .venv/Scripts/pip install --constraint ci/build-constraints.txt delvewheel
           mkdir -p wheels-repaired
           for whl in ./wheels/cuda_bindings-*.whl ./wheels/cuda_core-*.whl; do
             .venv/Scripts/delvewheel repair --namespace-pkg cuda \
@@ -397,23 +409,28 @@ jobs:
         run: |
           python -m venv .venv
 
+      - name: Install pip with build-constraint support
+        run: >-
+          .venv/Scripts/python -m pip install
+          --constraint ci/build-constraints.txt pip
+
       - name: Install wheels from build job
         run: |
-          .venv/Scripts/pip install ./wheels/cuda_pathfinder*.whl
+          .venv/Scripts/pip install --constraint ci/build-constraints.txt ./wheels/cuda_pathfinder*.whl
           echo "Installed cuda.pathfinder"
 
-          .venv/Scripts/pip install ./wheels/cuda_bindings*.whl
+          .venv/Scripts/pip install --constraint ci/build-constraints.txt ./wheels/cuda_bindings*.whl
           echo "Installed cuda.bindings"
 
-          .venv/Scripts/pip install ./wheels/cuda_core*.whl
+          .venv/Scripts/pip install --constraint ci/build-constraints.txt ./wheels/cuda_core*.whl
           echo "Installed cuda.core"
 
       - name: Install test dependencies and coverage tools
         run: |
-          .venv/Scripts/pip install coverage pytest-cov Cython
-          .venv/Scripts/pip install --group ./cuda_pathfinder/pyproject.toml:test
-          .venv/Scripts/pip install --group ./cuda_bindings/pyproject.toml:test
-          .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
+          .venv/Scripts/pip install --constraint ci/build-constraints.txt coverage pytest-cov Cython
+          .venv/Scripts/pip install --constraint ci/build-constraints.txt --group ./cuda_pathfinder/pyproject.toml:test
+          .venv/Scripts/pip install --constraint ci/build-constraints.txt --group ./cuda_bindings/pyproject.toml:test
+          .venv/Scripts/pip install --constraint ci/build-constraints.txt --group ./cuda_core/pyproject.toml:test
 
       - name: Get install root
         id: install-root
@@ -483,7 +500,7 @@ jobs:
       - name: Install coverage
         run: |
           # .coveragerc enables Cython.Coverage plugin; ensure it's available here too.
-          pip install coverage[toml] Cython
+          pip install --constraint ci/build-constraints.txt coverage[toml] Cython
 
       - name: Download Linux coverage data
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1

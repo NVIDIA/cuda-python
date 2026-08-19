@@ -7,9 +7,6 @@ name: "CI: Test wheels"
 on:
   workflow_call:
     inputs:
-      build-type:
-        type: string
-        required: true
       host-platform:
         type: string
         required: true
@@ -29,6 +26,10 @@ on:
           Defaults to the current run when empty.
         type: string
         default: ''
+      source-ref:
+        description: "Exact source ref to test; defaults to the caller commit"
+        type: string
+        default: ''
       test-mode:
         description: >
           Test mode: 'standard' (default), 'nightly-pytorch',
@@ -36,12 +37,6 @@ on:
           'nightly-cuda-core'.
         type: string
         default: 'standard'
-      sha:
-        description: >
-          Commit SHA used to construct artifact names.
-          Defaults to github.sha (current run) when empty.
-        type: string
-        default: ''
       moon-base:
         description: "Base revision used by Moon affected checks"
         type: string
@@ -60,9 +55,8 @@ jobs:
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     timeout-minutes: 60
     env:
-      CUDA_PYTHON_LANE: test-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cuda${{ matrix.CUDA_VER }}
       MOON_BASE: ${{ inputs.moon-base }}
-      MOON_HEAD: ${{ github.sha }}
+      MOON_HEAD: ${{ inputs.source-ref || github.sha }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(inputs.matrix) }}
@@ -88,6 +82,7 @@ jobs:
         with:
           fetch-depth: 0
           filter: blob:none
+          ref: ${{ inputs.source-ref || github.sha }}
 
       - name: Set up Moon
         if: ${{ inputs.test-mode == 'standard' }}
@@ -128,7 +123,6 @@ jobs:
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
           PY_VER: ${{ matrix.PY_VER }}
-          SHA: ${{ inputs.sha || github.sha }}
           SKIP_BINDINGS_TEST_OVERRIDE: "0"
         run: ./ci/tools/env-vars test
 
@@ -145,41 +139,6 @@ jobs:
           path: .
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Stage Moon lane outputs for legacy test tooling
-        run: |
-          cp cuda_pathfinder/.moon-out/wheel-pure/*.whl cuda_pathfinder/
-          echo "CUDA_CORE_ARTIFACTS_DIR=${GITHUB_WORKSPACE}/cuda_core/.moon-out/wheel-merged" >> "$GITHUB_ENV"
-          if [[ "${BINDINGS_SOURCE}" == "main" ]]; then
-            echo "CUDA_BINDINGS_ARTIFACTS_DIR=${GITHUB_WORKSPACE}/cuda_bindings/.moon-out/wheel-current" >> "$GITHUB_ENV"
-          fi
-
-      - name: Download cuda.bindings build artifacts from the prior branch
-        if: ${{ env.BINDINGS_SOURCE == 'backport' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-          # gh is needed for artifact fetching.
-          mkdir -p -m 755 /etc/apt/keyrings \
-                && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-                && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-          && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-          && apt update \
-          && apt install gh -y
-
-          OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
-          OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
-
-          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
-          rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
-          ls -al $OLD_BASENAME
-          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
-          mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
-          rmdir $OLD_BASENAME
-
 
       - name: Set up Python ${{ matrix.PY_VER }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
@@ -226,12 +185,9 @@ jobs:
           CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION: "1"
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-        run: |
-          args=()
-          if [[ "${{ inputs.force-all }}" == "true" || "${{ inputs.build-type }}" != "pull-request" ]]; then
-            args+=(--force)
-          fi
-          moon ci ':#ci-test-linux' --upstream deep --downstream none "${args[@]}"
+        run: >-
+          moon ci ':#ci-test-linux' --upstream deep --downstream none
+          ${{ inputs.force-all && '--force' || '' }}
 
       # ── Nightly: install wheels + optional dep together ──
       - name: Install cuda-python wheels + PyTorch

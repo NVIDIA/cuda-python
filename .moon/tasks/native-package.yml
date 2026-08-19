@@ -1,0 +1,58 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/tasks.json
+
+inheritedBy:
+  tag: native-package
+
+tasks:
+  sdist:
+    deps:
+      - target: test-helpers:fingerprint-python-build
+        cacheStrategy: hash
+      - target: test-helpers:fingerprint-native-context
+        cacheStrategy: hash
+
+  wheel-current:
+    deps:
+      - target: ~:fingerprint-package
+        cacheStrategy: hash
+      - target: test-helpers:fingerprint-python-build
+        cacheStrategy: hash
+      - target: test-helpers:fingerprint-native-context
+        cacheStrategy: hash
+    inputs:
+      - '@group(package)'
+      - '/ci/build-constraints.txt'
+      - '/ci/tools/env-vars'
+      - '/ci/versions.yml'
+      - '/ci/build-matrix.yml'
+      - '/.github/workflows/build-wheel.yml'
+    outputs:
+      - '.moon-out/wheel-current'
+    tags: [ci-build-native]
+    type: build
+    options:
+      cache: true
+      priority: critical
+      runInCI: true
+
+  cython-test-assets:
+    deps:
+      - target: test-helpers:fingerprint-test-assets
+        cacheStrategy: hash
+    inputs:
+      - '@group(package)'
+      - 'tests/cython/**/*'
+      - '/ci/build-matrix.yml'
+      - '/.github/workflows/build-wheel.yml'
+    outputs:
+      - '.moon-out/cython-tests'
+    tags: [ci-build-cython-assets, ci-build-native]
+    type: build
+    options:
+      cache: true
+      os: [linux, windows]
+      runInCI: true

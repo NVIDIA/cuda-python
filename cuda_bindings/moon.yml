@@ -6,20 +6,12 @@ $schema: https://moonrepo.dev/schemas/v2/project.json
 
 language: unknown
 layer: library
+tags: [docs-package, installed-test-package, native-package, pixi-package, python-package]
 dependsOn:
   - id: pathfinder
     scope: production
   - id: test-helpers
     scope: development
-toolchains:
-  default: system
-
-taskOptions:
-  cache: false
-  runFromWorkspaceRoot: true
-  runInCI: false
-  shell: false
-
 fileGroups:
   package:
     - '.git_archival.txt'
@@ -30,15 +22,6 @@ fileGroups:
     - 'MANIFEST.in'
     - 'pyproject.toml'
     - 'setup.py'
-  tests:
-    - 'examples/**/*'
-    - 'tests/**/*'
-    - 'pixi.toml'
-    - 'pixi.lock'
-  docs:
-    - 'docs/**/*'
-    - 'pixi.toml'
-    - 'pixi.lock'
   benchmarks:
     - '/benchmarks/cuda_bindings/benchmarks/**/*'
     - '/benchmarks/cuda_bindings/runner/**/*'
@@ -83,6 +66,9 @@ tasks:
         CONSTRAINTS=cuda_bindings/.moon-out/constraints-current
         reset_directory "$OUTPUT"
         reset_directory "$CONSTRAINTS"
+        SOURCE_DATE_EPOCH=$(printenv SOURCE_DATE_EPOCH || true)
+        export SOURCE_DATE_EPOCH
+        [[ -n "$SOURCE_DATE_EPOCH" ]] || SOURCE_DATE_EPOCH=$(git log -1 --format=%ct HEAD)
 
         shopt -s nullglob
         set -- cuda_pathfinder/.moon-out/wheel-pure/*.whl
@@ -93,6 +79,7 @@ tasks:
         PATHFINDER_WHEEL=$1
 
         CONSTRAINT_FILE="$CONSTRAINTS/build.txt"
+        cp ci/build-constraints.txt "$CONSTRAINT_FILE"
         HOST_PLATFORM_RESOLVED=$(printenv HOST_PLATFORM || true)
         if [[ -z "$HOST_PLATFORM_RESOLVED" ]]; then
           HOST_PLATFORM_RESOLVED=$(python -c "import platform; print('win-64' if platform.system() == 'Windows' else 'linux-' + platform.machine())")
@@ -100,16 +87,16 @@ tasks:
         if [[ "$HOST_PLATFORM_RESOLVED" == win* ]]; then
           PATHFINDER_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$PATHFINDER_WHEEL")
           CONSTRAINT_HOST=$(cygpath -w "$(pwd)/$CONSTRAINT_FILE")
-          printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI" > "$CONSTRAINT_FILE"
+          printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI" >> "$CONSTRAINT_FILE"
           CIBW_ENVIRONMENT_BASE=$(printenv CIBW_ENVIRONMENT_WINDOWS || true)
-          export CIBW_ENVIRONMENT_WINDOWS="$CIBW_ENVIRONMENT_BASE PIP_BUILD_CONSTRAINT=\"$CONSTRAINT_HOST\" PIP_CONSTRAINT=\"$CONSTRAINT_HOST\""
+          export CIBW_ENVIRONMENT_WINDOWS="$CIBW_ENVIRONMENT_BASE PIP_BUILD_CONSTRAINT=\"$CONSTRAINT_HOST\" PIP_CONSTRAINT=\"$CONSTRAINT_HOST\" SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
         else
           PATHFINDER_URI=$(python -c "from pathlib import Path; import sys; print(Path('/host' + Path(sys.argv[1]).resolve().as_posix()).as_uri())" "$PATHFINDER_WHEEL")
           CONSTRAINT_HOST=$(realpath "$CONSTRAINT_FILE")
           CONSTRAINT_CONTAINER="/host$CONSTRAINT_HOST"
-          printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI" > "$CONSTRAINT_FILE"
+          printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI" >> "$CONSTRAINT_FILE"
           CIBW_ENVIRONMENT_BASE=$(printenv CIBW_ENVIRONMENT_LINUX || true)
-          export CIBW_ENVIRONMENT_LINUX="$CIBW_ENVIRONMENT_BASE PIP_BUILD_CONSTRAINT=\"$CONSTRAINT_CONTAINER\" PIP_CONSTRAINT=\"$CONSTRAINT_CONTAINER\""
+          export CIBW_ENVIRONMENT_LINUX="$CIBW_ENVIRONMENT_BASE PIP_BUILD_CONSTRAINT=\"$CONSTRAINT_CONTAINER\" PIP_CONSTRAINT=\"$CONSTRAINT_CONTAINER\" SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH"
         fi
         export PIP_BUILD_CONSTRAINT="$CONSTRAINT_HOST"
         export PIP_CONSTRAINT="$CONSTRAINT_HOST"
@@ -136,77 +123,10 @@ tasks:
       CUDA_PATH: '${CUDA_PATH}'
       HOST_PLATFORM: '${HOST_PLATFORM}'
       PY_VER: '${PY_VER}'
+    # Moon 2.5.1 filters each explicitly selected phase before expanding task
+    # relations, so keep the upstream source proxy for granular CI calls.
     inputs:
-      - '@group(package)'
       - {project: pathfinder, group: package}
-      - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
-      - '/ci/tools/env-vars'
-      - '/ci/versions.yml'
-      - '/.github/workflows/build-wheel.yml'
-    outputs:
-      - '.moon-out/wheel-current'
-    checks:
-      - &bindings_scm_fingerprint
-        check: fingerprint
-        script: git describe --always --dirty --tags --long --match 'v*[0-9]*'
-        hash: stdout
-      - &scm_environment_fingerprint
-        check: fingerprint
-        script: >-
-          python -c "import hashlib, os;
-          names = sorted(name for name in os.environ
-          if name == 'SOURCE_DATE_EPOCH' or name.startswith(('SETUPTOOLS_SCM_', 'VCS_VERSIONING_')));
-          payload = '\0'.join(name + '=' + os.environ[name] for name in names);
-          print(hashlib.sha256(payload.encode()).hexdigest())"
-        hash: stdout
-      - &native_environment_fingerprint
-        check: fingerprint
-        script: >-
-          python -c "import hashlib, os, re;
-          names = {'BUILD_CUDA_MAJOR', 'BUILD_CUDA_VER', 'BUILD_PREV_CUDA_MAJOR',
-          'CC',
-          'CL', 'CPLUS_INCLUDE_PATH', 'CXX', 'CUDA_CORE_BUILD_MAJOR', 'CUDA_PATH',
-          'CUDA_PYTHON_COVERAGE', 'CUDA_PYTHON_LANE', 'CUDA_PYTHON_PARALLEL_LEVEL', 'CUDA_VER',
-          'HOST_PLATFORM', 'PY_EXT_SUFFIX', 'PY_VER', 'SCCACHE_CACHE_SIZE',
-          'SCCACHE_DIR', 'SCCACHE_PATH'};
-          names.update(name for name in os.environ if name.startswith('CIBW_'));
-          redact = lambda value: re.sub(r'(?i)\\bACTIONS_[A-Z0-9_]+=(?:\"[^\"]*\"|\\S+)', 'ACTIONS_VALUE=<redacted>', value);
-          payload = '\0'.join(name + '=' + redact(os.environ.get(name, '<unset>')) for name in sorted(names));
-          print(hashlib.sha256(payload.encode()).hexdigest())"
-        hash: stdout
-      - &python_runtime_fingerprint
-        check: fingerprint
-        script: >-
-          python -c "import platform, sysconfig;
-          print(platform.python_implementation(), platform.python_version(),
-          sysconfig.get_config_var('SOABI') or '', sep='\n')"
-        hash: stdout
-      - &python_platform_fingerprint
-        check: fingerprint
-        script: >-
-          python -c "import platform;
-          print(platform.system(), platform.machine(), sep='\n')"
-        hash: stdout
-      - &python_build_tools_fingerprint
-        check: fingerprint
-        script: >-
-          python -c "import importlib.metadata as metadata;
-          names = ('build', 'cibuildwheel', 'packaging', 'pip', 'setuptools', 'setuptools-scm', 'wheel');
-          normalize = lambda value: value.lower().replace('_', '-');
-          versions = {normalize(dist.metadata['Name']): dist.version for dist in metadata.distributions() if dist.metadata['Name']};
-          print(*(name + '=' + versions.get(name, '<not-installed>') for name in names), sep='\n')"
-        hash: stdout
-    tags:
-      - ci-wheel-current
-      - runner-build-linux-64
-      - runner-build-linux-aarch64
-      - runner-build-windows
-    type: build
-    options:
-      cache: true
-      cacheKey: wheel-current-v2
-      priority: critical
-      runInCI: true
 
   sdist:
     command: bash
@@ -226,6 +146,9 @@ tasks:
         mkdir -p cuda_bindings/.moon-out
         rm -rf -- cuda_bindings/.moon-out/sdist
         mkdir -p cuda_bindings/.moon-out/sdist
+        SOURCE_DATE_EPOCH=$(printenv SOURCE_DATE_EPOCH || true)
+        export SOURCE_DATE_EPOCH
+        [[ -n "$SOURCE_DATE_EPOCH" ]] || SOURCE_DATE_EPOCH=$(git log -1 --format=%ct HEAD)
 
         shopt -s nullglob
         set -- cuda_pathfinder/.moon-out/sdist/*.whl
@@ -236,6 +159,7 @@ tasks:
         PATHFINDER_WHEEL=$1
         CONSTRAINT_FILE=$(mktemp)
         trap 'rm -f "$CONSTRAINT_FILE"' EXIT
+        cp ci/build-constraints.txt "$CONSTRAINT_FILE"
         HOST_PLATFORM_RESOLVED=$(printenv HOST_PLATFORM || true)
         if [[ -z "$HOST_PLATFORM_RESOLVED" ]]; then
           HOST_PLATFORM_RESOLVED=$(python -c "import platform; print('win-64' if platform.system() == 'Windows' else 'linux-' + platform.machine())")
@@ -247,7 +171,7 @@ tasks:
           PATHFINDER_URI=$(python -c "from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve().as_uri())" "$PATHFINDER_WHEEL")
           CONSTRAINT_HOST=$(realpath "$CONSTRAINT_FILE")
         fi
-        printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI" > "$CONSTRAINT_FILE"
+        printf 'cuda-pathfinder @ %s\n' "$PATHFINDER_URI" >> "$CONSTRAINT_FILE"
         export PIP_BUILD_CONSTRAINT="$CONSTRAINT_HOST"
         export PIP_CONSTRAINT="$CONSTRAINT_HOST"
 
@@ -274,105 +198,30 @@ tasks:
       HOST_PLATFORM: '${HOST_PLATFORM}'
       PY_VER: '${PY_VER}'
     inputs:
-      - '@group(package)'
       - {project: pathfinder, group: package}
-      - '/.github/workflows/test-sdist-linux.yml'
-      - '/.github/workflows/test-sdist-windows.yml'
-    outputs:
-      - '.moon-out/sdist'
-    checks:
-      - *bindings_scm_fingerprint
-      - *scm_environment_fingerprint
-      - *native_environment_fingerprint
-      - *python_runtime_fingerprint
-      - *python_platform_fingerprint
-      - *python_build_tools_fingerprint
-    tags: [ci-sdist, runner-sdist-linux, runner-sdist-windows]
-    type: build
-    options:
-      cache: true
-      cacheKey: sdist-v2
-      runInCI: true
 
   cython-test-assets:
-    command: bash
+    command: python
     args:
-      - cuda_bindings/tests/cython/build_tests.sh
+      - cuda_bindings/tests/cython/build_tests.py
       - --output-dir
       - cuda_bindings/.moon-out/cython-tests
-    deps:
-      - test-helpers:prepare-test-assets
+    env:
+      PYTHONPATH: cuda_python_test_helpers
     inputs:
-      - '@group(package)'
-      - 'tests/cython/**/*'
       - {project: pathfinder, group: package}
       - '/cuda_pathfinder/.moon-out/wheel-pure/*.whl'
       - '/cuda_bindings/.moon-out/wheel-current/*.whl'
-      - '/.github/workflows/build-wheel.yml'
-    outputs:
-      - '.moon-out/cython-tests'
-    checks:
-      - *bindings_scm_fingerprint
-      - *scm_environment_fingerprint
-      - *native_environment_fingerprint
-      - *python_runtime_fingerprint
-      - *python_platform_fingerprint
-      - *python_build_tools_fingerprint
-      - check: fingerprint
-        script: >-
-          python -c "import importlib.metadata as metadata;
-          names = ('cython', 'numpy');
-          normalize = lambda value: value.lower().replace('_', '-');
-          versions = {normalize(dist.metadata['Name']): dist.version for dist in metadata.distributions() if dist.metadata['Name']};
-          print(*(name + '=' + versions.get(name, '<not-installed>') for name in names), sep='\n')"
-        hash: stdout
-      - check: fingerprint
-        script: >-
-          python -c "import os, shlex, shutil, subprocess, sysconfig;
-          commands = {'cc', 'c++', 'cl', 'nvcc'};
-          configured = (os.environ.get('CC') or sysconfig.get_config_var('CC') or '',
-          os.environ.get('CXX') or sysconfig.get_config_var('CXX') or '');
-          commands.update(token for value in configured for token in shlex.split(value, posix=os.name != 'nt') if token and not token.startswith('-'));
-          print(*(command + '=' + str(result.returncode) + '\n' + result.stdout.strip()
-          for command in sorted(commands) if (path := shutil.which(command))
-          for result in (subprocess.run([path, '--version'], check=False, stdout=subprocess.PIPE,
-          stderr=subprocess.STDOUT, text=True, timeout=10),)), sep='\n')"
-        hash: stdout
-    tags:
-      - ci-build-cython-assets
-      - runner-build-linux-64
-      - runner-build-linux-aarch64
-      - runner-build-windows
-    type: build
-    options:
-      cache: true
-      cacheKey: cython-test-assets-v2
-      os: [linux, windows]
-      runInCI: true
+      - '/cuda_python_test_helpers/cuda_python_test_helpers/cython_test_builder.py'
 
   test:
-    command: bash
-    args:
-      - -euo
-      - pipefail
-      - -c
-      - |
-        PIXI_ENVIRONMENT=$(printenv PIXI_ENVIRONMENT_NAME || true)
-        if [[ -n "$PIXI_ENVIRONMENT" ]]; then
-          exec pixi run --manifest-path cuda_bindings/pixi.toml \
-            --environment "$PIXI_ENVIRONMENT" test
-        fi
-        exec pixi run --manifest-path cuda_bindings/pixi.toml test
     inputs:
-      - '@group(package)'
-      - '@group(tests)'
       - '/cuda_pathfinder/**/*'
       - '/cuda_python_test_helpers/**/*'
       - '/benchmarks/cuda_bindings/**/*'
       - '/ci/test-matrix.yml'
       - '/ci/tools/env-vars'
       - '/tests/**/*'
-    type: test
 
   bench:
     command: pixi
@@ -432,7 +281,7 @@ tasks:
       - '/ci/tools/install_gpu_driver.sh'
       - '/tests/**/*'
       - '/.github/workflows/test-wheel-linux.yml'
-    tags: [ci-test-linux, runner-test-linux]
+    tags: [ci-test-linux]
     type: test
     options:
       mutex: ci-python-gpu
@@ -452,84 +301,31 @@ tasks:
       - benchmarks/cuda_bindings/tests
     inputs:
       - '@group(benchmark-tests)'
-    tags: [ci-quality, runner-quality]
+    tags: [ci-quality]
     type: test
     options:
       os: linux
       runInCI: true
 
   test-installed-linux:
-    command: bash
-    args: [ci/tools/run-tests, bindings]
     inputs:
-      - '@group(package)'
       - '@group(tests)'
       - {project: pathfinder, group: package}
       - '/cuda_python_test_helpers/**/*'
-      - '/ci/tools/run-tests'
-      - '/ci/test-matrix.yml'
-      - '/ci/tools/env-vars'
-      - '/tests/**/*'
-      - '/.github/workflows/build-wheel.yml'
-      - '/ci/tools/guess_latest.sh'
-      - '/ci/tools/install_gpu_driver.sh'
       - '/ci/tools/setup-sanitizer'
-      - '/.github/workflows/test-wheel-linux.yml'
-    tags: [ci-test-linux, runner-test-linux]
-    type: test
-    options:
-      mutex: ci-python-gpu
-      os: linux
-      runInCI: true
 
   test-installed-windows:
-    command: bash
-    args: [ci/tools/run-tests, bindings]
     inputs:
-      - '@group(package)'
       - '@group(tests)'
       - {project: pathfinder, group: package}
       - '/cuda_python_test_helpers/**/*'
-      - '/ci/tools/run-tests'
-      - '/ci/test-matrix.yml'
-      - '/ci/tools/env-vars'
-      - '/tests/**/*'
-      - '/.github/workflows/build-wheel.yml'
-      - '/ci/tools/configure_driver_mode.ps1'
-      - '/ci/tools/install_gpu_driver.ps1'
-      - '/.github/workflows/test-wheel-windows.yml'
-    tags: [ci-test-windows, runner-test-windows]
-    type: test
-    options:
-      mutex: ci-python-gpu
-      os: windows
-      runInCI: true
 
   docs:
-    command: pixi
-    args: [run, --manifest-path, cuda_bindings/pixi.toml, --environment, docs, build-docs]
+    args: [build-docs]
     inputs:
-      - '@group(package)'
-      - '@group(docs)'
       - {project: pathfinder, group: package}
       - {project: pathfinder, group: docs}
-      - '/.github/workflows/build-docs.yml'
 
   docs-ci:
-    command: bash
-    args: [cuda_bindings/docs/build_docs.sh, moon-ci]
-    env:
-      CUDA_PYTHON_DOCS_LATEST_ONLY: '${CUDA_PYTHON_DOCS_LATEST_ONLY}'
     inputs:
-      - '@group(package)'
-      - '@group(docs)'
       - {project: pathfinder, group: package}
-      - '/cuda_python/docs/environment-docs.yml'
-      - '/.github/workflows/build-docs.yml'
-    outputs:
-      - '.moon-out/docs-ci'
-    tags: [ci-docs, runner-docs]
-    type: build
-    options:
-      os: linux
-      runInCI: true

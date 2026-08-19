@@ -1,0 +1,76 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/tasks.json
+
+inheritedBy:
+  tag: pure-wheel-package
+
+tasks:
+  sdist:
+    command: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        PROJECT_SOURCE=$projectSource
+        PROJECT_LABEL=$project
+        OUTPUT_ROOT="$PROJECT_SOURCE/.moon-out"
+        OUTPUT="$OUTPUT_ROOT/sdist"
+        if [[ -L "$OUTPUT_ROOT" || ( -e "$OUTPUT_ROOT" && ! -d "$OUTPUT_ROOT" ) ]]; then
+          echo "refusing to use non-directory output root: $OUTPUT_ROOT" >&2
+          exit 1
+        fi
+        if [[ -L "$OUTPUT" || ( -e "$OUTPUT" && ! -d "$OUTPUT" ) ]]; then
+          echo "refusing to replace non-directory output: $OUTPUT" >&2
+          exit 1
+        fi
+        mkdir -p "$OUTPUT_ROOT"
+        rm -rf -- "$OUTPUT"
+        mkdir -p "$OUTPUT"
+        SOURCE_DATE_EPOCH=$(printenv SOURCE_DATE_EPOCH || true)
+        export SOURCE_DATE_EPOCH
+        [[ -n "$SOURCE_DATE_EPOCH" ]] || SOURCE_DATE_EPOCH=$(git log -1 --format=%ct HEAD)
+        BUILD_CONSTRAINTS=$(realpath ci/build-constraints.txt)
+        case "$(uname -s)" in
+          CYGWIN*|MINGW*|MSYS*) BUILD_CONSTRAINTS=$(cygpath -w "$BUILD_CONSTRAINTS") ;;
+        esac
+        export PIP_BUILD_CONSTRAINT="$BUILD_CONSTRAINTS"
+        export PIP_CONSTRAINT="$BUILD_CONSTRAINTS"
+        python -m build --sdist --outdir "$OUTPUT" "$PROJECT_SOURCE"
+        shopt -s nullglob
+        set -- "$OUTPUT"/*.tar.gz
+        [[ $# -eq 1 ]] || {
+          echo "expected one $PROJECT_LABEL source distribution, found $#" >&2
+          exit 1
+        }
+        ARCHIVE=$1
+        python -m pip wheel --no-deps --wheel-dir "$OUTPUT" "$ARCHIVE"
+        set -- "$OUTPUT"/*.whl
+        [[ $# -eq 1 ]] || {
+          echo "expected one $PROJECT_LABEL wheel from source distribution, found $#" >&2
+          exit 1
+        }
+    deps:
+      - target: test-helpers:fingerprint-python-build
+        cacheStrategy: hash
+
+  wheel-pure:
+    deps:
+      - target: ~:fingerprint-package
+        cacheStrategy: hash
+      - target: test-helpers:fingerprint-python-build
+        cacheStrategy: hash
+    inputs:
+      - '@group(package)'
+      - '/ci/build-constraints.txt'
+      - '/.github/workflows/build-wheel.yml'
+    outputs:
+      - '.moon-out/wheel-pure'
+    type: build
+    options:
+      cache: true
+      priority: critical
+      runInCI: true

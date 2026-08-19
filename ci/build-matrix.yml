@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# The JSON-compatible body is consumed directly as a GitHub Actions matrix.
+{
+  "include": [
+    {"python-version": "3.10", "python-version-formatted": "310"},
+    {"python-version": "3.11", "python-version-formatted": "311"},
+    {"python-version": "3.12", "python-version-formatted": "312"},
+    {"python-version": "3.13", "python-version-formatted": "313"},
+    {"python-version": "3.14", "python-version-formatted": "314"},
+    {"python-version": "3.14t", "python-version-formatted": "314t"},
+    {"python-version": "3.15", "python-version-formatted": "315"},
+    {"python-version": "3.15t", "python-version-formatted": "315t"}
+  ]
+}

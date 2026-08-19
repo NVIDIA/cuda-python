@@ -26,6 +26,8 @@ import subprocess
 import sys
 import tempfile
 import zipfile
+from collections.abc import Mapping
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -38,8 +40,10 @@ def _wheel_from_directory(directory: Path) -> Path:
 
 def _clean_output_wheels(output_dir: Path) -> None:
     """Remove wheel files without recursively deleting the caller's directory."""
-    if output_dir.is_symlink():
-        raise ValueError(f"output path must not be a symlink: {output_dir}")
+    absolute_output = output_dir.absolute()
+    for component in (absolute_output, *absolute_output.parents):
+        if component.is_symlink():
+            raise ValueError(f"output path must not contain symlinks: {component}")
     if output_dir.exists() and not output_dir.is_dir():
         raise ValueError(f"output path is not a directory: {output_dir}")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -48,7 +52,22 @@ def _clean_output_wheels(output_dir: Path) -> None:
             wheel.unlink()
 
 
-def run_command(cmd: list[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
+def _wheel_source_date_epoch(wheels: list[Path]) -> str:
+    """Derive a stable wheel-pack timestamp from the input archives."""
+    timestamps: list[int] = []
+    for wheel in wheels:
+        with zipfile.ZipFile(wheel) as archive:
+            timestamps.extend(
+                int(datetime(*info.date_time, tzinfo=timezone.utc).timestamp()) for info in archive.infolist()
+            )
+    if not timestamps:
+        raise ValueError("input wheels contain no archive entries")
+    return str(max(timestamps))
+
+
+def run_command(
+    cmd: list[str], cwd: Path | None = None, env: Mapping[str, str] | None = None
+) -> subprocess.CompletedProcess:
     """Run a command with error handling."""
     print(f"Running: {' '.join(cmd)}")
     if cwd:
@@ -199,6 +218,8 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
         base_wheel_name = wheels[0].with_suffix(".whl").name
 
         print(f"Repacking merged wheel as: {base_wheel_name}", file=sys.stderr)
+        pack_environment = os.environ.copy()
+        pack_environment.setdefault("SOURCE_DATE_EPOCH", _wheel_source_date_epoch(wheels))
         run_command(
             [
                 sys.executable,
@@ -208,7 +229,8 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
                 str(base_wheel),
                 "--dest-dir",
                 str(output_dir),
-            ]
+            ],
+            env=pack_environment,
         )
 
         # Find the output wheel

@@ -36,7 +36,7 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
 
 - **Primary tests**: `pytest tests/`
 - **Cython tests**:
-  - build: `tests/cython/build_tests.sh` (or platform equivalent)
+  - build: `pixi run build-cython-tests`
   - run: `pytest tests/cython/`
 - **Examples**: validate affected examples in `examples/` when changing user
   workflows or public APIs.
