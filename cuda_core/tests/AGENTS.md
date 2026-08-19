@@ -66,34 +66,27 @@ that as a substitute for cleaning up explicitly: prefer context managers for
 resources whose lifetime fits a single scope, and keep pool lifetimes inside
 the test that creates them.
 
-## Shared test code: `conftest.py` vs `tests/helpers/`
+## Shared test support
 
-`conftest.py` is **not a regular module** — pytest discovers it automatically
-and injects its fixtures; nothing should import it by name with
-`from conftest import ...`. Keeping it off the import path is what allows
-pytest to build the correct fixture hierarchy from multiple `conftest.py` files
-at different directory levels. See the pytest docs:
-https://docs.pytest.org/en/stable/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
+See also: https://docs.pytest.org/en/stable/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
 
-Keep the two kinds of shared test code in their proper places:
+Follow these rules when adding or moving shared test code:
 
-- **Fixtures and hooks** go in `conftest.py`. Tests receive them through
-  pytest's dependency injection; they never need to import `conftest` directly.
-- **Plain helper functions and constants** go in `tests/helpers/`. Tests that
-  need them import from there explicitly, e.g.
+- Never import from a `conftest.py`.
+- Put suite-wide fixtures and pytest hooks in `tests/conftest.py`. Put fixtures
+  needed only by one test subtree in that subtree's nearest `conftest.py`.
+- Put a pytest hook in a nested `conftest.py` only if pytest supports that hook
+  there. If the hook receives suite-wide data, explicitly limit its effects to
+  the intended subtree.
+- Code used only to implement fixtures or hooks may remain in the same
+  `conftest.py`. Put functions and constants imported by test modules in
+  `tests/helpers/` instead.
+- Import helpers explicitly from the test root, for example:
   `from helpers.memory import create_managed_memory_resource_or_skip`.
-
-### Adding a per-directory `conftest.py`
-
-When you add a `conftest.py` under a subdirectory (e.g. `tests/memory/`),
-pytest automatically makes its fixtures available to tests in that directory
-and propagates fixtures from parent `conftest.py` files downward — no
-`__init__.py` is required for this to work.
-
-The suite uses pytest's default `prepend` import mode
-(https://docs.pytest.org/en/stable/explanation/goodpractices.html#choosing-an-import-mode).
-`pytest.ini` sets `pythonpath = tests` so that every test file, regardless of
-how deep it sits, can resolve `from helpers.xxx import ...` against the
-`tests/` root. Without that setting, test files in subdirectories without
-`__init__.py` would get their own subdirectory prepended to `sys.path` instead
-of `tests/`, and the `helpers` package would not be found.
+- Fixtures in a nested `conftest.py` are available to tests in its directory
+  and descendants; fixtures from applicable parent `conftest.py` files remain
+  available.
+- Do not add `__init__.py` solely because a test directory contains a
+  `conftest.py`.
+- In directories without `__init__.py`, keep test-module basenames unique
+  within this test suite.
