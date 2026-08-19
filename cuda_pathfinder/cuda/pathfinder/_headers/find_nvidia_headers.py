@@ -8,6 +8,7 @@ import glob
 import os
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
@@ -50,24 +51,24 @@ HeaderFindStep = Callable[["HeaderDescriptor"], LocatedHeaderDir | None]
 
 def _abs_norm(path: str | None) -> str | None:
     if path:
-        return os.path.normpath(os.path.abspath(path))
+        # os.path.abspath() is already normalizing (it is normpath(join(cwd, path)))
+        # and, unlike Path.resolve(), it does not follow symlinks. pathlib has no
+        # purely lexical equivalent, so os.path stays in this one spot.
+        return os.path.abspath(path)
     return None
 
 
-def _joined_isfile(dirpath: str, basename: str) -> bool:
-    return os.path.isfile(os.path.join(dirpath, basename))
-
-
-def _locate_in_anchor_layout(desc: HeaderDescriptor, anchor_point: str) -> str | None:
+def _locate_in_anchor_layout(desc: HeaderDescriptor, anchor_point: str | os.PathLike[str]) -> Path | None:
     """Search for a header under *anchor_point* using the descriptor's layout fields."""
     h_basename = desc.header_basename
+    cdir: Path  # help mypy
     for rel_dir in desc.anchor_include_rel_dirs:
-        idir = os.path.join(anchor_point, rel_dir)
+        idir = Path(anchor_point, rel_dir)
         for subdir in platform_include_subdirs(desc):
-            cdir = os.path.join(idir, subdir)
-            if _joined_isfile(cdir, h_basename):
+            cdir = idir / subdir
+            if (cdir / h_basename).is_file():
                 return cdir
-        if _joined_isfile(idir, h_basename):
+        if (idir / h_basename).is_file():
             return idir
     return None
 
@@ -82,7 +83,7 @@ def find_in_site_packages(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     for sub_dir in desc.site_packages_dirs:
         hdr_dir: str  # help mypy
         for hdr_dir in find_sub_dirs_all_sitepackages(tuple(sub_dir.split("/"))):
-            if _joined_isfile(hdr_dir, desc.header_basename):
+            if (Path(hdr_dir) / desc.header_basename).is_file():
                 return LocatedHeaderDir(abs_path=hdr_dir, found_via="site-packages")
     return None
 
@@ -95,9 +96,9 @@ def find_in_conda(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     anchor_point = resolve_conda_anchor(desc, conda_prefix)
     if anchor_point is None:
         return None
-    found_header_path = _locate_in_anchor_layout(desc, anchor_point)
-    if found_header_path:
-        return LocatedHeaderDir(abs_path=found_header_path, found_via="conda")
+    found_header_dir = _locate_in_anchor_layout(desc, anchor_point)
+    if found_header_dir is not None:
+        return LocatedHeaderDir(abs_path=str(found_header_dir), found_via="conda")
     return None
 
 
@@ -108,7 +109,7 @@ def find_in_cuda_path(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
         return None
     result = _locate_in_anchor_layout(desc, cuda_home)
     if result is not None:
-        return LocatedHeaderDir(abs_path=result, found_via="CUDA_PATH")
+        return LocatedHeaderDir(abs_path=str(result), found_via="CUDA_PATH")
     return None
 
 
@@ -130,7 +131,7 @@ def find_via_ctk_root_canary(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
         return None
     result = _locate_in_anchor_layout(desc, ctk_root)
     if result is not None:
-        return LocatedHeaderDir(abs_path=result, found_via="system-ctk-root")
+        return LocatedHeaderDir(abs_path=str(result), found_via="system-ctk-root")
     return None
 
 
@@ -138,7 +139,7 @@ def find_in_system_install_dirs(desc: HeaderDescriptor) -> LocatedHeaderDir | No
     """Search system install directories (glob patterns)."""
     for pattern in desc.system_install_dirs:
         for hdr_dir in sorted(glob.glob(pattern), reverse=True):
-            if _joined_isfile(hdr_dir, desc.header_basename):
+            if (Path(hdr_dir) / desc.header_basename).is_file():
                 return LocatedHeaderDir(abs_path=hdr_dir, found_via="supported_install_dir")
     return None
 
