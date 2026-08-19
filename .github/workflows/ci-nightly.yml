@@ -49,6 +49,7 @@ jobs:
           python -m pytest -v --noconftest ci/tools/tests
 
   find-wheels:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
@@ -309,7 +310,7 @@ jobs:
 
   checks:
     name: Nightly check status
-    if: always()
+    if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs:
       - test-ci-tools-for-release

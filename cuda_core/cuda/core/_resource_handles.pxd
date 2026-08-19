@@ -351,3 +351,11 @@ cdef cydriver.CUresult sm_resource_split(
     const cydriver.CUdevResource* input, cydriver.CUdevResource* remainder,
     unsigned int flags, void* groupParams) nogil
 cdef bint has_sm_resource_split() noexcept nogil
+
+# cuMemcpyWithAttributesAsync (13.2+ — calls through function pointer, safe on older bindings)
+# attr is void* here to avoid referencing CUmemcpyAttributes (absent from
+# cuda-bindings built against CUDA < 12.8). The C++ side casts it.
+cdef cydriver.CUresult memcpy_with_attributes_async(
+    cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
+    void* attr, cydriver.CUstream hStream) nogil
+cdef bint has_memcpy_with_attributes_async() noexcept nogil

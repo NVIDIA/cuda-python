@@ -20,16 +20,23 @@ from helpers.copy_batch import (
 )
 
 from cuda.core import Host, LegacyPinnedMemoryResource
-from cuda.core._memory._copy_enums import _attr_run_starts
+from cuda.core._memory._copy_enums import _attr_run_starts, _reject_unsupported_during_api_call
 from cuda.core._memory._copy_ops import (
     _normalize_copy_options,
 )
+from cuda.core._stream import PER_THREAD_DEFAULT_STREAM
+from cuda.core._utils.version import binding_version, driver_version
 from cuda.core.utils import (
     CopyOptions,
     MemcpyOverlapMode,
     MemcpySrcAccessOrder,
     copy_batch,
 )
+
+
+def _batch_native_available():
+    """True when copy_batch will actually use cuMemcpyBatchAsync."""
+    return binding_version() >= (13, 0, 0) and driver_version() >= (13, 0, 0)
 
 
 class TestOptionsEncoding:
@@ -95,6 +102,43 @@ class TestOptionsEncoding:
         assert _attr_run_starts([CopyOptions()]) == [0]
 
 
+class TestRejectUnsupportedDuringApiCall:
+    """``_reject_unsupported_during_api_call`` guards the one hazardous fallback.
+
+    Pure logic, no CUDA: this is what both ``Buffer.copy_to``/``copy_from``
+    and ``copy_batch`` call before falling back to a plain ``cuMemcpyAsync``
+    when the native attributes path is unavailable. STREAM and ANY never
+    promise access sooner than stream order, so cuMemcpyAsync satisfies them
+    silently; DURING_API_CALL promises all source reads complete before the
+    call returns, which cuMemcpyAsync cannot provide, so it must raise
+    instead of silently downgrading that guarantee.
+    """
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    def test_during_api_call_raises(self):
+        with pytest.raises(RuntimeError, match="src_access_order=DURING_API_CALL"):
+            _reject_unsupported_during_api_call(MemcpySrcAccessOrder.DURING_API_CALL, "some requirement")
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    def test_during_api_call_message_names_requirement_and_index(self):
+        with pytest.raises(RuntimeError, match="requires some requirement") as exc_info:
+            _reject_unsupported_during_api_call(MemcpySrcAccessOrder.DURING_API_CALL, "some requirement", index=5)
+        assert "at index 5" in str(exc_info.value)
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    def test_during_api_call_message_omits_index_when_not_given(self):
+        with pytest.raises(RuntimeError) as exc_info:
+            _reject_unsupported_during_api_call(MemcpySrcAccessOrder.DURING_API_CALL, "some requirement")
+        assert "at index" not in str(exc_info.value)
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    @pytest.mark.parametrize("order", [MemcpySrcAccessOrder.STREAM, MemcpySrcAccessOrder.ANY])
+    def test_stream_and_any_do_not_raise(self, order):
+        """Stream-ordered access satisfies both, so no fallback hazard exists."""
+        _reject_unsupported_during_api_call(order, "some requirement")
+        _reject_unsupported_during_api_call(order, "some requirement", index=0)
+
+
 class TestCopyBatchOptions:
     """Each ``CopyOptions`` field is accepted and does not corrupt the copy."""
 
@@ -103,11 +147,18 @@ class TestCopyBatchOptions:
         ("order", "marker"),
         [
             (MemcpySrcAccessOrder.STREAM, 31),
-            (MemcpySrcAccessOrder.DURING_API_CALL, 32),
             (MemcpySrcAccessOrder.ANY, 33),
         ],
     )
     def test_src_access_order(self, h2d_bufs, copy_stream, order, marker):
+        """STREAM and ANY are accepted and never corrupt the copy.
+
+        Both are satisfied by stream-ordered access at worst, so this holds
+        whether the native cuMemcpyBatchAsync path is used or the copy falls
+        back to a per-copy cuMemcpyAsync loop. DURING_API_CALL is different
+        (see test_during_api_call): its stronger guarantee cannot be
+        silently downgraded, so it is tested separately.
+        """
         srcs, dsts = h2d_bufs
         for i, src in enumerate(srcs):
             set_buffer(src, i + marker)
@@ -118,20 +169,50 @@ class TestCopyBatchOptions:
         for i, dst in enumerate(dsts):
             assert compare_buffer_to_constant(dst, i + marker)
 
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    def test_during_api_call(self, h2d_bufs, copy_stream):
+        """DURING_API_CALL is honored on the native cuMemcpyBatchAsync path.
+
+        On the per-copy cuMemcpyAsync fallback (pre-CUDA-13 build, or
+        driver/bindings older than 13.0) it must raise RuntimeError instead
+        of silently downgrading to stream-ordered access, which cannot honor
+        the guarantee that all source reads complete before the call
+        returns (see TestRejectUnsupportedDuringApiCall). CI runs both
+        generations (see ci/test-matrix.yml), so this test must handle both
+        outcomes rather than assuming the native path is available.
+        """
+        srcs, dsts = h2d_bufs
+        marker = 32
+        for i, src in enumerate(srcs):
+            set_buffer(src, i + marker)
+
+        opts = CopyOptions(src_access_order=MemcpySrcAccessOrder.DURING_API_CALL)
+        if _batch_native_available():
+            copy_batch(copy_stream, srcs, dsts, options=opts)
+            copy_stream.sync()
+            for i, dst in enumerate(dsts):
+                assert compare_buffer_to_constant(dst, i + marker)
+        else:
+            with pytest.raises(RuntimeError, match="DURING_API_CALL"):
+                copy_batch(copy_stream, srcs, dsts, options=opts)
+
     @pytest.mark.agent_authored(model="Claude Opus 5")
     def test_per_copy_options(self, h2d_bufs, copy_stream):
         srcs, dsts = h2d_bufs
         for i, src in enumerate(srcs):
             set_buffer(src, i + 40)
 
+        # DURING_API_CALL is deliberately excluded here: it raises RuntimeError
+        # rather than silently falling back on pre-CUDA-13 driver/bindings (see
+        # test_during_api_call), which CI also exercises (ci/test-matrix.yml).
+        # STREAM and ANY are enough to prove distinct per-copy options don't
+        # corrupt the data; the encoding itself is covered by TestOptionsEncoding.
         per_copy_options = [
             CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM),
             CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY),
-            CopyOptions(src_access_order=MemcpySrcAccessOrder.DURING_API_CALL),
+            CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY),
             CopyOptions(src_access_order=MemcpySrcAccessOrder.STREAM),
         ]
-        # The encoding itself is covered by TestOptionsEncoding; here the
-        # point is that distinct per-copy options do not corrupt the data.
         copy_batch(copy_stream, srcs, dsts, options=per_copy_options)
         copy_stream.sync()
 
@@ -240,6 +321,34 @@ class TestCopyBatchOptions:
         srcs, dsts = h2d_bufs
         copy_batch(copy_stream, srcs, dsts, options=CopyOptions())
         copy_stream.sync()
+
+    @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
+    def test_options_on_per_thread_default_stream(self, copy_batch_device):
+        """CopyOptions work on PER_THREAD_DEFAULT_STREAM like any explicit stream.
+
+        Unlike LEGACY_DEFAULT_STREAM (rejected outright, see
+        TestCopyBatchStreamSemantics in test_copy_batch.py),
+        PER_THREAD_DEFAULT_STREAM is a real stream to cuMemcpyBatchAsync.
+        """
+        pinned_mr = LegacyPinnedMemoryResource()
+        device_mr = copy_batch_device.memory_resource
+        src = pinned_mr.allocate(COPY_BATCH_SIZE)
+        dst = device_mr.allocate(COPY_BATCH_SIZE, stream=PER_THREAD_DEFAULT_STREAM)
+        set_buffer(src, 44)
+
+        copy_batch(
+            PER_THREAD_DEFAULT_STREAM,
+            [src],
+            [dst],
+            options=CopyOptions(src_access_order=MemcpySrcAccessOrder.ANY),
+        )
+        copy_batch_device.sync()
+
+        assert compare_buffer_to_constant(dst, 44)
+
+        src.close(PER_THREAD_DEFAULT_STREAM)
+        dst.close(PER_THREAD_DEFAULT_STREAM)
+        copy_batch_device.sync()
 
 
 class TestCopyOptionsValidation:
