@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=10ce637c"></script>
+    <script src="../_static/documentation_options.js?v=aec54a8e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev71';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev86';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -781,7 +781,10 @@ rejected. Build graph copies with
 (mirrors <code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code>). Does not accept a capturing stream
 (including a <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code>’s underlying stream); use
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.memcpy()</span></code> or per-buffer
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code> to build copies into a graph.</p></li>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code> to build copies into a graph. Does not accept
+<code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code>, which <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> rejects
+outright; <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code> is a real stream to the
+driver and is accepted.</p></li>
 <li><p><strong>srcs</strong> (Sequence[<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>]) – Source buffers. Must be a sequence, not a single Buffer.</p></li>
 <li><p><strong>dsts</strong> (Sequence[<code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code>]) – Destination buffers. Must match <code class="docutils literal notranslate"><span class="pre">len(srcs)</span></code>.</p></li>
 <li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a> | Sequence[<a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a>] | None) – Per-copy options. A single value applies to every copy; a
@@ -792,10 +795,13 @@ uses stream-ordered defaults.</p></li>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If lengths or sizes mismatch.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If a single Buffer is passed instead of a sequence, if a
-    default-stream token (<code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> /
-    <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code>) is passed, or if the stream is
-    currently in graph capture mode.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If a single Buffer is passed instead of a sequence, if
+    <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code> is passed, or if the stream is currently
+    in graph capture mode.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If any copy requests <code class="docutils literal notranslate"><span class="pre">src_access_order=DURING_API_CALL</span></code> and the
+    native <code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code> path is unavailable (see Notes): the
+    per-copy <code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code> fallback reads the source in stream
+    order only, which cannot honor that guarantee.</p></li>
 </ul>
 </dd>
 </dl>
@@ -813,8 +819,12 @@ produces undefined results. Detecting overlaps at runtime is
 impractical; callers are responsible for ensuring no aliasing exists.</p>
 <p>On pre-CUDA 13 installs the copies fall back to a Python-level loop
 over <code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code>, so the potential performance benefit of
-asynchronous batched copies is not realized. <a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a> are
-silently ignored on the fallback path.</p>
+asynchronous batched copies is not realized. <code class="docutils literal notranslate"><span class="pre">src_access_order</span></code> values
+of <code class="docutils literal notranslate"><span class="pre">STREAM</span></code> and <code class="docutils literal notranslate"><span class="pre">ANY</span></code> are silently ignored on the fallback path
+(stream-ordered access already satisfies both); <code class="docutils literal notranslate"><span class="pre">DURING_API_CALL</span></code>
+raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> instead, since silently downgrading it to
+stream-ordered access would let a caller reuse the source buffer before
+the real read happens.</p>
 </dd></dl>
 
 </section>

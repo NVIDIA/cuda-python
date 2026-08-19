@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=10ce637c"></script>
+    <script src="_static/documentation_options.js?v=aec54a8e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev71';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev86';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -784,12 +784,12 @@ including:</p>
 <section id="example-compiling-and-launching-a-cuda-kernel">
 <h2>Example: Compiling and Launching a CUDA kernel<a class="headerlink" href="#example-compiling-and-launching-a-cuda-kernel" title="Link to this heading">#</a></h2>
 <p>To get a taste for <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>, let’s walk through a simple example that compiles and launches a vector addition kernel.
-You can find the complete example in <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/8a95beca429666568b527e4ffa2807eb4bfc12df/cuda_core/examples/vector_add.py">vector_add.py</a>
+You can find the complete example in <a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/619e507f8798266aad780ddb8dac1f8701f0979e/cuda_core/examples/vector_add.py">vector_add.py</a>
 and browse the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a> for the rest of the shipped
 workflows.</p>
 <p>First, we define a string containing the CUDA C++ kernel. Note that this is a templated kernel:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># compute c = a + b</span>
-<span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="n">code</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">template&lt;typename T&gt;</span>
 <span class="s2">__global__ void vector_add(const T* A,</span>
 <span class="s2">                           const T* B,</span>
@@ -800,7 +800,7 @@ workflows.</p>
 <span class="s2">        C[i] = A[i] + B[i];</span>
 <span class="s2">    }</span>
 <span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">"""</span>
 </pre></div>
 </div>
 <p>Next, we create a <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> object
@@ -817,17 +817,17 @@ Don’t forget to use <a class="reference internal" href="generated/cuda.core.De
 <p>Next, we compile the CUDA C++ kernel from earlier using the <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> class.
 The result of the compilation is saved as a CUBIN.
 Note the use of the <code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> parameter to the <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code></a> method to specify which kernel template instantiations to compile:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">program_options</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">std</span><span class="o">=</span><span class="s2">&quot;c++17&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;sm_</span><span class="si">{</span><span class="n">dev</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">program_options</span><span class="p">)</span>
-<span class="n">mod</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">,</span> <span class="n">name_expressions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;vector_add&lt;float&gt;&quot;</span><span class="p">,))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">program_options</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">std</span><span class="o">=</span><span class="s2">"c++17"</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="sa">f</span><span class="s2">"sm_</span><span class="si">{</span><span class="n">dev</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">"c++"</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">program_options</span><span class="p">)</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">"cubin"</span><span class="p">,</span> <span class="n">name_expressions</span><span class="o">=</span><span class="p">(</span><span class="s2">"vector_add&lt;float&gt;"</span><span class="p">,))</span>
 </pre></div>
 </div>
 <p>Next, we retrieve the compiled kernel from the CUBIN and prepare the arguments and kernel configuration.
 We’re using <a class="reference external" href="https://cupy.dev/">CuPy</a> arrays as inputs for this example, but
 you can use PyTorch tensors too (see
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/8a95beca429666568b527e4ffa2807eb4bfc12df/cuda_core/examples/pytorch_example.py">pytorch_example.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/619e507f8798266aad780ddb8dac1f8701f0979e/cuda_core/examples/pytorch_example.py">pytorch_example.py</a>
 and the <a class="reference internal" href="examples.html"><span class="doc">examples page</span></a>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ker</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">get_kernel</span><span class="p">(</span><span class="s2">&quot;vector_add&lt;float&gt;&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ker</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">get_kernel</span><span class="p">(</span><span class="s2">"vector_add&lt;float&gt;"</span><span class="p">)</span>
 
 <span class="c1"># Prepare input/output arrays (using CuPy)</span>
 <span class="n">size</span> <span class="o">=</span> <span class="mi">50000</span>
