@@ -469,8 +469,11 @@ class ProgramOptions:
     numba_debug : bool, optional
         Emit the debug information layout expected by Numba. Recognized only by
         newer toolkits; compilers that do not support it reject the option with
-        an error.
-        Default: False
+        an error. Applies only to the NVVM and NVRTC compilation backends --
+        ``code_type="ptx"`` is processed by the linker, which cannot honor it,
+        so enabling this option there emits a :class:`UserWarning` and the
+        option is ignored.
+        Default: None
     """
 
     name: str | None = "default_program"
@@ -732,6 +735,21 @@ cpdef bint _can_load_generated_ptx() except? -1:
 
 cdef inline object _translate_program_options(object options):
     """Translate ProgramOptions to LinkerOptions for PTX compilation."""
+    # ``numba_debug`` is an NVVM/NVRTC compiler option that no linking backend can
+    # honor. It used to be forwarded into ``LinkerOptions`` and dropped without a
+    # word; warn instead, and do not forward -- forwarding would only trigger the
+    # deprecation warning on a field the user never touched. ``UserWarning``, not
+    # ``DeprecationWarning``: ``ProgramOptions.numba_debug`` is not deprecated, it
+    # is fully supported on NVVM and NVRTC and merely inapplicable here. The gate
+    # is truthiness, matching ``_prepare_nvvm_options_impl``: only an enabled
+    # ``numba_debug`` asks for something this path cannot deliver.
+    if options.numba_debug:
+        warn(
+            "numba_debug is ignored for code_type='ptx', which is processed by the linker; "
+            "it applies only to the NVVM and NVRTC compilation backends.",
+            UserWarning,
+            stacklevel=4,
+        )
     return LinkerOptions(
         name=options.name,
         arch=options.arch,
@@ -747,7 +765,6 @@ cdef inline object _translate_program_options(object options):
         split_compile=options.split_compile,
         ptxas_options=options.ptxas_options,
         no_cache=options.no_cache,
-        numba_debug = options.numba_debug
     )
 
 
