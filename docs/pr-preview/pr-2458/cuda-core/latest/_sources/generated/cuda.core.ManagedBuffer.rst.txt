@@ -23,6 +23,7 @@ cuda.core.ManagedBuffer
    .. automethod:: from_handle
    .. automethod:: from_ipc_descriptor
    .. automethod:: prefetch
+   .. automethod:: set_deallocation_stream
 
    
    

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ce4bbb91"></script>
+    <script src="../_static/documentation_options.js?v=46dfe94c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev89';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -630,6 +630,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.IfElseNode.html">cuda.core.graph.IfElseNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.WhileNode.html">cuda.core.graph.WhileNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.SwitchNode.html">cuda.core.graph.SwitchNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableGraphNode.html">cuda.core.graph.ExecutableGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableKernelNode.html">cuda.core.graph.ExecutableKernelNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableMemcpyNode.html">cuda.core.graph.ExecutableMemcpyNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableMemsetNode.html">cuda.core.graph.ExecutableMemsetNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableHostCallbackNode.html">cuda.core.graph.ExecutableHostCallbackNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableChildGraphNode.html">cuda.core.graph.ExecutableChildGraphNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableEventRecordNode.html">cuda.core.graph.ExecutableEventRecordNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.graph.ExecutableEventWaitNode.html">cuda.core.graph.ExecutableEventWaitNode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphicsResource.html">cuda.core.GraphicsResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptor.html">cuda.core.TensorMapDescriptor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.TensorMapDescriptorOptions.html">cuda.core.TensorMapDescriptorOptions</a></li>
@@ -643,10 +651,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.copy_batch.html">cuda.core.utils.copy_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.prefetch_batch.html">cuda.core.utils.prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.discard_batch.html">cuda.core.utils.discard_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.discard_prefetch_batch.html">cuda.core.utils.discard_prefetch_batch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.CopyOptions.html">cuda.core.utils.CopyOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.MemcpySrcAccessOrder.html">cuda.core.utils.MemcpySrcAccessOrder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.MemcpyOverlapMode.html">cuda.core.utils.MemcpyOverlapMode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api_nvml.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -786,7 +798,12 @@ resource’s respective property.)</p>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to allocate, in bytes.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword-only. The stream on which to perform the allocation
 asynchronously. Must be passed explicitly; pass
-<code class="docutils literal notranslate"><span class="pre">device.default_stream</span></code> to use the default stream.</p></li>
+<code class="docutils literal notranslate"><span class="pre">device.default_stream</span></code> to use the default stream. For subclasses
+that support stream-ordered deallocation, this stream also orders
+the buffer’s eventual deallocation, so if the buffer may be freed
+from a different host thread, prefer a stream other than the
+per-thread default stream, which refers to a different stream on
+each thread.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
