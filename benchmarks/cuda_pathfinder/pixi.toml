@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "win-64"]
+preview = ["pixi-build"]
+channel-priority = "disabled"
+
+[dependencies]
+python = "3.14.*"
+pyperf = "*"
+cuda-pathfinder = { path = "../../cuda_pathfinder" }
+
+[environments]
+source = { features = [] }
+
+[tasks.bench]
+cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py"]
+
+[tasks.bench-smoke-test]
+cmd = ["python", "$PIXI_PROJECT_ROOT/run_pyperf.py", "--debug-single-value"]
