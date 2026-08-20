@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.vgpu\_type\_get\_num\_display\_heads
+=======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: vgpu_type_get_num_display_heads
