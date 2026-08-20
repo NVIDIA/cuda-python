@@ -65,3 +65,28 @@ by `cuCtxSynchronize()` before popping the context. Tests should not rely on
 that as a substitute for cleaning up explicitly: prefer context managers for
 resources whose lifetime fits a single scope, and keep pool lifetimes inside
 the test that creates them.
+
+## Shared test support
+
+See also: https://docs.pytest.org/en/stable/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
+
+Follow these rules when adding or moving shared test code:
+
+- Never import from a `conftest.py`.
+- Put suite-wide fixtures and pytest hooks in `tests/conftest.py`. Put fixtures
+  needed only by one test subtree in that subtree's nearest `conftest.py`.
+- Put a pytest hook in a nested `conftest.py` only if pytest supports that hook
+  there. If the hook receives suite-wide data, explicitly limit its effects to
+  the intended subtree.
+- Code used only to implement fixtures or hooks may remain in the same
+  `conftest.py`. Put functions and constants imported by test modules in
+  `tests/helpers/` instead.
+- Import helpers explicitly from the test root, for example:
+  `from helpers.memory import create_managed_memory_resource_or_skip`.
+- Fixtures in a nested `conftest.py` are available to tests in its directory
+  and descendants; fixtures from applicable parent `conftest.py` files remain
+  available.
+- Do not add `__init__.py` solely because a test directory contains a
+  `conftest.py`.
+- In directories without `__init__.py`, keep test-module basenames unique
+  within this test suite.

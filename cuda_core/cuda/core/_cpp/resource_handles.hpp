@@ -67,6 +67,7 @@ void clear_last_error() noexcept;
 extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
 extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
 extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+extern decltype(&cuCtxSetCurrent) p_cuCtxSetCurrent;
 extern decltype(&cuGreenCtxCreate) p_cuGreenCtxCreate;
 extern decltype(&cuGreenCtxDestroy) p_cuGreenCtxDestroy;
 extern decltype(&cuCtxFromGreenCtx) p_cuCtxFromGreenCtx;
@@ -143,6 +144,15 @@ extern decltype(&cuDevSmResourceSplit) p_cuDevSmResourceSplit;
 // cuDevSmResourceSplit doesn't exist in CUDA < 13.1 headers, so use a
 // void* placeholder. The pointer is always null when built against 12.x.
 extern void* p_cuDevSmResourceSplit;
+#endif
+
+// cuMemcpyWithAttributesAsync (13.2+ — may be null on older drivers/bindings)
+#if CUDA_VERSION >= 13020
+extern decltype(&cuMemcpyWithAttributesAsync) p_cuMemcpyWithAttributesAsync;
+#else
+// cuMemcpyWithAttributesAsync doesn't exist in CUDA < 13.2 headers, so use a
+// void* placeholder. The pointer is always null when built against older CUDA.
+extern void* p_cuMemcpyWithAttributesAsync;
 #endif
 
 // ============================================================================
@@ -423,7 +433,10 @@ DevicePtrHandle deviceptr_import_ipc(
 StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
-void set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
+// Returns CUDA_ERROR_INVALID_CONTEXT when a default-stream token cannot be
+// bound because no CUDA context is current.
+CUresult set_deallocation_stream(
+    const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
 
 // ============================================================================
 // Library handle functions
@@ -1105,5 +1118,22 @@ CUresult sm_resource_split(CUdevResource* result, unsigned int nbGroups,
 
 // Returns true if the cuDevSmResourceSplit function pointer is available.
 bool has_sm_resource_split() noexcept;
+
+// ============================================================================
+// cuMemcpyWithAttributesAsync wrapper (13.2+)
+//
+// Calls through p_cuMemcpyWithAttributesAsync if available, otherwise returns
+// CUDA_ERROR_NOT_SUPPORTED. This avoids a direct Cython cimport of the
+// cydriver cdef function, which would fail at module init on cuda-bindings
+// < 13.2 (see https://github.com/NVIDIA/cuda-python/issues/2063).
+// ============================================================================
+
+// attr is void* so the Cython declaration doesn't reference CUmemcpyAttributes
+// (absent from cuda-bindings built against CUDA < 12.8). The C++ side casts it.
+CUresult memcpy_with_attributes_async(CUdeviceptr dst, CUdeviceptr src, size_t size,
+                                       void* attr, CUstream hStream);
+
+// Returns true if the cuMemcpyWithAttributesAsync function pointer is available.
+bool has_memcpy_with_attributes_async() noexcept;
 
 }  // namespace cuda_core

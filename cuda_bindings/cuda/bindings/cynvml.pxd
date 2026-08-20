@@ -4,9 +4,6 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.0. Do not modify it directly.
 
-# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6cd5217ee9e8afc03e6cce40801c8b2ad5f105d1fb2a1528910955e91e3cc570
-from libc.stdint cimport int64_t
 
 
 ###############################################################################
@@ -14,6 +11,8 @@ from libc.stdint cimport int64_t
 ###############################################################################
 
 # enums
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=924be66344cb7c8837c46976a9f394569b0e5d00df6b5026ad42ef6d1258984f
 ctypedef enum nvmlBridgeChipType_t "nvmlBridgeChipType_t":
     NVML_BRIDGE_CHIP_PLX "NVML_BRIDGE_CHIP_PLX" = 0
     NVML_BRIDGE_CHIP_BRO4 "NVML_BRIDGE_CHIP_BRO4" = 1

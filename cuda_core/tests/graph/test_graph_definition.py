@@ -9,8 +9,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 import pytest
-from conftest import xfail_on_graph_mempool_oom
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
@@ -631,6 +631,43 @@ def test_succ(nonempty_graph_spec):
     for name, node in spec.named_nodes.items():
         actual = {node_to_name[s] for s in node.succ}
         assert actual == spec.expected_succ[name], f"succ mismatch for node {name}"
+
+
+@pytest.mark.parametrize("adjacency_name", ("pred", "succ"))
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_large_adjacency_set_is_not_truncated(init_cuda, adjacency_name):
+    """Adjacency queries return and remove edges beyond the old 16-edge buffer."""
+    g = GraphDefinition()
+    hub = g.empty()
+    neighbors = [g.empty() for _ in range(20)]
+    adjacency = getattr(hub, adjacency_name)
+    adjacency.update(neighbors)
+
+    expected_edges = (
+        {(node, hub) for node in neighbors} if adjacency_name == "pred" else {(hub, node) for node in neighbors}
+    )
+    assert len(adjacency) == 20
+    assert set(adjacency) == set(neighbors)
+    assert neighbors[-1] in adjacency
+    assert g.edges() == expected_edges
+
+    adjacency.clear()
+    assert len(adjacency) == 0
+    assert g.edges() == set()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_large_graph_queries_are_not_truncated(init_cuda):
+    """Graph queries return nodes and edges beyond the old 128-item buffers."""
+    g = GraphDefinition()
+    nodes = [g.empty() for _ in range(130)]
+    nodes[0].succ.update(nodes[1:])
+    nodes[1].succ.add(nodes[2])
+
+    expected_edges = {(nodes[0], node) for node in nodes[1:]}
+    expected_edges.add((nodes[1], nodes[2]))
+    assert g.nodes() == set(nodes)
+    assert g.edges() == expected_edges
 
 
 def test_node_graph_property(nonempty_graph_spec):

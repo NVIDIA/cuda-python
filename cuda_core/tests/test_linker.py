@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import inspect
+import warnings
 
 import pytest
 
@@ -434,6 +435,41 @@ def test_prepare_driver_options_unsupported_raises(driver_binding, kwargs, match
     opts = LinkerOptions(**kwargs)
     with pytest.raises(ValueError, match=match):
         opts._prepare_driver_options()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("value", [True, False])
+def test_numba_debug_warns_and_is_ignored(value):
+    """No linking backend reads ``numba_debug``, so it is ignored -- but not
+    silently, which was the bug in #2640.
+
+    The gate is ``is not None``, not truthiness: it is the field itself that is
+    deprecated, so ``numba_debug=False`` earns the notice too even though it
+    asks for nothing.
+    """
+    with pytest.warns(DeprecationWarning, match="numba_debug is not supported by any linking backend"):
+        opts = LinkerOptions(arch="sm_80", debug=True, numba_debug=value)
+    # Warned, not rejected, and the rest of the option set is untouched.
+    assert opts._prepare_nvjitlink_options(as_bytes=True) == [b"-arch=sm_80", b"-g"]
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_numba_debug_unset_does_not_warn():
+    """The deprecation notice fires only when the field is explicitly set."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        options = LinkerOptions(arch="sm_80", debug=True)._prepare_nvjitlink_options(as_bytes=True)
+    assert options == [b"-arch=sm_80", b"-g"]
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_numba_debug_ignored_by_driver_backend_too(driver_binding):
+    """The cuLink driver API has no CUjit_option for numba_debug either, so it
+    is ignored there as well rather than reaching the driver."""
+    with pytest.warns(DeprecationWarning, match="numba_debug"):
+        opts = LinkerOptions(arch="sm_80", numba_debug=True)
+    formatted_options, option_keys = opts._prepare_driver_options()
+    assert not any("NUMBA" in str(key) for key in option_keys)
 
 
 def test_linker_empty_object_codes_raises():

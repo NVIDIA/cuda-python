@@ -28,6 +28,7 @@ on:
 
 jobs:
   ci-vars:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
@@ -51,6 +52,7 @@ jobs:
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
 
   should-skip:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
       skip: ${{ steps.get-should-skip.outputs.skip }}
@@ -93,6 +95,7 @@ jobs:
   # unconditionally run everything because there is no meaningful "changed
   # paths" baseline for those events.
   detect-changes:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
       bindings: ${{ steps.compose.outputs.bindings }}
@@ -486,7 +489,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
+      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-linux-aarch64:
@@ -511,7 +514,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
+      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
   # See test-linux-64 for why test jobs are split by platform.
   test-windows:
@@ -536,7 +539,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      skip-bindings-test: ${{ !fromJSON(needs.detect-changes.outputs.test_bindings) }}
+      test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
   doc:
     name: Docs
@@ -584,11 +587,11 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          SKIP=lychee pre-commit run --all-files
+          SKIP=lychee,check-pixi-cuda-version pre-commit run --all-files
 
   checks:
     name: Check job status
-    if: always()
+    if: ${{ always() && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     needs:
       - ci-vars

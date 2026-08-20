@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.4.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5351e00f0cca82ccf833f27a4729a538b46110830393e49526539505d0fbe1e9
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fadf16eb0438f5de3a2f7630ac890066716952b8f0c9656148ee0b1928a9f167
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -45,7 +45,7 @@ cdef extern from "<dlfcn.h>":
     void* _cyb_dlsym "dlsym"(void*, const char*) nogil
     const void * _cyb_RTLD_DEFAULT "RTLD_DEFAULT"
 
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport intptr_t
 
 import threading as _cyb_threading
 
@@ -186,40 +186,40 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvfatbin()
     cdef dict data = {}
     global __nvFatbinGetErrorString
-    data["__nvFatbinGetErrorString"] = <_cyb_intptr_t>__nvFatbinGetErrorString
+    data["__nvFatbinGetErrorString"] = <intptr_t>__nvFatbinGetErrorString
 
     global __nvFatbinCreate
-    data["__nvFatbinCreate"] = <_cyb_intptr_t>__nvFatbinCreate
+    data["__nvFatbinCreate"] = <intptr_t>__nvFatbinCreate
 
     global __nvFatbinDestroy
-    data["__nvFatbinDestroy"] = <_cyb_intptr_t>__nvFatbinDestroy
+    data["__nvFatbinDestroy"] = <intptr_t>__nvFatbinDestroy
 
     global __nvFatbinAddPTX
-    data["__nvFatbinAddPTX"] = <_cyb_intptr_t>__nvFatbinAddPTX
+    data["__nvFatbinAddPTX"] = <intptr_t>__nvFatbinAddPTX
 
     global __nvFatbinAddCubin
-    data["__nvFatbinAddCubin"] = <_cyb_intptr_t>__nvFatbinAddCubin
+    data["__nvFatbinAddCubin"] = <intptr_t>__nvFatbinAddCubin
 
     global __nvFatbinAddLTOIR
-    data["__nvFatbinAddLTOIR"] = <_cyb_intptr_t>__nvFatbinAddLTOIR
+    data["__nvFatbinAddLTOIR"] = <intptr_t>__nvFatbinAddLTOIR
 
     global __nvFatbinSize
-    data["__nvFatbinSize"] = <_cyb_intptr_t>__nvFatbinSize
+    data["__nvFatbinSize"] = <intptr_t>__nvFatbinSize
 
     global __nvFatbinGet
-    data["__nvFatbinGet"] = <_cyb_intptr_t>__nvFatbinGet
+    data["__nvFatbinGet"] = <intptr_t>__nvFatbinGet
 
     global __nvFatbinVersion
-    data["__nvFatbinVersion"] = <_cyb_intptr_t>__nvFatbinVersion
+    data["__nvFatbinVersion"] = <intptr_t>__nvFatbinVersion
 
     global __nvFatbinAddIndex
-    data["__nvFatbinAddIndex"] = <_cyb_intptr_t>__nvFatbinAddIndex
+    data["__nvFatbinAddIndex"] = <intptr_t>__nvFatbinAddIndex
 
     global __nvFatbinAddReloc
-    data["__nvFatbinAddReloc"] = <_cyb_intptr_t>__nvFatbinAddReloc
+    data["__nvFatbinAddReloc"] = <intptr_t>__nvFatbinAddReloc
 
     global __nvFatbinAddTileIR
-    data["__nvFatbinAddTileIR"] = <_cyb_intptr_t>__nvFatbinAddTileIR
+    data["__nvFatbinAddTileIR"] = <intptr_t>__nvFatbinAddTileIR
     _cyb_func_ptrs = data
     return data
 
