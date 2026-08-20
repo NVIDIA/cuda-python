@@ -22,8 +22,9 @@ BASH = shutil.which("bash")
 
 VISIBLE_TASKS = {
     "root": {"test", "docs", "ci-ignore", "ci-fallback"},
-    "pathfinder": {"test", "docs", "wheel", "sdist", "ci-test-linux", "ci-test-windows"},
+    "pathfinder": {"install", "test", "docs", "wheel", "sdist", "ci-test-linux", "ci-test-windows"},
     "bindings": {
+        "install",
         "test",
         "docs",
         "wheel",
@@ -34,6 +35,7 @@ VISIBLE_TASKS = {
         "ci-test-assets",
     },
     "core": {
+        "install",
         "test",
         "docs",
         "wheel",
@@ -167,7 +169,15 @@ class TestMoonCi:
         graph = task_graph("root:ci-fallback")
         assert all(task["options"]["cache"] is False for tasks in visible.values() for task in tasks.values())
         assert all(task["options"]["cache"] is False for task in graph.values())
-        for target in ALL_ROUTES | ASSET_ROUTES | {"root:ci-ignore", "root:ci-fallback", "root:test"}:
+        for target in (
+            ALL_ROUTES
+            | ASSET_ROUTES
+            | {
+                "root:ci-ignore",
+                "root:ci-fallback",
+                "root:test",
+            }
+        ):
             project, task = target.split(":")
             assert visible[project][task]["command"] == "noop"
 
@@ -323,14 +333,53 @@ class TestMoonCi:
         assert affected("cuda_python/README.md") == expected_readme
         assert affected(".git_archival.txt") == PRODUCERS | ALL_ROUTES | ASSET_ROUTES | {"core:api-check"}
 
-    def test_editable_tests_do_not_build_wheels(self) -> None:
-        for target in ("pathfinder:test", "bindings:test", "core:test"):
-            graph = task_graph(target)
-            assert set(graph) == {target}
+    def test_editable_installs_are_first_class_dependencies(self) -> None:
+        expected_install_deps = {
+            "pathfinder:install": set(),
+            "bindings:install": {"pathfinder:install"},
+            "core:install": {"bindings:install"},
+        }
+        graph = task_graph("core:install")
+        assert set(graph) == set(expected_install_deps)
+        for target, expected in expected_install_deps.items():
+            assert {dep["target"] for dep in graph[target].get("deps", [])} == expected
             script = graph[target]["script"]
-            assert "pip install -e" in script
-            assert "pip wheel" not in script
-            assert "cibuildwheel" not in script
+            assert "pip install -e ." in script
+            assert "../cuda_" not in script
+
+        expected_test_graphs = {
+            "pathfinder:test": {"pathfinder:install", "pathfinder:test"},
+            "bindings:test": {"pathfinder:install", "bindings:install", "bindings:test"},
+            "core:test": {
+                "pathfinder:install",
+                "bindings:install",
+                "core:install",
+                "core:test",
+            },
+        }
+        for target, expected in expected_test_graphs.items():
+            graph = task_graph(target)
+            assert set(graph) == expected
+            test_script = graph[target]["script"]
+            assert "pip install" not in test_script
+            assert all("wheel" not in graph_target for graph_target in graph)
+            assert all("cibuildwheel" not in task["script"] for task in graph.values())
+
+        root_test_graph = task_graph("root:test")
+        assert {dep["target"] for dep in root_test_graph["root:test"]["deps"]} == {
+            "pathfinder:test",
+            "bindings:test",
+            "core:test",
+        }
+        assert root_test_graph["root:test"]["options"]["runDepsInParallel"] is True
+
+        benchmark_graph = task_graph("bindings:benchmark")
+        assert set(benchmark_graph) == {
+            "pathfinder:install",
+            "bindings:install",
+            "bindings:benchmark",
+        }
+        assert "pip install" not in benchmark_graph["bindings:benchmark"]["script"]
 
     def test_local_core_wheel_builds_current_dependency_chain(self) -> None:
         assert set(task_graph("core:wheel")) == {

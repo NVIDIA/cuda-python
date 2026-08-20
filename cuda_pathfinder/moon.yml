@@ -40,8 +40,16 @@ fileGroups:
     - '/ci/tools/install_gpu_driver.ps1'
 
 tasks:
+  install:
+    script: 'python -m pip install -e . --group test'
+    inputs: ['@group(package)']
+    options:
+      cache: false
+      windowsShell: 'bash'
+
   test:
-    script: 'python -m pip install -e . --group test && python -m pytest tests/'
+    script: 'python -m pytest tests/'
+    deps: ['install']
     inputs: ['@group(package)', '@group(tests)', '@group(sharedTestInfra)']
     options:
       cache: false

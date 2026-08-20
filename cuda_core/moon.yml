@@ -50,11 +50,19 @@ fileGroups:
     - '/cuda_bindings/.git_archival.txt'
 
 tasks:
+  install:
+    script: 'python -m pip install -e . --group test'
+    deps: ['bindings:install']
+    inputs: ['@group(package)']
+    options:
+      cache: false
+      windowsShell: 'bash'
+
   test:
     script: |
-      python -m pip install -e ../cuda_pathfinder -e ../cuda_bindings -e . --group test
       bash tests/cython/build_tests.sh
       python -m pytest . --override-ini norecursedirs=""
+    deps: ['install']
     inputs: ['@group(package)', '@group(tests)', '/cuda_python_test_helpers/**/*']
     options:
       cache: false

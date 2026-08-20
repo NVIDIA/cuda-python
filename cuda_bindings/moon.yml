@@ -55,12 +55,20 @@ fileGroups:
     - '/ci/tools/install_gpu_driver.ps1'
 
 tasks:
+  install:
+    script: 'python -m pip install -e . pyperf --group test'
+    deps: ['pathfinder:install']
+    inputs: ['@group(package)']
+    options:
+      cache: false
+      windowsShell: 'bash'
+
   test:
     script: |
-      python -m pip install -e ../cuda_pathfinder -e . --group test
       bash tests/cython/build_tests.sh
       python -m pytest . --override-ini norecursedirs=examples
       python -m pytest ../benchmarks/cuda_bindings/tests/
+    deps: ['install']
     inputs: ['@group(package)', '@group(tests)', '@group(benchmarks)', '/cuda_python_test_helpers/**/*']
     options:
       cache: false
@@ -163,7 +171,8 @@ tasks:
     tags: ['ci-docs']
 
   benchmark:
-    script: 'python -m pip install -e ../cuda_pathfinder -e . --group test && python -m pip install pyperf && cd ../benchmarks/cuda_bindings && python run_pyperf.py'
+    script: 'cd ../benchmarks/cuda_bindings && python run_pyperf.py'
+    deps: ['install']
     inputs: ['@group(package)', '@group(benchmarks)']
     options:
       cache: false
