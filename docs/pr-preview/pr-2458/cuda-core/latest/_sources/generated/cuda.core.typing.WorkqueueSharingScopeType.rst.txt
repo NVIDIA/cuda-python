@@ -1,6 +1,0 @@
-﻿cuda.core.typing.WorkqueueSharingScopeType
-==========================================
-
-.. currentmodule:: cuda.core.typing
-
-.. autoenum:: WorkqueueSharingScopeType
