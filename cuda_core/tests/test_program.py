@@ -989,6 +989,38 @@ def test_find_libdevice_path_delegates_to_pathfinder(monkeypatch):
     assert captured == ["device"]
 
 
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_nvrtc_debug_materializes_source_to_temp_file(init_cuda, tmp_path):
+    """debug/lineinfo writes NVRTC source to a real path; off and explicit name= do not."""
+    import os
+
+    code = 'extern "C" __global__ void matmul() {}'
+
+    # case 1: (debug=False, lineinfo=False)
+    off = Program(code, "c++", ProgramOptions(arch="sm_80"))
+    assert off.compile("ptx").name == "default_program"
+    off.close()
+
+    # case 2: (debug=True or lineinfo=True) and explicit_name is provided
+    explicit_name = str(tmp_path / "user_kernel.cu")
+    named = Program(code, "c++", ProgramOptions(name=explicit_name, debug=True, arch="sm_80"))
+    assert named.compile("ptx").name == explicit_name
+    assert not os.path.isfile(explicit_name)
+    named.close()
+
+    # case 3: (debug=True or lineinfo=True) and explicit_name is not provided
+    default_named = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    implicit_name = default_named.compile("ptx").name
+    try:
+        assert os.path.isfile(implicit_name)
+        assert re.fullmatch(r"test_program_py__matmul_[a-z0-9_]{8}\.cu", os.path.basename(implicit_name))
+        with open(implicit_name, encoding="utf-8") as fh:
+            assert fh.read() == code
+    finally:
+        default_named.close()
+    assert not os.path.isfile(implicit_name)
+
+
 def test_nvrtc_compile_with_logs_capture(init_cuda):
     """Program.compile with logs= exercises the NVRTC program-log reading path."""
     import io
