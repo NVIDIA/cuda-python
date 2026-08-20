@@ -4,10 +4,10 @@
 
 [build-system]
 requires = [
-    "setuptools>=80",
-    "setuptools-scm[simple]>=8,!=10.1",
+    "scikit-build-core>=1.0",
+    "setuptools-scm>=8,!=10.1",
     "Cython>=3.2.5,<3.3",
-    "cuda-pathfinder>=1.5"
+    "cython-cmake>=0.2.2,<0.4",
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -17,8 +17,8 @@ backend-path = ["."]
 name = "cuda-core"
 dynamic = [
     "version",
-    "readme",
 ]
+readme = { file = "DESCRIPTION.rst", content-type = "text/x-rst" }
 requires-python = '>=3.10'
 description = "cuda.core: pythonic CUDA module"
 authors = [
@@ -60,6 +60,7 @@ cu13 = ["cuda-bindings[all]==13.*", "cuda-toolkit==13.*"]
 [dependency-groups]
 test = [
     "cython>=3.2.5,<3.3",
+    "scikit-build-core>=1.0",
     "setuptools>=80",
     "pytest==9.1.0",
     "pytest-benchmark==5.2.3",
@@ -102,19 +103,57 @@ documentation = "https://nvidia.github.io/cuda-python/cuda-core/"
 repository = "https://github.com/NVIDIA/cuda-python/tree/main/cuda_core"
 issues = "https://github.com/NVIDIA/cuda-python/issues/"
 
-[tool.setuptools.packages.find]
-include = ["cuda.core*"]
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.setuptools_scm"
 
-[tool.setuptools]
-include-package-data = false
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+build-dir = "build/{wheel_tag}"
+wheel.packages = ["cuda"]
+wheel.reproducible = true
+wheel.exclude = [
+    "**/*.cpp",
+    "**/*.def",
+    "**/*.md",
+    "**/*.pxi",
+    "**/*.pyx",
+]
+sdist.include = [
+    "cuda/core/_cpp/*.cpp",
+    "cuda/core/_version.py",
+]
+sdist.exclude = [
+    "**/*.cpp",
+    "**/*.dll",
+    "**/*.dylib",
+    "**/*.o",
+    "**/*.pyd",
+    "**/*.so",
+    "cython_debug/**",
+    "tests/cython/build/**",
+]
 
-[tool.setuptools.package-data]
-"*" = ["*.pxd", "*.pyi", "py.typed"]
-"cuda.core._include" = ["*.h", "*.hpp"]
-"cuda.core._cpp" = ["*.h", "*.hpp"]
+[tool.scikit-build.cmake.define]
+CUDA_PYTHON_COVERAGE = { env = "CUDA_PYTHON_COVERAGE", default = "0" }
 
-[tool.setuptools.dynamic]
-readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
+[tool.scikit-build.env]
+CMAKE_BUILD_PARALLEL_LEVEL = { env = "CUDA_PYTHON_PARALLEL_LEVEL" }
+
+[[tool.scikit-build.overrides]]
+if.env.CUDA_PYTHON_COVERAGE = true
+wheel.exclude = [
+    "**/*.def",
+    "**/*.md",
+]
+
+[[tool.scikit-build.overrides]]
+if.state = "editable"
+cmake.build-type = "Debug"
+
+[[tool.scikit-build.overrides]]
+if.state = "editable"
+if.platform-system = "^win32"
+cmake.build-type = "Release"
 
 [tool.setuptools_scm]
 root = ".."

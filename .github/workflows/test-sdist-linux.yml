@@ -160,7 +160,7 @@ jobs:
             printf 'cuda-bindings @ %s\n' "${bindings_uri}"
           } | tee wheel-constraints/cuda-core.txt
 
-      # cuda_core sdist delegates to setuptools (no CTK needed), but
+      # cuda_core sdist delegates directly to scikit-build-core (no CTK needed), but
       # wheel-from-sdist needs CTK and cuda-bindings (dynamic build dep via
       # get_requires_for_build_wheel in build_hooks.py).
       - name: Build cuda.core sdist and wheel-from-sdist

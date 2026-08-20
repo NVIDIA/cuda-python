@@ -15,6 +15,7 @@ cuda-version = ["12.*", "13.3.*"]
 [feature.test.dependencies]
 cuda-core = { path = "." }
 ml_dtypes = "*"
+scikit-build-core = ">=1"
 pytest = "*"
 pytest-benchmark = "*"
 pytest-randomly = "*"
@@ -212,9 +213,12 @@ CUDA_HOME = "$PREFIX/Library"
 [package.host-dependencies]
 python = "*"
 cuda-version = "*"
-setuptools = ">=80"
-setuptools-scm = ">=8"
+cmake = ">=3.30.3"
+ninja = "*"
+scikit-build-core = ">=1"
+setuptools-scm = ">=8,!=10.1"
 cython = ">=3.2.5,<3.3"
+cython-cmake = ">=0.2.2,<0.4"
 cuda-nvrtc-dev = "*"
 cuda-bindings = "*"
 dlpack = "*"

@@ -52,8 +52,8 @@ typedef struct AtenTensorOpaque* AtenTensorHandle;
 
 /*
  * IMPORTANT: Keep the AOTI_SHIM_API declaration list below in sync with
- * aoti_shim.def.  On Windows, setup.py generates that stub import library
- * during build_ext so MSVC can link _tensor_bridge without making PyTorch a
+ * aoti_shim.def.  On Windows, CMake generates that stub import library so
+ * MSVC can link _tensor_bridge without making PyTorch a
  * build-time dependency.  If you add, remove, or rename an imported AOTI
  * symbol here, update aoti_shim.def in the same change.
  *

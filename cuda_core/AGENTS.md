@@ -21,7 +21,8 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   - execution path: `_launcher.pyx`, `_launch_config.pyx`, `_stream.pyx`
 - **C++ helpers**: module-specific C++ implementations live under
   `cuda/core/_cpp/`.
-- **Build backend**: `build_hooks.py` handles Cython extension setup and build
+- **Build backend**: `CMakeLists.txt` defines the Cython extension build;
+  `build_hooks.py` wraps scikit-build-core to provide CUDA-major-specific build
   dependency wiring.
 
 ## Build and version coupling
