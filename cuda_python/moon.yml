@@ -1,0 +1,194 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/project.json
+
+dependsOn: ['bindings']
+
+fileGroups:
+  package:
+    - 'DESCRIPTION.rst'
+    - 'LICENSE'
+    - 'pyproject.toml'
+    - 'setup.py'
+    - 'README.md'
+    - '/README.md'
+    - '/cuda_pathfinder/.git_archival.txt'
+    - '/cuda_bindings/.git_archival.txt'
+    - '/.git_archival.txt'
+  tests:
+    - '/tests/integration/**/*'
+    - '!/tests/integration/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+  docs:
+    - 'docs/**/*'
+    - '!docs/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+  sharedTestInfra:
+    - '/cuda_python_test_helpers/**/*'
+    - '/benchmarks/**/*'
+    - '!/{benchmarks,cuda_python_test_helpers}/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+    - '!/benchmarks/**/*.{md,svg}'
+    - '/cuda_core/.git_archival.txt'
+    - '/ci/test-matrix.yml'
+    - '/ci/tools/download-wheels'
+    - '/ci/tools/run-tests'
+  linuxTestInfra:
+    - '/.github/workflows/test-wheel-linux.yml'
+    - '/ci/tools/guess_latest.sh'
+    - '/ci/tools/install_gpu_driver.sh'
+    - '/ci/tools/setup-sanitizer'
+  windowsTestInfra:
+    - '/.github/workflows/test-wheel-windows.yml'
+    - '/ci/tools/configure_driver_mode.ps1'
+    - '/ci/tools/install_gpu_driver.ps1'
+
+tasks:
+  test-installed:
+    script: |
+      set -euo pipefail
+      core_wheels=(../cuda_core/dist/*.whl)
+      if [[ ! -e "${core_wheels[0]}" ]]; then
+        core_wheels=(../cuda_core/dist/cu${CUDA_CORE_BUILD_MAJOR:?}/*.whl)
+      fi
+      python -m pip install --only-binary=:all: ../cuda_pathfinder/dist/*.whl ../cuda_bindings/dist/*.whl "${core_wheels[@]}" dist/*.whl
+    deps: ['wheel', 'core:wheel']
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '@group(sharedTestInfra)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+      - '/cuda_bindings/cuda/**/*'
+      - '/cuda_bindings/build_hooks.py'
+      - '/cuda_bindings/DESCRIPTION.rst'
+      - '/cuda_bindings/LICENSE'
+      - '/cuda_bindings/MANIFEST.in'
+      - '/cuda_bindings/pyproject.toml'
+      - '/cuda_bindings/setup.py'
+      - '/cuda_core/cuda/**/*'
+      - '/cuda_core/build_hooks.py'
+      - '/cuda_core/DESCRIPTION.rst'
+      - '/cuda_core/LICENSE'
+      - '/cuda_core/MANIFEST.in'
+      - '/cuda_core/NOTICE'
+      - '/cuda_core/pyproject.toml'
+      - '/cuda_core/setup.py'
+    options:
+      cache: false
+      internal: true
+      mutex: 'ci-python-gpu'
+      windowsShell: 'bash'
+
+  wheel:
+    script: 'mkdir -p dist && python -m pip wheel -v --no-deps --wheel-dir dist .'
+    deps: ['bindings:wheel']
+    inputs:
+      - '@group(package)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+      - '/cuda_bindings/cuda/**/*'
+      - '/cuda_bindings/build_hooks.py'
+      - '/cuda_bindings/DESCRIPTION.rst'
+      - '/cuda_bindings/LICENSE'
+      - '/cuda_bindings/MANIFEST.in'
+      - '/cuda_bindings/pyproject.toml'
+      - '/cuda_bindings/setup.py'
+      - '/cuda_python/README.md'
+      - '/README.md'
+    options:
+      cache: false
+      windowsShell: 'bash'
+    tags: ['ci-wheel-consumers']
+
+  sdist:
+    script: 'mkdir -p dist && python -m build --sdist --outdir dist . && python -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz'
+    inputs:
+      - '@group(package)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+      - '/cuda_bindings/cuda/**/*'
+      - '/cuda_bindings/build_hooks.py'
+      - '/cuda_bindings/DESCRIPTION.rst'
+      - '/cuda_bindings/LICENSE'
+      - '/cuda_bindings/MANIFEST.in'
+      - '/cuda_bindings/pyproject.toml'
+      - '/cuda_bindings/setup.py'
+      - '/cuda_python/README.md'
+      - '/README.md'
+    options:
+      cache: false
+      windowsShell: 'bash'
+    tags: ['ci-sdist-consumers']
+
+  docs:
+    script: 'rm -rf docs/build docs/source/generated && cd docs && ./build_docs.sh ${DOCS_BUILD_ARGS:-}'
+    inputs: ['@group(docs)']
+    options:
+      cache: false
+    tags: ['ci-docs']
+
+  ci-test-linux:
+    deps: ['test-installed']
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '@group(sharedTestInfra)'
+      - '@group(linuxTestInfra)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+      - '/cuda_bindings/cuda/**/*'
+      - '/cuda_bindings/build_hooks.py'
+      - '/cuda_bindings/DESCRIPTION.rst'
+      - '/cuda_bindings/LICENSE'
+      - '/cuda_bindings/MANIFEST.in'
+      - '/cuda_bindings/pyproject.toml'
+      - '/cuda_bindings/setup.py'
+      - '/cuda_core/cuda/**/*'
+      - '/cuda_core/build_hooks.py'
+      - '/cuda_core/DESCRIPTION.rst'
+      - '/cuda_core/LICENSE'
+      - '/cuda_core/MANIFEST.in'
+      - '/cuda_core/NOTICE'
+      - '/cuda_core/pyproject.toml'
+      - '/cuda_core/setup.py'
+    options:
+      cache: false
+    tags: ['ci-test-linux']
+
+  ci-test-windows:
+    deps: ['test-installed']
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '@group(sharedTestInfra)'
+      - '@group(windowsTestInfra)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+      - '/cuda_bindings/cuda/**/*'
+      - '/cuda_bindings/build_hooks.py'
+      - '/cuda_bindings/DESCRIPTION.rst'
+      - '/cuda_bindings/LICENSE'
+      - '/cuda_bindings/MANIFEST.in'
+      - '/cuda_bindings/pyproject.toml'
+      - '/cuda_bindings/setup.py'
+      - '/cuda_core/cuda/**/*'
+      - '/cuda_core/build_hooks.py'
+      - '/cuda_core/DESCRIPTION.rst'
+      - '/cuda_core/LICENSE'
+      - '/cuda_core/MANIFEST.in'
+      - '/cuda_core/NOTICE'
+      - '/cuda_core/pyproject.toml'
+      - '/cuda_core/setup.py'
+    options:
+      cache: false
+    tags: ['ci-test-windows']
