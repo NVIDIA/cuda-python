@@ -7,6 +7,8 @@ cmake_minimum_required(VERSION 3.30.3...4.4)
 
 project(cuda_core LANGUAGES CXX)
 
+get_property(_cuda_core_is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
 find_package(
   Python
   COMPONENTS Interpreter Development.Module
@@ -60,7 +62,7 @@ if(CUDA_PYTHON_COVERAGE)
   set(_coverage_directive -X linetrace=True)
 endif()
 
-if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(WIN32 AND NOT _cuda_core_is_multi_config AND CMAKE_BUILD_TYPE MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
   message(FATAL_ERROR "Debuggable builds are not supported on Windows")
 endif()
 
@@ -75,11 +77,21 @@ set(_cython_common_args
   ${_coverage_directive}
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT WIN32)
-  list(APPEND _cython_common_args --gdb)
+if(NOT WIN32)
+  list(APPEND _cython_common_args "$<$<CONFIG:Debug>:--gdb>")
 endif()
 
 add_library(cuda_core_extension_settings INTERFACE)
+if(WIN32 AND _cuda_core_is_multi_config)
+  # Multi-config generators select the build configuration after configure time.
+  add_custom_target(
+    cuda_core_validate_build_configuration
+    COMMAND "${CMAKE_COMMAND}" -E "$<IF:$<CONFIG:Debug>,false,true>"
+    COMMENT "$<IF:$<CONFIG:Debug>,Debuggable builds are not supported on Windows,Validating build configuration>"
+    VERBATIM
+  )
+  add_dependencies(cuda_core_extension_settings cuda_core_validate_build_configuration)
+endif()
 target_include_directories(
   cuda_core_extension_settings
   INTERFACE
@@ -141,7 +153,11 @@ function(cuda_core_add_cython_module module_path)
   set(module_name "cuda.core.${module_suffix}")
   set(target_name "cuda_core${target_suffix}")
   set(pyx_file "${_cuda_core_source_root}/${module_path}.pyx")
-  set(cython_cpp "${CMAKE_CURRENT_BINARY_DIR}/cython/${module_path}.cpp")
+  if(_cuda_core_is_multi_config)
+    set(cython_cpp "${CMAKE_CURRENT_BINARY_DIR}/cython/$<CONFIG>/${module_path}.cpp")
+  else()
+    set(cython_cpp "${CMAKE_CURRENT_BINARY_DIR}/cython/${module_path}.cpp")
+  endif()
   cmake_path(GET module_path FILENAME module_filename)
   cmake_path(GET module_path PARENT_PATH module_directory)
   set(install_directory "cuda/core/${module_directory}")
