@@ -17,6 +17,7 @@ env:
 
 jobs:
   coverage-vars:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
@@ -467,7 +468,7 @@ jobs:
     name: Combine Coverage and Deploy
     needs: [coverage-linux, coverage-windows]
     runs-on: ubuntu-latest
-    if: always()
+    if: ${{ always() && github.repository_owner == 'nvidia' }}
     permissions:
       id-token: write
       contents: write
