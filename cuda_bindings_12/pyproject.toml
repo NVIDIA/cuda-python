@@ -66,6 +66,18 @@ include = ["cuda*"]
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
+[tool.cibuildwheel]
+skip = "*-musllinux_*"
+build-verbosity = 1
+
+[tool.cibuildwheel.linux]
+archs = "native"
+
+[tool.cibuildwheel.windows]
+archs = "AMD64"
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+
 [tool.ruff]
 line-length = 120
 
