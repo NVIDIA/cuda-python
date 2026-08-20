@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_vgpu\_heterogeneous\_mode
+=========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_vgpu_heterogeneous_mode

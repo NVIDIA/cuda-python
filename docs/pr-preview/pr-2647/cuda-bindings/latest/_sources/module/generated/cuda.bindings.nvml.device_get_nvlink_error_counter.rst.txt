@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_nvlink\_error\_counter
+======================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_nvlink_error_counter
