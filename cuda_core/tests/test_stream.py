@@ -112,18 +112,24 @@ def test_per_thread_default_stream():
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-@pytest.mark.parametrize("stream", [LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM])
-def test_default_stream_close_is_noop(stream, init_cuda):
-    """Closing a process-wide default-stream token must not invalidate it."""
+@pytest.mark.parametrize(
+    ("handle", "singleton"),
+    [
+        (driver.CU_STREAM_LEGACY, LEGACY_DEFAULT_STREAM),
+        (driver.CU_STREAM_PER_THREAD, PER_THREAD_DEFAULT_STREAM),
+    ],
+)
+def test_borrowed_default_stream_token_can_close(handle, singleton, init_cuda):
     Device().set_current()
-    handle = int(stream.handle)
+    stream = Stream.from_handle(int(handle))
 
-    stream.close()
-    stream.close()
-
+    assert stream is not singleton
     assert not stream.is_closed
-    assert int(stream.handle) == handle
-    assert Stream_accept(stream) is stream
+
+    stream.close()
+
+    assert stream.is_closed
+    assert not singleton.is_closed
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

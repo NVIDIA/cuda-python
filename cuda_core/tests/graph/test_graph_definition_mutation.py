@@ -389,6 +389,22 @@ def test_add_wrong_type(init_cuda):
         node.succ.add(42)
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_discard_absent_invalid_value_is_noop(init_cuda):
+    graph = GraphDefinition()
+    owner = graph.empty()
+    neighbor = graph.empty()
+    destroyed = graph.empty()
+    owner.succ.add(neighbor)
+    destroyed.destroy()
+
+    foreign = GraphDefinition().empty()
+    for value in (destroyed, foreign):
+        owner.succ.discard(value)
+
+    assert owner.succ == {neighbor}
+
+
 def test_cross_graph_edge(init_cuda):
     """Adding an edge to a node from a different graph raises ValueError."""
     g1 = GraphDefinition()

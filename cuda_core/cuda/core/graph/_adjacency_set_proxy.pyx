@@ -59,11 +59,9 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
 
     def discard(self, value: GraphNode) -> None:
         (<_AdjacencySetCore>self._core).check_owner_mutable()
-        if not isinstance(value, GraphNode):
-            return
-        (<_AdjacencySetCore>self._core).check_mutation(value)
         if value not in self:
             return
+        (<_AdjacencySetCore>self._core).check_mutation(value)
         (<_AdjacencySetCore>self._core).remove_edge(<GraphNode>value)
 
     # --- override for bulk efficiency ---

@@ -127,9 +127,13 @@ cdef class _MemPool(MemoryResource):
         self._attributes = None
 
     def close(self) -> None:
-        """
-        Close the memory resource and destroy the associated memory pool
-        if owned.
+        """Release this object's reference to the memory pool.
+
+        New allocations and operations requiring this object's pool handle are
+        rejected afterward. For owned pools, release of the underlying pool's
+        resources is deferred until all outstanding allocations are freed and
+        pending free operations complete. :meth:`deallocate` remains available
+        after :meth:`close` so existing allocations can still be released.
         """
         _MP_close(self)
 

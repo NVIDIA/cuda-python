@@ -16,7 +16,6 @@ from cuda.core._resource_handles cimport (
     deviceptr_import_ipc,
     get_last_error,
     as_cu,
-    as_intptr,
     as_py,
 )
 
@@ -111,7 +110,7 @@ cdef class IPCBufferDescriptor:
 
 
 cdef inline int IPCAllocationHandle_check_open(IPCAllocationHandle self) except -1:
-    if not self._h_fd or as_intptr(self._h_fd) < 0:
+    if self._h_fd.get() == NULL:
         raise RuntimeError("IPCAllocationHandle has been closed")
     return 0
 
@@ -138,10 +137,10 @@ cdef class IPCAllocationHandle:
     @property
     def is_closed(self) -> bool:
         """Whether this allocation handle has been closed."""
-        return self._h_fd.get() == NULL or as_intptr(self._h_fd) < 0
+        return self._h_fd.get() == NULL
 
     def __int__(self) -> int:
-        if not self._h_fd or as_intptr(self._h_fd) < 0:
+        if self._h_fd.get() == NULL:
             raise ValueError(
                 f"Cannot convert IPCAllocationHandle to int: the handle (id={id(self)}) is closed."
             )

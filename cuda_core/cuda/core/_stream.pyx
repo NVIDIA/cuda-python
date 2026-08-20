@@ -200,9 +200,12 @@ cdef class Stream:
         Releases the stream handle. For owned streams, this destroys the
         underlying CUDA stream. For borrowed streams, this releases the
         reference and allows the Python owner to be GC'd.
+
+        .. warning::
+            Do not close :obj:`LEGACY_DEFAULT_STREAM` or
+            :obj:`PER_THREAD_DEFAULT_STREAM`. They are shared module-level
+            objects, so closing one invalidates it for the rest of the process.
         """
-        if self._h_stream and Stream_is_default_token(self):
-            return
         self._h_stream.reset()
 
     @property
