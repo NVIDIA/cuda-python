@@ -20,3 +20,5 @@ cdef class Program:
         bytes _code             # Source code as bytes: used for key derivation and NVRTC PCH retry
         str _code_type          # Normalised code_type ("c++", "ptx", "nvvm")
         str _pch_status         # PCH creation outcome after compile
+        bytes _source_name      # Name handed to NVRTC/NVVM as the DWARF source path
+        list _extra_options     # Compiler options Program adds on top of ProgramOptions

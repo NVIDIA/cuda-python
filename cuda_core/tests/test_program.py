@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import os
 import re
+import shutil
+import subprocess
 import warnings
 
 import pytest
@@ -365,6 +368,48 @@ def test_program_options_name_accepts_none(name):
     expected = "default_program" if name is None else name
     assert options.name == expected
     assert options._name == expected.encode()
+
+
+@pytest.mark.parametrize("name", [None, "my_program"])
+def test_program_string_source_debug(name, tmp_path):
+    # when a file doesn't exist on disk, nvrtc
+    # still ends up referencing a file it thinks is there
+    # in the dwarf table. As a WAR, we put the file there
+    # ourselves. This test verifies its there and that its
+    # contents match the passed in source code.
+    code = 'extern "C" __global__ void my_kernel() {}'
+    program = Program(code, "c++", options={"name": name, "debug": True, "lineinfo": True})
+    cubin = program.compile("cubin")
+
+    # read dwarf table
+    nvdisasm = shutil.which("nvdisasm")
+
+    cubin_path = tmp_path / "program.cubin"
+    cubin_path.write_bytes(bytes(cubin.code))
+
+    result = subprocess.run(  # noqa: S603
+        [nvdisasm, "-g", str(cubin_path)],
+        capture_output=True,
+        text=True,
+        errors="replace",
+    )
+    if result.returncode != 0:
+        pytest.fail(f"nvdisasm -g failed with exit code {result.returncode}\n{result.stderr}", pytrace=False)
+
+    # -g annotates each instruction with the line-table entry that covers it:
+    #     //## File "/abs/dir/name.cu", line 12
+    # The directory comes from the line table's directory table, so this is the
+    # fully resolved path cuda-gdb will try to open.
+    paths = set(re.findall(r'//## File "([^"]+)", line \d+', result.stdout))
+    assert len(paths) == 1, f"expected exactly one source file in the line table, got {sorted(paths)}"
+    dwarf_path = paths.pop()
+
+    # cuda-gdb opens this path literally, so the source has to actually be
+    # sitting there for source-level debugging to work.
+    assert os.path.isfile(dwarf_path)
+
+    with open(dwarf_path, encoding="utf-8") as source_file:
+        assert source_file.read().splitlines() == code.splitlines()
 
 
 # This is tested against the current device's arch
