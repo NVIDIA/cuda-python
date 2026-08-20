@@ -370,7 +370,7 @@ def test_program_options_name_accepts_none(name):
 # This is tested against the current device's arch
 def test_program_compile_valid_target_type(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
-    program = Program(code, "c++", options={"name": "42"})
+    program = Program(code, "c++", options=ProgramOptions(name="42"))
 
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
@@ -382,7 +382,7 @@ def test_program_compile_valid_target_type(init_cuda):
         ptx_kernel = ptx_object_code.get_kernel("my_kernel")
         assert isinstance(ptx_kernel, Kernel)
 
-    program = Program(ptx_object_code.code.decode(), "ptx", options={"name": "24"})
+    program = Program(ptx_object_code.code.decode(), "ptx", options=ProgramOptions(name="24"))
     cubin_object_code = program.compile("cubin")
     assert isinstance(cubin_object_code, ObjectCode)
     assert cubin_object_code.name == "24"
