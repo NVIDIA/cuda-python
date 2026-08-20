@@ -1,19 +1,15 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: "CI: Backport the merged PR"
+name: "CI: Backport a pull request"
 
 on:
-  pull_request_target:
-    types: [closed, labeled]
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       backport-branch:
         description: "Branch to backport commits onto"
-        required: false
+        required: true
         type: string
       pull-request:
         description: "PR to backport"
@@ -26,44 +22,14 @@ permissions:
   pull-requests: write  # so it can create pull requests
 
 jobs:
-  backport-from-pr:
-    name: Backport directly from a pull request
-    if: ${{ github.repository_owner == 'nvidia' &&
-            github.event.pull_request.merged == true &&
-            contains( github.event.pull_request.labels.*.name, 'to-be-backported')
-         }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-
-      - name: Load branch name
-        id: get-branch
-        run: |
-          OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
-          echo "OLD_BRANCH=${OLD_BRANCH}" >> $GITHUB_ENV
-
-      - name: Create backport pull requests
-        uses: korthout/backport-action@66065406958f46e82238fd59546f5a99e69e22aa  # v4.5.2
-        with:
-          copy_assignees: true
-          copy_labels_pattern: true
-          copy_requested_reviewers: true
-          target_branches: ${{ env.OLD_BRANCH }}
   backport-to-branch:
     name: Backport a specific PR against a specific branch
-    if: github.repository_owner == 'nvidia' && github.event_name == 'workflow_dispatch'
+    if: github.repository_owner == 'nvidia'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Load branch from environment name
-        if: inputs.backport-branch == null
-        run: |
-          BACKPORT_BRANCH=$(yq '.backport_branch' ci/versions.yml)
-          echo "BACKPORT_BRANCH=${BRANCH}" >> $GITHUB_ENV
-
       - name: Load branch name from input
-        if: inputs.backport-branch != null
         run: echo "BACKPORT_BRANCH=${{ inputs.backport-branch }}" >> $GITHUB_ENV
 
       - name: Create backport pull requests

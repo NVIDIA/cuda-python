@@ -9,6 +9,7 @@ guide for package-specific conventions and workflows.
 
 - `cuda_pathfinder/`: Pure-Python library discovery and loading utilities.
 - `cuda_bindings/`: Low-level CUDA host API bindings (Cython-heavy).
+- `cuda_bindings_12/`: CUDA 12.9-compatible low-level bindings release line.
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
 

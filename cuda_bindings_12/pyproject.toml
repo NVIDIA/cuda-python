@@ -1,0 +1,149 @@
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = [
+    "setuptools>=80.0.0",
+    "setuptools-scm[simple]>=8,!=10.1",
+    "cython>=3.2,<3.3",
+    "pyclibrary>=0.1.7"
+]
+build-backend = "build_hooks"
+backend-path = ["."]
+
+[project]
+name = "cuda-bindings"
+description = "Python bindings for CUDA"
+authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Environment :: GPU :: NVIDIA CUDA",
+]
+dynamic = [
+    "version",
+    "readme",
+]
+dependencies = [
+  "cuda-pathfinder ~=1.1",
+]
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+all = [
+    "nvidia-cuda-nvcc-cu12",
+    "nvidia-cuda-nvrtc-cu12",
+    "nvidia-nvjitlink-cu12>=12.3",
+    "nvidia-nvfatbin-cu12",
+    "nvidia-cufile-cu12; sys_platform == 'linux'",
+]
+
+test = [
+    "cython>=3.2,<3.3",
+    "setuptools>=77.0.0",
+    "numpy>=1.21.1",
+    "pytest>=6.2.4",
+    "pytest-benchmark>=3.4.1",
+    "pyglet>=2.1.9"
+]
+
+[project.urls]
+Repository = "https://github.com/NVIDIA/cuda-python"
+Documentation = "https://nvidia.github.io/cuda-python/"
+
+[tool.setuptools.packages.find]
+include = ["cuda*"]
+
+[tool.setuptools.dynamic]
+readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
+
+[tool.cibuildwheel]
+skip = "*-musllinux_*"
+build-verbosity = 1
+
+[tool.cibuildwheel.linux]
+archs = "native"
+
+[tool.cibuildwheel.windows]
+archs = "AMD64"
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+docstring-code-format = true
+
+exclude = ["cuda/bindings/_version.py"]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle Error
+    "E",
+    # Pyflakes
+    "F",
+    # pycodestyle Warning
+    "W",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+
+ignore = [
+    "UP007",
+    "E741", # ambiguous variable name such as I
+    "B007", # rename unsued loop variable to _name
+    "UP035", # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
+    "B905", # preserve the imported line's zip() behavior
+    "I001", # preserve generated and legacy import ordering
+]
+
+exclude = ["cuda/bindings/_version.py"]
+
+[tool.ruff.lint.per-file-ignores]
+"setup.py" = ["F401"]
+"__init__.py" = ["F401"]
+"site-packages/_cuda_bindings_redirector.py" = ["F401"]
+"cuda/bindings/_internal/_fast_enum.py" = ["E501"]
+
+"examples/**/*" = [
+  "E722",
+  "E501" # line too long
+  ]
+
+"tests/**/*" = [
+  "E722",
+  "UP022",
+  "E402", # module level import not at top of file
+  "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+
+"benchmarks/**/*" = [
+  "E722",
+  "UP022",
+  "E402", # module level import not at top of file
+  "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+
+[tool.setuptools_scm]
+root = ".."
+version_file = "cuda/bindings/_version.py"
+# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-bindings versioning
+tag_regex = "^(?P<version>v12\\.9\\.\\d+)"
+# Main only contains the original v12.9.0 tag. Ignore it so development builds
+# do not regress below the already-released 12.9.x wheels.
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v12.9.[1-9]*"]
+fallback_version = "12.9.8.dev0"

@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
+      CUDA_PREV_VER: ${{ steps.get-vars.outputs.cuda_prev_ver }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -28,6 +29,8 @@ jobs:
         run: |
           cuda_ver=$(yq '.cuda.build.version' ci/versions.yml)
           echo "cuda_ver=$cuda_ver" >> $GITHUB_OUTPUT
+          cuda_prev_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
+          echo "cuda_prev_ver=$cuda_prev_ver" >> $GITHUB_OUTPUT
 
   coverage-linux:
     name: Coverage (Linux)
@@ -43,6 +46,7 @@ jobs:
       HOST_PLATFORM: "linux-64"
       ARCH: "x86_64"
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
+      CUDA_PREV_VER: ${{ needs.coverage-vars.outputs.CUDA_PREV_VER }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
     container:
@@ -89,6 +93,7 @@ jobs:
       - name: Set environment variables
         env:
           BUILD_CUDA_VER: ${{ env.CUDA_VER }}
+          PREV_BUILD_CUDA_VER: ${{ env.CUDA_PREV_VER }}
           CUDA_VER: ${{ env.CUDA_VER }}
           HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
           LOCAL_CTK: ${{ env.LOCAL_CTK }}

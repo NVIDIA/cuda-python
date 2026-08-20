@@ -33,10 +33,18 @@ jobs:
     env:
       BUILD_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build }}
       BUILD_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_build }}
+      BUILD_BINDINGS_CU12: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.variants.cu12.needs_build }}
+      BUILD_BINDINGS_CU13: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.variants.cu13.needs_build }}
       BUILD_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_build }}
       BUILD_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_build }}
+      BUILD_PYTHON_CU12: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.variants.cu12.needs_build }}
+      BUILD_PYTHON_CU13: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.variants.cu13.needs_build }}
       TEST_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_test }}
+      TEST_BINDINGS_CU12: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.variants.cu12.needs_test }}
+      TEST_BINDINGS_CU13: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.variants.cu13.needs_test }}
       TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test }}
+      TEST_CORE_CU12: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.variants.cu12.needs_test }}
+      TEST_CORE_CU13: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.variants.cu13.needs_test }}
       BASELINE_RUN_ID: ${{ inputs.workplan != '' && fromJSON(inputs.workplan).baseline.run_id || '' }}
       BASELINE_SHA: ${{ inputs.workplan != '' && fromJSON(inputs.workplan).baseline.sha || '' }}
     strategy:
@@ -129,6 +137,7 @@ jobs:
       - name: Set environment variables
         env:
           CUDA_VER: ${{ inputs.cuda-version }}
+          PREV_CUDA_VER: ${{ inputs.prev-cuda-version }}
           HOST_PLATFORM: ${{ inputs.host-platform }}
           PY_VER: ${{ matrix.python-version }}
           SHA: ${{ github.sha }}
@@ -151,7 +160,7 @@ jobs:
           popd
 
       - name: Download reusable cuda.pathfinder wheel
-        if: ${{ env.BUILD_PATHFINDER != 'true' }}
+        if: ${{ env.BUILD_PATHFINDER != 'true' && env.BASELINE_RUN_ID != '' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
@@ -160,6 +169,7 @@ jobs:
           run-id: ${{ env.BASELINE_RUN_ID }}
 
       - name: List the cuda.pathfinder artifacts directory
+        if: ${{ env.BUILD_PATHFINDER == 'true' || env.BASELINE_RUN_ID != '' }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -180,18 +190,23 @@ jobs:
         if: ${{ env.BUILD_BINDINGS == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
-          test "${#pathfinder_wheels[@]}" -eq 1
-          test -f "${pathfinder_wheels[0]}"
           mkdir -p wheel-constraints
-          if [[ "${{ inputs.host-platform }}" == win* ]]; then
-            pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+          if [[ "${#pathfinder_wheels[@]}" -eq 1 && -f "${pathfinder_wheels[0]}" ]]; then
+            if [[ "${{ inputs.host-platform }}" == win* ]]; then
+              pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+            else
+              pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
+            fi
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" > wheel-constraints/cuda-bindings.txt
           else
-            pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
+            # Release-tag workplans intentionally build only one bindings line
+            # and have no baseline run; let pip resolve released pathfinder.
+            : > wheel-constraints/cuda-bindings.txt
           fi
-          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
+          cat wheel-constraints/cuda-bindings.txt
 
       - name: Upload cuda.pathfinder build artifacts
-        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        if: ${{ (env.BUILD_PATHFINDER == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: cuda-pathfinder-wheel
@@ -199,19 +214,19 @@ jobs:
           if-no-files-found: error
 
       - name: Set up mini CTK
-        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
+        if: ${{ env.BUILD_BINDINGS_CU13 == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS_CU13 == 'true' || env.TEST_CORE_CU13 == 'true' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
 
-      - name: Build cuda.bindings wheel
-        if: ${{ env.BUILD_BINDINGS == 'true' }}
+      - name: Build CUDA 13 cuda.bindings wheel
+        if: ${{ env.BUILD_BINDINGS_CU13 == 'true' }}
         uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c  # v4.1.1
         with:
           package-dir: ./cuda_bindings/
-          output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          output-dir: ${{ env.CUDA_BINDINGS_CU13_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
@@ -252,43 +267,44 @@ jobs:
           CIBW_TEST_COMMAND: >
             echo "ok!"
 
-      - name: Report sccache stats (cuda.bindings)
-        if: ${{ env.BUILD_BINDINGS == 'true' && inputs.host-platform != 'win-64' }}
+      - name: Report sccache stats (CUDA 13 cuda.bindings)
+        if: ${{ env.BUILD_BINDINGS_CU13 == 'true' && inputs.host-platform != 'win-64' }}
         uses: ./.github/actions/sccache-summary
         with:
           json-file: sccache_bindings.json
-          label: "cuda.bindings"
-          build-step: "Build cuda.bindings wheel"
+          label: "CUDA 13 cuda.bindings"
+          build-step: "Build CUDA 13 cuda.bindings wheel"
 
-      - name: Download reusable cuda.bindings wheel
-        if: ${{ env.BUILD_BINDINGS != 'true' }}
+      - name: Download reusable CUDA 13 cuda.bindings wheel
+        if: ${{ env.BUILD_BINDINGS_CU13 != 'true' && env.BASELINE_RUN_ID != '' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          name: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}-${{ env.BASELINE_SHA }}
-          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          name: ${{ env.CUDA_BINDINGS_CU13_ARTIFACT_BASENAME }}-${{ env.BASELINE_SHA }}
+          path: ${{ env.CUDA_BINDINGS_CU13_ARTIFACTS_DIR }}
           github-token: ${{ github.token }}
           run-id: ${{ env.BASELINE_RUN_ID }}
 
-      - name: List the cuda.bindings artifacts directory
+      - name: List the CUDA 13 cuda.bindings artifacts directory
+        if: ${{ env.BUILD_BINDINGS_CU13 == 'true' || env.BASELINE_RUN_ID != '' }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
             export CHOWN=chown
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
-          ls -lahR ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_CU13_ARTIFACTS_DIR }}
+          ls -lahR ${{ env.CUDA_BINDINGS_CU13_ARTIFACTS_DIR }}
 
-      - name: Check cuda.bindings wheel
-        if: ${{ env.BUILD_BINDINGS == 'true' }}
+      - name: Check CUDA 13 cuda.bindings wheel
+        if: ${{ env.BUILD_BINDINGS_CU13 == 'true' }}
         run: |
-          twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          twine check --strict ${{ env.CUDA_BINDINGS_CU13_ARTIFACTS_DIR }}/*.whl
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
-          bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-"${BUILD_CUDA_MAJOR}".*.whl)
+          bindings_wheels=("${CUDA_BINDINGS_CU13_ARTIFACTS_DIR}"/cuda_bindings-"${BUILD_CUDA_MAJOR}".*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${pathfinder_wheels[0]}"
@@ -306,11 +322,12 @@ jobs:
             printf 'cuda-bindings @ %s\n' "${bindings_uri}"
           } | tee wheel-constraints/cuda-core.txt
 
-      - name: Upload cuda.bindings build artifacts
+      - name: Upload CUDA 13 cuda.bindings build artifacts
+        if: ${{ env.BUILD_BINDINGS_CU13 == 'true' || env.BASELINE_RUN_ID != '' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          name: ${{ env.CUDA_BINDINGS_CU13_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_CU13_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
 
       - name: Build cuda.core wheel
@@ -393,7 +410,7 @@ jobs:
           ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Download reusable cuda.core wheel
-        if: ${{ env.BUILD_CORE != 'true' }}
+        if: ${{ env.BUILD_CORE != 'true' && env.BASELINE_RUN_ID != '' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}-${{ env.BASELINE_SHA }}
@@ -401,42 +418,72 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ env.BASELINE_RUN_ID }}
 
-      # We only need/want a single pure python wheel, pick linux-64 index 0.
-      - name: Build and check cuda-python wheel
-        if: ${{ env.BUILD_PYTHON == 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+      # We only need/want one copy of each pure Python wheel, so use linux-64 index 0.
+      - name: Build and check CUDA 12 cuda-python wheel
+        if: ${{ env.BUILD_PYTHON_CU12 == 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
+          mkdir -p cuda_python/dist/cu12
           pushd cuda_python
-          pip wheel -v --no-deps .
-          twine check --strict *.whl
+          if [[ -n "${CUDA12_SCM_VERSION}" ]]; then
+            export SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_PYTHON="${CUDA12_SCM_VERSION}"
+          fi
+          CUDA_PYTHON_BUILD_MAJOR=12 pip wheel -v --no-deps --wheel-dir dist/cu12 .
+          twine check --strict dist/cu12/*.whl
           popd
 
-      - name: Download reusable cuda-python wheel
-        if: ${{ env.BUILD_PYTHON != 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+      - name: Download reusable CUDA 12 cuda-python wheel
+        if: ${{ env.BUILD_PYTHON_CU12 != 'true' && env.BASELINE_RUN_ID != '' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          name: cuda-python-wheel
-          path: cuda_python
+          name: ${{ env.CUDA_PYTHON_CU12_ARTIFACT_NAME }}
+          path: cuda_python/dist/cu12
           github-token: ${{ github.token }}
           run-id: ${{ env.BASELINE_RUN_ID }}
 
-      - name: List the cuda-python artifacts directory
-        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+      - name: Upload CUDA 12 cuda-python build artifacts
+        if: ${{ (env.BUILD_PYTHON_CU12 == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_PYTHON_CU12_ARTIFACT_NAME }}
+          path: cuda_python/dist/cu12/*.whl
+          if-no-files-found: error
+
+      - name: Build and check CUDA 13 cuda-python wheel
+        if: ${{ env.BUILD_PYTHON_CU13 == 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        run: |
+          mkdir -p cuda_python/dist/cu13
+          pushd cuda_python
+          CUDA_PYTHON_BUILD_MAJOR=13 pip wheel -v --no-deps --wheel-dir dist/cu13 .
+          twine check --strict dist/cu13/*.whl
+          popd
+
+      - name: Download reusable CUDA 13 cuda-python wheel
+        if: ${{ env.BUILD_PYTHON_CU13 != 'true' && env.BASELINE_RUN_ID != '' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ env.CUDA_PYTHON_CU13_ARTIFACT_NAME }}
+          path: cuda_python/dist/cu13
+          github-token: ${{ github.token }}
+          run-id: ${{ env.BASELINE_RUN_ID }}
+
+      - name: Upload CUDA 13 cuda-python build artifacts
+        if: ${{ (env.BUILD_PYTHON_CU13 == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_PYTHON_CU13_ARTIFACT_NAME }}
+          path: cuda_python/dist/cu13/*.whl
+          if-no-files-found: error
+
+      - name: List the cuda-python artifacts directories
+        if: ${{ (env.BUILD_PYTHON == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
             export CHOWN=chown
           else
             export CHOWN="sudo chown"
           fi
-          $CHOWN -R $(whoami) cuda_python/*.whl
-          ls -lahR cuda_python
-
-      - name: Upload cuda-python build artifacts
-        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: cuda-python-wheel
-          path: cuda_python/*.whl
-          if-no-files-found: error
+          $CHOWN -R $(whoami) cuda_python/dist
+          ls -lahR cuda_python/dist
 
       - name: Set up Python
         id: setup-python2
@@ -471,7 +518,13 @@ jobs:
       - name: Install cuda.pathfinder (required for next step)
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
         run: |
-          pip install cuda_pathfinder/*.whl
+          pathfinder_wheels=(cuda_pathfinder/*.whl)
+          if [[ "${#pathfinder_wheels[@]}" -eq 1 && -f "${pathfinder_wheels[0]}" ]]; then
+            pip install "${pathfinder_wheels[0]}"
+          else
+            # Line-specific release tags intentionally omit unrelated local artifacts.
+            pip install cuda-pathfinder
+          fi
 
       - name: Hide GNU link.exe so Meson finds MSVC link.exe
         if: ${{ startsWith(inputs.host-platform, 'win') && (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') }}
@@ -480,26 +533,26 @@ jobs:
             mv "/c/Program Files/Git/usr/bin/link.exe" "/c/Program Files/Git/usr/bin/link.exe.bak"
           fi
 
-      - name: Build cuda.bindings Cython tests
-        if: ${{ env.TEST_BINDINGS == 'true' }}
+      - name: Build CUDA 13 cuda.bindings Cython tests
+        if: ${{ env.TEST_BINDINGS_CU13 == 'true' }}
         run: |
-          pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
-          pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
+          pip install ${{ env.CUDA_BINDINGS_CU13_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
+          pushd ${{ env.CUDA_BINDINGS_CU13_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
 
-      - name: Upload cuda.bindings Cython tests
-        if: ${{ env.TEST_BINDINGS == 'true' }}
+      - name: Upload CUDA 13 cuda.bindings Cython tests
+        if: ${{ env.TEST_BINDINGS_CU13 == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
-          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
+          name: ${{ env.CUDA_BINDINGS_CU13_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_BINDINGS_CU13_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
 
-      - name: Build cuda.core Cython tests
-        if: ${{ env.TEST_CORE == 'true' }}
+      - name: Build CUDA 13 cuda.core Cython tests
+        if: ${{ env.TEST_CORE_CU13 == 'true' }}
         run: |
-          pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          pip install ${{ env.CUDA_BINDINGS_CU13_ARTIFACTS_DIR }}/*.whl
           if ${{ env.BUILD_CORE == 'true' }}; then
             core_wheel=$(find "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_CUDA_MAJOR}" -maxdepth 1 -type f -name '*.whl' -print -quit)
           else
@@ -514,17 +567,17 @@ jobs:
           bash build_tests.sh
           popd
 
-      - name: Upload cuda.core Cython tests
-        if: ${{ env.TEST_CORE == 'true' }}
+      - name: Upload CUDA 13 cuda.core Cython tests
+        if: ${{ env.TEST_CORE_CU13 == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-cu13-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
 
-      # Note: This overwrites CUDA_PATH etc
-      - name: Set up mini CTK
-        if: ${{ env.BUILD_CORE == 'true' || env.TEST_CORE == 'true' }}
+      # Note: This overwrites CUDA_PATH etc.
+      - name: Set up CUDA 12 mini CTK
+        if: ${{ env.BUILD_BINDINGS_CU12 == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS_CU12 == 'true' || env.TEST_CORE_CU12 == 'true' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
@@ -549,47 +602,111 @@ jobs:
             ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.lib
           if-no-files-found: error
 
-      - name: Download cuda.bindings build artifacts from the prior branch
-        if: ${{ env.BUILD_CORE == 'true' }}
+      - name: Build CUDA 12 cuda.bindings wheel
+        if: ${{ env.BUILD_BINDINGS_CU12 == 'true' }}
+        uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c  # v4.1.1
+        with:
+          package-dir: ./cuda_bindings_12/
+          output-dir: ${{ env.CUDA_BINDINGS_CU12_ARTIFACTS_DIR }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_BEFORE_BUILD_LINUX: 'python -m pip install --upgrade "pip>=25.3"'
+          CIBW_BEFORE_BUILD_WINDOWS: 'python -m pip install --upgrade "pip>=25.3" delvewheel'
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: 'delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}'
+          CIBW_ENABLE: cpython-prerelease
+          CIBW_ENVIRONMENT_LINUX: >
+            ${{ env.CUDA12_SCM_ENV }}
+            CUDA_PATH=/host/${{ env.CUDA_PATH }}
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            PIP_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
+            PIP_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
+            CC="/host/${{ env.SCCACHE_PATH }} cc"
+            CXX="/host/${{ env.SCCACHE_PATH }} c++"
+            SCCACHE_GHA_ENABLED=true
+            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
+            ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
+            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
+            ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
+            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
+          CIBW_ENVIRONMENT_WINDOWS: >
+            ${{ env.CUDA12_SCM_ENV }}
+            CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            PIP_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
+            PIP_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
+          CIBW_BEFORE_TEST_LINUX: >
+            "/host/${{ env.SCCACHE_PATH }}" --show-adv-stats &&
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_bindings_cu12.json
+          CIBW_TEST_COMMAND: >
+            echo "ok!"
+
+      - name: Report sccache stats (CUDA 12 cuda.bindings)
+        if: ${{ env.BUILD_BINDINGS_CU12 == 'true' && inputs.host-platform != 'win-64' }}
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache_bindings_cu12.json
+          label: "CUDA 12 cuda.bindings"
+          build-step: "Build CUDA 12 cuda.bindings wheel"
+
+      - name: Download reusable CUDA 12 cuda.bindings wheel
+        if: ${{ env.BUILD_BINDINGS_CU12 != 'true' && env.BASELINE_RUN_ID != '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ env.CUDA_BINDINGS_CU12_ARTIFACT_BASENAME }}-${{ env.BASELINE_SHA }}
+          path: ${{ env.CUDA_BINDINGS_CU12_ARTIFACTS_DIR }}
+          github-token: ${{ github.token }}
+          run-id: ${{ env.BASELINE_RUN_ID }}
+
+      - name: List the CUDA 12 cuda.bindings artifacts directory
+        if: ${{ env.BUILD_BINDINGS_CU12 == 'true' || env.BASELINE_RUN_ID != '' }}
         run: |
-          if ! (command -v gh 2>&1 >/dev/null); then
-            # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-            # gh is needed for artifact fetching.
-            mkdir -p -m 755 /etc/apt/keyrings \
-                  && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-                  && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-            && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-            && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-            && apt update \
-            && apt install gh -y
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
           fi
+          $CHOWN -R $(whoami) ${{ env.CUDA_BINDINGS_CU12_ARTIFACTS_DIR }}
+          ls -lahR ${{ env.CUDA_BINDINGS_CU12_ARTIFACTS_DIR }}
 
-          OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
-          OLD_ARTIFACT_PATTERN="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}-*[0-9a-f]"
-          LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id \
-            --branch "${OLD_BRANCH}" \
-            --artifact "${OLD_ARTIFACT_PATTERN}" \
-            NVIDIA/cuda-python "CI")
-          PREV_BINDINGS_DIR="cuda_bindings/dist-prev"
+      - name: Check CUDA 12 cuda.bindings wheel
+        if: ${{ env.BUILD_BINDINGS_CU12 == 'true' }}
+        run: twine check --strict ${{ env.CUDA_BINDINGS_CU12_ARTIFACTS_DIR }}/*.whl
 
-          gh run download \
-            "${LATEST_PRIOR_RUN_ID}" \
-            -p "${OLD_ARTIFACT_PATTERN}" \
-            -R NVIDIA/cuda-python
-          OLD_ARTIFACT_DIR=$(compgen -G "${OLD_ARTIFACT_PATTERN}")
-          test -d "${OLD_ARTIFACT_DIR}"
-          ls -al "${OLD_ARTIFACT_DIR}"
-          mkdir -p "${PREV_BINDINGS_DIR}"
-          mv "${OLD_ARTIFACT_DIR}"/*.whl "${PREV_BINDINGS_DIR}"
-          rmdir "${OLD_ARTIFACT_DIR}"
+      - name: Upload CUDA 12 cuda.bindings build artifacts
+        if: ${{ env.BUILD_BINDINGS_CU12 == 'true' || env.BASELINE_RUN_ID != '' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_BINDINGS_CU12_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_CU12_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+
+      - name: Build CUDA 12 cuda.bindings Cython tests
+        if: ${{ env.TEST_BINDINGS_CU12 == 'true' }}
+        run: |
+          pip uninstall -y cuda-bindings
+          bindings_wheels=(${{ env.CUDA_BINDINGS_CU12_ARTIFACTS_DIR }}/*.whl)
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${bindings_wheels[0]}"
+          pip install "${bindings_wheels[0]}[test]"
+          pushd ${{ env.CUDA_BINDINGS_CU12_CYTHON_TESTS_DIR }}
+          bash build_tests.sh
+          popd
+
+      - name: Upload CUDA 12 cuda.bindings Cython tests
+        if: ${{ env.TEST_BINDINGS_CU12 == 'true' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_BINDINGS_CU12_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_BINDINGS_CU12_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
+          if-no-files-found: error
 
       - name: Constrain previous cuda.core to the downloaded cuda.bindings wheel
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
-          bindings_wheels=(cuda_bindings/dist-prev/cuda_bindings-"${BUILD_PREV_CUDA_MAJOR}".*.whl)
+          bindings_wheels=("${CUDA_BINDINGS_CU12_ARTIFACTS_DIR}"/cuda_bindings-"${BUILD_PREV_CUDA_MAJOR}".*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${pathfinder_wheels[0]}"
@@ -687,6 +804,40 @@ jobs:
 
           ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
+      - name: Build CUDA 12 cuda.core Cython tests
+        if: ${{ env.TEST_CORE_CU12 == 'true' }}
+        run: |
+          # The CUDA 13 test extensions were built in this same source tree.
+          # Remove generated outputs so Cython and the compiler cannot reuse them.
+          find "${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}" -maxdepth 1 -type f \
+            \( -name 'test_*.cpp' -o -name 'test_*.so' -o -name 'test_*.pyd' \) -delete
+          if [[ -d "${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/build" ]]; then
+            find "${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/build" -type f -delete
+          fi
+          pip uninstall -y cuda-bindings cuda-core
+          pip install ${{ env.CUDA_BINDINGS_CU12_ARTIFACTS_DIR }}/*.whl
+          if ${{ env.BUILD_CORE == 'true' }}; then
+            core_wheel=$(find "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_PREV_CUDA_MAJOR}" -maxdepth 1 -type f -name '*.whl' -print -quit)
+          else
+            core_wheel=$(find "${{ env.CUDA_CORE_ARTIFACTS_DIR }}" -maxdepth 1 -type f -name '*.whl' -print -quit)
+          fi
+          if [[ -z "${core_wheel}" ]]; then
+            echo "No cuda.core wheel found" >&2
+            exit 1
+          fi
+          pip install "${core_wheel}" --group ./cuda_core/pyproject.toml:test
+          pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
+          bash build_tests.sh
+          popd
+
+      - name: Upload CUDA 12 cuda.core Cython tests
+        if: ${{ env.TEST_CORE_CU12 == 'true' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-cu12-tests
+          path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
+          if-no-files-found: error
+
       - name: Merge cuda.core wheels
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
@@ -702,6 +853,7 @@ jobs:
           twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
+        if: ${{ env.BUILD_CORE == 'true' || env.BASELINE_RUN_ID != '' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}

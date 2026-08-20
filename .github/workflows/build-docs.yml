@@ -62,10 +62,16 @@ jobs:
 
       - name: Read build CTK version
         run: |
+          VERSION_KEY='.cuda.build.version'
+          BINDINGS_COMPONENT_DIR='cuda_bindings'
+          if [[ "${{ inputs.is-release }}" == "true" && "${{ inputs.git-tag }}" == v12.9.* ]]; then
+            VERSION_KEY='.cuda.prev_build.version'
+            BINDINGS_COMPONENT_DIR='cuda_bindings_12'
+          fi
           if [[ -f ci/versions.yml ]]; then
-            BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
+            BUILD_CTK_VER=$(yq "${VERSION_KEY}" ci/versions.yml)
           elif [[ -f ci/versions.json ]]; then
-            BUILD_CTK_VER=$(jq -r '.cuda.build.version' ci/versions.json)
+            BUILD_CTK_VER=$(jq -r "${VERSION_KEY}" ci/versions.json)
           else
             echo "error: cannot find ci/versions.yml or ci/versions.json" >&2
             exit 1
@@ -75,6 +81,7 @@ jobs:
             exit 1
           fi
           echo "BUILD_CTK_VER=${BUILD_CTK_VER}" >> "$GITHUB_ENV"
+          echo "BINDINGS_COMPONENT_DIR=${BINDINGS_COMPONENT_DIR}" >> "$GITHUB_ENV"
 
       # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 
@@ -126,22 +133,26 @@ jobs:
           CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CTK_VER}-linux-64"
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
-          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/${BINDINGS_COMPONENT_DIR}/dist")" >> $GITHUB_ENV
+          echo "CUDA_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${BUILD_CTK_VER}" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-python' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          name: cuda-python-wheel
+          name: ${{ env.CUDA_PYTHON_ARTIFACT_NAME }}
           path: .
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-python artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-python' }}
         run: |
           pwd
           ls -lahR .
 
       - name: Download cuda-pathfinder build artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-pathfinder' || inputs.component == 'cuda-core' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
@@ -150,6 +161,7 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-pathfinder artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-pathfinder' || inputs.component == 'cuda-core' }}
         run: |
           pwd
           ls -lahR cuda_pathfinder
@@ -162,7 +174,7 @@ jobs:
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Download cuda.bindings build artifacts
-        if: ${{ inputs.is-release }}
+        if: ${{ inputs.is-release && (inputs.component == 'all' || inputs.component == 'cuda-bindings' || inputs.component == 'cuda-core') }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
@@ -172,6 +184,7 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.bindings artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-bindings' || inputs.component == 'cuda-core' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
@@ -184,7 +197,7 @@ jobs:
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Download cuda.core build artifacts
-        if: ${{ inputs.is-release }}
+        if: ${{ inputs.is-release && (inputs.component == 'all' || inputs.component == 'cuda-core') }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
@@ -194,26 +207,37 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.core build artifacts
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-core' }}
         run: |
           pwd
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
 
-      - name: Install all packages
+      - name: Install cuda-pathfinder
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-pathfinder' || inputs.component == 'cuda-core' }}
         run: |
           pushd cuda_pathfinder
           pip install *.whl
           popd
 
+      - name: Install cuda.bindings
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-bindings' || inputs.component == 'cuda-core' }}
+        run: |
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
           pip install *.whl
           popd
 
+      - name: Install cuda.core
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-core' }}
+        run: |
           pushd "${CUDA_CORE_ARTIFACTS_DIR}"
           pip install *.whl
           popd
 
-          # Subpackages are already installed from CI artifacts above.
-          # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
+      - name: Install cuda-python
+        if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-python' }}
+        run: |
+          # Documentation builds do not exercise runtime dependencies.
+          # --no-deps also avoids resolving artifacts absent from focused tag runs.
           pip install --no-deps cuda_python*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
@@ -246,6 +270,9 @@ jobs:
         if: ${{ inputs.component != 'all' }}
         run: |
           COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
+          if [[ "${{ inputs.component }}" == "cuda-bindings" ]]; then
+            COMPONENT="${BINDINGS_COMPONENT_DIR}"
+          fi
           pushd ${COMPONENT}/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
             ./build_docs.sh latest-only
