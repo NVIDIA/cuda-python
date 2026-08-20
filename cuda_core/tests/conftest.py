@@ -54,6 +54,24 @@ def pytest_configure(config):
         config.pluginmanager.register(_CudaCoreParallelPlugin(), name="_cuda_core_parallel_plugin")
 
 
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(item, call):
+    # Runs the OOM reason checker on the first CUDA OOM of a session; see
+    # issue #2381 and helpers/oom_diagnostics.py for why this is latched and
+    # what it checks (host VA exhaustion vs. physical device memory).
+    report = yield
+    from helpers import oom_diagnostics
+
+    oom_diagnostics.record_if_oom(item, call, report)
+    return report
+
+
+def pytest_terminal_summary(terminalreporter):
+    from helpers import oom_diagnostics
+
+    oom_diagnostics.report_terminal_summary(terminalreporter)
+
+
 @contextmanager
 def _init_cuda_context():
     # TODO: rename this to e.g. init_context
