@@ -182,4 +182,3 @@ cython_debug/
 # Cursor
 .cursorrules
 .claude/settings.local.json
-.moon/cache/
