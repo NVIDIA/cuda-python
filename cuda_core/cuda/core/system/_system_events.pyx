@@ -155,9 +155,11 @@ def register_events(events: SystemEventType | str | list[SystemEventType | str])
     Examples
     --------
     >>> from cuda.core import system
+    >>> from cuda.core.system.typing import SystemEventType
     >>> events = system.register_events([SystemEventType.UNBIND])
-    >>> while event := events.wait(timeout_ms=10000):
-    ...     print(f"Event {event.event_type} occurred.")
+    >>> while batch := events.wait(timeout_ms=10000):
+    ...     for i in range(len(batch)):
+    ...         print(f"Event {batch[i].event_type} occurred.")
 
     Parameters
     ----------
