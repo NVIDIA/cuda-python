@@ -1,0 +1,18 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.5.2 Release notes
+=======================================
+
+Highlights
+----------
+
+* Add ``load_nvidia_dynamic_lib()`` support for ``cudla`` and ``nvcudla``, and
+  add header discovery support for ``cudla``.
+  (`PR #1855 <https://github.com/NVIDIA/cuda-python/pull/1855>`_)
+
+* Add header discovery support for ``profiler`` via
+  ``find_nvidia_header_directory()`` and ``locate_nvidia_header_directory()``.
+  (`PR #1862 <https://github.com/NVIDIA/cuda-python/pull/1862>`_)
