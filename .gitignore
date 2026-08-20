@@ -10,8 +10,6 @@ __pycache__/
 .cache/
 .lycheecache
 .pytest_cache/
-.moon/cache/
-.moon-out/
 .benchmarks/
 *.cpp
 !*_impl.cpp

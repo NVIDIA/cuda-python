@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 800" style="background-color: white;">
+  <!-- Hand-drawn style definitions -->
+  <defs>
+    <!-- Hand-drawn arrow marker -->
+    <marker id="rougharrow" markerWidth="12" markerHeight="10"
+            refX="11" refY="5" orient="auto">
+      <path d="M1,2 L9,5 L2,8 L1,2" fill="none" stroke="#333" stroke-width="2" stroke-linejoin="round"/>
+    </marker>
+    <!-- Orange arrow marker for artifact flows -->
+    <marker id="orangearrow" markerWidth="12" markerHeight="8"
+            refX="11" refY="5" orient="auto">
+      <path d="M1,2 L9,5 L2,8 L1,2" fill="#FF9800" stroke="#FF9800" stroke-width="2" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="452" y="22" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="16" font-weight="bold" fill="#333">CUDA Python CI Pipeline Flow</text>
+
+  <!-- Trigger Events - hand-drawn style -->
+  <path d="M52,42 Q53,40 855,39 Q858,41 857,108 Q855,112 51,110 Q48,107 52,42 Z"
+        fill="#e8f4fd" stroke="#2196F3" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="452" y="62" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="14" font-weight="bold" fill="#1976D2">TRIGGER EVENTS</text>
+  <text x="251" y="82" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Push to main branch</text>
+  <text x="451" y="82" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Pull request</text>
+  <text x="651" y="82" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Manual workflow dispatch</text>
+  <!-- Rough arrow down -->
+  <path d="M449,112 Q451,125 452,132 M447,128 L452,134 L457,129" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+
+  <!-- Build Stage - hand-drawn style -->
+  <path d="M51,142 Q52,139 853,141 Q856,144 854,287 Q852,292 49,289 Q46,286 51,142 Z"
+        fill="#f3e5f5" stroke="#9C27B0" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="451" y="162" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="14" font-weight="bold" fill="#7B1FA2">BUILD STAGE</text>
+
+  <!-- Build platforms - rough rectangles -->
+  <path d="M82,182 Q83,179 278,181 Q282,183 281,238 Q279,242 81,241 Q78,238 82,182 Z"
+        fill="white" stroke="#9C27B0" stroke-width="2" stroke-linejoin="round"/>
+  <text x="181" y="202" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-64</text>
+  <text x="179" y="222" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#666">Self-hosted</text>
+
+  <path d="M351,183 Q352,180 548,182 Q552,184 551,239 Q549,243 350,242 Q347,239 351,183 Z"
+        fill="white" stroke="#9C27B0" stroke-width="2" stroke-linejoin="round"/>
+  <text x="451" y="203" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-aarch64</text>
+  <text x="449" y="223" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#666">Self-hosted</text>
+
+  <path d="M621,184 Q622,181 818,183 Q822,185 821,240 Q819,244 620,243 Q617,240 621,184 Z"
+        fill="white" stroke="#9C27B0" stroke-width="2" stroke-linejoin="round"/>
+  <text x="721" y="204" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" font-weight="bold" fill="#333">win-64</text>
+  <text x="719" y="224" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#666">GitHub-hosted</text>
+
+  <!-- Build stage details in purple box -->
+  <text x="102" y="262" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Python versions: 3.9, 3.10, 3.11, 3.12, 3.13</text>
+  <text x="101" y="277" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• CUDA version: 13.0.0 (build-time)</text>
+  <text x="502" y="262" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Components: cuda-core, cuda-bindings,</text>
+  <text x="501" y="277" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">  cuda-pathfinder, cuda-python</text>
+
+  <!-- Rough arrow down -->
+  <path d="M451,292 Q449,305 450,312 M446,308 L450,314 L455,309" stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)"/>
+  <text x="480" y="305" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">wheel upload</text>
+
+  <!-- Artifact Storage - hand-drawn style -->
+  <path d="M52,322 Q53,319 851,321 Q854,324 853,447 Q851,452 50,449 Q47,446 52,322 Z"
+        fill="#fff3e0" stroke="#FF9800" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="451" y="342" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="14" font-weight="bold" fill="#F57C00">ARTIFACT STORAGE</text>
+
+  <!-- Artifact types - rough rectangles -->
+  <path d="M122,357 Q123,354 398,356 Q402,358 401,433 Q399,437 121,436 Q118,433 122,357 Z"
+        fill="white" stroke="#FF9800" stroke-width="2" stroke-linejoin="round"/>
+  <text x="261" y="377" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" font-weight="bold" fill="#333">GitHub Artifacts</text>
+  <text x="259" y="392" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="10" fill="#666">• Wheel files (.whl)</text>
+  <text x="261" y="404" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="10" fill="#666">• Test artifacts</text>
+  <text x="262" y="416" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="10" fill="#666">• Documentation</text>
+  <text x="260" y="430" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#666">(30-day retention)</text>
+
+  <path d="M502,358 Q503,355 778,357 Q782,359 781,434 Q779,438 501,437 Q498,434 502,358 Z"
+        fill="white" stroke="#FF9800" stroke-width="2" stroke-linejoin="round"/>
+  <text x="641" y="378" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" font-weight="bold" fill="#333">GitHub Cache</text>
+  <text x="639" y="402" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="10" fill="#666">• Mini CTK cache</text>
+
+  <!-- Rough arrow down to Test Stage -->
+  <path d="M449,452 Q451,465 452,472 M447,468 L452,474 L457,469" stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)"/>
+
+  <!-- Artifact flow arrows -->
+  <!-- Arrow from GitHub Cache (mini CTK) back to Build Stage -->
+  <path d="M641,358 Q642,340 630,320 Q625,310 580,305 Q560,300 540,298"
+        stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
+  <text x="660" y="310" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">mini CTK reuse</text>
+
+  <!-- Arrow from GitHub Artifacts (wheels) to Release Pipeline -->
+  <path d="M260,437 Q258,520 260,580 Q262,615 300,625 Q310,630 350,642"
+        stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
+  <text x="220" y="640" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">wheel fetch</text>
+
+  <!-- Additional arrows to TEST STAGE -->
+  <!-- Arrow from GitHub Cache (mini CTK) to Test Stage -->
+  <path d="M641,434 Q642,434 630,435 Q620,445 580,450 Q540,465 520,472"
+        stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
+  <text x="660" y="470" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">mini CTK reuse</text>
+
+  <!-- Arrow from GitHub Artifacts (wheels) to Test Stage -->
+  <path d="M261,434 Q262,435 280,437 Q300,445 340,450 Q380,465 400,473"
+        stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
+  <text x="180" y="470" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">wheel fetch</text>
+
+  <!-- Test Stage - hand-drawn style -->
+  <path d="M51,482 Q52,479 853,481 Q856,484 854,617 Q852,622 49,619 Q46,616 51,482 Z"
+        fill="#e8f5e8" stroke="#4CAF50" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="451" y="502" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="14" font-weight="bold" fill="#388E3C">TEST STAGE</text>
+
+  <!-- Test platforms - rough rectangles -->
+  <path d="M82,522 Q83,519 278,521 Q282,523 281,563 Q279,567 81,566 Q78,563 82,522 Z"
+        fill="white" stroke="#4CAF50" stroke-width="2" stroke-linejoin="round"/>
+  <text x="181" y="542" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-64</text>
+  <text x="179" y="557" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#666">Self-hosted</text>
+
+  <path d="M351,523 Q352,520 548,522 Q552,524 551,564 Q549,568 350,567 Q347,564 351,523 Z"
+        fill="white" stroke="#4CAF50" stroke-width="2" stroke-linejoin="round"/>
+  <text x="451" y="543" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-aarch64</text>
+  <text x="449" y="558" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#666">Self-hosted</text>
+
+  <path d="M621,524 Q622,521 818,523 Q822,525 821,565 Q819,569 620,568 Q617,565 621,524 Z"
+        fill="white" stroke="#4CAF50" stroke-width="2" stroke-linejoin="round"/>
+  <text x="721" y="544" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" font-weight="bold" fill="#333">win-64</text>
+  <text x="719" y="559" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#666">GitHub-hosted</text>
+
+  <!-- Test stage details and artifact flows in green box -->
+  <text x="102" y="582" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Download wheels from artifacts</text>
+  <text x="101" y="597" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Test against multiple CUDA runtime versions</text>
+  <text x="102" y="612" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Run Python unit tests, Cython tests, examples</text>
+  <text x="501" y="582" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">Artifact Flows:</text>
+  <text x="502" y="597" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">• cuda-pathfinder: main → backport</text>
+  <text x="501" y="612" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">• cuda-bindings: backport → main</text>
+
+  <!-- Rough arrow down -->
+  <path d="M451,622 Q449,635 450,642 M446,638 L450,644 L455,639" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+
+  <!-- Release Pipeline - hand-drawn style -->
+  <path d="M52,652 Q53,649 851,651 Q854,654 853,767 Q851,772 50,769 Q47,766 52,652 Z"
+        fill="#ffebee" stroke="#f44336" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="451" y="672" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="14" font-weight="bold" fill="#D32F2F">RELEASE PIPELINE</text>
+
+  <!-- Release stages - rough rectangles -->
+  <path d="M122,687 Q123,684 298,686 Q302,688 301,743 Q299,747 121,746 Q118,743 122,687 Z"
+        fill="white" stroke="#f44336" stroke-width="2" stroke-linejoin="round"/>
+  <text x="211" y="707" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" font-weight="bold" fill="#333">Validation</text>
+  <text x="209" y="722" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#666">• Artifact integrity</text>
+  <text x="211" y="734" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#666">• Git tag verification</text>
+
+  <!-- Rough arrow -->
+  <path d="M302,717 Q325,715 348,717 M344,713 L348,717 L345,721" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+
+  <path d="M362,688 Q363,685 538,687 Q542,689 541,744 Q539,748 361,747 Q358,744 362,688 Z"
+        fill="white" stroke="#f44336" stroke-width="2" stroke-linejoin="round"/>
+  <text x="451" y="708" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" font-weight="bold" fill="#333">Publishing</text>
+  <text x="449" y="723" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#666">• PyPI/TestPyPI</text>
+  <text x="451" y="735" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#666">• Component or all releases</text>
+
+  <!-- Rough arrow -->
+  <path d="M542,718 Q565,716 588,718 M584,714 L588,718 L585,722" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+
+  <path d="M602,689 Q603,686 778,688 Q782,690 781,745 Q779,749 601,748 Q598,745 602,689 Z"
+        fill="white" stroke="#f44336" stroke-width="2" stroke-linejoin="round"/>
+  <text x="691" y="709" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" font-weight="bold" fill="#333">Documentation</text>
+  <text x="689" y="724" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#666">• GitHub Pages</text>
+  <text x="691" y="736" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#666">• Release notes</text>
+
+  <!-- Release pipeline details in red box -->
+  <text x="102" y="762" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Manual workflow dispatch with run ID</text>
+  <text x="501" y="762" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Supports individual component or full releases</text>
+</svg>

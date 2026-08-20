@@ -89,7 +89,6 @@ repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wh
 [tool.pytest.ini_options]
 required_plugins = "pytest-benchmark"
 addopts = "--benchmark-disable --showlocals --durations=20"
-pythonpath = ["../cuda_python_test_helpers"]
 norecursedirs = ["tests/cython", "examples"]
 xfail_strict = true
 # Keep this authorship marker registry in sync across all pytest config roots.

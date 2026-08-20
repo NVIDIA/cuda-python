@@ -26,48 +26,10 @@ import subprocess
 import sys
 import tempfile
 import zipfile
-from collections.abc import Mapping
-from datetime import datetime, timezone
 from pathlib import Path
 
 
-def _wheel_from_directory(directory: Path) -> Path:
-    wheels = sorted(path for path in directory.glob("*.whl") if path.is_file())
-    if len(wheels) != 1:
-        raise ValueError(f"expected one wheel in {directory}, found {len(wheels)}")
-    return wheels[0]
-
-
-def _clean_output_wheels(output_dir: Path) -> None:
-    """Remove wheel files without recursively deleting the caller's directory."""
-    absolute_output = output_dir.absolute()
-    for component in (absolute_output, *absolute_output.parents):
-        if component.is_symlink():
-            raise ValueError(f"output path must not contain symlinks: {component}")
-    if output_dir.exists() and not output_dir.is_dir():
-        raise ValueError(f"output path is not a directory: {output_dir}")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    for wheel in output_dir.glob("*.whl"):
-        if wheel.is_file() or wheel.is_symlink():
-            wheel.unlink()
-
-
-def _wheel_source_date_epoch(wheels: list[Path]) -> str:
-    """Derive a stable wheel-pack timestamp from the input archives."""
-    timestamps: list[int] = []
-    for wheel in wheels:
-        with zipfile.ZipFile(wheel) as archive:
-            timestamps.extend(
-                int(datetime(*info.date_time, tzinfo=timezone.utc).timestamp()) for info in archive.infolist()
-            )
-    if not timestamps:
-        raise ValueError("input wheels contain no archive entries")
-    return str(max(timestamps))
-
-
-def run_command(
-    cmd: list[str], cwd: Path | None = None, env: Mapping[str, str] | None = None
-) -> subprocess.CompletedProcess:
+def run_command(cmd: list[str], cwd: Path | None = None, env: dict = os.environ) -> subprocess.CompletedProcess:
     """Run a command with error handling."""
     print(f"Running: {' '.join(cmd)}")
     if cwd:
@@ -218,8 +180,6 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
         base_wheel_name = wheels[0].with_suffix(".whl").name
 
         print(f"Repacking merged wheel as: {base_wheel_name}", file=sys.stderr)
-        pack_environment = os.environ.copy()
-        pack_environment.setdefault("SOURCE_DATE_EPOCH", _wheel_source_date_epoch(wheels))
         run_command(
             [
                 sys.executable,
@@ -229,8 +189,7 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
                 str(base_wheel),
                 "--dest-dir",
                 str(output_dir),
-            ],
-            env=pack_environment,
+            ]
         )
 
         # Find the output wheel
@@ -251,19 +210,8 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
 def main():
     """Main merge script."""
     parser = argparse.ArgumentParser(description="Merge CUDA-specific wheels into a single multi-CUDA wheel")
-    parser.add_argument("wheels", nargs="*", help="Paths to the CUDA-specific wheels to merge")
-    parser.add_argument(
-        "--wheel-dir",
-        action="append",
-        default=[],
-        help="Directory containing exactly one input wheel (may be repeated)",
-    )
+    parser.add_argument("wheels", nargs="+", help="Paths to the CUDA-specific wheels to merge")
     parser.add_argument("--output-dir", "-o", default="dist", help="Output directory for merged wheel")
-    parser.add_argument(
-        "--clean-output",
-        action="store_true",
-        help="Remove existing wheel files from the output directory before merging",
-    )
 
     args = parser.parse_args()
 
@@ -282,27 +230,11 @@ def main():
             sys.exit(1)
         wheels.append(wheel)
 
-    for directory_value in args.wheel_dir:
-        directory = Path(directory_value)
-        try:
-            wheel = _wheel_from_directory(directory)
-        except ValueError as error:
-            print(f"Error: {error}", file=sys.stderr)
-            sys.exit(1)
-        wheels.append(wheel)
-
     if not wheels:
         print("Error: No wheels provided", file=sys.stderr)
         sys.exit(1)
 
     output_dir = Path(args.output_dir)
-    if args.clean_output:
-        try:
-            _clean_output_wheels(output_dir)
-        except ValueError as error:
-            print(f"Error: {error}", file=sys.stderr)
-            sys.exit(1)
-    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Check that we have wheel tool available
     try:
@@ -313,9 +245,6 @@ def main():
 
     # Merge the wheels
     merged_wheel = merge_wheels(wheels, output_dir)
-    output_wheels = sorted(path for path in output_dir.glob("*.whl") if path.is_file())
-    if len(output_wheels) != 1:
-        raise RuntimeError(f"expected one merged wheel in {output_dir}, found {len(output_wheels)}")
     print(f"\nMerge complete! Output: {merged_wheel}")
 
 

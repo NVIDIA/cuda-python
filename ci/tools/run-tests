@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -13,105 +13,21 @@ if [[ ${#} -ne 1 ]]; then
   echo "Error: This script requires exactly 1 argument. You provided ${#}"
   exit 1
 fi
-if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" && "${1}" != "metapackage" && "${1}" != nightly-* ]]; then
-  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', 'pathfinder', 'metapackage', or 'nightly-*'"
+if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" && "${1}" != nightly-* ]]; then
+  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', 'pathfinder', or 'nightly-*'"
   exit 1
 fi
 
 test_module=${1}
-repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-
-select_one() {
-  if [[ ${#} -ne 3 ]]; then
-    echo "Error: select_one requires exactly one artifact directory" >&2
-    exit 1
-  fi
-  local description=${1}
-  local result_name=${2}
-  local directory=${3}
-  local files
-  shopt -s nullglob
-  files=("${directory}"/*.whl)
-  shopt -u nullglob
-  if [[ ${#files[@]} -ne 1 ]]; then
-    echo "Error: Expected one ${description} in ${directory}, found ${#files[@]}" >&2
-    exit 1
-  fi
-  printf -v "${result_name}" '%s' "${files[0]}"
-}
-
-native_path() {
-  python -c 'import os, sys; print(os.path.abspath(sys.argv[1]))' "${1}"
-}
-
-prepend_python_path() {
-  local directory=${1}
-  local native_directory separator
-  if [[ ! -d "${directory}" ]]; then
-    echo "Error: Generated Cython test directory does not exist: ${directory}" >&2
-    exit 1
-  fi
-  native_directory=$(native_path "${directory}")
-  separator=$(python -c 'import os; print(os.pathsep)')
-  export PYTHONPATH="${native_directory}${PYTHONPATH:+${separator}${PYTHONPATH}}"
-}
-
-if [[ "${test_module}" == "bindings" && "${SKIP_CUDA_BINDINGS_TEST:-0}" == 1 ]]; then
-  echo "Skipping cuda.bindings tests for this declared compatibility lane."
-  exit 0
-fi
-
-if [[ "${test_module}" == "metapackage" ]]; then
-  if [[ "${BINDINGS_SOURCE:-}" != "main" ]]; then
-    echo "Skipping the metapackage smoke test because BINDINGS_SOURCE is not main."
-    exit 0
-  fi
-  select_one "pathfinder wheel" PATHFINDER_WHL \
-    "${repo_dir}/cuda_pathfinder/.moon-out/wheel-pure"
-  select_one "bindings wheel" BINDINGS_WHL \
-    "${repo_dir}/cuda_bindings/.moon-out/wheel-current"
-  select_one "merged core wheel" CORE_WHL \
-    "${repo_dir}/cuda_core/.moon-out/wheel-merged"
-  select_one "metapackage wheel" METAPACKAGE_WHL \
-    "${repo_dir}/cuda_python/.moon-out/wheel-pure"
-  if [[ "${LOCAL_CTK:-1}" != 1 ]]; then
-    METAPACKAGE_WHL="${METAPACKAGE_WHL}[all]"
-  fi
-  python -m pip install --only-binary=:all: \
-    "${PATHFINDER_WHL}" "${BINDINGS_WHL}" "${CORE_WHL}" "${METAPACKAGE_WHL}"
-  exit 0
-fi
 
 # For standard modes, install pathfinder up front (it is a direct dependency
 # of bindings, and a transitive dependency of core).  Nightly modes install
 # all wheels together in a single pip call further below.
 if [[ "${test_module}" != nightly-* ]]; then
-  select_one "pathfinder wheel" PATHFINDER_WHL \
-    "${repo_dir}/cuda_pathfinder/.moon-out/wheel-pure"
   pushd ./cuda_pathfinder
   echo "Installing pathfinder wheel"
-  pip install "${PATHFINDER_WHL}" --group test
+  pip install ./*.whl --group test
   popd
-fi
-
-if [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
-  case "${BINDINGS_SOURCE:-main}" in
-    main)
-      CUDA_BINDINGS_ARTIFACTS_DIR="${repo_dir}/cuda_bindings/.moon-out/wheel-current"
-      export CUDA_BINDINGS_ARTIFACTS_DIR
-      ;;
-    backport)
-      CUDA_BINDINGS_ARTIFACTS_DIR="${repo_dir}/cuda_bindings/.moon-out/wheel-previous"
-      export CUDA_BINDINGS_ARTIFACTS_DIR
-      ;;
-    published) ;;
-    *)
-      echo "Error: Invalid BINDINGS_SOURCE '${BINDINGS_SOURCE}'" >&2
-      exit 1
-      ;;
-  esac
-  CUDA_CORE_ARTIFACTS_DIR="${repo_dir}/cuda_core/.moon-out/wheel-merged"
-  export CUDA_CORE_ARTIFACTS_DIR
 fi
 
 if [[ "${test_module}" == "pathfinder" ]]; then
@@ -127,21 +43,17 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   echo "Number of \"INFO test_\" lines: $line_count"
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
-  CUDA_BINDINGS_ARTIFACTS_DIR="${repo_dir}/cuda_bindings/.moon-out/wheel-current"
-  export CUDA_BINDINGS_ARTIFACTS_DIR
   echo "Installing bindings wheel"
   pushd ./cuda_bindings
-  select_one "bindings wheel" BINDINGS_WHL "${CUDA_BINDINGS_ARTIFACTS_DIR}"
   if [[ "${LOCAL_CTK}" == 1 ]]; then
-    pip install "${BINDINGS_WHL}" --group test
+    pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group test
   else
-    pip install "${BINDINGS_WHL}[all]" --group test
+    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
   fi
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    prepend_python_path "${repo_dir}/cuda_bindings/.moon-out/cython-tests"
-    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize --import-mode=importlib tests/cython
+    ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/cython
   fi
   popd
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
@@ -161,8 +73,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
     BINDINGS_ARGS+=("cuda-bindings==${TEST_CUDA_MAJOR}.${TEST_CUDA_MINOR}.*")
   else
-    select_one "bindings wheel" BINDINGS_WHL "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-    BINDINGS_ARGS=("${BINDINGS_WHL}")
+    BINDINGS_ARGS=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
     if [[ "${LOCAL_CTK}" != 1 ]]; then
       BINDINGS_ARGS=("${BINDINGS_ARGS[0]}[all]")
     fi
@@ -170,21 +81,19 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
 
   # Resolve core wheel, adding the published cuda.bindings extra
   # when this job is resolving against wheel-installed CTK packages.
-  select_one "core wheel" CORE_WHL_PATH "${CUDA_CORE_ARTIFACTS_DIR}"
-  CORE_WHL=("${CORE_WHL_PATH}")
+  CORE_WHL=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
   if [[ "${LOCAL_CTK}" != 1 ]]; then
     CORE_WHL=("${CORE_WHL[0]}[cu${TEST_CUDA_MAJOR}]")
   fi
 
   if [[ "${test_module}" == nightly-* ]]; then
-    select_one "pathfinder wheel" PATHFINDER_WHEEL \
-      "${repo_dir}/cuda_pathfinder/.moon-out/wheel-pure"
-    PATHFINDER_WHL=("${PATHFINDER_WHEEL}")
+    # Resolve pathfinder wheel to absolute path before pushd.
+    # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already
+    # absolute (set via realpath in env-vars).
+    PATHFINDER_WHL=($(realpath ./cuda_pathfinder/*.whl))
   fi
 
   if [[ "${test_module}" == "core" ]]; then
-    CUDA_CORE_TEST_BINARIES_DIR=$(native_path "${repo_dir}/cuda_core/.moon-out/test-binaries")
-    export CUDA_CORE_TEST_BINARIES_DIR
     # pushd so --group reads test dependency groups from cuda_core/pyproject.toml.
     pushd ./cuda_core
     echo "Installing bindings (source: ${BINDINGS_SOURCE})"
@@ -200,8 +109,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     # Currently our CI always installs the latest bindings (from either major version).
     # This is not compatible with the test requirements.
     if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-      prepend_python_path "${repo_dir}/cuda_core/.moon-out/cython-tests"
-      ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize --import-mode=importlib tests/cython
+      ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/cython
     fi
     popd
   elif [[ "${test_module}" == "nightly-cuda-core" ]]; then

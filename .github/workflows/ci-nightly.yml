@@ -26,7 +26,7 @@ on:
     inputs:
       run-id:
         description: >
-          Override the Moon-native CI run ID to download lane artifacts from.
+          Override the CI run ID to download artifacts from.
           Leave empty to auto-detect the latest successful main run.
         type: string
         default: ''
@@ -50,24 +50,10 @@ jobs:
 
   find-wheels:
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
       HEAD_SHA: ${{ steps.find.outputs.head_sha }}
       CUDA_BUILD_VER: ${{ steps.find.outputs.cuda_build_ver }}
-      PYTORCH_LINUX_64_MATRIX: ${{ steps.matrices.outputs.pytorch_linux_64 }}
-      PYTORCH_LINUX_ARM64_MATRIX: ${{ steps.matrices.outputs.pytorch_linux_arm64 }}
-      PYTORCH_WINDOWS_MATRIX: ${{ steps.matrices.outputs.pytorch_windows }}
-      NUMBA_LINUX_64_MATRIX: ${{ steps.matrices.outputs.numba_linux_64 }}
-      NUMBA_LINUX_ARM64_MATRIX: ${{ steps.matrices.outputs.numba_linux_arm64 }}
-      NUMBA_WINDOWS_MATRIX: ${{ steps.matrices.outputs.numba_windows }}
-      MLIR_LINUX_64_MATRIX: ${{ steps.matrices.outputs.mlir_linux_64 }}
-      MLIR_WINDOWS_MATRIX: ${{ steps.matrices.outputs.mlir_windows }}
-      CORE_LINUX_64_MATRIX: ${{ steps.matrices.outputs.core_linux_64 }}
-      CORE_WINDOWS_MATRIX: ${{ steps.matrices.outputs.core_windows }}
-      STANDARD_LINUX_ARM64_MATRIX: ${{ steps.matrices.outputs.standard_linux_arm64 }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -78,96 +64,17 @@ jobs:
         id: find
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REQUESTED_RUN_ID: ${{ inputs.run-id }}
         run: |
-          expected=()
-          host_platforms=(linux-64 linux-aarch64 win-64)
-          for host_platform in "${host_platforms[@]}"; do
-            while IFS= read -r python_version; do
-              expected+=("moon-lane-build-${host_platform}-py${python_version}")
-            done < <(yq -r '.include[]."python-version-formatted"' ci/build-matrix.yml)
-          done
-
-          has_moon_lanes() {
-            local run_id=$1
-            local artifacts artifact_name artifact_valid
-            artifacts="$(
-              gh api --paginate --slurp \
-                "repos/${{ github.repository }}/actions/runs/${run_id}/artifacts?per_page=100" \
-                | jq -c '[.[].artifacts[]]'
-            )"
-            for artifact_name in "${expected[@]}"; do
-              artifact_valid="$(
-                jq \
-                  --arg name "${artifact_name}" \
-                  '[.[] | select(.name == $name)] |
-                  length == 1 and
-                  (.[0].expired | not) and
-                  .[0].size_in_bytes > 0 and
-                  ((.[0].digest // "") |
-                    test("^sha256:[0-9a-fA-F]{64}$"))' \
-                  <<< "${artifacts}"
-              )"
-              if [[ "${artifact_valid}" != "true" ]]; then
-                return 1
-              fi
-            done
-          }
-
-          if [[ -n "${REQUESTED_RUN_ID}" ]]; then
-            if [[ ! "${REQUESTED_RUN_ID}" =~ ^[0-9]+$ ]]; then
-              echo "::error::run-id must contain only decimal digits."
-              exit 1
-            fi
-            RUN_ID="${REQUESTED_RUN_ID}"
-            RUN="$(gh api "repos/${{ github.repository }}/actions/runs/${RUN_ID}")"
-            if ! jq -e '
-              .head_branch == "main" and
-              .event == "push" and
-              .conclusion == "success" and
-              .path == ".github/workflows/ci.yml" and
-              .head_repository.full_name == "${{ github.repository }}"
-            ' <<< "${RUN}" > /dev/null; then
-              echo "::error::Run ${RUN_ID} is not a successful trusted push run on main."
-              exit 1
-            fi
-            HEAD_SHA="$(jq -r '.head_sha' <<< "${RUN}")"
-            if ! has_moon_lanes "${RUN_ID}"; then
-              echo "::error::Run ${RUN_ID} does not contain the required Moon lane artifacts."
-              exit 1
-            fi
+          if [[ -n "${{ inputs.run-id }}" ]]; then
+            RUN_ID="${{ inputs.run-id }}"
+            HEAD_SHA=$(gh run view "$RUN_ID" \
+              -R "${{ github.repository }}" \
+              --json headSha | jq -r '.headSha')
           else
-            RUN_ID=""
-            HEAD_SHA=""
-            RUNS="$(gh run list \
-              --repo "${{ github.repository }}" \
-              --workflow ci.yml \
-              --branch main \
-              --event push \
-              --status success \
-              --limit 20 \
-              --json databaseId,headSha,headBranch,event,conclusion,createdAt)"
-            while IFS=$'\t' read -r candidate candidate_sha; do
-              if has_moon_lanes "${candidate}"; then
-                RUN_ID="${candidate}"
-                HEAD_SHA="${candidate_sha}"
-                break
-              fi
-            done < <(
-              jq -r '
-                sort_by(.createdAt) | reverse | .[] |
-                select(
-                  .headBranch == "main" and
-                  .event == "push" and
-                  .conclusion == "success"
-                ) |
-                [.databaseId, .headSha] | @tsv
-              ' <<< "${RUNS}"
-            )
-            if [[ -z "${RUN_ID}" ]]; then
-              echo "::error::No recent successful main CI run contains the required Moon lane artifacts."
-              exit 1
-            fi
+            # lookup-run-id --branch --head-sha prints two lines: run_id then head_sha
+            OUTPUT=$(./ci/tools/lookup-run-id --branch main --head-sha "${{ github.repository }}" "CI")
+            RUN_ID=$(echo "$OUTPUT" | sed -n '1p')
+            HEAD_SHA=$(echo "$OUTPUT" | sed -n '2p')
           fi
 
           if [[ -z "$HEAD_SHA" || "$HEAD_SHA" == "null" ]]; then
@@ -190,45 +97,6 @@ jobs:
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
           echo "cuda_build_ver=$CUDA_BUILD_VER" >> $GITHUB_OUTPUT
 
-      - name: Compute nightly test matrices
-        id: matrices
-        run: |
-          emit_matrix() {
-            local output_name="$1"
-            local os="$2"
-            local arch="$3"
-            local mode="$4"
-            local matrix
-            matrix=$(yq -o=json ".${os}.nightly" ci/test-matrix.yml | jq -c \
-              --arg arch "${arch}" --arg mode "${mode}" '
-                map(select(.ARCH == $arch and .ENV.MODE == $mode))
-                | if length == 0 then
-                    error("empty nightly matrix")
-                  elif any(.[];
-                    .DRIVER != "latest" and
-                    .DRIVER != "earliest" and
-                    .FLAVOR == "wsl") then
-                    error("Custom DRIVER is not supported with FLAVOR=wsl")
-                  else
-                    {include: map(. + {RUNNER_DRIVER: (
-                      if .DRIVER == "latest" or .DRIVER == "earliest"
-                      then .DRIVER else "latest" end)})}
-                  end')
-            echo "${output_name}=${matrix}" >> "$GITHUB_OUTPUT"
-          }
-
-          emit_matrix pytorch_linux_64 linux amd64 nightly-pytorch
-          emit_matrix pytorch_linux_arm64 linux arm64 nightly-pytorch
-          emit_matrix pytorch_windows windows amd64 nightly-pytorch
-          emit_matrix numba_linux_64 linux amd64 nightly-numba-cuda
-          emit_matrix numba_linux_arm64 linux arm64 nightly-numba-cuda
-          emit_matrix numba_windows windows amd64 nightly-numba-cuda
-          emit_matrix mlir_linux_64 linux amd64 nightly-numba-cuda-mlir
-          emit_matrix mlir_windows windows amd64 nightly-numba-cuda-mlir
-          emit_matrix core_linux_64 linux amd64 nightly-cuda-core
-          emit_matrix core_windows windows amd64 nightly-cuda-core
-          emit_matrix standard_linux_arm64 linux arm64 nightly-standard
-
   # ── PyTorch interop tests ──
 
   test-pytorch-linux:
@@ -241,11 +109,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
+      build-type: nightly
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
-      matrix: ${{ needs.find-wheels.outputs.PYTORCH_LINUX_64_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
 
   test-pytorch-linux-aarch64:
     name: "Nightly PyTorch (linux-aarch64)"
@@ -257,11 +127,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
+      build-type: nightly
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
-      matrix: ${{ needs.find-wheels.outputs.PYTORCH_LINUX_ARM64_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
 
   test-pytorch-windows:
     name: "Nightly PyTorch (win-64)"
@@ -273,11 +145,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
     with:
+      build-type: nightly
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
-      matrix: ${{ needs.find-wheels.outputs.PYTORCH_WINDOWS_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
 
   # ── numba-cuda tests ──
 
@@ -291,11 +165,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
+      build-type: nightly
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
-      matrix: ${{ needs.find-wheels.outputs.NUMBA_LINUX_64_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
   test-numba-cuda-linux-aarch64:
     name: "Nightly numba-cuda (linux-aarch64)"
@@ -307,11 +183,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
+      build-type: nightly
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
-      matrix: ${{ needs.find-wheels.outputs.NUMBA_LINUX_ARM64_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
   test-numba-cuda-windows:
     name: "Nightly numba-cuda (win-64)"
@@ -323,11 +201,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
     with:
+      build-type: nightly
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
-      matrix: ${{ needs.find-wheels.outputs.NUMBA_WINDOWS_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
   # ── numba-cuda-mlir tests ──
 
@@ -341,11 +221,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
+      build-type: nightly
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
-      matrix: ${{ needs.find-wheels.outputs.MLIR_LINUX_64_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda-mlir"))'
 
   test-numba-cuda-mlir-windows:
     name: "Nightly numba-cuda-mlir (win-64)"
@@ -357,11 +239,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
     with:
+      build-type: nightly
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
-      matrix: ${{ needs.find-wheels.outputs.MLIR_WINDOWS_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda-mlir"))'
 
   # ── Released cuda-core against main pathfinder/bindings ──
 
@@ -375,11 +259,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
+      build-type: nightly
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
-      matrix: ${{ needs.find-wheels.outputs.CORE_LINUX_64_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-cuda-core"))'
 
   test-cuda-core-windows:
     name: "Nightly cuda-core (win-64)"
@@ -391,11 +277,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
     with:
+      build-type: nightly
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
-      matrix: ${{ needs.find-wheels.outputs.CORE_WINDOWS_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-cuda-core"))'
 
   # ── Standard tests on nightly-only runners ──
 
@@ -409,13 +297,13 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
+      build-type: nightly
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
-      source-ref: ${{ needs.find-wheels.outputs.HEAD_SHA }}
+      sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: standard
-      force-all: true
-      matrix: ${{ needs.find-wheels.outputs.STANDARD_LINUX_ARM64_MATRIX }}
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-standard"))'
 
   # ── Status check ──
 
@@ -440,32 +328,38 @@ jobs:
     steps:
       - name: Exit
         run: |
-          # `always()` keeps this status job runnable after failures. Require
-          # every nightly dependency to have actually run and succeeded;
-          # an unexpected skip must not produce a green aggregate check.
-          results=(
-            "test-ci-tools-for-release:${{ needs.test-ci-tools-for-release.result }}"
-            "find-wheels:${{ needs.find-wheels.result }}"
-            "test-pytorch-linux:${{ needs.test-pytorch-linux.result }}"
-            "test-pytorch-linux-aarch64:${{ needs.test-pytorch-linux-aarch64.result }}"
-            "test-pytorch-windows:${{ needs.test-pytorch-windows.result }}"
-            "test-numba-cuda-linux-64:${{ needs.test-numba-cuda-linux-64.result }}"
-            "test-numba-cuda-linux-aarch64:${{ needs.test-numba-cuda-linux-aarch64.result }}"
-            "test-numba-cuda-windows:${{ needs.test-numba-cuda-windows.result }}"
-            "test-numba-cuda-mlir-linux-64:${{ needs.test-numba-cuda-mlir-linux-64.result }}"
-            "test-numba-cuda-mlir-windows:${{ needs.test-numba-cuda-mlir-windows.result }}"
-            "test-cuda-core-linux-64:${{ needs.test-cuda-core-linux-64.result }}"
-            "test-cuda-core-windows:${{ needs.test-cuda-core-windows.result }}"
-            "test-standard-linux-aarch64:${{ needs.test-standard-linux-aarch64.result }}"
-          )
-          status=success
-          for entry in "${results[@]}"; do
-            name="${entry%%:*}"
-            result="${entry#*:}"
-            echo "Checking ${name}: result='${result}' (expected 'success')"
-            if [[ "${result}" != "success" ]]; then
-              echo "::error::${name} did not complete successfully"
-              status=failed
-            fi
-          done
-          [[ "${status}" == "success" ]]
+          # If any dependency was cancelled or failed, that's a failure.
+          #
+          # See ci.yml for the full rationale on why we must use always()
+          # and explicitly check each result rather than relying on the
+          # default behaviour.
+          if ${{ needs.test-ci-tools-for-release.result == 'cancelled' ||
+                 needs.test-ci-tools-for-release.result == 'failure' ||
+                 needs.find-wheels.result != 'success' }}; then
+            exit 1
+          fi
+          if ${{ needs.test-pytorch-linux.result == 'cancelled' ||
+                 needs.test-pytorch-linux.result == 'failure' ||
+                 needs.test-pytorch-linux-aarch64.result == 'cancelled' ||
+                 needs.test-pytorch-linux-aarch64.result == 'failure' ||
+                 needs.test-pytorch-windows.result == 'cancelled' ||
+                 needs.test-pytorch-windows.result == 'failure' ||
+                 needs.test-numba-cuda-linux-64.result == 'cancelled' ||
+                 needs.test-numba-cuda-linux-64.result == 'failure' ||
+                 needs.test-numba-cuda-linux-aarch64.result == 'cancelled' ||
+                 needs.test-numba-cuda-linux-aarch64.result == 'failure' ||
+                 needs.test-numba-cuda-windows.result == 'cancelled' ||
+                 needs.test-numba-cuda-windows.result == 'failure' ||
+                 needs.test-numba-cuda-mlir-linux-64.result == 'cancelled' ||
+                 needs.test-numba-cuda-mlir-linux-64.result == 'failure' ||
+                 needs.test-numba-cuda-mlir-windows.result == 'cancelled' ||
+                 needs.test-numba-cuda-mlir-windows.result == 'failure' ||
+                 needs.test-cuda-core-linux-64.result == 'cancelled' ||
+                 needs.test-cuda-core-linux-64.result == 'failure' ||
+                 needs.test-cuda-core-windows.result == 'cancelled' ||
+                 needs.test-cuda-core-windows.result == 'failure' ||
+                 needs.test-standard-linux-aarch64.result == 'cancelled' ||
+                 needs.test-standard-linux-aarch64.result == 'failure' }}; then
+            exit 1
+          fi
+          exit 0

@@ -57,17 +57,8 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
-          fetch-depth: 0
-          filter: blob:none
+          fetch-depth: 1
           ref: ${{ inputs.git-tag }}
-
-      - name: Set up Moon
-        if: ${{ !inputs.is-release }}
-        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095  # v0.6.4
-        with:
-          moon-version: "2.5.1"
-          auto-install: false
-          auto-setup: false
 
       - name: Read build CTK version
         run: |
@@ -94,6 +85,7 @@ jobs:
           environment-file: ./cuda_python/docs/environment-docs.yml
           miniforge-version: latest
           conda-remove-defaults: "true"
+          python-version: 3.12
 
       - name: Check conda env
         run: |
@@ -111,7 +103,7 @@ jobs:
 
       - name: Set environment variables
         run: |
-          PYTHON_VERSION_FORMATTED="$(python -c 'import sys; print(f"{sys.version_info.major}{sys.version_info.minor}")')"
+          PYTHON_VERSION_FORMATTED="312"  # see above
           REPO_DIR=$(pwd)
 
           if [[ ${{ inputs.is-release }} == "true" ]]; then
@@ -120,37 +112,54 @@ jobs:
             if [[ -z "${DOCS_GITHUB_REF}" ]]; then
               DOCS_GITHUB_REF="${GITHUB_REF_NAME}"
             fi
-
-            CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
-            echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
-            echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-            CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CTK_VER}-linux-64"
-            echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
-            echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
           else
-            DOCS_GITHUB_REF="${GITHUB_SHA}"
+            FILE_HASH="${{ github.sha }}"
+            DOCS_GITHUB_REF="${{ github.sha }}"
           fi
 
+          # make outputs from the previous job as env vars
+          CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
           echo "CUDA_PYTHON_DOCS_GITHUB_REF=${DOCS_GITHUB_REF}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
+          echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CTK_VER}-linux-64"
+          echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
+          echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
-      - name: Download universal release wheels
-        if: ${{ inputs.is-release }}
+      - name: Download cuda-python build artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          pattern: "cuda-*-wheel"
+          name: cuda-python-wheel
           path: .
-          merge-multiple: false
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
 
-      - name: Download native Moon lane
+      - name: Display structure of downloaded cuda-python artifacts
+        run: |
+          pwd
+          ls -lahR .
+
+      - name: Download cuda-pathfinder build artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: cuda-pathfinder-wheel
+          path: ./cuda_pathfinder
+          run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Display structure of downloaded cuda-pathfinder artifacts
+        run: |
+          pwd
+          ls -lahR cuda_pathfinder
+
+      - name: Download cuda.bindings build artifacts
         if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
-          name: moon-lane-build-linux-64-py312
-          path: .
-          run-id: ${{ inputs.run-id }}
-          github-token: ${{ github.token }}
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ inputs.is-release }}
@@ -161,6 +170,18 @@ jobs:
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
+
+      - name: Display structure of downloaded cuda.bindings artifacts
+        run: |
+          pwd
+          ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
+
+      - name: Download cuda.core build artifacts
+        if: ${{ !inputs.is-release }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Download cuda.core build artifacts
         if: ${{ inputs.is-release }}
@@ -173,25 +194,27 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda.core build artifacts
-        if: ${{ inputs.is-release }}
         run: |
           pwd
           ls -lahR $CUDA_CORE_ARTIFACTS_DIR
 
-      - name: Build or hydrate the metapackage wheel with Moon
-        if: ${{ !inputs.is-release }}
-        env:
-          CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION: "1"
-        run: moon run metapackage:wheel-pure
-
-      - name: Install release packages
-        if: ${{ inputs.is-release }}
+      - name: Install all packages
         run: |
-          pip install cuda-pathfinder-wheel/*.whl
-          pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
-          pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl
-          # Subpackages are already installed from release artifacts above.
-          pip install --no-deps cuda-python-wheel/*.whl
+          pushd cuda_pathfinder
+          pip install *.whl
+          popd
+
+          pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+          pip install *.whl
+          popd
+
+          pushd "${CUDA_CORE_ARTIFACTS_DIR}"
+          pip install *.whl
+          popd
+
+          # Subpackages are already installed from CI artifacts above.
+          # --no-deps avoids re-resolving cuda-core from PyPI during tag releases.
+          pip install --no-deps cuda_python*.whl
 
       # This step sets the PR_NUMBER/BUILD_LATEST/BUILD_PREVIEW env vars.
       - name: Get PR number
@@ -207,58 +230,39 @@ jobs:
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
         run: |
+          pushd cuda_python/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            # Render context differs between main, PR previews, and releases,
-            # so docs outputs are intentionally rebuilt instead of restored
-            # from a cross-run cache. Moon still builds the four components in
-            # parallel before assembling the aggregate site.
-            moon ci root:docs-ci --force --upstream deep --downstream none
-            mv .moon-out/docs/* artifacts/docs/
+            ./build_all_docs.sh latest-only
           else
-            pushd cuda_python/docs/
             ./build_all_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
-            ls -l build
-            popd
-            mv cuda_python/docs/build/html/* artifacts/docs/
           fi
+          ls -l build
+          popd
+          mv cuda_python/docs/build/html/* artifacts/docs/
 
       - name: Build component docs
         if: ${{ inputs.component != 'all' }}
         run: |
           COMPONENT=$(echo "${{ inputs.component }}" | tr '-' '_')
+          pushd ${COMPONENT}/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            case "${{ inputs.component }}" in
-              cuda-pathfinder) MOON_PROJECT=pathfinder ;;
-              cuda-bindings) MOON_PROJECT=bindings ;;
-              cuda-core) MOON_PROJECT=core ;;
-              cuda-python) MOON_PROJECT=metapackage ;;
-              *)
-                echo "unsupported docs component: ${{ inputs.component }}" >&2
-                exit 1
-                ;;
-            esac
-            moon ci "${MOON_PROJECT}:docs-ci" --force --upstream deep --downstream none
+            ./build_docs.sh latest-only
           else
-            pushd "${COMPONENT}/docs/"
             ./build_docs.sh
             # At release time, we don't want to update the latest docs
             rm -rf build/html/latest
-            ls -l build
-            popd
           fi
+          ls -l build
+          popd
           if [[ "${{ inputs.component }}" != "cuda-python" ]]; then
             TARGET="${{ inputs.component }}"
-            mkdir -p "artifacts/docs/${TARGET}"
+            mkdir -p artifacts/docs/${TARGET}
           else
             TARGET=""
           fi
-          if [[ "${{ inputs.is-release }}" == "false" ]]; then
-            cp -aL "${COMPONENT}/docs/build/html/." "artifacts/docs/${TARGET}/"
-          else
-            mv "${COMPONENT}"/docs/build/html/* "artifacts/docs/${TARGET}"
-          fi
+          mv ${COMPONENT}/docs/build/html/* artifacts/docs/${TARGET}
 
       - name: Write rendered docs file list
         if: ${{ !inputs.is-release && github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}

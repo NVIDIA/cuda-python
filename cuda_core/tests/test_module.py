@@ -180,14 +180,11 @@ def get_saxpy_fatbin(init_cuda):
 def _read_saxpy_rdc(kind: str) -> bytes:
     """Read a pre-built saxpy RDC object or library.
 
-    In CI: read from CUDA_CORE_TEST_BINARIES_DIR after the build stage.
+    In CI: produced by the build stage.
     In local dev: auto-built on demand if nvcc is available; if you edit
     saxpy.cu, remove stale RDC files (i.e. saxpy.o, saxpy.a, or saxpy.lib) to force a rebuild.
     """
-    configured_dir = os.environ.get("CUDA_CORE_TEST_BINARIES_DIR")
-    if configured_dir == "":
-        raise ValueError("CUDA_CORE_TEST_BINARIES_DIR must not be empty")
-    binaries_dir = Path(configured_dir) if configured_dir is not None else Path(__file__).parent / "test_binaries"
+    binaries_dir = Path(__file__).parent / "test_binaries"
     if kind == "object":
         rdc_path = binaries_dir / "saxpy.o"
     elif kind == "library":
@@ -196,27 +193,8 @@ def _read_saxpy_rdc(kind: str) -> bytes:
         raise ValueError(f"unknown saxpy RDC kind: {kind!r}")
 
     if not rdc_path.is_file():
-        if configured_dir is not None:
-            raise FileNotFoundError(f"RDC fixture configured by CUDA_CORE_TEST_BINARIES_DIR does not exist: {rdc_path}")
         _build_saxpy_rdc(binaries_dir)
     return rdc_path.read_bytes()
-
-
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_read_saxpy_rdc_uses_configured_directory(tmp_path, monkeypatch):
-    expected = b"Moon-owned RDC fixture"
-    (tmp_path / "saxpy.o").write_bytes(expected)
-    monkeypatch.setenv("CUDA_CORE_TEST_BINARIES_DIR", str(tmp_path))
-
-    assert _read_saxpy_rdc("object") == expected
-
-
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_read_saxpy_rdc_rejects_missing_configured_fixture(tmp_path, monkeypatch):
-    monkeypatch.setenv("CUDA_CORE_TEST_BINARIES_DIR", str(tmp_path))
-
-    with pytest.raises(FileNotFoundError, match="CUDA_CORE_TEST_BINARIES_DIR"):
-        _read_saxpy_rdc("object")
 
 
 def _subprocess_output(result: subprocess.CompletedProcess[str]) -> str:

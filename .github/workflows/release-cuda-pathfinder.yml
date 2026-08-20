@@ -135,7 +135,6 @@ jobs:
     needs: prepare
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
-      actions: read
       id-token: write
       contents: write
       pull-requests: write

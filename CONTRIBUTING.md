@@ -30,7 +30,6 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
   - [CI infrastructure overview](#ci-infrastructure-overview)
-    - [Local and CI task orchestration with Moon](#local-and-ci-task-orchestration-with-moon)
     - [CI Pipeline Flow](#ci-pipeline-flow)
     - [Pipeline Execution Details](#pipeline-execution-details)
     - [Branch-specific Artifact Flow](#branch-specific-artifact-flow)
@@ -254,114 +253,102 @@ By making a contribution to this project, I certify that:
 
 The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and releases multiple components across different platforms. This section provides a visual overview of our CI infrastructure to help contributors understand the build and release process.
 
-### Local and CI task orchestration with Moon
-
-The draft CI orchestration spike uses [Moon 2.5.1](https://moonrepo.dev/moon) as the task graph and execution
-engine for both local development and CI. Moon uses only the system toolchain in this repository: it does not
-install, select, or configure Python, and it does not create Python environments. Existing Pixi and uv commands
-remain supported and can still be invoked directly; Moon delegates to the environment that the contributor or CI
-runner has already prepared.
-
-Before running package-build tasks, make sure `python` resolves to the interpreter you intend to use. In an existing
-virtual environment, uv environment, or Pixi environment, the CI build frontends can be installed without asking
-Moon to manage Python:
-
-```console
-$ python -m pip install --constraint ci/build-constraints.txt pip build cibuildwheel twine wheel
-```
-
-Native wheel tasks also require the appropriate CUDA toolkit and platform compiler to already be active. Test and
-documentation tasks continue to use the existing Pixi and uv environments declared by their projects.
-
-Use Moon to inspect the graph, run one task locally, or execute the affected portion of the graph as CI does:
-
-```console
-$ moon projects
-$ moon tasks
-$ moon run <project>:<task>
-$ moon run metapackage:wheel-pure
-$ moon run root:test
-$ moon run root:pure-wheel
-$ MOON_BASE=origin/main MOON_HEAD=HEAD moon ci ':#ci-test-linux' --upstream deep --downstream none
-```
-
-CI workers follow Moon's CI model: after GitHub Actions provisions the required Python, CUDA toolkit, compiler, or
-GPU, the worker invokes a tagged `moon ci` target group. Moon owns affected selection, task dependencies, command
-execution, cache hits, and output hydration. GitHub Actions retains heterogeneous runner allocation, credentials,
-and release or Pages publishing. The explicit `--downstream none` keeps work from crossing those runner-class
-boundaries; upstream dependencies remain part of the Moon task graph where they share a cache and environment.
-
-The current and previous CUDA variants of `cuda.core` are intentionally separate tasks because Moon does not
-provision or switch CUDA toolkits. For a local merged wheel, activate the current toolkit and run the current wheel
-tasks, stage the matching previous-branch `cuda.bindings` wheel, activate the previous toolkit and run
-`core:wheel-previous`, then run `core:wheel-merge`. CI follows the same staged sequence and lets Moon parallelize
-independent work within each phase.
-
-The Cython test-asset tasks have a similar environment boundary. CI changes from the wheel-build interpreter to the
-test interpreter before running `bindings:cython-test-assets` or `core:cython-test-assets`, so their pathfinder,
-bindings, and core wheels are staged inputs rather than executable Moon dependencies. To run either task locally,
-first build or copy exactly one current wheel for each package into its corresponding `.moon-out` directory.
-
-Moon's `.moon/cache` remains local to each runner. For ephemeral-runner reuse, GitHub Actions instead transports the
-canonical `.moon-out` directories in lane-qualified, immutable workflow artifacts. The gate accepts a lane only from
-a successful trusted push run at the exact merge-base commit and only when every required artifact in that lane is
-present. A producer restores those outputs before running `moon ci`, so affected tasks rebuild while unchanged staged
-outputs remain available to their consumers. Tests and documentation may consume the same exact-base lane directly
-when no producer is affected. Missing, expired, or incomplete lanes conservatively allocate and force the required
-producer runner.
-
-Conventional named wheel artifacts remain available to release tooling. Native lanes include the inexpensive
-cuda-pathfinder wheel directly; the Linux/Python 3.12 lane also includes the cuda-python metapackage used by
-non-release documentation. Context-sensitive documentation is rebuilt as parallel Moon tasks whenever its runner is
-selected. Generated `.moon/cache` and `.moon-out` directories are ignored by Git.
-
-CI sets `CUDA_PYTHON_USE_STAGED_BINDINGS_VERSION=1` when the metapackage must match a trusted staged
-`cuda.bindings` development wheel. Leave this variable unset for normal local builds; `root:pure-wheel` then derives
-the metapackage version from the current checkout and ignores any stale staged bindings output.
-
-All isolated package builds set both `PIP_BUILD_CONSTRAINT` and `PIP_CONSTRAINT` from
-`ci/build-constraints.txt`; CI also installs its build frontends from that file. Public `pyproject.toml` compatibility
-ranges remain unchanged. Moon fingerprints the active interpreter, installed tools, selected environment, and native
-compiler identities for its local cache. The builds still depend on provisioned runner, container, CUDA, and repair
-tool environments, so they are not treated as a hermetic cross-revision remote cache. The production contract remains
-the narrower exact-base `.moon-out` transport described above.
-
 ### CI Pipeline Flow
+
+![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
+
+Alternative Mermaid diagram representation:
 
 ```mermaid
 flowchart TD
-    trigger["PR, push, tag, schedule, or manual run"] --> gate["Gate runner<br/>moon query tasks --affected"]
-    base[("Trusted exact-base<br/>.moon-out lane bundles")] -. "inspect completeness" .-> gate
+    %% Trigger Events
+    subgraph TRIGGER["🔄 TRIGGER EVENTS"]
+        T1["• Push to main branch"]
+        T2["• Pull request<br/>• Manual workflow dispatch"]
+        T1 --- T2
+    end
 
-    gate -->|"affected native lane"| native["Native wheel runners<br/>platform x ci/build-matrix.yml"]
-    gate -->|"affected source distributions"| sdist["Linux and Windows sdist runners"]
-    gate -->|"affected tests"| tests["GPU test runners"]
-    gate -->|"affected docs"| docs["Parallel component docs"]
-    gate -->|"affected quality"| quality["Contracts and API checks"]
+    %% Build Stage
+    subgraph BUILD["🔨 BUILD STAGE"]
+        subgraph BUILD_PLATFORMS["Parallel Platform Builds"]
+            B1["linux-64<br/>(Self-hosted)"]
+            B2["linux-aarch64<br/>(Self-hosted)"]
+            B3["win-64<br/>(GitHub-hosted)"]
+        end
+        BUILD_DETAILS["• Python versions: 3.10, 3.11, 3.12, 3.13, 3.14<br/>• CUDA version: 13.0.0 (build-time)<br/>• Components: cuda-core, cuda-bindings,<br/>  cuda-pathfinder, cuda-python"]
+    end
 
-    base -. "restore unchanged outputs" .-> native
-    base -. "feed consumers when producers are skipped" .-> tests
-    base -. "feed consumers when producers are skipped" .-> docs
-    native --> lanes[("Canonical .moon-out<br/>lane artifacts")]
-    lanes --> tests
-    lanes --> docs
+    %% Artifact Storage
+    subgraph ARTIFACTS["📦 ARTIFACT STORAGE"]
+        subgraph GITHUB_ARTIFACTS["GitHub Artifacts"]
+            GA1["• Wheel files (.whl)<br/>• Test artifacts<br/>• Documentation<br/>(30-day retention)"]
+        end
+        subgraph GITHUB_CACHE["GitHub Cache"]
+            GC1["• Mini CTK cache"]
+        end
+    end
 
-    native --> named[("Named wheel artifacts")]
-    sdist --> sdist_lanes[("Canonical .moon-out<br/>sdist lane artifacts")]
-    named --> release["Tag/manual release validation and publishing"]
+    %% Test Stage
+    subgraph TEST["🧪 TEST STAGE"]
+        subgraph TEST_PLATFORMS["Parallel Platform Tests"]
+            TS1["linux-64<br/>(Self-hosted)"]
+            TS2["linux-aarch64<br/>(Self-hosted)"]
+            TS3["win-64<br/>(GitHub-hosted)"]
+        end
+        TEST_DETAILS["• Download wheels from artifacts<br/>• Test against multiple CUDA runtime versions<br/>• Run Python unit tests, Cython tests, examples"]
+        ARTIFACT_FLOWS["Artifact Flows:<br/>• cuda-pathfinder: main → backport<br/>• cuda-bindings: backport → main"]
+    end
+
+    %% Release Pipeline
+    subgraph RELEASE["🚀 RELEASE PIPELINE"]
+        subgraph RELEASE_STAGES["Sequential Release Steps"]
+            R1["Validation<br/>• Artifact integrity<br/>• Git tag verification"]
+            R2["Publishing<br/>• PyPI/TestPyPI<br/>• Component or all releases"]
+            R3["Documentation<br/>• GitHub Pages<br/>• Release notes"]
+            R1 --> R2 --> R3
+        end
+        RELEASE_DETAILS["• Manual workflow dispatch with run ID<br/>• Supports individual component or full releases"]
+    end
+
+    %% Main Flow
+    TRIGGER --> BUILD
+    BUILD -.->|"wheel upload"| ARTIFACTS
+    ARTIFACTS -.-> TEST
+    TEST --> RELEASE
+
+    %% Artifact Flow Arrows (Cache Reuse)
+    GITHUB_CACHE -.->|"mini CTK reuse"| BUILD
+    GITHUB_CACHE -.->|"mini CTK reuse"| TEST
+
+    %% Artifact Flow Arrows (Wheel Fetch)
+    GITHUB_ARTIFACTS -.->|"wheel fetch"| TEST
+    GITHUB_ARTIFACTS -.->|"wheel fetch"| RELEASE
+
+    %% Styling
+    classDef triggerStyle fill:#e8f4fd,stroke:#2196F3,stroke-width:2px,color:#1976D2
+    classDef buildStyle fill:#f3e5f5,stroke:#9C27B0,stroke-width:2px,color:#7B1FA2
+    classDef artifactStyle fill:#fff3e0,stroke:#FF9800,stroke-width:2px,color:#F57C00
+    classDef testStyle fill:#e8f5e8,stroke:#4CAF50,stroke-width:2px,color:#388E3C
+    classDef releaseStyle fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#D32F2F
+
+    class TRIGGER,T1,T2 triggerStyle
+    class BUILD,BUILD_PLATFORMS,B1,B2,B3,BUILD_DETAILS buildStyle
+    class ARTIFACTS,GITHUB_ARTIFACTS,GITHUB_CACHE,GA1,GC1 artifactStyle
+    class TEST,TEST_PLATFORMS,TS1,TS2,TS3,TEST_DETAILS,ARTIFACT_FLOWS testStyle
+    class RELEASE,RELEASE_STAGES,R1,R2,R3,RELEASE_DETAILS releaseStyle
 ```
 
 ### Pipeline Execution Details
 
-**Parallel Execution**: GitHub Actions allocates the required runner classes in parallel. Within each provisioned
-environment, Moon schedules independent tasks concurrently while preserving package and staged-output dependencies.
-The native Python ABI rows come from `ci/build-matrix.yml`, and CUDA versions come from `ci/versions.yml`.
+**Parallel Execution**: The CI pipeline leverages parallel execution to optimize build and test times:
+- **Build Stage**: Different architectures/operating systems (linux-64, linux-aarch64, win-64) are built in parallel across their respective runners
+- **Test Stage**: Different architectures/operating systems/CUDA versions are tested in parallel; documentation preview is also built in parallel with testing
 
 ### Branch-specific Artifact Flow
 
 #### Main Branch
 - **Build** → **Test** → **Documentation** → **Potential Release**
-- Canonical `.moon-out` lane artifacts feed affected CI; named wheel artifacts feed release tooling
+- Artifacts stored as `{component}-python{version}-{platform}-{sha}`
 - Full test coverage across all platforms and CUDA versions
 - **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
 
@@ -376,11 +363,11 @@ The native Python ABI rows come from `ci/build-matrix.yml`, and CUDA versions co
 
 - **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
 - **GitHub-hosted runners**: Used for Windows builds and general tasks
-- **Artifact retention**: 30 days for reusable Moon lanes; specialized artifacts declare their own retention
-- **Cache ownership**: Moon caches remain runner-local; GitHub caches CTK and compiler downloads separately
+- **Artifact retention**: 30 days for GitHub Artifacts (wheels, docs, tests)
+- **Cache retention**: GitHub Cache for build dependencies and environments
 - **Security**: All commits must be signed, untrusted code blocked
 - **Parallel execution**: Matrix builds across Python versions and platforms
-- **Component isolation**: Core, bindings, pathfinder, and the metapackage can be built or released independently
+- **Component isolation**: Each component (core, bindings, pathfinder, python) can be built/released independently
 
 ## Code coverage
 

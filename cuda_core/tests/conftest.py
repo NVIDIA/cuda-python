@@ -3,11 +3,29 @@
 
 import functools
 import gc
+import importlib
 import multiprocessing
 import os
+import pathlib
+import sys
 from contextlib import contextmanager
 
 import pytest
+
+# Keep in sync with cuda_bindings/tests/conftest.py.
+try:
+    import cuda_python_test_helpers._pytest_plugin  # noqa: F401
+except ImportError as e:
+    # Don't call .resolve(): resolving symlinks can make parents[2] point
+    # somewhere other than the monorepo root if a sub-directory is symlinked.
+    _test_helpers_root = pathlib.Path(__file__).parents[2] / "cuda_python_test_helpers"
+    if not _test_helpers_root.is_dir():
+        raise RuntimeError(f"cuda-python-test-helpers not installed and not found at {_test_helpers_root}") from e
+    for _k in list(sys.modules):
+        if _k == "cuda_python_test_helpers" or _k.startswith("cuda_python_test_helpers."):
+            del sys.modules[_k]
+    sys.path.insert(0, str(_test_helpers_root))
+    importlib.invalidate_caches()
 
 pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
 
