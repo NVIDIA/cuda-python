@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_retired\_pages\_v2
+==================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_retired_pages_v2
