@@ -145,6 +145,8 @@ jobs:
           for CUDA_ENV in ${CUDA_ENVS}; do
             echo "::group::Source-build ${CUDA_ENV}"
             # Avoid carrying Cython outputs between CUDA-major environments.
+            rm -rf cuda_core/build/cython cuda_core/cython_debug
+            find cuda_core/cuda/core -type f -name '*.so' -delete
             find cuda_bindings/tests/cython cuda_bindings_12/tests/cython cuda_core/tests/cython \
               -maxdepth 1 -type f \( -name 'test_*.cpp' -o -name 'test_*.so' \) -delete
 
