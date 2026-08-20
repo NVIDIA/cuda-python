@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import cuda.bindings.driver
 from cuda.core._device_resources import (DeviceResources, SMResource,
                                          WorkqueueResource)
-from cuda.core._stream import Stream
+from cuda.core._stream import Stream, StreamOptions
 
 __all__ = ['Context', 'ContextOptions']
 DeviceResourcesType = Sequence[SMResource | WorkqueueResource]
@@ -36,7 +36,7 @@ class Context:
 
         Raises :class:`RuntimeError` if the context has been closed.
         """
-    def create_stream(self, options: object | None=None) -> Stream:
+    def create_stream(self, options: StreamOptions | None=None) -> Stream:
         """Create a new stream bound to this green context.
 
         This method is only available on green contexts. For primary
