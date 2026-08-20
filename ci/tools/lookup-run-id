@@ -31,7 +31,7 @@ Options:
 Examples:
   $0 --tag v13.0.1 NVIDIA/cuda-python
   $0 --branch main NVIDIA/cuda-python
-  $0 --branch 12.9.x --artifact 'cuda-bindings-python313-*' NVIDIA/cuda-python
+  $0 --branch main --artifact 'cuda-bindings-*-cuda12.*' NVIDIA/cuda-python
   $0 --branch main --head-sha NVIDIA/cuda-python "CI"
 EOF
     exit 1

@@ -275,7 +275,7 @@ flowchart TD
             B2["linux-aarch64<br/>(Self-hosted)"]
             B3["win-64<br/>(GitHub-hosted)"]
         end
-        BUILD_DETAILS["• Python versions: 3.10, 3.11, 3.12, 3.13, 3.14<br/>• CUDA version: 13.0.0 (build-time)<br/>• Components: cuda-core, cuda-bindings,<br/>  cuda-pathfinder, cuda-python"]
+        BUILD_DETAILS["• Python versions: 3.10, 3.11, 3.12, 3.13, 3.14<br/>• CUDA build lines: configured 12.9 and 13.x<br/>• Components: cuda-core, cuda-bindings 12/13,<br/>  cuda-pathfinder, cuda-python"]
     end
 
     %% Artifact Storage
@@ -296,7 +296,7 @@ flowchart TD
             TS3["win-64<br/>(GitHub-hosted)"]
         end
         TEST_DETAILS["• Download wheels from artifacts<br/>• Test against multiple CUDA runtime versions<br/>• Run Python unit tests, Cython tests, examples"]
-        ARTIFACT_FLOWS["Artifact Flows:<br/>• cuda-pathfinder: main → backport<br/>• cuda-bindings: backport → main"]
+        ARTIFACT_FLOWS["Artifact Flows:<br/>• cuda_bindings_12 → CUDA 12 tests<br/>• cuda_bindings → CUDA 13 tests"]
     end
 
     %% Release Pipeline
@@ -344,20 +344,19 @@ flowchart TD
 - **Build Stage**: Different architectures/operating systems (linux-64, linux-aarch64, win-64) are built in parallel across their respective runners
 - **Test Stage**: Different architectures/operating systems/CUDA versions are tested in parallel; documentation preview is also built in parallel with testing
 
-### Branch-specific Artifact Flow
+### CUDA-major Artifact Flow
 
 #### Main Branch
 - **Build** → **Test** → **Documentation** → **Potential Release**
-- Artifacts stored as `{component}-python{version}-{platform}-{sha}`
-- Full test coverage across all platforms and CUDA versions
-- **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
+- CUDA 12.9 bindings are maintained in `cuda_bindings_12/`; CUDA 13 bindings are maintained in `cuda_bindings/`
+- The conditional workplan builds the changed bindings line and reuses the unaffected line's baseline artifacts
+- Artifacts include their Python version, CUDA Toolkit version, platform, and source SHA where applicable
+- Shared dependency changes and scheduled runs cover both CUDA majors across all supported platforms
 
-#### Backport Branches
-- **Build** → **Test** → **Backport PR Creation**
-- Artifacts used for validation before creating backport pull requests
-- Maintains compatibility with older CUDA versions
-- **Artifact flow in**: `cuda-pathfinder` artifacts ← main branch
-- **Artifact flow out**: older `cuda-bindings` artifacts → main branch
+#### Legacy 12.9.x Branch
+- The branch remains available for legacy compatibility and exceptional manual backports
+- Routine CUDA 12.9 builds, tests, documentation, and releases use `cuda_bindings_12/` on `main`
+- Main CI and releases do not fetch package artifacts from the legacy branch
 
 ### Key Infrastructure Details
 

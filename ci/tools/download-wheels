@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -11,11 +11,12 @@ set -euo pipefail
 
 # Check required arguments
 if [[ $# -lt 3 ]]; then
-    echo "Usage: $0 <run-id> <component> <repository> [output-dir]" >&2
+    echo "Usage: $0 <run-id> <component> <repository> [output-dir] [git-tag]" >&2
     echo "  run-id: The GitHub Actions run ID containing the artifacts" >&2
     echo "  component: The component name pattern to download (e.g., cuda-core, cuda-bindings)" >&2
     echo "  repository: The GitHub repository (e.g., NVIDIA/cuda-python)" >&2
     echo "  output-dir: Optional output directory (default: ./dist)" >&2
+    echo "  git-tag: Optional release tag used to select CUDA 12 or 13 artifacts" >&2
     exit 1
 fi
 
@@ -23,6 +24,7 @@ RUN_ID="$1"
 COMPONENT="$2"
 REPOSITORY="$3"
 OUTPUT_DIR="${4:-./dist}"
+GIT_TAG="${5:-}"
 
 # Ensure we have a GitHub token
 if [[ -z "${GH_TOKEN:-}" ]]; then
@@ -37,7 +39,11 @@ if [[ "$COMPONENT" == "all" ]]; then
     # Download all component patterns
     gh run download "$RUN_ID" -p "cuda-*" -R "$REPOSITORY"
 else
-    gh run download "$RUN_ID" -p "${COMPONENT}*" -R "$REPOSITORY"
+    ARTIFACT_PATTERN="${COMPONENT}*"
+    if [[ "$COMPONENT" =~ ^cuda-(bindings|python)$ && "$GIT_TAG" =~ ^v(12|13)\. ]]; then
+        ARTIFACT_PATTERN="${COMPONENT}*cuda${BASH_REMATCH[1]}.*"
+    fi
+    gh run download "$RUN_ID" -p "$ARTIFACT_PATTERN" -R "$REPOSITORY"
 fi
 
 # Create output directory

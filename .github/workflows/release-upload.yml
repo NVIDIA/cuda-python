@@ -83,7 +83,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Use the shared script to download wheels
-          ./ci/tools/download-wheels "${{ inputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "release/wheels"
+          ./ci/tools/download-wheels \
+            "${{ inputs.run-id }}" \
+            "${{ inputs.component }}" \
+            "${{ github.repository }}" \
+            "release/wheels" \
+            "${{ inputs.git-tag }}"
 
           # Validate that release wheels match the expected version from tag.
           ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "release/wheels"

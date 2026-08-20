@@ -55,6 +55,7 @@ jobs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
       HEAD_SHA: ${{ steps.find.outputs.head_sha }}
       CUDA_BUILD_VER: ${{ steps.find.outputs.cuda_build_ver }}
+      CUDA_PREV_BUILD_VER: ${{ steps.find.outputs.cuda_prev_build_ver }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -83,20 +84,24 @@ jobs:
             exit 1
           fi
 
-          CUDA_BUILD_VER=$(gh api \
+          VERSIONS_YAML=$(gh api \
             "repos/${{ github.repository }}/contents/ci/versions.yml?ref=$HEAD_SHA" \
             --jq '.content' \
-            | base64 -d \
-            | yq '.cuda.build.version')
+            | base64 -d)
 
-          if [[ -z "$CUDA_BUILD_VER" || "$CUDA_BUILD_VER" == "null" ]]; then
-            echo "::error::Could not resolve CUDA build version from $HEAD_SHA"
+          CUDA_BUILD_VER=$(yq '.cuda.build.version' <<< "$VERSIONS_YAML")
+          CUDA_PREV_BUILD_VER=$(yq '.cuda.prev_build.version' <<< "$VERSIONS_YAML")
+
+          if [[ -z "$CUDA_BUILD_VER" || "$CUDA_BUILD_VER" == "null" ||
+                -z "$CUDA_PREV_BUILD_VER" || "$CUDA_PREV_BUILD_VER" == "null" ]]; then
+            echo "::error::Could not resolve CUDA build versions from $HEAD_SHA"
             exit 1
           fi
 
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
           echo "cuda_build_ver=$CUDA_BUILD_VER" >> $GITHUB_OUTPUT
+          echo "cuda_prev_build_ver=$CUDA_PREV_BUILD_VER" >> $GITHUB_OUTPUT
 
   # ── PyTorch interop tests ──
 
@@ -113,6 +118,7 @@ jobs:
       build-type: nightly
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
@@ -131,6 +137,7 @@ jobs:
       build-type: nightly
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
@@ -149,6 +156,7 @@ jobs:
       build-type: nightly
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
@@ -169,6 +177,7 @@ jobs:
       build-type: nightly
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
@@ -187,6 +196,7 @@ jobs:
       build-type: nightly
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
@@ -205,6 +215,7 @@ jobs:
       build-type: nightly
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
@@ -225,6 +236,7 @@ jobs:
       build-type: nightly
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
@@ -243,6 +255,7 @@ jobs:
       build-type: nightly
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
@@ -263,6 +276,7 @@ jobs:
       build-type: nightly
       host-platform: linux-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
@@ -281,6 +295,7 @@ jobs:
       build-type: nightly
       host-platform: win-64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
@@ -301,6 +316,7 @@ jobs:
       build-type: nightly
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      prev-build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_PREV_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: standard

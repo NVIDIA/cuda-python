@@ -103,5 +103,5 @@ markers = [
 root = ".."
 version_file = "cuda/bindings/_version.py"
 # Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
-tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
-git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]
+tag_regex = "^(?P<version>v13\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v13.*"]

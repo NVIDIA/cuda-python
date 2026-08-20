@@ -19,6 +19,7 @@ dependencies:
   - sphinx-copybutton
   - myst-nb
   - enum_tools
+  - furo
   - sphinx-toolbox
   - pyclibrary
   - pip:

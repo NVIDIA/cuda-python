@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
-        exclude: (^cuda_bindings/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
+        exclude: (^cuda_bindings(?:_12)?/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
       - id: ruff-format
         exclude: .*\.pyi$
 
@@ -55,7 +55,7 @@ repos:
         name: Check generated-file seals
         entry: python ./toolshed/check_generated_file_seals.py
         language: python
-        files: ^cuda_bindings/
+        files: ^cuda_bindings(?:_12)?/
         types: [text]
 
       - id: check-pixi-cuda-version
@@ -80,6 +80,9 @@ repos:
           - "_" # fake script name, because bash considers $0 (the first argument) to be the script name
         language: system
         files: '^.*/docs/source/.*\.md$'
+        # The imported CUDA 12.9 documentation retains its historical MyST
+        # sources; new documentation elsewhere must continue to use reST.
+        exclude: '^cuda_bindings_12/docs/source/'
 
       - id: stubgen-pyx-cuda-core
         name: Generate .pyi stubs for cuda_core
@@ -108,7 +111,7 @@ repos:
     rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
     hooks:
     - id: check-added-large-files
-      exclude: cuda_bindings/cuda/bindings/nvml.pyx
+      exclude: '^(?:cuda_bindings(?:_12)?/cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx)|cuda_bindings_12/pixi\.lock)$'
     - id: check-case-conflict
     - id: check-docstring-first
     - id: check-merge-conflict
@@ -117,14 +120,14 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings(?:_12)?/cuda/bindings/.*\.in?|cuda_bindings(?:_12)?/docs/source/module/.*\.rst?|.*\.pyi)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
         (?x)^(?:
           cuda_python/README\.md|
-          cuda_bindings/cuda/bindings/.*\.in?|
-          cuda_bindings/docs/source/module/.*\.rst?|
+          cuda_bindings(?:_12)?/cuda/bindings/.*\.in?|
+          cuda_bindings(?:_12)?/docs/source/module/.*\.rst?|
           .*\.patch$
         )$
 
@@ -166,7 +169,7 @@ repos:
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
-        exclude: ^cuda_bindings/
+        exclude: ^cuda_bindings(?:_12)?/
 
 
 default_language_version:

@@ -26,6 +26,7 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     "benchmarks": "Apache-2.0",
     "ci": "Apache-2.0",
     "cuda_bindings": "Apache-2.0",
+    "cuda_bindings_12": "Apache-2.0",
     "cuda_core": "Apache-2.0",
     "cuda_pathfinder": "Apache-2.0",
     "cuda_python": "Apache-2.0",
@@ -36,6 +37,10 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
 }
 
 SPDX_IGNORE_FILENAME = ".spdx-ignore"
+PACKAGE_LICENSE_FILES = (
+    "cuda_bindings/LICENSE",
+    "cuda_bindings_12/LICENSE",
+)
 
 
 def load_spdx_ignore():
@@ -206,6 +211,12 @@ def main(args):
     ignore_spec = load_spdx_ignore()
 
     returncode = 0
+    repository_license = Path("LICENSE").read_bytes()
+    for license_file in PACKAGE_LICENSE_FILES:
+        if Path(license_file).read_bytes() != repository_license:
+            print(f"PACKAGE LICENSE {license_file!r} does not match repository LICENSE")
+            returncode = 1
+
     for filepath in args:
         if ignore_spec.match_file(filepath):
             continue

@@ -34,12 +34,22 @@ permissions:
 jobs:
   test-sdist:
     name: Test sdist builds
-    if: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_tests }}
+    if: ${{ (inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_tests) &&
+            ((startsWith(inputs.cuda-version, '12.') && (inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_cuda_majors.cu12)) ||
+             (startsWith(inputs.cuda-version, '13.') && (inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_cuda_majors.cu13))) }}
     env:
+      BINDINGS_ROOT: ${{ startsWith(inputs.cuda-version, '12.') && 'cuda_bindings_12' || 'cuda_bindings' }}
+      CUDA_PYTHON_BUILD_MAJOR: ${{ startsWith(inputs.cuda-version, '12.') && '12' || '13' }}
       BUILD_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build }}
-      BUILD_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_build }}
-      BUILD_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_build }}
-      BUILD_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_build }}
+      BUILD_BINDINGS: ${{ inputs.workplan == '' ||
+                          (startsWith(inputs.cuda-version, '12.') && fromJSON(inputs.workplan).modules.bindings.variants.cu12.needs_build) ||
+                          (startsWith(inputs.cuda-version, '13.') && fromJSON(inputs.workplan).modules.bindings.variants.cu13.needs_build) }}
+      BUILD_CORE: ${{ inputs.workplan == '' ||
+                      (startsWith(inputs.cuda-version, '12.') && fromJSON(inputs.workplan).modules.core.variants.cu12.needs_build) ||
+                      (startsWith(inputs.cuda-version, '13.') && fromJSON(inputs.workplan).modules.core.variants.cu13.needs_build) }}
+      BUILD_PYTHON: ${{ inputs.workplan == '' ||
+                        (startsWith(inputs.cuda-version, '12.') && fromJSON(inputs.workplan).modules.python.variants.cu12.needs_build) ||
+                        (startsWith(inputs.cuda-version, '13.') && fromJSON(inputs.workplan).modules.python.variants.cu13.needs_build) }}
     timeout-minutes: 60
     runs-on: windows-2022
     steps:
@@ -63,6 +73,15 @@ jobs:
       - name: Install build tools
         run: python -m pip install "pip>=25.3" build
 
+      - name: Set CUDA 12 development versions
+        if: ${{ startsWith(inputs.cuda-version, '12.') &&
+                (github.ref_type != 'tag' || startsWith(github.ref_name, 'v12.9.') == false) }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          version="12.9.8.dev0+g${GITHUB_SHA:0:7}"
+          echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_BINDINGS=${version}" >> "$GITHUB_ENV"
+          echo "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_CUDA_PYTHON=${version}" >> "$GITHUB_ENV"
+
       # Pure Python packages -- no CTK needed.
       - name: Build cuda.pathfinder sdist and wheel-from-sdist
         if: ${{ env.BUILD_PATHFINDER == 'true' }}
@@ -77,7 +96,8 @@ jobs:
           pip wheel --no-deps --wheel-dir cuda_python/dist cuda_python/dist/*.tar.gz
 
       - name: Download cuda.pathfinder wheel
-        if: ${{ env.BUILD_PATHFINDER != 'true' && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
+        if: ${{ env.BUILD_PATHFINDER != 'true' && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') &&
+                (inputs.workplan == '' || fromJSON(inputs.workplan).baseline.run_id != '') }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
@@ -87,11 +107,14 @@ jobs:
         if: ${{ env.BUILD_BINDINGS == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
-          test "${#pathfinder_wheels[@]}" -eq 1
-          test -f "${pathfinder_wheels[0]}"
           mkdir -p wheel-constraints
-          pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
-          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
+          if [[ "${#pathfinder_wheels[@]}" -eq 1 && -f "${pathfinder_wheels[0]}" ]]; then
+            pathfinder_uri="file:///$(cygpath -am "${pathfinder_wheels[0]}")"
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" > wheel-constraints/cuda-bindings.txt
+          else
+            : > wheel-constraints/cuda-bindings.txt
+          fi
+          cat wheel-constraints/cuda-bindings.txt
 
       # Cython packages need CTK. No sccache on Windows (this is a correctness
       # smoke test, not a production build; see build-wheel.yml which also
@@ -114,22 +137,22 @@ jobs:
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          python -m build --sdist cuda_bindings/
-          pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
+          python -m build --sdist "${BINDINGS_ROOT}/"
+          pip wheel --no-deps --wheel-dir "${BINDINGS_ROOT}/dist" "${BINDINGS_ROOT}"/dist/*.tar.gz
 
       - name: Download cuda.bindings wheel
         if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-bindings-python312-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}
-          path: cuda_bindings/dist
+          path: ${{ env.BINDINGS_ROOT }}/dist
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
-          bindings_wheels=(cuda_bindings/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
+          bindings_wheels=("${BINDINGS_ROOT}"/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${pathfinder_wheels[0]}"

@@ -34,9 +34,13 @@ on:
       - "**/pixi.toml"
       - "**/pixi.lock"
       - "cuda_bindings/build_hooks.py"
+      - "cuda_bindings_12/build_hooks.py"
       - "cuda_core/build_hooks.py"
       - "cuda_bindings/cuda/bindings/**" # generated bindings sources
+      - "cuda_bindings_12/cuda/bindings/**"
+      - "cuda_bindings_12/docs/**"
       - "cuda_bindings/tests/cython/**"
+      - "cuda_bindings_12/tests/cython/**"
       - "cuda_core/tests/cython/**"
       - "ci/versions.yml"
       - ".github/workflows/ci-pixi-source-test.yml"
@@ -61,7 +65,7 @@ env:
 jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
   build-smoke:
-    name: "build smoke (cu13, linux-64, CPU)"
+    name: "build smoke (selected CUDA lines, linux-64, CPU)"
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -82,31 +86,101 @@ jobs:
           pixi-version: ${{ env.PIXI_VERSION }}
           run-install: false
 
-      - name: Source-build + import + cython-placement smoke
+      - name: Select CUDA environments
         env:
-          CUDA_ENV: ${{ inputs.cuda-env || 'cu13' }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
-          # pathfinder: pure-Python, no GPU.
-          pixi run -e "${CUDA_ENV}" test-pathfinder
+          cuda_envs=()
+          validate_cu12_docs=false
+          if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+            case "${REQUESTED_CUDA_ENV}" in
+              cu12|cu13) cuda_envs+=("${REQUESTED_CUDA_ENV}") ;;
+              *) echo "::error::cuda-env must be cu12 or cu13"; exit 1 ;;
+            esac
+          else
+            merge_base=$(git merge-base HEAD "${BASE_SHA}")
+            workplan=$(python3 ci/tools/compute_ci_plan.py \
+              --merge-base "${merge_base}" \
+              --baseline-run-id pixi-source)
+            need_cu12=$(jq -r '.jobs.test_cuda_majors.cu12' <<< "${workplan}")
+            need_cu13=$(jq -r '.jobs.test_cuda_majors.cu13' <<< "${workplan}")
 
-          # bindings + core: force the source build (catches nvrtc/driver
-          # compile errors like #2182) and import them (catches ABI mismatches).
-          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" \
-            python -c "import cuda.bindings.driver, cuda.bindings.nvrtc, cuda.bindings.runtime; print('bindings import OK')"
-          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" \
-            python -c "import cuda.core; print('core import OK')"
+            # Pixi manifests are deliberately ignored by the wheel planner.
+            # Add their package-local impact to its source/test decisions, and
+            # validate CUDA 12 docs in the line-specific Pixi environment.
+            while IFS= read -r -d '' path; do
+              case "${path}" in
+                cuda_bindings_12/docs/*)
+                  need_cu12=true
+                  validate_cu12_docs=true
+                  ;;
+                cuda_bindings_12/pixi.toml|cuda_bindings_12/pixi.lock)
+                  need_cu12=true
+                  ;;
+                cuda_bindings/pixi.toml|cuda_bindings/pixi.lock)
+                  need_cu13=true
+                  ;;
+                */pixi.toml|*/pixi.lock|pixi.toml|pixi.lock)
+                  need_cu12=true
+                  need_cu13=true
+                  ;;
+              esac
+            done < <(git diff --no-renames --name-only -z "${merge_base}" HEAD)
 
-          # cython test extensions: build them and confirm each .so landed next
-          # to its .pyx in tests/cython (catches the placement regression #2180).
-          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" build-cython-tests
-          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" build-cython-tests
-          for d in cuda_bindings/tests/cython cuda_core/tests/cython; do
-            if ! compgen -G "${d}/*.cpython-*.so" > /dev/null; then
-              echo "::error::no compiled cython test .so in ${d} (placement regression)"
-              exit 1
+            ${need_cu12} && cuda_envs+=(cu12)
+            ${need_cu13} && cuda_envs+=(cu13)
+          fi
+
+          if (( ${#cuda_envs[@]} == 0 )); then
+            echo "::error::no CUDA environment selected for source-build smoke tests"
+            exit 1
+          fi
+          echo "CUDA_ENVS=${cuda_envs[*]}" | tee -a "$GITHUB_ENV"
+          echo "VALIDATE_CU12_DOCS=${validate_cu12_docs}" | tee -a "$GITHUB_ENV"
+
+      - name: Source-build + import + cython-placement smoke
+        run: |
+          for CUDA_ENV in ${CUDA_ENVS}; do
+            echo "::group::Source-build ${CUDA_ENV}"
+            # Avoid carrying Cython outputs between CUDA-major environments.
+            find cuda_bindings/tests/cython cuda_bindings_12/tests/cython cuda_core/tests/cython \
+              -maxdepth 1 -type f \( -name 'test_*.cpp' -o -name 'test_*.so' \) -delete
+
+            # pathfinder: pure-Python, no GPU.
+            pixi run -e "${CUDA_ENV}" test-pathfinder
+
+            if [[ "${CUDA_ENV}" == "cu12" ]]; then
+              BINDINGS_ROOT="cuda_bindings_12"
+            else
+              BINDINGS_ROOT="cuda_bindings"
             fi
+
+            # Force both source builds and import them to catch compile/ABI
+            # regressions such as #2182. cuda-core's cu12 environment uses the
+            # published 12.x bindings by design; wheel CI covers local pairing.
+            pixi run --manifest-path "${BINDINGS_ROOT}" -e "${CUDA_ENV}" \
+              python -c "import cuda.bindings.driver, cuda.bindings.nvrtc, cuda.bindings.runtime; print('bindings import OK')"
+            pixi run --manifest-path cuda_core -e "${CUDA_ENV}" \
+              python -c "import cuda.core; print('core import OK')"
+            pixi run --manifest-path "${BINDINGS_ROOT}" -e "${CUDA_ENV}" build-cython-tests
+            pixi run --manifest-path cuda_core -e "${CUDA_ENV}" build-cython-tests
+
+            # Confirm each extension landed next to its .pyx (catches #2180).
+            for d in "${BINDINGS_ROOT}/tests/cython" cuda_core/tests/cython; do
+              if ! compgen -G "${d}/*.cpython-*.so" > /dev/null; then
+                echo "::error::no compiled cython test .so in ${d} (placement regression)"
+                exit 1
+              fi
+            done
+            echo "::endgroup::"
           done
           echo "cython test extensions placed correctly"
+
+      - name: Build CUDA 12 bindings docs
+        if: ${{ env.VALIDATE_CU12_DOCS == 'true' }}
+        run: pixi run --manifest-path cuda_bindings_12 -e docs build-docs
 
   # ── Nightly: full `pixi run test` on a GPU runner ──
   full-test:

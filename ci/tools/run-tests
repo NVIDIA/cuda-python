@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -26,7 +26,13 @@ test_module=${1}
 if [[ "${test_module}" != nightly-* ]]; then
   pushd ./cuda_pathfinder
   echo "Installing pathfinder wheel"
-  pip install ./*.whl --group test
+  pathfinder_wheels=(./*.whl)
+  if [[ "${#pathfinder_wheels[@]}" -eq 1 && -f "${pathfinder_wheels[0]}" ]]; then
+    pip install "${pathfinder_wheels[0]}" --group test
+  else
+    # Line-specific release-tag runs intentionally omit unrelated artifacts.
+    pip install cuda-pathfinder --group test
+  fi
   popd
 fi
 
@@ -44,11 +50,22 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
   echo "Installing bindings wheel"
-  pushd ./cuda_bindings
-  if [[ "${LOCAL_CTK}" == 1 ]]; then
-    pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group test
+  pushd "./${CUDA_BINDINGS_ROOT}"
+  bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
+  if [[ "${#bindings_wheels[@]}" -ne 1 || ! -f "${bindings_wheels[0]}" ]]; then
+    echo "Expected exactly one cuda-bindings wheel in ${CUDA_BINDINGS_ARTIFACTS_DIR}" >&2
+    exit 1
+  fi
+  if [[ "${CUDA_BINDINGS_ROOT}" == "cuda_bindings_12" ]]; then
+    if [[ "${LOCAL_CTK}" == 1 ]]; then
+      pip install "${bindings_wheels[0]}[test]"
+    else
+      pip install "${bindings_wheels[0]}[all,test]"
+    fi
+  elif [[ "${LOCAL_CTK}" == 1 ]]; then
+    pip install "${bindings_wheels[0]}" --group test
   else
-    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
+    pip install "${bindings_wheels[0]}[all]" --group test
   fi
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v --randomly-dont-reorganize tests/
@@ -67,7 +84,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   fi
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
-  #   main/backport → local wheel from artifacts dir
+  #   local         → matching CUDA 12 or 13 wheel from this run
   #   published     → install from PyPI by version
   BINDINGS_ARGS=()
   if [[ "${BINDINGS_SOURCE}" == "published" ]]; then
