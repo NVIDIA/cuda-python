@@ -70,7 +70,15 @@ class Stream:
         Releases the stream handle. For owned streams, this destroys the
         underlying CUDA stream. For borrowed streams, this releases the
         reference and allows the Python owner to be GC'd.
+
+        .. warning::
+            Do not close :obj:`LEGACY_DEFAULT_STREAM` or
+            :obj:`PER_THREAD_DEFAULT_STREAM`. They are shared module-level
+            objects, so closing one invalidates it for the rest of the process.
         """
+    @property
+    def is_closed(self) -> bool:
+        """Whether this stream has been closed."""
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
     def __hash__(self) -> int: ...

@@ -161,6 +161,7 @@ cdef inline int _query_memory_attrs(
 
 cdef inline void _init_memory_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
+    Buffer_check_open(self)
     if not self._mem_attrs_inited.load(memory_order_acquire):
         _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
         self._mem_attrs_inited.store(True, memory_order_release)
@@ -335,6 +336,7 @@ cdef class Buffer:
         # Unpickling performs a live CUDA IPC import from descriptor bytes in the
         # pickle stream. Only deserialize Buffers from a trusted principal.
         # Must not serialize the parent's stream!
+        Buffer_check_open(self)
         return Buffer._reduce_helper, (self.memory_resource, self.ipc_descriptor)
 
     @staticmethod
@@ -405,6 +407,7 @@ cdef class Buffer:
     @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
+        Buffer_check_open(self)
         cdef object ipc_data
         if self._ipc_data is None:
             ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
@@ -509,6 +512,7 @@ cdef class Buffer:
             back to a plain copy cannot honor that guarantee.
 
         """
+        Buffer_check_open(self)
         cdef Stream s = Stream_accept(stream)
         cdef size_t src_size = self._size
 
@@ -517,6 +521,8 @@ cdef class Buffer:
                 raise ValueError("a destination buffer must be provided (this "
                                  "buffer does not have a memory_resource)")
             dst = self._memory_resource.allocate(src_size, stream=s)
+        else:
+            Buffer_check_open(<Buffer>dst)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
@@ -561,6 +567,8 @@ cdef class Buffer:
             cuda.bindings or the driver is older than CUDA 13.2: falling
             back to a plain copy cannot honor that guarantee.
         """
+        Buffer_check_open(self)
+        Buffer_check_open(src)
         cdef Stream s = Stream_accept(stream)
         cdef size_t dst_size = self._size
         cdef size_t src_size = src._size
@@ -594,6 +602,7 @@ cdef class Buffer:
             If int value is outside [0, 256).
 
         """
+        Buffer_check_open(self)
         cdef Stream s_stream = Stream_accept(stream)
         cdef unsigned int val
         cdef unsigned int elem_size
@@ -627,6 +636,7 @@ cdef class Buffer:
     ) -> object:
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
+        Buffer_check_open(self)
         if dl_device is not None:
             raise BufferError("Sorry, not supported: dl_device other than None")
         if copy is True:
@@ -640,6 +650,7 @@ cdef class Buffer:
         return make_py_capsule(self, versioned)
 
     def __dlpack_device__(self) -> tuple[int, int]:
+        Buffer_check_open(self)
         return classify_dl_device(self)
 
     def __buffer__(self, flags: int, /) -> memoryview:
@@ -656,6 +667,7 @@ cdef class Buffer:
     @property
     def device_id(self) -> int:
         """Return the device ordinal of this buffer."""
+        Buffer_check_open(self)
         if self._memory_resource is not None:
             return self._memory_resource.device_id
         _init_memory_attrs(self)
@@ -674,6 +686,11 @@ cdef class Buffer:
         # that expect a raw pointer value
         return as_intptr(self._h_ptr)
 
+    @property
+    def is_closed(self) -> bool:
+        """Whether this buffer has been closed."""
+        return self._h_ptr.get() == NULL
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Buffer):
             return NotImplemented
@@ -691,6 +708,7 @@ cdef class Buffer:
     @property
     def is_device_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
+        Buffer_check_open(self)
         if self._memory_resource is not None:
             return self._memory_resource.is_device_accessible
         _init_memory_attrs(self)
@@ -699,6 +717,7 @@ cdef class Buffer:
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
+        Buffer_check_open(self)
         if self._memory_resource is not None:
             return self._memory_resource.is_host_accessible
         _init_memory_attrs(self)
@@ -707,6 +726,7 @@ cdef class Buffer:
     @property
     def is_managed(self) -> bool:
         """Return True if this buffer is CUDA managed (unified) memory, otherwise False."""
+        Buffer_check_open(self)
         _init_memory_attrs(self)
         if self._mem_attrs.is_managed:
             return True
@@ -858,14 +878,13 @@ cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint):
     for item in buffers:
         if not isinstance(item, Buffer):
             raise TypeError(f"{what}: expected Buffer, got {type(item).__name__}")
+        Buffer_check_open(<Buffer>item)
         out.append(item)
     return tuple(out)
 
-
 cdef inline void Buffer_set_deallocation_stream(Buffer self, object stream):
     """Validate and replace a live buffer's deallocation recipe."""
-    if not self._h_ptr:
-        raise RuntimeError("Cannot set the deallocation stream on a closed Buffer")
+    Buffer_check_open(self)
     cdef Stream s = Stream_accept(stream)
     _apply_deallocation_stream(self._h_ptr, s._h_stream)
 
@@ -883,3 +902,4 @@ cdef inline void Buffer_close(Buffer self, object stream):
     self._memory_resource = None
     self._ipc_data = None
     self._owner = None
+    self._mem_attrs_inited.store(False)

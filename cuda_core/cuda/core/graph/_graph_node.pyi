@@ -52,7 +52,7 @@ class GraphNode:
         """
     @property
     def is_valid(self) -> bool:
-        """Whether this node is valid (not destroyed).
+        """Whether this node and its graph definition remain valid.
 
         Returns ``False`` after :meth:`destroy` has been called.
         """

@@ -58,6 +58,13 @@ Fixes and enhancements
   a buffer's eventual deallocation without closing the buffer.
   (`#2600 <https://github.com/NVIDIA/cuda-python/issues/2600>`__)
 
+- Closeable resource objects now report their state through ``is_closed``, while
+  graph definitions and nodes report their state through ``is_valid``. Active
+  operations reject closed or invalid resources, and cross-object APIs reject
+  them before passing a null handle to CUDA. Closing either default-stream
+  singleton remains a no-op because those process-wide tokens must stay valid.
+  (`#2627 <https://github.com/NVIDIA/cuda-python/issues/2627>`__)
+
 - Explicit calls to ``deallocate()`` on pool-backed memory resources and
   :class:`GraphMemoryResource` now propagate errors from the underlying CUDA
   free operation. Previously, these errors could be suppressed. Automatic

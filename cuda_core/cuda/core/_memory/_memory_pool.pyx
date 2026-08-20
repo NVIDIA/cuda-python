@@ -127,11 +127,20 @@ cdef class _MemPool(MemoryResource):
         self._attributes = None
 
     def close(self) -> None:
-        """
-        Close the memory resource and destroy the associated memory pool
-        if owned.
+        """Release this object's reference to the memory pool.
+
+        New allocations and operations requiring this object's pool handle are
+        rejected afterward. For owned pools, release of the underlying pool's
+        resources is deferred until all outstanding allocations are freed and
+        pending free operations complete. :meth:`deallocate` remains available
+        after :meth:`close` so existing allocations can still be released.
         """
         _MP_close(self)
+
+    @property
+    def is_closed(self) -> bool:
+        """Whether this memory resource has been closed."""
+        return self._h_pool.get() == NULL
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
@@ -151,6 +160,7 @@ cdef class _MemPool(MemoryResource):
             The allocated buffer object, which is accessible on the device that this memory
             resource was created for.
         """
+        MP_check_open(self)
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
@@ -183,6 +193,7 @@ cdef class _MemPool(MemoryResource):
     @cython.critical_section
     def attributes(self) -> _MemPoolAttributes:
         """Memory pool attributes."""
+        MP_check_open(self)
         cdef _MemPoolAttributes attributes
         if self._attributes is None:
             attributes = _MemPoolAttributes._init(self._h_pool)
@@ -299,6 +310,7 @@ cdef int MP_raise_release_threshold(_MemPool self) except? -1:
     the OS as soon as there are no active suballocations.  Setting it to
     ULLONG_MAX avoids repeated OS round-trips.
     """
+    MP_check_open(self)
     cdef cydriver.cuuint64_t current_threshold
     cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
     with nogil:
@@ -329,6 +341,7 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 
 cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = Buffer):
+    MP_check_open(self)
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef DevicePtrHandle h_ptr
     with nogil:
@@ -352,7 +365,6 @@ cdef inline void _MP_deallocate(
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
-
 
 cdef inline _MP_close(_MemPool self):
     if not self._h_pool:

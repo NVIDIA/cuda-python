@@ -11,7 +11,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
     from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
+from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_coerce_batch  # no-cython-lint
 
 # to_cumemlocation is referenced only from CUDA 13 branches. cython-lint does
 # not evaluate compile-time IF blocks, so it needs a pragma to be seen as used.
@@ -289,6 +289,7 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 
         Returns Device | Host | None.
         """
+        Buffer_check_open(buf)
         cdef cydriver.CUdeviceptr cu_ptr = as_cu(buf._h_ptr)
         cdef size_t nbytes = buf._size
         cdef int loc_type = 0

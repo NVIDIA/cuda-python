@@ -198,6 +198,9 @@ class GraphicsResource:
     def handle(self) -> int:
         """The raw ``CUgraphicsResource`` handle as a Python int."""
     @property
+    def is_closed(self) -> bool:
+        """Whether this graphics resource has been closed."""
+    @property
     def resource_handle(self) -> int:
         """Alias for :attr:`handle`."""
     def __repr__(self) -> str: ...
