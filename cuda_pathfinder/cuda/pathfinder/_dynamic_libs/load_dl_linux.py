@@ -208,6 +208,35 @@ def _work_around_known_bugs(libname: str, found_path: str) -> None:
                     ctypes.CDLL(dep_path, CDLL_MODE)
 
 
+def _retry_load_after_working_around_known_bugs(
+    desc: LibDescriptor, found_path: str, error: OSError
+) -> ctypes.CDLL | None:
+    """Second-chance load for known-broken NVIDIA wheels.
+
+    Returns the loaded library, or None if no workaround applies or the retry
+    also fails. Kept strictly reactive: nothing here runs unless the primary
+    load already failed with the exact signature of the known bug, so it
+    disappears by itself once the offending wheel is fixed.
+    """
+    if desc.name != "cufile" or "shm_open" not in str(error):
+        return None
+    # Work around bug in nvidia-cufile wheels (observed with
+    #   nvidia_cufile_cu13-1.15.1.6-py3-none-manylinux_2_28_aarch64.whl)
+    # Issue: libcufile.so.0 references shm_open() but has no DT_NEEDED entry
+    # for librt, so dlopen() fails with "undefined symbol: shm_open" on
+    # glibc < 2.34, where shm_open lives in librt rather than in libc.
+    # Making librt's symbols globally visible first lets the reference resolve.
+    # See https://github.com/NVIDIA/cuda-python/issues/2313
+    try:
+        ctypes.CDLL("librt.so.1", CDLL_MODE)
+    except OSError:
+        return None  # Nothing gained; defer to the original error.
+    try:
+        return _load_lib(desc, found_path)
+    except OSError:
+        return None  # Defer to the original error, which is the more informative one.
+
+
 def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL:
     """Load a dynamic library from the given path.
 
@@ -226,5 +255,8 @@ def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | No
     try:
         handle = _load_lib(desc, found_path)
     except OSError as e:
-        raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
+        retried_handle = _retry_load_after_working_around_known_bugs(desc, found_path, e)
+        if retried_handle is None:
+            raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
+        handle = retried_handle
     return LoadedDL(found_path, False, handle._handle, found_via)
