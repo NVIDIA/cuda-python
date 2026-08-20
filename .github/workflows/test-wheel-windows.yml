@@ -22,8 +22,8 @@ on:
       nruns:
         type: number
         default: 1
-      workplan:
-        description: JSON workplan. An empty value tests everything.
+      targets:
+        description: JSON array of exact Moon Windows test route targets. An empty value tests everything.
         type: string
         default: ""
       run-id:
@@ -89,10 +89,7 @@ jobs:
 
   test:
     env:
-      TEST_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_test }}
-      TEST_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_test }}
-      TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test }}
-      TEST_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test }}
+      MOON_TARGETS: ${{ inputs.targets != '' && inputs.targets || '["pathfinder:ci-test-windows","bindings:ci-test-windows","core:ci-test-windows","metapackage:ci-test-windows"]' }}
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     timeout-minutes: 60
     # The build stage could fail but we want the CI to keep moving.
@@ -107,6 +104,20 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Resolve Moon test targets
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          jq -e 'type == "array" and all(.[]; type == "string")' <<< "$MOON_TARGETS" >/dev/null
+          has_target() {
+            jq -e --arg target "$1" 'index($target) != null' <<< "$MOON_TARGETS" >/dev/null
+          }
+          {
+            echo "TEST_PATHFINDER=$(has_target pathfinder:ci-test-windows && echo true || echo false)"
+            echo "TEST_BINDINGS=$(has_target bindings:ci-test-windows && echo true || echo false)"
+            echo "TEST_CORE=$(has_target core:ci-test-windows && echo true || echo false)"
+            echo "TEST_PYTHON=$(has_target metapackage:ci-test-windows && echo true || echo false)"
+          } >> "$GITHUB_ENV"
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -227,11 +238,25 @@ jobs:
             rmdir cuda-python-wheel
           fi
 
+      - name: Stage pure wheels for Moon
+        if: ${{ inputs.test-mode == 'standard' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          mkdir -p cuda_pathfinder/dist cuda_python/dist
+          pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
+          if (( ${#pathfinder_wheels[@]} != 0 )) && [[ -f "${pathfinder_wheels[0]}" ]]; then
+            cp "${pathfinder_wheels[@]}" cuda_pathfinder/dist/
+          fi
+          python_wheels=(cuda_python-*.whl)
+          if (( ${#python_wheels[@]} != 0 )) && [[ -f "${python_wheels[0]}" ]]; then
+            cp "${python_wheels[@]}" cuda_python/dist/
+          fi
+
       - name: Display structure of downloaded cuda-python artifacts
         if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'published' }}
         run: |
           Get-Location
-          Get-ChildItem cuda_python*.whl | Select-Object Mode, LastWriteTime, Length, FullName
+          Get-ChildItem -Recurse cuda_pathfinder,cuda_python -Filter *.whl | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Display structure of downloaded cuda.bindings artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
@@ -256,7 +281,7 @@ jobs:
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.core build artifacts
-        if: ${{ env.TEST_CORE == 'true' }}
+        if: ${{ env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
@@ -265,7 +290,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.core build artifacts
-        if: ${{ env.TEST_CORE == 'true' }}
+        if: ${{ env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
@@ -307,6 +332,13 @@ jobs:
           # TODO: remove allow-prereleases once 3.15 is officially supported
           allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
 
+      - name: Install Moon
+        if: ${{ inputs.test-mode == 'standard' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          curl -fsSL "https://github.com/moonrepo/moon/releases/download/v2.5.1/moon_cli-installer.sh" | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
                 startsWith(matrix.PY_VER, '3.15') }}
@@ -336,70 +368,25 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
-      # ── Standard test steps (skipped for nightly modes) ──
-      - name: Run cuda.pathfinder tests with see_what_works
-        if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' }}
-        env:
-          CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
-          CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
-          CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: see_what_works
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests pathfinder
-
-      - name: Run cuda.bindings tests
-        if: ${{ inputs.test-mode == 'standard' && env.TEST_BINDINGS == 'true' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+      # ── Standard test route (skipped for nightly modes) ──
+      - name: Run selected installed-wheel tests
+        if: ${{ inputs.test-mode == 'standard' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests bindings
-
-      - name: Run cuda.core tests
-        if: ${{ inputs.test-mode == 'standard' && env.TEST_CORE == 'true' }}
-        env:
-          CUDA_VER: ${{ matrix.CUDA_VER }}
-          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests core
-
-      - name: Ensure cuda-python installable
-        if: ${{ inputs.test-mode == 'standard' && env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'main' }}
         run: |
-          # Package suites install their own dependencies. A metapackage-only
-          # run has no preceding suite, so install the exact local internal
-          # wheels in one transaction while resolving released dependencies
-          # such as cuda-core from the package index.
-          if ('${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}' -eq 'true') {
-            $dependencyArgs = @('--no-deps')
-          } else {
-            $dependencyArgs = @(
-              (Get-Item ./cuda_pathfinder/cuda_pathfinder-*.whl).FullName
-              (Get-Item "$env:CUDA_BINDINGS_ARTIFACTS_DIR/cuda_bindings-*.whl").FullName
-            )
-          }
-          $pythonRequirements = @((Get-Item ./cuda_python*.whl).FullName)
-          if ('${{ matrix.LOCAL_CTK }}' -ne '1') {
-            $pythonRequirements = @($pythonRequirements | ForEach-Object { "$($_)[all]" })
-          }
-          pip install --only-binary=:all: @dependencyArgs @pythonRequirements
-
-      - name: Install cuda.pathfinder extra wheels for testing
-        if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' }}
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: |
-          pushd cuda_pathfinder
-          pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
-          pip list
-          popd
-
-      - name: Run cuda.pathfinder tests with all_must_work
-        if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' }}
-        env:
-          CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
-          CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
-          CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
-        shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: run-tests pathfinder
+          targets="$MOON_TARGETS"
+          if [[ "$SKIP_CUDA_BINDINGS_TEST" != "0" ]]; then
+            targets=$(jq -c 'map(select(. != "bindings:ci-test-windows"))' <<< "$targets")
+          fi
+          if [[ "$BINDINGS_SOURCE" != "main" ]]; then
+            targets=$(jq -c 'map(select(. != "metapackage:ci-test-windows"))' <<< "$targets")
+          fi
+          mapfile -t target_args < <(jq -r '.[]' <<< "$targets")
+          if (( ${#target_args[@]} != 0 )); then
+            moon run "${target_args[@]}" --upstream direct --downstream none
+          fi
 
       # ── Nightly: install wheels + optional dep together ──
       - name: Install Visual C++ Redistributable (required by PyTorch on Windows)

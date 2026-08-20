@@ -1,0 +1,215 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+$schema: https://moonrepo.dev/schemas/v2/project.json
+
+dependsOn: ['pathfinder']
+
+fileGroups:
+  package:
+    - 'cuda/**/*'
+    - '!cuda/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+    - '!cuda/**/*.{md,svg}'
+    - 'build_hooks.py'
+    - 'DESCRIPTION.rst'
+    - 'LICENSE'
+    - 'MANIFEST.in'
+    - 'pyproject.toml'
+    - 'setup.py'
+    - '.git_archival.txt'
+    - '/.git_archival.txt'
+    - '/cuda_pathfinder/.git_archival.txt'
+  tests:
+    - 'tests/**/*'
+    - 'examples/**/*'
+    - '!{tests,examples}/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+  docs:
+    - 'docs/**/*'
+    - '!docs/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+  benchmarks:
+    - '/benchmarks/cuda_bindings/benchmarks/**/*'
+    - '/benchmarks/cuda_bindings/runner/**/*'
+    - '/benchmarks/cuda_bindings/tests/**/*'
+    - '/benchmarks/cuda_bindings/compare.py'
+    - '/benchmarks/cuda_bindings/run_cpp.py'
+    - '/benchmarks/cuda_bindings/run_pyperf.py'
+    - '/benchmarks/cuda_bindings/pixi.lock'
+    - '/benchmarks/cuda_bindings/pixi.toml'
+  sharedTestInfra:
+    - '/cuda_python_test_helpers/**/*'
+    - '/benchmarks/**/*'
+    - '!/{benchmarks,cuda_python_test_helpers}/**/{AGENTS.md,CLAUDE.md,pixi.lock,pixi.toml}'
+    - '!/benchmarks/**/*.{md,svg}'
+    - '/ci/test-matrix.yml'
+    - '/ci/tools/download-wheels'
+    - '/ci/tools/run-tests'
+  linuxTestInfra:
+    - '/.github/workflows/test-wheel-linux.yml'
+    - '/ci/tools/guess_latest.sh'
+    - '/ci/tools/install_gpu_driver.sh'
+    - '/ci/tools/setup-sanitizer'
+  windowsTestInfra:
+    - '/.github/workflows/test-wheel-windows.yml'
+    - '/ci/tools/configure_driver_mode.ps1'
+    - '/ci/tools/install_gpu_driver.ps1'
+
+tasks:
+  test:
+    script: |
+      python -m pip install -e ../cuda_pathfinder -e . --group test
+      bash tests/cython/build_tests.sh
+      python -m pytest . --override-ini norecursedirs=examples
+      python -m pytest ../benchmarks/cuda_bindings/tests/
+    inputs: ['@group(package)', '@group(tests)', '@group(benchmarks)', '/cuda_python_test_helpers/**/*']
+    options:
+      cache: false
+      windowsShell: 'bash'
+
+  test-installed:
+    script: |
+      set -euo pipefail
+      cd ..
+      temporary_wheels=()
+      for wheel in cuda_pathfinder/dist/*.whl; do
+        staged="cuda_pathfinder/$(basename "$wheel")"
+        if [[ ! -e "$staged" ]]; then
+          cp "$wheel" "$staged"
+          temporary_wheels+=("$staged")
+        fi
+      done
+      trap 'rm -f "${temporary_wheels[@]}"' EXIT
+      ci/tools/run-tests bindings
+    deps: ['wheel', 'build-cython-tests']
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '@group(sharedTestInfra)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+    options:
+      cache: false
+      internal: true
+      mutex: 'ci-python-gpu'
+      windowsShell: 'bash'
+
+  build-cython-tests:
+    script: 'python -m pip install ../cuda_pathfinder/dist/*.whl dist/*.whl --group ./pyproject.toml:test && bash tests/cython/build_tests.sh'
+    deps: ['wheel']
+    inputs: ['@group(package)', 'tests/cython/**/*', '/cuda_python_test_helpers/**/*']
+    options:
+      cache: false
+      internal: true
+      mutex: 'ci-python-build'
+      windowsShell: 'bash'
+
+  benchmark-smoke:
+    script: 'python -m pip install ../cuda_pathfinder/dist/*.whl dist/*.whl pyperf --group ./pyproject.toml:test && cd ../benchmarks/cuda_bindings && python run_pyperf.py --debug-single-value'
+    deps: ['wheel']
+    inputs: ['@group(package)', '@group(benchmarks)']
+    options:
+      cache: false
+      internal: true
+      mutex: 'ci-python-gpu'
+      windowsShell: 'bash'
+
+  wheel:
+    script: 'cd .. && mkdir -p cuda_bindings/dist && python -m cibuildwheel cuda_bindings --output-dir cuda_bindings/dist'
+    deps: ['pathfinder:wheel']
+    inputs:
+      - '@group(package)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+      - '/cuda_python/DESCRIPTION.rst'
+      - '/cuda_python/LICENSE'
+      - '/cuda_python/pyproject.toml'
+      - '/cuda_python/setup.py'
+      - '/cuda_python/README.md'
+      - '/README.md'
+    options:
+      cache: false
+      windowsShell: 'bash'
+    tags: ['ci-wheel-bindings']
+
+  sdist:
+    script: 'mkdir -p dist && export PIP_FIND_LINKS=../cuda_pathfinder/dist PIP_PRE=1 && python -m build --sdist --outdir dist . && python -m pip wheel --no-deps --wheel-dir dist dist/*.tar.gz'
+    deps: ['pathfinder:sdist']
+    inputs:
+      - '@group(package)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+      - '/cuda_python/DESCRIPTION.rst'
+      - '/cuda_python/LICENSE'
+      - '/cuda_python/pyproject.toml'
+      - '/cuda_python/setup.py'
+      - '/cuda_python/README.md'
+      - '/README.md'
+    options:
+      cache: false
+      windowsShell: 'bash'
+    tags: ['ci-sdist-bindings']
+
+  docs:
+    script: 'rm -rf docs/build docs/source/generated && cd docs && ./build_docs.sh ${DOCS_BUILD_ARGS:-}'
+    inputs: ['@group(docs)']
+    options:
+      cache: false
+    tags: ['ci-docs']
+
+  benchmark:
+    script: 'python -m pip install -e ../cuda_pathfinder -e . --group test && python -m pip install pyperf && cd ../benchmarks/cuda_bindings && python run_pyperf.py'
+    inputs: ['@group(package)', '@group(benchmarks)']
+    options:
+      cache: false
+
+  ci-test-assets:
+    deps: ['build-cython-tests']
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '@group(sharedTestInfra)'
+      - '@group(linuxTestInfra)'
+      - '@group(windowsTestInfra)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+    options:
+      cache: false
+    tags: ['ci-test-assets-current']
+
+  ci-test-linux:
+    deps: ['test-installed', 'benchmark-smoke']
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '@group(sharedTestInfra)'
+      - '@group(linuxTestInfra)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+    options:
+      cache: false
+    tags: ['ci-test-linux']
+
+  ci-test-windows:
+    deps: ['test-installed']
+    inputs:
+      - '@group(package)'
+      - '@group(tests)'
+      - '@group(sharedTestInfra)'
+      - '@group(windowsTestInfra)'
+      - '/cuda_pathfinder/cuda/**/*'
+      - '/cuda_pathfinder/DESCRIPTION.rst'
+      - '/cuda_pathfinder/LICENSE'
+      - '/cuda_pathfinder/pyproject.toml'
+    options:
+      cache: false
+    tags: ['ci-test-windows']

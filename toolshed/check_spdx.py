@@ -23,6 +23,7 @@ TOP_LEVEL_FILE_LICENSE_IDENTIFIER = "Apache-2.0"
 TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     ".agents": "Apache-2.0",
     ".github": "Apache-2.0",
+    ".moon": "Apache-2.0",
     "benchmarks": "Apache-2.0",
     "ci": "Apache-2.0",
     "cuda_bindings": "Apache-2.0",
@@ -32,6 +33,7 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     "cuda_python_test_helpers": "Apache-2.0",
     "qa": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
     "scripts": "Apache-2.0",
+    "tests": "Apache-2.0",
     "toolshed": "Apache-2.0",
 }
 
