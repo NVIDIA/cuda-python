@@ -155,6 +155,14 @@ ignore_missing_imports = true
 module = "cuda.core._utils.cuda_utils"
 disable_error_code = ["type-arg"]
 
+[[tool.mypy.overrides]]
+# stubgen-pyx can't resolve DLPackExchangeAPI's C function-pointer typedef
+# fields and emits bare "..." as their annotation, which is invalid outside
+# a Callable[...] context. Suppress until upstream is fixed:
+# https://github.com/jon-edward/stubgen-pyx/issues (report pending)
+module = "cuda.core._dlpack"
+disable_error_code = ["misc"]
+
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
 build-verbosity = 1

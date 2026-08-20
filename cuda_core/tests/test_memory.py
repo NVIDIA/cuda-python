@@ -14,12 +14,6 @@ import platform
 import re
 
 import pytest
-from conftest import (
-    create_managed_memory_resource_or_skip,
-    create_pinned_memory_resource_or_xfail,
-    skip_if_managed_memory_unsupported,
-    skip_if_pinned_memory_unsupported,
-)
 from helpers import supports_ipc_mempool
 from helpers.buffers import (
     DummyDeviceMemoryResource,
@@ -28,6 +22,12 @@ from helpers.buffers import (
     make_instrumented_memory_resource,
 )
 from helpers.constants import POOL_SIZE
+from helpers.memory import (
+    create_managed_memory_resource_or_skip,
+    create_pinned_memory_resource_or_xfail,
+    skip_if_managed_memory_unsupported,
+    skip_if_pinned_memory_unsupported,
+)
 
 from cuda.core import (
     Buffer,
