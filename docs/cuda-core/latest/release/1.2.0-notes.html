@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=46dfe94c"></script>
+    <script src="../_static/documentation_options.js?v=01830a07"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev89';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev91';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -912,6 +912,10 @@ inapplicable to a linking backend. The gate is truthiness, matching how the
 NVVM path gates emission, so <code class="docutils literal notranslate"><span class="pre">numba_debug=False</span></code> asks for nothing and is
 not worth a warning.
 (closes <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2640">#2640</a>)</p></li>
+<li><p>CUDA device enumeration now queries the CUDA driver rather than using the
+NVML system-device count. This prevents non-CUDA accelerators, such as an NPU,
+from being treated as CUDA devices by <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.get_all_devices" title="cuda.core.Device.get_all_devices"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.get_all_devices()</span></code></a>, examples,
+and tests.</p></li>
 </ul>
 </section>
 <section id="deprecation-notices">

@@ -172,6 +172,11 @@ Fixes and enhancements
   not worth a warning.
   (closes `#2640 <https://github.com/NVIDIA/cuda-python/issues/2640>`__)
 
+- CUDA device enumeration now queries the CUDA driver rather than using the
+  NVML system-device count. This prevents non-CUDA accelerators, such as an NPU,
+  from being treated as CUDA devices by :meth:`Device.get_all_devices`, examples,
+  and tests.
+
 Deprecation Notices
 -------------------
 
