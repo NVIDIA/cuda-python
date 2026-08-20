@@ -189,6 +189,9 @@ class TextureObject:
     def handle(self):
         """The underlying ``CUtexObject`` as an integer (64-bit kernel arg)."""
     @property
+    def is_closed(self) -> bool:
+        """Whether this texture object has been closed."""
+    @property
     def resource(self):
         """The :class:`ResourceDescriptor` this texture was built from."""
     @property

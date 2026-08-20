@@ -71,6 +71,9 @@ class Stream:
         underlying CUDA stream. For borrowed streams, this releases the
         reference and allows the Python owner to be GC'd.
         """
+    @property
+    def is_closed(self) -> bool:
+        """Whether this stream has been closed."""
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
     def __hash__(self) -> int: ...

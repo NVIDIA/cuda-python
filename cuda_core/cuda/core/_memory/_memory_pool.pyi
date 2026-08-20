@@ -44,6 +44,9 @@ class _MemPool(MemoryResource):
         Close the memory resource and destroy the associated memory pool
         if owned.
         """
+    @property
+    def is_closed(self) -> bool:
+        """Whether this memory resource has been closed."""
     def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 

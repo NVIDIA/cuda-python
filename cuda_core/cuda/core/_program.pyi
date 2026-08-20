@@ -40,6 +40,9 @@ class Program:
     def __init__(self, code: str | bytes | bytearray, code_type: SourceCodeType | str, options: ProgramOptions | None=None): ...
     def close(self) -> None:
         """Destroy this program."""
+    @property
+    def is_closed(self) -> bool:
+        """Whether this program has been closed."""
     def compile(self, target_type: ObjectCodeFormatType | str, name_expressions: tuple[str, ...] | list[str]=(), logs: object | None=None, *, cache: ProgramCacheResource | None=None) -> ObjectCode:
         """Compile the program to the specified target type.
 
