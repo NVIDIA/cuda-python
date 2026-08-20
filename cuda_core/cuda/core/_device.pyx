@@ -1033,9 +1033,12 @@ class Device:
         tuple of Device
             A tuple containing instances of available devices.
         """
-        from cuda.core import system
-        total = system.get_num_devices()
-        return tuple(cls(device_id) for device_id in range(total))
+        return cls._get_all_devices_from_cuda_driver()
+
+    @classmethod
+    def _get_all_devices_from_cuda_driver(cls):
+        Device_ensure_cuda_initialized()
+        return tuple(Device_ensure_tls_devices(cls))
 
     def to_system_device(self) -> 'cuda.core.system.Device':
         """

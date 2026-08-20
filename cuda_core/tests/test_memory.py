@@ -45,9 +45,6 @@ from cuda.core import (
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core import (
-    system as ccx_system,
-)
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._stream import default_stream
@@ -402,7 +399,7 @@ def test_buffer_external_host():
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_device(change_device):
-    n = ccx_system.get_num_devices()
+    n = len(Device.get_all_devices())
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -426,7 +423,7 @@ def test_buffer_external_device(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_pinned_alloc(change_device):
-    n = ccx_system.get_num_devices()
+    n = len(Device.get_all_devices())
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -451,7 +448,7 @@ def test_buffer_external_pinned_alloc(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_pinned_registered(change_device):
-    n = ccx_system.get_num_devices()
+    n = len(Device.get_all_devices())
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -484,7 +481,7 @@ def test_buffer_external_pinned_registered(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_managed(change_device):
-    n = ccx_system.get_num_devices()
+    n = len(Device.get_all_devices())
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -760,7 +757,7 @@ def test_mr_deallocation_without_current_context(init_cuda, capsys, replace_stre
 @pytest.mark.parametrize("replace_stream", [False, True])
 def test_mr_deallocation_with_foreign_context(capsys, replace_stream):
     """MR-backed Buffer teardown switches away from an unrelated current context."""
-    if ccx_system.get_num_devices() < 2:
+    if len(Device.get_all_devices()) < 2:
         pytest.skip("Test requires at least 2 GPUs")
 
     alloc_dev = Device(0)
