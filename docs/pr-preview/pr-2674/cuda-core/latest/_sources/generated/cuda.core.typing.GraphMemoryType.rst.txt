@@ -1,0 +1,6 @@
+﻿cuda.core.typing.GraphMemoryType
+================================
+
+.. currentmodule:: cuda.core.typing
+
+.. autoenum:: GraphMemoryType
