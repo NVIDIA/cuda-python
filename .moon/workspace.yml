@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+projects:
+  root: '.'
+  pathfinder: 'cuda_pathfinder'
+  bindings: 'cuda_bindings'
+  core: 'cuda_core'
+  metapackage: 'cuda_python'
+
+vcs:
+  defaultBranch: 'main'
+
+versionConstraint: '=2.5.1'

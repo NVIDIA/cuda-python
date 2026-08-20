@@ -11,22 +11,11 @@ on:
       cuda-version:
         required: true
         type: string
-      build-pathfinder:
+      targets:
+        description: JSON object keyed by semantic Moon tags. An empty value builds everything.
         required: false
-        default: true
-        type: boolean
-      build-bindings:
-        required: false
-        default: true
-        type: boolean
-      build-core:
-        required: false
-        default: true
-        type: boolean
-      build-python:
-        required: false
-        default: true
-        type: boolean
+        default: ""
+        type: string
 
 defaults:
   run:
@@ -39,7 +28,8 @@ permissions:
 jobs:
   test-sdist:
     name: Test sdist builds
-    if: ${{ inputs.build-pathfinder || inputs.build-bindings || inputs.build-core || inputs.build-python }}
+    env:
+      SEMANTIC_TARGETS: ${{ inputs.targets != '' && inputs.targets || '{"ci-sdist-foundation":["pathfinder:sdist"],"ci-sdist-bindings":["bindings:sdist"],"ci-sdist-consumers":["core:sdist","metapackage:sdist"]}' }}
     timeout-minutes: 60
     runs-on: linux-amd64-cpu8
     steps:
@@ -51,36 +41,69 @@ jobs:
           fetch-depth: 0
           filter: blob:none
 
+      - name: Install target resolver dependencies
+        uses: ./.github/actions/install_unix_deps
+        with:
+          dependencies: "jq"
+          dependent_exes: "jq"
+
+      - name: Resolve Moon sdist targets
+        run: |
+          jq -e '
+            . as $root |
+            type == "object" and
+            all(["ci-sdist-foundation", "ci-sdist-bindings", "ci-sdist-consumers"][];
+              . as $tag |
+              (($root[$tag] // []) | type == "array" and all(.[]; type == "string")))
+          ' <<< "$SEMANTIC_TARGETS" >/dev/null
+          foundation=$(jq -c '.["ci-sdist-foundation"] // []' <<< "$SEMANTIC_TARGETS")
+          bindings=$(jq -c '.["ci-sdist-bindings"] // []' <<< "$SEMANTIC_TARGETS")
+          consumers=$(jq -c '.["ci-sdist-consumers"] // []' <<< "$SEMANTIC_TARGETS")
+          all_targets=$(jq -cn \
+            --argjson foundation "$foundation" \
+            --argjson bindings "$bindings" \
+            --argjson consumers "$consumers" \
+            '$foundation + $bindings + $consumers')
+          has_target() {
+            jq -e --arg target "$1" 'index($target) != null' <<< "$all_targets" >/dev/null
+          }
+          {
+            echo "SDIST_FOUNDATION_TARGETS=$foundation"
+            echo "SDIST_BINDINGS_TARGETS=$bindings"
+            echo "SDIST_CONSUMER_TARGETS=$consumers"
+            echo "BUILD_PATHFINDER=$(has_target pathfinder:sdist && echo true || echo false)"
+            echo "BUILD_BINDINGS=$(has_target bindings:sdist && echo true || echo false)"
+            echo "BUILD_CORE=$(has_target core:sdist && echo true || echo false)"
+            echo "BUILD_PYTHON=$(has_target metapackage:sdist && echo true || echo false)"
+          } >> "$GITHUB_ENV"
+
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: "3.12"
 
-      - name: Install build tools
-        run: python -m pip install "pip>=25.3" build
+      - name: Install Moon and build tools
+        run: |
+          curl -fsSL "https://github.com/moonrepo/moon/releases/download/v2.5.1/moon_cli-installer.sh" | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          python -m pip install "pip>=25.3" build
 
       # Pure Python packages -- no CTK needed.
-      - name: Build cuda.pathfinder sdist and wheel-from-sdist
-        if: ${{ inputs.build-pathfinder }}
+      - name: Build foundation sdists and wheels-from-sdists
+        if: ${{ env.BUILD_PATHFINDER == 'true' }}
         run: |
-          python -m build --sdist cuda_pathfinder/
-          pip wheel --no-deps --wheel-dir cuda_pathfinder/dist cuda_pathfinder/dist/*.tar.gz
-
-      - name: Build cuda-python sdist and wheel-from-sdist
-        if: ${{ inputs.build-python }}
-        run: |
-          python -m build --sdist cuda_python/
-          pip wheel --no-deps --wheel-dir cuda_python/dist cuda_python/dist/*.tar.gz
+          mapfile -t targets < <(jq -r '.[]' <<< "$SDIST_FOUNDATION_TARGETS")
+          moon run "${targets[@]}" --upstream none --downstream none
 
       - name: Download cuda.pathfinder wheel
-        if: ${{ !inputs.build-pathfinder && (inputs.build-bindings || inputs.build-core) }}
+        if: ${{ env.BUILD_PATHFINDER != 'true' && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-pathfinder-wheel
           path: cuda_pathfinder/dist
 
       - name: Constrain builds to the local cuda.pathfinder wheel
-        if: ${{ inputs.build-bindings }}
+        if: ${{ env.BUILD_BINDINGS == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
@@ -93,14 +116,14 @@ jobs:
       # The env vars ACTIONS_CACHE_SERVICE_V2, ACTIONS_RESULTS_URL, and ACTIONS_RUNTIME_TOKEN
       # are exposed by this action.
       - name: Enable sccache
-        if: ${{ inputs.build-bindings || inputs.build-core }}
+        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
         uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696  # 0.0.10
         with:
           disable_annotations: 'true'
 
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding additional GHA cache-related env vars
-        if: ${{ inputs.build-bindings || inputs.build-core }}
+        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
         uses: actions/github-script@v9
         with:
           script: |
@@ -108,14 +131,14 @@ jobs:
             core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
 
       - name: Setup proxy cache
-        if: ${{ inputs.build-bindings || inputs.build-core }}
+        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
         with:
           enable-apt: true
 
       - name: Set up mini CTK
-        if: ${{ inputs.build-bindings || inputs.build-core }}
+        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
@@ -124,26 +147,26 @@ jobs:
 
       # cuda_bindings/setup.py parses CUDA headers at import time, so CUDA_PATH
       # (set by fetch_ctk) must be available for both sdist and wheel builds.
-      - name: Build cuda.bindings sdist and wheel-from-sdist
-        if: ${{ inputs.build-bindings }}
+      - name: Build bindings sdists and wheels-from-sdists
+        if: ${{ env.BUILD_BINDINGS == 'true' }}
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export CC="sccache cc"
           export CXX="sccache c++"
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          python -m build --sdist cuda_bindings/
-          pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
+          mapfile -t targets < <(jq -r '.[]' <<< "$SDIST_BINDINGS_TARGETS")
+          moon run "${targets[@]}" --upstream none --downstream none
 
       - name: Download cuda.bindings wheel
-        if: ${{ !inputs.build-bindings && inputs.build-core }}
+        if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: cuda-bindings-python312-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}
           path: cuda_bindings/dist
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
-        if: ${{ inputs.build-core }}
+        if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
@@ -163,18 +186,20 @@ jobs:
       # cuda_core sdist delegates to setuptools (no CTK needed), but
       # wheel-from-sdist needs CTK and cuda-bindings (dynamic build dep via
       # get_requires_for_build_wheel in build_hooks.py).
-      - name: Build cuda.core sdist and wheel-from-sdist
-        if: ${{ inputs.build-core }}
+      - name: Build consumer sdists and wheels-from-sdists
+        if: ${{ env.BUILD_CORE == 'true' || env.BUILD_PYTHON == 'true' }}
         run: |
-          export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
-          export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
-          export CC="sccache cc"
-          export CXX="sccache c++"
-          export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-core.txt"
-          export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          python -m build --sdist cuda_core/
-          pip wheel --no-deps --wheel-dir cuda_core/dist cuda_core/dist/*.tar.gz
+          if [[ "$BUILD_CORE" == "true" ]]; then
+            export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
+            export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
+            export CC="sccache cc"
+            export CXX="sccache c++"
+            export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-core.txt"
+            export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
+          fi
+          mapfile -t targets < <(jq -r '.[]' <<< "$SDIST_CONSUMER_TARGETS")
+          moon run "${targets[@]}" --upstream none --downstream none
 
       - name: Show sccache stats
-        if: ${{ always() && (inputs.build-bindings || inputs.build-core) }}
+        if: ${{ always() && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
         run: sccache --show-stats
