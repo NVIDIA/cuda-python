@@ -438,6 +438,35 @@ jobs:
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       test-bindings: ${{ fromJSON(needs.detect-changes.outputs.test_bindings) }}
 
+  # Released cuda-core from PyPI against PR-built pathfinder/bindings.
+  # Mirrors ci-nightly.yml test-cuda-core-linux-64 but uses this run's
+  # artifacts and only runs when bindings-related paths change (#2449).
+  test-cuda-core-linux-64:
+    name: Test released cuda-core (linux-64)
+    if: >-
+      ${{ github.repository_owner == 'nvidia' &&
+          !fromJSON(needs.should-skip.outputs.skip) &&
+          !fromJSON(needs.should-skip.outputs.doc-only) &&
+          fromJSON(needs.detect-changes.outputs.test_bindings) }}
+    permissions:
+      contents: read
+      actions: read
+    needs:
+      - ci-vars
+      - should-skip
+      - detect-changes
+      - build-linux-64
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: nightly
+      host-platform: linux-64
+      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      test-mode: nightly-cuda-core
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-cuda-core"))'
+      test-core: false
+      test-python: false
+
   # See test-linux-64 for why test jobs are split by platform.
   test-linux-aarch64:
     strategy:
@@ -546,6 +575,7 @@ jobs:
       - test-sdist-linux
       - test-sdist-windows
       - test-linux-64
+      - test-cuda-core-linux-64
       - test-linux-aarch64
       - test-windows
       - doc
@@ -591,5 +621,14 @@ jobs:
           check_result "test-linux-64"      "$expected" "${{ needs.test-linux-64.result }}"
           check_result "test-linux-aarch64" "$expected" "${{ needs.test-linux-aarch64.result }}"
           check_result "test-windows"       "$expected" "${{ needs.test-windows.result }}"
+
+          # Released cuda-core compat runs only when bindings-related paths change.
+          test_bindings="${{ needs.detect-changes.outputs.test_bindings }}"
+          if [[ "$doc_only" == "true" ]] || [[ "$test_bindings" != "true" ]]; then
+            cuda_core_expected="skipped"
+          else
+            cuda_core_expected="success"
+          fi
+          check_result "test-cuda-core-linux-64" "$cuda_core_expected" "${{ needs.test-cuda-core-linux-64.result }}"
 
           [[ "$status" == "success" ]]
