@@ -98,7 +98,37 @@ cdef class Program:
 
     def _cleanup_debug_source(self):
         path = self._nvrtc_name.decode()
-        _unlink_debug_source(path)
+        self._unlink_debug_source(path)
+
+    def _unlink_debug_source(self, path: str) -> None:
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
+
+    def _try_materialize_nvrtc_debug_source(self, code: str) -> str | None:
+        """Write *code* to a ``caller_py__kernel_XXXXXXXX.cu`` temp file for cuda-gdb.
+
+        Returns None if the filesystem is not writable, so the caller can fall back
+        to the label-only behavior instead of failing the compile.
+        """
+        frame = sys._getframe()
+        while frame and frame.f_globals.get("__name__", "").startswith("cuda.core"):
+            frame = frame.f_back
+        caller = os.path.basename(frame.f_code.co_filename) if frame else "program"
+        kernel = re.search(r"__global__.*?(\w+)\s*\(", code, re.DOTALL)
+        prefix = re.sub(r"\W", "_", f"{caller}__{kernel.group(1) if kernel else 'kernel'}_")
+        try:
+            fd, path = tempfile.mkstemp(prefix=prefix, suffix=".cu")
+        except OSError:
+            return None
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(code)
+            return path
+        except OSError:
+            self._unlink_debug_source(path)
+            return None
 
     def compile(
         self,
@@ -780,38 +810,6 @@ cdef inline object _translate_program_options(object options):
     )
 
 
-def _unlink_debug_source(path: str) -> None:
-    try:
-        os.unlink(path)
-    except OSError:
-        pass
-
-
-def _try_materialize_nvrtc_debug_source(code: str) -> str | None:
-    """Write *code* to a ``caller_py__kernel_XXXXXXXX.cu`` temp file for cuda-gdb.
-
-    Returns None if the filesystem is not writable, so the caller can fall back
-    to the label-only behavior instead of failing the compile.
-    """
-    frame = sys._getframe()
-    while frame and frame.f_globals.get("__name__", "").startswith("cuda.core"):
-        frame = frame.f_back
-    caller = os.path.basename(frame.f_code.co_filename) if frame else "program"
-    kernel = re.search(r"__global__.*?(\w+)\s*\(", code, re.DOTALL)
-    prefix = re.sub(r"\W", "_", f"{caller}__{kernel.group(1) if kernel else 'kernel'}_")
-    try:
-        fd, path = tempfile.mkstemp(prefix=prefix, suffix=".cu")
-    except OSError:
-        return None
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            f.write(code)
-        return path
-    except OSError:
-        _unlink_debug_source(path)
-        return None
-
-
 cdef inline int Program_init(Program self, object code, str code_type, object options) except -1:
     """Initialize a Program instance."""
     cdef cynvrtc.nvrtcProgram nvrtc_prog
@@ -840,7 +838,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
             raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
 
         if (options.debug or options.lineinfo) and options.name == "default_program":
-            debug_path = _try_materialize_nvrtc_debug_source(code)
+            debug_path = self._try_materialize_nvrtc_debug_source(code)
             if debug_path is not None:
                 self._nvrtc_name = debug_path.encode()
 
