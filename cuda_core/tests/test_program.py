@@ -370,6 +370,7 @@ def test_program_options_name_accepts_none(name):
     assert options._name == expected.encode()
 
 
+@pytest.mark.human_reviewed
 @pytest.mark.parametrize("name", [None, "my_program"])
 def test_program_string_source_debug(name, tmp_path):
     # when a file doesn't exist on disk, nvrtc
