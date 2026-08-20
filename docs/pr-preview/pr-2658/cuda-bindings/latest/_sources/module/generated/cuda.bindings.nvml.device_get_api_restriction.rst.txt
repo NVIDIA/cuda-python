@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_api\_restriction
-================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_api_restriction
