@@ -757,7 +757,7 @@ def test_mr_deallocation_without_current_context(init_cuda, capsys, replace_stre
 @pytest.mark.parametrize("replace_stream", [False, True])
 def test_mr_deallocation_with_foreign_context(capsys, replace_stream):
     """MR-backed Buffer teardown switches away from an unrelated current context."""
-    if ccx_system.get_num_devices() < 2:
+    if len(Device.get_all_devices()) < 2:
         pytest.skip("Test requires at least 2 GPUs")
 
     alloc_dev = Device(0)
