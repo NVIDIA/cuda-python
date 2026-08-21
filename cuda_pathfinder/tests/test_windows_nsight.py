@@ -75,6 +75,40 @@ def test_ncu_candidate_paths_fall_back_to_machine_binary(mocker, machine_arch, t
     assert tuple(windows_nsight.ncu_candidate_paths()) == (launcher, expected)
 
 
+@pytest.mark.parametrize(
+    ("machine_arch", "host_dir"),
+    (
+        ("x64", "host-windows-x64"),
+        ("arm64", "host-windows-armv8"),
+    ),
+)
+@pytest.mark.agent_authored(model="deepseek-v4-flash")
+def test_nsys_ui_candidate_paths_use_machine_arch(mocker, machine_arch, host_dir):
+    install_root = os.path.join(os.sep, "Program Files", "Nsight Systems")
+    expected = os.path.join(install_root, host_dir, "nsys-ui.exe")
+    mocker.patch.object(windows_nsight, "_installed_product_root", return_value=install_root)
+    mocker.patch.object(windows_nsight, "windows_machine_arch", return_value=machine_arch)
+
+    assert tuple(windows_nsight.nsys_ui_candidate_paths()) == (expected,)
+
+
+@pytest.mark.parametrize(
+    ("machine_arch", "host_dir"),
+    (
+        ("x64", os.path.join("host", "windows-desktop-win7-x64")),
+        ("arm64", os.path.join("host", "windows-desktop-win10-t23x-a64")),
+    ),
+)
+@pytest.mark.agent_authored(model="deepseek-v4-flash")
+def test_ncu_ui_candidate_paths_use_machine_arch(mocker, machine_arch, host_dir):
+    install_root = os.path.join(os.sep, "Program Files", "Nsight Compute")
+    expected = os.path.join(install_root, host_dir, "ncu-ui.exe")
+    mocker.patch.object(windows_nsight, "_installed_product_root", return_value=install_root)
+    mocker.patch.object(windows_nsight, "windows_machine_arch", return_value=machine_arch)
+
+    assert tuple(windows_nsight.ncu_ui_candidate_paths()) == (expected,)
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_installed_product_root_reads_64_bit_registry(mocker):
     install_root = os.path.join(os.sep, "Program Files", "Nsight Systems")
