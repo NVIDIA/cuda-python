@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3c177b7a0328c0f6f16067c8c9f4e5a002bd019e8c17c017ba9f77af21da8d75
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5c0d6715f105108fd83cc471fd0978ecab1f1cdfdd78f41ac3bcf7dc1a470ab5
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
-from cython cimport view as _cyb_view
+from cpython.memoryview cimport PyMemoryView_FromMemory as _cyb_PyMemoryView_FromMemory
 from libc.stdint cimport (
     intptr_t,
     uint32_t,
@@ -604,9 +604,12 @@ cdef class ModuleTensorDescriptor:
     @property
     def stride(self):
         """~_numpy.uint32: (array of length 8)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(8,), itemsize=sizeof(uint32_t), format="I", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].stride))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].stride)),
+            <Py_ssize_t>(sizeof(uint32_t) * (8)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint32)
 
     @stride.setter
     def stride(self, val):
@@ -614,9 +617,8 @@ cdef class ModuleTensorDescriptor:
             raise ValueError("This ModuleTensorDescriptor instance is read-only")
         if len(val) != 8:
             raise ValueError(f"Expected length { 8 } for field stride, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(8,), itemsize=sizeof(uint32_t), format="I", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
-        _cyb_memcpy(<void *>(&(self._ptr[0].stride)), <void *>(arr.data), sizeof(uint32_t) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint32))
+        _cyb_memcpy(<void *>(&(self._ptr[0].stride)), <void *><intptr_t>(_val_.ctypes.data), sizeof(uint32_t) * (8))
 
     @staticmethod
     def from_buffer(buffer):
@@ -1344,10 +1346,13 @@ cdef class SignalEvents:
     def dev_ptrs(self):
         """int: """
         if self._ptr[0].devPtrs == NULL or self._ptr[0].numEvents == 0:
-            return _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")[:0]
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].numEvents,), itemsize=sizeof(intptr_t), format="q", mode="c", allocate_buffer=False)
-        arr.data = <char *>(self._ptr[0].devPtrs)
-        return arr
+            return _numpy.empty(0, dtype=_numpy.intp)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(self._ptr[0].devPtrs),
+            <Py_ssize_t>(self._ptr[0].numEvents * sizeof(intptr_t)),
+            _cyb_cpython_buffer.PyBUF_WRITE,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.intp)
 
     @dev_ptrs.setter
     def dev_ptrs(self, val):
@@ -1357,13 +1362,9 @@ cdef class SignalEvents:
         self._ptr[0].numEvents = _n
         if _n == 0:
             return
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
-        cdef intptr_t[:] mv = arr
-        cdef Py_ssize_t i
-        for i in range(_n):
-            mv[i] = val[i]
-        self._ptr[0].devPtrs = <uint64_t**><intptr_t>(arr.data)
-        self._refs["dev_ptrs"] = arr
+        _arr_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.intp))
+        self._ptr[0].devPtrs = <uint64_t**><intptr_t>_arr_.ctypes.data
+        self._refs["dev_ptrs"] = _arr_
 
     @property
     def eof_fences(self):
@@ -1530,10 +1531,13 @@ cdef class Task:
     def output_tensor(self):
         """int: """
         if self._ptr[0].outputTensor == NULL or self._ptr[0].numOutputTensors == 0:
-            return _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")[:0]
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].numOutputTensors,), itemsize=sizeof(intptr_t), format="q", mode="c", allocate_buffer=False)
-        arr.data = <char *>(self._ptr[0].outputTensor)
-        return arr
+            return _numpy.empty(0, dtype=_numpy.intp)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(self._ptr[0].outputTensor),
+            <Py_ssize_t>(self._ptr[0].numOutputTensors * sizeof(intptr_t)),
+            _cyb_cpython_buffer.PyBUF_WRITE,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.intp)
 
     @output_tensor.setter
     def output_tensor(self, val):
@@ -1543,22 +1547,21 @@ cdef class Task:
         self._ptr[0].numOutputTensors = _n
         if _n == 0:
             return
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
-        cdef intptr_t[:] mv = arr
-        cdef Py_ssize_t i
-        for i in range(_n):
-            mv[i] = val[i]
-        self._ptr[0].outputTensor = <uint64_t**><intptr_t>(arr.data)
-        self._refs["output_tensor"] = arr
+        _arr_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.intp))
+        self._ptr[0].outputTensor = <uint64_t**><intptr_t>_arr_.ctypes.data
+        self._refs["output_tensor"] = _arr_
 
     @property
     def input_tensor(self):
         """int: """
         if self._ptr[0].inputTensor == NULL or self._ptr[0].numInputTensors == 0:
-            return _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")[:0]
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].numInputTensors,), itemsize=sizeof(intptr_t), format="q", mode="c", allocate_buffer=False)
-        arr.data = <char *>(self._ptr[0].inputTensor)
-        return arr
+            return _numpy.empty(0, dtype=_numpy.intp)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(self._ptr[0].inputTensor),
+            <Py_ssize_t>(self._ptr[0].numInputTensors * sizeof(intptr_t)),
+            _cyb_cpython_buffer.PyBUF_WRITE,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.intp)
 
     @input_tensor.setter
     def input_tensor(self, val):
@@ -1568,13 +1571,9 @@ cdef class Task:
         self._ptr[0].numInputTensors = _n
         if _n == 0:
             return
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
-        cdef intptr_t[:] mv = arr
-        cdef Py_ssize_t i
-        for i in range(_n):
-            mv[i] = val[i]
-        self._ptr[0].inputTensor = <uint64_t**><intptr_t>(arr.data)
-        self._refs["input_tensor"] = arr
+        _arr_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.intp))
+        self._ptr[0].inputTensor = <uint64_t**><intptr_t>_arr_.ctypes.data
+        self._refs["input_tensor"] = _arr_
 
     @property
     def wait_events(self):

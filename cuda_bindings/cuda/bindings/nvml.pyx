@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9167da2a3d3194c67c44a0fe8d4d34b3dbd3c0f43061c50b7d238d2044c75509
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c4792b709dc6e39699a18a3054660990898e767b188be5cc61cf8b1819cd2f94
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -11,7 +11,7 @@
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 cimport cpython.memoryview as _cyb_cpython_memoryview
-from cython cimport view as _cyb_view
+from cpython.memoryview cimport PyMemoryView_FromMemory as _cyb_PyMemoryView_FromMemory
 from libc.stdint cimport intptr_t
 from libc.stdlib cimport (
     calloc as _cyb_calloc,
@@ -4308,7 +4308,7 @@ cdef _get_value_dtype_offsets():
     cdef nvmlValue_t pod
     return _numpy.dtype({
         'names': ['d_val', 'si_val', 'ui_val', 'ul_val', 'ull_val', 'sll_val', 'us_val'],
-        'formats': [_numpy.float64, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.int64, _numpy.uint16],
+        'formats': [_numpy.float64, _numpy.int32, _numpy.uint32, _numpy.uint, _numpy.uint64, _numpy.int64, _numpy.uint16],
         'offsets': [
             (<intptr_t>&(pod.dVal)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.siVal)) - (<intptr_t>&pod),
@@ -6024,9 +6024,12 @@ cdef class PlatformInfo_v1:
     @property
     def ib_guid(self):
         """~_numpy.uint8: (array of length 16).Infiniband GUID reported by platform (for Blackwell, ibGuid is 8 bytes so indices 8-15 are zero)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].ibGuid))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].ibGuid)),
+            <Py_ssize_t>(sizeof(unsigned char) * (16)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @ib_guid.setter
     def ib_guid(self, val):
@@ -6034,16 +6037,18 @@ cdef class PlatformInfo_v1:
             raise ValueError("This PlatformInfo_v1 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field ib_guid, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (16))
 
     @property
     def rack_guid(self):
         """~_numpy.uint8: (array of length 16).GUID of the rack containing this GPU (for Blackwell rackGuid is 13 bytes so indices 13-15 are zero)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].rackGuid))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].rackGuid)),
+            <Py_ssize_t>(sizeof(unsigned char) * (16)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @rack_guid.setter
     def rack_guid(self, val):
@@ -6051,9 +6056,8 @@ cdef class PlatformInfo_v1:
             raise ValueError("This PlatformInfo_v1 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field rack_guid, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].rackGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].rackGuid)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (16))
 
     @property
     def chassis_physical_slot_number(self):
@@ -6251,9 +6255,12 @@ cdef class PlatformInfo_v2:
     @property
     def ib_guid(self):
         """~_numpy.uint8: (array of length 16).Infiniband GUID reported by platform (for Blackwell, ibGuid is 8 bytes so indices 8-15 are zero)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].ibGuid))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].ibGuid)),
+            <Py_ssize_t>(sizeof(unsigned char) * (16)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @ib_guid.setter
     def ib_guid(self, val):
@@ -6261,16 +6268,18 @@ cdef class PlatformInfo_v2:
             raise ValueError("This PlatformInfo_v2 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field ib_guid, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (16))
 
     @property
     def chassis_serial_number(self):
         """~_numpy.uint8: (array of length 16).Serial number of the chassis containing this GPU (for Blackwell it is 13 bytes so indices 13-15 are zero)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].chassisSerialNumber))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].chassisSerialNumber)),
+            <Py_ssize_t>(sizeof(unsigned char) * (16)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @chassis_serial_number.setter
     def chassis_serial_number(self, val):
@@ -6278,9 +6287,8 @@ cdef class PlatformInfo_v2:
             raise ValueError("This PlatformInfo_v2 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field chassis_serial_number, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].chassisSerialNumber)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].chassisSerialNumber)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (16))
 
     @property
     def slot_number(self):
@@ -6671,19 +6679,21 @@ cdef class VgpuPlacementList_v2:
         """int: IN/OUT: Placement IDs for the vGPU type."""
         if self._ptr[0].placementIds == NULL:
             return []
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].count,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
-        arr.data = <char *>(self._ptr[0].placementIds)
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(self._ptr[0].placementIds),
+            <Py_ssize_t>(self._ptr[0].count * sizeof(unsigned int)),
+            _cyb_cpython_buffer.PyBUF_WRITE,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint32)
 
     @placement_ids.setter
     def placement_ids(self, val):
         if self._readonly:
             raise ValueError("This VgpuPlacementList_v2 instance is read-only")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
-        self._ptr[0].placementIds = <unsigned int*><intptr_t>(arr.data)
+        _arr_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint32))
+        self._ptr[0].placementIds = <unsigned int*><intptr_t>_arr_.ctypes.data
         self._ptr[0].count = len(val)
-        self._refs["placement_ids"] = arr
+        self._refs["placement_ids"] = _arr_
 
     @property
     def mode(self):
@@ -7974,9 +7984,12 @@ cdef class VgpuSchedulerCapabilities:
     @property
     def supported_schedulers(self):
         """~_numpy.uint32: (array of length 3)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(3,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].supportedSchedulers))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].supportedSchedulers)),
+            <Py_ssize_t>(sizeof(unsigned int) * (3)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint32)
 
     @supported_schedulers.setter
     def supported_schedulers(self, val):
@@ -7984,9 +7997,8 @@ cdef class VgpuSchedulerCapabilities:
             raise ValueError("This VgpuSchedulerCapabilities instance is read-only")
         if len(val) != 3:
             raise ValueError(f"Expected length { 3 } for field supported_schedulers, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(3,), itemsize=sizeof(unsigned int), format="I", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
-        _cyb_memcpy(<void *>(&(self._ptr[0].supportedSchedulers)), <void *>(arr.data), sizeof(unsigned int) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint32))
+        _cyb_memcpy(<void *>(&(self._ptr[0].supportedSchedulers)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned int) * (3))
 
     @property
     def max_timeslice(self):
@@ -8611,19 +8623,21 @@ cdef class VgpuTypeIdInfo_v1:
         """int: OUT: List of vGPU type IDs."""
         if self._ptr[0].vgpuTypeIds == NULL:
             return []
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].vgpuCount,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
-        arr.data = <char *>(self._ptr[0].vgpuTypeIds)
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(self._ptr[0].vgpuTypeIds),
+            <Py_ssize_t>(self._ptr[0].vgpuCount * sizeof(unsigned int)),
+            _cyb_cpython_buffer.PyBUF_WRITE,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint32)
 
     @vgpu_type_ids.setter
     def vgpu_type_ids(self, val):
         if self._readonly:
             raise ValueError("This VgpuTypeIdInfo_v1 instance is read-only")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
-        self._ptr[0].vgpuTypeIds = <nvmlVgpuTypeId_t*><intptr_t>(arr.data)
+        _arr_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint32))
+        self._ptr[0].vgpuTypeIds = <nvmlVgpuTypeId_t*><intptr_t>_arr_.ctypes.data
         self._ptr[0].vgpuCount = len(val)
-        self._refs["vgpu_type_ids"] = arr
+        self._refs["vgpu_type_ids"] = _arr_
 
     @staticmethod
     def from_buffer(buffer):
@@ -8766,19 +8780,21 @@ cdef class ActiveVgpuInstanceInfo_v1:
         """int: IN/OUT: list of active vGPU instances."""
         if self._ptr[0].vgpuInstances == NULL:
             return []
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].vgpuCount,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
-        arr.data = <char *>(self._ptr[0].vgpuInstances)
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(self._ptr[0].vgpuInstances),
+            <Py_ssize_t>(self._ptr[0].vgpuCount * sizeof(unsigned int)),
+            _cyb_cpython_buffer.PyBUF_WRITE,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint32)
 
     @vgpu_instances.setter
     def vgpu_instances(self, val):
         if self._readonly:
             raise ValueError("This ActiveVgpuInstanceInfo_v1 instance is read-only")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
-        self._ptr[0].vgpuInstances = <nvmlVgpuInstance_t*><intptr_t>(arr.data)
+        _arr_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint32))
+        self._ptr[0].vgpuInstances = <nvmlVgpuInstance_t*><intptr_t>_arr_.ctypes.data
         self._ptr[0].vgpuCount = len(val)
-        self._refs["vgpu_instances"] = arr
+        self._refs["vgpu_instances"] = _arr_
 
     @staticmethod
     def from_buffer(buffer):
@@ -8945,19 +8961,21 @@ cdef class VgpuCreatablePlacementInfo_v1:
         """int: IN/OUT: Placement IDs for the vGPU type."""
         if self._ptr[0].placementIds == NULL:
             return []
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].placementSize,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
-        arr.data = <char *>(self._ptr[0].placementIds)
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(self._ptr[0].placementIds),
+            <Py_ssize_t>(self._ptr[0].placementSize * sizeof(unsigned int)),
+            _cyb_cpython_buffer.PyBUF_WRITE,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint32)
 
     @placement_ids.setter
     def placement_ids(self, val):
         if self._readonly:
             raise ValueError("This VgpuCreatablePlacementInfo_v1 instance is read-only")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(len(val),), itemsize=sizeof(unsigned int), format="I", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
-        self._ptr[0].placementIds = <unsigned int*><intptr_t>(arr.data)
+        _arr_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint32))
+        self._ptr[0].placementIds = <unsigned int*><intptr_t>_arr_.ctypes.data
         self._ptr[0].placementSize = len(val)
-        self._refs["placement_ids"] = arr
+        self._refs["placement_ids"] = _arr_
 
     @staticmethod
     def from_buffer(buffer):
@@ -11710,9 +11728,12 @@ cdef class ConfComputeGpuCertificate:
         """~_numpy.uint8: (array of length 4096)."""
         if self._ptr[0].certChainSize == 0:
             return _numpy.array([])
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].certChain))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].certChain)),
+            <Py_ssize_t>(sizeof(unsigned char) * (self._ptr[0].certChainSize)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @cert_chain.setter
     def cert_chain(self, val):
@@ -11723,18 +11744,20 @@ cdef class ConfComputeGpuCertificate:
         self._ptr[0].certChainSize = len(val)
         if len(val) == 0:
             return
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].certChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].certChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].certChain)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (self._ptr[0].certChainSize))
 
     @property
     def attestation_cert_chain(self):
         """~_numpy.uint8: (array of length 5120)."""
         if self._ptr[0].attestationCertChainSize == 0:
             return _numpy.array([])
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].attestationCertChain))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].attestationCertChain)),
+            <Py_ssize_t>(sizeof(unsigned char) * (self._ptr[0].attestationCertChainSize)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @attestation_cert_chain.setter
     def attestation_cert_chain(self, val):
@@ -11745,9 +11768,8 @@ cdef class ConfComputeGpuCertificate:
         self._ptr[0].attestationCertChainSize = len(val)
         if len(val) == 0:
             return
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].attestationCertChainSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].attestationCertChain)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].attestationCertChain)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (self._ptr[0].attestationCertChainSize))
 
     @staticmethod
     def from_buffer(buffer):
@@ -11888,9 +11910,12 @@ cdef class ConfComputeGpuAttestationReport:
     @property
     def nonce(self):
         """~_numpy.uint8: (array of length 32)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].nonce))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].nonce)),
+            <Py_ssize_t>(sizeof(unsigned char) * (32)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @nonce.setter
     def nonce(self, val):
@@ -11898,18 +11923,20 @@ cdef class ConfComputeGpuAttestationReport:
             raise ValueError("This ConfComputeGpuAttestationReport instance is read-only")
         if len(val) != 32:
             raise ValueError(f"Expected length { 32 } for field nonce, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].nonce)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].nonce)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (32))
 
     @property
     def attestation_report(self):
         """~_numpy.uint8: (array of length 8192)."""
         if self._ptr[0].attestationReportSize == 0:
             return _numpy.array([])
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].attestationReport))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].attestationReport)),
+            <Py_ssize_t>(sizeof(unsigned char) * (self._ptr[0].attestationReportSize)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @attestation_report.setter
     def attestation_report(self, val):
@@ -11920,18 +11947,20 @@ cdef class ConfComputeGpuAttestationReport:
         self._ptr[0].attestationReportSize = len(val)
         if len(val) == 0:
             return
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].attestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].attestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].attestationReport)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (self._ptr[0].attestationReportSize))
 
     @property
     def cec_attestation_report(self):
         """~_numpy.uint8: (array of length 4096)."""
         if self._ptr[0].cecAttestationReportSize == 0:
             return _numpy.array([])
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].cecAttestationReport))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].cecAttestationReport)),
+            <Py_ssize_t>(sizeof(unsigned char) * (self._ptr[0].cecAttestationReportSize)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @cec_attestation_report.setter
     def cec_attestation_report(self, val):
@@ -11942,9 +11971,8 @@ cdef class ConfComputeGpuAttestationReport:
         self._ptr[0].cecAttestationReportSize = len(val)
         if len(val) == 0:
             return
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].cecAttestationReportSize,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].cecAttestationReport)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].cecAttestationReport)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (self._ptr[0].cecAttestationReportSize))
 
     @staticmethod
     def from_buffer(buffer):
@@ -12085,9 +12113,12 @@ cdef class GpuFabricInfo_v2:
     @property
     def cluster_uuid(self):
         """~_numpy.uint8: (array of length 16).Uuid of the cluster to which this GPU belongs."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].clusterUuid))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].clusterUuid)),
+            <Py_ssize_t>(sizeof(unsigned char) * (16)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @cluster_uuid.setter
     def cluster_uuid(self, val):
@@ -12095,9 +12126,8 @@ cdef class GpuFabricInfo_v2:
             raise ValueError("This GpuFabricInfo_v2 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field cluster_uuid, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (16))
 
     @property
     def status(self):
@@ -12281,9 +12311,12 @@ cdef class NvlinkSupportedBwModes_v1:
         """~_numpy.uint8: (array of length 23)."""
         if self._ptr[0].totalBwModes == 0:
             return _numpy.array([])
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].bwModes))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].bwModes)),
+            <Py_ssize_t>(sizeof(unsigned char) * (self._ptr[0].totalBwModes)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @bw_modes.setter
     def bw_modes(self, val):
@@ -12294,9 +12327,8 @@ cdef class NvlinkSupportedBwModes_v1:
         self._ptr[0].totalBwModes = len(val)
         if len(val) == 0:
             return
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].totalBwModes,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].bwModes)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].bwModes)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (self._ptr[0].totalBwModes))
 
     @staticmethod
     def from_buffer(buffer):
@@ -15059,9 +15091,12 @@ cdef class GpuFabricInfo_v3:
     @property
     def cluster_uuid(self):
         """~_numpy.uint8: (array of length 16).Uuid of the cluster to which this GPU belongs."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].clusterUuid))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].clusterUuid)),
+            <Py_ssize_t>(sizeof(unsigned char) * (16)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint8)
 
     @cluster_uuid.setter
     def cluster_uuid(self, val):
@@ -15069,9 +15104,8 @@ cdef class GpuFabricInfo_v3:
             raise ValueError("This GpuFabricInfo_v3 instance is read-only")
         if len(val) != 16:
             raise ValueError(f"Expected length { 16 } for field cluster_uuid, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
-        _cyb_memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint8))
+        _cyb_memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *><intptr_t>(_val_.ctypes.data), sizeof(unsigned char) * (16))
 
     @property
     def status(self):
@@ -23307,10 +23341,10 @@ cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_s
 
     .. seealso:: `nvmlDeviceGetMemoryAffinity`
     """
-    if node_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array node_set = _cyb_view.array(shape=(node_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *node_set_ptr = <unsigned long *>(node_set.data)
+    cdef object _node_set_alloc_ = _numpy.empty(max(node_set_size, 1), dtype=_numpy.uint)
+    cdef intptr_t _node_set_data_ = <intptr_t>_node_set_alloc_.ctypes.data
+    cdef unsigned long *node_set_ptr = <unsigned long *>_node_set_data_
+    cdef object node_set = _node_set_alloc_[:node_set_size]
     with nogil:
         __status__ = nvmlDeviceGetMemoryAffinity(<Device>device, node_set_size, node_set_ptr, <nvmlAffinityScope_t>scope)
     check_status(__status__)
@@ -23333,10 +23367,10 @@ cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int 
 
     .. seealso:: `nvmlDeviceGetCpuAffinityWithinScope`
     """
-    if cpu_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
+    cdef object _cpu_set_alloc_ = _numpy.empty(max(cpu_set_size, 1), dtype=_numpy.uint)
+    cdef intptr_t _cpu_set_data_ = <intptr_t>_cpu_set_alloc_.ctypes.data
+    cdef unsigned long *cpu_set_ptr = <unsigned long *>_cpu_set_data_
+    cdef object cpu_set = _cpu_set_alloc_[:cpu_set_size]
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinityWithinScope(<Device>device, cpu_set_size, cpu_set_ptr, <nvmlAffinityScope_t>scope)
     check_status(__status__)
@@ -23358,10 +23392,10 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
 
     .. seealso:: `nvmlDeviceGetCpuAffinity`
     """
-    if cpu_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
+    cdef object _cpu_set_alloc_ = _numpy.empty(max(cpu_set_size, 1), dtype=_numpy.uint)
+    cdef intptr_t _cpu_set_data_ = <intptr_t>_cpu_set_alloc_.ctypes.data
+    cdef unsigned long *cpu_set_ptr = <unsigned long *>_cpu_set_data_
+    cdef object cpu_set = _cpu_set_alloc_[:cpu_set_size]
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinity(<Device>device, cpu_set_size, cpu_set_ptr)
     check_status(__status__)
@@ -23945,10 +23979,10 @@ cpdef object device_get_supported_memory_clocks(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
+    cdef object _clocks_m_hz_alloc_ = _numpy.empty(max(count[0], 1), dtype=_numpy.uint32)
+    cdef intptr_t _clocks_m_hz_data_ = <intptr_t>_clocks_m_hz_alloc_.ctypes.data
+    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>_clocks_m_hz_data_
+    cdef object clocks_m_hz = _clocks_m_hz_alloc_[:count[0]]
     with nogil:
         __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, clocks_m_hz_ptr)
     check_status(__status__)
@@ -23972,10 +24006,10 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
     with nogil:
         __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
+    cdef object _clocks_m_hz_alloc_ = _numpy.empty(max(count[0], 1), dtype=_numpy.uint32)
+    cdef intptr_t _clocks_m_hz_data_ = <intptr_t>_clocks_m_hz_alloc_.ctypes.data
+    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>_clocks_m_hz_data_
+    cdef object clocks_m_hz = _clocks_m_hz_alloc_[:count[0]]
     with nogil:
         __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, clocks_m_hz_ptr)
     check_status(__status__)
@@ -25576,10 +25610,10 @@ cpdef object device_get_accounting_pids(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
+    cdef object _pids_alloc_ = _numpy.empty(max(count[0], 1), dtype=_numpy.uint32)
+    cdef intptr_t _pids_data_ = <intptr_t>_pids_alloc_.ctypes.data
+    cdef unsigned int *pids_ptr = <unsigned int *>_pids_data_
+    cdef object pids = _pids_alloc_[:count[0]]
     with nogil:
         __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, pids_ptr)
     check_status(__status__)
@@ -25623,10 +25657,10 @@ cpdef object device_get_retired_pages(intptr_t device, int cause):
     with nogil:
         __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL)
     check_status_size(__status__)
-    if page_count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0]
-    cdef _cyb_view.array addresses = _cyb_view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    cdef unsigned long long *addresses_ptr = <unsigned long long *>(addresses.data)
+    cdef object _addresses_alloc_ = _numpy.empty(max(page_count[0], 1), dtype=_numpy.uint64)
+    cdef intptr_t _addresses_data_ = <intptr_t>_addresses_alloc_.ctypes.data
+    cdef unsigned long long *addresses_ptr = <unsigned long long *>_addresses_data_
+    cdef object addresses = _addresses_alloc_[:page_count[0]]
     with nogil:
         __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr)
     check_status(__status__)
@@ -27413,10 +27447,10 @@ cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
+    cdef object _pids_alloc_ = _numpy.empty(max(count[0], 1), dtype=_numpy.uint32)
+    cdef intptr_t _pids_data_ = <intptr_t>_pids_alloc_.ctypes.data
+    cdef unsigned int *pids_ptr = <unsigned int *>_pids_data_
+    cdef object pids = _pids_alloc_[:count[0]]
     with nogil:
         __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, pids_ptr)
     check_status(__status__)

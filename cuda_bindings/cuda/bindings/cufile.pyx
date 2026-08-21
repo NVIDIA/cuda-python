@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=df46a6921d93f83249134c7705b2809f57145b6fb72f6f40c4657ecd1b443b81
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b46f5a16585b36d52e8bf6a7ca3009d8c2350427cff03f68ab4b558b93c905fc
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -11,7 +11,7 @@
 cimport cpython as _cyb_cpython
 cimport cpython.buffer as _cyb_cpython_buffer
 cimport cpython.memoryview as _cyb_cpython_memoryview
-from cython cimport view as _cyb_view
+from cpython.memoryview cimport PyMemoryView_FromMemory as _cyb_PyMemoryView_FromMemory
 from libc.stdint cimport (
     intptr_t,
     uint64_t,
@@ -2532,9 +2532,12 @@ cdef class StatsLevel2:
     @property
     def read_size_kb_hist(self):
         """~_numpy.uint64: (array of length 32)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].read_size_kb_hist))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].read_size_kb_hist)),
+            <Py_ssize_t>(sizeof(uint64_t) * (32)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint64)
 
     @read_size_kb_hist.setter
     def read_size_kb_hist(self, val):
@@ -2542,16 +2545,18 @@ cdef class StatsLevel2:
             raise ValueError("This StatsLevel2 instance is read-only")
         if len(val) != 32:
             raise ValueError(f"Expected length { 32 } for field read_size_kb_hist, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
-        _cyb_memcpy(<void *>(&(self._ptr[0].read_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint64))
+        _cyb_memcpy(<void *>(&(self._ptr[0].read_size_kb_hist)), <void *><intptr_t>(_val_.ctypes.data), sizeof(uint64_t) * (32))
 
     @property
     def write_size_kb_hist(self):
         """~_numpy.uint64: (array of length 32)."""
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
-        arr.data = <char *>(&(self._ptr[0].write_size_kb_hist))
-        return _numpy.asarray(arr)
+        cdef object _mv_ = _cyb_PyMemoryView_FromMemory(
+            <char *>(&(self._ptr[0].write_size_kb_hist)),
+            <Py_ssize_t>(sizeof(uint64_t) * (32)),
+            _cyb_cpython_buffer.PyBUF_WRITE if not self._readonly else _cyb_cpython_buffer.PyBUF_READ,
+        )
+        return _numpy.frombuffer(_mv_, dtype=_numpy.uint64)
 
     @write_size_kb_hist.setter
     def write_size_kb_hist(self, val):
@@ -2559,9 +2564,8 @@ cdef class StatsLevel2:
             raise ValueError("This StatsLevel2 instance is read-only")
         if len(val) != 32:
             raise ValueError(f"Expected length { 32 } for field write_size_kb_hist, got {len(val)}")
-        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
-        arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
-        _cyb_memcpy(<void *>(&(self._ptr[0].write_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
+        _val_ = _numpy.ascontiguousarray(_numpy.asarray(val, dtype=_numpy.uint64))
+        _cyb_memcpy(<void *>(&(self._ptr[0].write_size_kb_hist)), <void *><intptr_t>(_val_.ctypes.data), sizeof(uint64_t) * (32))
 
     @staticmethod
     def from_buffer(buffer):
