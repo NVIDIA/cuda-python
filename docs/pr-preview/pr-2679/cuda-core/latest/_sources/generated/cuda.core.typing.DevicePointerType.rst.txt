@@ -1,0 +1,6 @@
+﻿cuda.core.typing.DevicePointerType
+==================================
+
+.. currentmodule:: cuda.core.typing
+
+.. autodata:: DevicePointerType
