@@ -7,7 +7,7 @@ from unittest import mock
 
 import pytest
 
-from cuda.bindings import driver
+from cuda.bindings._v2 import driver
 from cuda.bindings.utils import _version_check, warn_if_cuda_major_version_mismatch
 
 
@@ -24,7 +24,7 @@ class TestVersionCompatibilityCheck:
         # Mock compile version 12.9 and driver version 13.0
         with (
             mock.patch.object(driver, "CUDA_VERSION", 12090),
-            mock.patch.object(driver, "cuDriverGetVersion", return_value=(driver.CUresult.CUDA_SUCCESS, 13000)),
+            mock.patch.object(driver, "driver_get_version", return_value=13000),
             warnings.catch_warnings(record=True) as w,
         ):
             warnings.simplefilter("always")
@@ -36,7 +36,7 @@ class TestVersionCompatibilityCheck:
         # Mock compile version 12.9 and driver version 12.8
         with (
             mock.patch.object(driver, "CUDA_VERSION", 12090),
-            mock.patch.object(driver, "cuDriverGetVersion", return_value=(driver.CUresult.CUDA_SUCCESS, 12080)),
+            mock.patch.object(driver, "driver_get_version", return_value=12080),
             warnings.catch_warnings(record=True) as w,
         ):
             warnings.simplefilter("always")
@@ -48,7 +48,7 @@ class TestVersionCompatibilityCheck:
         # Mock compile version 13.0 and driver version 12.8
         with (
             mock.patch.object(driver, "CUDA_VERSION", 13000),
-            mock.patch.object(driver, "cuDriverGetVersion", return_value=(driver.CUresult.CUDA_SUCCESS, 12080)),
+            mock.patch.object(driver, "driver_get_version", return_value=12080),
             warnings.catch_warnings(record=True) as w,
         ):
             warnings.simplefilter("always")
@@ -62,7 +62,7 @@ class TestVersionCompatibilityCheck:
         """Warning should only be issued once per process."""
         with (
             mock.patch.object(driver, "CUDA_VERSION", 13000),
-            mock.patch.object(driver, "cuDriverGetVersion", return_value=(driver.CUresult.CUDA_SUCCESS, 12080)),
+            mock.patch.object(driver, "driver_get_version", return_value=12080),
             warnings.catch_warnings(record=True) as w,
         ):
             warnings.simplefilter("always")
@@ -76,7 +76,7 @@ class TestVersionCompatibilityCheck:
         """Warning should be suppressed when CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING is set."""
         with (
             mock.patch.object(driver, "CUDA_VERSION", 13000),
-            mock.patch.object(driver, "cuDriverGetVersion", return_value=(driver.CUresult.CUDA_SUCCESS, 12080)),
+            mock.patch.object(driver, "driver_get_version", return_value=12080),
             mock.patch.dict(os.environ, {"CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING": "1"}),
             warnings.catch_warnings(record=True) as w,
         ):
@@ -85,11 +85,13 @@ class TestVersionCompatibilityCheck:
             assert len(w) == 0
 
     def test_error_when_driver_version_fails(self):
-        """Should raise RuntimeError if cuDriverGetVersion fails."""
+        """Should raise RuntimeError if driver_get_version fails."""
         with (
             mock.patch.object(driver, "CUDA_VERSION", 13000),
             mock.patch.object(
-                driver, "cuDriverGetVersion", return_value=(driver.CUresult.CUDA_ERROR_NOT_INITIALIZED, 0)
+                driver,
+                "driver_get_version",
+                side_effect=driver.DriverError(driver.Result.ERROR_NOT_INITIALIZED),
             ),
             pytest.raises(RuntimeError, match="Failed to query CUDA driver version"),
         ):

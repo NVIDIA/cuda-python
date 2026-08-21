@@ -13,7 +13,7 @@ from functools import cache
 
 import pytest
 
-import cuda.bindings._v2.driver as cuda
+import cuda.bindings.driver as cuda
 
 cufile = pytest.importorskip("cuda.bindings.cufile")
 
@@ -41,7 +41,7 @@ def _cufile_driver_session():
 def cufile_env_json(monkeypatch):
     """Set CUFILE_ENV_PATH_JSON environment variable for async tests."""
     # Get absolute path to cufile.json in the same directory as this test file
-    test_dir = os.path.dirname(os.path.abspath(__file__))
+    test_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     config_path = os.path.join(test_dir, "cufile.json")
     assert os.path.isfile(config_path)
     monkeypatch.setenv("CUFILE_ENV_PATH_JSON", config_path)
@@ -126,17 +126,21 @@ def test_cufile_success_defined():
 @pytest.fixture
 def ctx():
     # Initialize CUDA
-    cuda.init(0)
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
-    device = cuda.device_get(0)
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
-    ctx = cuda.device_primary_ctx_retain(device)
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
-    cuda.ctx_set_current(ctx)
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     yield
 
-    cuda.device_primary_ctx_release_v2(device)
+    cuda.cuDevicePrimaryCtxRelease(device)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -169,15 +173,19 @@ def _cufile_driver_prewarm():
     it is forced by the libcufile API — parameter-set tests cannot coexist
     with a session-wide open driver.
     """
-    cuda.init(0)
-    device = cuda.device_get(0)
-    dctx = cuda.device_primary_ctx_retain(device)
-    cuda.ctx_set_current(dctx)
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, dctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(dctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
     try:
         cufile.driver_open()
         cufile.driver_close()
     finally:
-        cuda.device_primary_ctx_release_v2(device)
+        cuda.cuDevicePrimaryCtxRelease(device)
 
 
 @pytest.fixture
@@ -219,7 +227,7 @@ def test_handle_register(tmpdir):
         descr.fs_ops = 0
 
         # Register the handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Deregister the handle
         cufile.handle_deregister(handle)
@@ -233,7 +241,8 @@ def test_buf_register_simple():
     """Simple test for buffer registration with cuFile."""
     # Allocate CUDA memory
     buffer_size = 4096  # 4KB, aligned to 4096 bytes
-    buf_ptr = cuda.mem_alloc_v2(buffer_size)
+    err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
         # Register the buffer with cuFile
@@ -246,7 +255,7 @@ def test_buf_register_simple():
 
     finally:
         # Free CUDA memory
-        cuda.mem_free_v2(buf_ptr)
+        cuda.cuMemFree(buf_ptr)
 
 
 @pytest.mark.usefixtures("driver")
@@ -254,7 +263,8 @@ def test_buf_register_host_memory():
     """Test buffer registration with host memory."""
     # Allocate host memory
     buffer_size = 4096  # 4KB, aligned to 4096 bytes
-    buf_ptr = cuda.mem_host_alloc(buffer_size, 0)
+    err, buf_ptr = cuda.cuMemHostAlloc(buffer_size, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
         # Register the host buffer with cuFile
@@ -267,7 +277,7 @@ def test_buf_register_host_memory():
 
     finally:
         # Free host memory
-        cuda.mem_free_host(buf_ptr)
+        cuda.cuMemFreeHost(buf_ptr)
 
 
 @pytest.mark.usefixtures("driver")
@@ -278,7 +288,8 @@ def test_buf_register_multiple_buffers():
     buffers = []
 
     for size in buffer_sizes:
-        buf_ptr = cuda.mem_alloc_v2(size)
+        err, buf_ptr = cuda.cuMemAlloc(size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         buffers.append(buf_ptr)
 
     try:
@@ -296,7 +307,7 @@ def test_buf_register_multiple_buffers():
     finally:
         # Free all buffers
         for buf_ptr in buffers:
-            cuda.mem_free_v2(buf_ptr)
+            cuda.cuMemFree(buf_ptr)
 
 
 @pytest.mark.usefixtures("driver")
@@ -304,7 +315,8 @@ def test_buf_register_invalid_flags():
     """Test buffer registration with invalid flags."""
     # Allocate CUDA memory
     buffer_size = 65536
-    buf_ptr = cuda.mem_alloc_v2(buffer_size)
+    err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
         # Try to register with invalid flags
@@ -318,7 +330,7 @@ def test_buf_register_invalid_flags():
 
     finally:
         # Free CUDA memory
-        cuda.mem_free_v2(buf_ptr)
+        cuda.cuMemFree(buf_ptr)
 
 
 @pytest.mark.usefixtures("driver")
@@ -326,7 +338,8 @@ def test_buf_register_large_buffer():
     """Test buffer registration with a large buffer."""
     # Allocate large CUDA memory (1MB, aligned to 4096 bytes)
     buffer_size = 1024 * 1024  # 1MB, aligned to 4096 bytes (1048576 % 4096 == 0)
-    buf_ptr = cuda.mem_alloc_v2(buffer_size)
+    err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
         # Register the large buffer with cuFile
@@ -339,7 +352,7 @@ def test_buf_register_large_buffer():
 
     finally:
         # Free CUDA memory
-        cuda.mem_free_v2(buf_ptr)
+        cuda.cuMemFree(buf_ptr)
 
 
 @pytest.mark.usefixtures("driver")
@@ -347,7 +360,8 @@ def test_buf_register_already_registered():
     """Test that registering an already registered buffer fails."""
     # Allocate CUDA memory
     buffer_size = 4096  # 4KB, aligned to 4096 bytes
-    buf_ptr = cuda.mem_alloc_v2(buffer_size)
+    err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
         # Register the buffer first time
@@ -368,7 +382,7 @@ def test_buf_register_already_registered():
 
     finally:
         # Free CUDA memory
-        cuda.mem_free_v2(buf_ptr)
+        cuda.cuMemFree(buf_ptr)
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
@@ -380,9 +394,11 @@ def test_cufile_read_write(tmpdir):
 
     # Allocate CUDA memory for write and read
     write_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
-    write_buf = cuda.mem_alloc_v2(write_size)
+    err, write_buf = cuda.cuMemAlloc(write_size)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
-    read_buf = cuda.mem_alloc_v2(write_size)
+    err, read_buf = cuda.cuMemAlloc(write_size)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Allocate host memory for data verification
     host_buf = ctypes.create_string_buffer(write_size)
@@ -405,7 +421,7 @@ def test_cufile_read_write(tmpdir):
         descr.fs_ops = 0
 
         # Register file handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Prepare test data
         test_string = b"Hello cuFile! This is test data for read/write operations. "
@@ -416,8 +432,8 @@ def test_cufile_read_write(tmpdir):
         host_buf = ctypes.create_string_buffer(test_data, write_size)
 
         # Copy test data to CUDA write buffer
-        cuda.memcpy_htod_async_v2(write_buf, host_buf, write_size, 0)
-        cuda.stream_synchronize(0)
+        cuda.cuMemcpyHtoDAsync(write_buf, host_buf, write_size, 0)
+        cuda.cuStreamSynchronize(0)
 
         # Write data using cuFile
         bytes_written = cufile.write(handle, write_buf_int, write_size, 0, 0)
@@ -431,8 +447,8 @@ def test_cufile_read_write(tmpdir):
         assert bytes_written == bytes_read, f"Bytes written ({bytes_written}) doesn't match bytes read ({bytes_read})"
 
         # Copy read data back to host
-        cuda.memcpy_dtoh_async_v2(host_buf, read_buf, write_size, 0)
-        cuda.stream_synchronize(0)
+        cuda.cuMemcpyDtoHAsync(host_buf, read_buf, write_size, 0)
+        cuda.cuStreamSynchronize(0)
 
         # Verify the data
         read_data = host_buf.value
@@ -449,8 +465,8 @@ def test_cufile_read_write(tmpdir):
         # Close file
         os.close(fd)
         # Free CUDA memory
-        cuda.mem_free_v2(write_buf)
-        cuda.mem_free_v2(read_buf)
+        cuda.cuMemFree(write_buf)
+        cuda.cuMemFree(read_buf)
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
@@ -462,9 +478,11 @@ def test_cufile_read_write_host_memory(tmpdir):
 
     # Allocate host memory for write and read
     write_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
-    write_buf = cuda.mem_host_alloc(write_size, 0)
+    err, write_buf = cuda.cuMemHostAlloc(write_size, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
-    read_buf = cuda.mem_host_alloc(write_size, 0)
+    err, read_buf = cuda.cuMemHostAlloc(write_size, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
         # Create file with O_DIRECT
@@ -484,7 +502,7 @@ def test_cufile_read_write_host_memory(tmpdir):
         descr.fs_ops = 0
 
         # Register file handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Prepare test data
         test_string = b"Host memory test data for cuFile operations! "
@@ -527,8 +545,8 @@ def test_cufile_read_write_host_memory(tmpdir):
         # Close file
         os.close(fd)
         # Free host memory
-        cuda.mem_free_host(write_buf)
-        cuda.mem_free_host(read_buf)
+        cuda.cuMemFreeHost(write_buf)
+        cuda.cuMemFreeHost(read_buf)
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
@@ -540,9 +558,11 @@ def test_cufile_read_write_large(tmpdir):
 
     # Allocate large CUDA memory (1MB, aligned to 4096 bytes)
     write_size = 1024 * 1024  # 1MB, aligned to 4096 bytes (1048576 % 4096 == 0)
-    write_buf = cuda.mem_alloc_v2(write_size)
+    err, write_buf = cuda.cuMemAlloc(write_size)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
-    read_buf = cuda.mem_alloc_v2(write_size)
+    err, read_buf = cuda.cuMemAlloc(write_size)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Allocate host memory for data verification
     host_buf = ctypes.create_string_buffer(write_size)
@@ -565,7 +585,7 @@ def test_cufile_read_write_large(tmpdir):
         descr.fs_ops = 0
 
         # Register file handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Generate large test data
         import random
@@ -574,12 +594,12 @@ def test_cufile_read_write_large(tmpdir):
         host_buf = ctypes.create_string_buffer(test_data, write_size)
 
         # Copy test data to CUDA write buffer
-        cuda.memcpy_htod_async_v2(write_buf, host_buf, write_size, 0)
-        cuda.stream_synchronize(0)
+        cuda.cuMemcpyHtoDAsync(write_buf, host_buf, write_size, 0)
+        cuda.cuStreamSynchronize(0)
 
         # Get the actual data that was written to CUDA buffer
-        cuda.memcpy_dtoh_async_v2(host_buf, write_buf, write_size, 0)
-        cuda.stream_synchronize(0)
+        cuda.cuMemcpyDtoHAsync(host_buf, write_buf, write_size, 0)
+        cuda.cuStreamSynchronize(0)
         expected_data = host_buf.value
 
         # Write data using cuFile
@@ -594,8 +614,8 @@ def test_cufile_read_write_large(tmpdir):
         assert bytes_written == bytes_read, f"Bytes written ({bytes_written}) doesn't match bytes read ({bytes_read})"
 
         # Copy read data back to host
-        cuda.memcpy_dtoh_async_v2(host_buf, read_buf, write_size, 0)
-        cuda.stream_synchronize(0)
+        cuda.cuMemcpyDtoHAsync(host_buf, read_buf, write_size, 0)
+        cuda.cuStreamSynchronize(0)
 
         # Verify the data
         read_data = host_buf.value
@@ -612,8 +632,8 @@ def test_cufile_read_write_large(tmpdir):
         # Close file
         os.close(fd)
         # Free CUDA memory
-        cuda.mem_free_v2(write_buf)
-        cuda.mem_free_v2(read_buf)
+        cuda.cuMemFree(write_buf)
+        cuda.cuMemFree(read_buf)
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
@@ -630,15 +650,17 @@ def test_cufile_write_async(tmpdir):
         descr.type = cufile.FileHandleType.OPAQUE_FD
         descr.handle.fd = fd
         descr.fs_ops = 0
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Allocate and register device buffer
         buf_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
-        buf_ptr = cuda.mem_alloc_v2(buf_size)
+        err, buf_ptr = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         cufile.buf_register(int(buf_ptr), buf_size, 0)
 
         # Create CUDA stream
-        stream = cuda.stream_create(0)
+        err, stream = cuda.cuStreamCreate(0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
         # Register stream with cuFile
         cufile.stream_register(int(stream), 0)
@@ -650,8 +672,8 @@ def test_cufile_write_async(tmpdir):
         test_data = test_string * repetitions
         test_data = test_data[:buf_size]  # Ensure it fits exactly in buffer
         host_buf = ctypes.create_string_buffer(test_data, buf_size)
-        cuda.memcpy_htod_async_v2(buf_ptr, host_buf, buf_size, 0)
-        cuda.stream_synchronize(0)
+        cuda.cuMemcpyHtoDAsync(buf_ptr, host_buf, buf_size, 0)
+        cuda.cuStreamSynchronize(0)
 
         # Create parameter arrays for async write
         size_p = ctypes.c_size_t(buf_size)
@@ -671,7 +693,7 @@ def test_cufile_write_async(tmpdir):
         )
 
         # Synchronize stream to wait for completion
-        cuda.stream_synchronize(stream)
+        cuda.cuStreamSynchronize(stream)
 
         # Verify bytes written
         assert bytes_written_p.value == buf_size, f"Expected {buf_size} bytes written, got {bytes_written_p.value}"
@@ -682,8 +704,8 @@ def test_cufile_write_async(tmpdir):
         # Deregister and cleanup
         cufile.buf_deregister(int(buf_ptr))
         cufile.handle_deregister(handle)
-        cuda.stream_destroy_v2(stream)
-        cuda.mem_free_v2(buf_ptr)
+        cuda.cuStreamDestroy(stream)
+        cuda.cuMemFree(buf_ptr)
 
     finally:
         os.close(fd)
@@ -718,15 +740,17 @@ def test_cufile_read_async(tmpdir):
         descr.type = cufile.FileHandleType.OPAQUE_FD
         descr.handle.fd = fd
         descr.fs_ops = 0
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Allocate and register device buffer
         buf_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
-        buf_ptr = cuda.mem_alloc_v2(buf_size)
+        err, buf_ptr = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         cufile.buf_register(int(buf_ptr), buf_size, 0)
 
         # Create CUDA stream
-        stream = cuda.stream_create(0)
+        err, stream = cuda.cuStreamCreate(0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
         # Register stream with cuFile
         cufile.stream_register(int(stream), 0)
@@ -749,15 +773,15 @@ def test_cufile_read_async(tmpdir):
         )
 
         # Synchronize stream to wait for completion
-        cuda.stream_synchronize(stream)
+        cuda.cuStreamSynchronize(stream)
 
         # Verify bytes read
         assert bytes_read_p.value > 0, f"Expected bytes read, got {bytes_read_p.value}"
 
         # Copy read data back to host and verify
         host_buf = ctypes.create_string_buffer(buf_size)
-        cuda.memcpy_dtoh_async_v2(host_buf, buf_ptr, buf_size, 0)
-        cuda.stream_synchronize(0)
+        cuda.cuMemcpyDtoHAsync(host_buf, buf_ptr, buf_size, 0)
+        cuda.cuStreamSynchronize(0)
         read_data = host_buf.value[: bytes_read_p.value]
         expected_data = test_data[: bytes_read_p.value]
         assert read_data == expected_data, "Read data doesn't match written data"
@@ -768,8 +792,8 @@ def test_cufile_read_async(tmpdir):
         # Deregister and cleanup
         cufile.buf_deregister(int(buf_ptr))
         cufile.handle_deregister(handle)
-        cuda.stream_destroy_v2(stream)
-        cuda.mem_free_v2(buf_ptr)
+        cuda.cuStreamDestroy(stream)
+        cuda.cuMemFree(buf_ptr)
 
     finally:
         os.close(fd)
@@ -789,18 +813,21 @@ def test_cufile_async_read_write(tmpdir):
         descr.type = cufile.FileHandleType.OPAQUE_FD
         descr.handle.fd = fd
         descr.fs_ops = 0
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Allocate and register device buffers
         buf_size = 65536  # 64KB, aligned to 4096 bytes (65536 % 4096 == 0)
-        write_buf = cuda.mem_alloc_v2(buf_size)
+        err, write_buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         cufile.buf_register(int(write_buf), buf_size, 0)
 
-        read_buf = cuda.mem_alloc_v2(buf_size)
+        err, read_buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         cufile.buf_register(int(read_buf), buf_size, 0)
 
         # Create CUDA stream
-        stream = cuda.stream_create(0)
+        err, stream = cuda.cuStreamCreate(0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
         # Register stream with cuFile
         cufile.stream_register(int(stream), 0)
@@ -812,8 +839,8 @@ def test_cufile_async_read_write(tmpdir):
         test_data = test_string * repetitions
         test_data = test_data[:buf_size]  # Ensure it fits exactly in buffer
         host_buf = ctypes.create_string_buffer(test_data, buf_size)
-        cuda.memcpy_htod_async_v2(write_buf, host_buf, buf_size, 0)
-        cuda.stream_synchronize(0)
+        cuda.cuMemcpyHtoDAsync(write_buf, host_buf, buf_size, 0)
+        cuda.cuStreamSynchronize(0)
 
         # Create parameter arrays for async write
         write_size_p = ctypes.c_size_t(buf_size)
@@ -833,7 +860,7 @@ def test_cufile_async_read_write(tmpdir):
         )
 
         # Synchronize stream to wait for write completion
-        cuda.stream_synchronize(stream)
+        cuda.cuStreamSynchronize(stream)
 
         # Verify bytes written
         assert bytes_written_p.value == buf_size, f"Expected {buf_size} bytes written, got {bytes_written_p.value}"
@@ -856,15 +883,15 @@ def test_cufile_async_read_write(tmpdir):
         )
 
         # Synchronize stream to wait for read completion
-        cuda.stream_synchronize(stream)
+        cuda.cuStreamSynchronize(stream)
 
         # Verify bytes read
         assert bytes_read_p.value == buf_size, f"Expected {buf_size} bytes read, got {bytes_read_p.value}"
 
         # Copy read data back to host and verify
         host_buf = ctypes.create_string_buffer(buf_size)
-        cuda.memcpy_dtoh_async_v2(host_buf, read_buf, buf_size, 0)
-        cuda.stream_synchronize(0)
+        cuda.cuMemcpyDtoHAsync(host_buf, read_buf, buf_size, 0)
+        cuda.cuStreamSynchronize(0)
         read_data = host_buf.value
         assert read_data == test_data, "Read data doesn't match written data"
 
@@ -875,9 +902,9 @@ def test_cufile_async_read_write(tmpdir):
         cufile.buf_deregister(int(write_buf))
         cufile.buf_deregister(int(read_buf))
         cufile.handle_deregister(handle)
-        cuda.stream_destroy_v2(stream)
-        cuda.mem_free_v2(write_buf)
-        cuda.mem_free_v2(read_buf)
+        cuda.cuStreamDestroy(stream)
+        cuda.cuMemFree(write_buf)
+        cuda.cuMemFree(read_buf)
 
     finally:
         os.close(fd)
@@ -898,7 +925,8 @@ def test_batch_io_basic(tmpdir):
     read_buffers = []  # Initialize read_buffers to avoid UnboundLocalError
 
     for i in range(num_operations):
-        buf = cuda.mem_alloc_v2(buf_size)
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         buffers.append(buf)
 
     # Allocate host memory for data verification
@@ -920,7 +948,7 @@ def test_batch_io_basic(tmpdir):
         descr.fs_ops = 0
 
         # Register file handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Set up batch IO
         batch_handle = cufile.batch_io_set_up(num_operations)
@@ -948,8 +976,8 @@ def test_batch_io_basic(tmpdir):
             host_buf = ctypes.create_string_buffer(test_data, buf_size)
 
             # Copy test data to CUDA buffer
-            cuda.memcpy_htod_async_v2(buffers[i], host_buf, buf_size, 0)
-            cuda.stream_synchronize(0)
+            cuda.cuMemcpyHtoDAsync(buffers[i], host_buf, buf_size, 0)
+            cuda.cuStreamSynchronize(0)
 
             # Set up IOParams for this operation
             io_params[i].mode = cufile.BatchMode.BATCH  # Batch mode
@@ -962,7 +990,7 @@ def test_batch_io_basic(tmpdir):
             io_params[i].u.batch.size_ = buf_size
 
         # Submit batch write operations
-        cufile.batch_io_submit(batch_handle, num_operations, io_params, 0)
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)
 
         # Get batch status
         min_nr = num_operations  # Wait for all operations to complete
@@ -970,7 +998,7 @@ def test_batch_io_basic(tmpdir):
         timeout = ctypes.c_int(5000)  # 5 second timeout
 
         cufile.batch_io_get_status(
-            batch_handle, min_nr, ctypes.addressof(nr_completed), io_events, ctypes.addressof(timeout)
+            batch_handle, min_nr, ctypes.addressof(nr_completed), io_events.ptr, ctypes.addressof(timeout)
         )
 
         # Verify all operations completed successfully
@@ -994,7 +1022,8 @@ def test_batch_io_basic(tmpdir):
         # Now test batch read operations
         read_buffers = []
         for i in range(num_operations):
-            buf = cuda.mem_alloc_v2(buf_size)
+            err, buf = cuda.cuMemAlloc(buf_size)
+            assert err == cuda.CUresult.CUDA_SUCCESS
             read_buffers.append(buf)
             buf_int = int(buf)
             cufile.buf_register(buf_int, buf_size, 0)
@@ -1014,11 +1043,11 @@ def test_batch_io_basic(tmpdir):
             io_params[i].u.batch.size_ = buf_size
 
         # Submit batch read operations
-        cufile.batch_io_submit(batch_handle, num_operations, io_params, 0)
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)
 
         # Get batch status for reads
         cufile.batch_io_get_status(
-            batch_handle, min_nr, ctypes.addressof(nr_completed), io_events_read, ctypes.addressof(timeout)
+            batch_handle, min_nr, ctypes.addressof(nr_completed), io_events_read.ptr, ctypes.addressof(timeout)
         )
 
         # Verify read operations completed successfully
@@ -1046,8 +1075,8 @@ def test_batch_io_basic(tmpdir):
         # Verify the read data matches the written data
         for i in range(num_operations):
             # Copy read data back to host
-            cuda.memcpy_dtoh_async_v2(host_buf, read_buffers[i], buf_size, 0)
-            cuda.stream_synchronize(0)
+            cuda.cuMemcpyDtoHAsync(host_buf, read_buffers[i], buf_size, 0)
+            cuda.cuStreamSynchronize(0)
             read_data = host_buf.value
 
             # Prepare expected data
@@ -1074,7 +1103,7 @@ def test_batch_io_basic(tmpdir):
         os.close(fd)
         # Free CUDA memory
         for buf in buffers + read_buffers:
-            cuda.mem_free_v2(buf)
+            cuda.cuMemFree(buf)
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
@@ -1090,7 +1119,8 @@ def test_batch_io_cancel(tmpdir):
 
     buffers = []
     for i in range(num_operations):
-        buf = cuda.mem_alloc_v2(buf_size)
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         buffers.append(buf)
 
     try:
@@ -1109,7 +1139,7 @@ def test_batch_io_cancel(tmpdir):
         descr.fs_ops = 0
 
         # Register file handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Set up batch IO
         batch_handle = cufile.batch_io_set_up(num_operations)
@@ -1129,7 +1159,7 @@ def test_batch_io_cancel(tmpdir):
             io_params[i].u.batch.size_ = buf_size
 
         # Submit batch operations
-        cufile.batch_io_submit(batch_handle, num_operations, io_params, 0)
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)
 
         # Cancel the batch operations
         cufile.batch_io_cancel(batch_handle)
@@ -1150,7 +1180,7 @@ def test_batch_io_cancel(tmpdir):
         os.close(fd)
         # Free CUDA memory
         for buf in buffers:
-            cuda.mem_free_v2(buf)
+            cuda.cuMemFree(buf)
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
@@ -1169,10 +1199,12 @@ def test_batch_io_large_operations(tmpdir):
     all_buffers = []  # Initialize all_buffers to avoid UnboundLocalError
 
     for i in range(num_operations):
-        buf = cuda.mem_alloc_v2(buf_size)
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         write_buffers.append(buf)
 
-        buf = cuda.mem_alloc_v2(buf_size)
+        err, buf = cuda.cuMemAlloc(buf_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         read_buffers.append(buf)
 
     # Allocate host memory for data verification
@@ -1195,7 +1227,7 @@ def test_batch_io_large_operations(tmpdir):
         descr.fs_ops = 0
 
         # Register file handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Set up batch IO
         batch_handle = cufile.batch_io_set_up(num_operations)  # Only for writes
@@ -1218,8 +1250,8 @@ def test_batch_io_large_operations(tmpdir):
             test_data = test_string * repetitions
             test_data = test_data[:buf_size]
             host_buf = ctypes.create_string_buffer(test_data, buf_size)
-            cuda.memcpy_htod_async_v2(write_buffers[i], host_buf, buf_size, 0)
-        cuda.stream_synchronize(0)
+            cuda.cuMemcpyHtoDAsync(write_buffers[i], host_buf, buf_size, 0)
+        cuda.cuStreamSynchronize(0)
 
         # Set up write operations
         for i in range(num_operations):
@@ -1233,7 +1265,7 @@ def test_batch_io_large_operations(tmpdir):
             io_params[i].u.batch.size_ = buf_size
 
         # Submit writes
-        cufile.batch_io_submit(batch_handle, num_operations, io_params, 0)
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)
 
         # Wait for writes to complete
         nr_completed_writes = ctypes.c_uint(num_operations)
@@ -1242,7 +1274,7 @@ def test_batch_io_large_operations(tmpdir):
             batch_handle,
             num_operations,
             ctypes.addressof(nr_completed_writes),
-            io_events,
+            io_events.ptr,
             ctypes.addressof(timeout),
         )
 
@@ -1266,7 +1298,7 @@ def test_batch_io_large_operations(tmpdir):
             read_io_params[i].u.batch.size_ = buf_size
 
         # Submit reads
-        cufile.batch_io_submit(read_batch_handle, num_operations, read_io_params, 0)
+        cufile.batch_io_submit(read_batch_handle, num_operations, read_io_params.ptr, 0)
 
         # Wait for reads
         nr_completed = ctypes.c_uint(num_operations)
@@ -1274,7 +1306,7 @@ def test_batch_io_large_operations(tmpdir):
             read_batch_handle,
             num_operations,
             ctypes.addressof(nr_completed),
-            read_io_events,
+            read_io_events.ptr,
             ctypes.addressof(timeout),
         )
 
@@ -1298,8 +1330,8 @@ def test_batch_io_large_operations(tmpdir):
         # Verify the read data matches the written data
         for i in range(num_operations):
             # Copy read data back to host
-            cuda.memcpy_dtoh_async_v2(host_buf, read_buffers[i], buf_size, 0)
-            cuda.stream_synchronize(0)
+            cuda.cuMemcpyDtoHAsync(host_buf, read_buffers[i], buf_size, 0)
+            cuda.cuStreamSynchronize(0)
             read_data = host_buf.value
 
             # Prepare expected data
@@ -1333,7 +1365,7 @@ def test_batch_io_large_operations(tmpdir):
         os.close(fd)
         # Free CUDA memory
         for buf in all_buffers:
-            cuda.mem_free_v2(buf)
+            cuda.cuMemFree(buf)
 
 
 @pytest.mark.skipif(
@@ -1574,11 +1606,12 @@ def test_get_stats_l1(tmpdir):
         descr.fs_ops = 0
 
         # Register the handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Allocate CUDA memory
         buffer_size = 4096  # 4KB, aligned to 4096 bytes
-        buf_ptr = cuda.mem_alloc_v2(buffer_size)
+        err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
         # Register the buffer with cuFile
         buf_ptr_int = int(buf_ptr)
@@ -1588,7 +1621,7 @@ def test_get_stats_l1(tmpdir):
         test_data = b"cuFile L1 stats test data" * 100  # Fill buffer
         test_data = test_data[:buffer_size]
         host_buf = ctypes.create_string_buffer(test_data, buffer_size)
-        cuda.memcpy_htod_v2(buf_ptr, host_buf, len(test_data))
+        cuda.cuMemcpyHtoD(buf_ptr, host_buf, len(test_data))
 
         # Perform cuFile operations to generate L1 statistics
         cufile.write(handle, buf_ptr_int, buffer_size, 0, 0)
@@ -1598,7 +1631,7 @@ def test_get_stats_l1(tmpdir):
         stats = cufile.StatsLevel1()
 
         # Get L1 statistics (basic operation counts)
-        cufile.get_stats_l1(stats)
+        cufile.get_stats_l1(stats.ptr)
 
         # Verify actual field values using OpCounter class for cleaner access
         read_ops = cufile.OpCounter.from_data(stats.read_ops)
@@ -1621,7 +1654,7 @@ def test_get_stats_l1(tmpdir):
         # Clean up cuFile resources
         cufile.buf_deregister(buf_ptr_int)
         cufile.handle_deregister(handle)
-        cuda.mem_free_v2(buf_ptr)
+        cuda.cuMemFree(buf_ptr)
 
     finally:
         os.close(fd)
@@ -1652,11 +1685,12 @@ def test_get_stats_l2(tmpdir):
         descr.fs_ops = 0
 
         # Register the handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Allocate CUDA memory
         buffer_size = 8192  # 8KB for more detailed stats
-        buf_ptr = cuda.mem_alloc_v2(buffer_size)
+        err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
         # Register the buffer with cuFile
         buf_ptr_int = int(buf_ptr)
@@ -1666,7 +1700,7 @@ def test_get_stats_l2(tmpdir):
         test_data = b"cuFile L2 detailed stats test data" * 150  # Fill buffer
         test_data = test_data[:buffer_size]
         host_buf = ctypes.create_string_buffer(test_data, buffer_size)
-        cuda.memcpy_htod_v2(buf_ptr, host_buf, len(test_data))
+        cuda.cuMemcpyHtoD(buf_ptr, host_buf, len(test_data))
 
         # Perform multiple cuFile operations to generate detailed L2 statistics
         cufile.write(handle, buf_ptr_int, buffer_size, 0, 0)
@@ -1678,7 +1712,7 @@ def test_get_stats_l2(tmpdir):
         stats = cufile.StatsLevel2()
 
         # Get L2 statistics (detailed performance metrics)
-        cufile.get_stats_l2(stats)
+        cufile.get_stats_l2(stats.ptr)
 
         # Verify L2 histogram fields contain data
         # Access numpy array fields: histograms are numpy arrays
@@ -1702,7 +1736,7 @@ def test_get_stats_l2(tmpdir):
         # Clean up cuFile resources
         cufile.buf_deregister(buf_ptr_int)
         cufile.handle_deregister(handle)
-        cuda.mem_free_v2(buf_ptr)
+        cuda.cuMemFree(buf_ptr)
 
     finally:
         os.close(fd)
@@ -1733,11 +1767,12 @@ def test_get_stats_l3(tmpdir):
         descr.fs_ops = 0
 
         # Register the handle
-        handle = cufile.handle_register(descr)
+        handle = cufile.handle_register(descr.ptr)
 
         # Allocate CUDA memory
         buffer_size = 16384  # 16KB for comprehensive stats testing
-        buf_ptr = cuda.mem_alloc_v2(buffer_size)
+        err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
         # Register the buffer with cuFile
         buf_ptr_int = int(buf_ptr)
@@ -1747,7 +1782,7 @@ def test_get_stats_l3(tmpdir):
         test_data = b"cuFile L3 comprehensive stats test data" * 200  # Fill buffer
         test_data = test_data[:buffer_size]
         host_buf = ctypes.create_string_buffer(test_data, buffer_size)
-        cuda.memcpy_htod_v2(buf_ptr, host_buf, len(test_data))
+        cuda.cuMemcpyHtoD(buf_ptr, host_buf, len(test_data))
 
         # Perform comprehensive cuFile operations to generate L3 statistics
         # Multiple writes and reads at different offsets to generate rich stats
@@ -1762,7 +1797,7 @@ def test_get_stats_l3(tmpdir):
         stats = cufile.StatsLevel3()
 
         # Get L3 statistics (comprehensive diagnostic data)
-        cufile.get_stats_l3(stats)
+        cufile.get_stats_l3(stats.ptr)
 
         # Verify L3-specific fields
         num_gpus = int(stats.num_gpus)
@@ -1793,7 +1828,7 @@ def test_get_stats_l3(tmpdir):
         # Clean up cuFile resources
         cufile.buf_deregister(buf_ptr_int)
         cufile.handle_deregister(handle)
-        cuda.mem_free_v2(buf_ptr)
+        cuda.cuMemFree(buf_ptr)
 
     finally:
         os.close(fd)

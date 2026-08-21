@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f62fe4f88ff8394acc48a14d465c00898f1f24f13fbd339862226a544cc8111a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0faac9f382211204c57212b06d9b0f1400afec346c1a2c803f85ba98e4616748
 from typing import Any, Optional
 import cython
 import ctypes
@@ -25780,9 +25780,9 @@ def cuDeviceSetMemPool(dev, pool):
     Parameters
     ----------
     dev : :py:obj:`~.CUdevice`
-        None
+        Device to set the current memory pool for
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
-        None
+        Memory pool to use as the device's current memory pool
 
     Returns
     -------
@@ -25830,14 +25830,14 @@ def cuDeviceGetMemPool(dev):
     Parameters
     ----------
     dev : :py:obj:`~.CUdevice`
-        None
+        Device for which to query the current memory pool
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
     pool : :py:obj:`~.CUmemoryPool`
-        None
+        Returned current memory pool of the device
 
     See Also
     --------
@@ -25868,14 +25868,14 @@ def cuDeviceGetDefaultMemPool(dev):
     Parameters
     ----------
     dev : :py:obj:`~.CUdevice`
-        None
+        Device for which to query the default memory pool
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pool_out : :py:obj:`~.CUmemoryPool`
-        None
+        Returned default memory pool of the device
 
     See Also
     --------
@@ -27144,14 +27144,18 @@ def cuCtxGetLimit(limit not None : CUlimit):
     Parameters
     ----------
     limit : :py:obj:`~.CUlimit`
-        None
+        Limit to query
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_UNSUPPORTED_LIMIT`
     pvalue : int
-        None
+        Returned size of limit
+
+    See Also
+    --------
+    :py:obj:`~.cuCtxCreate`, :py:obj:`~.cuCtxDestroy`, :py:obj:`~.cuCtxGetApiVersion`, :py:obj:`~.cuCtxGetCacheConfig`, :py:obj:`~.cuCtxGetDevice`, :py:obj:`~.cuCtxGetFlags`, :py:obj:`~.cuCtxPopCurrent`, :py:obj:`~.cuCtxPushCurrent`, :py:obj:`~.cuCtxSetCacheConfig`, :py:obj:`~.cuCtxSetLimit`, :py:obj:`~.cuCtxSynchronize`, :py:obj:`~.cudaDeviceGetLimit`
     """
     cdef size_t pvalue = 0
     cdef cydriver.CUlimit cylimit = int(limit)
@@ -35414,16 +35418,20 @@ def cuMemPoolGetAttribute(pool, attr not None : CUmemPool_attribute):
     Parameters
     ----------
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
-        None
+        The memory pool to get attributes of
     attr : :py:obj:`~.CUmemPool_attribute`
-        None
+        The attribute to get
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
     value : Any
-        None
+        Retrieved value
+
+    See Also
+    --------
+    :py:obj:`~.cuMemAllocAsync`, :py:obj:`~.cuMemFreeAsync`, :py:obj:`~.cuDeviceGetDefaultMemPool`, :py:obj:`~.cuDeviceGetMemPool`, :py:obj:`~.cuMemPoolCreate`
     """
     cdef cydriver.CUmemoryPool cypool
     if pool is None:
@@ -35605,14 +35613,14 @@ def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
     Parameters
     ----------
     poolProps : :py:obj:`~.CUmemPoolProps`
-        None
+        Memory pool properties
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pool : :py:obj:`~.CUmemoryPool`
-        None
+        Returned memory pool
 
     See Also
     --------
@@ -35646,7 +35654,7 @@ def cuMemPoolDestroy(pool):
     Parameters
     ----------
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
-        None
+        Memory pool to destroy
 
     Returns
     -------
@@ -35690,16 +35698,17 @@ def cuMemGetDefaultMemPool(location : Optional[CUmemLocation], typename not None
     Parameters
     ----------
     location : :py:obj:`~.CUmemLocation`
-        None
+        Memory location for which to query the default memory pool
     typename : :py:obj:`~.CUmemAllocationType`
-        None
+        Allocation type for which to query the default memory pool
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pool_out : :py:obj:`~.CUmemoryPool`
-        None
+        Returned default memory pool for the given location and allocation
+        type
 
     See Also
     --------
@@ -35741,16 +35750,17 @@ def cuMemGetMemPool(location : Optional[CUmemLocation], typename not None : CUme
     Parameters
     ----------
     location : :py:obj:`~.CUmemLocation`
-        None
+        Memory location for which to query the current memory pool
     typename : :py:obj:`~.CUmemAllocationType`
-        None
+        Allocation type for which to query the current memory pool
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
     pool : :py:obj:`~.CUmemoryPool`
-        None
+        Returned current memory pool for the given location and allocation
+        type
 
     See Also
     --------
@@ -35797,11 +35807,12 @@ def cuMemSetMemPool(location : Optional[CUmemLocation], typename not None : CUme
     Parameters
     ----------
     location : :py:obj:`~.CUmemLocation`
-        None
+        Memory location for which to set the current memory pool
     typename : :py:obj:`~.CUmemAllocationType`
-        None
+        Allocation type for which to set the current memory pool
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
-        None
+        Memory pool to use as the current memory pool for the given
+        location and allocation type
 
     Returns
     -------
@@ -52424,16 +52435,20 @@ def cuGraphicsResourceGetMappedPointer(resource):
     Parameters
     ----------
     resource : :py:obj:`~.CUgraphicsResource`
-        None
+        Mapped resource to access
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED_AS_POINTER`
     pDevPtr : :py:obj:`~.CUdeviceptr`
-        None
+        Returned pointer through which `resource` may be accessed
     pSize : int
-        None
+        Returned size of the buffer accessible starting at `*pPointer`
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphicsMapResources`, :py:obj:`~.cuGraphicsSubResourceGetMappedArray`, :py:obj:`~.cudaGraphicsResourceGetMappedPointer`
     """
     cdef cydriver.CUgraphicsResource cyresource
     if resource is None:
@@ -55471,18 +55486,22 @@ def cuGraphicsResourceGetMappedEglFrame(resource, unsigned int index, unsigned i
     Parameters
     ----------
     resource : :py:obj:`~.CUgraphicsResource`
-        None
+        Registered resource to access.
     index : unsigned int
-        None
+        Index for cubemap surfaces.
     mipLevel : unsigned int
-        None
+        Mipmap level for the subresource to access.
 
     Returns
     -------
     CUresult
-
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`, :py:obj:`~.CUDA_ERROR_NOT_MAPPED`
     eglFrame : :py:obj:`~.CUeglFrame`
-        None
+        Returned eglFrame.
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphicsMapResources`, :py:obj:`~.cuGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsResourceGetMappedPointer`, :py:obj:`~.cudaGraphicsResourceGetMappedEglFrame`
     """
     cdef cydriver.CUgraphicsResource cyresource
     if resource is None:

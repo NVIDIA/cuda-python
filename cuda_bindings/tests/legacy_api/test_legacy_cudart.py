@@ -8,9 +8,6 @@ import numpy as np
 import pytest
 from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 
-# Kept on the legacy driver API: its only use is constructing a
-# cuuint64_t POD value for cudaMemPoolSetAttribute, and cuda.bindings._v2.driver
-# does not expose an equivalent wrapper type.
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda import pathfinder
