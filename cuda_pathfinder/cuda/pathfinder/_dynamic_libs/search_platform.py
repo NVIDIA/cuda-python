@@ -113,6 +113,8 @@ class SearchPlatform(Protocol):
 
     def install_root_env_vars(self, desc: LibDescriptor) -> tuple[str, ...]: ...
 
+    def install_root_env_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]: ...
+
     def program_files_root_globs(self, desc: LibDescriptor) -> tuple[str, ...]: ...
 
     def find_in_site_packages(
@@ -149,6 +151,9 @@ class LinuxSearchPlatform:
         return cast(tuple[str, ...], desc.anchor_rel_dirs_linux)
 
     def install_root_env_vars(self, _desc: LibDescriptor) -> tuple[str, ...]:
+        return ()
+
+    def install_root_env_rel_dirs(self, _desc: LibDescriptor) -> tuple[str, ...]:
         return ()
 
     def program_files_root_globs(self, _desc: LibDescriptor) -> tuple[str, ...]:
@@ -216,6 +221,11 @@ class WindowsSearchPlatform:
         if self.target_arch not in desc.supported_windows_arch:
             return ()
         return cast(tuple[str, ...], desc.install_root_env_vars_windows)
+
+    def install_root_env_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
+        if self.target_arch not in desc.supported_windows_arch:
+            return ()
+        return cast(tuple[str, ...], desc.install_root_env_rel_dirs_windows.for_arch(self.target_arch))
 
     def program_files_root_globs(self, desc: LibDescriptor) -> tuple[str, ...]:
         program_files = os.environ.get("PROGRAMW6432") or os.environ.get("PROGRAMFILES")

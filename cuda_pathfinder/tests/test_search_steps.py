@@ -670,19 +670,48 @@ class TestFindInCudaHome:
 
 
 class TestWindowsInstallRoots:
+    @pytest.mark.parametrize(
+        ("target_arch", "archive_bin_rel_dir"),
+        [
+            ("x64", "bin/x64"),
+            ("x64", "bin"),
+            ("arm64", "bin/arm64"),
+        ],
+    )
     @pytest.mark.agent_authored(model="gpt-5")
-    def test_cudnn_path_finds_archive_layout(self, mocker, tmp_path):
-        bin_dir = tmp_path / "bin" / "x64"
+    def test_cudnn_path_finds_supported_archive_layouts(self, mocker, tmp_path, target_arch, archive_bin_rel_dir):
+        bin_dir = tmp_path / archive_bin_rel_dir
         bin_dir.mkdir(parents=True)
         dll = bin_dir / "cudnn64_9.dll"
         dll.touch()
         mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
 
         result = find_in_install_root_env_vars(
-            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch=target_arch))
         )
 
         assert result == FindResult(str(dll), "CUDNN_PATH")
+
+    @pytest.mark.parametrize(
+        ("target_arch", "other_arch_bin_rel_dir"),
+        [
+            ("x64", "bin/arm64"),
+            ("arm64", "bin/x64"),
+            ("arm64", "bin"),
+        ],
+    )
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudnn_path_does_not_cross_architectures(self, mocker, tmp_path, target_arch, other_arch_bin_rel_dir):
+        bin_dir = tmp_path / other_arch_bin_rel_dir
+        bin_dir.mkdir(parents=True)
+        (bin_dir / "cudnn64_9.dll").touch()
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
+
+        result = find_in_install_root_env_vars(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch=target_arch))
+        )
+
+        assert result is None
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_program_files_finds_versioned_cudnn_install(self, mocker, tmp_path):
@@ -718,18 +747,32 @@ class TestWindowsInstallRoots:
         assert result == FindResult(str(newer_dll), "ProgramFiles")
 
     @pytest.mark.agent_authored(model="gpt-5")
-    def test_cudnn_windows_roots_are_not_searched_for_arm64(self, mocker, tmp_path):
-        bin_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.24" / "bin"
-        bin_dir.mkdir(parents=True)
-        (bin_dir / "cudnn64_9.dll").touch()
+    def test_cudnn_arm64_archive_layout_is_not_assumed_for_other_roots(self, mocker, tmp_path):
+        conda_root = tmp_path / "conda"
+        cuda_root = tmp_path / "cuda"
+        program_files_root = tmp_path / "Program Files"
+        for bin_dir in (
+            conda_root / "Library" / "bin" / "arm64",
+            cuda_root / "bin" / "arm64",
+            program_files_root / "NVIDIA" / "CUDNN" / "v9.25" / "bin" / "arm64",
+        ):
+            bin_dir.mkdir(parents=True)
+            (bin_dir / "cudnn64_9.dll").touch()
         mocker.patch.dict(
             os.environ,
-            {"CUDNN_PATH": str(tmp_path), "PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""},
+            {
+                "CONDA_PREFIX": str(conda_root),
+                "PROGRAMFILES": str(program_files_root),
+                "PROGRAMW6432": "",
+            },
         )
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(cuda_root))
         ctx = _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="arm64"))
 
-        assert find_in_install_root_env_vars(ctx) is None
+        assert find_in_conda(ctx) is None
+        assert find_in_cuda_path(ctx) is None
         assert find_in_program_files_roots(ctx) is None
+        assert ctx.platform.site_packages_rel_dirs(ctx.desc) == ()
 
 
 # ---------------------------------------------------------------------------

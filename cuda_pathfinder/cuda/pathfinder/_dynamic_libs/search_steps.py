@@ -71,17 +71,21 @@ class SearchContext:
 FindStep = Callable[[SearchContext], FindResult | None]
 
 
+def _iter_lib_dirs(root: str, rel_dirs: tuple[str, ...]) -> Iterator[str]:
+    """Yield existing library directories under *root* in descriptor order."""
+    for rel_path in rel_dirs:
+        for dirname in sorted(glob.glob(os.path.join(root, rel_path))):
+            if os.path.isdir(dirname):
+                yield os.path.normpath(dirname)
+
+
 def _iter_lib_dirs_using_anchor(
     desc: LibDescriptor,
     platform: SearchPlatform,
     anchor_point: str,
 ) -> Iterator[str]:
     """Yield existing library directories under *anchor_point* in descriptor order."""
-    rel_dirs = platform.anchor_rel_dirs(desc)
-    for rel_path in rel_dirs:
-        for dirname in sorted(glob.glob(os.path.join(anchor_point, rel_path))):
-            if os.path.isdir(dirname):
-                yield os.path.normpath(dirname)
+    yield from _iter_lib_dirs(anchor_point, platform.anchor_rel_dirs(desc))
 
 
 def _find_lib_dir_using_anchor(desc: LibDescriptor, platform: SearchPlatform, anchor_point: str) -> str | None:
@@ -105,13 +109,23 @@ def _find_using_lib_dir(ctx: SearchContext, lib_dir: str | None) -> str | None:
     )
 
 
-def _find_under_root(ctx: SearchContext, root: str, found_via: str) -> FindResult | None:
-    """Resolve descriptor anchors under *root*, then find the requested library."""
-    for lib_dir in _iter_lib_dirs_using_anchor(ctx.desc, ctx.platform, root):
+def _find_under_root(
+    ctx: SearchContext,
+    root: str,
+    rel_dirs: tuple[str, ...],
+    found_via: str,
+) -> FindResult | None:
+    """Resolve *rel_dirs* under *root*, then find the requested library."""
+    for lib_dir in _iter_lib_dirs(root, rel_dirs):
         abs_path = _find_using_lib_dir(ctx, lib_dir)
         if abs_path is not None:
             return FindResult(abs_path, found_via)
     return None
+
+
+def _find_under_anchor_root(ctx: SearchContext, root: str, found_via: str) -> FindResult | None:
+    """Resolve the descriptor's general anchors under *root*."""
+    return _find_under_root(ctx, root, ctx.platform.anchor_rel_dirs(ctx.desc), found_via)
 
 
 def _derive_ctk_root_linux(resolved_lib_path: str) -> str | None:
@@ -165,7 +179,7 @@ def derive_ctk_root(resolved_lib_path: str) -> str | None:
 
 def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | None:
     """Find a library under a previously derived CTK root."""
-    return _find_under_root(ctx, ctk_root, "system-ctk-root")
+    return _find_under_anchor_root(ctx, ctk_root, "system-ctk-root")
 
 
 # ---------------------------------------------------------------------------
@@ -196,16 +210,17 @@ def find_in_conda(ctx: SearchContext) -> FindResult | None:
     if not conda_prefix:
         return None
     anchor = ctx.platform.conda_anchor_point(conda_prefix)
-    return _find_under_root(ctx, anchor, "conda")
+    return _find_under_anchor_root(ctx, anchor, "conda")
 
 
 def find_in_install_root_env_vars(ctx: SearchContext) -> FindResult | None:
     """Search installation roots named by descriptor-specific environment variables."""
+    rel_dirs = ctx.platform.install_root_env_rel_dirs(ctx.desc)
     for env_var in ctx.platform.install_root_env_vars(ctx.desc):
         root = os.environ.get(env_var)
         if not root:
             continue
-        result = _find_under_root(ctx, root, env_var)
+        result = _find_under_root(ctx, root, rel_dirs, env_var)
         if result is not None:
             return result
     return None
@@ -225,7 +240,7 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
     cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
         return None
-    return _find_under_root(ctx, cuda_home, "CUDA_PATH")
+    return _find_under_anchor_root(ctx, cuda_home, "CUDA_PATH")
 
 
 def find_in_program_files_roots(ctx: SearchContext) -> FindResult | None:
@@ -234,7 +249,7 @@ def find_in_program_files_roots(ctx: SearchContext) -> FindResult | None:
         for root in sorted(glob.glob(root_glob), key=natural_path_sort_key, reverse=True):
             if not os.path.isdir(root):
                 continue
-            result = _find_under_root(ctx, os.path.normpath(root), "ProgramFiles")
+            result = _find_under_anchor_root(ctx, os.path.normpath(root), "ProgramFiles")
             if result is not None:
                 return result
     return None

@@ -112,7 +112,22 @@ def test_windows_search_dirs_do_not_include_unsupported_arches(spec: DescriptorS
         if arch not in spec.supported_windows_arch:
             assert not spec.site_packages_windows.for_arch(arch)
             assert not spec.anchor_rel_dirs_windows.for_arch(arch)
+            assert not spec.install_root_env_rel_dirs_windows.for_arch(arch)
             assert not spec.program_files_root_globs_windows.for_arch(arch)
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_install_root_env_metadata_is_complete(spec: DescriptorSpec):
+    has_env_vars = bool(spec.install_root_env_vars_windows)
+    has_rel_dirs = any(spec.install_root_env_rel_dirs_windows.for_arch(arch) for arch in _VALID_WINDOWS_ARCHES)
+
+    assert has_env_vars == has_rel_dirs, f"{spec.name} must define both installation-root env vars and relative dirs"
+    if has_env_vars:
+        for arch in spec.supported_windows_arch:
+            assert spec.install_root_env_rel_dirs_windows.for_arch(arch), (
+                f"{spec.name} exposes installation-root env vars without {arch} relative dirs"
+            )
 
 
 @pytest.mark.agent_authored(model="gpt-5")
@@ -126,18 +141,22 @@ def test_cusparselt_windows_metadata_matches_wheel_layouts():
 
 
 @pytest.mark.agent_authored(model="gpt-5")
-def test_cudnn_metadata_matches_wheel_layouts():
+def test_cudnn_metadata_matches_supported_layouts():
     spec = _CATALOG_BY_NAME["cudnn"]
     assert spec.packaged_with == "other"
     assert spec.linux_sonames == ("libcudnn.so.9",)
     assert spec.windows_dlls == ("cudnn64_9.dll",)
-    assert spec.supported_windows_arch == ("x64",)
+    assert spec.supported_windows_arch == ("x64", "arm64")
     assert spec.site_packages_linux == ("nvidia/cudnn/lib",)
     assert spec.site_packages_windows == WindowsSearchDirs.x64_only("nvidia/cudnn/bin")
     assert spec.anchor_rel_dirs_windows == WindowsSearchDirs.x64_only("bin/x64", "bin")
     assert spec.dependencies == ("cublasLt",)
     assert spec.optional_dependencies == ("nvrtc",)
     assert spec.install_root_env_vars_windows == ("CUDNN_PATH",)
+    assert spec.install_root_env_rel_dirs_windows == WindowsSearchDirs(
+        x64=("bin/x64", "bin"),
+        arm64=("bin/arm64",),
+    )
     assert spec.program_files_root_globs_windows == WindowsSearchDirs.x64_only("NVIDIA/CUDNN/v9.*")
     assert spec.requires_add_dll_directory
 
