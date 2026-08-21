@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=df46a6921d93f83249134c7705b2809f57145b6fb72f6f40c4657ecd1b443b81
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5dd8325ae10aed6ab067afd0c4faadd7842e358db90007f901a71fe8f923411c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -94,7 +94,7 @@ cdef _get__py_anon_pod1_dtype_offsets():
             (<intptr_t>&(pod.fd)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof((<CUfileDescr_t*>NULL).handle),
+        'itemsize': sizeof(cuda_bindings_cufile__anon_pod1),
     })
 
 _py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
@@ -112,7 +112,7 @@ cdef class _py_anon_pod1:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
+        self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod1))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
@@ -145,20 +145,20 @@ cdef class _py_anon_pod1:
         if not isinstance(other, _py_anon_pod1):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileDescr_t*>NULL).handle)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_cufile__anon_pod1)) == 0)
 
     def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileDescr_t*>NULL).handle), self._readonly)
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_cufile__anon_pod1), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            self._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof(cuda_bindings_cufile__anon_pod1))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileDescr_t*>NULL).handle))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_cufile__anon_pod1))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -190,7 +190,7 @@ cdef class _py_anon_pod1:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof((<CUfileDescr_t*>NULL).handle), _py_anon_pod1)
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_cufile__anon_pod1), _py_anon_pod1)
 
     @staticmethod
     def from_data(data):
@@ -214,10 +214,10 @@ cdef class _py_anon_pod1:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
         if owner is None:
-            obj._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            obj._ptr = <cuda_bindings_cufile__anon_pod1 *>_cyb_malloc(sizeof(cuda_bindings_cufile__anon_pod1))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod1")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileDescr_t*>NULL).handle))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_cufile__anon_pod1))
             obj._owner = None
             obj._owned = True
         else:
@@ -239,7 +239,7 @@ cdef _get__py_anon_pod3_dtype_offsets():
             (<intptr_t>&(pod.devPtr_offset)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof((<CUfileIOParams_t*>NULL).u.batch),
+        'itemsize': sizeof(cuda_bindings_cufile__anon_pod3),
     })
 
 _py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
@@ -257,7 +257,7 @@ cdef class _py_anon_pod3:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+        self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod3))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
@@ -290,20 +290,20 @@ cdef class _py_anon_pod3:
         if not isinstance(other, _py_anon_pod3):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u.batch)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_cufile__anon_pod3)) == 0)
 
     def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch), self._readonly)
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_cufile__anon_pod3), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            self._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof(cuda_bindings_cufile__anon_pod3))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_cufile__anon_pod3))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -357,7 +357,7 @@ cdef class _py_anon_pod3:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod3 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u.batch), _py_anon_pod3)
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_cufile__anon_pod3), _py_anon_pod3)
 
     @staticmethod
     def from_data(data):
@@ -381,10 +381,10 @@ cdef class _py_anon_pod3:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
         if owner is None:
-            obj._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            obj._ptr = <cuda_bindings_cufile__anon_pod3 *>_cyb_malloc(sizeof(cuda_bindings_cufile__anon_pod3))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_cufile__anon_pod3))
             obj._owner = None
             obj._owned = True
         else:
@@ -425,7 +425,10 @@ cdef class IOEvents:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=io_events_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=io_events_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileIOEvents_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOEvents_t) }"
@@ -445,9 +448,10 @@ cdef class IOEvents:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -764,7 +768,10 @@ cdef class PerGpuStats:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=per_gpu_stats_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=per_gpu_stats_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfilePerGpuStats_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfilePerGpuStats_t) }"
@@ -784,9 +791,10 @@ cdef class PerGpuStats:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -1228,7 +1236,10 @@ cdef class Descr:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=descr_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=descr_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileDescr_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileDescr_t) }"
@@ -1248,9 +1259,10 @@ cdef class Descr:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -1373,7 +1385,7 @@ cdef _get__py_anon_pod2_dtype_offsets():
         'offsets': [
             (<intptr_t>&(pod.batch)) - (<intptr_t>&pod),
         ],
-        'itemsize': sizeof((<CUfileIOParams_t*>NULL).u),
+        'itemsize': sizeof(cuda_bindings_cufile__anon_pod2),
     })
 
 _py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
@@ -1391,7 +1403,7 @@ cdef class _py_anon_pod2:
         bint _readonly
 
     def __init__(self):
-        self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof((<CUfileIOParams_t*>NULL).u))
+        self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod2))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
         self._owner = None
@@ -1424,20 +1436,20 @@ cdef class _py_anon_pod2:
         if not isinstance(other, _py_anon_pod2):
             return False
         other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u)) == 0)
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_cufile__anon_pod2)) == 0)
 
     def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof((<CUfileIOParams_t*>NULL).u), self._readonly)
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_cufile__anon_pod2), self._readonly)
 
     def __releasebuffer__(self, Py_buffer *buffer):
         pass
 
     def __setitem__(self, key, val):
         if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_cufile__anon_pod2))
             if self._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u))
+            _cyb_memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(cuda_bindings_cufile__anon_pod2))
             self._owner = None
             self._owned = True
             self._readonly = not val.flags.writeable
@@ -1463,7 +1475,7 @@ cdef class _py_anon_pod2:
     @staticmethod
     def from_buffer(buffer):
         """Create an _py_anon_pod2 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof((<CUfileIOParams_t*>NULL).u), _py_anon_pod2)
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_cufile__anon_pod2), _py_anon_pod2)
 
     @staticmethod
     def from_data(data):
@@ -1487,10 +1499,10 @@ cdef class _py_anon_pod2:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
         if owner is None:
-            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_cufile__anon_pod2))
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u))
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_cufile__anon_pod2))
             obj._owner = None
             obj._owned = True
         else:
@@ -2273,7 +2285,10 @@ cdef class IOParams:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=io_params_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=io_params_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileIOParams_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOParams_t) }"
@@ -2293,9 +2308,10 @@ cdef class IOParams:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -3009,7 +3025,7 @@ cdef int check_status(ReturnT status) except 1 nogil:
 # Wrapper functions
 ###############################################################################
 
-cpdef intptr_t handle_register(intptr_t descr) except? 0:
+cpdef intptr_t handle_register(descr) except? 0:
     """cuFileHandleRegister is required, and performs extra checking that is memoized to provide increased performance on later cuFile operations.
 
     Args:
@@ -3022,9 +3038,10 @@ cpdef intptr_t handle_register(intptr_t descr) except? 0:
 
     .. seealso:: `cuFileHandleRegister`
     """
+    cdef intptr_t _descr_ptr_ = int(descr)
     cdef Handle fh
     with nogil:
-        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
+        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>_descr_ptr_)
     check_status(__status__)
     return <intptr_t>fh
 
@@ -3169,15 +3186,17 @@ cpdef intptr_t batch_io_set_up(unsigned nr) except? 0:
     return <intptr_t>batch_idp
 
 
-cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags):
+cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, iocbp, unsigned int flags):
+    cdef intptr_t _iocbp_ptr_ = int(iocbp)
     with nogil:
-        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>iocbp, flags)
+        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>_iocbp_ptr_, flags)
     check_status(__status__)
 
 
-cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout):
+cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, iocbp, intptr_t timeout):
+    cdef intptr_t _iocbp_ptr_ = int(iocbp)
     with nogil:
-        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>iocbp, <timespec*>timeout)
+        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>_iocbp_ptr_, <timespec*>timeout)
     check_status(__status__)
 
 
@@ -3356,7 +3375,7 @@ cpdef stats_reset():
     check_status(__status__)
 
 
-cpdef get_stats_l1(intptr_t stats):
+cpdef get_stats_l1(stats):
     """Get Level 1 cuFile statistics.
 
     Args:
@@ -3365,12 +3384,13 @@ cpdef get_stats_l1(intptr_t stats):
 
     .. seealso:: `cuFileGetStatsL1`
     """
+    cdef intptr_t _stats_ptr_ = int(stats)
     with nogil:
-        __status__ = cuFileGetStatsL1(<CUfileStatsLevel1_t*>stats)
+        __status__ = cuFileGetStatsL1(<CUfileStatsLevel1_t*>_stats_ptr_)
     check_status(__status__)
 
 
-cpdef get_stats_l2(intptr_t stats):
+cpdef get_stats_l2(stats):
     """Get Level 2 cuFile statistics.
 
     Args:
@@ -3379,12 +3399,13 @@ cpdef get_stats_l2(intptr_t stats):
 
     .. seealso:: `cuFileGetStatsL2`
     """
+    cdef intptr_t _stats_ptr_ = int(stats)
     with nogil:
-        __status__ = cuFileGetStatsL2(<CUfileStatsLevel2_t*>stats)
+        __status__ = cuFileGetStatsL2(<CUfileStatsLevel2_t*>_stats_ptr_)
     check_status(__status__)
 
 
-cpdef get_stats_l3(intptr_t stats):
+cpdef get_stats_l3(stats):
     """Get Level 3 cuFile statistics.
 
     Args:
@@ -3393,8 +3414,9 @@ cpdef get_stats_l3(intptr_t stats):
 
     .. seealso:: `cuFileGetStatsL3`
     """
+    cdef intptr_t _stats_ptr_ = int(stats)
     with nogil:
-        __status__ = cuFileGetStatsL3(<CUfileStatsLevel3_t*>stats)
+        __status__ = cuFileGetStatsL3(<CUfileStatsLevel3_t*>_stats_ptr_)
     check_status(__status__)
 
 

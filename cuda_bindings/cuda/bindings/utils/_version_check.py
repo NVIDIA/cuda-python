@@ -36,16 +36,17 @@ def warn_if_cuda_major_version_mismatch():
         return
 
     # Import here to avoid circular imports and allow lazy loading
-    from cuda.bindings import driver
+    from cuda.bindings._v2 import driver
 
     # Get compile-time CUDA version from cuda-bindings
     compile_version = driver.CUDA_VERSION  # e.g., 13010
     compile_major = compile_version // 1000
 
     # Get runtime driver version
-    err, runtime_version = driver.cuDriverGetVersion()
-    if err != driver.CUresult.CUDA_SUCCESS:
-        raise RuntimeError(f"Failed to query CUDA driver version: {err}")
+    try:
+        runtime_version = driver.driver_get_version()
+    except driver.DriverError as e:
+        raise RuntimeError(f"Failed to query CUDA driver version: {e}") from e
 
     runtime_major = runtime_version // 1000
 

@@ -5,10 +5,21 @@ import os
 
 import pytest
 
-import cuda.bindings._v2.driver as cuda
+import cuda.bindings.driver as cuda
 from cuda.bindings import nvml
 
-from .conftest import NVMLInitializer
+
+# Inlined from tests/nvml/conftest.py: legacy_api snapshots must not depend
+# on files outside this directory.
+class NVMLInitializer:
+    def __init__(self):
+        pass
+
+    def __enter__(self):
+        nvml.init_v2()
+
+    def __exit__(self, exception_type, exception, trace):
+        nvml.shutdown()
 
 
 def get_nvml_device_names():
@@ -30,16 +41,20 @@ def get_nvml_device_names():
 def get_cuda_device_names(sort_by_bus_id=True):
     result = []
 
-    cuda.init(0)
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
-    device_count = cuda.device_get_count()
+    err, device_count = cuda.cuDeviceGetCount()
+    assert err == cuda.CUresult.CUDA_SUCCESS
 
     for dev in range(device_count):
         size = 256
-        name = cuda.device_get_name(size, dev)
+        err, name = cuda.cuDeviceGetName(size, dev)
         name = name.split(b"\x00")[0].decode()
+        assert err == cuda.CUresult.CUDA_SUCCESS
 
-        pci_bus_id = cuda.device_get_attribute(cuda.DeviceAttribute.PCI_BUS_ID, dev)
+        err, pci_bus_id = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_PCI_BUS_ID, dev)
+        assert err == cuda.CUresult.CUDA_SUCCESS
         assert isinstance(pci_bus_id, int)
 
         result.append({"name": name, "id": pci_bus_id})

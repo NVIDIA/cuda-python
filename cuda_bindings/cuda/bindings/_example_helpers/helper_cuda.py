@@ -4,6 +4,7 @@
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
+from cuda.bindings._v2 import driver as cuda_v2
 
 from .helper_string import check_cmd_line_flag, get_cmd_line_argument_int
 
@@ -43,6 +44,6 @@ def find_cuda_device_drv():
     dev_id = 0
     if check_cmd_line_flag("device="):
         dev_id = get_cmd_line_argument_int("device=")
-    check_cuda_errors(cuda.cuInit(0))
-    cu_device = check_cuda_errors(cuda.cuDeviceGet(dev_id))
+    cuda_v2.init(0)
+    cu_device = cuda_v2.device_get(dev_id)
     return cu_device

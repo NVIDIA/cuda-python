@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=979e766bb067947f8d255ab5e8d2439b946aed85f2d19a209eb4136a1ceda20b
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=33679c061c9c6e01df2f8cf014d769cd3f3565085f4e7d1b5b50adff7bb9db05
 from typing import Any, Optional
 import cython
 import ctypes
@@ -30868,16 +30868,20 @@ def cudaGraphicsResourceGetMappedPointer(resource):
     Parameters
     ----------
     resource : :py:obj:`~.cudaGraphicsResource_t`
-        None
+        Mapped resource to access
 
     Returns
     -------
     cudaError_t
-
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`, :py:obj:`~.cudaErrorUnknown`
     devPtr : Any
-        None
+        Returned pointer through which `resource` may be accessed
     size : int
-        None
+        Returned size of the buffer accessible starting at `*devPtr`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphicsMapResources`, :py:obj:`~.cudaGraphicsSubResourceGetMappedArray`, :py:obj:`~.cuGraphicsResourceGetMappedPointer`
     """
     cdef cyruntime.cudaGraphicsResource_t cyresource
     if resource is None:

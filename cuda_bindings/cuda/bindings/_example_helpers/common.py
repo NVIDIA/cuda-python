@@ -8,8 +8,8 @@ import sys
 import numpy as np
 
 from cuda import pathfinder
-from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
+from cuda.bindings._v2 import driver as cuda
 from cuda.bindings._v2 import nvrtc
 
 from .helper_cuda import check_cuda_errors
@@ -84,7 +84,9 @@ class KernelHelper:
         else:
             data = nvrtc.get_ptx(prog)
 
-        self.module = check_cuda_errors(cuda.cuModuleLoadData(np.char.array(data)))
+        self.module = cuda.module_load_data(np.char.array(data))
 
     def get_function(self, name):
-        return check_cuda_errors(cuda.cuModuleGetFunction(self.module, name))
+        if isinstance(name, bytes):
+            name = name.decode()
+        return cuda.module_get_function(self.module, name)

@@ -15,7 +15,7 @@ def test_discover_gpus(all_devices, subtests):
             pci_info = nvml.device_get_pci_info_v3(device)
             # Docs say this should be supported on PASCAL and later
             with unsupported_before(device, None), contextlib.suppress(nvml.OperatingSystemError):
-                nvml.device_discover_gpus(pci_info.ptr)
+                nvml.device_discover_gpus(pci_info)
 
 
 def test_bridge_chip_hierarchy_t():
