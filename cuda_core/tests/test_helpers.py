@@ -56,11 +56,12 @@ def test_patterngen_seeds():
     device = Device()
     device.set_current()
     buffer = make_scratch_buffer(device, 0, NBYTES)
+    stream = device.default_stream
 
     # All seeds are pairwise different.
     # We test a sampling of values because exhaustive testing is too slow,
     # especially on Windows. See https://github.com/NVIDIA/cuda-python/issues/1455
-    pgen = PatternGen(device, NBYTES)
+    pgen = PatternGen(device, NBYTES, stream=stream)
     for i in (ii for ii in range(256) if ii < 5 or ii % 17 == 0):
         pgen.fill_buffer(buffer, seed=i)
         pgen.verify_buffer(buffer, seed=i)
@@ -77,6 +78,6 @@ def test_patterngen_values():
     twos = make_scratch_buffer(device, 2, NBYTES)
     assert compare_equal_buffers(ones, ones)
     assert not compare_equal_buffers(ones, twos)
-    pgen = PatternGen(device, NBYTES)
+    pgen = PatternGen(device, NBYTES, stream=device.default_stream)
     pgen.verify_buffer(ones, value=1)
     pgen.verify_buffer(twos, value=2)
