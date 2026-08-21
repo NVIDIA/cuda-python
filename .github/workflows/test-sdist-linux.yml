@@ -11,10 +11,6 @@ on:
       cuda-version:
         required: true
         type: string
-      cuda-channel:
-        required: false
-        type: string
-        default: stable
 
 defaults:
   run:
@@ -84,7 +80,6 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
-          cuda-channel: ${{ inputs.cuda-channel }}
 
       # cuda_bindings/setup.py parses CUDA headers at import time, so CUDA_PATH
       # (set by fetch_ctk) must be available for both sdist and wheel builds.

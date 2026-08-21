@@ -64,10 +64,8 @@ jobs:
         run: |
           if [[ -f ci/versions.yml ]]; then
             BUILD_CTK_VER=$(yq '.cuda.build.version' ci/versions.yml)
-            BUILD_CTK_CHANNEL=$(yq '.cuda.build.channel // "stable"' ci/versions.yml)
           elif [[ -f ci/versions.json ]]; then
             BUILD_CTK_VER=$(jq -r '.cuda.build.version' ci/versions.json)
-            BUILD_CTK_CHANNEL=$(jq -r '.cuda.build.channel // "stable"' ci/versions.json)
           else
             echo "error: cannot find ci/versions.yml or ci/versions.json" >&2
             exit 1
@@ -77,7 +75,6 @@ jobs:
             exit 1
           fi
           echo "BUILD_CTK_VER=${BUILD_CTK_VER}" >> "$GITHUB_ENV"
-          echo "BUILD_CTK_CHANNEL=${BUILD_CTK_CHANNEL}" >> "$GITHUB_ENV"
 
       # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 
@@ -103,7 +100,6 @@ jobs:
         with:
           host-platform: linux-64
           cuda-version: ${{ env.BUILD_CTK_VER }}
-          cuda-channel: ${{ env.BUILD_CTK_CHANNEL }}
 
       - name: Set environment variables
         run: |
