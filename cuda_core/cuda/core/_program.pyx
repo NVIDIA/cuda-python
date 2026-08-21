@@ -107,7 +107,10 @@ cdef class Program:
             pass
 
     def _try_materialize_nvrtc_debug_source(self, code: str) -> str | None:
-        """Write *code* to a ``caller_py__kernel_XXXXXXXX.cu`` temp file for cuda-gdb.
+        """Write *code* to a ``{caller}_{kernel}_XXXXXXXX.cu`` temp file for cuda-gdb.
+
+        ``caller`` is the Python file stem (no ``.py``). ``kernel`` is the first
+        ``__global__`` function name, or ``kernel`` if none is found.
 
         Returns None if the filesystem is not writable, so the caller can fall back
         to the label-only behavior instead of failing the compile.
@@ -115,9 +118,11 @@ cdef class Program:
         frame = sys._getframe()
         while frame and frame.f_globals.get("__name__", "").startswith("cuda.core"):
             frame = frame.f_back
-        caller = os.path.basename(frame.f_code.co_filename) if frame else "program"
-        kernel = re.search(r"__global__.*?(\w+)\s*\(", code, re.DOTALL)
-        prefix = re.sub(r"\W", "_", f"{caller}__{kernel.group(1) if kernel else 'kernel'}_")
+        caller = "program"
+        if frame:
+            caller = os.path.splitext(os.path.basename(frame.f_code.co_filename))[0]
+        match = re.search(r"__global__.*?(\w+)\s*\(", code, re.DOTALL)
+        prefix = re.sub(r"\W", "_", f"{caller}_{match.group(1) if match else 'kernel'}_")
         try:
             fd, path = tempfile.mkstemp(prefix=prefix, suffix=".cu")
         except OSError:

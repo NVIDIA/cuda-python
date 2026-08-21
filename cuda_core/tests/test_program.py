@@ -4,6 +4,9 @@
 
 import contextlib
 import re
+import shutil
+import subprocess
+import sys
 import warnings
 
 import pytest
@@ -1013,12 +1016,49 @@ def test_nvrtc_debug_materializes_source_to_temp_file(init_cuda, tmp_path):
     implicit_name = default_named.compile("ptx").name
     try:
         assert os.path.isfile(implicit_name)
-        assert re.fullmatch(r"test_program_py__matmul_[a-z0-9_]{8}\.cu", os.path.basename(implicit_name))
+        assert re.fullmatch(r"test_program_matmul_[a-z0-9_]{8}\.cu", os.path.basename(implicit_name))
         with open(implicit_name, encoding="utf-8") as fh:
             assert fh.read() == code
     finally:
         default_named.close()
     assert not os.path.isfile(implicit_name)
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
+    import pathlib
+
+    cuda_gdb = shutil.which("cuda-gdb")
+    if cuda_gdb is None:
+        pytest.skip("cuda-gdb is not on PATH")
+
+    child = pathlib.Path(__file__).resolve().parent / "helpers" / "cuda_gdb_src.py"
+    proc = subprocess.run(  # noqa: S603 - trusted argv: cuda-gdb + this interpreter + in-tree helper
+        [
+            cuda_gdb,
+            "--batch",
+            "-ex",
+            "set cuda break_on_launch application",
+            "-ex",
+            "run",
+            "-ex",
+            "list",
+            "--args",
+            sys.executable,
+            "-u",
+            str(child),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    output = (proc.stdout or "") + (proc.stderr or "")
+    if "Operation not permitted" in output or "ptrace" in output.lower():
+        pytest.skip("cuda-gdb cannot trace this process")
+    assert re.search(r"cuda_gdb_src_kernel_\w+\.cu", output), output
+    assert "ISSUE_2422_SOURCE_LINE" in output, output
+    assert "No such file or directory" not in output, output
 
 
 def test_nvrtc_compile_with_logs_capture(init_cuda):

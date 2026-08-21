@@ -44,7 +44,10 @@ class Program:
     def _cleanup_debug_source(self): ...
     def _unlink_debug_source(self, path: str) -> None: ...
     def _try_materialize_nvrtc_debug_source(self, code: str) -> str | None:
-        """Write *code* to a ``caller_py__kernel_XXXXXXXX.cu`` temp file for cuda-gdb.
+        """Write *code* to a ``{caller}_{kernel}_XXXXXXXX.cu`` temp file for cuda-gdb.
+
+        ``caller`` is the Python file stem (no ``.py``). ``kernel`` is the first
+        ``__global__`` function name, or ``kernel`` if none is found.
 
         Returns None if the filesystem is not writable, so the caller can fall back
         to the label-only behavior instead of failing the compile.
