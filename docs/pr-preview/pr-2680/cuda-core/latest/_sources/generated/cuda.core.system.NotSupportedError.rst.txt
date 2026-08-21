@@ -1,0 +1,6 @@
+﻿cuda.core.system.NotSupportedError
+==================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: NotSupportedError
