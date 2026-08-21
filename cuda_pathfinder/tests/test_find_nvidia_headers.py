@@ -254,7 +254,7 @@ def test_find_in_system_install_dirs_uses_running_linux_multiarch(tmp_path, mock
     (header_dir / "cudnn.h").touch()
     mocker.patch.object(header_descriptor_module, "IS_WINDOWS", False)
     mocker.patch.object(header_descriptor_module.sysconfig, "get_config_var", return_value="x86_64-linux-gnu")
-    expected_pattern = "/usr/include/x86_64-linux-gnu"
+    expected_pattern = os.path.join("/usr/include", "x86_64-linux-gnu")
     glob_mock = mocker.patch.object(
         find_nvidia_headers_module.glob,
         "glob",
@@ -279,21 +279,11 @@ def test_find_in_system_install_dirs_expands_program_files_and_prefers_newest_cu
         (header_dir / "cudnn.h").touch()
     mocker.patch.object(header_descriptor_module, "IS_WINDOWS", True)
     monkeypatch.setenv("ProgramFiles", str(program_files))
-    expected_pattern = str(program_files / "NVIDIA" / "CUDNN" / "v9.*" / "include")
-    glob_mock = mocker.patch.object(
-        find_nvidia_headers_module.glob,
-        "glob",
-        side_effect=lambda pattern: (
-            [str(older_header_dir), str(newer_header_dir)] if pattern == expected_pattern else []
-        ),
-    )
-
     located_hdr_dir = find_nvidia_headers_module.find_in_system_install_dirs(HEADER_DESCRIPTORS["cudnn"])
 
     assert located_hdr_dir is not None
     assert located_hdr_dir.abs_path == str(newer_header_dir)
     assert located_hdr_dir.found_via == "supported_install_dir"
-    glob_mock.assert_called_once_with(expected_pattern)
 
 
 # TODO: remove the Python 3.15 guard once 3.15 is officially supported
