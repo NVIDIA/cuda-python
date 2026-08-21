@@ -52,6 +52,15 @@ def test_no_self_dependency(spec: DescriptorSpec):
     assert spec.name not in spec.dependencies, f"{spec.name} lists itself as a dependency"
 
 
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_optional_dependencies_reference_existing_entries(spec: DescriptorSpec):
+    for dep in spec.optional_dependencies:
+        assert dep in _CATALOG_BY_NAME, f"{spec.name} optionally depends on unknown library {dep!r}"
+        assert dep != spec.name, f"{spec.name} lists itself as an optional dependency"
+        assert dep not in spec.dependencies, f"{spec.name} lists {dep!r} as both required and optional"
+
+
 @pytest.mark.parametrize(
     "spec",
     [s for s in DESCRIPTOR_CATALOG if s.packaged_with == "driver"],
@@ -125,7 +134,13 @@ def test_cudnn_metadata_matches_wheel_layouts():
     assert spec.site_packages_linux == ("nvidia/cudnn/lib",)
     assert spec.site_packages_windows == WindowsSearchDirs.x64_only("nvidia/cudnn/bin")
     assert spec.anchor_rel_dirs_windows == WindowsSearchDirs.x64_only("bin/x64", "bin")
-    assert spec.dependencies == ()
+    assert spec.dependencies == ("cublasLt",)
+    assert spec.optional_dependencies == ("nvrtc",)
+    assert spec.windows_root_env_vars == ("CUDNN_PATH",)
+    assert spec.program_files_rel_dirs_windows == WindowsSearchDirs.x64_only(
+        "NVIDIA/CUDNN/v9.*/bin/x64",
+        "NVIDIA/CUDNN/v9.*/bin",
+    )
     assert spec.requires_add_dll_directory
 
 

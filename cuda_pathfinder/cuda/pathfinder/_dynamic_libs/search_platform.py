@@ -103,6 +103,10 @@ class SearchPlatform(Protocol):
 
     def anchor_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]: ...
 
+    def root_environment_variables(self, desc: LibDescriptor) -> tuple[str, ...]: ...
+
+    def program_files_dir_globs(self, desc: LibDescriptor) -> tuple[str, ...]: ...
+
     def find_in_site_packages(
         self,
         rel_dirs: tuple[str, ...],
@@ -134,6 +138,12 @@ class LinuxSearchPlatform:
 
     def anchor_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
         return cast(tuple[str, ...], desc.anchor_rel_dirs_linux)
+
+    def root_environment_variables(self, _desc: LibDescriptor) -> tuple[str, ...]:
+        return ()
+
+    def program_files_dir_globs(self, _desc: LibDescriptor) -> tuple[str, ...]:
+        return ()
 
     def find_in_site_packages(
         self,
@@ -191,6 +201,16 @@ class WindowsSearchPlatform:
 
     def anchor_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
         return cast(tuple[str, ...], desc.anchor_rel_dirs_windows.for_arch(self.target_arch))
+
+    def root_environment_variables(self, desc: LibDescriptor) -> tuple[str, ...]:
+        return cast(tuple[str, ...], desc.windows_root_env_vars)
+
+    def program_files_dir_globs(self, desc: LibDescriptor) -> tuple[str, ...]:
+        program_files = os.environ.get("PROGRAMW6432") or os.environ.get("PROGRAMFILES")
+        if not program_files:
+            return ()
+        rel_dirs = desc.program_files_rel_dirs_windows.for_arch(self.target_arch)
+        return tuple(os.path.join(program_files, rel_dir) for rel_dir in rel_dirs)
 
     def find_in_site_packages(
         self,

@@ -275,12 +275,19 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
         4. **Environment variables**
 
-           - If set, use ``CUDA_PATH`` or ``CUDA_HOME`` (in that order).
-             On Windows, this is the typical way system-installed CTK DLLs are
-             located. Note that the NVIDIA CTK installer automatically
-             adds ``CUDA_PATH`` to the system-wide environment.
+           - First search library-specific roots declared by the descriptor,
+             such as ``CUDNN_PATH``, then use ``CUDA_PATH`` or ``CUDA_HOME``
+             (in that order). On Windows, ``CUDA_PATH`` is the typical way
+             system-installed CTK DLLs are located. Note that the NVIDIA CTK
+             installer automatically adds ``CUDA_PATH`` to the system-wide
+             environment.
 
-        5. **CTK root canary probe (discoverable libs only)**
+        5. **Windows Program Files (configured libraries only)**
+
+           - Search descriptor-configured standalone installation layouts,
+             such as versioned cuDNN directories under ``ProgramFiles``.
+
+        6. **CTK root canary probe (discoverable libs only)**
 
            - For selected libraries whose shared object doesn't reside on the
              standard linker path (currently ``nvvm``), attempt to derive CTK
@@ -298,8 +305,8 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         0. Already loaded in the current process
         1. OS default mechanisms (``dlopen`` / ``LoadLibraryExW``)
 
-        The CTK-specific steps (site-packages, conda, ``CUDA_PATH``, canary
-        probe) are skipped entirely.
+        The non-driver steps (site-packages, conda, environment roots,
+        ``ProgramFiles``, and canary probe) are skipped entirely.
 
     Notes:
         The search is performed **per library**. There is currently no mechanism to

@@ -29,6 +29,7 @@ from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatform
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder._utils.path_sort import natural_path_sort_key
 
 # ---------------------------------------------------------------------------
 # Data types
@@ -183,6 +184,19 @@ def find_in_conda(ctx: SearchContext) -> FindResult | None:
     return None
 
 
+def find_in_descriptor_environment_roots(ctx: SearchContext) -> FindResult | None:
+    """Search roots named by descriptor-specific environment variables."""
+    for env_var in ctx.platform.root_environment_variables(ctx.desc):
+        root = os.environ.get(env_var)
+        if not root:
+            continue
+        lib_dir = _find_lib_dir_using_anchor(ctx.desc, ctx.platform, root)
+        abs_path = _find_using_lib_dir(ctx, lib_dir)
+        if abs_path is not None:
+            return FindResult(abs_path, env_var)
+    return None
+
+
 def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
     """Search ``$CUDA_PATH`` / ``$CUDA_HOME``.
 
@@ -204,6 +218,18 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
     return None
 
 
+def find_in_program_files(ctx: SearchContext) -> FindResult | None:
+    """Search descriptor-configured installation directories under Program Files."""
+    for dir_glob in ctx.platform.program_files_dir_globs(ctx.desc):
+        for lib_dir in sorted(glob.glob(dir_glob), key=natural_path_sort_key, reverse=True):
+            if not os.path.isdir(lib_dir):
+                continue
+            abs_path = _find_using_lib_dir(ctx, os.path.normpath(lib_dir))
+            if abs_path is not None:
+                return FindResult(abs_path, "ProgramFiles")
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Step sequences per strategy
 # ---------------------------------------------------------------------------
@@ -212,7 +238,11 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
 EARLY_FIND_STEPS: tuple[FindStep, ...] = (find_in_site_packages, find_in_conda)
 
 #: Find steps that run after system search fails.
-LATE_FIND_STEPS: tuple[FindStep, ...] = (find_in_cuda_path,)
+LATE_FIND_STEPS: tuple[FindStep, ...] = (
+    find_in_descriptor_environment_roots,
+    find_in_cuda_path,
+    find_in_program_files,
+)
 
 
 # ---------------------------------------------------------------------------

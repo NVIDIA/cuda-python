@@ -25,6 +25,8 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     _find_lib_dir_using_anchor,
     find_in_conda,
     find_in_cuda_path,
+    find_in_descriptor_environment_roots,
+    find_in_program_files,
     find_in_site_packages,
     run_find_steps,
 )
@@ -646,6 +648,72 @@ class TestFindInCudaHome:
 
 
 # ---------------------------------------------------------------------------
+# Descriptor-specific Windows install roots
+# ---------------------------------------------------------------------------
+
+
+class TestDescriptorSpecificWindowsRoots:
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudnn_path_finds_archive_layout(self, mocker, tmp_path):
+        bin_dir = tmp_path / "bin" / "x64"
+        bin_dir.mkdir(parents=True)
+        dll = bin_dir / "cudnn64_9.dll"
+        dll.touch()
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
+
+        result = find_in_descriptor_environment_roots(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(dll), "CUDNN_PATH")
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_program_files_finds_versioned_cudnn_install(self, mocker, tmp_path):
+        bin_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.24" / "bin"
+        bin_dir.mkdir(parents=True)
+        dll = bin_dir / "cudnn64_9.dll"
+        dll.touch()
+        mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
+
+        result = find_in_program_files(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(dll), "ProgramFiles")
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_program_files_prefers_newest_numeric_cudnn_version(self, mocker, tmp_path):
+        older_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.9" / "bin"
+        newer_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.10" / "bin"
+        older_dir.mkdir(parents=True)
+        newer_dir.mkdir(parents=True)
+        (older_dir / "cudnn64_9.dll").touch()
+        newer_dll = newer_dir / "cudnn64_9.dll"
+        newer_dll.touch()
+        mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
+
+        result = find_in_program_files(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(newer_dll), "ProgramFiles")
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_cudnn_windows_roots_are_not_searched_for_arm64(self, mocker, tmp_path):
+        bin_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.24" / "bin"
+        bin_dir.mkdir(parents=True)
+        (bin_dir / "cudnn64_9.dll").touch()
+        mocker.patch.dict(
+            os.environ,
+            {"CUDNN_PATH": str(tmp_path), "PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""},
+        )
+        ctx = _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="arm64"))
+
+        assert find_in_descriptor_environment_roots(ctx) is None
+        assert find_in_program_files(ctx) is None
+
+
+# ---------------------------------------------------------------------------
 # run_find_steps
 # ---------------------------------------------------------------------------
 
@@ -687,7 +755,17 @@ class TestStepTuples:
         assert find_in_conda in EARLY_FIND_STEPS
 
     def test_late_find_steps_contains_expected(self):
+        assert find_in_descriptor_environment_roots in LATE_FIND_STEPS
         assert find_in_cuda_path in LATE_FIND_STEPS
+        assert find_in_program_files in LATE_FIND_STEPS
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_late_find_steps_use_specific_roots_before_generic_roots(self):
+        assert (
+            find_in_descriptor_environment_roots,
+            find_in_cuda_path,
+            find_in_program_files,
+        ) == LATE_FIND_STEPS
 
     def test_early_and_late_are_disjoint(self):
         assert not set(EARLY_FIND_STEPS) & set(LATE_FIND_STEPS)
