@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import io
 import os
 import re
-import shutil
-import subprocess
 import warnings
 
 import pytest
+from elftools.elf.elffile import ELFFile
 
 from cuda.core import _linker
 from cuda.core._device import Device
@@ -370,9 +370,36 @@ def test_program_options_name_accepts_none(name):
     assert options._name == expected.encode()
 
 
+def _dwarf_source_path(cubin: bytes) -> str:
+    """The source path a debugger resolves for ``cubin``.
+
+    A cubin is an ELF64 image carrying ordinary DWARF, so the compilation
+    unit's ``DW_AT_name`` is the path cuda-gdb opens to display source.
+    """
+    with io.BytesIO(cubin) as stream:
+        dwarf = ELFFile(stream).get_dwarf_info(relocate_dwarf_sections=False)
+        units = list(dwarf.iter_CUs())
+        assert len(units) == 1, f"expected one compilation unit, got {len(units)}"
+
+        top = units[0].get_top_DIE()
+        path = top.attributes["DW_AT_name"].value.decode()
+        comp_dir = top.attributes.get("DW_AT_comp_dir")
+        if not os.path.isabs(path) and comp_dir is not None:
+            path = os.path.join(comp_dir.value.decode(), path)
+
+        # The line table is what actually maps addresses to lines, so confirm it
+        # names the same file instead of trusting DW_AT_name alone. Comparing
+        # basenames avoids the dir_index encoding, which differs across DWARF
+        # versions.
+        listed = {entry.name.decode() for entry in dwarf.line_program_for_CU(units[0]).header["file_entry"]}
+        assert os.path.basename(path) in listed, f"{path!r} absent from line table {sorted(listed)}"
+
+    return path
+
+
 @pytest.mark.human_reviewed
 @pytest.mark.parametrize("name", [None, "my_program"])
-def test_program_string_source_debug(name, tmp_path):
+def test_program_string_source_debug(name):
     # when a file doesn't exist on disk, nvrtc
     # still ends up referencing a file it thinks is there
     # in the dwarf table. As a WAR, we put the file there
@@ -382,33 +409,9 @@ def test_program_string_source_debug(name, tmp_path):
     program = Program(code, "c++", options={"name": name, "debug": True, "lineinfo": True})
     cubin = program.compile("cubin")
 
-    # read dwarf table
-    nvdisasm = shutil.which("nvdisasm")
+    dwarf_path = _dwarf_source_path(bytes(cubin.code))
 
-    cubin_path = tmp_path / "program.cubin"
-    cubin_path.write_bytes(bytes(cubin.code))
-
-    result = subprocess.run(  # noqa: S603
-        [nvdisasm, "-g", str(cubin_path)],
-        capture_output=True,
-        text=True,
-        errors="replace",
-    )
-    if result.returncode != 0:
-        pytest.fail(f"nvdisasm -g failed with exit code {result.returncode}\n{result.stderr}", pytrace=False)
-
-    # -g annotates each instruction with the line-table entry that covers it:
-    #     //## File "/abs/dir/name.cu", line 12
-    # The directory comes from the line table's directory table, so this is the
-    # fully resolved path cuda-gdb will try to open.
-    paths = set(re.findall(r'//## File "([^"]+)", line \d+', result.stdout))
-    assert len(paths) == 1, f"expected exactly one source file in the line table, got {sorted(paths)}"
-    dwarf_path = paths.pop()
-
-    # cuda-gdb opens this path literally, so the source has to actually be
-    # sitting there for source-level debugging to work.
-    assert os.path.isfile(dwarf_path)
-
+    assert os.path.isfile(dwarf_path), f"no source file on disk at the DWARF path {dwarf_path!r}"
     with open(dwarf_path, encoding="utf-8") as source_file:
         assert source_file.read().splitlines() == code.splitlines()
 
