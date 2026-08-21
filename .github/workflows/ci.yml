@@ -32,6 +32,7 @@ jobs:
     outputs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
       CUDA_BUILD_CHANNEL: ${{ steps.get-vars.outputs.cuda_build_channel }}
+      WINDOWS_ARM64_SUPPORTED: ${{ steps.get-vars.outputs.windows_arm64_supported }}
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
     steps:
       - name: Checkout repository
@@ -46,6 +47,20 @@ jobs:
 
           cuda_build_channel=$(yq '.cuda.build.channel // "stable"' ci/versions.yml)
           echo "cuda_build_channel=$cuda_build_channel" >> $GITHUB_OUTPUT
+
+          if [[ "$cuda_build_ver" =~ ^([0-9]+)\.([0-9]+)(\.|$) ]]; then
+            cuda_build_major="${BASH_REMATCH[1]}"
+            cuda_build_minor="${BASH_REMATCH[2]}"
+          else
+            echo "Invalid CUDA build version: $cuda_build_ver" >&2
+            exit 1
+          fi
+          if (( cuda_build_major > 13 || (cuda_build_major == 13 && cuda_build_minor >= 4) )); then
+            windows_arm64_supported=true
+          else
+            windows_arm64_supported=false
+          fi
+          echo "windows_arm64_supported=$windows_arm64_supported" >> $GITHUB_OUTPUT
 
           cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
@@ -323,14 +338,14 @@ jobs:
       cuda-channel: ${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  # Windows ARM64 supports only the current CUDA major because the platform is
-  # new in CUDA 13.4; no prior-major toolkit or wheel artifacts exist.
+  # Windows ARM64 is available starting with CUDA 13.4. Build only the current
+  # CUDA major because no prior-major toolkit or wheel artifacts exist.
   build-windows-arm64:
     needs:
       - ci-vars
       - should-skip
     name: Build win-arm64, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) && needs.ci-vars.outputs.CUDA_BUILD_CHANNEL == 'prerelease' }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) && needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED == 'true' }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
@@ -504,6 +519,7 @@ jobs:
 
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
           cuda_build_channel="${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}"
+          windows_arm64_supported="${{ needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED }}"
           status="success"
           check_result() {
             name=$1; expected=$2; result=$3
@@ -520,8 +536,8 @@ jobs:
           check_result "detect-changes" "success" "${{ needs.detect-changes.result }}"
           check_result "doc"            "success" "${{ needs.doc.result }}"
 
-          # [doc-only] skips all builds and tests. Windows preview wheel builds
-          # run, but GPU tests remain skipped until suitable runners are available.
+          # [doc-only] skips all builds and tests. Windows GPU tests remain
+          # skipped for prerelease CUDA until suitable runners are available.
           if [[ "$doc_only" == "true" ]]; then
             linux_expected="skipped"
             windows_build_expected="skipped"
@@ -533,11 +549,14 @@ jobs:
             windows_build_expected="success"
             windows_sdist_expected="success"
             if [[ "$cuda_build_channel" == "prerelease" ]]; then
-              windows_arm_build_expected="success"
               windows_test_expected="skipped"
             else
-              windows_arm_build_expected="skipped"
               windows_test_expected="success"
+            fi
+            if [[ "$windows_arm64_supported" == "true" ]]; then
+              windows_arm_build_expected="success"
+            else
+              windows_arm_build_expected="skipped"
             fi
           fi
           check_result "build-windows"      "$windows_build_expected" "${{ needs.build-windows.result }}"
