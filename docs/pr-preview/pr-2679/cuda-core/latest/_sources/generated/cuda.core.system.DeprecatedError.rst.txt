@@ -1,6 +1,0 @@
-﻿cuda.core.system.DeprecatedError
-================================
-
-.. currentmodule:: cuda.core.system
-
-.. autoexception:: DeprecatedError
