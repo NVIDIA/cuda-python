@@ -79,9 +79,12 @@ class TestBufferPeerAccessAfterImport:
             assert mr.peer_accessible_by == {dev0}
         else:
             assert mr.peer_accessible_by == set()
-        buffer = mr.allocate(NBYTES, stream=dev1.default_stream)
-        pgen = PatternGen(dev1, NBYTES)
+        stream = dev1.default_stream
+        buffer = mr.allocate(NBYTES, stream=stream)
+        pgen = PatternGen(dev1, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=False)
+        # IPC import does not carry the exporting process's stream ordering.
+        stream.sync()
 
         # Spawn child process
         process = mp.Process(target=self.child_main, args=(mr, buffer))
@@ -107,20 +110,22 @@ class TestBufferPeerAccessAfterImport:
         # Test 1: Buffer accessible from resident device (dev1) - should always work
         dev1 = Device(1)
         dev1.set_current()
-        PatternGen(dev1, NBYTES).verify_buffer(buffer, seed=False)
+        stream1 = dev1.default_stream
+        PatternGen(dev1, NBYTES, stream=stream1).verify_buffer(buffer, seed=False)
 
         # Test 2: Buffer NOT accessible from dev0 initially (peer access not preserved)
         dev0 = Device(0)
         dev0.set_current()
+        stream0 = dev0.default_stream
         with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
-            PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
+            PatternGen(dev0, NBYTES, stream=stream0).verify_buffer(buffer, seed=False)
 
         # Test 3: Set peer access and verify buffer becomes accessible
         dev1.set_current()
         mr.peer_accessible_by = [0]
         assert mr.peer_accessible_by == {dev0}
         dev0.set_current()
-        PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
+        PatternGen(dev0, NBYTES, stream=stream0).verify_buffer(buffer, seed=False)
 
         # Test 4: Revoke peer access and verify buffer becomes inaccessible
         dev1.set_current()
@@ -128,7 +133,7 @@ class TestBufferPeerAccessAfterImport:
         assert mr.peer_accessible_by == set()
         dev0.set_current()
         with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
-            PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
+            PatternGen(dev0, NBYTES, stream=stream0).verify_buffer(buffer, seed=False)
 
         buffer.close()
         # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`

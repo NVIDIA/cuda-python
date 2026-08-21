@@ -120,9 +120,11 @@ class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
     """Reject peer-supplied sizes larger than the mapped allocation extent."""
 
     def PARENT_ACTION(self, queue):
-        self.buffer = self.mr.allocate(NBYTES, stream=self.device.default_stream)
+        stream = self.device.default_stream
+        self.buffer = self.mr.allocate(NBYTES, stream=stream)
         payload, _ = self.buffer.ipc_descriptor.__reduce__()[1]
         oversized = IPCBufferDescriptor._init(payload, NBYTES * 100)
+        stream.sync()
         queue.put(oversized)
 
     def CHILD_ACTION(self, queue):
@@ -157,8 +159,10 @@ class TestImportWrongMR(ChildErrorHarness):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
         self._extra_mrs.append(mr2)
-        buffer = mr2.allocate(NBYTES, stream=self.device.default_stream)
-        queue.put([self.mr, buffer.ipc_descriptor])  # Note: mr does not own this buffer
+        stream = self.device.default_stream
+        self.buffer = mr2.allocate(NBYTES, stream=stream)
+        stream.sync()
+        queue.put([self.mr, self.buffer.ipc_descriptor])  # Note: mr does not own this buffer
 
     def CHILD_ACTION(self, queue):
         mr, buffer_desc = queue.get(timeout=CHILD_TIMEOUT_SEC)
@@ -175,7 +179,9 @@ class TestImportBuffer(ChildErrorHarness):
     def PARENT_ACTION(self, queue):
         # Note: if the buffer is not attached to something to prolong its life,
         # CUDA_ERROR_INVALID_CONTEXT is raised from Buffer.__del__
-        self.buffer = self.mr.allocate(NBYTES, stream=self.device.default_stream)
+        stream = self.device.default_stream
+        self.buffer = self.mr.allocate(NBYTES, stream=stream)
+        stream.sync()
         queue.put(self.buffer)
 
     def CHILD_ACTION(self, queue):
@@ -197,8 +203,10 @@ class TestDanglingBuffer(ChildErrorHarness):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
         self._extra_mrs.append(mr2)
-        self.buffer = mr2.allocate(NBYTES, stream=self.device.default_stream)
+        stream = self.device.default_stream
+        self.buffer = mr2.allocate(NBYTES, stream=stream)
         buffer_s = pickle.dumps(self.buffer)
+        stream.sync()
         queue.put(buffer_s)  # Note: mr2 not sent
 
     def CHILD_ACTION(self, queue):

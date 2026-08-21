@@ -105,6 +105,7 @@ def managed_buffer(request, location_ops_device, location_ops_mr):
     size = _MANAGED_TEST_ALLOCATION_SIZE
     if request.param == "pool":
         buf = location_ops_mr.allocate(size, stream=location_ops_device.default_stream)
+        location_ops_device.default_stream.sync()
         yield buf
         buf.close()
     else:
@@ -216,8 +217,8 @@ class TestPrefetchBatch:
         from cuda.core.utils import prefetch_batch
 
         device = location_ops_device
-        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream) for _ in range(3)]
         stream = device.create_stream()
+        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(3)]
 
         prefetch_batch(stream, bufs, device)
         stream.sync()
@@ -231,12 +232,12 @@ class TestPrefetchBatch:
         from cuda.core.utils import prefetch_batch
 
         device = location_ops_device
-        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream) for _ in range(2)]
+        stream = device.create_stream()
+        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(2)]
         # Per-buffer prefetch locations are only observable when the buffers sit
         # on distinct physical pages; assert that here so a pool-packing change
         # fails loudly instead of silently migrating one shared page.
         assert _page_base(bufs[0]) != _page_base(bufs[1])
-        stream = device.create_stream()
 
         prefetch_batch(stream, bufs, [Host(), device])
         stream.sync()
@@ -258,8 +259,8 @@ class TestDiscardBatch:
         if not hasattr(driver, "cuMemDiscardBatchAsync"):
             pytest.skip("cuMemDiscardBatchAsync unavailable")
         device = location_ops_device
-        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream) for _ in range(3)]
         stream = device.create_stream()
+        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(3)]
         prefetch_batch(stream, bufs, device)
         stream.sync()
         discard_batch(stream, bufs)
@@ -277,8 +278,8 @@ class TestDiscardPrefetchBatch:
         if not hasattr(driver, "cuMemDiscardAndPrefetchBatchAsync"):
             pytest.skip("cuMemDiscardAndPrefetchBatchAsync unavailable")
         device = location_ops_device
-        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream) for _ in range(2)]
         stream = device.create_stream()
+        bufs = [location_ops_mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream) for _ in range(2)]
         prefetch_batch(stream, bufs, Host())
         stream.sync()
         discard_prefetch_batch(stream, bufs, device)
@@ -487,9 +488,9 @@ class TestManagedBuffer:
     def test_instance_discard_prefetch(self, discard_prefetch_device):
         device = discard_prefetch_device
         mr = create_managed_memory_resource_or_skip()
-        buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=device.default_stream)
+        stream = device.create_stream()
+        buf = mr.allocate(_MANAGED_TEST_ALLOCATION_SIZE, stream=stream)
         try:
-            stream = device.create_stream()
             buf.prefetch(Host(), stream=stream)
             stream.sync()
             buf.discard_prefetch(device, stream=stream)
