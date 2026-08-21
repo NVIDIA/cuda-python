@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_driver\_model
+=============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_driver_model
