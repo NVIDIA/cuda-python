@@ -1025,6 +1025,25 @@ def test_nvrtc_debug_materializes_source_to_temp_file(init_cuda, tmp_path):
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.6")
+@pytest.mark.thread_unsafe(reason="monkeypatches tempfile.mkstemp on the Program module")
+def test_nvrtc_debug_falls_back_when_tmp_not_writable(init_cuda, monkeypatch):
+    """debug=True still compiles if the temp dir cannot be written (issue #2422)."""
+    from cuda.core import _program
+
+    def _denied(*_args, **_kwargs):
+        raise OSError(30, "Read-only file system")
+
+    monkeypatch.setattr(_program.tempfile, "mkstemp", _denied)
+
+    code = 'extern "C" __global__ void matmul() {}'
+    prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    try:
+        assert prog.compile("ptx").name == "default_program"
+    finally:
+        prog.close()
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
 def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
     import pathlib
 
