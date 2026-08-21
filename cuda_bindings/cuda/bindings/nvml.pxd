@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b6fe9a4efd0077f8c09ef4f826880ad0a54100455d4465953c4127d3de8c4d91
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c45bc4c9772d2e6fe0163353f54a44655db866a025cc1adab756e44df3b39731
 
 
 
@@ -62,7 +62,6 @@ ctypedef nvmlUnrepairableMemoryStatus_v1_t UnrepairableMemoryStatus_v1
 ctypedef nvmlRusdSettings_v1_t RusdSettings_v1
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuTypeMaxInstance_v1_t VgpuTypeMaxInstance_v1
-ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
 ctypedef nvmlGpuFabricInfo_t GpuFabricInfo
 ctypedef nvmlSystemEventSetCreateRequest_v1_t SystemEventSetCreateRequest_v1
 ctypedef nvmlSystemEventSetFreeRequest_v1_t SystemEventSetFreeRequest_v1
@@ -163,6 +162,7 @@ cpdef int system_get_cuda_driver_version() except *
 cpdef int system_get_cuda_driver_version_v2() except 0
 cpdef str system_get_process_name(unsigned int pid)
 cpdef object system_get_hic_version()
+cpdef object system_get_topology_gpu_set(unsigned int cpu_number)
 cpdef unsigned int unit_get_count() except? 0
 cpdef intptr_t unit_get_handle_by_index(unsigned int index) except? 0
 cpdef object unit_get_unit_info(intptr_t unit)
@@ -170,6 +170,7 @@ cpdef object unit_get_led_state(intptr_t unit)
 cpdef object unit_get_psu_info(intptr_t unit)
 cpdef unsigned int unit_get_temperature(intptr_t unit, unsigned int type) except? 0
 cpdef object unit_get_fan_speed_info(intptr_t unit)
+cpdef object unit_get_devices(intptr_t unit)
 cpdef unsigned int device_get_count_v2() except? 0
 cpdef object device_get_attributes_v2(intptr_t device)
 cpdef intptr_t device_get_handle_by_index_v2(unsigned int index) except? 0
@@ -189,6 +190,7 @@ cpdef device_set_cpu_affinity(intptr_t device)
 cpdef device_clear_cpu_affinity(intptr_t device)
 cpdef unsigned int device_get_numa_node_id(intptr_t device) except? 0
 cpdef int device_get_topology_common_ancestor(intptr_t device1, intptr_t device2) except? -1
+cpdef object device_get_topology_nearest_gpus(intptr_t device, int level)
 cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_index) except? -1
 cpdef str device_get_uuid(intptr_t device)
 cpdef unsigned int device_get_minor_number(intptr_t device) except? 0
@@ -271,6 +273,7 @@ cpdef object device_get_graphics_running_processes_v3(intptr_t device)
 cpdef object device_get_mps_compute_running_processes_v3(intptr_t device)
 cpdef int device_on_same_board(intptr_t device1, intptr_t device2) except? 0
 cpdef int device_get_api_restriction(intptr_t device, int api_type) except? -1
+cpdef tuple device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp)
 cpdef object device_get_bar1_memory_info(intptr_t device)
 cpdef unsigned int device_get_irq_num(intptr_t device) except? 0
 cpdef unsigned int device_get_num_gpu_cores(intptr_t device) except? 0
@@ -297,6 +300,7 @@ cpdef object device_get_accounting_stats(intptr_t device, unsigned int pid)
 cpdef object device_get_accounting_pids(intptr_t device)
 cpdef unsigned int device_get_accounting_buffer_size(intptr_t device) except? 0
 cpdef object device_get_retired_pages(intptr_t device, int cause)
+cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause)
 cpdef int device_get_retired_pages_pending_status(intptr_t device) except? -1
 cpdef tuple device_get_remapped_rows(intptr_t device)
 cpdef object device_get_row_remapper_histogram(intptr_t device)
@@ -352,6 +356,8 @@ cpdef device_set_vgpu_capabilities(intptr_t device, int capability, int state)
 cpdef object device_get_grid_licensable_features_v4(intptr_t device)
 cpdef unsigned int get_vgpu_driver_capabilities(int capability) except? 0
 cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability) except? 0
+cpdef object device_get_supported_vgpus(intptr_t device)
+cpdef object device_get_creatable_vgpus(intptr_t device)
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id)
 cpdef unsigned int vgpu_type_get_gpu_instance_profile_id(unsigned int vgpu_type_id) except? 0
 cpdef tuple vgpu_type_get_device_id(unsigned int vgpu_type_id)
@@ -363,6 +369,8 @@ cpdef unsigned int vgpu_type_get_frame_rate_limit(unsigned int vgpu_type_id) exc
 cpdef unsigned int vgpu_type_get_max_instances(intptr_t device, unsigned int vgpu_type_id) except? 0
 cpdef unsigned int vgpu_type_get_max_instances_per_vm(unsigned int vgpu_type_id) except? 0
 cpdef object vgpu_type_get_bar1_info(unsigned int vgpu_type_id)
+cpdef object device_get_active_vgpus(intptr_t device)
+cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance)
 cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance)
 cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance)
 cpdef unsigned long long vgpu_instance_get_fb_usage(unsigned int vgpu_instance) except? 0
@@ -388,8 +396,10 @@ cpdef object device_get_vgpu_scheduler_log(intptr_t device)
 cpdef object device_get_vgpu_scheduler_state(intptr_t device)
 cpdef object device_get_vgpu_scheduler_capabilities(intptr_t device)
 cpdef device_set_vgpu_scheduler_state(intptr_t device, intptr_t p_scheduler_state)
+cpdef tuple get_vgpu_version()
 cpdef set_vgpu_version(intptr_t vgpu_version)
-cpdef tuple device_get_vgpu_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp)
+cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last_seen_time_stamp)
+cpdef object device_get_vgpu_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp)
 cpdef int vgpu_instance_get_accounting_mode(unsigned int vgpu_instance) except? -1
 cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance)
 cpdef object vgpu_instance_get_accounting_stats(unsigned int vgpu_instance, unsigned int pid)
@@ -404,6 +414,7 @@ cpdef unsigned int device_get_gpu_instance_remaining_capacity(intptr_t device, u
 cpdef intptr_t device_create_gpu_instance(intptr_t device, unsigned int profile_id) except? 0
 cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsigned int profile_id, intptr_t placement) except? 0
 cpdef gpu_instance_destroy(intptr_t gpu_instance)
+cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id)
 cpdef intptr_t device_get_gpu_instance_by_id(intptr_t device, unsigned int id) except? 0
 cpdef object gpu_instance_get_info(intptr_t gpu_instance)
 cpdef object gpu_instance_get_compute_instance_profile_info_v(intptr_t gpu_instance, unsigned int profile, unsigned int eng_profile)
@@ -412,6 +423,7 @@ cpdef object gpu_instance_get_compute_instance_possible_placements(intptr_t gpu_
 cpdef intptr_t gpu_instance_create_compute_instance(intptr_t gpu_instance, unsigned int profile_id) except? 0
 cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_instance, unsigned int profile_id, intptr_t placement) except? 0
 cpdef compute_instance_destroy(intptr_t compute_instance)
+cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id)
 cpdef intptr_t gpu_instance_get_compute_instance_by_id(intptr_t gpu_instance, unsigned int id) except? 0
 cpdef object compute_instance_get_info_v2(intptr_t compute_instance)
 cpdef unsigned int device_is_mig_device_handle(intptr_t device) except? 0
