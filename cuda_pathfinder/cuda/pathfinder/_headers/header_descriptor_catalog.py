@@ -21,12 +21,18 @@ class HeaderDescriptorSpec:
     available_on_windows: bool = True
     # Relative path(s) from anchor point to the include directory.
     anchor_include_rel_dirs: tuple[str, ...] = ("include",)
+    # Product-specific environment variables whose values are anchor points.
+    product_root_env_vars: tuple[str, ...] = ()
     # Subdirectories within the include dir to check before the include dir itself.
     include_subdirs: tuple[str, ...] = ()
     # Windows-only additional subdirectories within the include dir.
     include_subdirs_windows: tuple[str, ...] = ()
-    # System install directories (glob patterns).
+    # Linux system install directories (glob patterns; environment variables are expanded).
     system_install_dirs: tuple[str, ...] = ()
+    # Windows system install directories (glob patterns; environment variables are expanded).
+    system_install_dirs_windows: tuple[str, ...] = ()
+    # Whether to search /usr/include/<sysconfig MULTIARCH> before system_install_dirs.
+    use_linux_multiarch_include_dir: bool = False
     # Whether to use targets/<arch>/include layout for conda on Linux.
     conda_targets_layout: bool = True
     # Whether to attempt CTK-root canary probing (spawns a subprocess).
@@ -155,6 +161,13 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         packaged_with="other",
         header_basename="cudnn.h",
         site_packages_dirs=("nvidia/cudnn/include",),
+        product_root_env_vars=("CUDNN_PATH",),
+        system_install_dirs=(
+            "/usr/include",
+            "/usr/local/include",
+        ),
+        system_install_dirs_windows=("${ProgramFiles}/NVIDIA/CUDNN/v9.*/include",),
+        use_linux_multiarch_include_dir=True,
         conda_targets_layout=False,
         use_ctk_root_canary=False,
     ),
@@ -258,6 +271,9 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         header_basename="nccl.h",
         site_packages_dirs=("nvidia/nccl/include",),
         available_on_windows=False,
+        anchor_include_rel_dirs=("include", "build/include"),
+        product_root_env_vars=("NCCL_HOME",),
+        system_install_dirs=("/usr/include", "/usr/local/include"),
         conda_targets_layout=False,
         use_ctk_root_canary=False,
     ),

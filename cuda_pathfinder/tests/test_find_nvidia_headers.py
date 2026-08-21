@@ -21,8 +21,11 @@ from pathlib import Path
 
 import pytest
 from conftest import skip_if_missing_libnvcudla_so
+from packaging.requirements import Requirement
+from packaging.version import Version
 
 import cuda.pathfinder._headers.find_nvidia_headers as find_nvidia_headers_module
+import cuda.pathfinder._headers.header_descriptor as header_descriptor_module
 from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, locate_nvidia_header_directory
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _resolve_system_loaded_abs_path_in_subprocess,
@@ -44,7 +47,7 @@ assert STRICTNESS in ("see_what_works", "all_must_work")
 
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "cudensitymat": r"^cudensitymat-.*$",
-    "cudnn": r"^nvidia-cudnn-.*$",
+    "cudnn": r"^nvidia-cudnn-cu(?:12|13)$",
     "cupauliprop": r"^cupauliprop-.*$",
     "cusolverMp": r"^nvidia-cusolvermp-.*$",
     "cusparseLt": r"^nvidia-cusparselt-.*$",
@@ -70,6 +73,8 @@ def _located_hdr_dir_asserts(located_hdr_dir):
     assert located_hdr_dir.found_via in (
         "site-packages",
         "conda",
+        "CUDNN_PATH",
+        "NCCL_HOME",
         "CUDA_PATH",
         "system-ctk-root",
         "supported_install_dir",
@@ -86,6 +91,13 @@ def test_cudnn_and_nccl_header_metadata_matches_wheel_layouts():
     cudnn = HEADER_DESCRIPTORS["cudnn"]
     assert cudnn.header_basename == "cudnn.h"
     assert cudnn.site_packages_dirs == ("nvidia/cudnn/include",)
+    assert cudnn.product_root_env_vars == ("CUDNN_PATH",)
+    assert cudnn.system_install_dirs == (
+        "/usr/include",
+        "/usr/local/include",
+    )
+    assert cudnn.system_install_dirs_windows == ("${ProgramFiles}/NVIDIA/CUDNN/v9.*/include",)
+    assert cudnn.use_linux_multiarch_include_dir
     assert cudnn.available_on_linux
     assert cudnn.available_on_windows
     assert not cudnn.conda_targets_layout
@@ -96,6 +108,9 @@ def test_cudnn_and_nccl_header_metadata_matches_wheel_layouts():
     assert nccl.site_packages_dirs == ("nvidia/nccl/include",)
     assert nccl.available_on_linux
     assert not nccl.available_on_windows
+    assert nccl.anchor_include_rel_dirs == ("include", "build/include")
+    assert nccl.product_root_env_vars == ("NCCL_HOME",)
+    assert nccl.system_install_dirs == ("/usr/include", "/usr/local/include")
     assert not nccl.conda_targets_layout
     assert not nccl.use_ctk_root_canary
 
@@ -106,6 +121,39 @@ def have_distribution_for(libname: str) -> bool:
     return any(
         pattern.match(dist.metadata["Name"]) for dist in importlib.metadata.distributions() if "Name" in dist.metadata
     )
+
+
+@pytest.mark.parametrize(
+    ("distribution_name", "expected"),
+    [
+        ("nvidia-cudnn-cu12", True),
+        ("nvidia-cudnn-cu13", True),
+        ("nvidia-cudnn-frontend", False),
+        ("nvidia-cudnn-jit-cu12", False),
+        ("nvidia-cudnn-jit-cu13", False),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cudnn_distribution_pattern_only_matches_backend_wheels(distribution_name, expected):
+    pattern = re.compile(NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES["cudnn"])
+
+    assert bool(pattern.match(distribution_name)) is expected
+
+
+@pytest.mark.parametrize(
+    "requirement",
+    ["nvidia-cudnn-cu12>=9,<10", "nvidia-cudnn-cu13>=9,<10"],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cudnn_test_dependencies_are_bounded_to_major_nine(requirement):
+    pyproject_text = (Path(__file__).parents[1] / "pyproject.toml").read_text(encoding="utf-8")
+    parsed = Requirement(requirement)
+
+    assert f'"{requirement}",' in pyproject_text
+    assert Version("8.9") not in parsed.specifier
+    assert Version("9.0") in parsed.specifier
+    assert Version("9.24.0.43") in parsed.specifier
+    assert Version("10.0") not in parsed.specifier
 
 
 @pytest.fixture
@@ -140,6 +188,114 @@ def _fake_cudart_canary_abs_path(ctk_root: Path) -> str:
     return str(ctk_root / "lib64" / "libcudart.so.13")
 
 
+@pytest.mark.parametrize(
+    ("libname", "env_var", "include_rel_dir"),
+    [
+        ("cudnn", "CUDNN_PATH", "include"),
+        ("nccl", "NCCL_HOME", "build/include"),
+    ],
+)
+@pytest.mark.usefixtures("clear_locate_nvidia_header_cache")
+@pytest.mark.agent_authored(model="gpt-5")
+def test_locate_non_ctk_headers_uses_product_root(tmp_path, monkeypatch, mocker, libname, env_var, include_rel_dir):
+    product_root = tmp_path / libname
+    header_dir = product_root / include_rel_dir
+    header_dir.mkdir(parents=True)
+    (header_dir / HEADER_DESCRIPTORS[libname].header_basename).touch()
+
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.delenv("CUDNN_PATH", raising=False)
+    monkeypatch.delenv("NCCL_HOME", raising=False)
+    monkeypatch.setenv(env_var, str(product_root))
+    monkeypatch.setenv("CUDA_HOME", str(tmp_path / "unused-cuda-home"))
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+    mocker.patch.object(find_nvidia_headers_module, "find_sub_dirs_all_sitepackages", return_value=[])
+
+    located_hdr_dir = locate_nvidia_header_directory(libname)
+
+    assert located_hdr_dir is not None
+    assert located_hdr_dir.abs_path == str(header_dir)
+    assert located_hdr_dir.found_via == env_var
+
+
+@pytest.mark.parametrize(
+    ("libname", "system_pattern"),
+    [
+        ("cudnn", "/usr/include"),
+        ("cudnn", "/usr/local/include"),
+        ("nccl", "/usr/include"),
+        ("nccl", "/usr/local/include"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_find_in_system_install_dirs_uses_native_linux_layouts(tmp_path, mocker, libname, system_pattern):
+    header_dir = tmp_path / libname
+    header_dir.mkdir()
+    (header_dir / HEADER_DESCRIPTORS[libname].header_basename).touch()
+    mocker.patch.object(header_descriptor_module, "IS_WINDOWS", False)
+    glob_mock = mocker.patch.object(
+        find_nvidia_headers_module.glob,
+        "glob",
+        side_effect=lambda pattern: [str(header_dir)] if pattern == system_pattern else [],
+    )
+
+    located_hdr_dir = find_nvidia_headers_module.find_in_system_install_dirs(HEADER_DESCRIPTORS[libname])
+
+    assert located_hdr_dir is not None
+    assert located_hdr_dir.abs_path == str(header_dir)
+    assert located_hdr_dir.found_via == "supported_install_dir"
+    assert any(call.args == (system_pattern,) for call in glob_mock.call_args_list)
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_find_in_system_install_dirs_uses_running_linux_multiarch(tmp_path, mocker):
+    header_dir = tmp_path / "multiarch"
+    header_dir.mkdir()
+    (header_dir / "cudnn.h").touch()
+    mocker.patch.object(header_descriptor_module, "IS_WINDOWS", False)
+    mocker.patch.object(header_descriptor_module.sysconfig, "get_config_var", return_value="x86_64-linux-gnu")
+    expected_pattern = "/usr/include/x86_64-linux-gnu"
+    glob_mock = mocker.patch.object(
+        find_nvidia_headers_module.glob,
+        "glob",
+        side_effect=lambda pattern: [str(header_dir)] if pattern == expected_pattern else [],
+    )
+
+    located_hdr_dir = find_nvidia_headers_module.find_in_system_install_dirs(HEADER_DESCRIPTORS["cudnn"])
+
+    assert located_hdr_dir is not None
+    assert located_hdr_dir.abs_path == str(header_dir)
+    assert located_hdr_dir.found_via == "supported_install_dir"
+    assert glob_mock.call_args_list[0].args == (expected_pattern,)
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_find_in_system_install_dirs_expands_program_files_and_prefers_newest_cudnn(tmp_path, monkeypatch, mocker):
+    program_files = tmp_path / "Program Files"
+    older_header_dir = program_files / "NVIDIA" / "CUDNN" / "v9.9" / "include"
+    newer_header_dir = program_files / "NVIDIA" / "CUDNN" / "v9.10" / "include"
+    for header_dir in (older_header_dir, newer_header_dir):
+        header_dir.mkdir(parents=True)
+        (header_dir / "cudnn.h").touch()
+    mocker.patch.object(header_descriptor_module, "IS_WINDOWS", True)
+    monkeypatch.setenv("ProgramFiles", str(program_files))
+    expected_pattern = str(program_files / "NVIDIA" / "CUDNN" / "v9.*" / "include")
+    glob_mock = mocker.patch.object(
+        find_nvidia_headers_module.glob,
+        "glob",
+        side_effect=lambda pattern: (
+            [str(older_header_dir), str(newer_header_dir)] if pattern == expected_pattern else []
+        ),
+    )
+
+    located_hdr_dir = find_nvidia_headers_module.find_in_system_install_dirs(HEADER_DESCRIPTORS["cudnn"])
+
+    assert located_hdr_dir is not None
+    assert located_hdr_dir.abs_path == str(newer_header_dir)
+    assert located_hdr_dir.found_via == "supported_install_dir"
+    glob_mock.assert_called_once_with(expected_pattern)
+
+
 # TODO: remove the Python 3.15 guard once 3.15 is officially supported
 _CUTLASS_SKIP = pytest.mark.skipif(
     sys.version_info >= (3, 15),
@@ -168,7 +324,9 @@ def test_locate_non_ctk_headers(info_summary_append, libname):
         assert "site-packages" in Path(hdr_dir).parts
     elif STRICTNESS == "all_must_work":
         assert hdr_dir is not None
-        if conda_prefix := os.environ.get("CONDA_PREFIX"):
+        if located_hdr_dir.found_via in HEADER_DESCRIPTORS[libname].product_root_env_vars:
+            assert hdr_dir.startswith(os.environ[located_hdr_dir.found_via])
+        elif conda_prefix := os.environ.get("CONDA_PREFIX"):
             assert hdr_dir.startswith(conda_prefix)
         else:
             inst_dirs = SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname)
@@ -176,7 +334,7 @@ def test_locate_non_ctk_headers(info_summary_append, libname):
                 for inst_dir in inst_dirs:
                     # Absolute glob pattern: Path.glob needs a separate base dir,
                     # and the wildcard is not pinned to the last component.
-                    globbed = glob.glob(inst_dir)
+                    globbed = glob.glob(os.path.expandvars(inst_dir))
                     if hdr_dir in globbed:
                         break
                 else:
