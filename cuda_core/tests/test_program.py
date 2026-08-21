@@ -3,10 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import io
+import os
 import re
 import warnings
 
 import pytest
+from elftools.elf.elffile import ELFFile
 
 from cuda.core import _linker
 from cuda.core._device import Device
@@ -365,6 +368,52 @@ def test_program_options_name_accepts_none(name):
     expected = "default_program" if name is None else name
     assert options.name == expected
     assert options._name == expected.encode()
+
+
+def _dwarf_source_path(cubin: bytes) -> str:
+    """The source path a debugger resolves for ``cubin``.
+
+    A cubin is an ELF64 image carrying ordinary DWARF, so the compilation
+    unit's ``DW_AT_name`` is the path cuda-gdb opens to display source.
+    """
+    with io.BytesIO(cubin) as stream:
+        dwarf = ELFFile(stream).get_dwarf_info(relocate_dwarf_sections=False)
+        units = list(dwarf.iter_CUs())
+        assert len(units) == 1, f"expected one compilation unit, got {len(units)}"
+
+        top = units[0].get_top_DIE()
+        path = top.attributes["DW_AT_name"].value.decode()
+        comp_dir = top.attributes.get("DW_AT_comp_dir")
+        if not os.path.isabs(path) and comp_dir is not None:
+            path = os.path.join(comp_dir.value.decode(), path)
+
+        # The line table is what actually maps addresses to lines, so confirm it
+        # names the same file instead of trusting DW_AT_name alone. Comparing
+        # basenames avoids the dir_index encoding, which differs across DWARF
+        # versions.
+        listed = {entry.name.decode() for entry in dwarf.line_program_for_CU(units[0]).header["file_entry"]}
+        assert os.path.basename(path) in listed, f"{path!r} absent from line table {sorted(listed)}"
+
+    return path
+
+
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize("name", [None, "my_program"])
+def test_program_string_source_debug(name):
+    # when a file doesn't exist on disk, nvrtc
+    # still ends up referencing a file it thinks is there
+    # in the dwarf table. As a WAR, we put the file there
+    # ourselves. This test verifies its there and that its
+    # contents match the passed in source code.
+    code = 'extern "C" __global__ void my_kernel() {}'
+    program = Program(code, "c++", options={"name": name, "debug": True, "lineinfo": True})
+    cubin = program.compile("cubin")
+
+    dwarf_path = _dwarf_source_path(bytes(cubin.code))
+
+    assert os.path.isfile(dwarf_path), f"no source file on disk at the DWARF path {dwarf_path!r}"
+    with open(dwarf_path, encoding="utf-8") as source_file:
+        assert source_file.read().splitlines() == code.splitlines()
 
 
 # This is tested against the current device's arch

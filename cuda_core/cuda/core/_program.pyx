@@ -10,6 +10,7 @@ This module provides :class:`Program` for compiling source code into
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 import threading
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -30,6 +31,7 @@ from ._resource_handles cimport (
 )
 from cuda.bindings cimport cynvrtc, cynvvm
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN_NVRTC, HANDLE_RETURN_NVVM
+from cuda.core import _jit_source
 from cuda.core._device import Device
 from cuda.core._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core._module import ObjectCode
@@ -768,6 +770,31 @@ cdef inline object _translate_program_options(object options):
     )
 
 
+cdef inline int _program_setup_debug_source(Program self, object options, bytes code_bytes) except -1:
+    """Point the NVRTC source name at an on-disk copy of the source
+    """
+    if not (options.debug or options.lineinfo):
+        return 0
+
+    # Resolved before anything is written, so a failure here leaves the original
+    # name in place rather than a redirected name with broken includes.
+    try:
+        include_dir = os.path.dirname(os.path.abspath(options.name))
+    except OSError:
+        return 0
+
+    source_path = _jit_source.materialize(code_bytes)
+    if source_path is None:
+        return 0
+
+    self._source_name = source_path.encode()
+
+    # NVRTC searches the dir of the name it's given for quoted includes, so
+    # hand the original one back or every #include "foo.h" stops resolving.
+    self._extra_options = [b"--include-path=" + include_dir.encode()]
+    return 0
+
+
 cdef inline int Program_init(Program self, object code, str code_type, object options) except -1:
     """Initialize a Program instance."""
     cdef cynvrtc.nvrtcProgram nvrtc_prog
@@ -788,6 +815,10 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
     self._libdevice_added = False
 
     self._pch_status = None
+    # ProgramOptions may be shared across Programs and is never mutated here,
+    # so any name override or added compiler option is held per-Program.
+    self._source_name = options._name
+    self._extra_options = []
 
     if code_type == "c++":
         assert_type(code, str)
@@ -796,8 +827,9 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
 
         # TODO: support pre-loaded headers & include names
         code_bytes = code.encode()
+        _program_setup_debug_source(self, options, code_bytes)
         code_ptr = <const char*>code_bytes
-        name_ptr = <const char*>options._name
+        name_ptr = <const char*>self._source_name
 
         with nogil:
             HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcCreateProgram(
@@ -829,7 +861,7 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
         # Use self._code (strictly bytes) for the C pointer so a bytearray
         # input doesn't trip the `<bytes>code` cast at runtime.
         code_ptr = <const char*>self._code
-        name_ptr = <const char*>options._name
+        name_ptr = <const char*>self._source_name
         code_len = len(self._code)
 
         with nogil:
@@ -966,7 +998,7 @@ cdef object _read_pch_status(cynvrtc.nvrtcProgram prog):
 cdef object Program_compile_nvrtc(Program self, str target_type, object name_expressions, object logs):
     """Compile using NVRTC backend and return ObjectCode."""
     cdef cynvrtc.nvrtcProgram prog = as_cu(self._h_nvrtc)
-    cdef list options_list = self._options.as_bytes("nvrtc", target_type)
+    cdef list options_list = self._options.as_bytes("nvrtc", target_type) + self._extra_options
 
     result = _nvrtc_compile_and_extract(
         prog, target_type, name_expressions, logs, options_list, self._options.name,
@@ -997,7 +1029,7 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
 
     cdef cynvrtc.nvrtcProgram retry_prog
     cdef const char* code_ptr = <const char*>self._code
-    cdef const char* name_ptr = <const char*>self._options._name
+    cdef const char* name_ptr = <const char*>self._source_name
     with nogil:
         HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcCreateProgram(
             &retry_prog, code_ptr, name_ptr, 0, NULL, NULL))
