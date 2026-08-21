@@ -151,6 +151,14 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
     # Third-party / separately packaged headers
     # -----------------------------------------------------------------------
     HeaderDescriptorSpec(
+        name="cudnn",
+        packaged_with="other",
+        header_basename="cudnn.h",
+        site_packages_dirs=("nvidia/cudnn/include",),
+        conda_targets_layout=False,
+        use_ctk_root_canary=False,
+    ),
+    HeaderDescriptorSpec(
         name="cusolverMp",
         packaged_with="other",
         header_basename="cusolverMp.h",
@@ -241,6 +249,15 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         packaged_with="other",
         header_basename="libmathdx.h",
         site_packages_dirs=("nvidia/cu13/include", "nvidia/cu12/include"),
+        conda_targets_layout=False,
+        use_ctk_root_canary=False,
+    ),
+    HeaderDescriptorSpec(
+        name="nccl",
+        packaged_with="other",
+        header_basename="nccl.h",
+        site_packages_dirs=("nvidia/nccl/include",),
+        available_on_windows=False,
         conda_targets_layout=False,
         use_ctk_root_canary=False,
     ),

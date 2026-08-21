@@ -412,6 +412,17 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         requires_rtld_deepbind=True,
     ),
     DescriptorSpec(
+        name="cudnn",
+        packaged_with="other",
+        linux_sonames=("libcudnn.so.9",),
+        windows_dlls=("cudnn64_9.dll",),
+        supported_windows_arch=("x64",),
+        site_packages_linux=("nvidia/cudnn/lib",),
+        site_packages_windows=WindowsSearchDirs.x64_only("nvidia/cudnn/bin"),
+        anchor_rel_dirs_windows=WindowsSearchDirs.x64_only("bin/x64", "bin"),
+        requires_add_dll_directory=True,
+    ),
+    DescriptorSpec(
         name="cusolverMp",
         packaged_with="other",
         linux_sonames=("libcusolverMp.so.0",),

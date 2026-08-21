@@ -27,6 +27,7 @@ from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, loca
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _resolve_system_loaded_abs_path_in_subprocess,
 )
+from cuda.pathfinder._headers.header_descriptor import HEADER_DESCRIPTORS
 from cuda.pathfinder._headers.supported_nvidia_headers import (
     SUPPORTED_HEADERS_CTK,
     SUPPORTED_HEADERS_CTK_ALL,
@@ -43,6 +44,7 @@ assert STRICTNESS in ("see_what_works", "all_must_work")
 
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "cudensitymat": r"^cudensitymat-.*$",
+    "cudnn": r"^nvidia-cudnn-.*$",
     "cupauliprop": r"^cupauliprop-.*$",
     "cusolverMp": r"^nvidia-cusolvermp-.*$",
     "cusparseLt": r"^nvidia-cusparselt-.*$",
@@ -53,6 +55,7 @@ NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "custatevec": r"^custatevec-.*$",
     "cutlass": r"^nvidia-cutlass$",
     "mathdx": r"^nvidia-libmathdx-.*$",
+    "nccl": r"^nvidia-nccl-.*$",
     "nvshmem": r"^nvidia-nvshmem-.*$",
 }
 
@@ -76,6 +79,25 @@ def _located_hdr_dir_asserts(located_hdr_dir):
 def test_non_ctk_importlib_metadata_distributions_names():
     # Ensure the dict keys above stay in sync with supported_nvidia_headers
     assert sorted(NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES) == sorted(SUPPORTED_HEADERS_NON_CTK_ALL)
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cudnn_and_nccl_header_metadata_matches_wheel_layouts():
+    cudnn = HEADER_DESCRIPTORS["cudnn"]
+    assert cudnn.header_basename == "cudnn.h"
+    assert cudnn.site_packages_dirs == ("nvidia/cudnn/include",)
+    assert cudnn.available_on_linux
+    assert cudnn.available_on_windows
+    assert not cudnn.conda_targets_layout
+    assert not cudnn.use_ctk_root_canary
+
+    nccl = HEADER_DESCRIPTORS["nccl"]
+    assert nccl.header_basename == "nccl.h"
+    assert nccl.site_packages_dirs == ("nvidia/nccl/include",)
+    assert nccl.available_on_linux
+    assert not nccl.available_on_windows
+    assert not nccl.conda_targets_layout
+    assert not nccl.use_ctk_root_canary
 
 
 @functools.cache

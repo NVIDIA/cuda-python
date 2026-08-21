@@ -115,6 +115,20 @@ def test_cusparselt_windows_metadata_matches_wheel_layouts():
     )
 
 
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cudnn_metadata_matches_wheel_layouts():
+    spec = _CATALOG_BY_NAME["cudnn"]
+    assert spec.packaged_with == "other"
+    assert spec.linux_sonames == ("libcudnn.so.9",)
+    assert spec.windows_dlls == ("cudnn64_9.dll",)
+    assert spec.supported_windows_arch == ("x64",)
+    assert spec.site_packages_linux == ("nvidia/cudnn/lib",)
+    assert spec.site_packages_windows == WindowsSearchDirs.x64_only("nvidia/cudnn/bin")
+    assert spec.anchor_rel_dirs_windows == WindowsSearchDirs.x64_only("bin/x64", "bin")
+    assert spec.dependencies == ()
+    assert spec.requires_add_dll_directory
+
+
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 def test_ctk_root_canary_anchors_reference_known_ctk_libs(spec: DescriptorSpec):
     for anchor in spec.ctk_root_canary_anchor_libnames:
