@@ -1044,6 +1044,43 @@ def test_nvrtc_debug_falls_back_when_tmp_not_writable(init_cuda, monkeypatch):
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_nvrtc_debug_concurrent_compile_uses_unique_temp_files(init_cuda):
+    """Same kernel compiled concurrently gets distinct mkstemp paths (issue #2422)."""
+    import os
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    code = 'extern "C" __global__ void matmul() {}'
+    n = 2
+    barrier = threading.Barrier(n)
+
+    def _compile_one():
+        Device().set_current()
+        barrier.wait()
+        prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+        name = prog.compile("ptx").name
+        return prog, name
+
+    with ThreadPoolExecutor(max_workers=n) as pool:
+        futures = [pool.submit(_compile_one) for _ in range(n)]
+        results = [fut.result() for fut in futures]
+
+    progs, names = zip(*results)
+    try:
+        assert len(set(names)) == n
+        for name in names:
+            assert os.path.isfile(name)
+            assert re.fullmatch(r"test_program_matmul_[a-z0-9_]{8}\.cu", os.path.basename(name))
+            with open(name, encoding="utf-8") as fh:
+                assert fh.read() == code
+    finally:
+        for prog in progs:
+            prog.close()
+    for name in names:
+        assert not os.path.isfile(name)
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
 def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
     import pathlib
 
