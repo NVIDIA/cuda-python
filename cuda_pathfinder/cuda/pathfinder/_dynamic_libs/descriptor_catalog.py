@@ -68,8 +68,8 @@ class DescriptorSpec:
     optional_dependencies: tuple[str, ...] = ()
     anchor_rel_dirs_linux: tuple[str, ...] = ("lib64", "lib")
     anchor_rel_dirs_windows: WindowsSearchDirs = DEFAULT_WINDOWS_CTK_ANCHOR_DIRS
-    windows_root_env_vars: tuple[str, ...] = ()
-    program_files_rel_dirs_windows: WindowsSearchDirs = WindowsSearchDirs()
+    install_root_env_vars_windows: tuple[str, ...] = ()
+    program_files_root_globs_windows: WindowsSearchDirs = WindowsSearchDirs()
     ctk_root_canary_anchor_libnames: tuple[str, ...] = ()
     requires_add_dll_directory: bool = False
     requires_rtld_deepbind: bool = False
@@ -425,11 +425,8 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         dependencies=("cublasLt",),
         optional_dependencies=("nvrtc",),
         anchor_rel_dirs_windows=WindowsSearchDirs.x64_only("bin/x64", "bin"),
-        windows_root_env_vars=("CUDNN_PATH",),
-        program_files_rel_dirs_windows=WindowsSearchDirs.x64_only(
-            "NVIDIA/CUDNN/v9.*/bin/x64",
-            "NVIDIA/CUDNN/v9.*/bin",
-        ),
+        install_root_env_vars_windows=("CUDNN_PATH",),
+        program_files_root_globs_windows=WindowsSearchDirs.x64_only("NVIDIA/CUDNN/v9.*"),
         requires_add_dll_directory=True,
     ),
     DescriptorSpec(

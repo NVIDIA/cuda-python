@@ -284,8 +284,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
         5. **Windows Program Files (configured libraries only)**
 
-           - Search descriptor-configured standalone installation layouts,
-             such as versioned cuDNN directories under ``ProgramFiles``.
+           - Search descriptor-configured standalone installation roots, such
+             as versioned cuDNN directories under ``ProgramFiles``, using the
+             same per-library relative layout as other root-based searches.
 
         6. **CTK root canary probe (discoverable libs only)**
 

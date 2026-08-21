@@ -25,8 +25,8 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     _find_lib_dir_using_anchor,
     find_in_conda,
     find_in_cuda_path,
-    find_in_descriptor_environment_roots,
-    find_in_program_files,
+    find_in_install_root_env_vars,
+    find_in_program_files_roots,
     find_in_site_packages,
     run_find_steps,
 )
@@ -308,6 +308,23 @@ class TestFindInSitePackages:
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "site-packages"
+
+    @pytest.mark.agent_authored(model="gpt-5")
+    def test_windows_requires_an_exact_descriptor_dll_name(self, mocker, tmp_path):
+        bin_dir = tmp_path / "nvidia" / "cudnn" / "bin"
+        bin_dir.mkdir(parents=True)
+        (bin_dir / "cudnn_adv64_9.dll").touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(bin_dir)],
+        )
+
+        result = find_in_site_packages(
+            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result is None
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_found_windows_arm64_prefers_cuda13_arch_dir_to_cuda12(self, mocker, tmp_path):
@@ -652,7 +669,7 @@ class TestFindInCudaHome:
 # ---------------------------------------------------------------------------
 
 
-class TestDescriptorSpecificWindowsRoots:
+class TestWindowsInstallRoots:
     @pytest.mark.agent_authored(model="gpt-5")
     def test_cudnn_path_finds_archive_layout(self, mocker, tmp_path):
         bin_dir = tmp_path / "bin" / "x64"
@@ -661,7 +678,7 @@ class TestDescriptorSpecificWindowsRoots:
         dll.touch()
         mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
 
-        result = find_in_descriptor_environment_roots(
+        result = find_in_install_root_env_vars(
             _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
         )
 
@@ -670,20 +687,22 @@ class TestDescriptorSpecificWindowsRoots:
     @pytest.mark.agent_authored(model="gpt-5")
     def test_program_files_finds_versioned_cudnn_install(self, mocker, tmp_path):
         bin_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.24" / "bin"
-        bin_dir.mkdir(parents=True)
+        x64_bin_dir = bin_dir / "x64"
+        x64_bin_dir.mkdir(parents=True)
+        (x64_bin_dir / "cudnn_adv64_9.dll").touch()
         dll = bin_dir / "cudnn64_9.dll"
         dll.touch()
         mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
 
-        result = find_in_program_files(
+        result = find_in_program_files_roots(
             _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
         )
 
         assert result == FindResult(str(dll), "ProgramFiles")
 
     @pytest.mark.agent_authored(model="gpt-5")
-    def test_program_files_prefers_newest_numeric_cudnn_version(self, mocker, tmp_path):
-        older_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.9" / "bin"
+    def test_program_files_prefers_newest_numeric_cudnn_version_across_layouts(self, mocker, tmp_path):
+        older_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.9" / "bin" / "x64"
         newer_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.10" / "bin"
         older_dir.mkdir(parents=True)
         newer_dir.mkdir(parents=True)
@@ -692,7 +711,7 @@ class TestDescriptorSpecificWindowsRoots:
         newer_dll.touch()
         mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
 
-        result = find_in_program_files(
+        result = find_in_program_files_roots(
             _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
         )
 
@@ -709,8 +728,8 @@ class TestDescriptorSpecificWindowsRoots:
         )
         ctx = _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="arm64"))
 
-        assert find_in_descriptor_environment_roots(ctx) is None
-        assert find_in_program_files(ctx) is None
+        assert find_in_install_root_env_vars(ctx) is None
+        assert find_in_program_files_roots(ctx) is None
 
 
 # ---------------------------------------------------------------------------
@@ -755,16 +774,16 @@ class TestStepTuples:
         assert find_in_conda in EARLY_FIND_STEPS
 
     def test_late_find_steps_contains_expected(self):
-        assert find_in_descriptor_environment_roots in LATE_FIND_STEPS
+        assert find_in_install_root_env_vars in LATE_FIND_STEPS
         assert find_in_cuda_path in LATE_FIND_STEPS
-        assert find_in_program_files in LATE_FIND_STEPS
+        assert find_in_program_files_roots in LATE_FIND_STEPS
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_late_find_steps_use_specific_roots_before_generic_roots(self):
         assert (
-            find_in_descriptor_environment_roots,
+            find_in_install_root_env_vars,
             find_in_cuda_path,
-            find_in_program_files,
+            find_in_program_files_roots,
         ) == LATE_FIND_STEPS
 
     def test_early_and_late_are_disjoint(self):

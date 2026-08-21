@@ -112,6 +112,7 @@ def test_windows_search_dirs_do_not_include_unsupported_arches(spec: DescriptorS
         if arch not in spec.supported_windows_arch:
             assert not spec.site_packages_windows.for_arch(arch)
             assert not spec.anchor_rel_dirs_windows.for_arch(arch)
+            assert not spec.program_files_root_globs_windows.for_arch(arch)
 
 
 @pytest.mark.agent_authored(model="gpt-5")
@@ -136,11 +137,8 @@ def test_cudnn_metadata_matches_wheel_layouts():
     assert spec.anchor_rel_dirs_windows == WindowsSearchDirs.x64_only("bin/x64", "bin")
     assert spec.dependencies == ("cublasLt",)
     assert spec.optional_dependencies == ("nvrtc",)
-    assert spec.windows_root_env_vars == ("CUDNN_PATH",)
-    assert spec.program_files_rel_dirs_windows == WindowsSearchDirs.x64_only(
-        "NVIDIA/CUDNN/v9.*/bin/x64",
-        "NVIDIA/CUDNN/v9.*/bin",
-    )
+    assert spec.install_root_env_vars_windows == ("CUDNN_PATH",)
+    assert spec.program_files_root_globs_windows == WindowsSearchDirs.x64_only("NVIDIA/CUDNN/v9.*")
     assert spec.requires_add_dll_directory
 
 
