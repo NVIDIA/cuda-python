@@ -32,6 +32,7 @@ jobs:
     outputs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
       CUDA_BUILD_CHANNEL: ${{ steps.get-vars.outputs.cuda_build_channel }}
+      WINDOWS_ARM64_SUPPORTED: ${{ steps.get-vars.outputs.windows_arm64_supported }}
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
     steps:
       - name: Checkout repository
@@ -46,6 +47,9 @@ jobs:
 
           cuda_build_channel=$(yq '.cuda.build.channel // "stable"' ci/versions.yml)
           echo "cuda_build_channel=$cuda_build_channel" >> $GITHUB_OUTPUT
+
+          windows_arm64_supported=$(yq '.cuda.build.windows_arm64 // false' ci/versions.yml)
+          echo "windows_arm64_supported=$windows_arm64_supported" >> $GITHUB_OUTPUT
 
           cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
@@ -330,7 +334,7 @@ jobs:
       - ci-vars
       - should-skip
     name: Build win-arm64, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) && needs.ci-vars.outputs.CUDA_BUILD_CHANNEL == 'prerelease' }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) && fromJSON(needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED) }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
@@ -504,6 +508,7 @@ jobs:
 
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
           cuda_build_channel="${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}"
+          windows_arm64_supported="${{ needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED }}"
           status="success"
           check_result() {
             name=$1; expected=$2; result=$3
@@ -520,8 +525,8 @@ jobs:
           check_result "detect-changes" "success" "${{ needs.detect-changes.result }}"
           check_result "doc"            "success" "${{ needs.doc.result }}"
 
-          # [doc-only] skips all builds and tests. Windows preview wheel builds
-          # run, but GPU tests remain skipped until suitable runners are available.
+          # [doc-only] skips all builds and tests. Windows GPU tests remain
+          # skipped for prerelease CUDA until suitable runners are available.
           if [[ "$doc_only" == "true" ]]; then
             linux_expected="skipped"
             windows_build_expected="skipped"
@@ -533,11 +538,14 @@ jobs:
             windows_build_expected="success"
             windows_sdist_expected="success"
             if [[ "$cuda_build_channel" == "prerelease" ]]; then
-              windows_arm_build_expected="success"
               windows_test_expected="skipped"
             else
-              windows_arm_build_expected="skipped"
               windows_test_expected="success"
+            fi
+            if [[ "$windows_arm64_supported" == "true" ]]; then
+              windows_arm_build_expected="success"
+            else
+              windows_arm_build_expected="skipped"
             fi
           fi
           check_result "build-windows"      "$windows_build_expected" "${{ needs.build-windows.result }}"
