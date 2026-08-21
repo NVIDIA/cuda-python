@@ -11,22 +11,9 @@ on:
       cuda-version:
         required: true
         type: string
-      cuda-channel:
-        required: false
-        type: string
-        default: stable
       prev-cuda-version:
         required: true
         type: string
-      python-versions:
-        required: false
-        type: string
-        default: '["3.10", "3.11", "3.12", "3.13", "3.14", "3.14t", "3.15", "3.15t"]'
-      single-cuda-major:
-        description: "Build wheels for only the current CUDA major; skip the prior-major build and wheel merge"
-        required: false
-        type: boolean
-        default: false
 
 defaults:
   run:
@@ -40,12 +27,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ${{ fromJSON(inputs.python-versions) }}
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+          - "3.14t"
+          - "3.15"
+          - "3.15t"
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
-                 (inputs.host-platform == 'win-64' && 'windows-2022') ||
-                 (inputs.host-platform == 'win-arm64' && 'windows-11-arm') }}
+                 (inputs.host-platform == 'win-64' && 'windows-2022') }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
@@ -77,7 +71,7 @@ jobs:
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
         # Skip cache on GitHub-hosted Windows runners.
-        if: ${{ !startsWith(inputs.host-platform, 'win') }}
+        if: ${{ inputs.host-platform != 'win-64' }}
         with:
           enable-apt: true
 
@@ -88,31 +82,22 @@ jobs:
           # WAR: setup-python is not relocatable, and cibuildwheel hard-wires to 3.12...
           # see https://github.com/actions/setup-python/issues/871
           python-version: "3.12"
-          architecture: ${{ ((inputs.host-platform == 'linux-aarch64' || inputs.host-platform == 'win-arm64') && 'arm64') || 'x64' }}
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
-        with:
-          arch: ${{ (inputs.host-platform == 'win-arm64' && 'arm64') || 'x64' }}
-
-      - name: Verify Windows ARM64 runner
-        if: ${{ inputs.host-platform == 'win-arm64' }}
-        run: |
-          python -c "import platform; machine = platform.machine().lower(); print(machine); assert machine in {'arm64', 'aarch64'}"
 
       - name: Set up yq
         # GitHub made an unprofessional decision to not provide it in their Windows VMs,
         # see https://github.com/actions/runner-images/issues/7443.
-        if: ${{ startsWith(inputs.host-platform, 'win') && !inputs.single-cuda-major }}
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
         env:
           YQ_VERSION: v4.52.5
-          YQ_ARCH: ${{ (inputs.host-platform == 'win-arm64' && 'arm64') || 'amd64' }}
-          YQ_SHA256: ${{ (inputs.host-platform == 'win-arm64' && '236867affa7f18701d4c763cf16b6df962cf4f7e89a8570a5954cf94a38f41c7') || '47594981f3848a4b4447494adeca9555f908f7cf0a89c4da3fd0243a4631da1c' }}
+          YQ_SHA256: 47594981f3848a4b4447494adeca9555f908f7cf0a89c4da3fd0243a4631da1c
           YQ_DIR: yq
         shell: pwsh -command ". '{0}'"
         run: |
-          $yqUrl = "https://github.com/mikefarah/yq/releases/download/${env:YQ_VERSION}/yq_windows_${env:YQ_ARCH}.exe"
+          $yqUrl = "https://github.com/mikefarah/yq/releases/download/${env:YQ_VERSION}/yq_windows_amd64.exe"
           mkdir -Force -ErrorAction SilentlyContinue "${env:YQ_DIR}" | Out-Null
           Invoke-WebRequest -UseBasicParsing -OutFile "${env:YQ_DIR}/yq.exe" -Uri "$yqUrl"
           $hash = (Get-FileHash -Algorithm SHA256 "${env:YQ_DIR}/yq.exe").Hash.ToLower()
@@ -179,7 +164,6 @@ jobs:
         with:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
-          cuda-channel: ${{ inputs.cuda-channel }}
 
       - name: Build cuda.bindings wheel
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
@@ -188,7 +172,6 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_ARCHS_WINDOWS: ${{ (inputs.host-platform == 'win-arm64' && 'ARM64') || 'AMD64' }}
           # TODO: remove cpython-prerelease once 3.15 is officially supported
           # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
           # no-op for stable Python versions because CIBW_BUILD still filters
@@ -222,7 +205,7 @@ jobs:
             echo "ok!"
 
       - name: Report sccache stats (cuda.bindings)
-        if: ${{ !startsWith(inputs.host-platform, 'win') }}
+        if: ${{ inputs.host-platform != 'win-64' }}
         uses: ./.github/actions/sccache-summary
         with:
           json-file: sccache_bindings.json
@@ -257,7 +240,6 @@ jobs:
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_ARCHS_WINDOWS: ${{ (inputs.host-platform == 'win-arm64' && 'ARM64') || 'AMD64' }}
           # TODO: remove cpython-prerelease once 3.15 is officially supported
           # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
           # no-op for stable Python versions because CIBW_BUILD still filters
@@ -295,7 +277,7 @@ jobs:
             echo "ok!"
 
       - name: Report sccache stats (cuda.core)
-        if: ${{ !startsWith(inputs.host-platform, 'win') }}
+        if: ${{ inputs.host-platform != 'win-64' }}
         uses: ./.github/actions/sccache-summary
         with:
           json-file: sccache_core.json
@@ -323,15 +305,6 @@ jobs:
           done
 
           ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-      - name: Finalize single-major cuda.core wheel
-        if: ${{ inputs.single-cuda-major }}
-        run: |
-          for wheel in "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/*.cu"${BUILD_CUDA_MAJOR}".whl; do
-            base_name=$(basename "${wheel}" ".cu${BUILD_CUDA_MAJOR}.whl")
-            mv "${wheel}" "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/${base_name}.whl"
-          done
-          ls -lahR "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
 
       # We only need/want a single pure python wheel, pick linux-64 index 0.
       - name: Build and check cuda-python wheel
@@ -362,7 +335,6 @@ jobs:
           if-no-files-found: error
 
       - name: Set up Python
-        if: ${{ !inputs.single-cuda-major }}
         id: setup-python2
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
@@ -371,15 +343,13 @@ jobs:
           # When 3.15 is officially supported we can also remove the `allow-prereleases` override.
           python-version: ${{ startsWith(matrix.python-version, '3.15') && '3.15.0-beta.2' || matrix.python-version }}
           freethreaded: ${{ endsWith(matrix.python-version, 't') }}
-          architecture: ${{ ((inputs.host-platform == 'linux-aarch64' || inputs.host-platform == 'win-arm64') && 'arm64') || 'x64' }}
           allow-prereleases: ${{ startsWith(matrix.python-version, '3.15') }}
 
       - name: verify free-threaded build
-        if: ${{ !inputs.single-cuda-major && endsWith(matrix.python-version, 't') }}
+        if: endsWith(matrix.python-version, 't')
         run: python -c 'import sys; assert not sys._is_gil_enabled()'
 
       - name: Set up Python include paths
-        if: ${{ !inputs.single-cuda-major }}
         run: |
           if [[ "${{ inputs.host-platform }}" == linux* ]]; then
             echo "CPLUS_INCLUDE_PATH=${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}" >> $GITHUB_ENV
@@ -390,12 +360,11 @@ jobs:
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
 
       - name: Install cuda.pathfinder (required for next step)
-        if: ${{ !inputs.single-cuda-major }}
         run: |
           pip install cuda_pathfinder/*.whl
 
       - name: Hide GNU link.exe so Meson finds MSVC link.exe
-        if: ${{ !inputs.single-cuda-major && startsWith(inputs.host-platform, 'win') }}
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: |
           if [ -f "/c/Program Files/Git/usr/bin/link.exe" ]; then
             mv "/c/Program Files/Git/usr/bin/link.exe" "/c/Program Files/Git/usr/bin/link.exe.bak"
@@ -404,7 +373,7 @@ jobs:
       # TODO: remove the numpy pre-build steps once 3.15 is officially supported
       # (numpy will publish pre-built 3.15 wheels at that point)
       - name: Download and patch numpy sdist (pre-release Python)
-        if: ${{ !inputs.single-cuda-major && startsWith(matrix.python-version, '3.15') }}
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
         run: |
           pip download --no-binary numpy --no-deps "numpy>=1.21.1" -d numpy-sdist/
           cd numpy-sdist && tar xf numpy-*.tar.gz && rm numpy-*.tar.gz
@@ -431,13 +400,12 @@ jobs:
           echo "NUMPY_SRC_DIR=$(pwd)/$(ls -d numpy-*/)" >> $GITHUB_ENV
 
       - name: Build numpy wheel (pre-release Python)
-        if: ${{ !inputs.single-cuda-major && startsWith(matrix.python-version, '3.15') }}
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_SKIP: "*-musllinux* *-win32"
           CIBW_ARCHS_LINUX: "native"
-          CIBW_ARCHS_WINDOWS: ${{ (inputs.host-platform == 'win-arm64' && 'ARM64') || 'AMD64' }}
           CIBW_BUILD_VERBOSITY: 1
           CIBW_CONFIG_SETTINGS: "setup-args=-Dallow-noblas=true"
           CIBW_CONFIG_SETTINGS_WINDOWS: "setup-args=--vsenv setup-args=-Dallow-noblas=true"
@@ -449,7 +417,7 @@ jobs:
           output-dir: numpy-wheel/
 
       - name: Upload numpy wheel
-        if: ${{ !inputs.single-cuda-major && startsWith(matrix.python-version, '3.15') }}
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: numpy-python${{ env.PYTHON_VERSION_FORMATTED }}-${{ inputs.host-platform }}
@@ -457,11 +425,10 @@ jobs:
           if-no-files-found: error
 
       - name: Install numpy wheel
-        if: ${{ !inputs.single-cuda-major && startsWith(matrix.python-version, '3.15') }}
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
         run: pip install numpy-wheel/*.whl
 
       - name: Build cuda.bindings Cython tests
-        if: ${{ !inputs.single-cuda-major }}
         run: |
           pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
@@ -469,7 +436,6 @@ jobs:
           popd
 
       - name: Upload cuda.bindings Cython tests
-        if: ${{ !inputs.single-cuda-major }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
@@ -477,7 +443,6 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core Cython tests
-        if: ${{ !inputs.single-cuda-major }}
         run: |
           pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl --group ./cuda_core/pyproject.toml:test
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
@@ -485,7 +450,6 @@ jobs:
           popd
 
       - name: Upload cuda.core Cython tests
-        if: ${{ !inputs.single-cuda-major }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
@@ -494,7 +458,6 @@ jobs:
 
       # Note: This overwrites CUDA_PATH etc
       - name: Set up mini CTK
-        if: ${{ !inputs.single-cuda-major }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
@@ -503,13 +466,11 @@ jobs:
           cuda-path: "./cuda_toolkit_prev"
 
       - name: Build cuda.core test binaries
-        if: ${{ !inputs.single-cuda-major }}
         run: |
           nvcc --version
           python "${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/build_test_binaries.py"
 
       - name: Upload cuda.core test binaries
-        if: ${{ !inputs.single-cuda-major }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
@@ -520,7 +481,6 @@ jobs:
           if-no-files-found: error
 
       - name: Download cuda.bindings build artifacts from the prior branch
-        if: ${{ !inputs.single-cuda-major }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -548,14 +508,12 @@ jobs:
           rmdir $OLD_BASENAME
 
       - name: Build cuda.core wheel
-        if: ${{ !inputs.single-cuda-major }}
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_ARCHS_WINDOWS: ${{ (inputs.host-platform == 'win-arm64' && 'ARM64') || 'AMD64' }}
           # TODO: remove cpython-prerelease once 3.15 is officially supported
           # Allow CPython pre-release builds (currently 3.15 / 3.15t). This is a
           # no-op for stable Python versions because CIBW_BUILD still filters
@@ -593,7 +551,7 @@ jobs:
             echo "ok!"
 
       - name: Report sccache stats (cuda.core prev)
-        if: ${{ !inputs.single-cuda-major && !startsWith(inputs.host-platform, 'win') }}
+        if: ${{ inputs.host-platform != 'win-64' }}
         uses: ./.github/actions/sccache-summary
         with:
           json-file: sccache_core_prev.json
@@ -601,7 +559,6 @@ jobs:
           build-step: "Build cuda.core wheel"
 
       - name: List the cuda.core artifacts directory and rename
-        if: ${{ !inputs.single-cuda-major }}
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
             export CHOWN=chown
@@ -625,7 +582,6 @@ jobs:
           ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Merge cuda.core wheels
-        if: ${{ !inputs.single-cuda-major }}
         run: |
           pip install wheel
           python ci/tools/merge_cuda_core_wheels.py \
