@@ -100,6 +100,7 @@ def _check_version_detection(
 
         build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
+        build_hooks._cuda_core_has_localized_location.cache_clear()
         get_cuda_path_or_home.cache_clear()
 
         mock_env = {
@@ -125,6 +126,7 @@ class TestGetCudaMajorVersion:
         """CUDA_CORE_BUILD_MAJOR env var override works with various versions."""
         build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
+        build_hooks._cuda_core_has_localized_location.cache_clear()
         get_cuda_path_or_home.cache_clear()
         with mock.patch.dict(os.environ, {"CUDA_CORE_BUILD_MAJOR": version}, clear=False):
             result = build_hooks._determine_cuda_major_version()
@@ -159,9 +161,61 @@ class TestGetCudaMajorVersion:
         """RuntimeError is raised when CUDA_PATH/CUDA_HOME not set and no env var override."""
         build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
+        build_hooks._cuda_core_has_localized_location.cache_clear()
         get_cuda_path_or_home.cache_clear()
         with (
             mock.patch.dict(os.environ, {}, clear=True),
             pytest.raises(RuntimeError, match="CUDA_PATH or CUDA_HOME"),
         ):
             build_hooks._determine_cuda_major_version()
+
+
+def _check_localized_location_detection(cuda_version, expected, *, env_override=None):
+    """Test localized-arm detection with a mock cuda.h."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        include_dir = Path(tmpdir) / "include"
+        include_dir.mkdir()
+        (include_dir / "cuda.h").write_text(f"#define CUDA_VERSION {cuda_version}\n")
+
+        build_hooks._get_cuda_path.cache_clear()
+        build_hooks._cuda_core_has_localized_location.cache_clear()
+        get_cuda_path_or_home.cache_clear()
+
+        mock_env = {"CUDA_PATH": tmpdir}
+        if env_override is not None:
+            mock_env["CUDA_CORE_HAS_LOCALIZED_LOCATION"] = env_override
+
+        with mock.patch.dict(os.environ, mock_env, clear=True):
+            assert build_hooks._cuda_core_has_localized_location() is expected
+
+
+class TestHasLocalizedLocation:
+    """Tests for _cuda_core_has_localized_location()."""
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    @pytest.mark.parametrize(
+        ("cuda_version", "expected"),
+        [
+            (12080, False),
+            (13000, False),
+            (13030, False),
+            (13040, True),
+            (14000, True),
+        ],
+        ids=["12.8", "13.0", "13.3", "13.4", "14.0"],
+    )
+    def test_cuda_headers_parsing(self, cuda_version, expected):
+        """CUDA_VERSION 13040+ enables the localized CUmemLocation arm."""
+        _check_localized_location_detection(cuda_version, expected)
+
+    @pytest.mark.agent_authored(model="grok-4.6")
+    @pytest.mark.parametrize(
+        ("override", "expected"),
+        [
+            ("0", False),
+            ("1", True),
+        ],
+    )
+    def test_env_var_override(self, override, expected):
+        """CUDA_CORE_HAS_LOCALIZED_LOCATION overrides the header-derived value."""
+        _check_localized_location_detection(13030, expected, env_override=override)

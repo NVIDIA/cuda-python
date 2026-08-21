@@ -121,6 +121,31 @@ def _determine_cuda_major_version() -> str:
     )
 
 
+@functools.cache
+def _cuda_core_has_localized_location() -> bool:
+    """Whether CUmemLocation exposes the ``localized`` union arm (CUDA 13.4+).
+
+    CUDA 13.4 adds ``CUmemLocation.localized`` and
+    ``CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN``. This flag is independent of
+    ``CUDA_CORE_BUILD_MAJOR`` so 13.3 and 13.4 can share a major version while
+    still compiling different ``to_cumemlocation`` signatures.
+    """
+    override = os.environ.get("CUDA_CORE_HAS_LOCALIZED_LOCATION")
+    if override is not None:
+        return bool(int(override))
+    cuda_path = _get_cuda_path()
+    cuda_h = os.path.join(cuda_path, "include", "cuda.h")
+    try:
+        with open(cuda_h, encoding="utf-8") as f:
+            for line in f:
+                m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
+                if m:
+                    return int(m.group(1)) >= 13040
+    except OSError:
+        pass
+    return False
+
+
 # used later by setup()
 _extensions = None
 
@@ -220,7 +245,10 @@ def _build_cuda_core(debug=False):
     )
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_determine_cuda_major_version())}
+    compile_time_env = {
+        "CUDA_CORE_BUILD_MAJOR": int(_determine_cuda_major_version()),
+        "CUDA_CORE_HAS_LOCALIZED_LOCATION": int(_cuda_core_has_localized_location()),
+    }
     compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
     _CythonOptions.warning_errors = True
     if COMPILE_FOR_COVERAGE:
