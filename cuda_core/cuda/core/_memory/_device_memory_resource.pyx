@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._location cimport to_cumemlocation
+from cuda.core._memory._location cimport cumemlocation_from_type
 from cuda.core._memory._memory_pool cimport (
     _MemPool, MP_init_create_pool, MP_raise_release_threshold,
 )
@@ -322,7 +322,8 @@ cpdef str DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
 
     cdef int dev_id = Device(device_id).device_id
     cdef cydriver.CUmemAccess_flags flags
-    cdef cydriver.CUmemLocation location = to_cumemlocation("device", dev_id)
+    cdef cydriver.CUmemLocation location = cumemlocation_from_type(
+        cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev_id)
 
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(dmr._h_pool), &location))
