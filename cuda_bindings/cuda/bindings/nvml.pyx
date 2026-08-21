@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9167da2a3d3194c67c44a0fe8d4d34b3dbd3c0f43061c50b7d238d2044c75509
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d63de34b9d57877f67be5707f71fc6b06e5ca181d98f27b0b42d5d8de2b2d310
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -6878,6 +6878,233 @@ cdef class VgpuTypeBar1Info_v1:
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
+        return obj
+
+
+cdef _get_vgpu_process_utilization_sample_dtype_offsets():
+    cdef nvmlVgpuProcessUtilizationSample_t pod
+    return _numpy.dtype({
+        'names': ['vgpu_instance', 'pid', 'process_name', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
+        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 64), _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.processName)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuProcessUtilizationSample_t),
+    })
+
+vgpu_process_utilization_sample_dtype = _get_vgpu_process_utilization_sample_dtype_offsets()
+
+cdef class VgpuProcessUtilizationSample:
+    """Empty-initialize an array of `nvmlVgpuProcessUtilizationSample_t`.
+    The resulting object is of length `size` and of dtype `vgpu_process_utilization_sample_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlVgpuProcessUtilizationSample_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=vgpu_process_utilization_sample_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationSample_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationSample_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.VgpuProcessUtilizationSample_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.VgpuProcessUtilizationSample object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, VgpuProcessUtilizationSample)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def vgpu_instance(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.vgpu_instance[0])
+        return self._data.vgpu_instance
+
+    @vgpu_instance.setter
+    def vgpu_instance(self, val):
+        self._data.vgpu_instance = val
+
+    @property
+    def pid(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.pid[0])
+        return self._data.pid
+
+    @pid.setter
+    def pid(self, val):
+        self._data.pid = val
+
+    @property
+    def process_name(self):
+        """~_numpy.int8: (array of length 64)."""
+        return self._data.process_name
+
+    @process_name.setter
+    def process_name(self, val):
+        self._data.process_name = val
+
+    @property
+    def time_stamp(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.time_stamp[0])
+        return self._data.time_stamp
+
+    @time_stamp.setter
+    def time_stamp(self, val):
+        self._data.time_stamp = val
+
+    @property
+    def sm_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.sm_util[0])
+        return self._data.sm_util
+
+    @sm_util.setter
+    def sm_util(self, val):
+        self._data.sm_util = val
+
+    @property
+    def mem_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.mem_util[0])
+        return self._data.mem_util
+
+    @mem_util.setter
+    def mem_util(self, val):
+        self._data.mem_util = val
+
+    @property
+    def enc_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.enc_util[0])
+        return self._data.enc_util
+
+    @enc_util.setter
+    def enc_util(self, val):
+        self._data.enc_util = val
+
+    @property
+    def dec_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.dec_util[0])
+        return self._data.dec_util
+
+    @dec_util.setter
+    def dec_util(self, val):
+        self._data.dec_util = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return VgpuProcessUtilizationSample.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_process_utilization_sample_dtype:
+            return VgpuProcessUtilizationSample.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuProcessUtilizationSample instance with the memory from the given buffer."""
+        return VgpuProcessUtilizationSample.from_data(_numpy.frombuffer(buffer, dtype=vgpu_process_utilization_sample_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuProcessUtilizationSample instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `vgpu_process_utilization_sample_dtype` holding the data.
+        """
+        cdef VgpuProcessUtilizationSample obj = VgpuProcessUtilizationSample.__new__(VgpuProcessUtilizationSample)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != vgpu_process_utilization_sample_dtype:
+            raise ValueError("data array must be of dtype vgpu_process_utilization_sample_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an VgpuProcessUtilizationSample instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuProcessUtilizationSample obj = VgpuProcessUtilizationSample.__new__(VgpuProcessUtilizationSample)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlVgpuProcessUtilizationSample_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_sample_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
         return obj
 
 
@@ -22909,12 +23136,43 @@ cpdef object system_get_hic_version():
     check_status_size(__status__)
     cdef HwbcEntry hwbc_entries = HwbcEntry(hwbc_count[0])
     cdef nvmlHwbcEntry_t *hwbc_entries_ptr = <nvmlHwbcEntry_t *><intptr_t>(hwbc_entries._get_ptr())
-    if hwbc_count[0] == 0:
-        return hwbc_entries
-    with nogil:
-        __status__ = nvmlSystemGetHicVersion(<unsigned int*>hwbc_count, hwbc_entries_ptr)
-    check_status(__status__)
+    if hwbc_count[0] != 0:
+        with nogil:
+            __status__ = nvmlSystemGetHicVersion(<unsigned int*>hwbc_count, hwbc_entries_ptr)
+        check_status(__status__)
     return hwbc_entries
+
+
+cpdef object system_get_topology_gpu_set(unsigned int cpu_number):
+    """Retrieve the set of GPUs that have a CPU affinity with the given CPU number For all products. Supported on Linux only.
+
+    Args:
+        cpu_number (unsigned int): The CPU number.
+
+    Returns:
+        intptr_t: An array of device handles for GPUs found with
+            affinity to ``cpu_number``.
+
+    .. seealso:: `nvmlSystemGetTopologyGpuSet`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlSystemGetTopologyGpuSet(cpu_number, <unsigned int*>count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array device_array_alloc
+    cdef intptr_t *device_array_ptr
+    if count[0] == 0:
+        device_array_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")
+        device_array = device_array_alloc[:0]
+    else:
+        device_array_alloc = _cyb_view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="q", mode="c")
+        device_array = device_array_alloc
+    device_array_ptr = <intptr_t *>(device_array_alloc.data)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlSystemGetTopologyGpuSet(cpu_number, <unsigned int*>count, <nvmlDevice_t*>device_array_ptr)
+        check_status(__status__)
+    return device_array
 
 
 cpdef unsigned int unit_get_count() except? 0:
@@ -23050,6 +23308,38 @@ cpdef object unit_get_fan_speed_info(intptr_t unit):
         __status__ = nvmlUnitGetFanSpeedInfo(<Unit>unit, fan_speeds)
     check_status(__status__)
     return fan_speeds_py
+
+
+cpdef object unit_get_devices(intptr_t unit):
+    """Retrieves the set of GPU devices that are attached to the specified unit.
+
+    Args:
+        unit (intptr_t): The identifier of the target unit.
+
+    Returns:
+        intptr_t: Reference in which to return the references to the
+            attached GPU devices.
+
+    .. seealso:: `nvmlUnitGetDevices`
+    """
+    cdef unsigned int[1] device_count = [0]
+    with nogil:
+        __status__ = nvmlUnitGetDevices(<Unit>unit, <unsigned int*>device_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array devices_alloc
+    cdef intptr_t *devices_ptr
+    if device_count[0] == 0:
+        devices_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")
+        devices = devices_alloc[:0]
+    else:
+        devices_alloc = _cyb_view.array(shape=(device_count[0],), itemsize=sizeof(intptr_t), format="q", mode="c")
+        devices = devices_alloc
+    devices_ptr = <intptr_t *>(devices_alloc.data)
+    if device_count[0] != 0:
+        with nogil:
+            __status__ = nvmlUnitGetDevices(<Unit>unit, <unsigned int*>device_count, <nvmlDevice_t*>devices_ptr)
+        check_status(__status__)
+    return devices
 
 
 cpdef unsigned int device_get_count_v2() except? 0:
@@ -23307,10 +23597,15 @@ cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_s
 
     .. seealso:: `nvmlDeviceGetMemoryAffinity`
     """
+    cdef _cyb_view.array node_set_alloc
+    cdef unsigned long *node_set_ptr
     if node_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array node_set = _cyb_view.array(shape=(node_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *node_set_ptr = <unsigned long *>(node_set.data)
+        node_set_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")
+        node_set = node_set_alloc[:0]
+    else:
+        node_set_alloc = _cyb_view.array(shape=(node_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
+        node_set = node_set_alloc
+    node_set_ptr = <unsigned long *>(node_set_alloc.data)
     with nogil:
         __status__ = nvmlDeviceGetMemoryAffinity(<Device>device, node_set_size, node_set_ptr, <nvmlAffinityScope_t>scope)
     check_status(__status__)
@@ -23333,10 +23628,15 @@ cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int 
 
     .. seealso:: `nvmlDeviceGetCpuAffinityWithinScope`
     """
+    cdef _cyb_view.array cpu_set_alloc
+    cdef unsigned long *cpu_set_ptr
     if cpu_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
+        cpu_set_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")
+        cpu_set = cpu_set_alloc[:0]
+    else:
+        cpu_set_alloc = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
+        cpu_set = cpu_set_alloc
+    cpu_set_ptr = <unsigned long *>(cpu_set_alloc.data)
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinityWithinScope(<Device>device, cpu_set_size, cpu_set_ptr, <nvmlAffinityScope_t>scope)
     check_status(__status__)
@@ -23358,10 +23658,15 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
 
     .. seealso:: `nvmlDeviceGetCpuAffinity`
     """
+    cdef _cyb_view.array cpu_set_alloc
+    cdef unsigned long *cpu_set_ptr
     if cpu_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
+        cpu_set_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")
+        cpu_set = cpu_set_alloc[:0]
+    else:
+        cpu_set_alloc = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
+        cpu_set = cpu_set_alloc
+    cpu_set_ptr = <unsigned long *>(cpu_set_alloc.data)
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinity(<Device>device, cpu_set_size, cpu_set_ptr)
     check_status(__status__)
@@ -23429,6 +23734,40 @@ cpdef int device_get_topology_common_ancestor(intptr_t device1, intptr_t device2
         __status__ = nvmlDeviceGetTopologyCommonAncestor(<Device>device1, <Device>device2, &path_info)
     check_status(__status__)
     return <int>path_info
+
+
+cpdef object device_get_topology_nearest_gpus(intptr_t device, int level):
+    """Retrieve the set of GPUs that are nearest to a given device at a specific interconnectivity level For all products. Supported on Linux only.
+
+    Args:
+        device (intptr_t): The identifier of the first device.
+        level (GpuTopologyLevel): The ``nvmlGpuTopologyLevel_t`` level
+            to search for other GPUs.
+
+    Returns:
+        intptr_t: An array of device handles for GPUs found at
+            ``level``.
+
+    .. seealso:: `nvmlDeviceGetTopologyNearestGpus`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetTopologyNearestGpus(<Device>device, <_GpuTopologyLevel>level, <unsigned int*>count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array device_array_alloc
+    cdef intptr_t *device_array_ptr
+    if count[0] == 0:
+        device_array_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")
+        device_array = device_array_alloc[:0]
+    else:
+        device_array_alloc = _cyb_view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="q", mode="c")
+        device_array = device_array_alloc
+    device_array_ptr = <intptr_t *>(device_array_alloc.data)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetTopologyNearestGpus(<Device>device, <_GpuTopologyLevel>level, <unsigned int*>count, <nvmlDevice_t*>device_array_ptr)
+        check_status(__status__)
+    return device_array
 
 
 cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_index) except? -1:
@@ -23945,13 +24284,19 @@ cpdef object device_get_supported_memory_clocks(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
+    cdef _cyb_view.array clocks_m_hz_alloc
+    cdef unsigned int *clocks_m_hz_ptr
     if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, clocks_m_hz_ptr)
-    check_status(__status__)
+        clocks_m_hz_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")
+        clocks_m_hz = clocks_m_hz_alloc[:0]
+    else:
+        clocks_m_hz_alloc = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
+        clocks_m_hz = clocks_m_hz_alloc
+    clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz_alloc.data)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, clocks_m_hz_ptr)
+        check_status(__status__)
     return clocks_m_hz
 
 
@@ -23972,13 +24317,19 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
     with nogil:
         __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, NULL)
     check_status_size(__status__)
+    cdef _cyb_view.array clocks_m_hz_alloc
+    cdef unsigned int *clocks_m_hz_ptr
     if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, clocks_m_hz_ptr)
-    check_status(__status__)
+        clocks_m_hz_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")
+        clocks_m_hz = clocks_m_hz_alloc[:0]
+    else:
+        clocks_m_hz_alloc = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
+        clocks_m_hz = clocks_m_hz_alloc
+    clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz_alloc.data)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, clocks_m_hz_ptr)
+        check_status(__status__)
     return clocks_m_hz
 
 
@@ -24829,11 +25180,10 @@ cpdef object device_get_encoder_sessions(intptr_t device):
     check_status_size(__status__)
     cdef EncoderSessionInfo session_infos = EncoderSessionInfo(session_count[0])
     cdef nvmlEncoderSessionInfo_t *session_infos_ptr = <nvmlEncoderSessionInfo_t *><intptr_t>(session_infos._get_ptr())
-    if session_count[0] == 0:
-        return session_infos
-    with nogil:
-        __status__ = nvmlDeviceGetEncoderSessions(<Device>device, <unsigned int*>session_count, session_infos_ptr)
-    check_status(__status__)
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetEncoderSessions(<Device>device, <unsigned int*>session_count, session_infos_ptr)
+        check_status(__status__)
     return session_infos
 
 
@@ -24947,11 +25297,10 @@ cpdef object device_get_fbc_sessions(intptr_t device):
     check_status_size(__status__)
     cdef FBCSessionInfo session_info = FBCSessionInfo(session_count[0])
     cdef nvmlFBCSessionInfo_t *session_info_ptr = <nvmlFBCSessionInfo_t *><intptr_t>(session_info._get_ptr())
-    if session_count[0] == 0:
-        return session_info
-    with nogil:
-        __status__ = nvmlDeviceGetFBCSessions(<Device>device, <unsigned int*>session_count, session_info_ptr)
-    check_status(__status__)
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetFBCSessions(<Device>device, <unsigned int*>session_count, session_info_ptr)
+        check_status(__status__)
     return session_info
 
 
@@ -25034,11 +25383,10 @@ cpdef object device_get_compute_running_processes_v3(intptr_t device):
     check_status_size(__status__)
     cdef ProcessInfo infos = ProcessInfo(info_count[0])
     cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
-    if info_count[0] == 0:
-        return infos
-    with nogil:
-        __status__ = nvmlDeviceGetComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-    check_status(__status__)
+    if info_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+        check_status(__status__)
     return infos
 
 
@@ -25060,11 +25408,10 @@ cpdef object device_get_graphics_running_processes_v3(intptr_t device):
     check_status_size(__status__)
     cdef ProcessInfo infos = ProcessInfo(info_count[0])
     cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
-    if info_count[0] == 0:
-        return infos
-    with nogil:
-        __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-    check_status(__status__)
+    if info_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+        check_status(__status__)
     return infos
 
 
@@ -25086,11 +25433,10 @@ cpdef object device_get_mps_compute_running_processes_v3(intptr_t device):
     check_status_size(__status__)
     cdef ProcessInfo infos = ProcessInfo(info_count[0])
     cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
-    if info_count[0] == 0:
-        return infos
-    with nogil:
-        __status__ = nvmlDeviceGetMPSComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-    check_status(__status__)
+    if info_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetMPSComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+        check_status(__status__)
     return infos
 
 
@@ -25134,6 +25480,38 @@ cpdef int device_get_api_restriction(intptr_t device, int api_type) except? -1:
         __status__ = nvmlDeviceGetAPIRestriction(<Device>device, <_RestrictedAPI>api_type, &is_restricted)
     check_status(__status__)
     return <int>is_restricted
+
+
+cpdef tuple device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
+    """Gets recent samples for the GPU.
+
+    Args:
+        device (intptr_t): The identifier for the target device.
+        type (SamplingType): Type of sampling event.
+        last_seen_time_stamp (unsigned long long): Return only samples
+            with timestamp greater than last_seen_time_stamp.
+
+    Returns:
+        A 2-tuple containing:
+
+        - int: Output parameter to represent the type of sample value as
+            described in nvmlSampleVal_t.
+        - nvmlSample_t: Reference in which samples are returned.
+
+    .. seealso:: `nvmlDeviceGetSamples`
+    """
+    cdef _ValueType sample_val_type
+    cdef unsigned int[1] sample_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, &sample_val_type, <unsigned int*>sample_count, NULL)
+    check_status_size(__status__)
+    cdef Sample samples = Sample(sample_count[0])
+    cdef nvmlSample_t *samples_ptr = <nvmlSample_t *><intptr_t>(samples._get_ptr())
+    if not (sample_count[0] == 0):
+        with nogil:
+            __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, &sample_val_type, <unsigned int*>sample_count, samples_ptr)
+        check_status(__status__)
+    return (<int>sample_val_type, samples)
 
 
 cpdef object device_get_bar1_memory_info(intptr_t device):
@@ -25576,13 +25954,19 @@ cpdef object device_get_accounting_pids(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
+    cdef _cyb_view.array pids_alloc
+    cdef unsigned int *pids_ptr
     if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
-    with nogil:
-        __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, pids_ptr)
-    check_status(__status__)
+        pids_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")
+        pids = pids_alloc[:0]
+    else:
+        pids_alloc = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
+        pids = pids_alloc
+    pids_ptr = <unsigned int *>(pids_alloc.data)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, pids_ptr)
+        check_status(__status__)
     return pids
 
 
@@ -25623,14 +26007,66 @@ cpdef object device_get_retired_pages(intptr_t device, int cause):
     with nogil:
         __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL)
     check_status_size(__status__)
+    cdef _cyb_view.array addresses_alloc
+    cdef unsigned long long *addresses_ptr
     if page_count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0]
-    cdef _cyb_view.array addresses = _cyb_view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    cdef unsigned long long *addresses_ptr = <unsigned long long *>(addresses.data)
-    with nogil:
-        __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr)
-    check_status(__status__)
+        addresses_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+        addresses = addresses_alloc[:0]
+    else:
+        addresses_alloc = _cyb_view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+        addresses = addresses_alloc
+    addresses_ptr = <unsigned long long *>(addresses_alloc.data)
+    if page_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr)
+        check_status(__status__)
     return addresses
+
+
+cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause):
+    """Returns the list of retired pages by source, including pages that are pending retirement The address information provided from this API is the hardware address of the page that was retired. Note that this does not match the virtual address used in CUDA, but will match the address information in Xid 63.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        cause (PageRetirementCause): Filter page addresses by cause of
+            retirement.
+
+    Returns:
+        A 2-tuple containing:
+
+        - unsigned long long: Buffer to write the page addresses into.
+        - unsigned long long: Buffer to write the timestamps of page
+            retirement, additional for _v2.
+
+    .. seealso:: `nvmlDeviceGetRetiredPages_v2`
+    """
+    cdef unsigned int[1] page_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array addresses_alloc
+    cdef unsigned long long *addresses_ptr
+    if page_count[0] == 0:
+        addresses_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+        addresses = addresses_alloc[:0]
+    else:
+        addresses_alloc = _cyb_view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+        addresses = addresses_alloc
+    addresses_ptr = <unsigned long long *>(addresses_alloc.data)
+    cdef _cyb_view.array timestamps_alloc
+    cdef unsigned long long *timestamps_ptr
+    if page_count[0] == 0:
+        timestamps_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+        timestamps = timestamps_alloc[:0]
+    else:
+        timestamps_alloc = _cyb_view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+        timestamps = timestamps_alloc
+    timestamps_ptr = <unsigned long long *>(timestamps_alloc.data)
+    if not (page_count[0] == 0):
+        with nogil:
+            __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr, timestamps_ptr)
+        check_status(__status__)
+    return (addresses, timestamps)
 
 
 cpdef int device_get_retired_pages_pending_status(intptr_t device) except? -1:
@@ -25760,11 +26196,10 @@ cpdef object device_get_process_utilization(intptr_t device, unsigned long long 
     check_status_size(__status__)
     cdef ProcessUtilizationSample utilization = ProcessUtilizationSample(process_samples_count[0])
     cdef nvmlProcessUtilizationSample_t *utilization_ptr = <nvmlProcessUtilizationSample_t *><intptr_t>(utilization._get_ptr())
-    if process_samples_count[0] == 0:
-        return utilization
-    with nogil:
-        __status__ = nvmlDeviceGetProcessUtilization(<Device>device, utilization_ptr, <unsigned int*>process_samples_count, last_seen_time_stamp)
-    check_status(__status__)
+    if process_samples_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetProcessUtilization(<Device>device, utilization_ptr, <unsigned int*>process_samples_count, last_seen_time_stamp)
+        check_status(__status__)
     return utilization
 
 
@@ -26591,6 +27026,70 @@ cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability)
     return cap_result
 
 
+cpdef object device_get_supported_vgpus(intptr_t device):
+    """Retrieve the supported vGPU types on a physical GPU (device).
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: Pointer to caller-supplied array in which to
+            return list of vGPU types.
+
+    .. seealso:: `nvmlDeviceGetSupportedVgpus`
+    """
+    cdef unsigned int[1] vgpu_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array vgpu_type_ids_alloc
+    cdef nvmlVgpuTypeId_t *vgpu_type_ids_ptr
+    if vgpu_count[0] == 0:
+        vgpu_type_ids_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+        vgpu_type_ids = vgpu_type_ids_alloc[:0]
+    else:
+        vgpu_type_ids_alloc = _cyb_view.array(shape=(vgpu_count[0],), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+        vgpu_type_ids = vgpu_type_ids_alloc
+    vgpu_type_ids_ptr = <nvmlVgpuTypeId_t *>(vgpu_type_ids_alloc.data)
+    if vgpu_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, <unsigned int*>vgpu_count, vgpu_type_ids_ptr)
+        check_status(__status__)
+    return vgpu_type_ids
+
+
+cpdef object device_get_creatable_vgpus(intptr_t device):
+    """Retrieve the currently creatable vGPU types on a physical GPU (device).
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: Pointer to caller-supplied array in which to
+            return list of vGPU types.
+
+    .. seealso:: `nvmlDeviceGetCreatableVgpus`
+    """
+    cdef unsigned int[1] vgpu_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array vgpu_type_ids_alloc
+    cdef nvmlVgpuTypeId_t *vgpu_type_ids_ptr
+    if vgpu_count[0] == 0:
+        vgpu_type_ids_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+        vgpu_type_ids = vgpu_type_ids_alloc[:0]
+    else:
+        vgpu_type_ids_alloc = _cyb_view.array(shape=(vgpu_count[0],), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+        vgpu_type_ids = vgpu_type_ids_alloc
+    vgpu_type_ids_ptr = <nvmlVgpuTypeId_t *>(vgpu_type_ids_alloc.data)
+    if vgpu_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, <unsigned int*>vgpu_count, vgpu_type_ids_ptr)
+        check_status(__status__)
+    return vgpu_type_ids
+
+
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
     """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See nvmlConstants::NVML_DEVICE_NAME_BUFFER_SIZE.
 
@@ -26606,13 +27105,12 @@ cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
     with nogil:
         __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, NULL, <unsigned int*>size)
     check_status_size(__status__)
-    if size[0] == 0:
-        return ""
     cdef bytes _vgpu_type_class_ = bytes(size[0])
     cdef char* vgpu_type_class = _vgpu_type_class_
-    with nogil:
-        __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_class, <unsigned int*>size)
-    check_status(__status__)
+    if size[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_class, <unsigned int*>size)
+        check_status(__status__)
     return _cyb_cpython.PyUnicode_FromString(vgpu_type_class)
 
 
@@ -26815,6 +27313,62 @@ cpdef object vgpu_type_get_bar1_info(unsigned int vgpu_type_id):
         __status__ = nvmlVgpuTypeGetBAR1Info(<nvmlVgpuTypeId_t>vgpu_type_id, bar1info)
     check_status(__status__)
     return bar1info_py
+
+
+cpdef object device_get_active_vgpus(intptr_t device):
+    """Retrieve the active vGPU instances on a device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: Pointer to array in which to return list of vGPU
+            instances.
+
+    .. seealso:: `nvmlDeviceGetActiveVgpus`
+    """
+    cdef unsigned int[1] vgpu_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetActiveVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array vgpu_instances_alloc
+    cdef nvmlVgpuInstance_t *vgpu_instances_ptr
+    if vgpu_count[0] == 0:
+        vgpu_instances_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(nvmlVgpuInstance_t), format="I", mode="c")
+        vgpu_instances = vgpu_instances_alloc[:0]
+    else:
+        vgpu_instances_alloc = _cyb_view.array(shape=(vgpu_count[0],), itemsize=sizeof(nvmlVgpuInstance_t), format="I", mode="c")
+        vgpu_instances = vgpu_instances_alloc
+    vgpu_instances_ptr = <nvmlVgpuInstance_t *>(vgpu_instances_alloc.data)
+    if vgpu_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetActiveVgpus(<Device>device, <unsigned int*>vgpu_count, vgpu_instances_ptr)
+        check_status(__status__)
+    return vgpu_instances
+
+
+cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
+    """Retrieve the VM ID associated with a vGPU instance.
+
+    Args:
+        vgpu_instance (unsigned int): Identifier of the target vGPU
+            instance.
+
+    Returns:
+        A 2-tuple containing:
+
+        - char: Pointer to caller-supplied buffer to hold VM ID.
+        - int: Pointer to hold VM ID type.
+
+    .. seealso:: `nvmlVgpuInstanceGetVmID`
+    """
+    cdef unsigned int size = 80
+    cdef char[80] vm_id
+    cdef _VgpuVmIdType vm_id_type
+    with nogil:
+        __status__ = nvmlVgpuInstanceGetVmID(<nvmlVgpuInstance_t>vgpu_instance, vm_id, size, &vm_id_type)
+    check_status(__status__)
+    return (_cyb_cpython.PyUnicode_FromString(vm_id), <int>vm_id_type)
 
 
 cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
@@ -27035,11 +27589,10 @@ cpdef object vgpu_instance_get_encoder_sessions(unsigned int vgpu_instance):
     check_status_size(__status__)
     cdef EncoderSessionInfo session_info = EncoderSessionInfo(session_count[0])
     cdef nvmlEncoderSessionInfo_t *session_info_ptr = <nvmlEncoderSessionInfo_t *><intptr_t>(session_info._get_ptr())
-    if session_count[0] == 0:
-        return session_info
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetEncoderSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
-    check_status(__status__)
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetEncoderSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
+        check_status(__status__)
     return session_info
 
 
@@ -27083,11 +27636,10 @@ cpdef object vgpu_instance_get_fbc_sessions(unsigned int vgpu_instance):
     check_status_size(__status__)
     cdef FBCSessionInfo session_info = FBCSessionInfo(session_count[0])
     cdef nvmlFBCSessionInfo_t *session_info_ptr = <nvmlFBCSessionInfo_t *><intptr_t>(session_info._get_ptr())
-    if session_count[0] == 0:
-        return session_info
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetFBCSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
-    check_status(__status__)
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetFBCSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
+        check_status(__status__)
     return session_info
 
 
@@ -27126,13 +27678,12 @@ cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, NULL, <unsigned int*>length)
     check_status_size(__status__)
-    if length[0] == 0:
-        return ""
     cdef bytes _vgpu_pci_id_ = bytes(length[0])
     cdef char* vgpu_pci_id = _vgpu_pci_id_
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, vgpu_pci_id, <unsigned int*>length)
-    check_status(__status__)
+    if length[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, vgpu_pci_id, <unsigned int*>length)
+        check_status(__status__)
     return _cyb_cpython.PyUnicode_FromString(vgpu_pci_id)
 
 
@@ -27251,13 +27802,12 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, NULL, <unsigned int*>buffer_size)
     check_status_size(__status__)
-    if buffer_size[0] == 0:
-        return ""
     cdef bytes _pgpu_metadata_ = bytes(buffer_size[0])
     cdef char* pgpu_metadata = _pgpu_metadata_
-    with nogil:
-        __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, pgpu_metadata, <unsigned int*>buffer_size)
-    check_status(__status__)
+    if buffer_size[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, pgpu_metadata, <unsigned int*>buffer_size)
+        check_status(__status__)
     return _cyb_cpython.PyUnicode_FromString(pgpu_metadata)
 
 
@@ -27336,6 +27886,31 @@ cpdef device_set_vgpu_scheduler_state(intptr_t device, intptr_t p_scheduler_stat
     check_status(__status__)
 
 
+cpdef tuple get_vgpu_version():
+    """Query the ranges of supported vGPU versions.
+
+    Returns:
+        A 2-tuple containing:
+
+        - nvmlVgpuVersion_t: Pointer to the structure in which the
+            preset range of vGPU versions supported by the NVIDIA vGPU
+            Manager is written.
+        - nvmlVgpuVersion_t: Pointer to the structure in which the range
+            of supported vGPU versions set by an administrator is
+            written.
+
+    .. seealso:: `nvmlGetVgpuVersion`
+    """
+    cdef VgpuVersion supported_py = VgpuVersion()
+    cdef nvmlVgpuVersion_t *supported = <nvmlVgpuVersion_t *><intptr_t>(supported_py._get_ptr())
+    cdef VgpuVersion current_py = VgpuVersion()
+    cdef nvmlVgpuVersion_t *current = <nvmlVgpuVersion_t *><intptr_t>(current_py._get_ptr())
+    with nogil:
+        __status__ = nvmlGetVgpuVersion(supported, current)
+    check_status(__status__)
+    return (supported_py, current_py)
+
+
 cpdef set_vgpu_version(intptr_t vgpu_version):
     """Override the preset range of vGPU versions supported by the NVIDIA vGPU Manager with a range set by an administrator.
 
@@ -27350,8 +27925,8 @@ cpdef set_vgpu_version(intptr_t vgpu_version):
     check_status(__status__)
 
 
-cpdef tuple device_get_vgpu_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
-    """Retrieves current utilization for processes running on vGPUs on a physical GPU (device).
+cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
+    """Retrieves current utilization for vGPUs on a physical GPU (device).
 
     Args:
         device (intptr_t): The identifier for the target device.
@@ -27361,20 +27936,54 @@ cpdef tuple device_get_vgpu_process_utilization(intptr_t device, unsigned long l
     Returns:
         A 2-tuple containing:
 
-        - unsigned int: Pointer to caller-supplied array size, and
-            returns number of processes running on vGPU instances.
-        - nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied
+        - int: Pointer to caller-supplied buffer to hold the type of
+            returned sample values.
+        - nvmlVgpuInstanceUtilizationSample_t: Pointer to caller-
+            supplied buffer in which vGPU utilization samples are
+            returned.
+
+    .. seealso:: `nvmlDeviceGetVgpuUtilization`
+    """
+    cdef _ValueType sample_val_type
+    cdef unsigned int[1] vgpu_instance_samples_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuUtilization(<Device>device, last_seen_time_stamp, &sample_val_type, <unsigned int*>vgpu_instance_samples_count, NULL)
+    check_status_size(__status__)
+    cdef VgpuInstanceUtilizationSample utilization_samples = VgpuInstanceUtilizationSample(vgpu_instance_samples_count[0])
+    cdef nvmlVgpuInstanceUtilizationSample_t *utilization_samples_ptr = <nvmlVgpuInstanceUtilizationSample_t *><intptr_t>(utilization_samples._get_ptr())
+    if not (vgpu_instance_samples_count[0] == 0):
+        with nogil:
+            __status__ = nvmlDeviceGetVgpuUtilization(<Device>device, last_seen_time_stamp, &sample_val_type, <unsigned int*>vgpu_instance_samples_count, utilization_samples_ptr)
+        check_status(__status__)
+    return (<int>sample_val_type, utilization_samples)
+
+
+cpdef object device_get_vgpu_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
+    """Retrieves current utilization for processes running on vGPUs on a physical GPU (device).
+
+    Args:
+        device (intptr_t): The identifier for the target device.
+        last_seen_time_stamp (unsigned long long): Return only samples
+            with timestamp greater than last_seen_time_stamp.
+
+    Returns:
+        nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied
             buffer in which vGPU sub process utilization samples are
             returned.
 
     .. seealso:: `nvmlDeviceGetVgpuProcessUtilization`
     """
-    cdef unsigned int vgpu_process_samples_count
-    cdef nvmlVgpuProcessUtilizationSample_t utilization_samples
+    cdef unsigned int[1] vgpu_process_samples_count = [0]
     with nogil:
-        __status__ = nvmlDeviceGetVgpuProcessUtilization(<Device>device, last_seen_time_stamp, &vgpu_process_samples_count, &utilization_samples)
-    check_status(__status__)
-    return (vgpu_process_samples_count, utilization_samples)
+        __status__ = nvmlDeviceGetVgpuProcessUtilization(<Device>device, last_seen_time_stamp, <unsigned int*>vgpu_process_samples_count, NULL)
+    check_status_size(__status__)
+    cdef VgpuProcessUtilizationSample utilization_samples = VgpuProcessUtilizationSample(vgpu_process_samples_count[0])
+    cdef nvmlVgpuProcessUtilizationSample_t *utilization_samples_ptr = <nvmlVgpuProcessUtilizationSample_t *><intptr_t>(utilization_samples._get_ptr())
+    if vgpu_process_samples_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetVgpuProcessUtilization(<Device>device, last_seen_time_stamp, <unsigned int*>vgpu_process_samples_count, utilization_samples_ptr)
+        check_status(__status__)
+    return utilization_samples
 
 
 cpdef int vgpu_instance_get_accounting_mode(unsigned int vgpu_instance) except? -1:
@@ -27413,13 +28022,19 @@ cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, NULL)
     check_status_size(__status__)
+    cdef _cyb_view.array pids_alloc
+    cdef unsigned int *pids_ptr
     if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, pids_ptr)
-    check_status(__status__)
+        pids_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")
+        pids = pids_alloc[:0]
+    else:
+        pids_alloc = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
+        pids = pids_alloc
+    pids_ptr = <unsigned int *>(pids_alloc.data)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, pids_ptr)
+        check_status(__status__)
     return pids
 
 
@@ -27585,11 +28200,10 @@ cpdef object device_get_gpu_instance_possible_placements_v2(intptr_t device, uns
     check_status_size(__status__)
     cdef GpuInstancePlacement placements = GpuInstancePlacement(count[0])
     cdef nvmlGpuInstancePlacement_t *placements_ptr = <nvmlGpuInstancePlacement_t *><intptr_t>(placements._get_ptr())
-    if count[0] == 0:
-        return placements
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstancePossiblePlacements_v2(<Device>device, profile_id, placements_ptr, <unsigned int*>count)
-    check_status(__status__)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGpuInstancePossiblePlacements_v2(<Device>device, profile_id, placements_ptr, <unsigned int*>count)
+        check_status(__status__)
     return placements
 
 
@@ -27667,6 +28281,41 @@ cpdef gpu_instance_destroy(intptr_t gpu_instance):
     with nogil:
         __status__ = nvmlGpuInstanceDestroy(<GpuInstance>gpu_instance)
     check_status(__status__)
+
+
+cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
+    """Get GPU instances for given profile ID.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        profile_id (unsigned int): The GPU instance profile ID. See
+            ``nvmlDeviceGetGpuInstanceProfileInfo``.
+
+    Returns:
+        intptr_t: Returns pre-exiting GPU instances, the buffer must
+            be large enough to accommodate the instances supported by
+            the profile. See ``nvmlDeviceGetGpuInstanceProfileInfo``.
+
+    .. seealso:: `nvmlDeviceGetGpuInstances`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, NULL, <unsigned int*>count)
+    check_status_size(__status__)
+    cdef _cyb_view.array gpu_instances_alloc
+    cdef intptr_t *gpu_instances_ptr
+    if count[0] == 0:
+        gpu_instances_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")
+        gpu_instances = gpu_instances_alloc[:0]
+    else:
+        gpu_instances_alloc = _cyb_view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="q", mode="c")
+        gpu_instances = gpu_instances_alloc
+    gpu_instances_ptr = <intptr_t *>(gpu_instances_alloc.data)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t*>gpu_instances_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return gpu_instances
 
 
 cpdef intptr_t device_get_gpu_instance_by_id(intptr_t device, unsigned int id) except? 0:
@@ -27779,11 +28428,10 @@ cpdef object gpu_instance_get_compute_instance_possible_placements(intptr_t gpu_
     check_status_size(__status__)
     cdef ComputeInstancePlacement placements = ComputeInstancePlacement(count[0])
     cdef nvmlComputeInstancePlacement_t *placements_ptr = <nvmlComputeInstancePlacement_t *><intptr_t>(placements._get_ptr())
-    if count[0] == 0:
-        return placements
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstancePossiblePlacements(<GpuInstance>gpu_instance, profile_id, placements_ptr, <unsigned int*>count)
-    check_status(__status__)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlGpuInstanceGetComputeInstancePossiblePlacements(<GpuInstance>gpu_instance, profile_id, placements_ptr, <unsigned int*>count)
+        check_status(__status__)
     return placements
 
 
@@ -27842,6 +28490,43 @@ cpdef compute_instance_destroy(intptr_t compute_instance):
     with nogil:
         __status__ = nvmlComputeInstanceDestroy(<ComputeInstance>compute_instance)
     check_status(__status__)
+
+
+cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id):
+    """Get compute instances for given profile ID.
+
+    Args:
+        gpu_instance (intptr_t): The identifier of the target GPU
+            instance.
+        profile_id (unsigned int): The compute instance profile ID.
+            See ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+
+    Returns:
+        intptr_t: Returns pre-exiting compute instances, the buffer
+            must be large enough to accommodate the instances
+            supported by the profile. See
+            ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+
+    .. seealso:: `nvmlGpuInstanceGetComputeInstances`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, NULL, <unsigned int*>count)
+    check_status_size(__status__)
+    cdef _cyb_view.array compute_instances_alloc
+    cdef intptr_t *compute_instances_ptr
+    if count[0] == 0:
+        compute_instances_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(intptr_t), format="q", mode="c")
+        compute_instances = compute_instances_alloc[:0]
+    else:
+        compute_instances_alloc = _cyb_view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="q", mode="c")
+        compute_instances = compute_instances_alloc
+    compute_instances_ptr = <intptr_t *>(compute_instances_alloc.data)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t*>compute_instances_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return compute_instances
 
 
 cpdef intptr_t gpu_instance_get_compute_instance_by_id(intptr_t gpu_instance, unsigned int id) except? 0:
@@ -28321,28 +29006,6 @@ cpdef object device_get_remapped_rows_v2(intptr_t device):
     return info_py
 
 
-cpdef object system_get_topology_gpu_set(unsigned int cpuNumber):
-    """Retrieve the set of GPUs that have a CPU affinity with the given CPU number
-
-    Args:
-        cpuNumber (unsigned int): The CPU number
-
-    Returns:
-        array: An array of device handles for GPUs found with affinity to  cpuNumber
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, NULL)
-    check_status_size(__status__)
-    if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, <nvmlDevice_t *>deviceArray.data)
-    check_status(__status__)
-    return deviceArray
-
-
 cpdef str system_get_driver_branch():
     """Retrieves the driver branch of the NVIDIA driver installed on the system.
 
@@ -28359,61 +29022,6 @@ cpdef str system_get_driver_branch():
         __status__ = nvmlSystemGetDriverBranch(&info, length)
     check_status(__status__)
     return cpython.PyUnicode_FromString(info.branch)
-
-
-cpdef object unit_get_devices(intptr_t unit):
-    """Retrieves the set of GPU devices that are attached to the specified unit.
-
-    Args:
-        unit (Unit): The identifier of the target unit.
-
-    Returns:
-        array: An array of device handles for GPUs attached to the unit.
-    """
-    cdef unsigned int[1] deviceCount = [0]
-    with nogil:
-        __status__ = nvmlUnitGetDevices(<nvmlUnit_t>unit, <unsigned int*>deviceCount, NULL)
-    check_status_size(__status__)
-    if deviceCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlUnitGetDevices(<nvmlUnit_t>unit, <unsigned int*>deviceCount, <nvmlDevice_t *>deviceArray.data)
-    check_status(__status__)
-    return deviceArray
-
-
-cpdef object device_get_topology_nearest_gpus(intptr_t device, unsigned int level):
-    """Retrieve the set of GPUs that are nearest to a given device at a specific interconnectivity level
-
-    Args:
-        device (Device): The identifier of the first device
-        level (GpuTopologyLevel): The level to search for other GPUs
-
-    Returns:
-        array: An array of device handles for GPUs found at level
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetTopologyNearestGpus(
-            <Device>device,
-            <nvmlGpuTopologyLevel_t>level,
-            count,
-            NULL
-        )
-    check_status_size(__status__)
-    if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetTopologyNearestGpus(
-            <Device>device,
-            <nvmlGpuTopologyLevel_t>level,
-            count,
-            <nvmlDevice_t *>deviceArray.data
-        )
-    check_status(__status__)
-    return deviceArray
 
 
 cpdef int device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t sensorType):
@@ -28488,58 +29096,6 @@ cpdef object device_get_running_process_detail_list(intptr_t device, unsigned in
         __status__ = nvmlDeviceGetRunningProcessDetailList(<Device>device, ptr)
     check_status(__status__)
     return plist
-
-
-cpdef tuple device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
-    """Gets recent samples for the GPU.
-
-    Args:
-        device (intptr_t): The identifier for the target device.
-        type (SamplingType): Type of sampling event.
-        last_seen_time_stamp (unsigned long long): Return only samples with timestamp greater than last_seen_time_stamp.
-
-    .. seealso:: `nvmlDeviceGetSamples`
-    """
-    cdef unsigned int[1] sample_count = [0]
-    cdef unsigned int[1] sample_val_type = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, <_ValueType*>sample_val_type, <unsigned int*>sample_count, NULL)
-    check_status_size(__status__)
-    cdef Sample samples = Sample(sample_count[0])
-    cdef nvmlSample_t *samples_ptr = <nvmlSample_t *>samples._get_ptr()
-    if sample_count[0] == 0:
-        return samples
-    with nogil:
-        __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, <_ValueType*>sample_val_type, <unsigned int*>sample_count, samples_ptr)
-    check_status(__status__)
-    return (sample_val_type[0], samples)
-
-
-cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause):
-    """Returns the list of retired pages by source, including pages that are pending retirement
-
-    Args:
-        device (Device): The identifier of the target device.
-        cause (PageRetirementCause): Filter page addresses by cause of retirement.
-
-    Returns:
-        tuple: A tuple of two arrays (addresses, timestamps).
-    """
-    cdef unsigned int[1] page_count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL, NULL)
-    check_status_size(__status__)
-    if page_count[0] == 0:
-        return (
-            view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0],
-            view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0]
-        )
-    cdef view.array addresses = view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    cdef view.array timestamps = view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, <unsigned long long *>addresses.data, <unsigned long long *>timestamps.data)
-    check_status(__status__)
-    return (addresses, timestamps)
 
 
 cpdef object device_get_processes_utilization_info(intptr_t device, unsigned long long last_seen_time_stamp):
@@ -28683,90 +29239,6 @@ cpdef  device_clear_field_values(intptr_t device, values):
     with nogil:
         __status__ = nvmlDeviceClearFieldValues(<Device>device, valuesCount, ptr)
     check_status(__status__)
-
-
-cpdef object device_get_supported_vgpus(intptr_t device):
-    """Retrieve the supported vGPU types on a physical GPU (device).
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        array: An array of supported vGPU type IDs.
-    """
-    cdef unsigned int[1] vgpuCount = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, vgpuCount, NULL)
-    check_status_size(__status__)
-    if vgpuCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array vgpuTypeIds = view.array(shape=(deviceCount[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, vgpuCount, <nvmlVgpuTypeId_t *>vgpuTypeIds.data)
-    check_status(__status__)
-    return vgpuTypeIds
-
-
-cpdef object device_get_creatable_vgpus(intptr_t device):
-    """Retrieve the currently creatable vGPU types on a physical GPU (device).
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        array: An array of createable vGPU type IDs.
-    """
-    cdef unsigned int[1] vgpuCount = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, vgpuCount, NULL)
-    check_status_size(__status__)
-    if vgpuCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array vgpuTypeIds = view.array(shape=(deviceCount[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, vgpuCount, <nvmlVgpuTypeId_t *>vgpuTypeIds.data)
-    check_status(__status__)
-    return vgpuTypeIds
-
-
-cpdef object device_get_active_vgpus(intptr_t device):
-    """Retrieve the active vGPU instances on a device.
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        array: An array of active vGPU instance IDs.
-    """
-    cdef unsigned int[1] vgpuCount = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetActiveVgpus(<Device>device, vgpuCount, NULL)
-    check_status_size(__status__)
-    if vgpuCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array vgpuInstances = view.array(shape=(deviceCount[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetActiveVgpus(<Device>device, vgpuCount, <nvmlVgpuInstance_t *>vgpuInstances.data)
-    check_status(__status__)
-    return vgpuInstances
-
-
-cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
-    """Retrieve the VM ID associated with a vGPU instance.
-
-    Args:
-        vgpu_instance (unsigned int): The identifier of the target vGPU instance.
-
-    Returns:
-        tuple[str, VgpuVmIdType]: A tuple of (id, id_type).
-    """
-    cdef unsigned int size = 80
-    cdef char[80] vmId
-    cdef nvmlVgpuVmIdType_t[1] vmIdType
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetVmID(<nvmlVgpuInstance_t>vgpu_instance, vmId, size, vmIdType)
-    check_status(__status__)
-    return (cpython.PyUnicode_FromString(vmId), vmIdType[0])
 
 
 cpdef object gpu_instance_get_creatable_vgpus(intptr_t gpu_instance):
@@ -28976,24 +29448,6 @@ cpdef object get_vgpu_compatibility(VgpuMetadata vgpu_metadata, VgpuPgpuMetadata
     return compatibilityInfo
 
 
-cpdef tuple get_vgpu_version():
-    """Query the ranges of supported vGPU versions.
-
-    Returns:
-        tuple: A tuple of (VgpuVersion supported, VgpuVersion current).
-    """
-    cdef VgpuVersion supported = VgpuVersion()
-    cdef nvmlVgpuVersion_t *supported_ptr = <nvmlVgpuVersion_t *>supported._get_ptr()
-    cdef VgpuVersion current = VgpuVersion()
-    cdef nvmlVgpuVersion_t *current_ptr = <nvmlVgpuVersion_t *>current._get_ptr()
-
-    with nogil:
-        __status__ = nvmlGetVgpuVersion(supported_ptr, current_ptr)
-
-    check_status(__status__)
-    return (supported, current)
-
-
 cpdef object device_get_vgpu_instances_utilization_info(intptr_t device):
     """
     Retrieves recent utilization for vGPU instances running on a physical GPU (device).
@@ -29059,58 +29513,6 @@ cpdef object device_get_vgpu_processes_utilization_info(intptr_t device, unsigne
     check_status(__status__)
 
     return vgpuProcUtilInfo
-
-
-cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
-    """Get GPU instances for given profile ID.
-
-    Args:
-        device (Device): The identifier of the target device.
-        profile_id (unsigned int): The GPU instance profile ID. See device_get_gpu_instance_profile_info().
-
-    Returns:
-        array: An array of GPU instance handles.
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, NULL, count)
-    check_status_size(__status__)
-
-    if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-
-    cdef view.array gpuInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t *>gpuInstances.data, count)
-    check_status(__status__)
-
-    return gpuInstances
-
-
-cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id):
-    """Get Compute instances for given profile ID.
-
-    Args:
-        gpu_instance (GpuInstance): The identifier of the target GPU Instance.
-        profile_id (unsigned int): The Compute instance profile ID.
-
-    Returns:
-        array: An array of Compute instance handles.
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, NULL, count)
-    check_status_size(__status__)
-
-    if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-
-    cdef view.array computeInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t *>computeInstances.data, count)
-    check_status(__status__)
-
-    return computeInstances
 
 
 cpdef object device_get_sram_unique_uncorrected_ecc_error_counts(intptr_t device):
@@ -29708,55 +30110,6 @@ cpdef gpu_instance_set_vgpu_heterogeneous_mode(intptr_t gpu_instance, unsigned i
         heterogeneous_mode[0].mode = mode
         __status__ = nvmlGpuInstanceSetVgpuHeterogeneousMode(<GpuInstance>gpu_instance, heterogeneous_mode)
     check_status(__status__)
-
-
-cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
-    """Retrieves current utilization for vGPUs on a physical GPU (device).
-
-    Args:
-        device (intptr_t): The identifier for the target device.
-        last_seen_time_stamp (unsigned long long): Return only samples with timestamp greater than last_seen_time_stamp.
-
-    Returns:
-        A 2-tuple containing:
-
-        - samples: Returned sample values.
-        - utilizationSamples: Utilization samples.
-
-    .. seealso:: `nvmlDeviceGetVgpuUtilization`
-    """
-    cdef unsigned int vgpu_instance_samples_count
-    with nogil:
-        __status__ = nvmlDeviceGetVgpuUtilization(
-            <Device>device,
-            last_seen_time_stamp,
-            NULL,
-            &vgpu_instance_samples_count,
-            NULL
-        )
-    check_status_size(__status__)
-
-    if vgpu_instance_samples_count == 0:
-        return (
-            view.array(shape=(1,), itemsize=sizeof(int), format="I", mode="c")[:0],
-            VgpuInstanceUtilizationSample(0)
-        )
-
-    cdef view.array arr = view.array(shape=(vgpu_instance_samples_count,), itemsize=sizeof(int), format="I", mode="c")
-    cdef VgpuInstanceUtilizationSample utilization_samples_py = VgpuInstanceUtilizationSample(vgpu_instance_samples_count)
-    cdef nvmlVgpuInstanceUtilizationSample_t *ptr = <nvmlVgpuInstanceUtilizationSample_t *>utilization_samples_py._get_ptr()
-
-    with nogil:
-        __status__ = nvmlDeviceGetVgpuUtilization(
-            <Device>device,
-            last_seen_time_stamp,
-            <nvmlValueType_t *>arr.data,
-            &vgpu_instance_samples_count,
-            ptr
-        )
-    check_status(__status__)
-
-    return (arr, utilization_samples_py)
 
 
 cpdef object device_read_prm_counters_v1(intptr_t device, PRMCounter_v1 counters):
