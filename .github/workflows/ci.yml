@@ -48,7 +48,18 @@ jobs:
           cuda_build_channel=$(yq '.cuda.build.channel // "stable"' ci/versions.yml)
           echo "cuda_build_channel=$cuda_build_channel" >> $GITHUB_OUTPUT
 
-          windows_arm64_supported=$(yq '.cuda.build.windows_arm64 // false' ci/versions.yml)
+          if [[ "$cuda_build_ver" =~ ^([0-9]+)\.([0-9]+)(\.|$) ]]; then
+            cuda_build_major="${BASH_REMATCH[1]}"
+            cuda_build_minor="${BASH_REMATCH[2]}"
+          else
+            echo "Invalid CUDA build version: $cuda_build_ver" >&2
+            exit 1
+          fi
+          if (( cuda_build_major > 13 || (cuda_build_major == 13 && cuda_build_minor >= 4) )); then
+            windows_arm64_supported=true
+          else
+            windows_arm64_supported=false
+          fi
           echo "windows_arm64_supported=$windows_arm64_supported" >> $GITHUB_OUTPUT
 
           cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
@@ -327,14 +338,14 @@ jobs:
       cuda-channel: ${{ needs.ci-vars.outputs.CUDA_BUILD_CHANNEL }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  # Windows ARM64 supports only the current CUDA major because the platform is
-  # new in CUDA 13.4; no prior-major toolkit or wheel artifacts exist.
+  # Windows ARM64 is available starting with CUDA 13.4. Build only the current
+  # CUDA major because no prior-major toolkit or wheel artifacts exist.
   build-windows-arm64:
     needs:
       - ci-vars
       - should-skip
     name: Build win-arm64, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) && fromJSON(needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED) }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) && needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED == 'true' }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:

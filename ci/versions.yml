@@ -7,6 +7,5 @@ cuda:
   build:
     version: "13.4.0"
     channel: "prerelease"
-    windows_arm64: true  # Windows ARM64 toolkit support starts with CUDA 13.4
   prev_build:
     version: "12.9.1"
