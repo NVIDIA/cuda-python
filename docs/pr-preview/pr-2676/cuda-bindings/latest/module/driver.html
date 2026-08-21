@@ -4068,7 +4068,7 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUctx_flags.CU_CTX_BLOCKING_SYNC">
-<span class="sig-name descname"><span class="pre">CU_CTX_BLOCKING_SYNC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUctx_flags.CU_CTX_BLOCKING_SYNC:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUctx_flags.CU_CTX_BLOCKING_SYNC" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_CTX_BLOCKING_SYNC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUctx_flags.CU_CTX_BLOCKING_SYNC" title="Link to this definition">#</a></dt>
 <dd><p>Set blocking synchronization as default scheduling</p>
 <p>[Deprecated]</p>
 </dd></dl>
@@ -5137,7 +5137,7 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK:</span> <span class="pre">8&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK</p>
 </dd></dl>
 
@@ -5167,7 +5167,7 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK:</span> <span class="pre">12&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK:</span> <span class="pre">12&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_REGISTERS_PER_BLOCK" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK</p>
 </dd></dl>
 
@@ -5275,19 +5275,19 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH:</span> <span class="pre">27&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH:</span> <span class="pre">27&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_WIDTH</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT:</span> <span class="pre">28&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT:</span> <span class="pre">28&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_HEIGHT</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES:</span> <span class="pre">29&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS:</span> <span class="pre">29&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES" title="Link to this definition">#</a></dt>
 <dd><p>Deprecated, use CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_LAYERED_LAYERS</p>
 </dd></dl>
 
@@ -5731,7 +5731,7 @@ whether the surface * is Multiplanar or not.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED:</span> <span class="pre">102&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED:</span> <span class="pre">102&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED" title="Link to this definition">#</a></dt>
 <dd><p>Device supports virtual memory management APIs like <a class="reference internal" href="#cuda.bindings.driver.cuMemAddressReserve" title="cuda.bindings.driver.cuMemAddressReserve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAddressReserve</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuMemCreate" title="cuda.bindings.driver.cuMemCreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemCreate</span></code></a>, <a class="reference internal" href="#cuda.bindings.driver.cuMemMap" title="cuda.bindings.driver.cuMemMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemMap</span></code></a> and related APIs</p>
 </dd></dl>
 
@@ -8638,7 +8638,7 @@ details see <a class="reference internal" href="#cuda.bindings.driver.cuStreamBe
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED">
-<span class="sig-name descname"><span class="pre">CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_ACCESS_ACCESS_SUPPORTED:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED" title="Link to this definition">#</a></dt>
 <dd><p>Accessing CUDA arrays over the link supported</p>
 </dd></dl>
 
@@ -9304,7 +9304,7 @@ device has on the memory referenced.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE">
-<span class="sig-name descname"><span class="pre">CU_MEM_LOCATION_TYPE_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CU_MEM_LOCATION_TYPE_NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CUmemLocationType.CU_MEM_LOCATION_TYPE_INVALID:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE" title="Link to this definition">#</a></dt>
 <dd><p>Location is unspecified. This is used when creating a managed memory pool to indicate no preferred location for the pool</p>
 </dd></dl>
 
