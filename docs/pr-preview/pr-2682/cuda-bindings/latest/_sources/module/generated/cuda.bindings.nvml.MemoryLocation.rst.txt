@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.MemoryLocation
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: MemoryLocation
