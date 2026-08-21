@@ -160,6 +160,40 @@ else:
     _OVERLAP_MODE_TO_DRIVER = {}
 
 
+def _reject_unsupported_during_api_call(
+    src_access_order: MemcpySrcAccessOrder, requirement: str, *, index: int | None = None
+) -> None:
+    """Raise if ``src_access_order`` is DURING_API_CALL but the native attributes
+    path (``cuMemcpyWithAttributesAsync`` / ``cuMemcpyBatchAsync``) is unavailable.
+
+    STREAM and ANY never promise access sooner than stream order, so a plain
+    ``cuMemcpyAsync`` fallback satisfies them; DURING_API_CALL specifically
+    promises all source reads complete before the call returns, which
+    ``cuMemcpyAsync`` cannot provide (it reads the source in stream order
+    only). Silently downgrading that guarantee would let a caller reuse or
+    overwrite the source buffer before the real, stream-ordered read
+    happens: a silent data race, not a missed optimization. ``requirement``
+    names what the native path needs and why it is unavailable here;
+    ``index`` identifies the offending copy within a batch.
+
+    Internal, but deliberately importable: shared between the per-buffer and
+    batched fallback paths so both raise identically, and directly testable
+    without needing an actual old driver/bindings install.
+    """
+    if src_access_order != MemcpySrcAccessOrder.DURING_API_CALL:
+        return
+    where = f" at index {index}" if index is not None else ""
+    raise RuntimeError(
+        f"src_access_order=DURING_API_CALL{where} requires {requirement}. A "
+        "plain cuMemcpyAsync fallback reads the source in stream order only, "
+        "which would silently violate the guarantee that all source reads "
+        "complete before the call returns, letting the caller reuse the "
+        "source buffer before the real (stream-ordered) read happens. Use "
+        "src_access_order=STREAM or ANY, or omit options, if that works for "
+        "your use case."
+    )
+
+
 def _attr_run_starts(attrs: Sequence[CopyOptions]) -> list[int]:
     """Return the start index of each maximal run of equal attributes.
 
