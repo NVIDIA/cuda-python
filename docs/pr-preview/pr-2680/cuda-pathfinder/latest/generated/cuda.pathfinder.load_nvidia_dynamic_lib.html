@@ -633,8 +633,9 @@ the system <code class="docutils literal notranslate"><span class="pre">PATH</sp
 <li><p><strong>Environment variables</strong></p>
 <ul class="simple">
 <li><p>First search library-specific roots declared by the descriptor,
-such as <code class="docutils literal notranslate"><span class="pre">CUDNN_PATH</span></code>, using their architecture-specific product
-layouts. Then use <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> (in that order).
+such as <code class="docutils literal notranslate"><span class="pre">CUDNN_PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">NCCL_HOME</span></code>, using their
+platform-specific product layouts. Then use <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or
+<code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> (in that order).
 On Windows, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> is the typical way system-installed CTK
 DLLs are located. Note that the NVIDIA CTK installer automatically
 adds <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> to the system-wide environment.</p></li>
