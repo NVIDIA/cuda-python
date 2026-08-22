@@ -31,13 +31,13 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 
 
-@dataclass
+@dataclass(frozen=True)
 class LocatedHeaderDir:
     abs_path: str | None
     found_via: str
 
     def __post_init__(self) -> None:
-        self.abs_path = _abs_norm(self.abs_path)
+        object.__setattr__(self, "abs_path", _abs_norm(self.abs_path))
 
 
 #: Type alias for a header find step callable.

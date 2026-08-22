@@ -11,6 +11,7 @@
 # sudo apt install libnvshmem3-cuda-12 libnvshmem3-dev-cuda-12
 # sudo apt install libnvshmem3-cuda-13 libnvshmem3-dev-cuda-13
 
+import dataclasses
 import functools
 import glob
 import importlib.metadata
@@ -264,3 +265,33 @@ def test_locate_ctk_headers_canary_probe_errors_are_not_masked(monkeypatch, mock
         locate_nvidia_header_directory("cudart")
     with pytest.raises(RuntimeError, match="canary probe failed"):
         find_nvidia_header_directory("cudart")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.usefixtures("clear_locate_nvidia_header_cache")
+def test_located_header_dir_is_immutable(tmp_path, monkeypatch, mocker):
+    cuda_home = tmp_path / "cuda-home"
+    expected_hdr_dir = _create_ctk_header(cuda_home, "cudart")
+
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.setenv("CUDA_HOME", str(cuda_home))
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+    mocker.patch.object(find_nvidia_headers_module, "find_sub_dirs_all_sitepackages", return_value=[])
+
+    first = locate_nvidia_header_directory("cudart")
+    assert first is not None
+    assert first.abs_path == expected_hdr_dir
+
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        first.abs_path = str(tmp_path / "somewhere-else")
+
+    assert locate_nvidia_header_directory("cudart").abs_path == expected_hdr_dir
+    assert find_nvidia_header_directory("cudart") == expected_hdr_dir
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_located_header_dir_is_hashable(tmp_path):
+    include_dir = str(tmp_path / "include")
+    hdr_dir = LocatedHeaderDir(abs_path=include_dir, found_via="conda")
+    assert hdr_dir in {hdr_dir}
+    assert hdr_dir == LocatedHeaderDir(abs_path=include_dir, found_via="conda")
