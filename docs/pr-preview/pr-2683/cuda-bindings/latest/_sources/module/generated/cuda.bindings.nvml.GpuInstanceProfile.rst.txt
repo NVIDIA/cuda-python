@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.GpuInstanceProfile
-=====================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: GpuInstanceProfile
