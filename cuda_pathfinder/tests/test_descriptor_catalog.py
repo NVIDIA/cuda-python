@@ -18,6 +18,7 @@ from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG,
 _VALID_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _VALID_PACKAGED_WITH_VALUES = {"ctk", "other", "driver"}
 _VALID_WINDOWS_ARCHES = ("x64", "arm64")
+_VALID_WINDOWS_DLL_MATCH_MODES = {"prefix", "exact"}
 _CATALOG_BY_NAME = {spec.name: spec for spec in DESCRIPTOR_CATALOG}
 
 
@@ -96,6 +97,12 @@ def test_windows_dlls_look_like_dlls(spec: DescriptorSpec):
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_windows_dll_match_mode_is_valid(spec: DescriptorSpec):
+    assert spec.windows_dll_match_mode in _VALID_WINDOWS_DLL_MATCH_MODES
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 @pytest.mark.agent_authored(model="gpt-5")
 def test_supported_windows_arch_is_explicit_and_canonical(spec: DescriptorSpec):
     expected = tuple(arch for arch in _VALID_WINDOWS_ARCHES if arch in spec.supported_windows_arch)
@@ -146,6 +153,7 @@ def test_cudnn_metadata_matches_supported_layouts():
     assert spec.packaged_with == "other"
     assert spec.linux_sonames == ("libcudnn.so.9",)
     assert spec.windows_dlls == ("cudnn64_9.dll",)
+    assert spec.windows_dll_match_mode == "exact"
     assert spec.supported_windows_arch == ("x64", "arm64")
     assert spec.site_packages_linux == ("nvidia/cudnn/lib",)
     assert spec.site_packages_windows == WindowsSearchDirs.x64_only("nvidia/cudnn/bin")

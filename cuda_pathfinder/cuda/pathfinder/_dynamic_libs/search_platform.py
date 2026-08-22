@@ -68,15 +68,26 @@ def _find_descriptor_dll_under_dir(
     desc: LibDescriptor,
     target_arch: str | None = None,
 ) -> str | None:
+    def candidate_is_usable(path: str) -> bool:
+        if not os.path.isfile(path):
+            return False
+        if is_suppressed_dll_file(os.path.basename(path)):
+            return False
+        return target_arch is None or windows_pe_matches_arch(path, target_arch)
+
+    # Prefer the descriptor's known DLL names in its established search order.
+    # Prefix matching remains the forward-compatible fallback for libraries
+    # whose version is encoded in the filename (for example CUPTI).
     for dll_basename in reversed(cast(tuple[str, ...], desc.windows_dlls)):
         path = os.path.join(dirpath, dll_basename)
-        if not os.path.isfile(path):
-            continue
-        if is_suppressed_dll_file(os.path.basename(path)):
-            continue
-        if target_arch is not None and not windows_pe_matches_arch(path, target_arch):
-            continue
-        return path
+        if candidate_is_usable(path):
+            return path
+
+    if desc.windows_dll_match_mode == "prefix":
+        file_wild = os.path.join(dirpath, f"{desc.name}*.dll")
+        for path in sorted(glob.glob(file_wild)):
+            if candidate_is_usable(path):
+                return path
     return None
 
 

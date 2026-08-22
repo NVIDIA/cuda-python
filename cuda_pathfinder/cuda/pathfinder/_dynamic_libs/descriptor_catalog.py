@@ -13,6 +13,7 @@ from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAM
 
 PackagedWith = Literal["ctk", "other", "driver"]
 WindowsArch = Literal["x64", "arm64"]
+WindowsDllMatchMode = Literal["prefix", "exact"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,6 +62,7 @@ class DescriptorSpec:
     packaged_with: PackagedWith
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
+    windows_dll_match_mode: WindowsDllMatchMode = "prefix"
     supported_windows_arch: tuple[WindowsArch, ...] = ()
     site_packages_linux: tuple[str, ...] = ()
     site_packages_windows: WindowsSearchDirs = WindowsSearchDirs()
@@ -420,6 +422,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="other",
         linux_sonames=("libcudnn.so.9",),
         windows_dlls=("cudnn64_9.dll",),
+        windows_dll_match_mode="exact",
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cudnn/lib",),
         site_packages_windows=WindowsSearchDirs.x64_only("nvidia/cudnn/bin"),

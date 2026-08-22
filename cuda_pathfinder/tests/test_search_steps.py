@@ -310,7 +310,7 @@ class TestFindInSitePackages:
         assert result.found_via == "site-packages"
 
     @pytest.mark.agent_authored(model="gpt-5")
-    def test_windows_requires_an_exact_descriptor_dll_name(self, mocker, tmp_path):
+    def test_windows_exact_match_mode_rejects_cudnn_sidecar(self, mocker, tmp_path):
         bin_dir = tmp_path / "nvidia" / "cudnn" / "bin"
         bin_dir.mkdir(parents=True)
         (bin_dir / "cudnn_adv64_9.dll").touch()
@@ -325,6 +325,45 @@ class TestFindInSitePackages:
         )
 
         assert result is None
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_prefix_match_mode_finds_unlisted_future_cupti(self, mocker, tmp_path):
+        bin_dir = tmp_path / "nvidia" / "cuda_cupti" / "bin"
+        bin_dir.mkdir(parents=True)
+        dll = bin_dir / "cupti64_2027.1.0.dll"
+        dll.touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(bin_dir)],
+        )
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        result = find_in_site_packages(
+            _ctx(LIB_DESCRIPTORS["cupti"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(dll), "site-packages")
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_prefix_match_mode_prefers_known_cupti_name(self, mocker, tmp_path):
+        bin_dir = tmp_path / "nvidia" / "cuda_cupti" / "bin"
+        bin_dir.mkdir(parents=True)
+        known_dll = bin_dir / "cupti64_2026.3.0.dll"
+        known_dll.touch()
+        (bin_dir / "cupti64_2027.1.0.dll").touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(bin_dir)],
+        )
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        result = find_in_site_packages(
+            _ctx(LIB_DESCRIPTORS["cupti"], platform=WindowsSearchPlatform(target_arch="x64"))
+        )
+
+        assert result == FindResult(str(known_dll), "site-packages")
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_found_windows_arm64_prefers_cuda13_arch_dir_to_cuda12(self, mocker, tmp_path):
