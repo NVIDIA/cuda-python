@@ -60,7 +60,7 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     native loader mechanisms, so the full CTK search cascade (site-packages,
     conda, CUDA_PATH, canary) is unnecessary.
     """
-    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, False)
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
     if loaded is not None:
         return loaded
     loaded = LOADER.load_with_system_search(desc)
@@ -174,9 +174,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     find = run_find_steps(ctx, EARLY_FIND_STEPS)
 
     # Phase 2: Cross-cutting — already-loaded check and dependency loading.
-    # The already-loaded check on Windows uses the "have we found a path?"
-    # flag to decide whether to apply AddDllDirectory side-effects.
-    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc, find is not None)
+    loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
     load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
         return loaded
