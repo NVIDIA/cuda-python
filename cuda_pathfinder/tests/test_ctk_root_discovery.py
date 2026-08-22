@@ -189,7 +189,7 @@ def test_try_via_ctk_root_finds_nvvm(tmp_path):
 
     result = find_via_ctk_root(_ctx("nvvm"), str(ctk_root))
     assert result is not None
-    assert result.abs_path == str(nvvm_lib)
+    assert result.abs_path == nvvm_lib
     assert result.found_via == "system-ctk-root"
 
 
@@ -206,7 +206,7 @@ def test_try_via_ctk_root_regular_lib(tmp_path):
 
     result = find_via_ctk_root(_ctx("cudart"), str(ctk_root))
     assert result is not None
-    assert result.abs_path == str(cudart_lib)
+    assert result.abs_path == cudart_lib
     assert result.found_via == "system-ctk-root"
 
 
@@ -224,7 +224,7 @@ def test_try_via_ctk_root_windows_arm64_prefers_arch_dir(tmp_path):
     ctx = SearchContext(LIB_DESCRIPTORS["cudart"], platform=WindowsSearchPlatform(target_arch="arm64"))
     result = find_via_ctk_root(ctx, str(ctk_root))
     assert result is not None
-    assert result.abs_path == str(arm64_lib)
+    assert result.abs_path == arm64_lib
     assert result.found_via == "system-ctk-root"
 
 

@@ -183,7 +183,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
 
     # Phase 3: Load from found path, or fall back to system search + late find.
     if find is not None:
-        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
+        return LOADER.load_with_abs_path(desc, str(find.abs_path), find.found_via)
 
     loaded = LOADER.load_with_system_search(desc)
     if loaded is not None:
@@ -191,7 +191,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
 
     find = run_find_steps(ctx, LATE_FIND_STEPS)
     if find is not None:
-        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
+        return LOADER.load_with_abs_path(desc, str(find.abs_path), find.found_via)
 
     if desc.ctk_root_canary_anchor_libnames:
         canary_abs_path = _try_ctk_root_canary(ctx)

@@ -8,6 +8,7 @@ from __future__ import annotations
 import ctypes
 import os
 from ctypes import wintypes
+from pathlib import Path
 
 import pytest
 
@@ -45,10 +46,10 @@ def _make_desc(name: str = "cudart", **overrides) -> LibDescriptor:
         "packaged_with": "ctk",
         "linux_sonames": ("libcudart.so",),
         "windows_dlls": ("cudart64_12.dll",),
-        "site_packages_linux": (os.path.join("nvidia", "cuda_runtime", "lib"),),
+        "site_packages_linux": ("nvidia/cuda_runtime/lib",),
         "site_packages_windows": WindowsSearchDirs(
-            x64=(os.path.join("nvidia", "cuda_runtime", "bin"),),
-            arm64=(os.path.join("nvidia", "cuda_runtime", "bin"),),
+            x64=("nvidia/cuda_runtime/bin",),
+            arm64=("nvidia/cuda_runtime/bin",),
         ),
     }
     defaults.update(overrides)
@@ -276,11 +277,11 @@ class TestFindInSitePackages:
         )
 
         desc = _make_desc(
-            site_packages_linux=(os.path.join("nvidia", "cuda_runtime", "lib"),),
+            site_packages_linux=("nvidia/cuda_runtime/lib",),
         )
         result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(so_file)
+        assert result.abs_path == so_file
         assert result.found_via == "site-packages"
 
     def test_found_windows(self, mocker, tmp_path):
@@ -298,13 +299,13 @@ class TestFindInSitePackages:
         desc = _make_desc(
             name="cudart",
             site_packages_windows=WindowsSearchDirs(
-                x64=(os.path.join("nvidia", "cuda_runtime", "bin"),),
-                arm64=(os.path.join("nvidia", "cuda_runtime", "bin"),),
+                x64=("nvidia/cuda_runtime/bin",),
+                arm64=("nvidia/cuda_runtime/bin",),
             ),
         )
         result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
-        assert result.abs_path == str(dll)
+        assert result.abs_path == dll
         assert result.found_via == "site-packages"
 
     @pytest.mark.agent_authored(model="gpt-5")
@@ -326,7 +327,7 @@ class TestFindInSitePackages:
         desc = LIB_DESCRIPTORS["cudart"]
         result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="arm64")))
         assert result is not None
-        assert result.abs_path == str(arm64_dll)
+        assert result.abs_path == arm64_dll
         assert result.found_via == "site-packages"
 
     @pytest.mark.agent_authored(model="gpt-5")
@@ -348,7 +349,7 @@ class TestFindInSitePackages:
         desc = LIB_DESCRIPTORS["cudart"]
         result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
-        assert result.abs_path == str(x86_64_dll)
+        assert result.abs_path == x86_64_dll
         assert result.found_via == "site-packages"
 
     @pytest.mark.agent_authored(model="gpt-5")
@@ -364,7 +365,7 @@ class TestFindInSitePackages:
         desc = LIB_DESCRIPTORS["cudart"]
         result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
-        assert result.abs_path == str(cuda12_dll)
+        assert result.abs_path == cuda12_dll
         assert result.found_via == "site-packages"
 
     @pytest.mark.agent_authored(model="gpt-5")
@@ -419,7 +420,7 @@ class TestFindInSitePackages:
 
         result = find_in_site_packages(_ctx(platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(versioned)
+        assert result.abs_path == versioned
         assert result.found_via == "site-packages"
 
     def test_glob_fallback_returns_newest_of_multiple_matches(self, mocker, tmp_path):
@@ -437,7 +438,7 @@ class TestFindInSitePackages:
 
         result = find_in_site_packages(_ctx(platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(newer)
+        assert result.abs_path == newer
         assert result.found_via == "site-packages"
 
     def test_glob_fallback_zero_matches_returns_none(self, mocker, tmp_path):
@@ -480,7 +481,7 @@ class TestFindInConda:
 
         result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(so_file)
+        assert result.abs_path == so_file
         assert result.found_via == "conda"
 
     def test_found_windows(self, mocker, tmp_path):
@@ -493,7 +494,7 @@ class TestFindInConda:
 
         result = find_in_conda(_ctx(platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
-        assert result.abs_path == str(dll)
+        assert result.abs_path == dll
         assert result.found_via == "conda"
 
     @pytest.mark.agent_authored(model="gpt-5")
@@ -510,7 +511,7 @@ class TestFindInConda:
 
         result = find_in_conda(_ctx(platform=WindowsSearchPlatform(target_arch="arm64")))
         assert result is not None
-        assert result.abs_path == str(arm64_dll)
+        assert result.abs_path == arm64_dll
         assert result.found_via == "conda"
 
     # The next three tests cover the Linux glob fallback in
@@ -531,7 +532,7 @@ class TestFindInConda:
 
         result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(versioned)
+        assert result.abs_path == versioned
         assert result.found_via == "conda"
 
     def test_glob_fallback_returns_newest_of_multiple_matches(self, mocker, tmp_path):
@@ -546,7 +547,7 @@ class TestFindInConda:
 
         result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(newer)
+        assert result.abs_path == newer
         assert result.found_via == "conda"
 
     def test_glob_fallback_zero_matches_returns_none(self, mocker, tmp_path):
@@ -582,7 +583,7 @@ class TestFindInCudaHome:
 
         result = find_in_cuda_path(_ctx(platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(so_file)
+        assert result.abs_path == so_file
         assert result.found_via == "CUDA_PATH"
 
     def test_found_windows(self, mocker, tmp_path):
@@ -595,7 +596,7 @@ class TestFindInCudaHome:
 
         result = find_in_cuda_path(_ctx(platform=WindowsSearchPlatform(target_arch="x64")))
         assert result is not None
-        assert result.abs_path == str(dll)
+        assert result.abs_path == dll
         assert result.found_via == "CUDA_PATH"
 
     @pytest.mark.agent_authored(model="gpt-5")
@@ -612,7 +613,7 @@ class TestFindInCudaHome:
 
         result = find_in_cuda_path(_ctx(platform=WindowsSearchPlatform(target_arch="arm64")))
         assert result is not None
-        assert result.abs_path == str(arm64_dll)
+        assert result.abs_path == arm64_dll
         assert result.found_via == "CUDA_PATH"
 
     @pytest.mark.parametrize(
@@ -639,7 +640,7 @@ class TestFindInCudaHome:
         assert (result is not None) is expected_found
         if expected_found:
             assert result is not None
-            assert result.abs_path == str(dll)
+            assert result.abs_path == dll
             assert result.found_via == "CUDA_PATH"
         else:
             assert any(f"No {target_arch}-compatible PE file" in message for message in ctx.error_messages)
@@ -652,7 +653,7 @@ class TestFindInCudaHome:
 
 class TestRunFindSteps:
     def test_returns_first_hit(self):
-        hit = FindResult("/path/to/lib.so", "step-a")
+        hit = FindResult(Path("/path/to/lib.so"), "step-a")
 
         def step_a(_ctx):
             return hit
@@ -671,7 +672,7 @@ class TestRunFindSteps:
         assert run_find_steps(_ctx(), ()) is None
 
     def test_skips_nones_returns_later_hit(self):
-        hit = FindResult("/later/lib.so", "step-c")
+        hit = FindResult(Path("/later/lib.so"), "step-c")
         result = run_find_steps(_ctx(), (lambda _: None, lambda _: hit))
         assert result is hit
 
@@ -763,9 +764,8 @@ class TestAnchorRelDirs:
         (tmp_path / "nvvm" / "lib64").mkdir(parents=True)
 
         desc = _make_desc(name="nvvm", anchor_rel_dirs_linux=("nvvm/lib64",))
-        result = _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), str(tmp_path))
-        assert result is not None
-        assert result.endswith(os.path.join("nvvm", "lib64"))
+        result = _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), tmp_path)
+        assert result == tmp_path / "nvvm" / "lib64"
 
     def test_find_lib_dir_uses_descriptor_windows(self, tmp_path):
         (tmp_path / "nvvm" / "bin").mkdir(parents=True)
@@ -777,9 +777,8 @@ class TestAnchorRelDirs:
                 arm64=("nvvm/bin/arm64", "nvvm/bin"),
             ),
         )
-        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="x64"), str(tmp_path))
-        assert result is not None
-        assert result.endswith(os.path.join("nvvm", "bin"))
+        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="x64"), tmp_path)
+        assert result == tmp_path / "nvvm" / "bin"
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_find_lib_dir_windows_arm64_uses_arm64_anchor(self, tmp_path):
@@ -793,13 +792,12 @@ class TestAnchorRelDirs:
                 arm64=("bin/arm64",),
             ),
         )
-        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="arm64"), str(tmp_path))
-        assert result is not None
-        assert result.endswith(os.path.join("bin", "arm64"))
+        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="arm64"), tmp_path)
+        assert result == tmp_path / "bin" / "arm64"
 
     def test_find_lib_dir_returns_none_when_no_match(self, tmp_path):
         desc = _make_desc(anchor_rel_dirs_linux=("nonexistent",))
-        assert _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), str(tmp_path)) is None
+        assert _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), tmp_path) is None
 
     def test_nvvm_cuda_home_linux(self, mocker, tmp_path):
         """End-to-end: find_in_cuda_path resolves nvvm under its custom subdir."""
@@ -817,5 +815,5 @@ class TestAnchorRelDirs:
         )
         result = find_in_cuda_path(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
-        assert result.abs_path == str(so_file)
+        assert result.abs_path == so_file
         assert result.found_via == "CUDA_PATH"
