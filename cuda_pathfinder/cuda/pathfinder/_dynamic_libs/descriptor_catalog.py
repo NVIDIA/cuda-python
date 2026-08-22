@@ -13,7 +13,6 @@ from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAM
 
 PackagedWith = Literal["ctk", "other", "driver"]
 WindowsArch = Literal["x64", "arm64"]
-WindowsDllMatchMode = Literal["prefix", "exact"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,7 +61,7 @@ class DescriptorSpec:
     packaged_with: PackagedWith
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
-    windows_dll_match_mode: WindowsDllMatchMode = "prefix"
+    windows_dll_fallback_globs: tuple[str, ...] = ()
     supported_windows_arch: tuple[WindowsArch, ...] = ()
     site_packages_linux: tuple[str, ...] = ()
     site_packages_windows: WindowsSearchDirs = WindowsSearchDirs()
@@ -361,23 +360,24 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="ctk",
         linux_sonames=("libcupti.so.12", "libcupti.so.13"),
         windows_dlls=(
-            "cupti64_2026.3.0.dll",
-            "cupti64_2026.2.1.dll",
-            "cupti64_2026.2.0.dll",
-            "cupti64_2026.1.1.dll",
-            "cupti64_2026.1.0.dll",
-            "cupti64_2025.4.1.dll",
-            "cupti64_2025.3.1.dll",
-            "cupti64_2025.2.1.dll",
-            "cupti64_2025.1.1.dll",
-            "cupti64_2024.3.2.dll",
-            "cupti64_2024.2.1.dll",
-            "cupti64_2024.1.1.dll",
-            "cupti64_2023.3.1.dll",
-            "cupti64_2023.2.2.dll",
-            "cupti64_2023.1.1.dll",
             "cupti64_2022.4.1.dll",
+            "cupti64_2023.1.1.dll",
+            "cupti64_2023.2.2.dll",
+            "cupti64_2023.3.1.dll",
+            "cupti64_2024.1.1.dll",
+            "cupti64_2024.2.1.dll",
+            "cupti64_2024.3.2.dll",
+            "cupti64_2025.1.1.dll",
+            "cupti64_2025.2.1.dll",
+            "cupti64_2025.3.1.dll",
+            "cupti64_2025.4.1.dll",
+            "cupti64_2026.1.0.dll",
+            "cupti64_2026.1.1.dll",
+            "cupti64_2026.2.0.dll",
+            "cupti64_2026.2.1.dll",
+            "cupti64_2026.3.0.dll",
         ),
+        windows_dll_fallback_globs=("cupti64_*.dll",),
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_cupti/lib"),
         site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_cupti/bin"),
@@ -424,7 +424,6 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="other",
         linux_sonames=("libcudnn.so.9",),
         windows_dlls=("cudnn64_9.dll",),
-        windows_dll_match_mode="exact",
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cudnn/lib",),
         site_packages_windows=WindowsSearchDirs.x64_only("nvidia/cudnn/bin"),

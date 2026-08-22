@@ -9,6 +9,7 @@ entry, rather than comparing the catalog against itself.
 
 from __future__ import annotations
 
+import fnmatch
 import re
 
 import pytest
@@ -18,7 +19,6 @@ from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG,
 _VALID_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _VALID_PACKAGED_WITH_VALUES = {"ctk", "other", "driver"}
 _VALID_WINDOWS_ARCHES = ("x64", "arm64")
-_VALID_WINDOWS_DLL_MATCH_MODES = {"prefix", "exact"}
 _CATALOG_BY_NAME = {spec.name: spec for spec in DESCRIPTOR_CATALOG}
 
 
@@ -98,8 +98,34 @@ def test_windows_dlls_look_like_dlls(spec: DescriptorSpec):
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_windows_dll_match_mode_is_valid(spec: DescriptorSpec):
-    assert spec.windows_dll_match_mode in _VALID_WINDOWS_DLL_MATCH_MODES
+def test_windows_dll_fallback_globs_are_basenames(spec: DescriptorSpec):
+    for dll_glob in spec.windows_dll_fallback_globs:
+        assert "*" in dll_glob
+        assert dll_glob.endswith(".dll")
+        assert "/" not in dll_glob
+        assert "\\" not in dll_glob
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_only_cupti_uses_forward_compatible_windows_dll_glob():
+    specs_with_globs = {spec.name for spec in DESCRIPTOR_CATALOG if spec.windows_dll_fallback_globs}
+
+    assert specs_with_globs == {"cupti"}
+    assert _CATALOG_BY_NAME["cupti"].windows_dll_fallback_globs == ("cupti64_*.dll",)
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_windows_dll_fallback_globs_do_not_match_other_descriptors(spec: DescriptorSpec):
+    for dll_glob in spec.windows_dll_fallback_globs:
+        sibling_matches = {
+            (other.name, dll)
+            for other in DESCRIPTOR_CATALOG
+            if other is not spec
+            for dll in other.windows_dlls
+            if fnmatch.fnmatchcase(dll.casefold(), dll_glob.casefold())
+        }
+        assert not sibling_matches, f"{spec.name} glob {dll_glob!r} also matches {sibling_matches}"
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
@@ -162,7 +188,7 @@ def test_cudnn_metadata_matches_supported_layouts():
     assert spec.packaged_with == "other"
     assert spec.linux_sonames == ("libcudnn.so.9",)
     assert spec.windows_dlls == ("cudnn64_9.dll",)
-    assert spec.windows_dll_match_mode == "exact"
+    assert not spec.windows_dll_fallback_globs
     assert spec.supported_windows_arch == ("x64", "arm64")
     assert spec.site_packages_linux == ("nvidia/cudnn/lib",)
     assert spec.site_packages_windows == WindowsSearchDirs.x64_only("nvidia/cudnn/bin")

@@ -20,6 +20,7 @@ from typing import Protocol, cast
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dll_file
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.path_sort import natural_path_sort_key
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
 
@@ -76,16 +77,16 @@ def _find_descriptor_dll_under_dir(
         return target_arch is None or windows_pe_matches_arch(path, target_arch)
 
     # Prefer the descriptor's known DLL names in its established search order.
-    # Prefix matching remains the forward-compatible fallback for libraries
-    # whose version is encoded in the filename (for example CUPTI).
+    # Explicit globs provide a collision-safe forward-compatible fallback for
+    # libraries whose full version is encoded in the filename (for example CUPTI).
     for dll_basename in reversed(cast(tuple[str, ...], desc.windows_dlls)):
         path = os.path.join(dirpath, dll_basename)
         if candidate_is_usable(path):
             return path
 
-    if desc.windows_dll_match_mode == "prefix":
-        file_wild = os.path.join(dirpath, f"{desc.name}*.dll")
-        for path in sorted(glob.glob(file_wild)):
+    for dll_glob in desc.windows_dll_fallback_globs:
+        file_wild = os.path.join(dirpath, dll_glob)
+        for path in sorted(glob.glob(file_wild), key=natural_path_sort_key, reverse=True):
             if candidate_is_usable(path):
                 return path
     return None

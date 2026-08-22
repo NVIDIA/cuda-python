@@ -16,7 +16,11 @@ from cuda.pathfinder._dynamic_libs import search_platform as search_platform_mod
 from cuda.pathfinder._dynamic_libs.descriptor_catalog import WindowsSearchDirs
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
-from cuda.pathfinder._dynamic_libs.search_platform import LinuxSearchPlatform, WindowsSearchPlatform
+from cuda.pathfinder._dynamic_libs.search_platform import (
+    LinuxSearchPlatform,
+    WindowsSearchPlatform,
+    _find_descriptor_dll_under_dir,
+)
 from cuda.pathfinder._dynamic_libs.search_steps import (
     EARLY_FIND_STEPS,
     LATE_FIND_STEPS,
@@ -310,7 +314,7 @@ class TestFindInSitePackages:
         assert result.found_via == "site-packages"
 
     @pytest.mark.agent_authored(model="gpt-5")
-    def test_windows_exact_match_mode_rejects_cudnn_sidecar(self, mocker, tmp_path):
+    def test_windows_exact_names_reject_cudnn_sidecar(self, mocker, tmp_path):
         bin_dir = tmp_path / "nvidia" / "cudnn" / "bin"
         bin_dir.mkdir(parents=True)
         (bin_dir / "cudnn_adv64_9.dll").touch()
@@ -327,7 +331,7 @@ class TestFindInSitePackages:
         assert result is None
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_windows_prefix_match_mode_finds_unlisted_future_cupti(self, mocker, tmp_path):
+    def test_windows_explicit_glob_finds_unlisted_future_cupti(self, mocker, tmp_path):
         bin_dir = tmp_path / "nvidia" / "cuda_cupti" / "bin"
         bin_dir.mkdir(parents=True)
         dll = bin_dir / "cupti64_2027.1.0.dll"
@@ -346,7 +350,7 @@ class TestFindInSitePackages:
         assert result == FindResult(str(dll), "site-packages")
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_windows_prefix_match_mode_prefers_known_cupti_name(self, mocker, tmp_path):
+    def test_windows_explicit_glob_prefers_known_cupti_name(self, mocker, tmp_path):
         bin_dir = tmp_path / "nvidia" / "cuda_cupti" / "bin"
         bin_dir.mkdir(parents=True)
         known_dll = bin_dir / "cupti64_2026.3.0.dll"
@@ -364,6 +368,35 @@ class TestFindInSitePackages:
         )
 
         assert result == FindResult(str(known_dll), "site-packages")
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_known_cupti_names_prefer_newest(self, tmp_path):
+        older_dll = tmp_path / "cupti64_2026.2.1.dll"
+        newer_dll = tmp_path / "cupti64_2026.3.0.dll"
+        older_dll.touch()
+        newer_dll.touch()
+
+        result = _find_descriptor_dll_under_dir(str(tmp_path), LIB_DESCRIPTORS["cupti"])
+
+        assert result == str(newer_dll)
+
+    @pytest.mark.parametrize(
+        ("libname", "sibling_dll"),
+        (
+            ("cublas", "cublasLt64_13.dll"),
+            ("cufft", "cufftw64_12.dll"),
+            ("cusolver", "cusolverMg64_12.dll"),
+            ("cusparse", "cusparseLt.dll"),
+            ("cutensor", "cutensorMg.dll"),
+        ),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_windows_matching_rejects_sibling_library(self, tmp_path, libname, sibling_dll):
+        (tmp_path / sibling_dll).touch()
+
+        result = _find_descriptor_dll_under_dir(str(tmp_path), LIB_DESCRIPTORS[libname])
+
+        assert result is None
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_found_windows_arm64_prefers_cuda13_arch_dir_to_cuda12(self, mocker, tmp_path):
