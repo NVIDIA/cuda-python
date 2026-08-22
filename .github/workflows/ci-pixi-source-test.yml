@@ -15,8 +15,11 @@
 #   - build-smoke (PRs): CPU-only. Source-builds bindings + core, imports them,
 #     builds the cython test extensions and checks placement. Catches the
 #     compile / ABI / .so-placement regressions WITHOUT a GPU.
-#   - build-identity-roundtrip (PRs): CPU-only. cu13 -> cu12 -> cu13 in one
-#     checkout, so build artifacts cannot be reused across CUDA majors.
+#   - build-identity-roundtrip (nightly + manual): CPU-only. cu13 -> cu12 ->
+#     cu13 in one checkout, so build artifacts cannot be reused across CUDA
+#     majors. Kept off PRs to avoid adding another job to the org's shared
+#     concurrent-job quota; the fast unit tests in
+#     cuda_core/tests/test_build_hooks.py cover the same intent per-PR.
 #   - full-test (nightly + manual): GPU runner, full `pixi run test`.
 
 name: "CI: pixi run test (source build)"
@@ -110,7 +113,7 @@ jobs:
           done
           echo "cython test extensions placed correctly"
 
-  # ── PR guard: build artifacts must be CUDA-major aware ──
+  # ── Nightly guard: build artifacts must be CUDA-major aware ──
   #
   # Neither Cython nor setuptools tracks the CUDA major in its own up-to-date
   # check: Cython does not hash `compile_time_env`, and an editable install's
@@ -125,7 +128,7 @@ jobs:
   # environment at all, for reasons unrelated to stale artifacts.
   build-identity-roundtrip:
     name: "cu13 -> cu12 -> cu13 round trip (linux-64, CPU)"
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
