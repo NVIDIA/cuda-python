@@ -11,8 +11,8 @@ import re
 _DIGIT_RUN = re.compile(r"(\d+)")
 
 
-def natural_path_sort_key(path: str) -> tuple[tuple[int, int, str], ...]:
-    """Return a key that compares numeric path components by value."""
+def numeric_aware_path_sort_key(path: str) -> tuple[tuple[int, int, str], ...]:
+    """Return a key that compares embedded digit runs by numeric value."""
     key: list[tuple[int, int, str]] = []
     for part in _DIGIT_RUN.split(os.path.normcase(path)):
         if part.isdigit():

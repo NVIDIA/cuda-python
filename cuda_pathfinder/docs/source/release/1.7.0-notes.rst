@@ -53,9 +53,9 @@ Bugfixes
   (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
 
 * Continue through every configured dynamic-library directory when an earlier
-  directory exists but does not contain the requested library. Use natural
-  version ordering for versioned installation roots and Windows fallback DLL
-  matches so, for example, ``v9.10`` is preferred over ``v9.9``.
+  directory exists but does not contain the requested library. Use
+  numeric-aware ordering for versioned installation roots and Windows fallback
+  DLL matches so, for example, ``v9.10`` is preferred over ``v9.9``.
   (`PR #2680 <https://github.com/NVIDIA/cuda-python/pull/2680>`_)
 
 Internal maintenance

@@ -20,7 +20,7 @@ from typing import Protocol, cast
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dll_file
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
-from cuda.pathfinder._utils.path_sort import natural_path_sort_key
+from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
 
@@ -86,7 +86,7 @@ def _find_descriptor_dll_under_dir(
 
     for dll_glob in desc.windows_dll_fallback_globs:
         file_wild = os.path.join(dirpath, dll_glob)
-        for path in sorted(glob.glob(file_wild), key=natural_path_sort_key, reverse=True):
+        for path in sorted(glob.glob(file_wild), key=numeric_aware_path_sort_key, reverse=True):
             if candidate_is_usable(path):
                 return path
     return None

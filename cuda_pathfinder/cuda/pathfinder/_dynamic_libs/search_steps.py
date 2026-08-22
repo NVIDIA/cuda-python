@@ -29,7 +29,7 @@ from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatform
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
-from cuda.pathfinder._utils.path_sort import natural_path_sort_key
+from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
 # ---------------------------------------------------------------------------
 # Data types
@@ -246,7 +246,7 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
 def find_in_program_files_roots(ctx: SearchContext) -> FindResult | None:
     """Search descriptor-configured installation roots under Program Files."""
     for root_glob in ctx.platform.program_files_root_globs(ctx.desc):
-        for root in sorted(glob.glob(root_glob), key=natural_path_sort_key, reverse=True):
+        for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True):
             if not os.path.isdir(root):
                 continue
             result = _find_under_anchor_root(ctx, os.path.normpath(root), "ProgramFiles")

@@ -23,7 +23,7 @@ from cuda.pathfinder._headers.header_descriptor import (
 from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
-from cuda.pathfinder._utils.path_sort import natural_path_sort_key
+from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
 if TYPE_CHECKING:
     from cuda.pathfinder._headers.header_descriptor import HeaderDescriptor
@@ -151,7 +151,7 @@ def find_via_ctk_root_canary(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
 def find_in_system_install_dirs(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Search system install directories (glob patterns)."""
     for pattern in system_install_dir_patterns(desc):
-        for hdr_dir in sorted(glob.glob(pattern), key=natural_path_sort_key, reverse=True):
+        for hdr_dir in sorted(glob.glob(pattern), key=numeric_aware_path_sort_key, reverse=True):
             if _joined_isfile(hdr_dir, desc.header_basename):
                 return LocatedHeaderDir(abs_path=hdr_dir, found_via="supported_install_dir")
     return None
