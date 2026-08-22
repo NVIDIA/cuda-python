@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a36c7e54cf29166832dd9aebc1fa71cc3649498794a2846e707396419caebe10
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=81a8413522bab04b3eb89373f90a9879758fdeeeb8141425dc27c4504df84b78
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -657,6 +657,8 @@ cpdef tuple version():
 cpdef int get_num_supported_archs() except? -1:
     """nvrtcGetNumSupportedArchs sets the output parameter ``num_archs`` with the number of architectures supported by NVRTC. This can then be used to pass an array to ``nvrtcGetSupportedArchs`` to get the supported architectures.
 
+    see ``nvrtcGetSupportedArchs``.
+
     Returns:
         int: number of supported architectures.
 
@@ -672,6 +674,8 @@ cpdef int get_num_supported_archs() except? -1:
 cpdef object get_supported_archs():
     """nvrtcGetSupportedArchs populates the array passed via the output parameter ``supported_archs`` with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using ``nvrtcGetNumSupportedArchs``.
 
+    see ``nvrtcGetNumSupportedArchs``.
+
     Returns:
         int: sorted array of supported architectures.
 
@@ -681,13 +685,19 @@ cpdef object get_supported_archs():
     with nogil:
         __status__ = nvrtcGetNumSupportedArchs(&numArchs)
     check_status(__status__)
+    cdef _cyb_view.array supported_archs_alloc
+    cdef int *supported_archs_ptr
     if numArchs == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(int), format="i", mode="c")[:0]
-    cdef _cyb_view.array supported_archs = _cyb_view.array(shape=(numArchs,), itemsize=sizeof(int), format="i", mode="c")
-    cdef int *supported_archs_ptr = <int *>(supported_archs.data)
-    with nogil:
-        __status__ = nvrtcGetSupportedArchs(supported_archs_ptr)
-    check_status(__status__)
+        supported_archs_alloc = _cyb_view.array(shape=(1,), itemsize=sizeof(int), format="i", mode="c")
+        supported_archs = supported_archs_alloc[:0]
+    else:
+        supported_archs_alloc = _cyb_view.array(shape=(numArchs,), itemsize=sizeof(int), format="i", mode="c")
+        supported_archs = supported_archs_alloc
+    supported_archs_ptr = <int *>(supported_archs_alloc.data)
+    if numArchs != 0:
+        with nogil:
+            __status__ = nvrtcGetSupportedArchs(supported_archs_ptr)
+        check_status(__status__)
     return supported_archs
 
 
@@ -739,13 +749,12 @@ cpdef bytes get_ptx(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetPTXSize(<Program>prog, &ptxSizeRet)
     check_status(__status__)
-    if ptxSizeRet == 0:
-        return b""
     cdef bytes _ptx_ = bytes(ptxSizeRet)
     cdef char* ptx = _ptx_
-    with nogil:
-        __status__ = nvrtcGetPTX(<Program>prog, ptx)
-    check_status(__status__)
+    if ptxSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetPTX(<Program>prog, ptx)
+        check_status(__status__)
     return _ptx_
 
 
@@ -782,13 +791,12 @@ cpdef bytes get_cubin(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetCUBINSize(<Program>prog, &cubinSizeRet)
     check_status(__status__)
-    if cubinSizeRet == 0:
-        return b""
     cdef bytes _cubin_ = bytes(cubinSizeRet)
     cdef char* cubin = _cubin_
-    with nogil:
-        __status__ = nvrtcGetCUBIN(<Program>prog, cubin)
-    check_status(__status__)
+    if cubinSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetCUBIN(<Program>prog, cubin)
+        check_status(__status__)
     return _cubin_
 
 
@@ -825,13 +833,12 @@ cpdef bytes get_ltoir(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetLTOIRSize(<Program>prog, &LTOIRSizeRet)
     check_status(__status__)
-    if LTOIRSizeRet == 0:
-        return b""
     cdef bytes _ltoir_ = bytes(LTOIRSizeRet)
     cdef char* ltoir = _ltoir_
-    with nogil:
-        __status__ = nvrtcGetLTOIR(<Program>prog, ltoir)
-    check_status(__status__)
+    if LTOIRSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetLTOIR(<Program>prog, ltoir)
+        check_status(__status__)
     return _ltoir_
 
 
@@ -868,18 +875,20 @@ cpdef bytes get_optix_ir(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetOptiXIRSize(<Program>prog, &optixirSizeRet)
     check_status(__status__)
-    if optixirSizeRet == 0:
-        return b""
     cdef bytes _optixir_ = bytes(optixirSizeRet)
     cdef char* optixir = _optixir_
-    with nogil:
-        __status__ = nvrtcGetOptiXIR(<Program>prog, optixir)
-    check_status(__status__)
+    if optixirSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetOptiXIR(<Program>prog, optixir)
+        check_status(__status__)
     return _optixir_
 
 
 cpdef size_t get_program_log_size(intptr_t prog) except? 0:
     """nvrtcGetProgramLogSize sets ``log_size_ret`` with the size of the log generated by the previous compilation of ``prog`` (including the trailing ``NULL``).
+
+    Note that compilation log may be generated with warnings and informative
+    messages, even when the compilation of ``prog`` succeeds.
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -912,18 +921,20 @@ cpdef bytes get_program_log(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetProgramLogSize(<Program>prog, &logSizeRet)
     check_status(__status__)
-    if logSizeRet == 0:
-        return b""
     cdef bytes _log_ = bytes(logSizeRet)
     cdef char* log = _log_
-    with nogil:
-        __status__ = nvrtcGetProgramLog(<Program>prog, log)
-    check_status(__status__)
+    if logSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetProgramLog(<Program>prog, log)
+        check_status(__status__)
     return _log_
 
 
 cpdef add_name_expression(intptr_t prog, name_expression):
     """nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.
+
+    The identical name expression string must be provided on a subsequent call
+    to nvrtcGetLoweredName to extract the lowered name.
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -961,6 +972,10 @@ cpdef size_t get_pch_heap_size() except? 0:
 cpdef set_pch_heap_size(size_t size):
     """set the size of the PCH Heap.
 
+    The requested size may be rounded up to a platform dependent alignment
+    (e.g. page size). If the PCH Heap has already been allocated, the heap
+    memory will be freed and a new PCH Heap will be allocated.
+
     Args:
         size (size_t): requested size of the PCH Heap, in bytes.
 
@@ -973,6 +988,20 @@ cpdef set_pch_heap_size(size_t size):
 
 cpdef int get_pch_create_status(intptr_t prog) except? -1:
     """returns the PCH creation status.
+
+    NVRTC_SUCCESS indicates that the PCH was successfully created.
+    NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation was
+    attempted, either because PCH functionality was not requested during the
+    preceding nvrtcCompileProgram call, or automatic PCH processing was
+    requested, and compiler chose not to create a PCH file.
+    NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
+    potentially have been created, but the compiler ran out space in the PCH
+    heap. In this scenario, the :func:`get_pch_heap_size_required` can be used
+    to query the required heap size, the heap can be reallocated for this size
+    with :func:`set_pch_heap_size` and PCH creation may be reattempted again
+    invoking :func:`compile_program` with a new NVRTC program instance.
+    NVRTC_ERROR_PCH_CREATE indicates that an error condition prevented the PCH
+    file from being created.
 
     Args:
         prog (intptr_t): CUDA Runtime Compilation program.
@@ -1037,13 +1066,12 @@ cpdef bytes get_tile_ir(intptr_t prog):
     with nogil:
         __status__ = nvrtcGetTileIRSize(<Program>prog, &TileIRSizeRet)
     check_status(__status__)
-    if TileIRSizeRet == 0:
-        return b""
     cdef bytes _tile_ir_ = bytes(TileIRSizeRet)
     cdef char* tile_ir = _tile_ir_
-    with nogil:
-        __status__ = nvrtcGetTileIR(<Program>prog, tile_ir)
-    check_status(__status__)
+    if TileIRSizeRet != 0:
+        with nogil:
+            __status__ = nvrtcGetTileIR(<Program>prog, tile_ir)
+        check_status(__status__)
     return _tile_ir_
 
 
