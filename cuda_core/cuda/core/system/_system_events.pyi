@@ -82,6 +82,12 @@ class RegisteredSystemEvents:
             If the GPU has fallen off the bus or is otherwise inaccessible.
         """
 
+def _pci_bus_id_from_gpu_id(gpu_id: int) -> str:
+    """
+    Decode an NVML System Event packed ``gpu_id`` into an NVML-style PCI bus ID
+    string.
+    """
+
 def register_events(events: SystemEventType | str | list[SystemEventType | str]) -> RegisteredSystemEvents:
     """
     Starts recording of events on test system.
