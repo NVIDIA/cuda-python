@@ -20,6 +20,19 @@ _NCU_TARGET_DIR_BY_ARCH = {
     "arm64": os.path.join("target", "windows-desktop-win10-t23x-a64"),
 }
 
+# The standalone Nsight GUI launchers live under the host directories, mirrored
+# from the CLI target directories above. The GUI executable names are nsys-ui
+# and ncu-ui (see issue #2654).
+_NSYS_UI_DIR_BY_ARCH = {
+    "x64": "host-windows-x64",
+    "arm64": "host-windows-armv8",
+}
+
+_NCU_UI_DIR_BY_ARCH = {
+    "x64": os.path.join("host", "windows-desktop-win7-x64"),
+    "arm64": os.path.join("host", "windows-desktop-win10-t23x-a64"),
+}
+
 
 def _installed_product_root(product: str) -> str | None:
     """Return the active Nsight product installation recorded by its MSI."""
@@ -72,3 +85,21 @@ def ncu_candidate_paths() -> Iterator[str]:
 
     target_dir = _NCU_TARGET_DIR_BY_ARCH[windows_machine_arch()]
     yield os.path.join(install_root, target_dir, "ncu.exe")
+
+
+def nsys_ui_candidate_paths() -> Iterator[str]:
+    install_root = _installed_product_root("Systems")
+    if install_root is None:
+        return
+
+    host_dir = _NSYS_UI_DIR_BY_ARCH[windows_machine_arch()]
+    yield os.path.join(install_root, host_dir, "nsys-ui.exe")
+
+
+def ncu_ui_candidate_paths() -> Iterator[str]:
+    install_root = _installed_product_root("Compute")
+    if install_root is None:
+        return
+
+    host_dir = _NCU_UI_DIR_BY_ARCH[windows_machine_arch()]
+    yield os.path.join(install_root, host_dir, "ncu-ui.exe")

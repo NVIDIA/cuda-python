@@ -33,6 +33,16 @@ def test_supported_binaries_consistency():
     assert set(SITE_PACKAGES_BINDIRS).issubset(SUPPORTED_BINARIES_ALL)
 
 
+def test_nsight_gui_utility_names_are_supported():
+    # Current standalone Nsight releases ship the GUI as nsys-ui/ncu-ui, so
+    # find_nvidia_binary_utility must not raise UnsupportedBinaryError for them.
+    assert "nsys-ui" in SUPPORTED_BINARIES
+    assert "ncu-ui" in SUPPORTED_BINARIES
+    # The legacy CUDA-toolkit-bundled names remain accepted for compatibility.
+    assert "nsight-sys" in SUPPORTED_BINARIES
+    assert "nsight-compute" in SUPPORTED_BINARIES
+
+
 @pytest.fixture
 def clear_find_binary_cache():
     find_nvidia_binary_utility.cache_clear()
@@ -188,7 +198,9 @@ def test_find_compute_sanitizer_uses_canary_ctk_root(monkeypatch, mocker):
     ("utility_name", "candidate_names"),
     (
         ("nsys", ("nsys.exe",)),
+        ("nsys-ui", ("nsys-ui.exe",)),
         ("ncu", ("ncu.bat", "ncu.exe")),
+        ("ncu-ui", ("ncu-ui.exe",)),
     ),
 )
 @pytest.mark.usefixtures("clear_find_binary_cache")
@@ -202,7 +214,10 @@ def test_find_binary_windows_nsight_conda_precedes_registry(monkeypatch, mocker,
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
     mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
-    candidate_paths = mocker.patch.object(binary_finder_module.windows_nsight, f"{utility_name}_candidate_paths")
+    # Hyphenated utility names map to underscored candidate-path helpers
+    # (e.g. ``nsys-ui`` -> ``nsys_ui_candidate_paths``).
+    helper_name = f"{utility_name.replace('-', '_')}_candidate_paths"
+    candidate_paths = mocker.patch.object(binary_finder_module.windows_nsight, helper_name)
     get_cuda_path = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home")
     canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
     checked = _patch_exec_probe(mocker, existing=[expected])
@@ -223,6 +238,20 @@ def test_find_binary_windows_nsight_conda_precedes_registry(monkeypatch, mocker,
         ("nsys", "Systems", "x64", os.path.join("target-windows-x64", "nsys.exe"), ("nsys.exe",)),
         ("nsys", "Systems", "arm64", os.path.join("target-windows-armv8", "nsys.exe"), ("nsys.exe",)),
         (
+            "nsys-ui",
+            "Systems",
+            "x64",
+            os.path.join("host-windows-x64", "nsys-ui.exe"),
+            ("nsys-ui.exe",),
+        ),
+        (
+            "nsys-ui",
+            "Systems",
+            "arm64",
+            os.path.join("host-windows-armv8", "nsys-ui.exe"),
+            ("nsys-ui.exe",),
+        ),
+        (
             "ncu",
             "Compute",
             "x64",
@@ -235,6 +264,20 @@ def test_find_binary_windows_nsight_conda_precedes_registry(monkeypatch, mocker,
             "arm64",
             os.path.join("target", "windows-desktop-win10-t23x-a64", "ncu.exe"),
             ("ncu.bat", "ncu.exe"),
+        ),
+        (
+            "ncu-ui",
+            "Compute",
+            "x64",
+            os.path.join("host", "windows-desktop-win7-x64", "ncu-ui.exe"),
+            ("ncu-ui.exe",),
+        ),
+        (
+            "ncu-ui",
+            "Compute",
+            "arm64",
+            os.path.join("host", "windows-desktop-win10-t23x-a64", "ncu-ui.exe"),
+            ("ncu-ui.exe",),
         ),
     ),
 )
@@ -299,7 +342,15 @@ def test_find_binary_windows_ncu_launcher_hit_does_not_resolve_machine_arch(monk
     canary.assert_not_called()
 
 
-@pytest.mark.parametrize(("utility_name", "product"), (("nsys", "Systems"), ("ncu", "Compute")))
+@pytest.mark.parametrize(
+    ("utility_name", "product"),
+    (
+        ("nsys", "Systems"),
+        ("nsys-ui", "Systems"),
+        ("ncu", "Compute"),
+        ("ncu-ui", "Compute"),
+    ),
+)
 @pytest.mark.usefixtures("clear_find_binary_cache")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_find_binary_windows_nsight_registry_miss_is_terminal(monkeypatch, mocker, utility_name, product):
@@ -349,6 +400,37 @@ def test_find_windows_nsight_legacy_names_remain_literal_in_early_search(monkeyp
     get_cuda_path.assert_not_called()
     nsys_candidates.assert_not_called()
     ncu_candidates.assert_not_called()
+
+
+@pytest.mark.parametrize("utility_name", ("nsys-ui", "ncu-ui"))
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="deepseek-v4-flash")
+def test_find_windows_nsight_gui_names_remain_literal_in_early_search(monkeypatch, mocker, utility_name):
+    site_key = os.path.join("nvidia", utility_name, "bin")
+    site_dir = os.path.join(os.sep, "site-packages", utility_name, "bin")
+    conda_prefix = os.path.join(os.sep, "conda")
+    conda_bin = os.path.join(conda_prefix, "Library", "bin")
+    expected = os.path.join(conda_bin, f"{utility_name}.exe")
+
+    mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
+    mocker.patch.object(
+        binary_finder_module.supported_nvidia_binaries,
+        "SITE_PACKAGES_BINDIRS",
+        {utility_name: (site_key,)},
+    )
+    find_sub_dirs = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
+    monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
+    get_cuda_path = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home")
+    nsys_ui_candidates = mocker.patch.object(binary_finder_module.windows_nsight, "nsys_ui_candidate_paths")
+    ncu_ui_candidates = mocker.patch.object(binary_finder_module.windows_nsight, "ncu_ui_candidate_paths")
+    checked = _patch_exec_probe(mocker, existing=[expected])
+
+    assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
+    assert checked == [os.path.join(site_dir, f"{utility_name}.exe"), expected]
+    find_sub_dirs.assert_called_once_with(site_key.split(os.sep))
+    get_cuda_path.assert_not_called()
+    nsys_ui_candidates.assert_not_called()
+    ncu_ui_candidates.assert_not_called()
 
 
 @pytest.mark.parametrize("utility_name", ("nsight-sys", "nsight-compute"))
