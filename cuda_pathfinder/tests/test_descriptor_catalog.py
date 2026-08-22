@@ -125,7 +125,7 @@ def test_windows_search_dirs_do_not_include_unsupported_arches(spec: DescriptorS
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 @pytest.mark.agent_authored(model="gpt-5")
-def test_install_root_env_metadata_is_complete(spec: DescriptorSpec):
+def test_windows_install_root_env_metadata_is_complete(spec: DescriptorSpec):
     has_env_vars = bool(spec.install_root_env_vars_windows)
     has_rel_dirs = any(spec.install_root_env_rel_dirs_windows.for_arch(arch) for arch in _VALID_WINDOWS_ARCHES)
 
@@ -135,6 +135,15 @@ def test_install_root_env_metadata_is_complete(spec: DescriptorSpec):
             assert spec.install_root_env_rel_dirs_windows.for_arch(arch), (
                 f"{spec.name} exposes installation-root env vars without {arch} relative dirs"
             )
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_install_root_env_metadata_is_complete(spec: DescriptorSpec):
+    has_env_vars = bool(spec.install_root_env_vars_linux)
+    has_rel_dirs = bool(spec.install_root_env_rel_dirs_linux)
+
+    assert has_env_vars == has_rel_dirs, f"{spec.name} must define both Linux installation-root env vars and dirs"
 
 
 @pytest.mark.agent_authored(model="gpt-5")
@@ -160,6 +169,8 @@ def test_cudnn_metadata_matches_supported_layouts():
     assert spec.anchor_rel_dirs_windows == WindowsSearchDirs.x64_only("bin/x64", "bin")
     assert spec.dependencies == ("cublasLt",)
     assert spec.optional_dependencies == ("nvrtc",)
+    assert spec.install_root_env_vars_linux == ("CUDNN_PATH",)
+    assert spec.install_root_env_rel_dirs_linux == ("lib", "lib64")
     assert spec.install_root_env_vars_windows == ("CUDNN_PATH",)
     assert spec.install_root_env_rel_dirs_windows == WindowsSearchDirs(
         x64=("bin/x64", "bin"),
@@ -167,6 +178,16 @@ def test_cudnn_metadata_matches_supported_layouts():
     )
     assert spec.program_files_root_globs_windows == WindowsSearchDirs.x64_only("NVIDIA/CUDNN/v9.*")
     assert spec.requires_add_dll_directory
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nccl_metadata_matches_supported_linux_install_layouts():
+    spec = _CATALOG_BY_NAME["nccl"]
+    assert spec.packaged_with == "other"
+    assert spec.linux_sonames == ("libnccl.so.2",)
+    assert spec.site_packages_linux == ("nvidia/nccl/lib",)
+    assert spec.install_root_env_vars_linux == ("NCCL_HOME",)
+    assert spec.install_root_env_rel_dirs_linux == ("lib", "lib64", "build/lib")
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)

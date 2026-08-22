@@ -704,6 +704,53 @@ class TestFindInCudaHome:
 
 
 # ---------------------------------------------------------------------------
+# Descriptor-specific Linux install roots
+# ---------------------------------------------------------------------------
+
+
+class TestLinuxInstallRoots:
+    @pytest.mark.parametrize(
+        ("libname", "env_var", "rel_dir", "soname"),
+        (
+            ("cudnn", "CUDNN_PATH", "lib", "libcudnn.so.9"),
+            ("cudnn", "CUDNN_PATH", "lib64", "libcudnn.so.9"),
+            ("nccl", "NCCL_HOME", "lib", "libnccl.so.2"),
+            ("nccl", "NCCL_HOME", "lib64", "libnccl.so.2"),
+            ("nccl", "NCCL_HOME", "build/lib", "libnccl.so.2"),
+        ),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_product_root_finds_supported_layouts(self, mocker, tmp_path, libname, env_var, rel_dir, soname):
+        root = tmp_path / libname
+        lib_dir = root / rel_dir
+        lib_dir.mkdir(parents=True)
+        library = lib_dir / soname
+        library.touch()
+        env = {"CUDNN_PATH": "", "NCCL_HOME": ""}
+        env[env_var] = str(root)
+        mocker.patch.dict(os.environ, env)
+
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS[libname], platform=LinuxSearchPlatform()))
+
+        assert result == FindResult(str(library), env_var)
+
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_nccl_home_prefers_canonical_installed_layout(self, mocker, tmp_path):
+        libraries = []
+        for rel_dir in ("lib", "lib64", "build/lib"):
+            lib_dir = tmp_path / rel_dir
+            lib_dir.mkdir(parents=True)
+            library = lib_dir / "libnccl.so.2"
+            library.touch()
+            libraries.append(library)
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": "", "NCCL_HOME": str(tmp_path)})
+
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS["nccl"], platform=LinuxSearchPlatform()))
+
+        assert result == FindResult(str(libraries[0]), "NCCL_HOME")
+
+
+# ---------------------------------------------------------------------------
 # Descriptor-specific Windows install roots
 # ---------------------------------------------------------------------------
 

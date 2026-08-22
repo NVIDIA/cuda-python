@@ -70,6 +70,8 @@ class DescriptorSpec:
     optional_dependencies: tuple[str, ...] = ()
     anchor_rel_dirs_linux: tuple[str, ...] = ("lib64", "lib")
     anchor_rel_dirs_windows: WindowsSearchDirs = DEFAULT_WINDOWS_CTK_ANCHOR_DIRS
+    install_root_env_vars_linux: tuple[str, ...] = ()
+    install_root_env_rel_dirs_linux: tuple[str, ...] = ()
     install_root_env_vars_windows: tuple[str, ...] = ()
     install_root_env_rel_dirs_windows: WindowsSearchDirs = WindowsSearchDirs()
     program_files_root_globs_windows: WindowsSearchDirs = WindowsSearchDirs()
@@ -428,6 +430,8 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_windows=WindowsSearchDirs.x64_only("nvidia/cudnn/bin"),
         dependencies=("cublasLt",),
         optional_dependencies=("nvrtc",),
+        install_root_env_vars_linux=("CUDNN_PATH",),
+        install_root_env_rel_dirs_linux=("lib", "lib64"),
         # The ARM64 layout is verified only for the standalone archive rooted
         # at CUDNN_PATH, not for conda, CUDA_PATH, or Program Files installs.
         anchor_rel_dirs_windows=WindowsSearchDirs.x64_only("bin/x64", "bin"),
@@ -558,6 +562,8 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="other",
         linux_sonames=("libnccl.so.2",),
         site_packages_linux=("nvidia/nccl/lib",),
+        install_root_env_vars_linux=("NCCL_HOME",),
+        install_root_env_rel_dirs_linux=("lib", "lib64", "build/lib"),
     ),
     DescriptorSpec(
         name="nvpl_fftw",

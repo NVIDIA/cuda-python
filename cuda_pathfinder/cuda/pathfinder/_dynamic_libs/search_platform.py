@@ -161,11 +161,11 @@ class LinuxSearchPlatform:
     def anchor_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
         return cast(tuple[str, ...], desc.anchor_rel_dirs_linux)
 
-    def install_root_env_vars(self, _desc: LibDescriptor) -> tuple[str, ...]:
-        return ()
+    def install_root_env_vars(self, desc: LibDescriptor) -> tuple[str, ...]:
+        return cast(tuple[str, ...], desc.install_root_env_vars_linux)
 
-    def install_root_env_rel_dirs(self, _desc: LibDescriptor) -> tuple[str, ...]:
-        return ()
+    def install_root_env_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
+        return cast(tuple[str, ...], desc.install_root_env_rel_dirs_linux)
 
     def program_files_root_globs(self, _desc: LibDescriptor) -> tuple[str, ...]:
         return ()
