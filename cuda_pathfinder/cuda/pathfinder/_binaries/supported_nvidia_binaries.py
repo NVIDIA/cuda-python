@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-import os
 
 # Site-packages bin directories where binaries might be found
-# Based on NVIDIA wheel layouts (same for Linux and Windows)
-_CUDA_NVCC_BIN = os.path.join("nvidia", "cuda_nvcc", "bin")
-_CUDA13_BIN = os.path.join("nvidia", "cu13", "bin")
-_NSIGHT_SYSTEMS_BIN = os.path.join("nvidia", "nsight_systems", "bin")
-_NSIGHT_COMPUTE_BIN = os.path.join("nvidia", "nsight_compute", "bin")
+# Based on NVIDIA wheel layouts (same for Linux and Windows).
+# Path components, because that is what find_sub_dirs_all_sitepackages takes.
+_CUDA_NVCC_BIN = ("nvidia", "cuda_nvcc", "bin")
+_CUDA13_BIN = ("nvidia", "cu13", "bin")
+_NSIGHT_SYSTEMS_BIN = ("nvidia", "nsight_systems", "bin")
+_NSIGHT_COMPUTE_BIN = ("nvidia", "nsight_compute", "bin")
 
 # Common CUDA binary utilities available on both Linux and Windows
 SITE_PACKAGES_BINDIRS = {
