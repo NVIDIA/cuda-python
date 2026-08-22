@@ -12,6 +12,31 @@ from cuda.pathfinder._dynamic_libs import load_dl_windows
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_already_loaded_library_checks_known_dlls_newest_first(mocker):
+    desc = LIB_DESCRIPTORS["cublasLt"]
+    oldest_dll = desc.windows_dlls[0]
+    newest_dll = desc.windows_dlls[-1]
+    queried_dlls: list[str] = []
+    handle = 0xBEEF
+
+    def get_module_handle(dll_name):
+        queried_dlls.append(dll_name)
+        return handle if dll_name == oldest_dll else 0
+
+    mocker.patch.object(load_dl_windows.kernel32, "GetModuleHandleW", side_effect=get_module_handle)
+    mocker.patch.object(
+        load_dl_windows,
+        "abs_path_for_dynamic_library",
+        return_value=rf"C:\CUDA\bin\{oldest_dll}",
+    )
+
+    loaded = load_dl_windows.check_if_already_loaded_from_elsewhere(desc)
+
+    assert loaded is not None
+    assert queried_dlls == [newest_dll, oldest_dll]
+
+
 @pytest.mark.parametrize(
     ("libname", "register_directory"),
     (("cudnn", True), ("cublasLt", False)),
