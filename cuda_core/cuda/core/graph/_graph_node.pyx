@@ -21,6 +21,7 @@ from cuda.core._event cimport Event
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._memory._buffer cimport Buffer
+from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
 from cuda.core.graph._subclasses cimport (
@@ -827,7 +828,6 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
         num_deps = 1
 
     cdef vector[cydriver.CUmemAccessDesc] access_descs
-    cdef cydriver.CUmemAccessDesc access_desc
     cdef int peer_id
     cdef list peer_ids = []
 
@@ -835,10 +835,11 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
         for peer_dev in peer_access:
             peer_id = getattr(peer_dev, 'device_id', peer_dev)
             peer_ids.append(peer_id)
-            access_desc.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-            access_desc.location.id = peer_id
-            access_desc.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-            access_descs.push_back(access_desc)
+            access_descs.push_back(cydriver.CUmemAccessDesc_st(
+                cumemlocation_from_id(
+                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, peer_id),
+                cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE,
+            ))
 
     cdef str memory_type_str = "device" if memory_type is None else str(memory_type)
 

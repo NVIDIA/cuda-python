@@ -168,6 +168,8 @@ repos:
       - id: cython-lint
         args: [--no-pycodestyle]
         exclude: ^cuda_bindings/
+        additional_dependencies:
+          - Cython==3.2.9
 
 
 default_language_version:

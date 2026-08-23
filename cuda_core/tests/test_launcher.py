@@ -21,6 +21,7 @@ from cuda.core import (
     LegacyPinnedMemoryResource,
     Program,
     ProgramOptions,
+    StreamOptions,
     launch,
 )
 from cuda.core._memory._legacy import _SynchronousMemoryResource
@@ -217,7 +218,7 @@ def test_pdl_primary_secondary_overlap_same_stream():
     if dev.compute_capability < (9, 0):
         pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
     dev.set_current()
-    stream = dev.create_stream(options={"nonblocking": True})
+    stream = dev.create_stream(options=StreamOptions(nonblocking=True))
 
     # clock64 budgets are in GPU cycles; keep the post-trigger window long enough
     # for the secondary to boot, but short enough for a unit test.
@@ -482,7 +483,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
 def test_cooperative_launch():
     dev = Device()
     dev.set_current()
-    s = dev.create_stream(options={"nonblocking": True})
+    s = dev.create_stream(options=StreamOptions(nonblocking=True))
 
     # CUDA kernel templated on type T
     code = r"""

@@ -16,7 +16,7 @@ from helpers.misc import try_create_condition
 from packaging.version import Version
 
 import cuda.bindings
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, launch
+from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, ProgramOptions, StreamOptions, launch
 from cuda.core.graph import GraphBuilder, GraphDefinition
 from cuda.core.graph._graph_builder import (
     _capture_callback_with_tail_failure_for_testing,
@@ -825,7 +825,7 @@ def test_pdl_same_stream_primary_secondary_overlap_via_graph(init_cuda):
     primary = module.get_kernel("primary_kernel")
     secondary = module.get_kernel("secondary_kernel")
 
-    stream = dev.create_stream(options={"nonblocking": True})
+    stream = dev.create_stream(options=StreamOptions(nonblocking=True))
     mr = LegacyPinnedMemoryResource()
     secondary_started = np.from_dlpack(mr.allocate(4)).view(np.int32)
     overlapped = np.from_dlpack(mr.allocate(4)).view(np.int32)

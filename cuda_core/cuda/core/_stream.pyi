@@ -63,7 +63,7 @@ class Stream:
     def _per_thread_default(cls) -> Stream:
         """Return the per-thread default stream (supports subclassing)."""
     @classmethod
-    def _init(cls, obj: IsStreamType | None=None, options: object | None=None, device_id: int | None=None, ctx: Context | None=None) -> Stream: ...
+    def _init(cls, obj: IsStreamType | None=None, options: StreamOptions | None=None, device_id: int | None=None, ctx: Context | None=None) -> Stream: ...
     def close(self):
         """Destroy the stream.
 

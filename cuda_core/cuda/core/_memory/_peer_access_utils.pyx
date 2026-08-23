@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
+from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
@@ -113,9 +114,8 @@ cdef inline tuple _query_peer_access_ids(DeviceMemoryResource mr):
 cdef inline bint _peer_access_includes(DeviceMemoryResource mr, int dev_id):
     """Return True if peer access from ``dev_id`` is currently granted."""
     cdef cydriver.CUmemAccess_flags flags
-    cdef cydriver.CUmemLocation location
-    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    location.id = dev_id
+    cdef cydriver.CUmemLocation location = cumemlocation_from_id(
+        cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev_id)
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(mr._h_pool), &location))
     return flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE

@@ -13,8 +13,10 @@ IF CUDA_CORE_BUILD_MAJOR >= 13:
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_coerce_batch
 
-# to_cumemlocation is referenced only from CUDA 13 branches. cython-lint does
-# not evaluate compile-time IF blocks, so it needs a pragma to be seen as used.
+# to_cumemlocation / cumemlocation_from_id are referenced only from CUDA 13
+# branches. cython-lint does not evaluate compile-time IF blocks, so they
+# need a pragma to be seen as used.
+from cuda.core._memory._location cimport cumemlocation_from_id  # no-cython-lint
 from cuda.core._memory._location cimport to_cumemlocation  # no-cython-lint
 from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
@@ -193,8 +195,8 @@ cdef void _do_single_advise(Buffer buf, object advice_value, object loc, bint al
             # Driver ignores location for read_mostly / unset_preferred_location
             # advice values but still validates the CUmemLocation; pass a
             # host placeholder.
-            cu_loc.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-            cu_loc.id = 0
+            cu_loc = cumemlocation_from_id(
+                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST, 0)
         else:
             cu_loc = to_cumemlocation(loc.kind, loc.id)
         with nogil:
