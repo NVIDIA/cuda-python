@@ -98,22 +98,24 @@
   "~": "tests/test_program_cache.py::test_make_program_cache_key_fails_closed_on_probe_failure[linker]|run",
   "ab": "tests/test_program_cache.py::test_make_program_cache_key_ignores_invalid_name_expressions_for_non_nvrtc[ptx]|run",
   "bb": "tests/test_program_cache.py::test_make_program_cache_key_ignores_name_expressions_for_non_nvrtc[ptx]|run",
-  "cb": "tests/test_program_cache.py::test_make_program_cache_key_is_deterministic[ptx-.version 7.0]|run",
-  "db": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[PTX]|run",
-  "eb": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[Ptx]|run",
-  "fb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_accepts_driver_linker_unsupported_with_nvjitlink|run",
-  "gb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_driver_ignored_fields_still_matter_under_nvjitlink|run",
-  "hb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ignores_nvrtc_only_options|run",
-  "ib": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[empty_list_vs_empty_tuple]|run",
-  "jb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[list_vs_tuple]|run",
-  "kb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[none_vs_empty_list]|run",
-  "lb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[none_vs_empty_tuple]|run",
-  "mb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[str_vs_list]|run",
-  "nb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[str_vs_tuple]|run",
-  "ob": "tests/test_program_cache.py::test_make_program_cache_key_survives_cuda_core_version_change[linker]|run",
-  "pb": "tests/test_program_cache.py::test_make_program_cache_key_use_libdevice_ignored_for_non_nvvm[ptx]|run",
-  "qb": "tests/test_linker.py::test_linker_get_error_log|run",
-  "rb": "tests/test_linker.py::test_linker_init_invalid_arch|run"
+  "cb": "tests/test_program_cache.py::test_make_program_cache_key_ignores_numba_debug_for_ptx[False]|run",
+  "db": "tests/test_program_cache.py::test_make_program_cache_key_ignores_numba_debug_for_ptx[True]|run",
+  "eb": "tests/test_program_cache.py::test_make_program_cache_key_is_deterministic[ptx-.version 7.0]|run",
+  "fb": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[PTX]|run",
+  "gb": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[Ptx]|run",
+  "hb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_accepts_driver_linker_unsupported_with_nvjitlink|run",
+  "ib": "tests/test_program_cache.py::test_make_program_cache_key_ptx_driver_ignored_fields_still_matter_under_nvjitlink|run",
+  "jb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ignores_nvrtc_only_options|run",
+  "kb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[empty_list_vs_empty_tuple]|run",
+  "lb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[list_vs_tuple]|run",
+  "mb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[none_vs_empty_list]|run",
+  "nb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[none_vs_empty_tuple]|run",
+  "ob": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[str_vs_list]|run",
+  "pb": "tests/test_program_cache.py::test_make_program_cache_key_ptx_ptxas_options_canonicalized[str_vs_tuple]|run",
+  "qb": "tests/test_program_cache.py::test_make_program_cache_key_survives_cuda_core_version_change[linker]|run",
+  "rb": "tests/test_program_cache.py::test_make_program_cache_key_use_libdevice_ignored_for_non_nvvm[ptx]|run",
+  "sb": "tests/test_linker.py::test_linker_get_error_log|run",
+  "tb": "tests/test_linker.py::test_linker_init_invalid_arch|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -176,7 +178,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_nvml_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -305,10 +307,10 @@
     <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">class nvJitLinkError(Exception):</span>&nbsp;</span><span class="r"><label for="ctxs112" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    def __init__(self, status):</span>&nbsp;</span><span class="r"><label for="ctxs114" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">7 ctx</label></span><span class="ctxs">2a % ' qbrb( ) </span></p>
-    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        s = Result(status)</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">6 ctx</label></span><span class="ctxs">2% ' qbrb( ) </span></p>
-    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        cdef str err = f&quot;{s.name} ({s.value})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs117"><span class="r"><label for="ctxs117" class="ctx">6 ctx</label></span><span class="ctxs">2% ' qbrb( ) </span></p>
-    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        super(nvJitLinkError, self).__init__(err)</span>&nbsp;</span><input type="checkbox" id="ctxs118"><span class="r"><label for="ctxs118" class="ctx">6 ctx</label></span><span class="ctxs">2% ' qbrb( ) </span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">7 ctx</label></span><span class="ctxs">2a % ' sbtb( ) </span></p>
+    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        s = Result(status)</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">6 ctx</label></span><span class="ctxs">2% ' sbtb( ) </span></p>
+    <p class="run"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        cdef str err = f&quot;{s.name} ({s.value})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs117"><span class="r"><label for="ctxs117" class="ctx">6 ctx</label></span><span class="ctxs">2% ' sbtb( ) </span></p>
+    <p class="run"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        super(nvJitLinkError, self).__init__(err)</span>&nbsp;</span><input type="checkbox" id="ctxs118"><span class="r"><label for="ctxs118" class="ctx">6 ctx</label></span><span class="ctxs">2% ' sbtb( ) </span></p>
     <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    def __reduce__(self):</span>&nbsp;</span><span class="r"><label for="ctxs120" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        return (type(self), (self.status,))</span>&nbsp;</span><span class="r"></span></p>
@@ -316,10 +318,10 @@
     <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">@cython.profile(False)</span>&nbsp;</span><span class="r"><label for="ctxs124" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">cdef int check_status(int status) except 1 nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">105 ctx</label></span><span class="ctxs">2a P Q R S X Y Z 0 5 6 7 8 * + , - . H I J K b c d e f g h i j k l m n o p q % @ ' T U V W 1 2 3 4 9 ! # $ / : ; = ? L M N O r s t u v w x y z A B C D E F G ( [ ) ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpb</span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">107 ctx</label></span><span class="ctxs">2a P Q R S X Y Z 0 5 6 7 8 * + , - . H I J K b c d e f g h i j k l m n o p q % @ ' T U V W 1 2 3 4 9 ! # $ / : ; = ? L M N O r s t u v w x y z A B C D E F G ( [ ) ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrb</span></p>
     <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">4 ctx</label></span><span class="ctxs">1%'()</span></p>
     <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">            raise nvJitLinkError(status)</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">4 ctx</label></span><span class="ctxs">1%'()</span></p>
-    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">101 ctx</label></span><span class="ctxs">2a P Q R S X Y Z 0 5 6 7 8 * + , - . H I J K b c d e f g h i j k l m n o p q @ T U V W 1 2 3 4 9 ! # $ / : ; = ? L M N O r s t u v w x y z A B C D E F G [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpb</span></p>
+    <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs129"><span class="r"><label for="ctxs129" class="ctx">103 ctx</label></span><span class="ctxs">2a P Q R S X Y Z 0 5 6 7 8 * + , - . H I J K b c d e f g h i j k l m n o p q @ T U V W 1 2 3 4 9 ! # $ / : ; = ? L M N O r s t u v w x y z A B C D E F G [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrb</span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
@@ -567,10 +569,10 @@
     <p class="pln"><span class="n"><a id="t374" href="#t374">374</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t375" href="#t375">375</a></span><span class="t"><span class="txt">    cdef unsigned int major</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t376" href="#t376">376</a></span><span class="t"><span class="txt">    cdef unsigned int minor</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t377" href="#t377">377</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs377"><span class="r"><label for="ctxs377" class="ctx">27 ctx</label></span><span class="ctxs">2a @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpb</span></p>
-    <p class="run"><span class="n"><a id="t378" href="#t378">378</a></span><span class="t"><span class="txt">        __status__ = nvJitLinkVersion(&amp;major, &amp;minor)</span>&nbsp;</span><input type="checkbox" id="ctxs378"><span class="r"><label for="ctxs378" class="ctx">27 ctx</label></span><span class="ctxs">2a @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpb</span></p>
-    <p class="run"><span class="n"><a id="t379" href="#t379">379</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs379"><span class="r"><label for="ctxs379" class="ctx">27 ctx</label></span><span class="ctxs">2a @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpb</span></p>
-    <p class="run"><span class="n"><a id="t380" href="#t380">380</a></span><span class="t"><span class="txt">    return (major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs380"><span class="r"><label for="ctxs380" class="ctx">27 ctx</label></span><span class="ctxs">2a @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpb</span></p>
+    <p class="run"><span class="n"><a id="t377" href="#t377">377</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs377"><span class="r"><label for="ctxs377" class="ctx">29 ctx</label></span><span class="ctxs">2a @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrb</span></p>
+    <p class="run"><span class="n"><a id="t378" href="#t378">378</a></span><span class="t"><span class="txt">        __status__ = nvJitLinkVersion(&amp;major, &amp;minor)</span>&nbsp;</span><input type="checkbox" id="ctxs378"><span class="r"><label for="ctxs378" class="ctx">29 ctx</label></span><span class="ctxs">2a @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrb</span></p>
+    <p class="run"><span class="n"><a id="t379" href="#t379">379</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs379"><span class="r"><label for="ctxs379" class="ctx">29 ctx</label></span><span class="ctxs">2a @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrb</span></p>
+    <p class="run"><span class="n"><a id="t380" href="#t380">380</a></span><span class="t"><span class="txt">    return (major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs380"><span class="r"><label for="ctxs380" class="ctx">29 ctx</label></span><span class="ctxs">2a @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrb</span></p>
     <p class="pln"><span class="n"><a id="t381" href="#t381">381</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t382" href="#t382">382</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t383" href="#t383">383</a></span><span class="t"><span class="txt">cpdef size_t get_linked_ltoir_size(intptr_t handle) except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs383" class="ctx">(empty)</label></span></p>
@@ -614,7 +616,7 @@
             <a class="nav" href="z_bb8e88d71740c463_nvml_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
     </div>
 </footer>

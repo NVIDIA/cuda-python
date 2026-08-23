@@ -125,56 +125,59 @@
   "Ab": "tests/test_program.py::test_cpp_program_with_various_options[options37]|run",
   "Bb": "tests/test_program.py::test_nvrtc_compile_invalid_code|run",
   "Cb": "tests/test_program.py::test_nvrtc_compile_with_logs_capture|run",
-  "Db": "tests/test_program.py::test_program_compile_valid_target_type|run",
-  "Eb": "tests/test_program.py::test_ptx_program_extra_sources_unsupported|setup",
-  "Fb": "tests/test_program.py::test_ptx_program_with_various_options[options7]|setup",
-  "Gb": "tests/test_program_cache.py::test_cache_roundtrip_with_real_compilation|run",
-  "Hb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_list]|run",
-  "Ib": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_range]|run",
-  "Jb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_tuple]|run",
-  "Kb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_false]|run",
-  "Lb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[pre_include_empty_list]|run",
-  "Mb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[pre_include_false]|run",
-  "Nb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_external_content_with_extra_digest|run",
-  "Ob": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_with_dir_when_extra_digest_supplied|run",
-  "Pb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[bare_filename]|run",
-  "Qb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[default]|run",
-  "Rb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[empty]|run",
-  "Sb": "tests/test_program_cache.py::test_make_program_cache_key_changes_with_key_schema_version|run",
-  "Tb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[arch]|run",
-  "Ub": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[code]|run",
-  "Vb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[extra_digest_added]|run",
-  "Wb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[extra_digest_value]|run",
-  "Xb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[option]|run",
-  "Yb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[options.name]|run",
-  "Zb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[target_type]|run",
-  "0b": "tests/test_program_cache.py::test_make_program_cache_key_driver_probe_failure_does_not_perturb_non_linker[nvrtc]|run",
-  "1b": "tests/test_program_cache.py::test_make_program_cache_key_fails_closed_on_probe_failure[nvrtc]|run",
-  "2b": "tests/test_program_cache.py::test_make_program_cache_key_is_deterministic[c++-void k(){}]|run",
-  "3b": "tests/test_program_cache.py::test_make_program_cache_key_name_expressions_order_insensitive|run",
-  "4b": "tests/test_program_cache.py::test_make_program_cache_key_name_expressions_str_bytes_distinct|run",
-  "5b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[C++]|run",
-  "6b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[c++]|run",
-  "7b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[Cubin]|run",
-  "8b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[LTOIR]|run",
-  "9b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[PTX]|run",
-  "!b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[PTx]|run",
-  "#b": "tests/test_program_cache.py::test_make_program_cache_key_returns_bytes|run",
-  "$b": "tests/test_program_cache.py::test_make_program_cache_key_survives_cuda_core_version_change[nvrtc]|run",
-  "%b": "tests/test_program_cache.py::test_make_program_cache_key_use_libdevice_ignored_for_non_nvvm[nvrtc]|run",
-  "'b": "tests/test_program_compile_cache.py::test_cache_accepts_empty_name_expressions|run",
-  "(b": "tests/test_program_compile_cache.py::test_cache_hit_emits_ptx_loadability_warning_when_driver_too_old|run",
-  ")b": "tests/test_program_compile_cache.py::test_cache_hit_no_ptx_warning_when_driver_supports_it|run",
-  "*b": "tests/test_program_compile_cache.py::test_cache_hit_returns_object_code_reconstructed_from_bytes|run",
-  "+b": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|run",
-  ",b": "tests/test_program_compile_cache.py::test_cache_miss_compile_failure_does_not_store|run",
-  "-b": "tests/test_program_compile_cache.py::test_cache_miss_runs_compile_then_stores|run",
-  ".b": "tests/test_program_compile_cache.py::test_cache_read_exception_propagates|run",
-  "/b": "tests/test_program_compile_cache.py::test_cache_write_exception_propagates|run",
-  ":b": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|run",
-  ";b": "tests/test_program.py::test_program_handle_property|run",
-  "=b": "tests/test_program.py::test_program_init_valid_code_type|run",
-  "?b": "tests/test_cuda_utils.py::test_check_nvrtc_error_without_handle|run"
+  "Db": "tests/test_program.py::test_nvrtc_debug_concurrent_compile_uses_unique_temp_files|run",
+  "Eb": "tests/test_program.py::test_nvrtc_debug_falls_back_when_tmp_not_writable|run",
+  "Fb": "tests/test_program.py::test_nvrtc_debug_materializes_source_to_temp_file|run",
+  "Gb": "tests/test_program.py::test_program_compile_valid_target_type|run",
+  "Hb": "tests/test_program.py::test_ptx_program_numba_debug_unset_or_false_does_not_warn[False]|setup",
+  "Ib": "tests/test_program.py::test_ptx_program_with_various_options[options3]|setup",
+  "Jb": "tests/test_program_cache.py::test_cache_roundtrip_with_real_compilation|run",
+  "Kb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_list]|run",
+  "Lb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_range]|run",
+  "Mb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_empty_tuple]|run",
+  "Nb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[include_path_false]|run",
+  "Ob": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[pre_include_empty_list]|run",
+  "Pb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_empty_external_content[pre_include_false]|run",
+  "Qb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_external_content_with_extra_digest|run",
+  "Rb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_with_dir_when_extra_digest_supplied|run",
+  "Sb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[bare_filename]|run",
+  "Tb": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[default]|run",
+  "Ub": "tests/test_program_cache.py::test_make_program_cache_key_accepts_nvrtc_name_without_dir_component[empty]|run",
+  "Vb": "tests/test_program_cache.py::test_make_program_cache_key_changes_with_key_schema_version|run",
+  "Wb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[arch]|run",
+  "Xb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[code]|run",
+  "Yb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[extra_digest_added]|run",
+  "Zb": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[extra_digest_value]|run",
+  "0b": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[option]|run",
+  "1b": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[options.name]|run",
+  "2b": "tests/test_program_cache.py::test_make_program_cache_key_differs_on[target_type]|run",
+  "3b": "tests/test_program_cache.py::test_make_program_cache_key_driver_probe_failure_does_not_perturb_non_linker[nvrtc]|run",
+  "4b": "tests/test_program_cache.py::test_make_program_cache_key_fails_closed_on_probe_failure[nvrtc]|run",
+  "5b": "tests/test_program_cache.py::test_make_program_cache_key_is_deterministic[c++-void k(){}]|run",
+  "6b": "tests/test_program_cache.py::test_make_program_cache_key_name_expressions_order_insensitive|run",
+  "7b": "tests/test_program_cache.py::test_make_program_cache_key_name_expressions_str_bytes_distinct|run",
+  "8b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[C++]|run",
+  "9b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_code_type_case[c++]|run",
+  "!b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[Cubin]|run",
+  "#b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[LTOIR]|run",
+  "$b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[PTX]|run",
+  "%b": "tests/test_program_cache.py::test_make_program_cache_key_normalises_target_type_case[PTx]|run",
+  "'b": "tests/test_program_cache.py::test_make_program_cache_key_returns_bytes|run",
+  "(b": "tests/test_program_cache.py::test_make_program_cache_key_survives_cuda_core_version_change[nvrtc]|run",
+  ")b": "tests/test_program_cache.py::test_make_program_cache_key_use_libdevice_ignored_for_non_nvvm[nvrtc]|run",
+  "*b": "tests/test_program_compile_cache.py::test_cache_accepts_empty_name_expressions|run",
+  "+b": "tests/test_program_compile_cache.py::test_cache_hit_emits_ptx_loadability_warning_when_driver_too_old|run",
+  ",b": "tests/test_program_compile_cache.py::test_cache_hit_no_ptx_warning_when_driver_supports_it|run",
+  "-b": "tests/test_program_compile_cache.py::test_cache_hit_returns_object_code_reconstructed_from_bytes|run",
+  ".b": "tests/test_program_compile_cache.py::test_cache_kwarg_roundtrip_across_reopen|run",
+  "/b": "tests/test_program_compile_cache.py::test_cache_miss_compile_failure_does_not_store|run",
+  ":b": "tests/test_program_compile_cache.py::test_cache_miss_runs_compile_then_stores|run",
+  ";b": "tests/test_program_compile_cache.py::test_cache_read_exception_propagates|run",
+  "=b": "tests/test_program_compile_cache.py::test_cache_write_exception_propagates|run",
+  "?b": "tests/test_program_compile_cache.py::test_filestream_hit_returns_byte_equal_object_code|run",
+  "@b": "tests/test_program.py::test_program_handle_property|run",
+  "[b": "tests/test_program.py::test_program_init_valid_code_type|run",
+  "]b": "tests/test_cuda_utils.py::test_check_nvrtc_error_without_handle|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -237,7 +240,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_nvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -373,13 +376,13 @@
     <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        if _ptr == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">30 ctx</label></span><span class="ctxs">2b c d e f g h i k l m n o p q r s t u v w x y z A B C j ;b=b</span></p>
-    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">            self._pvt_ptr = &amp;self._pvt_val</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">30 ctx</label></span><span class="ctxs">2b c d e f g h i k l m n o p q r s t u v w x y z A B C j ;b=b</span></p>
-    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">            self._pvt_ptr[0] = &lt;cynvrtc.nvrtcProgram&gt;init_value</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">30 ctx</label></span><span class="ctxs">2b c d e f g h i k l m n o p q r s t u v w x y z A B C j ;b=b</span></p>
+    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        if _ptr == 0:</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">30 ctx</label></span><span class="ctxs">2b c d e f g h i k l m n o p q r s t u v w x y z A B C j @b[b</span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">            self._pvt_ptr = &amp;self._pvt_val</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">30 ctx</label></span><span class="ctxs">2b c d e f g h i k l m n o p q r s t u v w x y z A B C j @b[b</span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">            self._pvt_ptr[0] = &lt;cynvrtc.nvrtcProgram&gt;init_value</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">30 ctx</label></span><span class="ctxs">2b c d e f g h i k l m n o p q r s t u v w x y z A B C j @b[b</span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">            self._pvt_ptr = &lt;cynvrtc.nvrtcProgram *&gt;_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">    def __init__(self, *args, **kwargs):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">30 ctx</label></span><span class="ctxs">2b c d e f g h i k l m n o p q r s t u v w x y z A B C j ;b=b</span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs128"><span class="r"><label for="ctxs128" class="ctx">30 ctx</label></span><span class="ctxs">2b c d e f g h i k l m n o p q r s t u v w x y z A B C j @b[b</span></p>
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">        return &#x27;&lt;nvrtcProgram &#x27; + str(hex(self.__int__())) + &#x27;&gt;&#x27;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">    def __index__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -588,10 +591,10 @@
     <p class="pln"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">    bytes</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">        Message string for the given :py:obj:`~.nvrtcResult` code.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcResult cyresult = int(result)</span>&nbsp;</span><input type="checkbox" id="ctxs337"><span class="r"><label for="ctxs337" class="ctx">2 ctx</label></span><span class="ctxs">2j ?b</span></p>
-    <p class="run"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs338"><span class="r"><label for="ctxs338" class="ctx">2 ctx</label></span><span class="ctxs">2j ?b</span></p>
-    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetErrorString(cyresult)</span>&nbsp;</span><input type="checkbox" id="ctxs339"><span class="r"><label for="ctxs339" class="ctx">2 ctx</label></span><span class="ctxs">2j ?b</span></p>
-    <p class="run"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">    return (nvrtcResult.NVRTC_SUCCESS, err)</span>&nbsp;</span><input type="checkbox" id="ctxs340"><span class="r"><label for="ctxs340" class="ctx">2 ctx</label></span><span class="ctxs">2j ?b</span></p>
+    <p class="run"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">    cdef cynvrtc.nvrtcResult cyresult = int(result)</span>&nbsp;</span><input type="checkbox" id="ctxs337"><span class="r"><label for="ctxs337" class="ctx">2 ctx</label></span><span class="ctxs">2j ]b</span></p>
+    <p class="run"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs338"><span class="r"><label for="ctxs338" class="ctx">2 ctx</label></span><span class="ctxs">2j ]b</span></p>
+    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcGetErrorString(cyresult)</span>&nbsp;</span><input type="checkbox" id="ctxs339"><span class="r"><label for="ctxs339" class="ctx">2 ctx</label></span><span class="ctxs">2j ]b</span></p>
+    <p class="run"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">    return (nvrtcResult.NVRTC_SUCCESS, err)</span>&nbsp;</span><input type="checkbox" id="ctxs340"><span class="r"><label for="ctxs340" class="ctx">2 ctx</label></span><span class="ctxs">2j ]b</span></p>
     <p class="pln"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs342" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">def nvrtcVersion():</span>&nbsp;</span><span class="r"></span></p>
@@ -607,13 +610,13 @@
     <p class="pln"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">    minor : int</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">        CUDA Runtime Compilation minor version number.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">    cdef int major = 0</span>&nbsp;</span><input type="checkbox" id="ctxs356"><span class="r"><label for="ctxs356" class="ctx">144 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b</span></p>
-    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">    cdef int minor = 0</span>&nbsp;</span><input type="checkbox" id="ctxs357"><span class="r"><label for="ctxs357" class="ctx">144 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b</span></p>
-    <p class="run"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs358"><span class="r"><label for="ctxs358" class="ctx">144 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b</span></p>
-    <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcVersion(&amp;major, &amp;minor)</span>&nbsp;</span><input type="checkbox" id="ctxs359"><span class="r"><label for="ctxs359" class="ctx">144 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b</span></p>
-    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs360"><span class="r"><label for="ctxs360" class="ctx">144 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b</span></p>
+    <p class="run"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">    cdef int major = 0</span>&nbsp;</span><input type="checkbox" id="ctxs356"><span class="r"><label for="ctxs356" class="ctx">147 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b</span></p>
+    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">    cdef int minor = 0</span>&nbsp;</span><input type="checkbox" id="ctxs357"><span class="r"><label for="ctxs357" class="ctx">147 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b</span></p>
+    <p class="run"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs358"><span class="r"><label for="ctxs358" class="ctx">147 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b</span></p>
+    <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t"><span class="txt">        err = cynvrtc.nvrtcVersion(&amp;major, &amp;minor)</span>&nbsp;</span><input type="checkbox" id="ctxs359"><span class="r"><label for="ctxs359" class="ctx">147 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b</span></p>
+    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">    if err != cynvrtc.NVRTC_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs360"><span class="r"><label for="ctxs360" class="ctx">147 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t"><span class="txt">        return (_nvrtcResult(err), None, None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs362"><span class="r"><label for="ctxs362" class="ctx">144 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b</span></p>
+    <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">    return (_nvrtcResult_SUCCESS, major, minor)</span>&nbsp;</span><input type="checkbox" id="ctxs362"><span class="r"><label for="ctxs362" class="ctx">147 ctx</label></span><span class="ctxs">2a b c d e f g h i E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b</span></p>
     <p class="pln"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs364" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t"><span class="txt">def nvrtcGetNumSupportedArchs():</span>&nbsp;</span><span class="r"></span></p>
@@ -1645,7 +1648,7 @@
             <a class="nav" href="z_bb8e88d71740c463_nvvm_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
     </div>
 </footer>

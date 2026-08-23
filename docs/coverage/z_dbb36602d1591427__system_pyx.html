@@ -12,72 +12,11 @@
   "c": "tests/system/test_system_system.py::test_user_mode_driver_version|run",
   "d": "tests/system/test_system_system.py::test_kernel_mode_driver_version|run",
   "e": "tests/system/test_system_system.py::test_get_driver_branch|run",
-  "f": "tests/graph/test_graph_definition.py::test_alloc_peer_access|setup",
-  "g": "tests/memory/test_managed_ops.py::TestManagedBuffer::test_instance_discard_prefetch|setup",
-  "h": "tests/memory_ipc/test_peer_access.py::TestBufferPeerAccessAfterImport::test_main[False]|setup",
-  "i": "tests/memory_ipc/test_peer_access.py::TestBufferPeerAccessAfterImport::test_main[True]|setup",
-  "j": "tests/memory_ipc/test_peer_access.py::TestPeerAccessNotPreservedOnImport::test_main|setup",
-  "k": "tests/system/test_system_device.py::test_device_count|run",
-  "l": "tests/system/test_system_device.py::test_fan|setup",
-  "m": "tests/system/test_system_device.py::test_nvlink_max_links_deprecated|setup",
-  "n": "tests/system/test_system_device.py::test_to_cuda_device|run",
-  "o": "tests/system/test_system_system.py::test_device_count|run",
-  "p": "tests/test_device.py::test_device_id|run",
-  "q": "tests/test_green_context.py::TestWorkqueueResource::test_device_id_matches_source_multi_gpu|run",
-  "r": "tests/test_memory.py::test_buffer_external_device[False]|run",
-  "s": "tests/test_memory.py::test_buffer_external_device[True]|run",
-  "t": "tests/test_memory.py::test_buffer_external_managed[False]|run",
-  "u": "tests/test_memory.py::test_buffer_external_managed[True]|run",
-  "v": "tests/test_memory.py::test_buffer_external_pinned_alloc[False]|run",
-  "w": "tests/test_memory.py::test_buffer_external_pinned_alloc[True]|run",
-  "x": "tests/test_memory.py::test_buffer_external_pinned_registered[False]|run",
-  "y": "tests/test_memory.py::test_buffer_external_pinned_registered[True]|run",
-  "z": "tests/test_memory.py::test_dmr_mempool_get_access_peer|setup",
-  "A": "tests/test_memory.py::test_mr_deallocation_with_foreign_context[False]|run",
-  "B": "tests/test_memory.py::test_mr_deallocation_with_foreign_context[True]|run",
-  "C": "tests/test_memory.py::test_pool_buffer_deallocates_with_foreign_context|setup",
-  "D": "tests/test_memory_peer_access.py::test_peer_access_basic|setup",
-  "E": "tests/test_memory_peer_access.py::test_peer_access_shared_pool_queries_driver|setup",
-  "F": "tests/test_memory_peer_access.py::test_peer_access_transitions|setup",
-  "G": "tests/test_memory_peer_access.py::test_peer_accessible_by_accepts_int_and_device|setup",
-  "H": "tests/test_memory_peer_access.py::test_peer_accessible_by_bulk_ops_batch_one_call|setup",
-  "I": "tests/test_memory_peer_access.py::test_peer_accessible_by_iteration_order_is_sorted|setup",
-  "J": "tests/test_memory_peer_access.py::test_peer_accessible_by_mutable_set_interface|setup",
-  "K": "tests/test_memory_peer_access.py::test_peer_accessible_by_no_cache_across_proxies|setup",
-  "L": "tests/test_memory_peer_access.py::test_peer_accessible_by_rejects_invalid_inputs|setup",
-  "M": "tests/test_memory_peer_access.py::test_peer_accessible_by_repr|setup",
-  "N": "tests/test_memory_peer_access.py::test_peer_accessible_by_returns_proxy_type|setup",
-  "O": "tests/test_memory_peer_access.py::test_peer_accessible_by_setter_batches_one_call|setup",
-  "P": "tests/test_memory_peer_access.py::test_peer_accessible_by_silently_ignores_owner|setup",
-  "Q": "tests/test_module.py::test_read_only_kernel_attributes[binary_version-int]|run",
-  "R": "tests/test_module.py::test_read_only_kernel_attributes[cache_mode_ca-bool]|run",
-  "S": "tests/test_module.py::test_read_only_kernel_attributes[cluster_scheduling_policy_preference-int]|run",
-  "T": "tests/test_module.py::test_read_only_kernel_attributes[cluster_size_must_be_set-bool]|run",
-  "U": "tests/test_module.py::test_read_only_kernel_attributes[const_size_bytes-int]|run",
-  "V": "tests/test_module.py::test_read_only_kernel_attributes[local_size_bytes-int]|run",
-  "W": "tests/test_module.py::test_read_only_kernel_attributes[max_dynamic_shared_size_bytes-int]|run",
-  "X": "tests/test_module.py::test_read_only_kernel_attributes[max_threads_per_block-int]|run",
-  "Y": "tests/test_module.py::test_read_only_kernel_attributes[non_portable_cluster_size_allowed-bool]|run",
-  "Z": "tests/test_module.py::test_read_only_kernel_attributes[num_regs-int]|run",
-  "0": "tests/test_module.py::test_read_only_kernel_attributes[preferred_shared_memory_carveout-int]|run",
-  "1": "tests/test_module.py::test_read_only_kernel_attributes[ptx_version-int]|run",
-  "2": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_depth-int]|run",
-  "3": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_height-int]|run",
-  "4": "tests/test_module.py::test_read_only_kernel_attributes[required_cluster_width-int]|run",
-  "5": "tests/test_module.py::test_read_only_kernel_attributes[shared_size_bytes-int]|run",
-  "6": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_context-sample_context_alt]|run",
-  "7": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_device-sample_device_alt]|run",
-  "8": "tests/test_object_protocols.py::test_same_type_inequality[sample_context-sample_context_alt]|run",
-  "9": "tests/test_object_protocols.py::test_same_type_inequality[sample_device-sample_device_alt]|run",
-  "!": "tests/test_rlcompleter_patch.py::test_patched_completion_succeeds_on_non_ipc_resource|run",
-  "#": "tests/test_stream.py::test_created_stream_keeps_its_own_context|run",
-  "$": "tests/test_stream.py::test_default_stream_first_touch_does_not_pin_context|run",
-  "%": "tests/test_stream.py::test_default_stream_follows_current_context[stream0]|run",
-  "'": "tests/test_stream.py::test_default_stream_follows_current_context[stream1]|run",
-  "(": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_accepts_managed_buffer_on_nonzero_device|run",
-  ")": "tests/test_tensor_map.py::TestTensorMapMultiDeviceValidation::test_from_tiled_rejects_tensor_from_other_device|run",
-  "*": "tests/test_tensor_map.py::TestTensorMapReplaceAddress::test_replace_address_accepts_managed_buffer_on_nonzero_device|run",
-  "+": "tests/system/test_system_system.py::test_nvml_version|run"
+  "f": "tests/system/test_system_device.py::test_device_count|run",
+  "g": "tests/system/test_system_device.py::test_device_count|setup",
+  "h": "tests/system/test_system_device.py::test_get_inforom_version|setup",
+  "i": "tests/system/test_system_system.py::test_device_count|run",
+  "j": "tests/system/test_system_system.py::test_nvml_version|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -140,7 +79,7 @@
             <a id="nextFileLink" class="nav" href="z_dbb36602d1591427__system_events_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -265,9 +204,9 @@
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">    version: tuple[int, ...]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        Tuple of integers representing the NVML version components.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">1 ctx</label></span><span class="ctxs">1+</span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">1 ctx</label></span><span class="ctxs">1j</span></p>
     <p class="mis show_mis"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;NVML library is not available&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">    return tuple(int(v) for v in nvml.system_get_nvml_version().split(&quot;.&quot;))</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">1 ctx</label></span><span class="ctxs">1+</span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">    return tuple(int(v) for v in nvml.system_get_nvml_version().split(&quot;.&quot;))</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">1 ctx</label></span><span class="ctxs">1j</span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">def get_driver_branch() -&gt; str:</span>&nbsp;</span><span class="r"><label for="ctxs116" class="ctx">(empty)</label></span></p>
@@ -289,9 +228,9 @@
     <p class="pln"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">    Return the number of devices in the system.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    if CUDA_BINDINGS_NVML_IS_COMPATIBLE:</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">65 ctx</label></span><span class="ctxs">1fghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*</span></p>
-    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">65 ctx</label></span><span class="ctxs">1fghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*</span></p>
-    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        return nvml.device_get_count_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">65 ctx</label></span><span class="ctxs">1fghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%'()*</span></p>
+    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    if CUDA_BINDINGS_NVML_IS_COMPATIBLE:</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">4 ctx</label></span><span class="ctxs">1fghi</span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        initialize()</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">4 ctx</label></span><span class="ctxs">1fghi</span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        return nvml.device_get_count_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">4 ctx</label></span><span class="ctxs">1fghi</span></p>
     <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">        return handle_return(runtime.cudaGetDeviceCount())</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -361,7 +300,7 @@
             <a class="nav" href="z_dbb36602d1591427__system_events_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
     </div>
 </footer>

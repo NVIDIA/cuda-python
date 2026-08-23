@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_memory/_ipc.pyx: 52.17%</title>
+    <title>Coverage for cuda/core/_memory/_ipc.pyx: 57.14%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -143,21 +143,22 @@
   "Sb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|run",
   "Tb": "tests/test_memory.py::test_mempool_ipc_errors|run",
   "Ub": "tests/test_memory.py::test_pinned_mempool_ipc_errors|run",
-  "Vb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
-  "Wb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
-  "Xb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|run",
-  "Yb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|run",
-  "Zb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|run",
-  "0b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|run",
-  "1b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|run",
-  "2b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|run",
-  "3b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|run",
-  "4b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|run",
-  "5b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|run",
-  "6b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|run",
-  "7b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|run",
-  "8b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|run",
-  "9b": "tests/memory_ipc/test_errors.py::test_ipc_allocation_handle_rejects_negative_fd|run"
+  "Vb": "tests/memory_ipc/test_errors.py::test_register_rejects_non_ipc_memory_resource|run",
+  "Wb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
+  "Xb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
+  "Yb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|run",
+  "Zb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|run",
+  "0b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|run",
+  "1b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|run",
+  "2b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|run",
+  "3b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|run",
+  "4b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|run",
+  "5b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|run",
+  "6b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|run",
+  "7b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|run",
+  "8b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|run",
+  "9b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|run",
+  "!b": "tests/memory_ipc/test_errors.py::test_ipc_allocation_handle_rejects_negative_fd|run"
 }
     </script>
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -167,7 +168,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_memory<span class="sep">/</span>_ipc.pyx</b>:
-            <span class="pc_cov">52.17%</span>
+            <span class="pc_cov">57.14%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -209,9 +210,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">138 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">72<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">66<span class="text"> missing</span></button>
+            <span class="text">140 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">80<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">60<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -220,7 +221,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__location_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -355,9 +356,9 @@
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs119" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">    def _init(cls, handle: int, uuid: uuid.UUID | None) -&gt; IPCAllocationHandle:  # no-cython-lint</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">96 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ 9b% ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
-    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        if handle &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">96 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ 9b% ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
-    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">            raise ValueError(f&quot;Invalid allocation handle (fd) {handle}: must be non-negative&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">1 ctx</label></span><span class="ctxs">29b</span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">96 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ !b% ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
+    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">        if handle &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">96 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ !b% ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">            raise ValueError(f&quot;Invalid allocation handle (fd) {handle}: must be non-negative&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">1 ctx</label></span><span class="ctxs">2!b</span></p>
     <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">        self._h_fd = create_fd_handle(handle)</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
     <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">        self._uuid = uuid</span>&nbsp;</span><input type="checkbox" id="ctxs125"><span class="r"><label for="ctxs125" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
     <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
@@ -375,17 +376,17 @@
     <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">    def handle(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return as_py(self._h_fd)</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">57 ctx</label></span><span class="ctxs">2VbWba b M N O P e f s t u v XbQ YbZbR 0b1bw 2b3bS 4b5bT 6b7bx 8by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
+    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return as_py(self._h_fd)</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">57 ctx</label></span><span class="ctxs">2WbXba b M N O P e f s t u v YbQ Zb0bR 1b2bw 3b4bS 5b6bT 7b8bx 9by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">    def uuid(self) -&gt; uuid.UUID:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        return self._uuid</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">57 ctx</label></span><span class="ctxs">2VbWba b M N O P e f s t u v XbQ YbZbR 0b1bw 2b3bS 4b5bT 6b7bx 8by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        return self._uuid</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">57 ctx</label></span><span class="ctxs">2WbXba b M N O P e f s t u v YbQ Zb0bR 1b2bw 3b4bS 5b6bT 7b8bx 9by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
     <p class="pln"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -&gt; tuple[object, ...]:</span>&nbsp;</span><span class="r"><label for="ctxs148" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">57 ctx</label></span><span class="ctxs">2VbWba b M N O P e f s t u v XbQ YbZbR 0b1bw 2b3bS 4b5bT 6b7bx 8by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
-    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">    df = multiprocessing.reduction.DupFd(alloc_handle.handle)</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">57 ctx</label></span><span class="ctxs">2VbWba b M N O P e f s t u v XbQ YbZbR 0b1bw 2b3bS 4b5bT 6b7bx 8by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
-    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">57 ctx</label></span><span class="ctxs">2VbWba b M N O P e f s t u v XbQ YbZbR 0b1bw 2b3bS 4b5bT 6b7bx 8by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
+    <p class="run"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs149"><span class="r"><label for="ctxs149" class="ctx">57 ctx</label></span><span class="ctxs">2WbXba b M N O P e f s t u v YbQ Zb0bR 1b2bw 3b4bS 5b6bT 7b8bx 9by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">    df = multiprocessing.reduction.DupFd(alloc_handle.handle)</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">57 ctx</label></span><span class="ctxs">2WbXba b M N O P e f s t u v YbQ Zb0bR 1b2bw 3b4bS 5b6bT 7b8bx 9by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">57 ctx</label></span><span class="ctxs">2WbXba b M N O P e f s t u v YbQ Zb0bR 1b2bw 3b4bS 5b6bT 7b8bx 9by z A B C D E F G H g h I J K L q r i j k l c d U </span></p>
     <p class="pln"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None) -&gt; IPCAllocationHandle:  # no-cython-lint</span>&nbsp;</span><span class="r"><label for="ctxs154" class="ctx">(empty)</label></span></p>
@@ -495,34 +496,36 @@
     <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">cdef _MemPool MP_from_registry(uuid):</span>&nbsp;</span><span class="r"><label for="ctxs260" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">        return registry[uuid]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">    except KeyError:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">        raise RuntimeError(f&quot;Memory resource {uuid} was not found&quot;) from None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs261"><span class="r"><label for="ctxs261" class="ctx">1 ctx</label></span><span class="ctxs">2Vb</span></p>
+    <p class="run"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">        return registry[uuid]</span>&nbsp;</span><input type="checkbox" id="ctxs262"><span class="r"><label for="ctxs262" class="ctx">1 ctx</label></span><span class="ctxs">2Vb</span></p>
+    <p class="run"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">    except KeyError:</span>&nbsp;</span><input type="checkbox" id="ctxs263"><span class="r"><label for="ctxs263" class="ctx">1 ctx</label></span><span class="ctxs">2Vb</span></p>
+    <p class="run"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">        raise RuntimeError(f&quot;Memory resource {uuid} was not found&quot;) from None</span>&nbsp;</span><input type="checkbox" id="ctxs264"><span class="r"><label for="ctxs264" class="ctx">1 ctx</label></span><span class="ctxs">2Vb</span></p>
     <p class="pln"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">cdef _MemPool MP_register(_MemPool self, uuid):</span>&nbsp;</span><span class="r"><label for="ctxs267" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">    existing = registry.get(uuid)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">    if existing is not None:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">    existing = registry.get(uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs268"><span class="r"><label for="ctxs268" class="ctx">1 ctx</label></span><span class="ctxs">2Vb</span></p>
+    <p class="run"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">    if existing is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs269"><span class="r"><label for="ctxs269" class="ctx">1 ctx</label></span><span class="ctxs">2Vb</span></p>
     <p class="mis show_mis"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">        return existing</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">    assert self.uuid is None or self.uuid == uuid</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">    registry[uuid] = self</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    self._ipc_data._alloc_handle._uuid = uuid</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">cdef IPCAllocationHandle MP_export_mempool(_MemPool self):</span>&nbsp;</span><span class="r"><label for="ctxs277" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">    # Note: This is Linux only (int for file descriptor)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">    cdef int fd</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs280"><span class="r"><label for="ctxs280" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
-    <p class="run"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(</span>&nbsp;</span><input type="checkbox" id="ctxs281"><span class="r"><label for="ctxs281" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
-    <p class="pln"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">            &amp;fd, as_cu(self._h_pool), IPC_HANDLE_TYPE, 0)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs284"><span class="r"><label for="ctxs284" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
-    <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">        return IPCAllocationHandle._init(fd, uuid.uuid4())</span>&nbsp;</span><input type="checkbox" id="ctxs285"><span class="r"><label for="ctxs285" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
-    <p class="mis show_mis"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">    except:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">        os.close(fd)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">        raise</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">    if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs271"><span class="r"><label for="ctxs271" class="ctx">1 ctx</label></span><span class="ctxs">2Vb</span></p>
+    <p class="run"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;Memory resource is not IPC-enabled&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs272"><span class="r"><label for="ctxs272" class="ctx">1 ctx</label></span><span class="ctxs">2Vb</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    assert self.uuid is None or self.uuid == uuid</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">    registry[uuid] = self</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">    self._ipc_data._alloc_handle._uuid = uuid</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">cdef IPCAllocationHandle MP_export_mempool(_MemPool self):</span>&nbsp;</span><span class="r"><label for="ctxs279" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">    # Note: This is Linux only (int for file descriptor)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">    cdef int fd</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
+    <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(</span>&nbsp;</span><input type="checkbox" id="ctxs283"><span class="r"><label for="ctxs283" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
+    <p class="pln"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">            &amp;fd, as_cu(self._h_pool), IPC_HANDLE_TYPE, 0)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs286"><span class="r"><label for="ctxs286" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
+    <p class="run"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">        return IPCAllocationHandle._init(fd, uuid.uuid4())</span>&nbsp;</span><input type="checkbox" id="ctxs287"><span class="r"><label for="ctxs287" class="ctx">95 ctx</label></span><span class="ctxs">21 2 a 3 b 4 5 6 7 8 e 9 f ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbg h qbrbsbtbubvbi j k l c d wbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbn MbNbObU PbQbo p </span></p>
+    <p class="mis show_mis"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">    except:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">        os.close(fd)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">        raise</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -532,7 +535,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__location_pxd.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
     </div>
 </footer>

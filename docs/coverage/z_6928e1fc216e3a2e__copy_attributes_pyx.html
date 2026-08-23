@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/core/_memory/_copy_attributes.pyx: 100.00%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_location_hints_do_not_corrupt_copy|run",
+  "b": "tests/memory/test_copy_single_options.py::test_location_hints_do_not_corrupt_copy|run",
+  "c": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_host_numa_current_location_hint|run",
+  "d": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_host_numa_location_hint|run",
+  "e": "tests/memory/test_copy_single_options.py::test_host_numa_current_location_hint|run",
+  "f": "tests/memory/test_copy_single_options.py::test_host_numa_location_hint|run",
+  "g": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|run",
+  "h": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2h_batch|run",
+  "i": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|run",
+  "j": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_single_element_batch|run",
+  "k": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_various_sizes|run",
+  "l": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|run",
+  "m": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|run",
+  "n": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_varied_sizes|run",
+  "o": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|run",
+  "p": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_per_thread_default_stream_token_is_accepted|run",
+  "q": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_default_overlap_mode_does_not_warn|run",
+  "r": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|run",
+  "s": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_options_on_per_thread_default_stream|run",
+  "t": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|run",
+  "u": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|run",
+  "v": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|run",
+  "w": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|run",
+  "x": "tests/memory/test_copy_single_options.py::test_dst_none_with_options|run",
+  "y": "tests/memory/test_copy_single_options.py::test_during_api_call_copy_from|run",
+  "z": "tests/memory/test_copy_single_options.py::test_during_api_call_copy_to|run",
+  "A": "tests/memory/test_copy_single_options.py::test_options_copy_from_data_correct|run",
+  "B": "tests/memory/test_copy_single_options.py::test_options_copy_to_data_correct|run",
+  "C": "tests/memory/test_copy_single_options.py::test_overlap_mode_copies_correctly|run",
+  "D": "tests/memory/test_copy_single_options.py::test_per_thread_default_stream_token_accepted_with_options|run",
+  "E": "tests/memory/test_copy_single_options.py::test_src_access_order_copy_from[any-67]|run",
+  "F": "tests/memory/test_copy_single_options.py::test_src_access_order_copy_from[stream-65]|run",
+  "G": "tests/memory/test_copy_single_options.py::test_src_access_order_copy_to[any-51]|run",
+  "H": "tests/memory/test_copy_single_options.py::test_src_access_order_copy_to[stream-49]|run",
+  "I": "(empty)"
+}
+    </script>
+    <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_memory<span class="sep">/</span>_copy_attributes.pyx</b>:
+            <span class="pc_cov">100.00%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">13 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">13<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_6928e1fc216e3a2e__copy_attributes_pxd.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__copy_ops_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
+            created at 2026-08-23 01:01 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from libc.string cimport memset</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from cuda.bindings cimport cydriver</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">from cuda.core._memory._location cimport to_cumemlocation</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">from cuda.core._memory._managed_location import _coerce_location</span>&nbsp;</span><span class="r"><label for="ctxs10" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="txt">cdef cydriver.CUmemcpyAttributes _to_cu_memcpy_attributes(object attr):</span>&nbsp;</span><span class="r"><label for="ctxs13" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Convert a CopyOptions to a cydriver.CUmemcpyAttributes struct.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemcpyAttributes cu_attr</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="txt">    memset(&amp;cu_attr, 0, sizeof(cydriver.CUmemcpyAttributes))</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">35 ctx</label></span><span class="ctxs">1IghijklmnopqrcdastuvwxyzefbABCDEFGH</span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="txt">    cu_attr.srcAccessOrder = &lt;cydriver.CUmemcpySrcAccessOrder&gt;(&lt;int&gt;attr._to_driver_enum())</span>&nbsp;</span><input type="checkbox" id="ctxs17"><span class="r"><label for="ctxs17" class="ctx">34 ctx</label></span><span class="ctxs">1ghijklmnopqrcdastuvwxyzefbABCDEFGH</span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="txt">    cu_attr.flags = &lt;unsigned int&gt;(&lt;int&gt;attr._to_driver_flags())</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">34 ctx</label></span><span class="ctxs">1ghijklmnopqrcdastuvwxyzefbABCDEFGH</span></p>
+    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="txt">    cdef object src_loc = _coerce_location(attr.src_location_hint, allow_none=True)</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">34 ctx</label></span><span class="ctxs">1ghijklmnopqrcdastuvwxyzefbABCDEFGH</span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">    cdef object dst_loc = _coerce_location(attr.dst_location_hint, allow_none=True)</span>&nbsp;</span><input type="checkbox" id="ctxs21"><span class="r"><label for="ctxs21" class="ctx">35 ctx</label></span><span class="ctxs">1IghijklmnopqrcdastuvwxyzefbABCDEFGH</span></p>
+    <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">    if src_loc is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">34 ctx</label></span><span class="ctxs">1ghijklmnopqrcdastuvwxyzefbABCDEFGH</span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">        cu_attr.srcLocHint = to_cumemlocation(src_loc.kind, src_loc.id)</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    if dst_loc is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">34 ctx</label></span><span class="ctxs">1ghijklmnopqrcdastuvwxyzefbABCDEFGH</span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">        cu_attr.dstLocHint = to_cumemlocation(dst_loc.kind, dst_loc.id)</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">6 ctx</label></span><span class="ctxs">1cdaefb</span></p>
+    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">    return cu_attr</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">34 ctx</label></span><span class="ctxs">1ghijklmnopqrcdastuvwxyzefbABCDEFGH</span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_6928e1fc216e3a2e__copy_attributes_pxd.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_6928e1fc216e3a2e__copy_ops_pyx.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
+            created at 2026-08-23 01:01 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

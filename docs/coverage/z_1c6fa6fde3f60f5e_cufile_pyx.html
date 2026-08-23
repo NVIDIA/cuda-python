@@ -33,8 +33,8 @@
   "x": "tests/test_cufile.py::test_buf_register_already_registered|run",
   "y": "tests/test_cufile.py::test_buf_register_host_memory|run",
   "z": "tests/test_cufile.py::test_buf_register_invalid_flags|run",
-  "A": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
-  "B": "tests/test_cufile.py::test_buf_register_large_buffer|run",
+  "A": "tests/test_cufile.py::test_buf_register_large_buffer|run",
+  "B": "tests/test_cufile.py::test_buf_register_large_buffer|setup",
   "C": "tests/test_cufile.py::test_buf_register_multiple_buffers|run",
   "D": "tests/test_cufile.py::test_buf_register_simple|run",
   "E": "tests/test_cufile.py::test_get_stats_l1|setup",
@@ -55,8 +55,8 @@
   "T": "tests/test_cufile.py::test_buf_register_already_registered|teardown",
   "U": "tests/test_cufile.py::test_buf_register_host_memory|setup",
   "V": "tests/test_cufile.py::test_buf_register_host_memory|teardown",
-  "W": "tests/test_cufile.py::test_buf_register_invalid_flags|teardown",
-  "X": "tests/test_cufile.py::test_buf_register_large_buffer|setup",
+  "W": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
+  "X": "tests/test_cufile.py::test_buf_register_invalid_flags|teardown",
   "Y": "tests/test_cufile.py::test_buf_register_large_buffer|teardown",
   "Z": "tests/test_cufile.py::test_buf_register_multiple_buffers|setup",
   "0": "tests/test_cufile.py::test_buf_register_multiple_buffers|teardown",
@@ -145,7 +145,7 @@
             <a id="nextFileLink" class="nav" href="z_1c6fa6fde3f60f5e_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -584,8 +584,8 @@
     <p class="run"><span class="n"><a id="t422" href="#t422">422</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><span class="r"><label for="ctxs422" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t423" href="#t423">423</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t424" href="#t424">424</a></span><span class="t"><span class="txt">cdef inline int _check_or_init_cufile() except -1 nogil:</span>&nbsp;</span><span class="r"><label for="ctxs424" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t425" href="#t425">425</a></span><span class="t"><span class="txt">    if _cyb_atomic_int_load(&lt;int *&gt;&amp;_cyb___py_cufile_init):</span>&nbsp;</span><input type="checkbox" id="ctxs425"><span class="r"><label for="ctxs425" class="ctx">76 ctx</label></span><span class="ctxs">1aeMNfOPgQRxSTyUVzAWBXYCZ0D12h34i56k78l9!m#$j%'()*+,-bEqcFrdGsH./noptI:JKuvLw</span></p>
-    <p class="run"><span class="n"><a id="t426" href="#t426">426</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs426"><span class="r"><label for="ctxs426" class="ctx">76 ctx</label></span><span class="ctxs">1aeMNfOPgQRxSTyUVzAWBXYCZ0D12h34i56k78l9!m#$j%'()*+,-bEqcFrdGsH./noptI:JKuvLw</span></p>
+    <p class="run"><span class="n"><a id="t425" href="#t425">425</a></span><span class="t"><span class="txt">    if _cyb_atomic_int_load(&lt;int *&gt;&amp;_cyb___py_cufile_init):</span>&nbsp;</span><input type="checkbox" id="ctxs425"><span class="r"><label for="ctxs425" class="ctx">76 ctx</label></span><span class="ctxs">1aeMNfOPgQRxSTyUVzWXABYCZ0D12h34i56k78l9!m#$j%'()*+,-bEqcFrdGsH./noptI:JKuvLw</span></p>
+    <p class="run"><span class="n"><a id="t426" href="#t426">426</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs426"><span class="r"><label for="ctxs426" class="ctx">76 ctx</label></span><span class="ctxs">1aeMNfOPgQRxSTyUVzWXABYCZ0D12h34i56k78l9!m#$j%'()*+,-bEqcFrdGsH./noptI:JKuvLw</span></p>
     <p class="pln"><span class="n"><a id="t427" href="#t427">427</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t428" href="#t428">428</a></span><span class="t"><span class="txt">    return _init_cufile()</span>&nbsp;</span><span class="r"><label for="ctxs428" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t429" href="#t429">429</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -769,21 +769,21 @@
     <p class="pln"><span class="n"><a id="t607" href="#t607">607</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t608" href="#t608">608</a></span><span class="t"><span class="txt">cdef CUfileError_t _cuFileBufRegister(const void* bufPtr_base, size_t length, int flags) except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs608" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t609" href="#t609">609</a></span><span class="t"><span class="txt">    global __cuFileBufRegister</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t610" href="#t610">610</a></span><span class="t"><span class="txt">    _check_or_init_cufile()</span>&nbsp;</span><input type="checkbox" id="ctxs610"><span class="r"><label for="ctxs610" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzBCDhiklmjbcd</span></p>
-    <p class="run"><span class="n"><a id="t611" href="#t611">611</a></span><span class="t"><span class="txt">    if __cuFileBufRegister == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs611"><span class="r"><label for="ctxs611" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzBCDhiklmjbcd</span></p>
+    <p class="run"><span class="n"><a id="t610" href="#t610">610</a></span><span class="t"><span class="txt">    _check_or_init_cufile()</span>&nbsp;</span><input type="checkbox" id="ctxs610"><span class="r"><label for="ctxs610" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzACDhiklmjbcd</span></p>
+    <p class="run"><span class="n"><a id="t611" href="#t611">611</a></span><span class="t"><span class="txt">    if __cuFileBufRegister == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs611"><span class="r"><label for="ctxs611" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzACDhiklmjbcd</span></p>
     <p class="mis show_mis"><span class="n"><a id="t612" href="#t612">612</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t613" href="#t613">613</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError(&quot;function cuFileBufRegister is not found&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t"><span class="txt">    return (&lt;CUfileError_t (*)(const void*, size_t, int) noexcept nogil&gt;__cuFileBufRegister)(</span>&nbsp;</span><input type="checkbox" id="ctxs614"><span class="r"><label for="ctxs614" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzBCDhiklmjbcd</span></p>
+    <p class="run"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t"><span class="txt">    return (&lt;CUfileError_t (*)(const void*, size_t, int) noexcept nogil&gt;__cuFileBufRegister)(</span>&nbsp;</span><input type="checkbox" id="ctxs614"><span class="r"><label for="ctxs614" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzACDhiklmjbcd</span></p>
     <p class="pln"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t"><span class="txt">        bufPtr_base, length, flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t"><span class="txt">cdef CUfileError_t _cuFileBufDeregister(const void* bufPtr_base) except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs618" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t"><span class="txt">    global __cuFileBufDeregister</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t"><span class="txt">    _check_or_init_cufile()</span>&nbsp;</span><input type="checkbox" id="ctxs620"><span class="r"><label for="ctxs620" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzBCDhiklmjbcd</span></p>
-    <p class="run"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t"><span class="txt">    if __cuFileBufDeregister == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs621"><span class="r"><label for="ctxs621" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzBCDhiklmjbcd</span></p>
+    <p class="run"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t"><span class="txt">    _check_or_init_cufile()</span>&nbsp;</span><input type="checkbox" id="ctxs620"><span class="r"><label for="ctxs620" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzACDhiklmjbcd</span></p>
+    <p class="run"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t"><span class="txt">    if __cuFileBufDeregister == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs621"><span class="r"><label for="ctxs621" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzACDhiklmjbcd</span></p>
     <p class="mis show_mis"><span class="n"><a id="t622" href="#t622">622</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t623" href="#t623">623</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError(&quot;function cuFileBufDeregister is not found&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t624" href="#t624">624</a></span><span class="t"><span class="txt">    return (&lt;CUfileError_t (*)(const void*) noexcept nogil&gt;__cuFileBufDeregister)(</span>&nbsp;</span><input type="checkbox" id="ctxs624"><span class="r"><label for="ctxs624" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzBCDhiklmjbcd</span></p>
+    <p class="run"><span class="n"><a id="t624" href="#t624">624</a></span><span class="t"><span class="txt">    return (&lt;CUfileError_t (*)(const void*) noexcept nogil&gt;__cuFileBufDeregister)(</span>&nbsp;</span><input type="checkbox" id="ctxs624"><span class="r"><label for="ctxs624" class="ctx">18 ctx</label></span><span class="ctxs">1efgxyzACDhiklmjbcd</span></p>
     <p class="pln"><span class="n"><a id="t625" href="#t625">625</a></span><span class="t"><span class="txt">        bufPtr_base)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t626" href="#t626">626</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t627" href="#t627">627</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -809,11 +809,11 @@
     <p class="pln"><span class="n"><a id="t647" href="#t647">647</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t648" href="#t648">648</a></span><span class="t"><span class="txt">cdef CUfileError_t _cuFileDriverOpen() except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs648" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t649" href="#t649">649</a></span><span class="t"><span class="txt">    global __cuFileDriverOpen</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t650" href="#t650">650</a></span><span class="t"><span class="txt">    _check_or_init_cufile()</span>&nbsp;</span><input type="checkbox" id="ctxs650"><span class="r"><label for="ctxs650" class="ctx">28 ctx</label></span><span class="ctxs">1MOQSUAXZ13579#%),EFG.noptIKL</span></p>
-    <p class="run"><span class="n"><a id="t651" href="#t651">651</a></span><span class="t"><span class="txt">    if __cuFileDriverOpen == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs651"><span class="r"><label for="ctxs651" class="ctx">28 ctx</label></span><span class="ctxs">1MOQSUAXZ13579#%),EFG.noptIKL</span></p>
+    <p class="run"><span class="n"><a id="t650" href="#t650">650</a></span><span class="t"><span class="txt">    _check_or_init_cufile()</span>&nbsp;</span><input type="checkbox" id="ctxs650"><span class="r"><label for="ctxs650" class="ctx">28 ctx</label></span><span class="ctxs">1MOQSUWBZ13579#%),EFG.noptIKL</span></p>
+    <p class="run"><span class="n"><a id="t651" href="#t651">651</a></span><span class="t"><span class="txt">    if __cuFileDriverOpen == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs651"><span class="r"><label for="ctxs651" class="ctx">28 ctx</label></span><span class="ctxs">1MOQSUWBZ13579#%),EFG.noptIKL</span></p>
     <p class="mis show_mis"><span class="n"><a id="t652" href="#t652">652</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t653" href="#t653">653</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError(&quot;function cuFileDriverOpen is not found&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t654" href="#t654">654</a></span><span class="t"><span class="txt">    return (&lt;CUfileError_t (*)() noexcept nogil&gt;__cuFileDriverOpen)(</span>&nbsp;</span><input type="checkbox" id="ctxs654"><span class="r"><label for="ctxs654" class="ctx">28 ctx</label></span><span class="ctxs">1MOQSUAXZ13579#%),EFG.noptIKL</span></p>
+    <p class="run"><span class="n"><a id="t654" href="#t654">654</a></span><span class="t"><span class="txt">    return (&lt;CUfileError_t (*)() noexcept nogil&gt;__cuFileDriverOpen)(</span>&nbsp;</span><input type="checkbox" id="ctxs654"><span class="r"><label for="ctxs654" class="ctx">28 ctx</label></span><span class="ctxs">1MOQSUWBZ13579#%),EFG.noptIKL</span></p>
     <p class="pln"><span class="n"><a id="t655" href="#t655">655</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t656" href="#t656">656</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t657" href="#t657">657</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -829,11 +829,11 @@
     <p class="pln"><span class="n"><a id="t667" href="#t667">667</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t668" href="#t668">668</a></span><span class="t"><span class="txt">cdef CUfileError_t _cuFileDriverClose_v2() except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs668" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t669" href="#t669">669</a></span><span class="t"><span class="txt">    global __cuFileDriverClose_v2</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t670" href="#t670">670</a></span><span class="t"><span class="txt">    _check_or_init_cufile()</span>&nbsp;</span><input type="checkbox" id="ctxs670"><span class="r"><label for="ctxs670" class="ctx">29 ctx</label></span><span class="ctxs">1NPRTVAWY02468!$'*-qrs/nopt:uw</span></p>
-    <p class="run"><span class="n"><a id="t671" href="#t671">671</a></span><span class="t"><span class="txt">    if __cuFileDriverClose_v2 == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs671"><span class="r"><label for="ctxs671" class="ctx">29 ctx</label></span><span class="ctxs">1NPRTVAWY02468!$'*-qrs/nopt:uw</span></p>
+    <p class="run"><span class="n"><a id="t670" href="#t670">670</a></span><span class="t"><span class="txt">    _check_or_init_cufile()</span>&nbsp;</span><input type="checkbox" id="ctxs670"><span class="r"><label for="ctxs670" class="ctx">29 ctx</label></span><span class="ctxs">1NPRTVXBY02468!$'*-qrs/nopt:uw</span></p>
+    <p class="run"><span class="n"><a id="t671" href="#t671">671</a></span><span class="t"><span class="txt">    if __cuFileDriverClose_v2 == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs671"><span class="r"><label for="ctxs671" class="ctx">29 ctx</label></span><span class="ctxs">1NPRTVXBY02468!$'*-qrs/nopt:uw</span></p>
     <p class="mis show_mis"><span class="n"><a id="t672" href="#t672">672</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t673" href="#t673">673</a></span><span class="t"><span class="txt">            raise FunctionNotFoundError(&quot;function cuFileDriverClose_v2 is not found&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t674" href="#t674">674</a></span><span class="t"><span class="txt">    return (&lt;CUfileError_t (*)() noexcept nogil&gt;__cuFileDriverClose_v2)(</span>&nbsp;</span><input type="checkbox" id="ctxs674"><span class="r"><label for="ctxs674" class="ctx">29 ctx</label></span><span class="ctxs">1NPRTVAWY02468!$'*-qrs/nopt:uw</span></p>
+    <p class="run"><span class="n"><a id="t674" href="#t674">674</a></span><span class="t"><span class="txt">    return (&lt;CUfileError_t (*)() noexcept nogil&gt;__cuFileDriverClose_v2)(</span>&nbsp;</span><input type="checkbox" id="ctxs674"><span class="r"><label for="ctxs674" class="ctx">29 ctx</label></span><span class="ctxs">1NPRTVXBY02468!$'*-qrs/nopt:uw</span></p>
     <p class="pln"><span class="n"><a id="t675" href="#t675">675</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t676" href="#t676">676</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t677" href="#t677">677</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -1185,7 +1185,7 @@
             <a class="nav" href="z_1c6fa6fde3f60f5e_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
     </div>
 </footer>

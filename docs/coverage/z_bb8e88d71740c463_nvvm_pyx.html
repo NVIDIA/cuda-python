@@ -71,8 +71,8 @@
   "9": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|setup",
   "!": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
   "#": "tests/test_program.py::test_bitcode_format[txt]|setup",
-  "$": "tests/test_program.py::test_nvvm_program_options[options0-ltoir]|setup",
-  "%": "tests/test_program.py::test_nvvm_program_options[options1-ptx]|setup",
+  "$": "tests/test_program.py::test_nvvm_program_options[options5-ptx]|setup",
+  "%": "tests/test_program.py::test_nvvm_program_options[options6-ltoir]|setup",
   "'": "tests/test_program.py::test_nvvm_program_with_multiple_extra_sources|run",
   "(": "tests/test_program.py::test_nvvm_program_with_single_extra_source|run",
   ")": "tests/test_program.py::test_nvvm_compile_invalid_ir|run",
@@ -139,7 +139,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -237,10 +237,10 @@
     <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">class nvvmError(Exception):</span>&nbsp;</span><span class="r"><label for="ctxs81" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    def __init__(self, status):</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">12 ctx</label></span><span class="ctxs">1ajklmnoEF)pq</span></p>
-    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">        s = Result(status)</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">12 ctx</label></span><span class="ctxs">1ajklmnoEF)pq</span></p>
-    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        cdef str err = f&quot;{s.name} ({s.value})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">12 ctx</label></span><span class="ctxs">1ajklmnoEF)pq</span></p>
-    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        super(nvvmError, self).__init__(err)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">12 ctx</label></span><span class="ctxs">1ajklmnoEF)pq</span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">11 ctx</label></span><span class="ctxs">1jklmnoEF)pq</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">        s = Result(status)</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">11 ctx</label></span><span class="ctxs">1jklmnoEF)pq</span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        cdef str err = f&quot;{s.name} ({s.value})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">11 ctx</label></span><span class="ctxs">1jklmnoEF)pq</span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        super(nvvmError, self).__init__(err)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">11 ctx</label></span><span class="ctxs">1jklmnoEF)pq</span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">    def __reduce__(self):</span>&nbsp;</span><span class="r"><label for="ctxs89" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        return (type(self), (self.status,))</span>&nbsp;</span><span class="r"></span></p>
@@ -249,8 +249,8 @@
     <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">@cython.profile(False)</span>&nbsp;</span><span class="r"><label for="ctxs93" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">cdef int check_status(int status) except 1 nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs95"><span class="r"><label for="ctxs95" class="ctx">68 ctx</label></span><span class="ctxs">1aCDjQkRlSmTnoEFbUcVdWeXfYgZh0i1GAB2P3u4v5w6x7y8z9!#$%'(HIJKLMNOprqst</span></p>
-    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">11 ctx</label></span><span class="ctxs">1ajklmnoEFpq</span></p>
-    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">            raise nvvmError(status)</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">11 ctx</label></span><span class="ctxs">1ajklmnoEFpq</span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><input type="checkbox" id="ctxs96"><span class="r"><label for="ctxs96" class="ctx">10 ctx</label></span><span class="ctxs">1jklmnoEFpq</span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">            raise nvvmError(status)</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">10 ctx</label></span><span class="ctxs">1jklmnoEFpq</span></p>
     <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">68 ctx</label></span><span class="ctxs">1aCDjQkRlSmTnoEFbUcVdWeXfYgZh0i1GAB2P3u4v5w6x7y8z9!#$%'(HIJKLMNOprqst</span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -536,7 +536,7 @@
             <a class="nav" href="z_bb8e88d71740c463_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.15.4">coverage.py v7.15.4</a>,
-            created at 2026-08-14 01:16 +0000
+            created at 2026-08-23 01:01 +0000
         </p>
     </div>
 </footer>
