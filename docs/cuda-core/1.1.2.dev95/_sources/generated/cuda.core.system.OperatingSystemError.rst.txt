@@ -1,0 +1,6 @@
+﻿cuda.core.system.OperatingSystemError
+=====================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: OperatingSystemError
