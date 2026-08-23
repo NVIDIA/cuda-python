@@ -100,7 +100,7 @@ class TestSearchContext:
 
     def test_lib_searched_for_windows(self):
         ctx = SearchContext(_make_desc(name="cublas"), platform=WindowsSearchPlatform(target_arch="x64"))
-        assert ctx.lib_searched_for == "cublas*.dll"
+        assert ctx.lib_searched_for == "known cublas DLL"
 
     def test_raise_not_found_includes_messages(self):
         ctx = _ctx()
@@ -331,43 +331,21 @@ class TestFindInSitePackages:
         assert result is None
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_windows_explicit_glob_finds_unlisted_future_cupti(self, mocker, tmp_path):
+    def test_windows_matching_rejects_unlisted_cupti_name(self, mocker, tmp_path):
         bin_dir = tmp_path / "nvidia" / "cuda_cupti" / "bin"
         bin_dir.mkdir(parents=True)
-        dll = bin_dir / "cupti64_2027.1.0.dll"
-        dll.touch()
+        (bin_dir / "cupti64_14.dll").touch()
 
         mocker.patch(
             f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
             return_value=[str(bin_dir)],
         )
-        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         result = find_in_site_packages(
             _ctx(LIB_DESCRIPTORS["cupti"], platform=WindowsSearchPlatform(target_arch="x64"))
         )
 
-        assert result == FindResult(str(dll), "site-packages")
-
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_windows_explicit_glob_prefers_known_cupti_name(self, mocker, tmp_path):
-        bin_dir = tmp_path / "nvidia" / "cuda_cupti" / "bin"
-        bin_dir.mkdir(parents=True)
-        known_dll = bin_dir / "cupti64_2026.3.0.dll"
-        known_dll.touch()
-        (bin_dir / "cupti64_2027.1.0.dll").touch()
-
-        mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
-            return_value=[str(bin_dir)],
-        )
-        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
-
-        result = find_in_site_packages(
-            _ctx(LIB_DESCRIPTORS["cupti"], platform=WindowsSearchPlatform(target_arch="x64"))
-        )
-
-        assert result == FindResult(str(known_dll), "site-packages")
+        assert result is None
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_windows_known_cupti_names_prefer_newest(self, tmp_path):

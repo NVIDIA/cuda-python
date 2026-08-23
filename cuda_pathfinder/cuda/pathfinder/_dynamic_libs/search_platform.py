@@ -20,7 +20,6 @@ from typing import Protocol, cast
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dll_file
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
-from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
 
@@ -76,19 +75,11 @@ def _find_descriptor_dll_under_dir(
             return False
         return target_arch is None or windows_pe_matches_arch(path, target_arch)
 
-    # Prefer the descriptor's known DLL names in its established search order.
-    # Explicit globs provide a collision-safe forward-compatible fallback for
-    # libraries whose full version is encoded in the filename (for example CUPTI).
+    # Try the descriptor's known DLL names in its established search order.
     for dll_basename in reversed(cast(tuple[str, ...], desc.windows_dlls)):
         path = os.path.join(dirpath, dll_basename)
         if candidate_is_usable(path):
             return path
-
-    for dll_glob in desc.windows_dll_fallback_globs:
-        file_wild = os.path.join(dirpath, dll_glob)
-        for path in sorted(glob.glob(file_wild), key=numeric_aware_path_sort_key, reverse=True):
-            if candidate_is_usable(path):
-                return path
     return None
 
 
@@ -218,7 +209,7 @@ class WindowsSearchPlatform:
     target_arch: str
 
     def lib_searched_for(self, libname: str) -> str:
-        return f"{libname}*.dll"
+        return f"known {libname} DLL"
 
     def site_packages_rel_dirs(self, desc: LibDescriptor) -> tuple[str, ...]:
         return cast(tuple[str, ...], desc.site_packages_windows.for_arch(self.target_arch))
@@ -267,19 +258,18 @@ class WindowsSearchPlatform:
         self,
         lib_dir: str,
         desc: LibDescriptor,
-        _lib_searched_for: str,
+        lib_searched_for: str,
         error_messages: list[str],
         attachments: list[str],
     ) -> str | None:
-        file_wild = desc.name + "*.dll"
         target_arch = self.target_arch if desc.requires_windows_binary_arch_check else None
         dll_name = _find_descriptor_dll_under_dir(lib_dir, desc, target_arch)
         if dll_name is not None:
             return dll_name
         if target_arch is None:
-            error_messages.append(f"No such file: {file_wild}")
+            error_messages.append(f"No such file: {lib_searched_for}")
         else:
-            error_messages.append(f"No {target_arch}-compatible PE file: {file_wild}")
+            error_messages.append(f"No {target_arch}-compatible PE file: {lib_searched_for}")
         attachments.append(f'  listdir("{lib_dir}"):')
         if not os.path.isdir(lib_dir):
             attachments.append("    DIRECTORY DOES NOT EXIST")
