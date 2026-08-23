@@ -52,3 +52,14 @@ The list of available interfaces is:
 
 CUDA Python is licensed under the [Apache License 2.0](./LICENSE). Third-party
 attributions for `cuda.core` are listed in [`cuda_core/NOTICE`](./cuda_core/NOTICE).
+
+Each subproject is distributed as its own package and ships a copy of the same
+license alongside its sources, so that the license accompanies the built wheel.
+The root `LICENSE` governs the repository as a whole:
+
+| Subproject       | License    | License file                                             |
+| ---------------- | ---------- | -------------------------------------------------------- |
+| `cuda.bindings`  | Apache-2.0 | [`cuda_bindings/LICENSE`](./cuda_bindings/LICENSE)       |
+| `cuda.core`      | Apache-2.0 | [`cuda_core/LICENSE`](./cuda_core/LICENSE)               |
+| `cuda.pathfinder`| Apache-2.0 | [`cuda_pathfinder/LICENSE`](./cuda_pathfinder/LICENSE)   |
+| `cuda-python`    | Apache-2.0 | [`cuda_python/LICENSE`](./cuda_python/LICENSE)           |

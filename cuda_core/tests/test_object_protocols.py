@@ -13,9 +13,9 @@ import re
 import weakref
 
 import pytest
-from conftest import xfail_on_graph_mempool_oom
 from helpers.constants import POOL_SIZE
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
 from cuda.core import (
@@ -23,6 +23,7 @@ from cuda.core import (
     Device,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
+    EventOptions,
     Kernel,
     LaunchConfig,
     Program,
@@ -242,7 +243,7 @@ def sample_ipc_buffer_descriptor(ipc_device):
 def sample_ipc_event_descriptor(ipc_device):
     """An IPCEventDescriptor."""
     stream = ipc_device.create_stream()
-    e = stream.record(options={"ipc_enabled": True})
+    e = stream.record(options=EventOptions(ipc_enabled=True))
     return e.ipc_descriptor
 
 

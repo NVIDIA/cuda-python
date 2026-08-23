@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1e5b152412ef388b8a785b8362155fef84faecf8a3575f95461cedb918b08fb0
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0fc726f8d963197a11bba5027050e90528a31b29ece3de3bec606b2c4d66aa7a
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -44,7 +44,7 @@ cdef extern from * nogil:
 cdef extern from "<dlfcn.h>":
     void* _cyb_dlsym "dlsym"(void*, const char*) nogil
 
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport intptr_t
 
 from os import getenv as _cyb_getenv
 import threading as _cyb_threading
@@ -2202,1576 +2202,1576 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_driver()
     cdef dict data = {}
     global __cuGetErrorString
-    data["__cuGetErrorString"] = <_cyb_intptr_t>__cuGetErrorString
+    data["__cuGetErrorString"] = <intptr_t>__cuGetErrorString
 
     global __cuGetErrorName
-    data["__cuGetErrorName"] = <_cyb_intptr_t>__cuGetErrorName
+    data["__cuGetErrorName"] = <intptr_t>__cuGetErrorName
 
     global __cuInit
-    data["__cuInit"] = <_cyb_intptr_t>__cuInit
+    data["__cuInit"] = <intptr_t>__cuInit
 
     global __cuDriverGetVersion
-    data["__cuDriverGetVersion"] = <_cyb_intptr_t>__cuDriverGetVersion
+    data["__cuDriverGetVersion"] = <intptr_t>__cuDriverGetVersion
 
     global __cuDeviceGet
-    data["__cuDeviceGet"] = <_cyb_intptr_t>__cuDeviceGet
+    data["__cuDeviceGet"] = <intptr_t>__cuDeviceGet
 
     global __cuDeviceGetCount
-    data["__cuDeviceGetCount"] = <_cyb_intptr_t>__cuDeviceGetCount
+    data["__cuDeviceGetCount"] = <intptr_t>__cuDeviceGetCount
 
     global __cuDeviceGetName
-    data["__cuDeviceGetName"] = <_cyb_intptr_t>__cuDeviceGetName
+    data["__cuDeviceGetName"] = <intptr_t>__cuDeviceGetName
 
     global __cuDeviceGetUuid_v2
-    data["__cuDeviceGetUuid_v2"] = <_cyb_intptr_t>__cuDeviceGetUuid_v2
+    data["__cuDeviceGetUuid_v2"] = <intptr_t>__cuDeviceGetUuid_v2
 
     global __cuDeviceGetLuid
-    data["__cuDeviceGetLuid"] = <_cyb_intptr_t>__cuDeviceGetLuid
+    data["__cuDeviceGetLuid"] = <intptr_t>__cuDeviceGetLuid
 
     global __cuDeviceTotalMem_v2
-    data["__cuDeviceTotalMem_v2"] = <_cyb_intptr_t>__cuDeviceTotalMem_v2
+    data["__cuDeviceTotalMem_v2"] = <intptr_t>__cuDeviceTotalMem_v2
 
     global __cuDeviceGetTexture1DLinearMaxWidth
-    data["__cuDeviceGetTexture1DLinearMaxWidth"] = <_cyb_intptr_t>__cuDeviceGetTexture1DLinearMaxWidth
+    data["__cuDeviceGetTexture1DLinearMaxWidth"] = <intptr_t>__cuDeviceGetTexture1DLinearMaxWidth
 
     global __cuDeviceGetAttribute
-    data["__cuDeviceGetAttribute"] = <_cyb_intptr_t>__cuDeviceGetAttribute
+    data["__cuDeviceGetAttribute"] = <intptr_t>__cuDeviceGetAttribute
 
     global __cuDeviceGetNvSciSyncAttributes
-    data["__cuDeviceGetNvSciSyncAttributes"] = <_cyb_intptr_t>__cuDeviceGetNvSciSyncAttributes
+    data["__cuDeviceGetNvSciSyncAttributes"] = <intptr_t>__cuDeviceGetNvSciSyncAttributes
 
     global __cuDeviceSetMemPool
-    data["__cuDeviceSetMemPool"] = <_cyb_intptr_t>__cuDeviceSetMemPool
+    data["__cuDeviceSetMemPool"] = <intptr_t>__cuDeviceSetMemPool
 
     global __cuDeviceGetMemPool
-    data["__cuDeviceGetMemPool"] = <_cyb_intptr_t>__cuDeviceGetMemPool
+    data["__cuDeviceGetMemPool"] = <intptr_t>__cuDeviceGetMemPool
 
     global __cuDeviceGetDefaultMemPool
-    data["__cuDeviceGetDefaultMemPool"] = <_cyb_intptr_t>__cuDeviceGetDefaultMemPool
+    data["__cuDeviceGetDefaultMemPool"] = <intptr_t>__cuDeviceGetDefaultMemPool
 
     global __cuDeviceGetExecAffinitySupport
-    data["__cuDeviceGetExecAffinitySupport"] = <_cyb_intptr_t>__cuDeviceGetExecAffinitySupport
+    data["__cuDeviceGetExecAffinitySupport"] = <intptr_t>__cuDeviceGetExecAffinitySupport
 
     global __cuFlushGPUDirectRDMAWrites
-    data["__cuFlushGPUDirectRDMAWrites"] = <_cyb_intptr_t>__cuFlushGPUDirectRDMAWrites
+    data["__cuFlushGPUDirectRDMAWrites"] = <intptr_t>__cuFlushGPUDirectRDMAWrites
 
     global __cuDeviceGetProperties
-    data["__cuDeviceGetProperties"] = <_cyb_intptr_t>__cuDeviceGetProperties
+    data["__cuDeviceGetProperties"] = <intptr_t>__cuDeviceGetProperties
 
     global __cuDeviceComputeCapability
-    data["__cuDeviceComputeCapability"] = <_cyb_intptr_t>__cuDeviceComputeCapability
+    data["__cuDeviceComputeCapability"] = <intptr_t>__cuDeviceComputeCapability
 
     global __cuDevicePrimaryCtxRetain
-    data["__cuDevicePrimaryCtxRetain"] = <_cyb_intptr_t>__cuDevicePrimaryCtxRetain
+    data["__cuDevicePrimaryCtxRetain"] = <intptr_t>__cuDevicePrimaryCtxRetain
 
     global __cuDevicePrimaryCtxRelease_v2
-    data["__cuDevicePrimaryCtxRelease_v2"] = <_cyb_intptr_t>__cuDevicePrimaryCtxRelease_v2
+    data["__cuDevicePrimaryCtxRelease_v2"] = <intptr_t>__cuDevicePrimaryCtxRelease_v2
 
     global __cuDevicePrimaryCtxSetFlags_v2
-    data["__cuDevicePrimaryCtxSetFlags_v2"] = <_cyb_intptr_t>__cuDevicePrimaryCtxSetFlags_v2
+    data["__cuDevicePrimaryCtxSetFlags_v2"] = <intptr_t>__cuDevicePrimaryCtxSetFlags_v2
 
     global __cuDevicePrimaryCtxGetState
-    data["__cuDevicePrimaryCtxGetState"] = <_cyb_intptr_t>__cuDevicePrimaryCtxGetState
+    data["__cuDevicePrimaryCtxGetState"] = <intptr_t>__cuDevicePrimaryCtxGetState
 
     global __cuDevicePrimaryCtxReset_v2
-    data["__cuDevicePrimaryCtxReset_v2"] = <_cyb_intptr_t>__cuDevicePrimaryCtxReset_v2
+    data["__cuDevicePrimaryCtxReset_v2"] = <intptr_t>__cuDevicePrimaryCtxReset_v2
 
     global __cuCtxCreate_v2
-    data["__cuCtxCreate_v2"] = <_cyb_intptr_t>__cuCtxCreate_v2
+    data["__cuCtxCreate_v2"] = <intptr_t>__cuCtxCreate_v2
 
     global __cuCtxCreate_v3
-    data["__cuCtxCreate_v3"] = <_cyb_intptr_t>__cuCtxCreate_v3
+    data["__cuCtxCreate_v3"] = <intptr_t>__cuCtxCreate_v3
 
     global __cuCtxCreate_v4
-    data["__cuCtxCreate_v4"] = <_cyb_intptr_t>__cuCtxCreate_v4
+    data["__cuCtxCreate_v4"] = <intptr_t>__cuCtxCreate_v4
 
     global __cuCtxDestroy_v2
-    data["__cuCtxDestroy_v2"] = <_cyb_intptr_t>__cuCtxDestroy_v2
+    data["__cuCtxDestroy_v2"] = <intptr_t>__cuCtxDestroy_v2
 
     global __cuCtxPushCurrent_v2
-    data["__cuCtxPushCurrent_v2"] = <_cyb_intptr_t>__cuCtxPushCurrent_v2
+    data["__cuCtxPushCurrent_v2"] = <intptr_t>__cuCtxPushCurrent_v2
 
     global __cuCtxPopCurrent_v2
-    data["__cuCtxPopCurrent_v2"] = <_cyb_intptr_t>__cuCtxPopCurrent_v2
+    data["__cuCtxPopCurrent_v2"] = <intptr_t>__cuCtxPopCurrent_v2
 
     global __cuCtxSetCurrent
-    data["__cuCtxSetCurrent"] = <_cyb_intptr_t>__cuCtxSetCurrent
+    data["__cuCtxSetCurrent"] = <intptr_t>__cuCtxSetCurrent
 
     global __cuCtxGetCurrent
-    data["__cuCtxGetCurrent"] = <_cyb_intptr_t>__cuCtxGetCurrent
+    data["__cuCtxGetCurrent"] = <intptr_t>__cuCtxGetCurrent
 
     global __cuCtxGetDevice
-    data["__cuCtxGetDevice"] = <_cyb_intptr_t>__cuCtxGetDevice
+    data["__cuCtxGetDevice"] = <intptr_t>__cuCtxGetDevice
 
     global __cuCtxGetFlags
-    data["__cuCtxGetFlags"] = <_cyb_intptr_t>__cuCtxGetFlags
+    data["__cuCtxGetFlags"] = <intptr_t>__cuCtxGetFlags
 
     global __cuCtxSetFlags
-    data["__cuCtxSetFlags"] = <_cyb_intptr_t>__cuCtxSetFlags
+    data["__cuCtxSetFlags"] = <intptr_t>__cuCtxSetFlags
 
     global __cuCtxGetId
-    data["__cuCtxGetId"] = <_cyb_intptr_t>__cuCtxGetId
+    data["__cuCtxGetId"] = <intptr_t>__cuCtxGetId
 
     global __cuCtxSynchronize
-    data["__cuCtxSynchronize"] = <_cyb_intptr_t>__cuCtxSynchronize
+    data["__cuCtxSynchronize"] = <intptr_t>__cuCtxSynchronize
 
     global __cuCtxSetLimit
-    data["__cuCtxSetLimit"] = <_cyb_intptr_t>__cuCtxSetLimit
+    data["__cuCtxSetLimit"] = <intptr_t>__cuCtxSetLimit
 
     global __cuCtxGetLimit
-    data["__cuCtxGetLimit"] = <_cyb_intptr_t>__cuCtxGetLimit
+    data["__cuCtxGetLimit"] = <intptr_t>__cuCtxGetLimit
 
     global __cuCtxGetCacheConfig
-    data["__cuCtxGetCacheConfig"] = <_cyb_intptr_t>__cuCtxGetCacheConfig
+    data["__cuCtxGetCacheConfig"] = <intptr_t>__cuCtxGetCacheConfig
 
     global __cuCtxSetCacheConfig
-    data["__cuCtxSetCacheConfig"] = <_cyb_intptr_t>__cuCtxSetCacheConfig
+    data["__cuCtxSetCacheConfig"] = <intptr_t>__cuCtxSetCacheConfig
 
     global __cuCtxGetApiVersion
-    data["__cuCtxGetApiVersion"] = <_cyb_intptr_t>__cuCtxGetApiVersion
+    data["__cuCtxGetApiVersion"] = <intptr_t>__cuCtxGetApiVersion
 
     global __cuCtxGetStreamPriorityRange
-    data["__cuCtxGetStreamPriorityRange"] = <_cyb_intptr_t>__cuCtxGetStreamPriorityRange
+    data["__cuCtxGetStreamPriorityRange"] = <intptr_t>__cuCtxGetStreamPriorityRange
 
     global __cuCtxResetPersistingL2Cache
-    data["__cuCtxResetPersistingL2Cache"] = <_cyb_intptr_t>__cuCtxResetPersistingL2Cache
+    data["__cuCtxResetPersistingL2Cache"] = <intptr_t>__cuCtxResetPersistingL2Cache
 
     global __cuCtxGetExecAffinity
-    data["__cuCtxGetExecAffinity"] = <_cyb_intptr_t>__cuCtxGetExecAffinity
+    data["__cuCtxGetExecAffinity"] = <intptr_t>__cuCtxGetExecAffinity
 
     global __cuCtxRecordEvent
-    data["__cuCtxRecordEvent"] = <_cyb_intptr_t>__cuCtxRecordEvent
+    data["__cuCtxRecordEvent"] = <intptr_t>__cuCtxRecordEvent
 
     global __cuCtxWaitEvent
-    data["__cuCtxWaitEvent"] = <_cyb_intptr_t>__cuCtxWaitEvent
+    data["__cuCtxWaitEvent"] = <intptr_t>__cuCtxWaitEvent
 
     global __cuCtxAttach
-    data["__cuCtxAttach"] = <_cyb_intptr_t>__cuCtxAttach
+    data["__cuCtxAttach"] = <intptr_t>__cuCtxAttach
 
     global __cuCtxDetach
-    data["__cuCtxDetach"] = <_cyb_intptr_t>__cuCtxDetach
+    data["__cuCtxDetach"] = <intptr_t>__cuCtxDetach
 
     global __cuCtxGetSharedMemConfig
-    data["__cuCtxGetSharedMemConfig"] = <_cyb_intptr_t>__cuCtxGetSharedMemConfig
+    data["__cuCtxGetSharedMemConfig"] = <intptr_t>__cuCtxGetSharedMemConfig
 
     global __cuCtxSetSharedMemConfig
-    data["__cuCtxSetSharedMemConfig"] = <_cyb_intptr_t>__cuCtxSetSharedMemConfig
+    data["__cuCtxSetSharedMemConfig"] = <intptr_t>__cuCtxSetSharedMemConfig
 
     global __cuModuleLoad
-    data["__cuModuleLoad"] = <_cyb_intptr_t>__cuModuleLoad
+    data["__cuModuleLoad"] = <intptr_t>__cuModuleLoad
 
     global __cuModuleLoadData
-    data["__cuModuleLoadData"] = <_cyb_intptr_t>__cuModuleLoadData
+    data["__cuModuleLoadData"] = <intptr_t>__cuModuleLoadData
 
     global __cuModuleLoadDataEx
-    data["__cuModuleLoadDataEx"] = <_cyb_intptr_t>__cuModuleLoadDataEx
+    data["__cuModuleLoadDataEx"] = <intptr_t>__cuModuleLoadDataEx
 
     global __cuModuleLoadFatBinary
-    data["__cuModuleLoadFatBinary"] = <_cyb_intptr_t>__cuModuleLoadFatBinary
+    data["__cuModuleLoadFatBinary"] = <intptr_t>__cuModuleLoadFatBinary
 
     global __cuModuleUnload
-    data["__cuModuleUnload"] = <_cyb_intptr_t>__cuModuleUnload
+    data["__cuModuleUnload"] = <intptr_t>__cuModuleUnload
 
     global __cuModuleGetLoadingMode
-    data["__cuModuleGetLoadingMode"] = <_cyb_intptr_t>__cuModuleGetLoadingMode
+    data["__cuModuleGetLoadingMode"] = <intptr_t>__cuModuleGetLoadingMode
 
     global __cuModuleGetFunction
-    data["__cuModuleGetFunction"] = <_cyb_intptr_t>__cuModuleGetFunction
+    data["__cuModuleGetFunction"] = <intptr_t>__cuModuleGetFunction
 
     global __cuModuleGetFunctionCount
-    data["__cuModuleGetFunctionCount"] = <_cyb_intptr_t>__cuModuleGetFunctionCount
+    data["__cuModuleGetFunctionCount"] = <intptr_t>__cuModuleGetFunctionCount
 
     global __cuModuleEnumerateFunctions
-    data["__cuModuleEnumerateFunctions"] = <_cyb_intptr_t>__cuModuleEnumerateFunctions
+    data["__cuModuleEnumerateFunctions"] = <intptr_t>__cuModuleEnumerateFunctions
 
     global __cuModuleGetGlobal_v2
-    data["__cuModuleGetGlobal_v2"] = <_cyb_intptr_t>__cuModuleGetGlobal_v2
+    data["__cuModuleGetGlobal_v2"] = <intptr_t>__cuModuleGetGlobal_v2
 
     global __cuLinkCreate_v2
-    data["__cuLinkCreate_v2"] = <_cyb_intptr_t>__cuLinkCreate_v2
+    data["__cuLinkCreate_v2"] = <intptr_t>__cuLinkCreate_v2
 
     global __cuLinkAddData_v2
-    data["__cuLinkAddData_v2"] = <_cyb_intptr_t>__cuLinkAddData_v2
+    data["__cuLinkAddData_v2"] = <intptr_t>__cuLinkAddData_v2
 
     global __cuLinkAddFile_v2
-    data["__cuLinkAddFile_v2"] = <_cyb_intptr_t>__cuLinkAddFile_v2
+    data["__cuLinkAddFile_v2"] = <intptr_t>__cuLinkAddFile_v2
 
     global __cuLinkComplete
-    data["__cuLinkComplete"] = <_cyb_intptr_t>__cuLinkComplete
+    data["__cuLinkComplete"] = <intptr_t>__cuLinkComplete
 
     global __cuLinkDestroy
-    data["__cuLinkDestroy"] = <_cyb_intptr_t>__cuLinkDestroy
+    data["__cuLinkDestroy"] = <intptr_t>__cuLinkDestroy
 
     global __cuModuleGetTexRef
-    data["__cuModuleGetTexRef"] = <_cyb_intptr_t>__cuModuleGetTexRef
+    data["__cuModuleGetTexRef"] = <intptr_t>__cuModuleGetTexRef
 
     global __cuModuleGetSurfRef
-    data["__cuModuleGetSurfRef"] = <_cyb_intptr_t>__cuModuleGetSurfRef
+    data["__cuModuleGetSurfRef"] = <intptr_t>__cuModuleGetSurfRef
 
     global __cuLibraryLoadData
-    data["__cuLibraryLoadData"] = <_cyb_intptr_t>__cuLibraryLoadData
+    data["__cuLibraryLoadData"] = <intptr_t>__cuLibraryLoadData
 
     global __cuLibraryLoadFromFile
-    data["__cuLibraryLoadFromFile"] = <_cyb_intptr_t>__cuLibraryLoadFromFile
+    data["__cuLibraryLoadFromFile"] = <intptr_t>__cuLibraryLoadFromFile
 
     global __cuLibraryUnload
-    data["__cuLibraryUnload"] = <_cyb_intptr_t>__cuLibraryUnload
+    data["__cuLibraryUnload"] = <intptr_t>__cuLibraryUnload
 
     global __cuLibraryGetKernel
-    data["__cuLibraryGetKernel"] = <_cyb_intptr_t>__cuLibraryGetKernel
+    data["__cuLibraryGetKernel"] = <intptr_t>__cuLibraryGetKernel
 
     global __cuLibraryGetKernelCount
-    data["__cuLibraryGetKernelCount"] = <_cyb_intptr_t>__cuLibraryGetKernelCount
+    data["__cuLibraryGetKernelCount"] = <intptr_t>__cuLibraryGetKernelCount
 
     global __cuLibraryEnumerateKernels
-    data["__cuLibraryEnumerateKernels"] = <_cyb_intptr_t>__cuLibraryEnumerateKernels
+    data["__cuLibraryEnumerateKernels"] = <intptr_t>__cuLibraryEnumerateKernels
 
     global __cuLibraryGetModule
-    data["__cuLibraryGetModule"] = <_cyb_intptr_t>__cuLibraryGetModule
+    data["__cuLibraryGetModule"] = <intptr_t>__cuLibraryGetModule
 
     global __cuKernelGetFunction
-    data["__cuKernelGetFunction"] = <_cyb_intptr_t>__cuKernelGetFunction
+    data["__cuKernelGetFunction"] = <intptr_t>__cuKernelGetFunction
 
     global __cuKernelGetLibrary
-    data["__cuKernelGetLibrary"] = <_cyb_intptr_t>__cuKernelGetLibrary
+    data["__cuKernelGetLibrary"] = <intptr_t>__cuKernelGetLibrary
 
     global __cuLibraryGetGlobal
-    data["__cuLibraryGetGlobal"] = <_cyb_intptr_t>__cuLibraryGetGlobal
+    data["__cuLibraryGetGlobal"] = <intptr_t>__cuLibraryGetGlobal
 
     global __cuLibraryGetManaged
-    data["__cuLibraryGetManaged"] = <_cyb_intptr_t>__cuLibraryGetManaged
+    data["__cuLibraryGetManaged"] = <intptr_t>__cuLibraryGetManaged
 
     global __cuLibraryGetUnifiedFunction
-    data["__cuLibraryGetUnifiedFunction"] = <_cyb_intptr_t>__cuLibraryGetUnifiedFunction
+    data["__cuLibraryGetUnifiedFunction"] = <intptr_t>__cuLibraryGetUnifiedFunction
 
     global __cuKernelGetAttribute
-    data["__cuKernelGetAttribute"] = <_cyb_intptr_t>__cuKernelGetAttribute
+    data["__cuKernelGetAttribute"] = <intptr_t>__cuKernelGetAttribute
 
     global __cuKernelSetAttribute
-    data["__cuKernelSetAttribute"] = <_cyb_intptr_t>__cuKernelSetAttribute
+    data["__cuKernelSetAttribute"] = <intptr_t>__cuKernelSetAttribute
 
     global __cuKernelSetCacheConfig
-    data["__cuKernelSetCacheConfig"] = <_cyb_intptr_t>__cuKernelSetCacheConfig
+    data["__cuKernelSetCacheConfig"] = <intptr_t>__cuKernelSetCacheConfig
 
     global __cuKernelGetName
-    data["__cuKernelGetName"] = <_cyb_intptr_t>__cuKernelGetName
+    data["__cuKernelGetName"] = <intptr_t>__cuKernelGetName
 
     global __cuKernelGetParamInfo
-    data["__cuKernelGetParamInfo"] = <_cyb_intptr_t>__cuKernelGetParamInfo
+    data["__cuKernelGetParamInfo"] = <intptr_t>__cuKernelGetParamInfo
 
     global __cuMemGetInfo_v2
-    data["__cuMemGetInfo_v2"] = <_cyb_intptr_t>__cuMemGetInfo_v2
+    data["__cuMemGetInfo_v2"] = <intptr_t>__cuMemGetInfo_v2
 
     global __cuMemAlloc_v2
-    data["__cuMemAlloc_v2"] = <_cyb_intptr_t>__cuMemAlloc_v2
+    data["__cuMemAlloc_v2"] = <intptr_t>__cuMemAlloc_v2
 
     global __cuMemAllocPitch_v2
-    data["__cuMemAllocPitch_v2"] = <_cyb_intptr_t>__cuMemAllocPitch_v2
+    data["__cuMemAllocPitch_v2"] = <intptr_t>__cuMemAllocPitch_v2
 
     global __cuMemFree_v2
-    data["__cuMemFree_v2"] = <_cyb_intptr_t>__cuMemFree_v2
+    data["__cuMemFree_v2"] = <intptr_t>__cuMemFree_v2
 
     global __cuMemGetAddressRange_v2
-    data["__cuMemGetAddressRange_v2"] = <_cyb_intptr_t>__cuMemGetAddressRange_v2
+    data["__cuMemGetAddressRange_v2"] = <intptr_t>__cuMemGetAddressRange_v2
 
     global __cuMemAllocHost_v2
-    data["__cuMemAllocHost_v2"] = <_cyb_intptr_t>__cuMemAllocHost_v2
+    data["__cuMemAllocHost_v2"] = <intptr_t>__cuMemAllocHost_v2
 
     global __cuMemFreeHost
-    data["__cuMemFreeHost"] = <_cyb_intptr_t>__cuMemFreeHost
+    data["__cuMemFreeHost"] = <intptr_t>__cuMemFreeHost
 
     global __cuMemHostAlloc
-    data["__cuMemHostAlloc"] = <_cyb_intptr_t>__cuMemHostAlloc
+    data["__cuMemHostAlloc"] = <intptr_t>__cuMemHostAlloc
 
     global __cuMemHostGetDevicePointer_v2
-    data["__cuMemHostGetDevicePointer_v2"] = <_cyb_intptr_t>__cuMemHostGetDevicePointer_v2
+    data["__cuMemHostGetDevicePointer_v2"] = <intptr_t>__cuMemHostGetDevicePointer_v2
 
     global __cuMemHostGetFlags
-    data["__cuMemHostGetFlags"] = <_cyb_intptr_t>__cuMemHostGetFlags
+    data["__cuMemHostGetFlags"] = <intptr_t>__cuMemHostGetFlags
 
     global __cuMemAllocManaged
-    data["__cuMemAllocManaged"] = <_cyb_intptr_t>__cuMemAllocManaged
+    data["__cuMemAllocManaged"] = <intptr_t>__cuMemAllocManaged
 
     global __cuDeviceRegisterAsyncNotification
-    data["__cuDeviceRegisterAsyncNotification"] = <_cyb_intptr_t>__cuDeviceRegisterAsyncNotification
+    data["__cuDeviceRegisterAsyncNotification"] = <intptr_t>__cuDeviceRegisterAsyncNotification
 
     global __cuDeviceUnregisterAsyncNotification
-    data["__cuDeviceUnregisterAsyncNotification"] = <_cyb_intptr_t>__cuDeviceUnregisterAsyncNotification
+    data["__cuDeviceUnregisterAsyncNotification"] = <intptr_t>__cuDeviceUnregisterAsyncNotification
 
     global __cuDeviceGetByPCIBusId
-    data["__cuDeviceGetByPCIBusId"] = <_cyb_intptr_t>__cuDeviceGetByPCIBusId
+    data["__cuDeviceGetByPCIBusId"] = <intptr_t>__cuDeviceGetByPCIBusId
 
     global __cuDeviceGetPCIBusId
-    data["__cuDeviceGetPCIBusId"] = <_cyb_intptr_t>__cuDeviceGetPCIBusId
+    data["__cuDeviceGetPCIBusId"] = <intptr_t>__cuDeviceGetPCIBusId
 
     global __cuIpcGetEventHandle
-    data["__cuIpcGetEventHandle"] = <_cyb_intptr_t>__cuIpcGetEventHandle
+    data["__cuIpcGetEventHandle"] = <intptr_t>__cuIpcGetEventHandle
 
     global __cuIpcOpenEventHandle
-    data["__cuIpcOpenEventHandle"] = <_cyb_intptr_t>__cuIpcOpenEventHandle
+    data["__cuIpcOpenEventHandle"] = <intptr_t>__cuIpcOpenEventHandle
 
     global __cuIpcGetMemHandle
-    data["__cuIpcGetMemHandle"] = <_cyb_intptr_t>__cuIpcGetMemHandle
+    data["__cuIpcGetMemHandle"] = <intptr_t>__cuIpcGetMemHandle
 
     global __cuIpcOpenMemHandle_v2
-    data["__cuIpcOpenMemHandle_v2"] = <_cyb_intptr_t>__cuIpcOpenMemHandle_v2
+    data["__cuIpcOpenMemHandle_v2"] = <intptr_t>__cuIpcOpenMemHandle_v2
 
     global __cuIpcCloseMemHandle
-    data["__cuIpcCloseMemHandle"] = <_cyb_intptr_t>__cuIpcCloseMemHandle
+    data["__cuIpcCloseMemHandle"] = <intptr_t>__cuIpcCloseMemHandle
 
     global __cuMemHostRegister_v2
-    data["__cuMemHostRegister_v2"] = <_cyb_intptr_t>__cuMemHostRegister_v2
+    data["__cuMemHostRegister_v2"] = <intptr_t>__cuMemHostRegister_v2
 
     global __cuMemHostUnregister
-    data["__cuMemHostUnregister"] = <_cyb_intptr_t>__cuMemHostUnregister
+    data["__cuMemHostUnregister"] = <intptr_t>__cuMemHostUnregister
 
     global __cuMemcpy
-    data["__cuMemcpy"] = <_cyb_intptr_t>__cuMemcpy
+    data["__cuMemcpy"] = <intptr_t>__cuMemcpy
 
     global __cuMemcpyPeer
-    data["__cuMemcpyPeer"] = <_cyb_intptr_t>__cuMemcpyPeer
+    data["__cuMemcpyPeer"] = <intptr_t>__cuMemcpyPeer
 
     global __cuMemcpyHtoD_v2
-    data["__cuMemcpyHtoD_v2"] = <_cyb_intptr_t>__cuMemcpyHtoD_v2
+    data["__cuMemcpyHtoD_v2"] = <intptr_t>__cuMemcpyHtoD_v2
 
     global __cuMemcpyDtoH_v2
-    data["__cuMemcpyDtoH_v2"] = <_cyb_intptr_t>__cuMemcpyDtoH_v2
+    data["__cuMemcpyDtoH_v2"] = <intptr_t>__cuMemcpyDtoH_v2
 
     global __cuMemcpyDtoD_v2
-    data["__cuMemcpyDtoD_v2"] = <_cyb_intptr_t>__cuMemcpyDtoD_v2
+    data["__cuMemcpyDtoD_v2"] = <intptr_t>__cuMemcpyDtoD_v2
 
     global __cuMemcpyDtoA_v2
-    data["__cuMemcpyDtoA_v2"] = <_cyb_intptr_t>__cuMemcpyDtoA_v2
+    data["__cuMemcpyDtoA_v2"] = <intptr_t>__cuMemcpyDtoA_v2
 
     global __cuMemcpyAtoD_v2
-    data["__cuMemcpyAtoD_v2"] = <_cyb_intptr_t>__cuMemcpyAtoD_v2
+    data["__cuMemcpyAtoD_v2"] = <intptr_t>__cuMemcpyAtoD_v2
 
     global __cuMemcpyHtoA_v2
-    data["__cuMemcpyHtoA_v2"] = <_cyb_intptr_t>__cuMemcpyHtoA_v2
+    data["__cuMemcpyHtoA_v2"] = <intptr_t>__cuMemcpyHtoA_v2
 
     global __cuMemcpyAtoH_v2
-    data["__cuMemcpyAtoH_v2"] = <_cyb_intptr_t>__cuMemcpyAtoH_v2
+    data["__cuMemcpyAtoH_v2"] = <intptr_t>__cuMemcpyAtoH_v2
 
     global __cuMemcpyAtoA_v2
-    data["__cuMemcpyAtoA_v2"] = <_cyb_intptr_t>__cuMemcpyAtoA_v2
+    data["__cuMemcpyAtoA_v2"] = <intptr_t>__cuMemcpyAtoA_v2
 
     global __cuMemcpy2D_v2
-    data["__cuMemcpy2D_v2"] = <_cyb_intptr_t>__cuMemcpy2D_v2
+    data["__cuMemcpy2D_v2"] = <intptr_t>__cuMemcpy2D_v2
 
     global __cuMemcpy2DUnaligned_v2
-    data["__cuMemcpy2DUnaligned_v2"] = <_cyb_intptr_t>__cuMemcpy2DUnaligned_v2
+    data["__cuMemcpy2DUnaligned_v2"] = <intptr_t>__cuMemcpy2DUnaligned_v2
 
     global __cuMemcpy3D_v2
-    data["__cuMemcpy3D_v2"] = <_cyb_intptr_t>__cuMemcpy3D_v2
+    data["__cuMemcpy3D_v2"] = <intptr_t>__cuMemcpy3D_v2
 
     global __cuMemcpy3DPeer
-    data["__cuMemcpy3DPeer"] = <_cyb_intptr_t>__cuMemcpy3DPeer
+    data["__cuMemcpy3DPeer"] = <intptr_t>__cuMemcpy3DPeer
 
     global __cuMemcpyAsync
-    data["__cuMemcpyAsync"] = <_cyb_intptr_t>__cuMemcpyAsync
+    data["__cuMemcpyAsync"] = <intptr_t>__cuMemcpyAsync
 
     global __cuMemcpyPeerAsync
-    data["__cuMemcpyPeerAsync"] = <_cyb_intptr_t>__cuMemcpyPeerAsync
+    data["__cuMemcpyPeerAsync"] = <intptr_t>__cuMemcpyPeerAsync
 
     global __cuMemcpyHtoDAsync_v2
-    data["__cuMemcpyHtoDAsync_v2"] = <_cyb_intptr_t>__cuMemcpyHtoDAsync_v2
+    data["__cuMemcpyHtoDAsync_v2"] = <intptr_t>__cuMemcpyHtoDAsync_v2
 
     global __cuMemcpyDtoHAsync_v2
-    data["__cuMemcpyDtoHAsync_v2"] = <_cyb_intptr_t>__cuMemcpyDtoHAsync_v2
+    data["__cuMemcpyDtoHAsync_v2"] = <intptr_t>__cuMemcpyDtoHAsync_v2
 
     global __cuMemcpyDtoDAsync_v2
-    data["__cuMemcpyDtoDAsync_v2"] = <_cyb_intptr_t>__cuMemcpyDtoDAsync_v2
+    data["__cuMemcpyDtoDAsync_v2"] = <intptr_t>__cuMemcpyDtoDAsync_v2
 
     global __cuMemcpyHtoAAsync_v2
-    data["__cuMemcpyHtoAAsync_v2"] = <_cyb_intptr_t>__cuMemcpyHtoAAsync_v2
+    data["__cuMemcpyHtoAAsync_v2"] = <intptr_t>__cuMemcpyHtoAAsync_v2
 
     global __cuMemcpyAtoHAsync_v2
-    data["__cuMemcpyAtoHAsync_v2"] = <_cyb_intptr_t>__cuMemcpyAtoHAsync_v2
+    data["__cuMemcpyAtoHAsync_v2"] = <intptr_t>__cuMemcpyAtoHAsync_v2
 
     global __cuMemcpy2DAsync_v2
-    data["__cuMemcpy2DAsync_v2"] = <_cyb_intptr_t>__cuMemcpy2DAsync_v2
+    data["__cuMemcpy2DAsync_v2"] = <intptr_t>__cuMemcpy2DAsync_v2
 
     global __cuMemcpy3DAsync_v2
-    data["__cuMemcpy3DAsync_v2"] = <_cyb_intptr_t>__cuMemcpy3DAsync_v2
+    data["__cuMemcpy3DAsync_v2"] = <intptr_t>__cuMemcpy3DAsync_v2
 
     global __cuMemcpy3DPeerAsync
-    data["__cuMemcpy3DPeerAsync"] = <_cyb_intptr_t>__cuMemcpy3DPeerAsync
+    data["__cuMemcpy3DPeerAsync"] = <intptr_t>__cuMemcpy3DPeerAsync
 
     global __cuMemsetD8_v2
-    data["__cuMemsetD8_v2"] = <_cyb_intptr_t>__cuMemsetD8_v2
+    data["__cuMemsetD8_v2"] = <intptr_t>__cuMemsetD8_v2
 
     global __cuMemsetD16_v2
-    data["__cuMemsetD16_v2"] = <_cyb_intptr_t>__cuMemsetD16_v2
+    data["__cuMemsetD16_v2"] = <intptr_t>__cuMemsetD16_v2
 
     global __cuMemsetD32_v2
-    data["__cuMemsetD32_v2"] = <_cyb_intptr_t>__cuMemsetD32_v2
+    data["__cuMemsetD32_v2"] = <intptr_t>__cuMemsetD32_v2
 
     global __cuMemsetD2D8_v2
-    data["__cuMemsetD2D8_v2"] = <_cyb_intptr_t>__cuMemsetD2D8_v2
+    data["__cuMemsetD2D8_v2"] = <intptr_t>__cuMemsetD2D8_v2
 
     global __cuMemsetD2D16_v2
-    data["__cuMemsetD2D16_v2"] = <_cyb_intptr_t>__cuMemsetD2D16_v2
+    data["__cuMemsetD2D16_v2"] = <intptr_t>__cuMemsetD2D16_v2
 
     global __cuMemsetD2D32_v2
-    data["__cuMemsetD2D32_v2"] = <_cyb_intptr_t>__cuMemsetD2D32_v2
+    data["__cuMemsetD2D32_v2"] = <intptr_t>__cuMemsetD2D32_v2
 
     global __cuMemsetD8Async
-    data["__cuMemsetD8Async"] = <_cyb_intptr_t>__cuMemsetD8Async
+    data["__cuMemsetD8Async"] = <intptr_t>__cuMemsetD8Async
 
     global __cuMemsetD16Async
-    data["__cuMemsetD16Async"] = <_cyb_intptr_t>__cuMemsetD16Async
+    data["__cuMemsetD16Async"] = <intptr_t>__cuMemsetD16Async
 
     global __cuMemsetD32Async
-    data["__cuMemsetD32Async"] = <_cyb_intptr_t>__cuMemsetD32Async
+    data["__cuMemsetD32Async"] = <intptr_t>__cuMemsetD32Async
 
     global __cuMemsetD2D8Async
-    data["__cuMemsetD2D8Async"] = <_cyb_intptr_t>__cuMemsetD2D8Async
+    data["__cuMemsetD2D8Async"] = <intptr_t>__cuMemsetD2D8Async
 
     global __cuMemsetD2D16Async
-    data["__cuMemsetD2D16Async"] = <_cyb_intptr_t>__cuMemsetD2D16Async
+    data["__cuMemsetD2D16Async"] = <intptr_t>__cuMemsetD2D16Async
 
     global __cuMemsetD2D32Async
-    data["__cuMemsetD2D32Async"] = <_cyb_intptr_t>__cuMemsetD2D32Async
+    data["__cuMemsetD2D32Async"] = <intptr_t>__cuMemsetD2D32Async
 
     global __cuArrayCreate_v2
-    data["__cuArrayCreate_v2"] = <_cyb_intptr_t>__cuArrayCreate_v2
+    data["__cuArrayCreate_v2"] = <intptr_t>__cuArrayCreate_v2
 
     global __cuArrayGetDescriptor_v2
-    data["__cuArrayGetDescriptor_v2"] = <_cyb_intptr_t>__cuArrayGetDescriptor_v2
+    data["__cuArrayGetDescriptor_v2"] = <intptr_t>__cuArrayGetDescriptor_v2
 
     global __cuArrayGetSparseProperties
-    data["__cuArrayGetSparseProperties"] = <_cyb_intptr_t>__cuArrayGetSparseProperties
+    data["__cuArrayGetSparseProperties"] = <intptr_t>__cuArrayGetSparseProperties
 
     global __cuMipmappedArrayGetSparseProperties
-    data["__cuMipmappedArrayGetSparseProperties"] = <_cyb_intptr_t>__cuMipmappedArrayGetSparseProperties
+    data["__cuMipmappedArrayGetSparseProperties"] = <intptr_t>__cuMipmappedArrayGetSparseProperties
 
     global __cuArrayGetMemoryRequirements
-    data["__cuArrayGetMemoryRequirements"] = <_cyb_intptr_t>__cuArrayGetMemoryRequirements
+    data["__cuArrayGetMemoryRequirements"] = <intptr_t>__cuArrayGetMemoryRequirements
 
     global __cuMipmappedArrayGetMemoryRequirements
-    data["__cuMipmappedArrayGetMemoryRequirements"] = <_cyb_intptr_t>__cuMipmappedArrayGetMemoryRequirements
+    data["__cuMipmappedArrayGetMemoryRequirements"] = <intptr_t>__cuMipmappedArrayGetMemoryRequirements
 
     global __cuArrayGetPlane
-    data["__cuArrayGetPlane"] = <_cyb_intptr_t>__cuArrayGetPlane
+    data["__cuArrayGetPlane"] = <intptr_t>__cuArrayGetPlane
 
     global __cuArrayDestroy
-    data["__cuArrayDestroy"] = <_cyb_intptr_t>__cuArrayDestroy
+    data["__cuArrayDestroy"] = <intptr_t>__cuArrayDestroy
 
     global __cuArray3DCreate_v2
-    data["__cuArray3DCreate_v2"] = <_cyb_intptr_t>__cuArray3DCreate_v2
+    data["__cuArray3DCreate_v2"] = <intptr_t>__cuArray3DCreate_v2
 
     global __cuArray3DGetDescriptor_v2
-    data["__cuArray3DGetDescriptor_v2"] = <_cyb_intptr_t>__cuArray3DGetDescriptor_v2
+    data["__cuArray3DGetDescriptor_v2"] = <intptr_t>__cuArray3DGetDescriptor_v2
 
     global __cuMipmappedArrayCreate
-    data["__cuMipmappedArrayCreate"] = <_cyb_intptr_t>__cuMipmappedArrayCreate
+    data["__cuMipmappedArrayCreate"] = <intptr_t>__cuMipmappedArrayCreate
 
     global __cuMipmappedArrayGetLevel
-    data["__cuMipmappedArrayGetLevel"] = <_cyb_intptr_t>__cuMipmappedArrayGetLevel
+    data["__cuMipmappedArrayGetLevel"] = <intptr_t>__cuMipmappedArrayGetLevel
 
     global __cuMipmappedArrayDestroy
-    data["__cuMipmappedArrayDestroy"] = <_cyb_intptr_t>__cuMipmappedArrayDestroy
+    data["__cuMipmappedArrayDestroy"] = <intptr_t>__cuMipmappedArrayDestroy
 
     global __cuMemGetHandleForAddressRange
-    data["__cuMemGetHandleForAddressRange"] = <_cyb_intptr_t>__cuMemGetHandleForAddressRange
+    data["__cuMemGetHandleForAddressRange"] = <intptr_t>__cuMemGetHandleForAddressRange
 
     global __cuMemBatchDecompressAsync
-    data["__cuMemBatchDecompressAsync"] = <_cyb_intptr_t>__cuMemBatchDecompressAsync
+    data["__cuMemBatchDecompressAsync"] = <intptr_t>__cuMemBatchDecompressAsync
 
     global __cuMemAddressReserve
-    data["__cuMemAddressReserve"] = <_cyb_intptr_t>__cuMemAddressReserve
+    data["__cuMemAddressReserve"] = <intptr_t>__cuMemAddressReserve
 
     global __cuMemAddressFree
-    data["__cuMemAddressFree"] = <_cyb_intptr_t>__cuMemAddressFree
+    data["__cuMemAddressFree"] = <intptr_t>__cuMemAddressFree
 
     global __cuMemCreate
-    data["__cuMemCreate"] = <_cyb_intptr_t>__cuMemCreate
+    data["__cuMemCreate"] = <intptr_t>__cuMemCreate
 
     global __cuMemRelease
-    data["__cuMemRelease"] = <_cyb_intptr_t>__cuMemRelease
+    data["__cuMemRelease"] = <intptr_t>__cuMemRelease
 
     global __cuMemMap
-    data["__cuMemMap"] = <_cyb_intptr_t>__cuMemMap
+    data["__cuMemMap"] = <intptr_t>__cuMemMap
 
     global __cuMemMapArrayAsync
-    data["__cuMemMapArrayAsync"] = <_cyb_intptr_t>__cuMemMapArrayAsync
+    data["__cuMemMapArrayAsync"] = <intptr_t>__cuMemMapArrayAsync
 
     global __cuMemUnmap
-    data["__cuMemUnmap"] = <_cyb_intptr_t>__cuMemUnmap
+    data["__cuMemUnmap"] = <intptr_t>__cuMemUnmap
 
     global __cuMemSetAccess
-    data["__cuMemSetAccess"] = <_cyb_intptr_t>__cuMemSetAccess
+    data["__cuMemSetAccess"] = <intptr_t>__cuMemSetAccess
 
     global __cuMemGetAccess
-    data["__cuMemGetAccess"] = <_cyb_intptr_t>__cuMemGetAccess
+    data["__cuMemGetAccess"] = <intptr_t>__cuMemGetAccess
 
     global __cuMemExportToShareableHandle
-    data["__cuMemExportToShareableHandle"] = <_cyb_intptr_t>__cuMemExportToShareableHandle
+    data["__cuMemExportToShareableHandle"] = <intptr_t>__cuMemExportToShareableHandle
 
     global __cuMemImportFromShareableHandle
-    data["__cuMemImportFromShareableHandle"] = <_cyb_intptr_t>__cuMemImportFromShareableHandle
+    data["__cuMemImportFromShareableHandle"] = <intptr_t>__cuMemImportFromShareableHandle
 
     global __cuMemGetAllocationGranularity
-    data["__cuMemGetAllocationGranularity"] = <_cyb_intptr_t>__cuMemGetAllocationGranularity
+    data["__cuMemGetAllocationGranularity"] = <intptr_t>__cuMemGetAllocationGranularity
 
     global __cuMemGetAllocationPropertiesFromHandle
-    data["__cuMemGetAllocationPropertiesFromHandle"] = <_cyb_intptr_t>__cuMemGetAllocationPropertiesFromHandle
+    data["__cuMemGetAllocationPropertiesFromHandle"] = <intptr_t>__cuMemGetAllocationPropertiesFromHandle
 
     global __cuMemRetainAllocationHandle
-    data["__cuMemRetainAllocationHandle"] = <_cyb_intptr_t>__cuMemRetainAllocationHandle
+    data["__cuMemRetainAllocationHandle"] = <intptr_t>__cuMemRetainAllocationHandle
 
     global __cuMemFreeAsync
-    data["__cuMemFreeAsync"] = <_cyb_intptr_t>__cuMemFreeAsync
+    data["__cuMemFreeAsync"] = <intptr_t>__cuMemFreeAsync
 
     global __cuMemAllocAsync
-    data["__cuMemAllocAsync"] = <_cyb_intptr_t>__cuMemAllocAsync
+    data["__cuMemAllocAsync"] = <intptr_t>__cuMemAllocAsync
 
     global __cuMemPoolTrimTo
-    data["__cuMemPoolTrimTo"] = <_cyb_intptr_t>__cuMemPoolTrimTo
+    data["__cuMemPoolTrimTo"] = <intptr_t>__cuMemPoolTrimTo
 
     global __cuMemPoolSetAttribute
-    data["__cuMemPoolSetAttribute"] = <_cyb_intptr_t>__cuMemPoolSetAttribute
+    data["__cuMemPoolSetAttribute"] = <intptr_t>__cuMemPoolSetAttribute
 
     global __cuMemPoolGetAttribute
-    data["__cuMemPoolGetAttribute"] = <_cyb_intptr_t>__cuMemPoolGetAttribute
+    data["__cuMemPoolGetAttribute"] = <intptr_t>__cuMemPoolGetAttribute
 
     global __cuMemPoolSetAccess
-    data["__cuMemPoolSetAccess"] = <_cyb_intptr_t>__cuMemPoolSetAccess
+    data["__cuMemPoolSetAccess"] = <intptr_t>__cuMemPoolSetAccess
 
     global __cuMemPoolGetAccess
-    data["__cuMemPoolGetAccess"] = <_cyb_intptr_t>__cuMemPoolGetAccess
+    data["__cuMemPoolGetAccess"] = <intptr_t>__cuMemPoolGetAccess
 
     global __cuMemPoolCreate
-    data["__cuMemPoolCreate"] = <_cyb_intptr_t>__cuMemPoolCreate
+    data["__cuMemPoolCreate"] = <intptr_t>__cuMemPoolCreate
 
     global __cuMemPoolDestroy
-    data["__cuMemPoolDestroy"] = <_cyb_intptr_t>__cuMemPoolDestroy
+    data["__cuMemPoolDestroy"] = <intptr_t>__cuMemPoolDestroy
 
     global __cuMemAllocFromPoolAsync
-    data["__cuMemAllocFromPoolAsync"] = <_cyb_intptr_t>__cuMemAllocFromPoolAsync
+    data["__cuMemAllocFromPoolAsync"] = <intptr_t>__cuMemAllocFromPoolAsync
 
     global __cuMemPoolExportToShareableHandle
-    data["__cuMemPoolExportToShareableHandle"] = <_cyb_intptr_t>__cuMemPoolExportToShareableHandle
+    data["__cuMemPoolExportToShareableHandle"] = <intptr_t>__cuMemPoolExportToShareableHandle
 
     global __cuMemPoolImportFromShareableHandle
-    data["__cuMemPoolImportFromShareableHandle"] = <_cyb_intptr_t>__cuMemPoolImportFromShareableHandle
+    data["__cuMemPoolImportFromShareableHandle"] = <intptr_t>__cuMemPoolImportFromShareableHandle
 
     global __cuMemPoolExportPointer
-    data["__cuMemPoolExportPointer"] = <_cyb_intptr_t>__cuMemPoolExportPointer
+    data["__cuMemPoolExportPointer"] = <intptr_t>__cuMemPoolExportPointer
 
     global __cuMemPoolImportPointer
-    data["__cuMemPoolImportPointer"] = <_cyb_intptr_t>__cuMemPoolImportPointer
+    data["__cuMemPoolImportPointer"] = <intptr_t>__cuMemPoolImportPointer
 
     global __cuMulticastCreate
-    data["__cuMulticastCreate"] = <_cyb_intptr_t>__cuMulticastCreate
+    data["__cuMulticastCreate"] = <intptr_t>__cuMulticastCreate
 
     global __cuMulticastAddDevice
-    data["__cuMulticastAddDevice"] = <_cyb_intptr_t>__cuMulticastAddDevice
+    data["__cuMulticastAddDevice"] = <intptr_t>__cuMulticastAddDevice
 
     global __cuMulticastBindMem
-    data["__cuMulticastBindMem"] = <_cyb_intptr_t>__cuMulticastBindMem
+    data["__cuMulticastBindMem"] = <intptr_t>__cuMulticastBindMem
 
     global __cuMulticastBindAddr
-    data["__cuMulticastBindAddr"] = <_cyb_intptr_t>__cuMulticastBindAddr
+    data["__cuMulticastBindAddr"] = <intptr_t>__cuMulticastBindAddr
 
     global __cuMulticastUnbind
-    data["__cuMulticastUnbind"] = <_cyb_intptr_t>__cuMulticastUnbind
+    data["__cuMulticastUnbind"] = <intptr_t>__cuMulticastUnbind
 
     global __cuMulticastGetGranularity
-    data["__cuMulticastGetGranularity"] = <_cyb_intptr_t>__cuMulticastGetGranularity
+    data["__cuMulticastGetGranularity"] = <intptr_t>__cuMulticastGetGranularity
 
     global __cuPointerGetAttribute
-    data["__cuPointerGetAttribute"] = <_cyb_intptr_t>__cuPointerGetAttribute
+    data["__cuPointerGetAttribute"] = <intptr_t>__cuPointerGetAttribute
 
     global __cuMemPrefetchAsync_v2
-    data["__cuMemPrefetchAsync_v2"] = <_cyb_intptr_t>__cuMemPrefetchAsync_v2
+    data["__cuMemPrefetchAsync_v2"] = <intptr_t>__cuMemPrefetchAsync_v2
 
     global __cuMemAdvise_v2
-    data["__cuMemAdvise_v2"] = <_cyb_intptr_t>__cuMemAdvise_v2
+    data["__cuMemAdvise_v2"] = <intptr_t>__cuMemAdvise_v2
 
     global __cuMemRangeGetAttribute
-    data["__cuMemRangeGetAttribute"] = <_cyb_intptr_t>__cuMemRangeGetAttribute
+    data["__cuMemRangeGetAttribute"] = <intptr_t>__cuMemRangeGetAttribute
 
     global __cuMemRangeGetAttributes
-    data["__cuMemRangeGetAttributes"] = <_cyb_intptr_t>__cuMemRangeGetAttributes
+    data["__cuMemRangeGetAttributes"] = <intptr_t>__cuMemRangeGetAttributes
 
     global __cuPointerSetAttribute
-    data["__cuPointerSetAttribute"] = <_cyb_intptr_t>__cuPointerSetAttribute
+    data["__cuPointerSetAttribute"] = <intptr_t>__cuPointerSetAttribute
 
     global __cuPointerGetAttributes
-    data["__cuPointerGetAttributes"] = <_cyb_intptr_t>__cuPointerGetAttributes
+    data["__cuPointerGetAttributes"] = <intptr_t>__cuPointerGetAttributes
 
     global __cuStreamCreate
-    data["__cuStreamCreate"] = <_cyb_intptr_t>__cuStreamCreate
+    data["__cuStreamCreate"] = <intptr_t>__cuStreamCreate
 
     global __cuStreamCreateWithPriority
-    data["__cuStreamCreateWithPriority"] = <_cyb_intptr_t>__cuStreamCreateWithPriority
+    data["__cuStreamCreateWithPriority"] = <intptr_t>__cuStreamCreateWithPriority
 
     global __cuStreamGetPriority
-    data["__cuStreamGetPriority"] = <_cyb_intptr_t>__cuStreamGetPriority
+    data["__cuStreamGetPriority"] = <intptr_t>__cuStreamGetPriority
 
     global __cuStreamGetDevice
-    data["__cuStreamGetDevice"] = <_cyb_intptr_t>__cuStreamGetDevice
+    data["__cuStreamGetDevice"] = <intptr_t>__cuStreamGetDevice
 
     global __cuStreamGetFlags
-    data["__cuStreamGetFlags"] = <_cyb_intptr_t>__cuStreamGetFlags
+    data["__cuStreamGetFlags"] = <intptr_t>__cuStreamGetFlags
 
     global __cuStreamGetId
-    data["__cuStreamGetId"] = <_cyb_intptr_t>__cuStreamGetId
+    data["__cuStreamGetId"] = <intptr_t>__cuStreamGetId
 
     global __cuStreamGetCtx
-    data["__cuStreamGetCtx"] = <_cyb_intptr_t>__cuStreamGetCtx
+    data["__cuStreamGetCtx"] = <intptr_t>__cuStreamGetCtx
 
     global __cuStreamGetCtx_v2
-    data["__cuStreamGetCtx_v2"] = <_cyb_intptr_t>__cuStreamGetCtx_v2
+    data["__cuStreamGetCtx_v2"] = <intptr_t>__cuStreamGetCtx_v2
 
     global __cuStreamWaitEvent
-    data["__cuStreamWaitEvent"] = <_cyb_intptr_t>__cuStreamWaitEvent
+    data["__cuStreamWaitEvent"] = <intptr_t>__cuStreamWaitEvent
 
     global __cuStreamAddCallback
-    data["__cuStreamAddCallback"] = <_cyb_intptr_t>__cuStreamAddCallback
+    data["__cuStreamAddCallback"] = <intptr_t>__cuStreamAddCallback
 
     global __cuStreamBeginCapture_v2
-    data["__cuStreamBeginCapture_v2"] = <_cyb_intptr_t>__cuStreamBeginCapture_v2
+    data["__cuStreamBeginCapture_v2"] = <intptr_t>__cuStreamBeginCapture_v2
 
     global __cuStreamBeginCaptureToGraph
-    data["__cuStreamBeginCaptureToGraph"] = <_cyb_intptr_t>__cuStreamBeginCaptureToGraph
+    data["__cuStreamBeginCaptureToGraph"] = <intptr_t>__cuStreamBeginCaptureToGraph
 
     global __cuThreadExchangeStreamCaptureMode
-    data["__cuThreadExchangeStreamCaptureMode"] = <_cyb_intptr_t>__cuThreadExchangeStreamCaptureMode
+    data["__cuThreadExchangeStreamCaptureMode"] = <intptr_t>__cuThreadExchangeStreamCaptureMode
 
     global __cuStreamEndCapture
-    data["__cuStreamEndCapture"] = <_cyb_intptr_t>__cuStreamEndCapture
+    data["__cuStreamEndCapture"] = <intptr_t>__cuStreamEndCapture
 
     global __cuStreamIsCapturing
-    data["__cuStreamIsCapturing"] = <_cyb_intptr_t>__cuStreamIsCapturing
+    data["__cuStreamIsCapturing"] = <intptr_t>__cuStreamIsCapturing
 
     global __cuStreamGetCaptureInfo_v2
-    data["__cuStreamGetCaptureInfo_v2"] = <_cyb_intptr_t>__cuStreamGetCaptureInfo_v2
+    data["__cuStreamGetCaptureInfo_v2"] = <intptr_t>__cuStreamGetCaptureInfo_v2
 
     global __cuStreamGetCaptureInfo_v3
-    data["__cuStreamGetCaptureInfo_v3"] = <_cyb_intptr_t>__cuStreamGetCaptureInfo_v3
+    data["__cuStreamGetCaptureInfo_v3"] = <intptr_t>__cuStreamGetCaptureInfo_v3
 
     global __cuStreamUpdateCaptureDependencies_v2
-    data["__cuStreamUpdateCaptureDependencies_v2"] = <_cyb_intptr_t>__cuStreamUpdateCaptureDependencies_v2
+    data["__cuStreamUpdateCaptureDependencies_v2"] = <intptr_t>__cuStreamUpdateCaptureDependencies_v2
 
     global __cuStreamAttachMemAsync
-    data["__cuStreamAttachMemAsync"] = <_cyb_intptr_t>__cuStreamAttachMemAsync
+    data["__cuStreamAttachMemAsync"] = <intptr_t>__cuStreamAttachMemAsync
 
     global __cuStreamQuery
-    data["__cuStreamQuery"] = <_cyb_intptr_t>__cuStreamQuery
+    data["__cuStreamQuery"] = <intptr_t>__cuStreamQuery
 
     global __cuStreamSynchronize
-    data["__cuStreamSynchronize"] = <_cyb_intptr_t>__cuStreamSynchronize
+    data["__cuStreamSynchronize"] = <intptr_t>__cuStreamSynchronize
 
     global __cuStreamDestroy_v2
-    data["__cuStreamDestroy_v2"] = <_cyb_intptr_t>__cuStreamDestroy_v2
+    data["__cuStreamDestroy_v2"] = <intptr_t>__cuStreamDestroy_v2
 
     global __cuStreamCopyAttributes
-    data["__cuStreamCopyAttributes"] = <_cyb_intptr_t>__cuStreamCopyAttributes
+    data["__cuStreamCopyAttributes"] = <intptr_t>__cuStreamCopyAttributes
 
     global __cuStreamGetAttribute
-    data["__cuStreamGetAttribute"] = <_cyb_intptr_t>__cuStreamGetAttribute
+    data["__cuStreamGetAttribute"] = <intptr_t>__cuStreamGetAttribute
 
     global __cuStreamSetAttribute
-    data["__cuStreamSetAttribute"] = <_cyb_intptr_t>__cuStreamSetAttribute
+    data["__cuStreamSetAttribute"] = <intptr_t>__cuStreamSetAttribute
 
     global __cuEventCreate
-    data["__cuEventCreate"] = <_cyb_intptr_t>__cuEventCreate
+    data["__cuEventCreate"] = <intptr_t>__cuEventCreate
 
     global __cuEventRecord
-    data["__cuEventRecord"] = <_cyb_intptr_t>__cuEventRecord
+    data["__cuEventRecord"] = <intptr_t>__cuEventRecord
 
     global __cuEventRecordWithFlags
-    data["__cuEventRecordWithFlags"] = <_cyb_intptr_t>__cuEventRecordWithFlags
+    data["__cuEventRecordWithFlags"] = <intptr_t>__cuEventRecordWithFlags
 
     global __cuEventQuery
-    data["__cuEventQuery"] = <_cyb_intptr_t>__cuEventQuery
+    data["__cuEventQuery"] = <intptr_t>__cuEventQuery
 
     global __cuEventSynchronize
-    data["__cuEventSynchronize"] = <_cyb_intptr_t>__cuEventSynchronize
+    data["__cuEventSynchronize"] = <intptr_t>__cuEventSynchronize
 
     global __cuEventDestroy_v2
-    data["__cuEventDestroy_v2"] = <_cyb_intptr_t>__cuEventDestroy_v2
+    data["__cuEventDestroy_v2"] = <intptr_t>__cuEventDestroy_v2
 
     global __cuEventElapsedTime_v2
-    data["__cuEventElapsedTime_v2"] = <_cyb_intptr_t>__cuEventElapsedTime_v2
+    data["__cuEventElapsedTime_v2"] = <intptr_t>__cuEventElapsedTime_v2
 
     global __cuImportExternalMemory
-    data["__cuImportExternalMemory"] = <_cyb_intptr_t>__cuImportExternalMemory
+    data["__cuImportExternalMemory"] = <intptr_t>__cuImportExternalMemory
 
     global __cuExternalMemoryGetMappedBuffer
-    data["__cuExternalMemoryGetMappedBuffer"] = <_cyb_intptr_t>__cuExternalMemoryGetMappedBuffer
+    data["__cuExternalMemoryGetMappedBuffer"] = <intptr_t>__cuExternalMemoryGetMappedBuffer
 
     global __cuExternalMemoryGetMappedMipmappedArray
-    data["__cuExternalMemoryGetMappedMipmappedArray"] = <_cyb_intptr_t>__cuExternalMemoryGetMappedMipmappedArray
+    data["__cuExternalMemoryGetMappedMipmappedArray"] = <intptr_t>__cuExternalMemoryGetMappedMipmappedArray
 
     global __cuDestroyExternalMemory
-    data["__cuDestroyExternalMemory"] = <_cyb_intptr_t>__cuDestroyExternalMemory
+    data["__cuDestroyExternalMemory"] = <intptr_t>__cuDestroyExternalMemory
 
     global __cuImportExternalSemaphore
-    data["__cuImportExternalSemaphore"] = <_cyb_intptr_t>__cuImportExternalSemaphore
+    data["__cuImportExternalSemaphore"] = <intptr_t>__cuImportExternalSemaphore
 
     global __cuSignalExternalSemaphoresAsync
-    data["__cuSignalExternalSemaphoresAsync"] = <_cyb_intptr_t>__cuSignalExternalSemaphoresAsync
+    data["__cuSignalExternalSemaphoresAsync"] = <intptr_t>__cuSignalExternalSemaphoresAsync
 
     global __cuWaitExternalSemaphoresAsync
-    data["__cuWaitExternalSemaphoresAsync"] = <_cyb_intptr_t>__cuWaitExternalSemaphoresAsync
+    data["__cuWaitExternalSemaphoresAsync"] = <intptr_t>__cuWaitExternalSemaphoresAsync
 
     global __cuDestroyExternalSemaphore
-    data["__cuDestroyExternalSemaphore"] = <_cyb_intptr_t>__cuDestroyExternalSemaphore
+    data["__cuDestroyExternalSemaphore"] = <intptr_t>__cuDestroyExternalSemaphore
 
     global __cuStreamWaitValue32_v2
-    data["__cuStreamWaitValue32_v2"] = <_cyb_intptr_t>__cuStreamWaitValue32_v2
+    data["__cuStreamWaitValue32_v2"] = <intptr_t>__cuStreamWaitValue32_v2
 
     global __cuStreamWaitValue64_v2
-    data["__cuStreamWaitValue64_v2"] = <_cyb_intptr_t>__cuStreamWaitValue64_v2
+    data["__cuStreamWaitValue64_v2"] = <intptr_t>__cuStreamWaitValue64_v2
 
     global __cuStreamWriteValue32_v2
-    data["__cuStreamWriteValue32_v2"] = <_cyb_intptr_t>__cuStreamWriteValue32_v2
+    data["__cuStreamWriteValue32_v2"] = <intptr_t>__cuStreamWriteValue32_v2
 
     global __cuStreamWriteValue64_v2
-    data["__cuStreamWriteValue64_v2"] = <_cyb_intptr_t>__cuStreamWriteValue64_v2
+    data["__cuStreamWriteValue64_v2"] = <intptr_t>__cuStreamWriteValue64_v2
 
     global __cuStreamBatchMemOp_v2
-    data["__cuStreamBatchMemOp_v2"] = <_cyb_intptr_t>__cuStreamBatchMemOp_v2
+    data["__cuStreamBatchMemOp_v2"] = <intptr_t>__cuStreamBatchMemOp_v2
 
     global __cuFuncGetAttribute
-    data["__cuFuncGetAttribute"] = <_cyb_intptr_t>__cuFuncGetAttribute
+    data["__cuFuncGetAttribute"] = <intptr_t>__cuFuncGetAttribute
 
     global __cuFuncSetAttribute
-    data["__cuFuncSetAttribute"] = <_cyb_intptr_t>__cuFuncSetAttribute
+    data["__cuFuncSetAttribute"] = <intptr_t>__cuFuncSetAttribute
 
     global __cuFuncSetCacheConfig
-    data["__cuFuncSetCacheConfig"] = <_cyb_intptr_t>__cuFuncSetCacheConfig
+    data["__cuFuncSetCacheConfig"] = <intptr_t>__cuFuncSetCacheConfig
 
     global __cuFuncGetModule
-    data["__cuFuncGetModule"] = <_cyb_intptr_t>__cuFuncGetModule
+    data["__cuFuncGetModule"] = <intptr_t>__cuFuncGetModule
 
     global __cuFuncGetName
-    data["__cuFuncGetName"] = <_cyb_intptr_t>__cuFuncGetName
+    data["__cuFuncGetName"] = <intptr_t>__cuFuncGetName
 
     global __cuFuncGetParamInfo
-    data["__cuFuncGetParamInfo"] = <_cyb_intptr_t>__cuFuncGetParamInfo
+    data["__cuFuncGetParamInfo"] = <intptr_t>__cuFuncGetParamInfo
 
     global __cuFuncIsLoaded
-    data["__cuFuncIsLoaded"] = <_cyb_intptr_t>__cuFuncIsLoaded
+    data["__cuFuncIsLoaded"] = <intptr_t>__cuFuncIsLoaded
 
     global __cuFuncLoad
-    data["__cuFuncLoad"] = <_cyb_intptr_t>__cuFuncLoad
+    data["__cuFuncLoad"] = <intptr_t>__cuFuncLoad
 
     global __cuLaunchKernel
-    data["__cuLaunchKernel"] = <_cyb_intptr_t>__cuLaunchKernel
+    data["__cuLaunchKernel"] = <intptr_t>__cuLaunchKernel
 
     global __cuLaunchKernelEx
-    data["__cuLaunchKernelEx"] = <_cyb_intptr_t>__cuLaunchKernelEx
+    data["__cuLaunchKernelEx"] = <intptr_t>__cuLaunchKernelEx
 
     global __cuLaunchCooperativeKernel
-    data["__cuLaunchCooperativeKernel"] = <_cyb_intptr_t>__cuLaunchCooperativeKernel
+    data["__cuLaunchCooperativeKernel"] = <intptr_t>__cuLaunchCooperativeKernel
 
     global __cuLaunchCooperativeKernelMultiDevice
-    data["__cuLaunchCooperativeKernelMultiDevice"] = <_cyb_intptr_t>__cuLaunchCooperativeKernelMultiDevice
+    data["__cuLaunchCooperativeKernelMultiDevice"] = <intptr_t>__cuLaunchCooperativeKernelMultiDevice
 
     global __cuLaunchHostFunc
-    data["__cuLaunchHostFunc"] = <_cyb_intptr_t>__cuLaunchHostFunc
+    data["__cuLaunchHostFunc"] = <intptr_t>__cuLaunchHostFunc
 
     global __cuFuncSetBlockShape
-    data["__cuFuncSetBlockShape"] = <_cyb_intptr_t>__cuFuncSetBlockShape
+    data["__cuFuncSetBlockShape"] = <intptr_t>__cuFuncSetBlockShape
 
     global __cuFuncSetSharedSize
-    data["__cuFuncSetSharedSize"] = <_cyb_intptr_t>__cuFuncSetSharedSize
+    data["__cuFuncSetSharedSize"] = <intptr_t>__cuFuncSetSharedSize
 
     global __cuParamSetSize
-    data["__cuParamSetSize"] = <_cyb_intptr_t>__cuParamSetSize
+    data["__cuParamSetSize"] = <intptr_t>__cuParamSetSize
 
     global __cuParamSeti
-    data["__cuParamSeti"] = <_cyb_intptr_t>__cuParamSeti
+    data["__cuParamSeti"] = <intptr_t>__cuParamSeti
 
     global __cuParamSetf
-    data["__cuParamSetf"] = <_cyb_intptr_t>__cuParamSetf
+    data["__cuParamSetf"] = <intptr_t>__cuParamSetf
 
     global __cuParamSetv
-    data["__cuParamSetv"] = <_cyb_intptr_t>__cuParamSetv
+    data["__cuParamSetv"] = <intptr_t>__cuParamSetv
 
     global __cuLaunch
-    data["__cuLaunch"] = <_cyb_intptr_t>__cuLaunch
+    data["__cuLaunch"] = <intptr_t>__cuLaunch
 
     global __cuLaunchGrid
-    data["__cuLaunchGrid"] = <_cyb_intptr_t>__cuLaunchGrid
+    data["__cuLaunchGrid"] = <intptr_t>__cuLaunchGrid
 
     global __cuLaunchGridAsync
-    data["__cuLaunchGridAsync"] = <_cyb_intptr_t>__cuLaunchGridAsync
+    data["__cuLaunchGridAsync"] = <intptr_t>__cuLaunchGridAsync
 
     global __cuParamSetTexRef
-    data["__cuParamSetTexRef"] = <_cyb_intptr_t>__cuParamSetTexRef
+    data["__cuParamSetTexRef"] = <intptr_t>__cuParamSetTexRef
 
     global __cuFuncSetSharedMemConfig
-    data["__cuFuncSetSharedMemConfig"] = <_cyb_intptr_t>__cuFuncSetSharedMemConfig
+    data["__cuFuncSetSharedMemConfig"] = <intptr_t>__cuFuncSetSharedMemConfig
 
     global __cuGraphCreate
-    data["__cuGraphCreate"] = <_cyb_intptr_t>__cuGraphCreate
+    data["__cuGraphCreate"] = <intptr_t>__cuGraphCreate
 
     global __cuGraphAddKernelNode_v2
-    data["__cuGraphAddKernelNode_v2"] = <_cyb_intptr_t>__cuGraphAddKernelNode_v2
+    data["__cuGraphAddKernelNode_v2"] = <intptr_t>__cuGraphAddKernelNode_v2
 
     global __cuGraphKernelNodeGetParams_v2
-    data["__cuGraphKernelNodeGetParams_v2"] = <_cyb_intptr_t>__cuGraphKernelNodeGetParams_v2
+    data["__cuGraphKernelNodeGetParams_v2"] = <intptr_t>__cuGraphKernelNodeGetParams_v2
 
     global __cuGraphKernelNodeSetParams_v2
-    data["__cuGraphKernelNodeSetParams_v2"] = <_cyb_intptr_t>__cuGraphKernelNodeSetParams_v2
+    data["__cuGraphKernelNodeSetParams_v2"] = <intptr_t>__cuGraphKernelNodeSetParams_v2
 
     global __cuGraphAddMemcpyNode
-    data["__cuGraphAddMemcpyNode"] = <_cyb_intptr_t>__cuGraphAddMemcpyNode
+    data["__cuGraphAddMemcpyNode"] = <intptr_t>__cuGraphAddMemcpyNode
 
     global __cuGraphMemcpyNodeGetParams
-    data["__cuGraphMemcpyNodeGetParams"] = <_cyb_intptr_t>__cuGraphMemcpyNodeGetParams
+    data["__cuGraphMemcpyNodeGetParams"] = <intptr_t>__cuGraphMemcpyNodeGetParams
 
     global __cuGraphMemcpyNodeSetParams
-    data["__cuGraphMemcpyNodeSetParams"] = <_cyb_intptr_t>__cuGraphMemcpyNodeSetParams
+    data["__cuGraphMemcpyNodeSetParams"] = <intptr_t>__cuGraphMemcpyNodeSetParams
 
     global __cuGraphAddMemsetNode
-    data["__cuGraphAddMemsetNode"] = <_cyb_intptr_t>__cuGraphAddMemsetNode
+    data["__cuGraphAddMemsetNode"] = <intptr_t>__cuGraphAddMemsetNode
 
     global __cuGraphMemsetNodeGetParams
-    data["__cuGraphMemsetNodeGetParams"] = <_cyb_intptr_t>__cuGraphMemsetNodeGetParams
+    data["__cuGraphMemsetNodeGetParams"] = <intptr_t>__cuGraphMemsetNodeGetParams
 
     global __cuGraphMemsetNodeSetParams
-    data["__cuGraphMemsetNodeSetParams"] = <_cyb_intptr_t>__cuGraphMemsetNodeSetParams
+    data["__cuGraphMemsetNodeSetParams"] = <intptr_t>__cuGraphMemsetNodeSetParams
 
     global __cuGraphAddHostNode
-    data["__cuGraphAddHostNode"] = <_cyb_intptr_t>__cuGraphAddHostNode
+    data["__cuGraphAddHostNode"] = <intptr_t>__cuGraphAddHostNode
 
     global __cuGraphHostNodeGetParams
-    data["__cuGraphHostNodeGetParams"] = <_cyb_intptr_t>__cuGraphHostNodeGetParams
+    data["__cuGraphHostNodeGetParams"] = <intptr_t>__cuGraphHostNodeGetParams
 
     global __cuGraphHostNodeSetParams
-    data["__cuGraphHostNodeSetParams"] = <_cyb_intptr_t>__cuGraphHostNodeSetParams
+    data["__cuGraphHostNodeSetParams"] = <intptr_t>__cuGraphHostNodeSetParams
 
     global __cuGraphAddChildGraphNode
-    data["__cuGraphAddChildGraphNode"] = <_cyb_intptr_t>__cuGraphAddChildGraphNode
+    data["__cuGraphAddChildGraphNode"] = <intptr_t>__cuGraphAddChildGraphNode
 
     global __cuGraphChildGraphNodeGetGraph
-    data["__cuGraphChildGraphNodeGetGraph"] = <_cyb_intptr_t>__cuGraphChildGraphNodeGetGraph
+    data["__cuGraphChildGraphNodeGetGraph"] = <intptr_t>__cuGraphChildGraphNodeGetGraph
 
     global __cuGraphAddEmptyNode
-    data["__cuGraphAddEmptyNode"] = <_cyb_intptr_t>__cuGraphAddEmptyNode
+    data["__cuGraphAddEmptyNode"] = <intptr_t>__cuGraphAddEmptyNode
 
     global __cuGraphAddEventRecordNode
-    data["__cuGraphAddEventRecordNode"] = <_cyb_intptr_t>__cuGraphAddEventRecordNode
+    data["__cuGraphAddEventRecordNode"] = <intptr_t>__cuGraphAddEventRecordNode
 
     global __cuGraphEventRecordNodeGetEvent
-    data["__cuGraphEventRecordNodeGetEvent"] = <_cyb_intptr_t>__cuGraphEventRecordNodeGetEvent
+    data["__cuGraphEventRecordNodeGetEvent"] = <intptr_t>__cuGraphEventRecordNodeGetEvent
 
     global __cuGraphEventRecordNodeSetEvent
-    data["__cuGraphEventRecordNodeSetEvent"] = <_cyb_intptr_t>__cuGraphEventRecordNodeSetEvent
+    data["__cuGraphEventRecordNodeSetEvent"] = <intptr_t>__cuGraphEventRecordNodeSetEvent
 
     global __cuGraphAddEventWaitNode
-    data["__cuGraphAddEventWaitNode"] = <_cyb_intptr_t>__cuGraphAddEventWaitNode
+    data["__cuGraphAddEventWaitNode"] = <intptr_t>__cuGraphAddEventWaitNode
 
     global __cuGraphEventWaitNodeGetEvent
-    data["__cuGraphEventWaitNodeGetEvent"] = <_cyb_intptr_t>__cuGraphEventWaitNodeGetEvent
+    data["__cuGraphEventWaitNodeGetEvent"] = <intptr_t>__cuGraphEventWaitNodeGetEvent
 
     global __cuGraphEventWaitNodeSetEvent
-    data["__cuGraphEventWaitNodeSetEvent"] = <_cyb_intptr_t>__cuGraphEventWaitNodeSetEvent
+    data["__cuGraphEventWaitNodeSetEvent"] = <intptr_t>__cuGraphEventWaitNodeSetEvent
 
     global __cuGraphAddExternalSemaphoresSignalNode
-    data["__cuGraphAddExternalSemaphoresSignalNode"] = <_cyb_intptr_t>__cuGraphAddExternalSemaphoresSignalNode
+    data["__cuGraphAddExternalSemaphoresSignalNode"] = <intptr_t>__cuGraphAddExternalSemaphoresSignalNode
 
     global __cuGraphExternalSemaphoresSignalNodeGetParams
-    data["__cuGraphExternalSemaphoresSignalNodeGetParams"] = <_cyb_intptr_t>__cuGraphExternalSemaphoresSignalNodeGetParams
+    data["__cuGraphExternalSemaphoresSignalNodeGetParams"] = <intptr_t>__cuGraphExternalSemaphoresSignalNodeGetParams
 
     global __cuGraphExternalSemaphoresSignalNodeSetParams
-    data["__cuGraphExternalSemaphoresSignalNodeSetParams"] = <_cyb_intptr_t>__cuGraphExternalSemaphoresSignalNodeSetParams
+    data["__cuGraphExternalSemaphoresSignalNodeSetParams"] = <intptr_t>__cuGraphExternalSemaphoresSignalNodeSetParams
 
     global __cuGraphAddExternalSemaphoresWaitNode
-    data["__cuGraphAddExternalSemaphoresWaitNode"] = <_cyb_intptr_t>__cuGraphAddExternalSemaphoresWaitNode
+    data["__cuGraphAddExternalSemaphoresWaitNode"] = <intptr_t>__cuGraphAddExternalSemaphoresWaitNode
 
     global __cuGraphExternalSemaphoresWaitNodeGetParams
-    data["__cuGraphExternalSemaphoresWaitNodeGetParams"] = <_cyb_intptr_t>__cuGraphExternalSemaphoresWaitNodeGetParams
+    data["__cuGraphExternalSemaphoresWaitNodeGetParams"] = <intptr_t>__cuGraphExternalSemaphoresWaitNodeGetParams
 
     global __cuGraphExternalSemaphoresWaitNodeSetParams
-    data["__cuGraphExternalSemaphoresWaitNodeSetParams"] = <_cyb_intptr_t>__cuGraphExternalSemaphoresWaitNodeSetParams
+    data["__cuGraphExternalSemaphoresWaitNodeSetParams"] = <intptr_t>__cuGraphExternalSemaphoresWaitNodeSetParams
 
     global __cuGraphAddBatchMemOpNode
-    data["__cuGraphAddBatchMemOpNode"] = <_cyb_intptr_t>__cuGraphAddBatchMemOpNode
+    data["__cuGraphAddBatchMemOpNode"] = <intptr_t>__cuGraphAddBatchMemOpNode
 
     global __cuGraphBatchMemOpNodeGetParams
-    data["__cuGraphBatchMemOpNodeGetParams"] = <_cyb_intptr_t>__cuGraphBatchMemOpNodeGetParams
+    data["__cuGraphBatchMemOpNodeGetParams"] = <intptr_t>__cuGraphBatchMemOpNodeGetParams
 
     global __cuGraphBatchMemOpNodeSetParams
-    data["__cuGraphBatchMemOpNodeSetParams"] = <_cyb_intptr_t>__cuGraphBatchMemOpNodeSetParams
+    data["__cuGraphBatchMemOpNodeSetParams"] = <intptr_t>__cuGraphBatchMemOpNodeSetParams
 
     global __cuGraphExecBatchMemOpNodeSetParams
-    data["__cuGraphExecBatchMemOpNodeSetParams"] = <_cyb_intptr_t>__cuGraphExecBatchMemOpNodeSetParams
+    data["__cuGraphExecBatchMemOpNodeSetParams"] = <intptr_t>__cuGraphExecBatchMemOpNodeSetParams
 
     global __cuGraphAddMemAllocNode
-    data["__cuGraphAddMemAllocNode"] = <_cyb_intptr_t>__cuGraphAddMemAllocNode
+    data["__cuGraphAddMemAllocNode"] = <intptr_t>__cuGraphAddMemAllocNode
 
     global __cuGraphMemAllocNodeGetParams
-    data["__cuGraphMemAllocNodeGetParams"] = <_cyb_intptr_t>__cuGraphMemAllocNodeGetParams
+    data["__cuGraphMemAllocNodeGetParams"] = <intptr_t>__cuGraphMemAllocNodeGetParams
 
     global __cuGraphAddMemFreeNode
-    data["__cuGraphAddMemFreeNode"] = <_cyb_intptr_t>__cuGraphAddMemFreeNode
+    data["__cuGraphAddMemFreeNode"] = <intptr_t>__cuGraphAddMemFreeNode
 
     global __cuGraphMemFreeNodeGetParams
-    data["__cuGraphMemFreeNodeGetParams"] = <_cyb_intptr_t>__cuGraphMemFreeNodeGetParams
+    data["__cuGraphMemFreeNodeGetParams"] = <intptr_t>__cuGraphMemFreeNodeGetParams
 
     global __cuDeviceGraphMemTrim
-    data["__cuDeviceGraphMemTrim"] = <_cyb_intptr_t>__cuDeviceGraphMemTrim
+    data["__cuDeviceGraphMemTrim"] = <intptr_t>__cuDeviceGraphMemTrim
 
     global __cuDeviceGetGraphMemAttribute
-    data["__cuDeviceGetGraphMemAttribute"] = <_cyb_intptr_t>__cuDeviceGetGraphMemAttribute
+    data["__cuDeviceGetGraphMemAttribute"] = <intptr_t>__cuDeviceGetGraphMemAttribute
 
     global __cuDeviceSetGraphMemAttribute
-    data["__cuDeviceSetGraphMemAttribute"] = <_cyb_intptr_t>__cuDeviceSetGraphMemAttribute
+    data["__cuDeviceSetGraphMemAttribute"] = <intptr_t>__cuDeviceSetGraphMemAttribute
 
     global __cuGraphClone
-    data["__cuGraphClone"] = <_cyb_intptr_t>__cuGraphClone
+    data["__cuGraphClone"] = <intptr_t>__cuGraphClone
 
     global __cuGraphNodeFindInClone
-    data["__cuGraphNodeFindInClone"] = <_cyb_intptr_t>__cuGraphNodeFindInClone
+    data["__cuGraphNodeFindInClone"] = <intptr_t>__cuGraphNodeFindInClone
 
     global __cuGraphNodeGetType
-    data["__cuGraphNodeGetType"] = <_cyb_intptr_t>__cuGraphNodeGetType
+    data["__cuGraphNodeGetType"] = <intptr_t>__cuGraphNodeGetType
 
     global __cuGraphGetNodes
-    data["__cuGraphGetNodes"] = <_cyb_intptr_t>__cuGraphGetNodes
+    data["__cuGraphGetNodes"] = <intptr_t>__cuGraphGetNodes
 
     global __cuGraphGetRootNodes
-    data["__cuGraphGetRootNodes"] = <_cyb_intptr_t>__cuGraphGetRootNodes
+    data["__cuGraphGetRootNodes"] = <intptr_t>__cuGraphGetRootNodes
 
     global __cuGraphGetEdges_v2
-    data["__cuGraphGetEdges_v2"] = <_cyb_intptr_t>__cuGraphGetEdges_v2
+    data["__cuGraphGetEdges_v2"] = <intptr_t>__cuGraphGetEdges_v2
 
     global __cuGraphNodeGetDependencies_v2
-    data["__cuGraphNodeGetDependencies_v2"] = <_cyb_intptr_t>__cuGraphNodeGetDependencies_v2
+    data["__cuGraphNodeGetDependencies_v2"] = <intptr_t>__cuGraphNodeGetDependencies_v2
 
     global __cuGraphNodeGetDependentNodes_v2
-    data["__cuGraphNodeGetDependentNodes_v2"] = <_cyb_intptr_t>__cuGraphNodeGetDependentNodes_v2
+    data["__cuGraphNodeGetDependentNodes_v2"] = <intptr_t>__cuGraphNodeGetDependentNodes_v2
 
     global __cuGraphAddDependencies_v2
-    data["__cuGraphAddDependencies_v2"] = <_cyb_intptr_t>__cuGraphAddDependencies_v2
+    data["__cuGraphAddDependencies_v2"] = <intptr_t>__cuGraphAddDependencies_v2
 
     global __cuGraphRemoveDependencies_v2
-    data["__cuGraphRemoveDependencies_v2"] = <_cyb_intptr_t>__cuGraphRemoveDependencies_v2
+    data["__cuGraphRemoveDependencies_v2"] = <intptr_t>__cuGraphRemoveDependencies_v2
 
     global __cuGraphDestroyNode
-    data["__cuGraphDestroyNode"] = <_cyb_intptr_t>__cuGraphDestroyNode
+    data["__cuGraphDestroyNode"] = <intptr_t>__cuGraphDestroyNode
 
     global __cuGraphInstantiateWithFlags
-    data["__cuGraphInstantiateWithFlags"] = <_cyb_intptr_t>__cuGraphInstantiateWithFlags
+    data["__cuGraphInstantiateWithFlags"] = <intptr_t>__cuGraphInstantiateWithFlags
 
     global __cuGraphInstantiateWithParams
-    data["__cuGraphInstantiateWithParams"] = <_cyb_intptr_t>__cuGraphInstantiateWithParams
+    data["__cuGraphInstantiateWithParams"] = <intptr_t>__cuGraphInstantiateWithParams
 
     global __cuGraphExecGetFlags
-    data["__cuGraphExecGetFlags"] = <_cyb_intptr_t>__cuGraphExecGetFlags
+    data["__cuGraphExecGetFlags"] = <intptr_t>__cuGraphExecGetFlags
 
     global __cuGraphExecKernelNodeSetParams_v2
-    data["__cuGraphExecKernelNodeSetParams_v2"] = <_cyb_intptr_t>__cuGraphExecKernelNodeSetParams_v2
+    data["__cuGraphExecKernelNodeSetParams_v2"] = <intptr_t>__cuGraphExecKernelNodeSetParams_v2
 
     global __cuGraphExecMemcpyNodeSetParams
-    data["__cuGraphExecMemcpyNodeSetParams"] = <_cyb_intptr_t>__cuGraphExecMemcpyNodeSetParams
+    data["__cuGraphExecMemcpyNodeSetParams"] = <intptr_t>__cuGraphExecMemcpyNodeSetParams
 
     global __cuGraphExecMemsetNodeSetParams
-    data["__cuGraphExecMemsetNodeSetParams"] = <_cyb_intptr_t>__cuGraphExecMemsetNodeSetParams
+    data["__cuGraphExecMemsetNodeSetParams"] = <intptr_t>__cuGraphExecMemsetNodeSetParams
 
     global __cuGraphExecHostNodeSetParams
-    data["__cuGraphExecHostNodeSetParams"] = <_cyb_intptr_t>__cuGraphExecHostNodeSetParams
+    data["__cuGraphExecHostNodeSetParams"] = <intptr_t>__cuGraphExecHostNodeSetParams
 
     global __cuGraphExecChildGraphNodeSetParams
-    data["__cuGraphExecChildGraphNodeSetParams"] = <_cyb_intptr_t>__cuGraphExecChildGraphNodeSetParams
+    data["__cuGraphExecChildGraphNodeSetParams"] = <intptr_t>__cuGraphExecChildGraphNodeSetParams
 
     global __cuGraphExecEventRecordNodeSetEvent
-    data["__cuGraphExecEventRecordNodeSetEvent"] = <_cyb_intptr_t>__cuGraphExecEventRecordNodeSetEvent
+    data["__cuGraphExecEventRecordNodeSetEvent"] = <intptr_t>__cuGraphExecEventRecordNodeSetEvent
 
     global __cuGraphExecEventWaitNodeSetEvent
-    data["__cuGraphExecEventWaitNodeSetEvent"] = <_cyb_intptr_t>__cuGraphExecEventWaitNodeSetEvent
+    data["__cuGraphExecEventWaitNodeSetEvent"] = <intptr_t>__cuGraphExecEventWaitNodeSetEvent
 
     global __cuGraphExecExternalSemaphoresSignalNodeSetParams
-    data["__cuGraphExecExternalSemaphoresSignalNodeSetParams"] = <_cyb_intptr_t>__cuGraphExecExternalSemaphoresSignalNodeSetParams
+    data["__cuGraphExecExternalSemaphoresSignalNodeSetParams"] = <intptr_t>__cuGraphExecExternalSemaphoresSignalNodeSetParams
 
     global __cuGraphExecExternalSemaphoresWaitNodeSetParams
-    data["__cuGraphExecExternalSemaphoresWaitNodeSetParams"] = <_cyb_intptr_t>__cuGraphExecExternalSemaphoresWaitNodeSetParams
+    data["__cuGraphExecExternalSemaphoresWaitNodeSetParams"] = <intptr_t>__cuGraphExecExternalSemaphoresWaitNodeSetParams
 
     global __cuGraphNodeSetEnabled
-    data["__cuGraphNodeSetEnabled"] = <_cyb_intptr_t>__cuGraphNodeSetEnabled
+    data["__cuGraphNodeSetEnabled"] = <intptr_t>__cuGraphNodeSetEnabled
 
     global __cuGraphNodeGetEnabled
-    data["__cuGraphNodeGetEnabled"] = <_cyb_intptr_t>__cuGraphNodeGetEnabled
+    data["__cuGraphNodeGetEnabled"] = <intptr_t>__cuGraphNodeGetEnabled
 
     global __cuGraphUpload
-    data["__cuGraphUpload"] = <_cyb_intptr_t>__cuGraphUpload
+    data["__cuGraphUpload"] = <intptr_t>__cuGraphUpload
 
     global __cuGraphLaunch
-    data["__cuGraphLaunch"] = <_cyb_intptr_t>__cuGraphLaunch
+    data["__cuGraphLaunch"] = <intptr_t>__cuGraphLaunch
 
     global __cuGraphExecDestroy
-    data["__cuGraphExecDestroy"] = <_cyb_intptr_t>__cuGraphExecDestroy
+    data["__cuGraphExecDestroy"] = <intptr_t>__cuGraphExecDestroy
 
     global __cuGraphDestroy
-    data["__cuGraphDestroy"] = <_cyb_intptr_t>__cuGraphDestroy
+    data["__cuGraphDestroy"] = <intptr_t>__cuGraphDestroy
 
     global __cuGraphExecUpdate_v2
-    data["__cuGraphExecUpdate_v2"] = <_cyb_intptr_t>__cuGraphExecUpdate_v2
+    data["__cuGraphExecUpdate_v2"] = <intptr_t>__cuGraphExecUpdate_v2
 
     global __cuGraphKernelNodeCopyAttributes
-    data["__cuGraphKernelNodeCopyAttributes"] = <_cyb_intptr_t>__cuGraphKernelNodeCopyAttributes
+    data["__cuGraphKernelNodeCopyAttributes"] = <intptr_t>__cuGraphKernelNodeCopyAttributes
 
     global __cuGraphKernelNodeGetAttribute
-    data["__cuGraphKernelNodeGetAttribute"] = <_cyb_intptr_t>__cuGraphKernelNodeGetAttribute
+    data["__cuGraphKernelNodeGetAttribute"] = <intptr_t>__cuGraphKernelNodeGetAttribute
 
     global __cuGraphKernelNodeSetAttribute
-    data["__cuGraphKernelNodeSetAttribute"] = <_cyb_intptr_t>__cuGraphKernelNodeSetAttribute
+    data["__cuGraphKernelNodeSetAttribute"] = <intptr_t>__cuGraphKernelNodeSetAttribute
 
     global __cuGraphDebugDotPrint
-    data["__cuGraphDebugDotPrint"] = <_cyb_intptr_t>__cuGraphDebugDotPrint
+    data["__cuGraphDebugDotPrint"] = <intptr_t>__cuGraphDebugDotPrint
 
     global __cuUserObjectCreate
-    data["__cuUserObjectCreate"] = <_cyb_intptr_t>__cuUserObjectCreate
+    data["__cuUserObjectCreate"] = <intptr_t>__cuUserObjectCreate
 
     global __cuUserObjectRetain
-    data["__cuUserObjectRetain"] = <_cyb_intptr_t>__cuUserObjectRetain
+    data["__cuUserObjectRetain"] = <intptr_t>__cuUserObjectRetain
 
     global __cuUserObjectRelease
-    data["__cuUserObjectRelease"] = <_cyb_intptr_t>__cuUserObjectRelease
+    data["__cuUserObjectRelease"] = <intptr_t>__cuUserObjectRelease
 
     global __cuGraphRetainUserObject
-    data["__cuGraphRetainUserObject"] = <_cyb_intptr_t>__cuGraphRetainUserObject
+    data["__cuGraphRetainUserObject"] = <intptr_t>__cuGraphRetainUserObject
 
     global __cuGraphReleaseUserObject
-    data["__cuGraphReleaseUserObject"] = <_cyb_intptr_t>__cuGraphReleaseUserObject
+    data["__cuGraphReleaseUserObject"] = <intptr_t>__cuGraphReleaseUserObject
 
     global __cuGraphAddNode_v2
-    data["__cuGraphAddNode_v2"] = <_cyb_intptr_t>__cuGraphAddNode_v2
+    data["__cuGraphAddNode_v2"] = <intptr_t>__cuGraphAddNode_v2
 
     global __cuGraphNodeSetParams
-    data["__cuGraphNodeSetParams"] = <_cyb_intptr_t>__cuGraphNodeSetParams
+    data["__cuGraphNodeSetParams"] = <intptr_t>__cuGraphNodeSetParams
 
     global __cuGraphExecNodeSetParams
-    data["__cuGraphExecNodeSetParams"] = <_cyb_intptr_t>__cuGraphExecNodeSetParams
+    data["__cuGraphExecNodeSetParams"] = <intptr_t>__cuGraphExecNodeSetParams
 
     global __cuGraphConditionalHandleCreate
-    data["__cuGraphConditionalHandleCreate"] = <_cyb_intptr_t>__cuGraphConditionalHandleCreate
+    data["__cuGraphConditionalHandleCreate"] = <intptr_t>__cuGraphConditionalHandleCreate
 
     global __cuOccupancyMaxActiveBlocksPerMultiprocessor
-    data["__cuOccupancyMaxActiveBlocksPerMultiprocessor"] = <_cyb_intptr_t>__cuOccupancyMaxActiveBlocksPerMultiprocessor
+    data["__cuOccupancyMaxActiveBlocksPerMultiprocessor"] = <intptr_t>__cuOccupancyMaxActiveBlocksPerMultiprocessor
 
     global __cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
-    data["__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags"] = <_cyb_intptr_t>__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
+    data["__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags"] = <intptr_t>__cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
 
     global __cuOccupancyMaxPotentialBlockSize
-    data["__cuOccupancyMaxPotentialBlockSize"] = <_cyb_intptr_t>__cuOccupancyMaxPotentialBlockSize
+    data["__cuOccupancyMaxPotentialBlockSize"] = <intptr_t>__cuOccupancyMaxPotentialBlockSize
 
     global __cuOccupancyMaxPotentialBlockSizeWithFlags
-    data["__cuOccupancyMaxPotentialBlockSizeWithFlags"] = <_cyb_intptr_t>__cuOccupancyMaxPotentialBlockSizeWithFlags
+    data["__cuOccupancyMaxPotentialBlockSizeWithFlags"] = <intptr_t>__cuOccupancyMaxPotentialBlockSizeWithFlags
 
     global __cuOccupancyAvailableDynamicSMemPerBlock
-    data["__cuOccupancyAvailableDynamicSMemPerBlock"] = <_cyb_intptr_t>__cuOccupancyAvailableDynamicSMemPerBlock
+    data["__cuOccupancyAvailableDynamicSMemPerBlock"] = <intptr_t>__cuOccupancyAvailableDynamicSMemPerBlock
 
     global __cuOccupancyMaxPotentialClusterSize
-    data["__cuOccupancyMaxPotentialClusterSize"] = <_cyb_intptr_t>__cuOccupancyMaxPotentialClusterSize
+    data["__cuOccupancyMaxPotentialClusterSize"] = <intptr_t>__cuOccupancyMaxPotentialClusterSize
 
     global __cuOccupancyMaxActiveClusters
-    data["__cuOccupancyMaxActiveClusters"] = <_cyb_intptr_t>__cuOccupancyMaxActiveClusters
+    data["__cuOccupancyMaxActiveClusters"] = <intptr_t>__cuOccupancyMaxActiveClusters
 
     global __cuTexRefSetArray
-    data["__cuTexRefSetArray"] = <_cyb_intptr_t>__cuTexRefSetArray
+    data["__cuTexRefSetArray"] = <intptr_t>__cuTexRefSetArray
 
     global __cuTexRefSetMipmappedArray
-    data["__cuTexRefSetMipmappedArray"] = <_cyb_intptr_t>__cuTexRefSetMipmappedArray
+    data["__cuTexRefSetMipmappedArray"] = <intptr_t>__cuTexRefSetMipmappedArray
 
     global __cuTexRefSetAddress_v2
-    data["__cuTexRefSetAddress_v2"] = <_cyb_intptr_t>__cuTexRefSetAddress_v2
+    data["__cuTexRefSetAddress_v2"] = <intptr_t>__cuTexRefSetAddress_v2
 
     global __cuTexRefSetAddress2D_v3
-    data["__cuTexRefSetAddress2D_v3"] = <_cyb_intptr_t>__cuTexRefSetAddress2D_v3
+    data["__cuTexRefSetAddress2D_v3"] = <intptr_t>__cuTexRefSetAddress2D_v3
 
     global __cuTexRefSetFormat
-    data["__cuTexRefSetFormat"] = <_cyb_intptr_t>__cuTexRefSetFormat
+    data["__cuTexRefSetFormat"] = <intptr_t>__cuTexRefSetFormat
 
     global __cuTexRefSetAddressMode
-    data["__cuTexRefSetAddressMode"] = <_cyb_intptr_t>__cuTexRefSetAddressMode
+    data["__cuTexRefSetAddressMode"] = <intptr_t>__cuTexRefSetAddressMode
 
     global __cuTexRefSetFilterMode
-    data["__cuTexRefSetFilterMode"] = <_cyb_intptr_t>__cuTexRefSetFilterMode
+    data["__cuTexRefSetFilterMode"] = <intptr_t>__cuTexRefSetFilterMode
 
     global __cuTexRefSetMipmapFilterMode
-    data["__cuTexRefSetMipmapFilterMode"] = <_cyb_intptr_t>__cuTexRefSetMipmapFilterMode
+    data["__cuTexRefSetMipmapFilterMode"] = <intptr_t>__cuTexRefSetMipmapFilterMode
 
     global __cuTexRefSetMipmapLevelBias
-    data["__cuTexRefSetMipmapLevelBias"] = <_cyb_intptr_t>__cuTexRefSetMipmapLevelBias
+    data["__cuTexRefSetMipmapLevelBias"] = <intptr_t>__cuTexRefSetMipmapLevelBias
 
     global __cuTexRefSetMipmapLevelClamp
-    data["__cuTexRefSetMipmapLevelClamp"] = <_cyb_intptr_t>__cuTexRefSetMipmapLevelClamp
+    data["__cuTexRefSetMipmapLevelClamp"] = <intptr_t>__cuTexRefSetMipmapLevelClamp
 
     global __cuTexRefSetMaxAnisotropy
-    data["__cuTexRefSetMaxAnisotropy"] = <_cyb_intptr_t>__cuTexRefSetMaxAnisotropy
+    data["__cuTexRefSetMaxAnisotropy"] = <intptr_t>__cuTexRefSetMaxAnisotropy
 
     global __cuTexRefSetBorderColor
-    data["__cuTexRefSetBorderColor"] = <_cyb_intptr_t>__cuTexRefSetBorderColor
+    data["__cuTexRefSetBorderColor"] = <intptr_t>__cuTexRefSetBorderColor
 
     global __cuTexRefSetFlags
-    data["__cuTexRefSetFlags"] = <_cyb_intptr_t>__cuTexRefSetFlags
+    data["__cuTexRefSetFlags"] = <intptr_t>__cuTexRefSetFlags
 
     global __cuTexRefGetAddress_v2
-    data["__cuTexRefGetAddress_v2"] = <_cyb_intptr_t>__cuTexRefGetAddress_v2
+    data["__cuTexRefGetAddress_v2"] = <intptr_t>__cuTexRefGetAddress_v2
 
     global __cuTexRefGetArray
-    data["__cuTexRefGetArray"] = <_cyb_intptr_t>__cuTexRefGetArray
+    data["__cuTexRefGetArray"] = <intptr_t>__cuTexRefGetArray
 
     global __cuTexRefGetMipmappedArray
-    data["__cuTexRefGetMipmappedArray"] = <_cyb_intptr_t>__cuTexRefGetMipmappedArray
+    data["__cuTexRefGetMipmappedArray"] = <intptr_t>__cuTexRefGetMipmappedArray
 
     global __cuTexRefGetAddressMode
-    data["__cuTexRefGetAddressMode"] = <_cyb_intptr_t>__cuTexRefGetAddressMode
+    data["__cuTexRefGetAddressMode"] = <intptr_t>__cuTexRefGetAddressMode
 
     global __cuTexRefGetFilterMode
-    data["__cuTexRefGetFilterMode"] = <_cyb_intptr_t>__cuTexRefGetFilterMode
+    data["__cuTexRefGetFilterMode"] = <intptr_t>__cuTexRefGetFilterMode
 
     global __cuTexRefGetFormat
-    data["__cuTexRefGetFormat"] = <_cyb_intptr_t>__cuTexRefGetFormat
+    data["__cuTexRefGetFormat"] = <intptr_t>__cuTexRefGetFormat
 
     global __cuTexRefGetMipmapFilterMode
-    data["__cuTexRefGetMipmapFilterMode"] = <_cyb_intptr_t>__cuTexRefGetMipmapFilterMode
+    data["__cuTexRefGetMipmapFilterMode"] = <intptr_t>__cuTexRefGetMipmapFilterMode
 
     global __cuTexRefGetMipmapLevelBias
-    data["__cuTexRefGetMipmapLevelBias"] = <_cyb_intptr_t>__cuTexRefGetMipmapLevelBias
+    data["__cuTexRefGetMipmapLevelBias"] = <intptr_t>__cuTexRefGetMipmapLevelBias
 
     global __cuTexRefGetMipmapLevelClamp
-    data["__cuTexRefGetMipmapLevelClamp"] = <_cyb_intptr_t>__cuTexRefGetMipmapLevelClamp
+    data["__cuTexRefGetMipmapLevelClamp"] = <intptr_t>__cuTexRefGetMipmapLevelClamp
 
     global __cuTexRefGetMaxAnisotropy
-    data["__cuTexRefGetMaxAnisotropy"] = <_cyb_intptr_t>__cuTexRefGetMaxAnisotropy
+    data["__cuTexRefGetMaxAnisotropy"] = <intptr_t>__cuTexRefGetMaxAnisotropy
 
     global __cuTexRefGetBorderColor
-    data["__cuTexRefGetBorderColor"] = <_cyb_intptr_t>__cuTexRefGetBorderColor
+    data["__cuTexRefGetBorderColor"] = <intptr_t>__cuTexRefGetBorderColor
 
     global __cuTexRefGetFlags
-    data["__cuTexRefGetFlags"] = <_cyb_intptr_t>__cuTexRefGetFlags
+    data["__cuTexRefGetFlags"] = <intptr_t>__cuTexRefGetFlags
 
     global __cuTexRefCreate
-    data["__cuTexRefCreate"] = <_cyb_intptr_t>__cuTexRefCreate
+    data["__cuTexRefCreate"] = <intptr_t>__cuTexRefCreate
 
     global __cuTexRefDestroy
-    data["__cuTexRefDestroy"] = <_cyb_intptr_t>__cuTexRefDestroy
+    data["__cuTexRefDestroy"] = <intptr_t>__cuTexRefDestroy
 
     global __cuSurfRefSetArray
-    data["__cuSurfRefSetArray"] = <_cyb_intptr_t>__cuSurfRefSetArray
+    data["__cuSurfRefSetArray"] = <intptr_t>__cuSurfRefSetArray
 
     global __cuSurfRefGetArray
-    data["__cuSurfRefGetArray"] = <_cyb_intptr_t>__cuSurfRefGetArray
+    data["__cuSurfRefGetArray"] = <intptr_t>__cuSurfRefGetArray
 
     global __cuTexObjectCreate
-    data["__cuTexObjectCreate"] = <_cyb_intptr_t>__cuTexObjectCreate
+    data["__cuTexObjectCreate"] = <intptr_t>__cuTexObjectCreate
 
     global __cuTexObjectDestroy
-    data["__cuTexObjectDestroy"] = <_cyb_intptr_t>__cuTexObjectDestroy
+    data["__cuTexObjectDestroy"] = <intptr_t>__cuTexObjectDestroy
 
     global __cuTexObjectGetResourceDesc
-    data["__cuTexObjectGetResourceDesc"] = <_cyb_intptr_t>__cuTexObjectGetResourceDesc
+    data["__cuTexObjectGetResourceDesc"] = <intptr_t>__cuTexObjectGetResourceDesc
 
     global __cuTexObjectGetTextureDesc
-    data["__cuTexObjectGetTextureDesc"] = <_cyb_intptr_t>__cuTexObjectGetTextureDesc
+    data["__cuTexObjectGetTextureDesc"] = <intptr_t>__cuTexObjectGetTextureDesc
 
     global __cuTexObjectGetResourceViewDesc
-    data["__cuTexObjectGetResourceViewDesc"] = <_cyb_intptr_t>__cuTexObjectGetResourceViewDesc
+    data["__cuTexObjectGetResourceViewDesc"] = <intptr_t>__cuTexObjectGetResourceViewDesc
 
     global __cuSurfObjectCreate
-    data["__cuSurfObjectCreate"] = <_cyb_intptr_t>__cuSurfObjectCreate
+    data["__cuSurfObjectCreate"] = <intptr_t>__cuSurfObjectCreate
 
     global __cuSurfObjectDestroy
-    data["__cuSurfObjectDestroy"] = <_cyb_intptr_t>__cuSurfObjectDestroy
+    data["__cuSurfObjectDestroy"] = <intptr_t>__cuSurfObjectDestroy
 
     global __cuSurfObjectGetResourceDesc
-    data["__cuSurfObjectGetResourceDesc"] = <_cyb_intptr_t>__cuSurfObjectGetResourceDesc
+    data["__cuSurfObjectGetResourceDesc"] = <intptr_t>__cuSurfObjectGetResourceDesc
 
     global __cuTensorMapEncodeTiled
-    data["__cuTensorMapEncodeTiled"] = <_cyb_intptr_t>__cuTensorMapEncodeTiled
+    data["__cuTensorMapEncodeTiled"] = <intptr_t>__cuTensorMapEncodeTiled
 
     global __cuTensorMapEncodeIm2col
-    data["__cuTensorMapEncodeIm2col"] = <_cyb_intptr_t>__cuTensorMapEncodeIm2col
+    data["__cuTensorMapEncodeIm2col"] = <intptr_t>__cuTensorMapEncodeIm2col
 
     global __cuTensorMapEncodeIm2colWide
-    data["__cuTensorMapEncodeIm2colWide"] = <_cyb_intptr_t>__cuTensorMapEncodeIm2colWide
+    data["__cuTensorMapEncodeIm2colWide"] = <intptr_t>__cuTensorMapEncodeIm2colWide
 
     global __cuTensorMapReplaceAddress
-    data["__cuTensorMapReplaceAddress"] = <_cyb_intptr_t>__cuTensorMapReplaceAddress
+    data["__cuTensorMapReplaceAddress"] = <intptr_t>__cuTensorMapReplaceAddress
 
     global __cuDeviceCanAccessPeer
-    data["__cuDeviceCanAccessPeer"] = <_cyb_intptr_t>__cuDeviceCanAccessPeer
+    data["__cuDeviceCanAccessPeer"] = <intptr_t>__cuDeviceCanAccessPeer
 
     global __cuCtxEnablePeerAccess
-    data["__cuCtxEnablePeerAccess"] = <_cyb_intptr_t>__cuCtxEnablePeerAccess
+    data["__cuCtxEnablePeerAccess"] = <intptr_t>__cuCtxEnablePeerAccess
 
     global __cuCtxDisablePeerAccess
-    data["__cuCtxDisablePeerAccess"] = <_cyb_intptr_t>__cuCtxDisablePeerAccess
+    data["__cuCtxDisablePeerAccess"] = <intptr_t>__cuCtxDisablePeerAccess
 
     global __cuDeviceGetP2PAttribute
-    data["__cuDeviceGetP2PAttribute"] = <_cyb_intptr_t>__cuDeviceGetP2PAttribute
+    data["__cuDeviceGetP2PAttribute"] = <intptr_t>__cuDeviceGetP2PAttribute
 
     global __cuGraphicsUnregisterResource
-    data["__cuGraphicsUnregisterResource"] = <_cyb_intptr_t>__cuGraphicsUnregisterResource
+    data["__cuGraphicsUnregisterResource"] = <intptr_t>__cuGraphicsUnregisterResource
 
     global __cuGraphicsSubResourceGetMappedArray
-    data["__cuGraphicsSubResourceGetMappedArray"] = <_cyb_intptr_t>__cuGraphicsSubResourceGetMappedArray
+    data["__cuGraphicsSubResourceGetMappedArray"] = <intptr_t>__cuGraphicsSubResourceGetMappedArray
 
     global __cuGraphicsResourceGetMappedMipmappedArray
-    data["__cuGraphicsResourceGetMappedMipmappedArray"] = <_cyb_intptr_t>__cuGraphicsResourceGetMappedMipmappedArray
+    data["__cuGraphicsResourceGetMappedMipmappedArray"] = <intptr_t>__cuGraphicsResourceGetMappedMipmappedArray
 
     global __cuGraphicsResourceGetMappedPointer_v2
-    data["__cuGraphicsResourceGetMappedPointer_v2"] = <_cyb_intptr_t>__cuGraphicsResourceGetMappedPointer_v2
+    data["__cuGraphicsResourceGetMappedPointer_v2"] = <intptr_t>__cuGraphicsResourceGetMappedPointer_v2
 
     global __cuGraphicsResourceSetMapFlags_v2
-    data["__cuGraphicsResourceSetMapFlags_v2"] = <_cyb_intptr_t>__cuGraphicsResourceSetMapFlags_v2
+    data["__cuGraphicsResourceSetMapFlags_v2"] = <intptr_t>__cuGraphicsResourceSetMapFlags_v2
 
     global __cuGraphicsMapResources
-    data["__cuGraphicsMapResources"] = <_cyb_intptr_t>__cuGraphicsMapResources
+    data["__cuGraphicsMapResources"] = <intptr_t>__cuGraphicsMapResources
 
     global __cuGraphicsUnmapResources
-    data["__cuGraphicsUnmapResources"] = <_cyb_intptr_t>__cuGraphicsUnmapResources
+    data["__cuGraphicsUnmapResources"] = <intptr_t>__cuGraphicsUnmapResources
 
     global __cuGetProcAddress_v2
-    data["__cuGetProcAddress_v2"] = <_cyb_intptr_t>__cuGetProcAddress_v2
+    data["__cuGetProcAddress_v2"] = <intptr_t>__cuGetProcAddress_v2
 
     global __cuCoredumpGetAttribute
-    data["__cuCoredumpGetAttribute"] = <_cyb_intptr_t>__cuCoredumpGetAttribute
+    data["__cuCoredumpGetAttribute"] = <intptr_t>__cuCoredumpGetAttribute
 
     global __cuCoredumpGetAttributeGlobal
-    data["__cuCoredumpGetAttributeGlobal"] = <_cyb_intptr_t>__cuCoredumpGetAttributeGlobal
+    data["__cuCoredumpGetAttributeGlobal"] = <intptr_t>__cuCoredumpGetAttributeGlobal
 
     global __cuCoredumpSetAttribute
-    data["__cuCoredumpSetAttribute"] = <_cyb_intptr_t>__cuCoredumpSetAttribute
+    data["__cuCoredumpSetAttribute"] = <intptr_t>__cuCoredumpSetAttribute
 
     global __cuCoredumpSetAttributeGlobal
-    data["__cuCoredumpSetAttributeGlobal"] = <_cyb_intptr_t>__cuCoredumpSetAttributeGlobal
+    data["__cuCoredumpSetAttributeGlobal"] = <intptr_t>__cuCoredumpSetAttributeGlobal
 
     global __cuGetExportTable
-    data["__cuGetExportTable"] = <_cyb_intptr_t>__cuGetExportTable
+    data["__cuGetExportTable"] = <intptr_t>__cuGetExportTable
 
     global __cuGreenCtxCreate
-    data["__cuGreenCtxCreate"] = <_cyb_intptr_t>__cuGreenCtxCreate
+    data["__cuGreenCtxCreate"] = <intptr_t>__cuGreenCtxCreate
 
     global __cuGreenCtxDestroy
-    data["__cuGreenCtxDestroy"] = <_cyb_intptr_t>__cuGreenCtxDestroy
+    data["__cuGreenCtxDestroy"] = <intptr_t>__cuGreenCtxDestroy
 
     global __cuCtxFromGreenCtx
-    data["__cuCtxFromGreenCtx"] = <_cyb_intptr_t>__cuCtxFromGreenCtx
+    data["__cuCtxFromGreenCtx"] = <intptr_t>__cuCtxFromGreenCtx
 
     global __cuDeviceGetDevResource
-    data["__cuDeviceGetDevResource"] = <_cyb_intptr_t>__cuDeviceGetDevResource
+    data["__cuDeviceGetDevResource"] = <intptr_t>__cuDeviceGetDevResource
 
     global __cuCtxGetDevResource
-    data["__cuCtxGetDevResource"] = <_cyb_intptr_t>__cuCtxGetDevResource
+    data["__cuCtxGetDevResource"] = <intptr_t>__cuCtxGetDevResource
 
     global __cuGreenCtxGetDevResource
-    data["__cuGreenCtxGetDevResource"] = <_cyb_intptr_t>__cuGreenCtxGetDevResource
+    data["__cuGreenCtxGetDevResource"] = <intptr_t>__cuGreenCtxGetDevResource
 
     global __cuDevSmResourceSplitByCount
-    data["__cuDevSmResourceSplitByCount"] = <_cyb_intptr_t>__cuDevSmResourceSplitByCount
+    data["__cuDevSmResourceSplitByCount"] = <intptr_t>__cuDevSmResourceSplitByCount
 
     global __cuDevResourceGenerateDesc
-    data["__cuDevResourceGenerateDesc"] = <_cyb_intptr_t>__cuDevResourceGenerateDesc
+    data["__cuDevResourceGenerateDesc"] = <intptr_t>__cuDevResourceGenerateDesc
 
     global __cuGreenCtxRecordEvent
-    data["__cuGreenCtxRecordEvent"] = <_cyb_intptr_t>__cuGreenCtxRecordEvent
+    data["__cuGreenCtxRecordEvent"] = <intptr_t>__cuGreenCtxRecordEvent
 
     global __cuGreenCtxWaitEvent
-    data["__cuGreenCtxWaitEvent"] = <_cyb_intptr_t>__cuGreenCtxWaitEvent
+    data["__cuGreenCtxWaitEvent"] = <intptr_t>__cuGreenCtxWaitEvent
 
     global __cuStreamGetGreenCtx
-    data["__cuStreamGetGreenCtx"] = <_cyb_intptr_t>__cuStreamGetGreenCtx
+    data["__cuStreamGetGreenCtx"] = <intptr_t>__cuStreamGetGreenCtx
 
     global __cuGreenCtxStreamCreate
-    data["__cuGreenCtxStreamCreate"] = <_cyb_intptr_t>__cuGreenCtxStreamCreate
+    data["__cuGreenCtxStreamCreate"] = <intptr_t>__cuGreenCtxStreamCreate
 
     global __cuLogsRegisterCallback
-    data["__cuLogsRegisterCallback"] = <_cyb_intptr_t>__cuLogsRegisterCallback
+    data["__cuLogsRegisterCallback"] = <intptr_t>__cuLogsRegisterCallback
 
     global __cuLogsUnregisterCallback
-    data["__cuLogsUnregisterCallback"] = <_cyb_intptr_t>__cuLogsUnregisterCallback
+    data["__cuLogsUnregisterCallback"] = <intptr_t>__cuLogsUnregisterCallback
 
     global __cuLogsCurrent
-    data["__cuLogsCurrent"] = <_cyb_intptr_t>__cuLogsCurrent
+    data["__cuLogsCurrent"] = <intptr_t>__cuLogsCurrent
 
     global __cuLogsDumpToFile
-    data["__cuLogsDumpToFile"] = <_cyb_intptr_t>__cuLogsDumpToFile
+    data["__cuLogsDumpToFile"] = <intptr_t>__cuLogsDumpToFile
 
     global __cuLogsDumpToMemory
-    data["__cuLogsDumpToMemory"] = <_cyb_intptr_t>__cuLogsDumpToMemory
+    data["__cuLogsDumpToMemory"] = <intptr_t>__cuLogsDumpToMemory
 
     global __cuCheckpointProcessGetRestoreThreadId
-    data["__cuCheckpointProcessGetRestoreThreadId"] = <_cyb_intptr_t>__cuCheckpointProcessGetRestoreThreadId
+    data["__cuCheckpointProcessGetRestoreThreadId"] = <intptr_t>__cuCheckpointProcessGetRestoreThreadId
 
     global __cuCheckpointProcessGetState
-    data["__cuCheckpointProcessGetState"] = <_cyb_intptr_t>__cuCheckpointProcessGetState
+    data["__cuCheckpointProcessGetState"] = <intptr_t>__cuCheckpointProcessGetState
 
     global __cuCheckpointProcessLock
-    data["__cuCheckpointProcessLock"] = <_cyb_intptr_t>__cuCheckpointProcessLock
+    data["__cuCheckpointProcessLock"] = <intptr_t>__cuCheckpointProcessLock
 
     global __cuCheckpointProcessCheckpoint
-    data["__cuCheckpointProcessCheckpoint"] = <_cyb_intptr_t>__cuCheckpointProcessCheckpoint
+    data["__cuCheckpointProcessCheckpoint"] = <intptr_t>__cuCheckpointProcessCheckpoint
 
     global __cuCheckpointProcessRestore
-    data["__cuCheckpointProcessRestore"] = <_cyb_intptr_t>__cuCheckpointProcessRestore
+    data["__cuCheckpointProcessRestore"] = <intptr_t>__cuCheckpointProcessRestore
 
     global __cuCheckpointProcessUnlock
-    data["__cuCheckpointProcessUnlock"] = <_cyb_intptr_t>__cuCheckpointProcessUnlock
+    data["__cuCheckpointProcessUnlock"] = <intptr_t>__cuCheckpointProcessUnlock
 
     global __cuGraphicsEGLRegisterImage
-    data["__cuGraphicsEGLRegisterImage"] = <_cyb_intptr_t>__cuGraphicsEGLRegisterImage
+    data["__cuGraphicsEGLRegisterImage"] = <intptr_t>__cuGraphicsEGLRegisterImage
 
     global __cuEGLStreamConsumerConnect
-    data["__cuEGLStreamConsumerConnect"] = <_cyb_intptr_t>__cuEGLStreamConsumerConnect
+    data["__cuEGLStreamConsumerConnect"] = <intptr_t>__cuEGLStreamConsumerConnect
 
     global __cuEGLStreamConsumerConnectWithFlags
-    data["__cuEGLStreamConsumerConnectWithFlags"] = <_cyb_intptr_t>__cuEGLStreamConsumerConnectWithFlags
+    data["__cuEGLStreamConsumerConnectWithFlags"] = <intptr_t>__cuEGLStreamConsumerConnectWithFlags
 
     global __cuEGLStreamConsumerDisconnect
-    data["__cuEGLStreamConsumerDisconnect"] = <_cyb_intptr_t>__cuEGLStreamConsumerDisconnect
+    data["__cuEGLStreamConsumerDisconnect"] = <intptr_t>__cuEGLStreamConsumerDisconnect
 
     global __cuEGLStreamConsumerAcquireFrame
-    data["__cuEGLStreamConsumerAcquireFrame"] = <_cyb_intptr_t>__cuEGLStreamConsumerAcquireFrame
+    data["__cuEGLStreamConsumerAcquireFrame"] = <intptr_t>__cuEGLStreamConsumerAcquireFrame
 
     global __cuEGLStreamConsumerReleaseFrame
-    data["__cuEGLStreamConsumerReleaseFrame"] = <_cyb_intptr_t>__cuEGLStreamConsumerReleaseFrame
+    data["__cuEGLStreamConsumerReleaseFrame"] = <intptr_t>__cuEGLStreamConsumerReleaseFrame
 
     global __cuEGLStreamProducerConnect
-    data["__cuEGLStreamProducerConnect"] = <_cyb_intptr_t>__cuEGLStreamProducerConnect
+    data["__cuEGLStreamProducerConnect"] = <intptr_t>__cuEGLStreamProducerConnect
 
     global __cuEGLStreamProducerDisconnect
-    data["__cuEGLStreamProducerDisconnect"] = <_cyb_intptr_t>__cuEGLStreamProducerDisconnect
+    data["__cuEGLStreamProducerDisconnect"] = <intptr_t>__cuEGLStreamProducerDisconnect
 
     global __cuEGLStreamProducerPresentFrame
-    data["__cuEGLStreamProducerPresentFrame"] = <_cyb_intptr_t>__cuEGLStreamProducerPresentFrame
+    data["__cuEGLStreamProducerPresentFrame"] = <intptr_t>__cuEGLStreamProducerPresentFrame
 
     global __cuEGLStreamProducerReturnFrame
-    data["__cuEGLStreamProducerReturnFrame"] = <_cyb_intptr_t>__cuEGLStreamProducerReturnFrame
+    data["__cuEGLStreamProducerReturnFrame"] = <intptr_t>__cuEGLStreamProducerReturnFrame
 
     global __cuGraphicsResourceGetMappedEglFrame
-    data["__cuGraphicsResourceGetMappedEglFrame"] = <_cyb_intptr_t>__cuGraphicsResourceGetMappedEglFrame
+    data["__cuGraphicsResourceGetMappedEglFrame"] = <intptr_t>__cuGraphicsResourceGetMappedEglFrame
 
     global __cuEventCreateFromEGLSync
-    data["__cuEventCreateFromEGLSync"] = <_cyb_intptr_t>__cuEventCreateFromEGLSync
+    data["__cuEventCreateFromEGLSync"] = <intptr_t>__cuEventCreateFromEGLSync
 
     global __cuGraphicsGLRegisterBuffer
-    data["__cuGraphicsGLRegisterBuffer"] = <_cyb_intptr_t>__cuGraphicsGLRegisterBuffer
+    data["__cuGraphicsGLRegisterBuffer"] = <intptr_t>__cuGraphicsGLRegisterBuffer
 
     global __cuGraphicsGLRegisterImage
-    data["__cuGraphicsGLRegisterImage"] = <_cyb_intptr_t>__cuGraphicsGLRegisterImage
+    data["__cuGraphicsGLRegisterImage"] = <intptr_t>__cuGraphicsGLRegisterImage
 
     global __cuGLGetDevices_v2
-    data["__cuGLGetDevices_v2"] = <_cyb_intptr_t>__cuGLGetDevices_v2
+    data["__cuGLGetDevices_v2"] = <intptr_t>__cuGLGetDevices_v2
 
     global __cuGLCtxCreate_v2
-    data["__cuGLCtxCreate_v2"] = <_cyb_intptr_t>__cuGLCtxCreate_v2
+    data["__cuGLCtxCreate_v2"] = <intptr_t>__cuGLCtxCreate_v2
 
     global __cuGLInit
-    data["__cuGLInit"] = <_cyb_intptr_t>__cuGLInit
+    data["__cuGLInit"] = <intptr_t>__cuGLInit
 
     global __cuGLRegisterBufferObject
-    data["__cuGLRegisterBufferObject"] = <_cyb_intptr_t>__cuGLRegisterBufferObject
+    data["__cuGLRegisterBufferObject"] = <intptr_t>__cuGLRegisterBufferObject
 
     global __cuGLMapBufferObject_v2
-    data["__cuGLMapBufferObject_v2"] = <_cyb_intptr_t>__cuGLMapBufferObject_v2
+    data["__cuGLMapBufferObject_v2"] = <intptr_t>__cuGLMapBufferObject_v2
 
     global __cuGLUnmapBufferObject
-    data["__cuGLUnmapBufferObject"] = <_cyb_intptr_t>__cuGLUnmapBufferObject
+    data["__cuGLUnmapBufferObject"] = <intptr_t>__cuGLUnmapBufferObject
 
     global __cuGLUnregisterBufferObject
-    data["__cuGLUnregisterBufferObject"] = <_cyb_intptr_t>__cuGLUnregisterBufferObject
+    data["__cuGLUnregisterBufferObject"] = <intptr_t>__cuGLUnregisterBufferObject
 
     global __cuGLSetBufferObjectMapFlags
-    data["__cuGLSetBufferObjectMapFlags"] = <_cyb_intptr_t>__cuGLSetBufferObjectMapFlags
+    data["__cuGLSetBufferObjectMapFlags"] = <intptr_t>__cuGLSetBufferObjectMapFlags
 
     global __cuGLMapBufferObjectAsync_v2
-    data["__cuGLMapBufferObjectAsync_v2"] = <_cyb_intptr_t>__cuGLMapBufferObjectAsync_v2
+    data["__cuGLMapBufferObjectAsync_v2"] = <intptr_t>__cuGLMapBufferObjectAsync_v2
 
     global __cuGLUnmapBufferObjectAsync
-    data["__cuGLUnmapBufferObjectAsync"] = <_cyb_intptr_t>__cuGLUnmapBufferObjectAsync
+    data["__cuGLUnmapBufferObjectAsync"] = <intptr_t>__cuGLUnmapBufferObjectAsync
 
     global __cuProfilerInitialize
-    data["__cuProfilerInitialize"] = <_cyb_intptr_t>__cuProfilerInitialize
+    data["__cuProfilerInitialize"] = <intptr_t>__cuProfilerInitialize
 
     global __cuProfilerStart
-    data["__cuProfilerStart"] = <_cyb_intptr_t>__cuProfilerStart
+    data["__cuProfilerStart"] = <intptr_t>__cuProfilerStart
 
     global __cuProfilerStop
-    data["__cuProfilerStop"] = <_cyb_intptr_t>__cuProfilerStop
+    data["__cuProfilerStop"] = <intptr_t>__cuProfilerStop
 
     global __cuVDPAUGetDevice
-    data["__cuVDPAUGetDevice"] = <_cyb_intptr_t>__cuVDPAUGetDevice
+    data["__cuVDPAUGetDevice"] = <intptr_t>__cuVDPAUGetDevice
 
     global __cuVDPAUCtxCreate_v2
-    data["__cuVDPAUCtxCreate_v2"] = <_cyb_intptr_t>__cuVDPAUCtxCreate_v2
+    data["__cuVDPAUCtxCreate_v2"] = <intptr_t>__cuVDPAUCtxCreate_v2
 
     global __cuGraphicsVDPAURegisterVideoSurface
-    data["__cuGraphicsVDPAURegisterVideoSurface"] = <_cyb_intptr_t>__cuGraphicsVDPAURegisterVideoSurface
+    data["__cuGraphicsVDPAURegisterVideoSurface"] = <intptr_t>__cuGraphicsVDPAURegisterVideoSurface
 
     global __cuGraphicsVDPAURegisterOutputSurface
-    data["__cuGraphicsVDPAURegisterOutputSurface"] = <_cyb_intptr_t>__cuGraphicsVDPAURegisterOutputSurface
+    data["__cuGraphicsVDPAURegisterOutputSurface"] = <intptr_t>__cuGraphicsVDPAURegisterOutputSurface
 
     global __cuDeviceGetHostAtomicCapabilities
-    data["__cuDeviceGetHostAtomicCapabilities"] = <_cyb_intptr_t>__cuDeviceGetHostAtomicCapabilities
+    data["__cuDeviceGetHostAtomicCapabilities"] = <intptr_t>__cuDeviceGetHostAtomicCapabilities
 
     global __cuCtxGetDevice_v2
-    data["__cuCtxGetDevice_v2"] = <_cyb_intptr_t>__cuCtxGetDevice_v2
+    data["__cuCtxGetDevice_v2"] = <intptr_t>__cuCtxGetDevice_v2
 
     global __cuCtxSynchronize_v2
-    data["__cuCtxSynchronize_v2"] = <_cyb_intptr_t>__cuCtxSynchronize_v2
+    data["__cuCtxSynchronize_v2"] = <intptr_t>__cuCtxSynchronize_v2
 
     global __cuMemcpyBatchAsync_v2
-    data["__cuMemcpyBatchAsync_v2"] = <_cyb_intptr_t>__cuMemcpyBatchAsync_v2
+    data["__cuMemcpyBatchAsync_v2"] = <intptr_t>__cuMemcpyBatchAsync_v2
 
     global __cuMemcpy3DBatchAsync_v2
-    data["__cuMemcpy3DBatchAsync_v2"] = <_cyb_intptr_t>__cuMemcpy3DBatchAsync_v2
+    data["__cuMemcpy3DBatchAsync_v2"] = <intptr_t>__cuMemcpy3DBatchAsync_v2
 
     global __cuMemGetDefaultMemPool
-    data["__cuMemGetDefaultMemPool"] = <_cyb_intptr_t>__cuMemGetDefaultMemPool
+    data["__cuMemGetDefaultMemPool"] = <intptr_t>__cuMemGetDefaultMemPool
 
     global __cuMemGetMemPool
-    data["__cuMemGetMemPool"] = <_cyb_intptr_t>__cuMemGetMemPool
+    data["__cuMemGetMemPool"] = <intptr_t>__cuMemGetMemPool
 
     global __cuMemSetMemPool
-    data["__cuMemSetMemPool"] = <_cyb_intptr_t>__cuMemSetMemPool
+    data["__cuMemSetMemPool"] = <intptr_t>__cuMemSetMemPool
 
     global __cuMemPrefetchBatchAsync
-    data["__cuMemPrefetchBatchAsync"] = <_cyb_intptr_t>__cuMemPrefetchBatchAsync
+    data["__cuMemPrefetchBatchAsync"] = <intptr_t>__cuMemPrefetchBatchAsync
 
     global __cuMemDiscardBatchAsync
-    data["__cuMemDiscardBatchAsync"] = <_cyb_intptr_t>__cuMemDiscardBatchAsync
+    data["__cuMemDiscardBatchAsync"] = <intptr_t>__cuMemDiscardBatchAsync
 
     global __cuMemDiscardAndPrefetchBatchAsync
-    data["__cuMemDiscardAndPrefetchBatchAsync"] = <_cyb_intptr_t>__cuMemDiscardAndPrefetchBatchAsync
+    data["__cuMemDiscardAndPrefetchBatchAsync"] = <intptr_t>__cuMemDiscardAndPrefetchBatchAsync
 
     global __cuDeviceGetP2PAtomicCapabilities
-    data["__cuDeviceGetP2PAtomicCapabilities"] = <_cyb_intptr_t>__cuDeviceGetP2PAtomicCapabilities
+    data["__cuDeviceGetP2PAtomicCapabilities"] = <intptr_t>__cuDeviceGetP2PAtomicCapabilities
 
     global __cuGreenCtxGetId
-    data["__cuGreenCtxGetId"] = <_cyb_intptr_t>__cuGreenCtxGetId
+    data["__cuGreenCtxGetId"] = <intptr_t>__cuGreenCtxGetId
 
     global __cuMulticastBindMem_v2
-    data["__cuMulticastBindMem_v2"] = <_cyb_intptr_t>__cuMulticastBindMem_v2
+    data["__cuMulticastBindMem_v2"] = <intptr_t>__cuMulticastBindMem_v2
 
     global __cuMulticastBindAddr_v2
-    data["__cuMulticastBindAddr_v2"] = <_cyb_intptr_t>__cuMulticastBindAddr_v2
+    data["__cuMulticastBindAddr_v2"] = <intptr_t>__cuMulticastBindAddr_v2
 
     global __cuGraphNodeGetContainingGraph
-    data["__cuGraphNodeGetContainingGraph"] = <_cyb_intptr_t>__cuGraphNodeGetContainingGraph
+    data["__cuGraphNodeGetContainingGraph"] = <intptr_t>__cuGraphNodeGetContainingGraph
 
     global __cuGraphNodeGetLocalId
-    data["__cuGraphNodeGetLocalId"] = <_cyb_intptr_t>__cuGraphNodeGetLocalId
+    data["__cuGraphNodeGetLocalId"] = <intptr_t>__cuGraphNodeGetLocalId
 
     global __cuGraphNodeGetToolsId
-    data["__cuGraphNodeGetToolsId"] = <_cyb_intptr_t>__cuGraphNodeGetToolsId
+    data["__cuGraphNodeGetToolsId"] = <intptr_t>__cuGraphNodeGetToolsId
 
     global __cuGraphGetId
-    data["__cuGraphGetId"] = <_cyb_intptr_t>__cuGraphGetId
+    data["__cuGraphGetId"] = <intptr_t>__cuGraphGetId
 
     global __cuGraphExecGetId
-    data["__cuGraphExecGetId"] = <_cyb_intptr_t>__cuGraphExecGetId
+    data["__cuGraphExecGetId"] = <intptr_t>__cuGraphExecGetId
 
     global __cuDevSmResourceSplit
-    data["__cuDevSmResourceSplit"] = <_cyb_intptr_t>__cuDevSmResourceSplit
+    data["__cuDevSmResourceSplit"] = <intptr_t>__cuDevSmResourceSplit
 
     global __cuStreamGetDevResource
-    data["__cuStreamGetDevResource"] = <_cyb_intptr_t>__cuStreamGetDevResource
+    data["__cuStreamGetDevResource"] = <intptr_t>__cuStreamGetDevResource
 
     global __cuKernelGetParamCount
-    data["__cuKernelGetParamCount"] = <_cyb_intptr_t>__cuKernelGetParamCount
+    data["__cuKernelGetParamCount"] = <intptr_t>__cuKernelGetParamCount
 
     global __cuMemcpyWithAttributesAsync
-    data["__cuMemcpyWithAttributesAsync"] = <_cyb_intptr_t>__cuMemcpyWithAttributesAsync
+    data["__cuMemcpyWithAttributesAsync"] = <intptr_t>__cuMemcpyWithAttributesAsync
 
     global __cuMemcpy3DWithAttributesAsync
-    data["__cuMemcpy3DWithAttributesAsync"] = <_cyb_intptr_t>__cuMemcpy3DWithAttributesAsync
+    data["__cuMemcpy3DWithAttributesAsync"] = <intptr_t>__cuMemcpy3DWithAttributesAsync
 
     global __cuStreamBeginCaptureToCig
-    data["__cuStreamBeginCaptureToCig"] = <_cyb_intptr_t>__cuStreamBeginCaptureToCig
+    data["__cuStreamBeginCaptureToCig"] = <intptr_t>__cuStreamBeginCaptureToCig
 
     global __cuStreamEndCaptureToCig
-    data["__cuStreamEndCaptureToCig"] = <_cyb_intptr_t>__cuStreamEndCaptureToCig
+    data["__cuStreamEndCaptureToCig"] = <intptr_t>__cuStreamEndCaptureToCig
 
     global __cuFuncGetParamCount
-    data["__cuFuncGetParamCount"] = <_cyb_intptr_t>__cuFuncGetParamCount
+    data["__cuFuncGetParamCount"] = <intptr_t>__cuFuncGetParamCount
 
     global __cuLaunchHostFunc_v2
-    data["__cuLaunchHostFunc_v2"] = <_cyb_intptr_t>__cuLaunchHostFunc_v2
+    data["__cuLaunchHostFunc_v2"] = <intptr_t>__cuLaunchHostFunc_v2
 
     global __cuGraphNodeGetParams
-    data["__cuGraphNodeGetParams"] = <_cyb_intptr_t>__cuGraphNodeGetParams
+    data["__cuGraphNodeGetParams"] = <intptr_t>__cuGraphNodeGetParams
 
     global __cuCoredumpRegisterStartCallback
-    data["__cuCoredumpRegisterStartCallback"] = <_cyb_intptr_t>__cuCoredumpRegisterStartCallback
+    data["__cuCoredumpRegisterStartCallback"] = <intptr_t>__cuCoredumpRegisterStartCallback
 
     global __cuCoredumpRegisterCompleteCallback
-    data["__cuCoredumpRegisterCompleteCallback"] = <_cyb_intptr_t>__cuCoredumpRegisterCompleteCallback
+    data["__cuCoredumpRegisterCompleteCallback"] = <intptr_t>__cuCoredumpRegisterCompleteCallback
 
     global __cuCoredumpDeregisterStartCallback
-    data["__cuCoredumpDeregisterStartCallback"] = <_cyb_intptr_t>__cuCoredumpDeregisterStartCallback
+    data["__cuCoredumpDeregisterStartCallback"] = <intptr_t>__cuCoredumpDeregisterStartCallback
 
     global __cuCoredumpDeregisterCompleteCallback
-    data["__cuCoredumpDeregisterCompleteCallback"] = <_cyb_intptr_t>__cuCoredumpDeregisterCompleteCallback
+    data["__cuCoredumpDeregisterCompleteCallback"] = <intptr_t>__cuCoredumpDeregisterCompleteCallback
 
     global __cuLogicalEndpointIdReserve
-    data["__cuLogicalEndpointIdReserve"] = <_cyb_intptr_t>__cuLogicalEndpointIdReserve
+    data["__cuLogicalEndpointIdReserve"] = <intptr_t>__cuLogicalEndpointIdReserve
 
     global __cuLogicalEndpointIdRelease
-    data["__cuLogicalEndpointIdRelease"] = <_cyb_intptr_t>__cuLogicalEndpointIdRelease
+    data["__cuLogicalEndpointIdRelease"] = <intptr_t>__cuLogicalEndpointIdRelease
 
     global __cuLogicalEndpointCreate
-    data["__cuLogicalEndpointCreate"] = <_cyb_intptr_t>__cuLogicalEndpointCreate
+    data["__cuLogicalEndpointCreate"] = <intptr_t>__cuLogicalEndpointCreate
 
     global __cuLogicalEndpointAddDevice
-    data["__cuLogicalEndpointAddDevice"] = <_cyb_intptr_t>__cuLogicalEndpointAddDevice
+    data["__cuLogicalEndpointAddDevice"] = <intptr_t>__cuLogicalEndpointAddDevice
 
     global __cuLogicalEndpointDestroy
-    data["__cuLogicalEndpointDestroy"] = <_cyb_intptr_t>__cuLogicalEndpointDestroy
+    data["__cuLogicalEndpointDestroy"] = <intptr_t>__cuLogicalEndpointDestroy
 
     global __cuLogicalEndpointBindAddr
-    data["__cuLogicalEndpointBindAddr"] = <_cyb_intptr_t>__cuLogicalEndpointBindAddr
+    data["__cuLogicalEndpointBindAddr"] = <intptr_t>__cuLogicalEndpointBindAddr
 
     global __cuLogicalEndpointBindMem
-    data["__cuLogicalEndpointBindMem"] = <_cyb_intptr_t>__cuLogicalEndpointBindMem
+    data["__cuLogicalEndpointBindMem"] = <intptr_t>__cuLogicalEndpointBindMem
 
     global __cuLogicalEndpointUnbind
-    data["__cuLogicalEndpointUnbind"] = <_cyb_intptr_t>__cuLogicalEndpointUnbind
+    data["__cuLogicalEndpointUnbind"] = <intptr_t>__cuLogicalEndpointUnbind
 
     global __cuLogicalEndpointExport
-    data["__cuLogicalEndpointExport"] = <_cyb_intptr_t>__cuLogicalEndpointExport
+    data["__cuLogicalEndpointExport"] = <intptr_t>__cuLogicalEndpointExport
 
     global __cuLogicalEndpointImport
-    data["__cuLogicalEndpointImport"] = <_cyb_intptr_t>__cuLogicalEndpointImport
+    data["__cuLogicalEndpointImport"] = <intptr_t>__cuLogicalEndpointImport
 
     global __cuLogicalEndpointGetLimits
-    data["__cuLogicalEndpointGetLimits"] = <_cyb_intptr_t>__cuLogicalEndpointGetLimits
+    data["__cuLogicalEndpointGetLimits"] = <intptr_t>__cuLogicalEndpointGetLimits
 
     global __cuLogicalEndpointQuery
-    data["__cuLogicalEndpointQuery"] = <_cyb_intptr_t>__cuLogicalEndpointQuery
+    data["__cuLogicalEndpointQuery"] = <intptr_t>__cuLogicalEndpointQuery
 
     global __cuStreamBeginRecaptureToGraph
-    data["__cuStreamBeginRecaptureToGraph"] = <_cyb_intptr_t>__cuStreamBeginRecaptureToGraph
+    data["__cuStreamBeginRecaptureToGraph"] = <intptr_t>__cuStreamBeginRecaptureToGraph
 
     global __cuDeviceGetFabricClusterUuid
-    data["__cuDeviceGetFabricClusterUuid"] = <_cyb_intptr_t>__cuDeviceGetFabricClusterUuid
+    data["__cuDeviceGetFabricClusterUuid"] = <intptr_t>__cuDeviceGetFabricClusterUuid
 
     global __cuDeviceGetCliqueCount
-    data["__cuDeviceGetCliqueCount"] = <_cyb_intptr_t>__cuDeviceGetCliqueCount
+    data["__cuDeviceGetCliqueCount"] = <intptr_t>__cuDeviceGetCliqueCount
 
     global __cuDeviceGetCliqueInfo
-    data["__cuDeviceGetCliqueInfo"] = <_cyb_intptr_t>__cuDeviceGetCliqueInfo
+    data["__cuDeviceGetCliqueInfo"] = <intptr_t>__cuDeviceGetCliqueInfo
 
     global __cuMemGetLocationInfo
-    data["__cuMemGetLocationInfo"] = <_cyb_intptr_t>__cuMemGetLocationInfo
+    data["__cuMemGetLocationInfo"] = <intptr_t>__cuMemGetLocationInfo
 
     global __cuGraphAddNode_v3
-    data["__cuGraphAddNode_v3"] = <_cyb_intptr_t>__cuGraphAddNode_v3
+    data["__cuGraphAddNode_v3"] = <intptr_t>__cuGraphAddNode_v3
 
     global __cuGraphNodeSetParams_v2
-    data["__cuGraphNodeSetParams_v2"] = <_cyb_intptr_t>__cuGraphNodeSetParams_v2
+    data["__cuGraphNodeSetParams_v2"] = <intptr_t>__cuGraphNodeSetParams_v2
 
     global __cuCheckpointOperationComplete
-    data["__cuCheckpointOperationComplete"] = <_cyb_intptr_t>__cuCheckpointOperationComplete
+    data["__cuCheckpointOperationComplete"] = <intptr_t>__cuCheckpointOperationComplete
     _cyb_func_ptrs = data
     return data
 

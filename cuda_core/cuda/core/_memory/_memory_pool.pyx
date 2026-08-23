@@ -12,6 +12,9 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core._memory cimport _ipc
+# cumemlocation_from_id is referenced only from a CUDA 13 branch. cython-lint
+# does not evaluate compile-time IF blocks, so it needs a pragma to be seen as used.
+from cuda.core._memory._location cimport cumemlocation_from_id  # no-cython-lint
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._resource_handles cimport (
     MemoryPoolHandle,
@@ -279,8 +282,7 @@ cdef int MP_init_current_pool(
     """
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef cydriver.CUmemoryPool pool
-        cdef cydriver.CUmemLocation loc = cydriver.CUmemLocation(
-            type=loc_type, id=loc_id)
+        cdef cydriver.CUmemLocation loc = cumemlocation_from_id(loc_type, loc_id)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemGetMemPool(&pool, &loc, alloc_type))
         self._h_pool = create_mempool_handle_ref(pool)
@@ -347,14 +349,11 @@ cdef Buffer _MP_allocate(_MemPool self, size_t size, Stream stream, type cls = B
 
 cdef inline void _MP_deallocate(
     _MemPool self, uintptr_t ptr, size_t size, Stream stream
-) noexcept nogil:
+) except *:
     cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
-    cdef cydriver.CUresult r
     with nogil:
-        r = cydriver.cuMemFreeAsync(devptr, s)
-        if r != cydriver.CUDA_ERROR_INVALID_CONTEXT:
-            HANDLE_RETURN(r)
+        HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 
 
 cdef inline _MP_close(_MemPool self):

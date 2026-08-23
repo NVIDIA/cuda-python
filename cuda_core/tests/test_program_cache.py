@@ -319,6 +319,20 @@ def test_make_program_cache_key_rejects_extra_sources_outside_nvvm(code_type, co
         )
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("value", [True, False])
+def test_make_program_cache_key_ignores_numba_debug_for_ptx(value):
+    """``numba_debug`` cannot change PTX-path output -- no linker backend reads
+    it -- so it must not perturb the cache key (#2640).
+
+    If it did, two compiles producing byte-identical cubins would miss each
+    other in the cache.
+    """
+    baseline = _make_key(code=".version 7.0", code_type="ptx", target_type="cubin", options=_opts())
+    with_flag = _make_key(code=".version 7.0", code_type="ptx", target_type="cubin", options=_opts(numba_debug=value))
+    assert with_flag == baseline
+
+
 @pytest.mark.parametrize(
     "kwargs, exc_type, match",
     [

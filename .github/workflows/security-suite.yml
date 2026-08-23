@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# CI security scanning via the NVIDIA/security-workflows suite: Pulse secret scan + CodeQL SAST.
+# Pulse runs on Linux nv-gha-runners (Docker image + OIDC/Vault) — Linux-only by design.
+# The local secret-scan-trufflehog pre-commit hook is cross-platform (Linux/macOS/Windows).
+# Pinned to a reviewed commit SHA.
+
+name: Security Suite (Pulse + CodeQL)
+
+on:
+  push:
+    branches:
+      - main
+      - ctk-next
+      - "pull-request/[0-9]+"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-on-${{ github.event_name }}-from-${{ github.ref_name }}
+  cancel-in-progress: true
+
+# Caller must grant every permission the reusable workflow declares, including scans it disables.
+permissions:
+  contents: read
+  id-token: write          # OIDC -> Vault -> nvcr.io image pull
+  security-events: write   # publish redacted SARIF to code scanning
+  actions: read
+
+jobs:
+  security-suite:
+    name: Security Suite
+    # Pulse needs nv-gha-runners + Vault/nvcr vars; skip on forks.
+    if: github.repository == 'NVIDIA/cuda-python'
+    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@711025b090f2aa728da576700750b195d1e816dc  # v0.3.0
+    with:
+      enable-secret-scan: true
+      enable-sast-scan: true
+      secret-runs-on: linux-amd64-cpu4
+      # Set failure_policy explicitly so enforcement can't drift with upstream defaults.
+      #   unverified — fail on verified/live secrets (183); warn on unverified (185)  [default]
+      #   strict     — fail on any finding (verified or unverified)
+      #   all        — warn only; never fail the job on findings
+      secret-failure-policy: unverified
+      # Same analysis the retired codeql.yml performed: python, build-mode none, security-extended.
+      sast-languages: '["python"]'

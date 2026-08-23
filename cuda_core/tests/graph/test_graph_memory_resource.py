@@ -5,8 +5,8 @@
 """Tests for GraphMemoryResource allocation and attributes during graph capture."""
 
 import pytest
-from conftest import xfail_on_graph_mempool_oom
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
+from helpers.memory import xfail_on_graph_mempool_oom
 
 from cuda.core import (
     Device,
