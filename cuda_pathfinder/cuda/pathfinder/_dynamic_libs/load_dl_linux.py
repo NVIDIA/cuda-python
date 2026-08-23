@@ -138,7 +138,7 @@ def _candidate_sonames(desc: LibDescriptor) -> list[str]:
 
 if sys.platform == "linux":
 
-    def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, _have_abs_path: bool) -> LoadedDL | None:
+    def check_if_already_loaded_from_elsewhere(desc: LibDescriptor) -> LoadedDL | None:
         for soname in _candidate_sonames(desc):
             try:
                 handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
@@ -160,7 +160,7 @@ if sys.platform == "linux":
         return ctypes.CDLL(filename, cdll_mode)
 else:
 
-    def check_if_already_loaded_from_elsewhere(_desc: LibDescriptor, _have_abs_path: bool) -> LoadedDL | None:
+    def check_if_already_loaded_from_elsewhere(_desc: LibDescriptor) -> LoadedDL | None:
         raise RuntimeError(f"check_if_already_loaded_from_elsewhere() is not supported on platform {sys.platform!r}")
 
     def _load_lib(_desc: LibDescriptor, _filename: str) -> ctypes.CDLL:
