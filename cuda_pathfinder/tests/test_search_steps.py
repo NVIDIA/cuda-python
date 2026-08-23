@@ -95,8 +95,8 @@ class TestSearchContext:
         assert ctx.libname == "nvrtc"
 
     def test_lib_searched_for_linux(self):
-        ctx = SearchContext(_make_desc(name="cublas"), platform=LinuxSearchPlatform())
-        assert ctx.lib_searched_for == "libcublas.so"
+        ctx = SearchContext(LIB_DESCRIPTORS["cublas"], platform=LinuxSearchPlatform())
+        assert ctx.lib_searched_for == "libcublas.so.13 or libcublas.so.12"
 
     def test_lib_searched_for_windows(self):
         ctx = SearchContext(_make_desc(name="cublas"), platform=WindowsSearchPlatform(target_arch="x64"))
@@ -104,7 +104,7 @@ class TestSearchContext:
 
     def test_raise_not_found_includes_messages(self):
         ctx = _ctx()
-        ctx.error_messages.append("No such file: libcudart.so*")
+        ctx.error_messages.append("No such file: libcudart.so")
         ctx.attachments.append('  listdir("/some/dir"):')
         with pytest.raises(DynamicLibNotFoundError, match="No such file"):
             ctx.raise_not_found()
@@ -467,15 +467,8 @@ class TestFindInSitePackages:
         assert result is None
         assert any("No such file" in m for m in ctx.error_messages)
 
-    # The next three tests cover the Linux glob fallback in
-    # cuda.pathfinder._dynamic_libs.search_platform._find_so_in_rel_dirs.
-    # The fallback triggers when the unversioned libfoo.so is absent but
-    # versioned libfoo.so.<major> files exist (e.g. some conda layouts).
-    # Issue #1732 tracks the decision to return the newest-sorting match
-    # deterministically; these tests lock in that policy at the
-    # site-packages call site.
-
-    def test_glob_fallback_returns_single_versioned_match(self, mocker, tmp_path):
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_declared_versioned_soname_does_not_need_unversioned_link(self, mocker, tmp_path):
         lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
         lib_dir.mkdir(parents=True)
         versioned = lib_dir / "libcudart.so.13"
@@ -486,12 +479,14 @@ class TestFindInSitePackages:
             return_value=[str(lib_dir)],
         )
 
-        result = find_in_site_packages(_ctx(platform=LinuxSearchPlatform()))
+        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(versioned)
         assert result.found_via == "site-packages"
 
-    def test_glob_fallback_returns_newest_of_multiple_matches(self, mocker, tmp_path):
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_declared_sonames_prefer_newest(self, mocker, tmp_path):
         lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
         lib_dir.mkdir(parents=True)
         older = lib_dir / "libcudart.so.12"
@@ -504,25 +499,33 @@ class TestFindInSitePackages:
             return_value=[str(lib_dir)],
         )
 
-        result = find_in_site_packages(_ctx(platform=LinuxSearchPlatform()))
+        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(newer)
         assert result.found_via == "site-packages"
 
-    def test_glob_fallback_zero_matches_returns_none(self, mocker, tmp_path):
+    @pytest.mark.parametrize(
+        "undeclared_filename",
+        ("libcudart.so", "libcudart.so.14", "libcudart.so.13.5.0", "libcudart.so.13.backup"),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_rejects_undeclared_filename(self, mocker, tmp_path, undeclared_filename):
         lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
         lib_dir.mkdir(parents=True)
-        (lib_dir / "unrelated.txt").touch()
+        (lib_dir / undeclared_filename).touch()
 
         mocker.patch(
             f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
             return_value=[str(lib_dir)],
         )
 
-        ctx = _ctx(platform=LinuxSearchPlatform())
+        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        ctx = _ctx(desc, platform=LinuxSearchPlatform())
         result = find_in_site_packages(ctx)
         assert result is None
-        assert any("No such file" in m and "libcudart.so" in m for m in ctx.error_messages)
+        assert ctx.error_messages
+        assert all("*" not in message for message in ctx.error_messages)
 
 
 # ---------------------------------------------------------------------------
@@ -582,15 +585,8 @@ class TestFindInConda:
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "conda"
 
-    # The next three tests cover the Linux glob fallback in
-    # cuda.pathfinder._dynamic_libs.search_platform.LinuxSearchPlatform.find_in_lib_dir,
-    # which is exercised by find_in_conda (and find_in_cuda_path) when the
-    # resolved lib dir contains only versioned libfoo.so.<major> files.
-    # Issue #1732 tracks the decision to return the newest-sorting match
-    # deterministically; these tests lock in that policy at the conda /
-    # CUDA_PATH call site.
-
-    def test_glob_fallback_returns_single_versioned_match(self, mocker, tmp_path):
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_declared_versioned_soname_found_in_lib_dir(self, mocker, tmp_path):
         lib_dir = tmp_path / "lib"
         lib_dir.mkdir()
         versioned = lib_dir / "libcudart.so.13"
@@ -598,37 +594,30 @@ class TestFindInConda:
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
+        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        result = find_in_conda(_ctx(desc, platform=LinuxSearchPlatform()))
         assert result is not None
         assert result.abs_path == str(versioned)
         assert result.found_via == "conda"
 
-    def test_glob_fallback_returns_newest_of_multiple_matches(self, mocker, tmp_path):
+    @pytest.mark.parametrize(
+        "undeclared_filename",
+        ("libcudart.so", "libcudart.so.14", "libcudart.so.13.5.0", "libcudart.so.13.backup"),
+    )
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_linux_rejects_undeclared_filename_in_lib_dir(self, mocker, tmp_path, undeclared_filename):
         lib_dir = tmp_path / "lib"
         lib_dir.mkdir()
-        older = lib_dir / "libcudart.so.12"
-        newer = lib_dir / "libcudart.so.13"
-        older.touch()
-        newer.touch()
+        (lib_dir / undeclared_filename).touch()
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
-        assert result is not None
-        assert result.abs_path == str(newer)
-        assert result.found_via == "conda"
-
-    def test_glob_fallback_zero_matches_returns_none(self, mocker, tmp_path):
-        lib_dir = tmp_path / "lib"
-        lib_dir.mkdir()
-        (lib_dir / "unrelated.txt").touch()
-
-        mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
-
-        ctx = _ctx(platform=LinuxSearchPlatform())
+        desc = _make_desc(linux_sonames=("libcudart.so.12", "libcudart.so.13"))
+        ctx = _ctx(desc, platform=LinuxSearchPlatform())
         result = find_in_conda(ctx)
         assert result is None
-        assert any("No such file" in m and "libcudart.so" in m for m in ctx.error_messages)
+        assert ctx.error_messages
+        assert all("*" not in message for message in ctx.error_messages)
 
 
 # ---------------------------------------------------------------------------

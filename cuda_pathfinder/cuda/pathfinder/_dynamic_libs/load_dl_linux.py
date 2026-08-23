@@ -10,6 +10,7 @@ import os
 import sys
 from typing import TYPE_CHECKING, cast
 
+from cuda.pathfinder._dynamic_libs.lib_descriptor import linux_soname_candidates
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 
 if TYPE_CHECKING:
@@ -129,17 +130,10 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
     return os.path.join(l_origin, os.path.basename(l_name))
 
 
-def _candidate_sonames(desc: LibDescriptor) -> list[str]:
-    # Reverse tabulated names to achieve new -> old search order.
-    candidates = list(reversed(desc.linux_sonames))
-    candidates.append(f"lib{desc.name}.so")
-    return candidates
-
-
 if sys.platform == "linux":
 
     def check_if_already_loaded_from_elsewhere(desc: LibDescriptor) -> LoadedDL | None:
-        for soname in _candidate_sonames(desc):
+        for soname in linux_soname_candidates(desc):
             try:
                 handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
             except OSError:
@@ -177,7 +171,7 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
         A LoadedDL object if successful, None if the library cannot be loaded
 
     """
-    for soname in _candidate_sonames(desc):
+    for soname in linux_soname_candidates(desc):
         try:
             handle = _load_lib(desc, soname)
         except OSError:

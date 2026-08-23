@@ -59,6 +59,7 @@ def _ctk_windows_wheel_dirs(cuda13_bin_dir: str, cuda12_dir: str) -> WindowsSear
 class DescriptorSpec:
     name: str
     packaged_with: PackagedWith
+    # Keep declared SONAMEs in oldest -> newest order.
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
     supported_windows_arch: tuple[WindowsArch, ...] = ()
@@ -412,7 +413,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
     DescriptorSpec(
         name="cufftMp",
         packaged_with="other",
-        linux_sonames=("libcufftMp.so.12", "libcufftMp.so.11"),
+        linux_sonames=("libcufftMp.so.11", "libcufftMp.so.12"),
         site_packages_linux=("nvidia/cufftmp/cu13/lib", "nvidia/cufftmp/cu12/lib"),
         dependencies=("nvshmem_host",),
         requires_rtld_deepbind=True,
