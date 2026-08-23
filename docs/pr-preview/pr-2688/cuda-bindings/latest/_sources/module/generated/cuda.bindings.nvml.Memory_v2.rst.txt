@@ -1,0 +1,36 @@
+﻿cuda.bindings.nvml.Memory\_v2
+=============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: Memory_v2
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Memory_v2.__init__
+      ~Memory_v2.from_buffer
+      ~Memory_v2.from_data
+      ~Memory_v2.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Memory_v2.free
+      ~Memory_v2.ptr
+      ~Memory_v2.reserved
+      ~Memory_v2.total
+      ~Memory_v2.used
+      ~Memory_v2.version
+   
+   
