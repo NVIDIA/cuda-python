@@ -1361,7 +1361,6 @@
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags will either be zero or cudaArraySparsePropertiesSingleMipTail</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaArraySparseProperties.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaArraySparseProperties.getPtr" title="Link to this definition">#</a></dt>
@@ -1389,7 +1388,6 @@
 <dt>alignment<span class="classifier">size_t</span></dt><dd><p>Alignment necessary for mapping the array.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaArrayMemoryRequirements.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaArrayMemoryRequirements.getPtr" title="Link to this definition">#</a></dt>
@@ -1543,8 +1541,6 @@ referring to linear memory</p>
 </dd></dl>
 
 <dl class="simple">
-<dt>reserved<span class="classifier">int</span></dt><dd><p>Must be zero</p>
-</dd>
 <dt>ctx<span class="classifier">cudaExecutionContext_t</span></dt><dd><p>Context in which to run the memcpy. If NULL will try to use the
 current context.</p>
 </dd>
@@ -1831,8 +1827,6 @@ STREAMING.</p>
 </dd>
 <dt>lastLayer<span class="classifier">unsigned int</span></dt><dd><p>Last layer index</p>
 </dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Must be zero</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaResourceViewDesc.getPtr">
@@ -1874,8 +1868,6 @@ access the memory or NULL if no such address exists.</p>
 memory or NULL if no such address exists.  CUDA doesn’t check if
 unregistered memory is allocated so this field may contain invalid
 pointer if an invalid pointer has been passed to CUDA.</p>
-</dd>
-<dt>reserved<span class="classifier">list[long]</span></dt><dd><p>Must be zero</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1972,11 +1964,6 @@ cudaFuncSetAttribute</p>
 <dt>deviceNodeUpdateStatus<span class="classifier">int</span></dt><dd><p>Whether the function can be updated on device. 1 means device node
 update is supported, 0 is unsupported or driver is too old to check
 the value.</p>
-</dd>
-</dl>
-<p>reserved1 : int</p>
-<dl class="simple">
-<dt>reserved<span class="classifier">list[int]</span></dt><dd><p>Reserved for future use.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -2078,8 +2065,6 @@ value.</p>
 </dd>
 <dt>usage<span class="classifier">unsigned short</span></dt><dd><p>Bitmask indicating intended usage for the pool.</p>
 </dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>reserved for future use, must be 0</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemPoolProps.getPtr">
@@ -2093,16 +2078,6 @@ value.</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemPoolPtrExportData">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemPoolPtrExportData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemPoolPtrExportData" title="Link to this definition">#</a></dt>
 <dd><p>Opaque data for exporting a pool allocation</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemPoolPtrExportData.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemPoolPtrExportData.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemPoolPtrExportData.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemPoolPtrExportData.getPtr" title="Link to this definition">#</a></dt>
@@ -2567,8 +2542,6 @@ vendor ID</p>
 <dt>hostNumaMultinodeIpcSupported<span class="classifier">int</span></dt><dd><p>1 if the device supports HostNuma location IPC between nodes in a
 multi-node system.</p>
 </dd>
-<dt>reserved<span class="classifier">list[int]</span></dt><dd><p>Reserved for future use</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceProp.getPtr">
@@ -2582,16 +2555,6 @@ multi-node system.</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcEventHandle_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaIpcEventHandle_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcEventHandle_st" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC event handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcEventHandle_st.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcEventHandle_st.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcEventHandle_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcEventHandle_st.getPtr" title="Link to this definition">#</a></dt>
@@ -2604,16 +2567,6 @@ multi-node system.</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcMemHandle_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaIpcMemHandle_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcMemHandle_st" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC memory handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcMemHandle_st.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcMemHandle_st.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcMemHandle_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcMemHandle_st.getPtr" title="Link to this definition">#</a></dt>
@@ -2625,17 +2578,7 @@ multi-node system.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemFabricHandle_st">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemFabricHandle_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemFabricHandle_st" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemFabricHandle_st.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemFabricHandle_st.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
+<dd><dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemFabricHandle_st.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemFabricHandle_st.getPtr" title="Link to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
@@ -2663,8 +2606,6 @@ multi-node system.</p>
 <dt>size<span class="classifier">unsigned long long</span></dt><dd><p>Size of the memory allocation</p>
 </dd>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags must either be zero or cudaExternalMemoryDedicated</p>
-</dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Must be zero</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -2694,8 +2635,6 @@ multi-node system.</p>
 <dt>size<span class="classifier">unsigned long long</span></dt><dd><p>Size of the buffer</p>
 </dd>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags reserved for future use. Must be zero.</p>
-</dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Must be zero</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -2732,8 +2671,6 @@ cudaMallocMipmappedArray</p>
 </dd>
 <dt>numLevels<span class="classifier">unsigned int</span></dt><dd><p>Total number of levels in the mipmap chain</p>
 </dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Must be zero</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaExternalMemoryMipmappedArrayDesc.getPtr">
@@ -2761,8 +2698,6 @@ cudaMallocMipmappedArray</p>
 <p>handle : anon_union4</p>
 <dl class="simple">
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Flags reserved for the future. Must be zero.</p>
-</dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Must be zero</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -2798,7 +2733,6 @@ memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
 all other types of cudaExternalSemaphore_t, flags must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaExternalSemaphoreSignalParams.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalParams.getPtr" title="Link to this definition">#</a></dt>
@@ -2832,7 +2766,6 @@ memory object imported as cudaExternalMemoryHandleTypeNvSciBuf. For
 all other types of cudaExternalSemaphore_t, flags must be zero.</p>
 </dd>
 </dl>
-<p>reserved : list[unsigned int]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaExternalSemaphoreWaitParams.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitParams.getPtr" title="Link to this definition">#</a></dt>
@@ -2911,17 +2844,6 @@ cudaDevSmResourceGroup_flags.</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDevWorkqueueResource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDevWorkqueueResource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">void_ptr</span> <span class="pre">_ptr=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDevWorkqueueResource" title="Link to this definition">#</a></dt>
 <dd><p>Handle to a pre-existing workqueue related resource</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDevWorkqueueResource.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaDevWorkqueueResource.reserved" title="Link to this definition">#</a></dt>
-<dd><p>Reserved for future use</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDevWorkqueueResource.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDevWorkqueueResource.getPtr" title="Link to this definition">#</a></dt>
@@ -2954,8 +2876,6 @@ groups of this size.</p>
 </dd>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Combination of <cite>cudaDevSmResourceGroup_flags</cite> values to indicate
 this this group is created.</p>
-</dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Reserved for future use - ensure this is zero initialized.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -3382,10 +3302,6 @@ to the parent.</p>
 </dd></dl>
 
 <dl class="simple">
-<dt>reserved0<span class="classifier">list[int]</span></dt><dd><p>Reserved. Must be zero.</p>
-</dd>
-<dt>reserved1<span class="classifier">list[long long]</span></dt><dd><p>Padding. Unused bytes must be zero.</p>
-</dd>
 <dt>kernel<span class="classifier">cudaKernelNodeParamsV2</span></dt><dd><p>Kernel node parameters.</p>
 </dd>
 <dt>memcpy<span class="classifier">cudaMemcpyNodeParams</span></dt><dd><p>Memcpy node parameters.</p>
@@ -3409,8 +3325,6 @@ to the parent.</p>
 <dt>free<span class="classifier">cudaMemFreeNodeParams</span></dt><dd><p>Memory free node parameters.</p>
 </dd>
 <dt>conditional<span class="classifier">cudaConditionalNodeParams</span></dt><dd><p>Conditional node parameters.</p>
-</dd>
-<dt>reserved2<span class="classifier">long long</span></dt><dd><p>Reserved bytes. Must be zero.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -3458,9 +3372,6 @@ Accordingly, this field must be set to zero.</p>
 <dt>type<span class="classifier">bytes</span></dt><dd><p>This should be populated with a value from cudaGraphDependencyType.
 (It is typed as char due to compiler-specific layout of bitfields.)
 See cudaGraphDependencyType.</p>
-</dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>These bytes are unused and must be zeroed. This ensures
-compatibility if additional fields are added in the future.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -3658,12 +3569,12 @@ desired preferred cluster dimensions for the kernel. Opaque type
 with the following fields: - <cite>x</cite> - The X dimension of the preferred
 cluster, in blocks. Must be a divisor of the grid X dimension, and
 must be a multiple of the <cite>x</cite> field of
-::cudaLaunchAttributeValue::clusterDim.    - <cite>y</cite> - The Y dimension
-of the preferred cluster, in blocks. Must be a divisor of the grid
-Y dimension, and must be a multiple of the <cite>y</cite> field of
-::cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension
-of the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field
-of ::cudaLaunchAttributeValue::clusterDim.</p>
+cudaLaunchAttributeValue::clusterDim.    - <cite>y</cite> - The Y dimension of
+the preferred cluster, in blocks. Must be a divisor of the grid Y
+dimension, and must be a multiple of the <cite>y</cite> field of
+cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension of
+the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field of
+cudaLaunchAttributeValue::clusterDim.</p>
 </dd>
 <dt>launchCompletionEvent<span class="classifier">anon_struct20</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
 with the following fields: - <cite>cudaEvent_t</cite> event - Event to fire
@@ -3829,8 +3740,6 @@ EGLFrame</p>
 <dt>numChannels<span class="classifier">unsigned int</span></dt><dd><p>Number of channels for the plane</p>
 </dd>
 <dt>channelDesc<span class="classifier">cudaChannelFormatDesc</span></dt><dd><p>Channel Format Descriptor</p>
-</dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Reserved for future use</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -8436,7 +8345,7 @@ are on the same GPU.</p>
 <span class="sig-name descname"><span class="pre">cudaLaunchAttributeDeviceUpdatableKernelNode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode:</span> <span class="pre">13&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeDeviceUpdatableKernelNode" title="Link to this definition">#</a></dt>
 <dd><p>Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error.</p>
 <blockquote>
-<div><p>:cudaLaunchAttributeValue::deviceUpdatableKernelNode::deviceUpdatable can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via <code class="xref py py-obj docutils literal notranslate"><span class="pre">devNode</span></code> which can be passed to the various device-side update functions to update the node’s kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeUpdatesApply</span></code>.</p>
+<div><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">deviceUpdatable</span></code> can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via <code class="xref py py-obj docutils literal notranslate"><span class="pre">devNode</span></code> which can be passed to the various device-side update functions to update the node’s kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeUpdatesApply</span></code>.</p>
 <p>Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphDestroyNode" title="cuda.bindings.runtime.cudaGraphDestroyNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphDestroyNode</span></code></a>. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphKernelNodeCopyAttributes" title="cuda.bindings.runtime.cudaGraphKernelNodeCopyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphKernelNodeCopyAttributes</span></code></a>. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphExecUpdate" title="cuda.bindings.runtime.cudaGraphExecUpdate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphExecUpdate</span></code></a>.</p>
 <p>If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with <a class="reference internal" href="driver.html#cuda.bindings.driver.cuGraphUpload" title="cuda.bindings.driver.cuGraphUpload"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuGraphUpload</span></code></a> before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.</p>
 </div></blockquote>
@@ -9526,16 +9435,6 @@ formats currently supported for CUDA_EGL interops.</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcEventHandle_t">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaIpcEventHandle_t</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcEventHandle_t" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC event handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcEventHandle_t.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcEventHandle_t.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcEventHandle_t.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcEventHandle_t.getPtr" title="Link to this definition">#</a></dt>
@@ -9548,16 +9447,6 @@ formats currently supported for CUDA_EGL interops.</p>
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcMemHandle_t">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaIpcMemHandle_t</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcMemHandle_t" title="Link to this definition">#</a></dt>
 <dd><p>CUDA IPC memory handle</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcMemHandle_t.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcMemHandle_t.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaIpcMemHandle_t.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcMemHandle_t.getPtr" title="Link to this definition">#</a></dt>
@@ -9569,17 +9458,7 @@ formats currently supported for CUDA_EGL interops.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemFabricHandle_t">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemFabricHandle_t</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemFabricHandle_t" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemFabricHandle_t.reserved">
-<span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemFabricHandle_t.reserved" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
+<dd><dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemFabricHandle_t.getPtr">
 <span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemFabricHandle_t.getPtr" title="Link to this definition">#</a></dt>
 <dd><p>Get memory address of class instance</p>
@@ -9611,8 +9490,6 @@ groups of this size.</p>
 </dd>
 <dt>flags<span class="classifier">unsigned int</span></dt><dd><p>Combination of <cite>cudaDevSmResourceGroup_flags</cite> values to indicate
 this this group is created.</p>
-</dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Reserved for future use - ensure this is zero initialized.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -9866,9 +9743,6 @@ Accordingly, this field must be set to zero.</p>
 (It is typed as char due to compiler-specific layout of bitfields.)
 See cudaGraphDependencyType.</p>
 </dd>
-<dt>reserved<span class="classifier">bytes</span></dt><dd><p>These bytes are unused and must be zeroed. This ensures
-compatibility if additional fields are added in the future.</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphEdgeData.getPtr">
@@ -10058,12 +9932,12 @@ desired preferred cluster dimensions for the kernel. Opaque type
 with the following fields: - <cite>x</cite> - The X dimension of the preferred
 cluster, in blocks. Must be a divisor of the grid X dimension, and
 must be a multiple of the <cite>x</cite> field of
-::cudaLaunchAttributeValue::clusterDim.    - <cite>y</cite> - The Y dimension
-of the preferred cluster, in blocks. Must be a divisor of the grid
-Y dimension, and must be a multiple of the <cite>y</cite> field of
-::cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension
-of the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field
-of ::cudaLaunchAttributeValue::clusterDim.</p>
+cudaLaunchAttributeValue::clusterDim.    - <cite>y</cite> - The Y dimension of
+the preferred cluster, in blocks. Must be a divisor of the grid Y
+dimension, and must be a multiple of the <cite>y</cite> field of
+cudaLaunchAttributeValue::clusterDim.    - <cite>z</cite> - The Z dimension of
+the preferred cluster, in blocks. Must be equal to the <cite>z</cite> field of
+cudaLaunchAttributeValue::clusterDim.</p>
 </dd>
 <dt>launchCompletionEvent<span class="classifier">anon_struct20</span></dt><dd><p>Value of launch attribute cudaLaunchAttributeLaunchCompletionEvent
 with the following fields: - <cite>cudaEvent_t</cite> event - Event to fire
@@ -10249,8 +10123,6 @@ EGLFrame</p>
 <dt>numChannels<span class="classifier">unsigned int</span></dt><dd><p>Number of channels for the plane</p>
 </dd>
 <dt>channelDesc<span class="classifier">cudaChannelFormatDesc</span></dt><dd><p>Channel Format Descriptor</p>
-</dd>
-<dt>reserved<span class="classifier">list[unsigned int]</span></dt><dd><p>Reserved for future use</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -10678,11 +10550,6 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamAttrID">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttrID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;enum</span> <span class="pre">'cudaStreamAttrID'&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamAttrID" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamAttributeAccessPolicyWindow">
 <span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttributeAccessPolicyWindow</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamAttributeAccessPolicyWindow" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
@@ -10705,16 +10572,6 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamAttributePriority">
 <span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttributePriority</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamAttributePriority" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamAttrValue">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamAttrValue</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.bindings.runtime.cudaStreamAttrValue'&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamAttrValue" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaKernelNodeAttrID">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;enum</span> <span class="pre">'cudaKernelNodeAttrID'&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaKernelNodeAttrID" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -10765,11 +10622,6 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling">
 <span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttributeNvlinkUtilCentricScheduling</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaKernelNodeAttrValue">
-<span class="sig-prename descclassname"><span class="pre">runtime.</span></span><span class="sig-name descname"><span class="pre">cudaKernelNodeAttrValue</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;class</span> <span class="pre">'cuda.bindings.runtime.cudaKernelNodeAttrValue'&gt;</span></em><a class="headerlink" href="#cuda.bindings.runtime.cudaKernelNodeAttrValue" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -12629,7 +12481,7 @@ Both streams must have the same context.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dst</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Destination stream</p></li>
-<li><p><strong>src</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Source stream For attributes see <a class="reference internal" href="#cuda.bindings.runtime.cudaStreamAttrID" title="cuda.bindings.runtime.cudaStreamAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code></a></p></li>
+<li><p><strong>src</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Source stream For attributes see <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -12655,13 +12507,13 @@ member of <cite>value_out</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>)</p></li>
-<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaStreamAttrID" title="cuda.bindings.runtime.cudaStreamAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code></a>)</p></li>
+<li><p><strong>attr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceHandle" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidResourceHandle</span></code></a></p></li>
-<li><p><strong>value_out</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaStreamAttrValue" title="cuda.bindings.runtime.cudaStreamAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code></a>)</p></li>
+<li><p><strong>value_out</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code>)</p></li>
 </ul>
 </p>
 </dd>
@@ -12683,8 +12535,8 @@ submitted to the stream. It will not affect previously submitted work.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>)</p></li>
-<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaStreamAttrID" title="cuda.bindings.runtime.cudaStreamAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code></a>)</p></li>
-<li><p><strong>value</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaStreamAttrValue" title="cuda.bindings.runtime.cudaStreamAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code></a>)</p></li>
+<li><p><strong>attr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrID</span></code>)</p></li>
+<li><p><strong>value</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamAttrValue</span></code>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -20623,7 +20475,7 @@ Both node must have the same context.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hDst</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>) – Destination node</p></li>
 <li><p><strong>hSrc</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>) – Source node For list of attributes see
-<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeAttrID" title="cuda.bindings.runtime.cudaKernelNodeAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code></a></p></li>
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -20649,13 +20501,13 @@ corresponding member of <cite>value_out</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hNode</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>)</p></li>
-<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeAttrID" title="cuda.bindings.runtime.cudaKernelNodeAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code></a>)</p></li>
+<li><p><strong>attr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceHandle" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidResourceHandle</span></code></a></p></li>
-<li><p><strong>value_out</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeAttrValue" title="cuda.bindings.runtime.cudaKernelNodeAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrValue</span></code></a>)</p></li>
+<li><p><strong>value_out</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrValue</span></code>)</p></li>
 </ul>
 </p>
 </dd>
@@ -20676,8 +20528,8 @@ corresponding member of <cite>value_out</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hNode</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>)</p></li>
-<li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeAttrID" title="cuda.bindings.runtime.cudaKernelNodeAttrID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code></a>)</p></li>
-<li><p><strong>value</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeAttrValue" title="cuda.bindings.runtime.cudaKernelNodeAttrValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrValue</span></code></a>)</p></li>
+<li><p><strong>attr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrID</span></code>)</p></li>
+<li><p><strong>value</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeAttrValue</span></code>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -25365,7 +25217,6 @@ profiling to be done only on selective pieces of code.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemPoolPtrExportData"><code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemPoolPtrExportData.reserved"><code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemPoolPtrExportData.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -25415,17 +25266,14 @@ profiling to be done only on selective pieces of code.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcEventHandle_st"><code class="docutils literal notranslate"><span class="pre">cudaIpcEventHandle_st</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcEventHandle_st.reserved"><code class="docutils literal notranslate"><span class="pre">cudaIpcEventHandle_st.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcEventHandle_st.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaIpcEventHandle_st.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcMemHandle_st"><code class="docutils literal notranslate"><span class="pre">cudaIpcMemHandle_st</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcMemHandle_st.reserved"><code class="docutils literal notranslate"><span class="pre">cudaIpcMemHandle_st.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcMemHandle_st.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaIpcMemHandle_st.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemFabricHandle_st"><code class="docutils literal notranslate"><span class="pre">cudaMemFabricHandle_st</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemFabricHandle_st.reserved"><code class="docutils literal notranslate"><span class="pre">cudaMemFabricHandle_st.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemFabricHandle_st.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaMemFabricHandle_st.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -25470,7 +25318,6 @@ profiling to be done only on selective pieces of code.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDevWorkqueueResource"><code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueResource</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDevWorkqueueResource.reserved"><code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueResource.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaDevWorkqueueResource.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueResource.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -26716,17 +26563,14 @@ profiling to be done only on selective pieces of code.</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcEventHandle_t"><code class="docutils literal notranslate"><span class="pre">cudaIpcEventHandle_t</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcEventHandle_t.reserved"><code class="docutils literal notranslate"><span class="pre">cudaIpcEventHandle_t.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcEventHandle_t.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaIpcEventHandle_t.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcMemHandle_t"><code class="docutils literal notranslate"><span class="pre">cudaIpcMemHandle_t</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcMemHandle_t.reserved"><code class="docutils literal notranslate"><span class="pre">cudaIpcMemHandle_t.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaIpcMemHandle_t.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaIpcMemHandle_t.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemFabricHandle_t"><code class="docutils literal notranslate"><span class="pre">cudaMemFabricHandle_t</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemFabricHandle_t.reserved"><code class="docutils literal notranslate"><span class="pre">cudaMemFabricHandle_t.reserved</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaMemFabricHandle_t.getPtr"><code class="docutils literal notranslate"><span class="pre">cudaMemFabricHandle_t.getPtr()</span></code></a></li>
 </ul>
 </li>
@@ -26933,14 +26777,11 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphKernelNodePortDefault"><code class="docutils literal notranslate"><span class="pre">runtime.cudaGraphKernelNodePortDefault</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphKernelNodePortProgrammatic"><code class="docutils literal notranslate"><span class="pre">runtime.cudaGraphKernelNodePortProgrammatic</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaGraphKernelNodePortLaunchCompletion"><code class="docutils literal notranslate"><span class="pre">runtime.cudaGraphKernelNodePortLaunchCompletion</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttrID"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttrID</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributeAccessPolicyWindow"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributeAccessPolicyWindow</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributeSynchronizationPolicy"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributeSynchronizationPolicy</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributeMemSyncDomainMap"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributeMemSyncDomainMap</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributeMemSyncDomain"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributeMemSyncDomain</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttributePriority"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttributePriority</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaStreamAttrValue"><code class="docutils literal notranslate"><span class="pre">runtime.cudaStreamAttrValue</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttrID"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttrID</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributeAccessPolicyWindow"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeAccessPolicyWindow</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributeCooperative"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeCooperative</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributePriority"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributePriority</span></code></a></li>
@@ -26951,7 +26792,6 @@ profiling to be done only on selective pieces of code.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributePreferredSharedMemoryCarveout"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributePreferredSharedMemoryCarveout</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaKernelNodeAttrValue"><code class="docutils literal notranslate"><span class="pre">runtime.cudaKernelNodeAttrValue</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType1D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType1D</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType2D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType2D</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaSurfaceType3D"><code class="docutils literal notranslate"><span class="pre">runtime.cudaSurfaceType3D</span></code></a></li>

@@ -1319,7 +1319,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An array of strings, each containing a single option. It can be:</p>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>An array of strings, each containing a
+single option. It can be:</p>
 <ul>
 <li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
 <li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
@@ -1379,8 +1380,10 @@ to a valid sequence of ‘char’, or</p></li>
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
 <li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The PTX code.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – The size of the PTX code.</p></li>
-<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this PTX is for (the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the PTX, useful when extracting the fatbin with tools like cuobjdump.</p></li>
+<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this PTX is for
+(the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
+<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the PTX, useful when extracting the
+fatbin with tools like cuobjdump.</p></li>
 <li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
 </ul>
 </dd>
@@ -1401,8 +1404,10 @@ to a valid sequence of ‘char’, or</p></li>
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
 <li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The cubin.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – The size of the cubin.</p></li>
-<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this cubin is for (the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the cubin, useful when extracting the fatbin with tools like cuobjdump.</p></li>
+<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this cubin is for
+(the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
+<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the cubin, useful when extracting
+the fatbin with tools like cuobjdump.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1433,8 +1438,10 @@ to a valid sequence of ‘char’, or</p></li>
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
 <li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The LTOIR code.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – The size of the LTOIR code.</p></li>
-<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this LTOIR is for (the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the LTOIR, useful when extracting the fatbin with tools like cuobjdump.</p></li>
+<li><p><strong>arch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The numerical architecture that this LTOIR is for
+(the XX of any sm_XX, lto_XX, or compute_XX).</p></li>
+<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the LTOIR, useful when extracting
+the fatbin with tools like cuobjdump.</p></li>
 <li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
 </ul>
 </dd>
@@ -1484,7 +1491,8 @@ to a valid sequence of ‘char’, or</p></li>
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvFatbin handle.</p></li>
 <li><p><strong>code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The Tile IR.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – The size of the Tile IR.</p></li>
-<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the Tile IR, useful when extracting the fatbin with tools like cuobjdump.</p></li>
+<li><p><strong>identifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the Tile IR, useful when extracting
+the fatbin with tools like cuobjdump.</p></li>
 <li><p><strong>options_cmd_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Options used during JIT compilation.</p></li>
 </ul>
 </dd>
