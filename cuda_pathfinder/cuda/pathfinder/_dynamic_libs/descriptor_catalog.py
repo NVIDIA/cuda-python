@@ -59,6 +59,8 @@ def _ctk_windows_wheel_dirs(cuda13_bin_dir: str, cuda12_dir: str) -> WindowsSear
 class DescriptorSpec:
     name: str
     packaged_with: PackagedWith
+    # Tabulate oldest version first: the loader reverses these to search
+    # newest -> oldest (see load_dl_linux._candidate_sonames).
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
     windows_dll_fallback_globs: tuple[str, ...] = ()
@@ -414,7 +416,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
     DescriptorSpec(
         name="cufftMp",
         packaged_with="other",
-        linux_sonames=("libcufftMp.so.12", "libcufftMp.so.11"),
+        linux_sonames=("libcufftMp.so.11", "libcufftMp.so.12"),
         site_packages_linux=("nvidia/cufftmp/cu13/lib", "nvidia/cufftmp/cu12/lib"),
         dependencies=("nvshmem_host",),
         requires_rtld_deepbind=True,

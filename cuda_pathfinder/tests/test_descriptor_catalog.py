@@ -90,6 +90,22 @@ def test_linux_sonames_look_like_sonames(spec: DescriptorSpec):
         assert ".so" in soname, f"Unexpected Linux soname format: {soname}"
 
 
+def _linux_soname_version_key(soname: str) -> tuple[int, ...]:
+    """Version components of a ``lib<name>.so[.<major>[.<minor>...]]`` file name."""
+    _, _, version_suffix = soname.partition(".so")
+    return tuple(int(part) for part in version_suffix.split(".") if part)
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_linux_sonames_are_tabulated_oldest_first(spec: DescriptorSpec):
+    """``load_dl_linux._candidate_sonames()`` reverses this tuple to search
+    newest -> oldest, so a newest-first table silently inverts the priority.
+    """
+    versions = [_linux_soname_version_key(soname) for soname in spec.linux_sonames]
+    assert versions == sorted(versions), f"{spec.name} linux_sonames are not oldest-first: {spec.linux_sonames}"
+
+
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 def test_windows_dlls_look_like_dlls(spec: DescriptorSpec):
     for dll in spec.windows_dlls:
