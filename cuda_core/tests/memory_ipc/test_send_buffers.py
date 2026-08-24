@@ -7,6 +7,7 @@ from itertools import cycle
 import pytest
 from helpers.buffers import PatternGen
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.constants import POOL_SIZE
 
 from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
@@ -14,7 +15,6 @@ CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 NMRS = 3
 NTASKS = 7
-POOL_SIZE = 2097152
 
 # these tests spawn new processes and files which fails for very many threads
 pytestmark = pytest.mark.parallel_threads_limit(4)
@@ -131,10 +131,11 @@ class TestIpcReexport:
 
         # Forward the buffer to C.
         q_bc.put(buffer)
-        buffer.close()
 
-        # Wait for C to receive before exiting.
+        # Queue serialization runs in a feeder thread. Keep the buffer open
+        # until C has received it and the parent releases this process.
         event_b.wait(timeout=CHILD_TIMEOUT_SEC)
+        buffer.close()
 
     def process_c_main(self, q_bc, event_c):
         # Process C: receive buffer from B then fill it.

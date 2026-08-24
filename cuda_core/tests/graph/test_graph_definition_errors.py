@@ -7,9 +7,9 @@ import ctypes
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
-from conftest import xfail_on_graph_mempool_oom
 from cuda.core import Device, LaunchConfig
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.graph import (

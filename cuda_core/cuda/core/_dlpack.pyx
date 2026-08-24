@@ -115,10 +115,8 @@ cdef inline int setup_dl_tensor_device(DLTensor* dl_tensor, object buf) except -
 
 
 cdef inline int setup_dl_tensor_dtype(DLTensor* dl_tensor) except -1 nogil:
-    cdef DLDataType* dtype = &dl_tensor.dtype
-    dtype.code = <uint8_t>kDLInt
-    dtype.lanes = <uint16_t>1
-    dtype.bits = <uint8_t>8
+    dl_tensor.dtype = DLDataType(
+        code=<uint8_t>kDLInt, bits=<uint8_t>8, lanes=<uint16_t>1)
     return 0
 
 

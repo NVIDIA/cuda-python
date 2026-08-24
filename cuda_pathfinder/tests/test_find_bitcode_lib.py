@@ -66,7 +66,7 @@ def _located_bitcode_lib_asserts(located_bitcode_lib):
     assert isinstance(located_bitcode_lib.filename, str)
     assert isinstance(located_bitcode_lib.found_via, str)
     assert located_bitcode_lib.found_via in ("site-packages", "conda", "CUDA_PATH")
-    assert os.path.isfile(located_bitcode_lib.abs_path)
+    assert Path(located_bitcode_lib.abs_path).is_file()
 
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
@@ -83,10 +83,10 @@ def test_locate_bitcode_lib(info_summary_append, libname):
 
     info_summary_append(f"{lib_path=!r}")
     _located_bitcode_lib_asserts(located_lib)
-    assert os.path.isfile(lib_path)
+    assert Path(lib_path).is_file()
     assert lib_path == located_lib.abs_path
     expected_filename = located_lib.filename
-    assert os.path.basename(lib_path) == expected_filename
+    assert Path(lib_path).name == expected_filename
 
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
@@ -156,7 +156,7 @@ def test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing(m
         find_bitcode_lib("device")
 
     message = str(exc_info.value)
-    expected_missing_file = os.path.join(str(lib_dir), _bitcode_lib_filename("device"))
+    expected_missing_file = lib_dir / _bitcode_lib_filename("device")
     assert f"No such file: {expected_missing_file}" in message
     assert f'listdir("{lib_dir}"):' in message
     assert "README.txt" in message

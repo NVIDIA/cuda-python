@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ec221879a459b2de9b3dfe54cba58613e9c08b279a95f782a450c98fd7cea532
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b30ca4e9dfac73d38cb872e4dc7d80d69cbb7e516c50e048cb34234a6c0198a6
 from ._internal cimport nvml as _nvml
 
 
@@ -1414,3 +1414,19 @@ cdef nvmlReturn_t nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVg
 
 cdef nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t* pSchedulerState) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlGpuInstanceSetVgpuSchedulerState_v2(gpuInstance, pSchedulerState)
+
+
+cdef nvmlReturn_t nvmlSystemGetCPER_v1(nvmlGetCPER_v1_t* cper) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlSystemGetCPER_v1(cper)
+
+
+cdef nvmlReturn_t nvmlDeviceGetBBXTimeData_v1(nvmlDevice_t device, nvmlBBXTimeData_v1_t* timeData) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetBBXTimeData_v1(device, timeData)
+
+
+cdef nvmlReturn_t nvmlDeviceGetAccountingStats_v2(nvmlDevice_t device, nvmlAccountingStats_v2_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetAccountingStats_v2(device, stats)
+
+
+cdef nvmlReturn_t nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappedRowsInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetRemappedRows_v2(device, info)

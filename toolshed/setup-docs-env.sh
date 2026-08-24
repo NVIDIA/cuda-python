@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Setup a local conda environment for building the sphinx docs to mirror the CI environment
@@ -39,7 +39,7 @@ echo "Creating environment '${ENV_NAME}'…"
 #            cuda_python/docs/environment-docs.yml. Please KEEP THEM IN SYNC!
 conda create -y -n "${ENV_NAME}" \
     "python=${PYVER}" \
-    cython \
+    "cython>=3.2.5,<3.3" \
     myst-parser \
     numpy \
     numpydoc \

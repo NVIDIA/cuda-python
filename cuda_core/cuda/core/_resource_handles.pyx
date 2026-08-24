@@ -128,7 +128,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
         const DevicePtrHandle& h) noexcept nogil
-    void set_deallocation_stream "cuda_core::set_deallocation_stream" (
+    cydriver.CUresult set_deallocation_stream "cuda_core::set_deallocation_stream" (
         const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
 
     # Library handles
@@ -167,12 +167,30 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         PreparedAttachment& prepared, cydriver.CUgraphNode node) except+
     cydriver.CUresult graph_clone_attachments "cuda_core::graph_clone_attachments" (
         const GraphHandle& h_clone, const GraphHandle& h_source) except+
+    cydriver.CUresult graph_prepare_child_graph_update "cuda_core::graph_prepare_child_graph_update" (
+        const GraphHandle& h_parent, const GraphHandle& h_old_child,
+        cydriver.CUgraphNode owner_node, const GraphHandle& h_source,
+        PreparedChildGraphUpdate* out_prepared) except+
+    cydriver.CUresult graph_commit_child_graph_update "cuda_core::graph_commit_child_graph_update" (
+        PreparedChildGraphUpdate& prepared, GraphHandle* out_child) except+
     void invalidate_child_graph_state "cuda_core::invalidate_child_graph_state" (
         const GraphHandle& h_parent, cydriver.CUgraphNode owner_node) noexcept
 
     # Graph exec handles
     GraphExecHandle create_graph_exec_handle "cuda_core::create_graph_exec_handle" (
-        cydriver.CUgraphExec graph_exec) except+ nogil
+        const GraphHandle& h_source,
+        cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS* params) except+
+    cydriver.CUresult graph_exec_update "cuda_core::graph_exec_update" (
+        const GraphExecHandle& h_exec,
+        const GraphHandle& h_source,
+        cydriver.CUgraphExecUpdateResultInfo* result_info) except+
+    cydriver.CUresult graph_prepare_exec_attachment "cuda_core::graph_prepare_exec_attachment" (
+        const GraphExecHandle& h_exec,
+        OpaqueHandle owner0,
+        OpaqueHandle owner1,
+        PreparedExecAttachment* out_prepared) except+
+    void graph_commit_exec_attachment "cuda_core::graph_commit_exec_attachment" (
+        PreparedExecAttachment& prepared) noexcept
 
     # Graph node handles
     GraphNodeHandle create_graph_node_handle "cuda_core::create_graph_node_handle" (
@@ -225,6 +243,14 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
         unsigned int flags, void* groupParams) nogil
     bint has_sm_resource_split "cuda_core::has_sm_resource_split" () noexcept nogil
 
+    # cuMemcpyWithAttributesAsync (13.2+ wrapper — avoids direct cydriver cimport)
+    # attr is void* to avoid referencing CUmemcpyAttributes (absent from
+    # cuda-bindings built against CUDA < 12.8). The C++ side casts it.
+    cydriver.CUresult memcpy_with_attributes_async "cuda_core::memcpy_with_attributes_async" (
+        cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
+        void* attr, cydriver.CUstream hStream) nogil
+    bint has_memcpy_with_attributes_async "cuda_core::has_memcpy_with_attributes_async" () noexcept nogil
+
     # Array / mipmapped-array / texture / surface handles (PR #467)
     OpaqueArrayHandle create_array_handle "cuda_core::create_array_handle" (
         const cydriver.CUDA_ARRAY3D_DESCRIPTOR& desc) except+ nogil
@@ -275,6 +301,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     void* p_cuDevicePrimaryCtxRetain "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRetain)"
     void* p_cuDevicePrimaryCtxRelease "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRelease)"
     void* p_cuCtxGetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetCurrent)"
+    void* p_cuCtxSetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxSetCurrent)"
     void* p_cuGreenCtxCreate "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxCreate)"
     void* p_cuGreenCtxDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGreenCtxDestroy)"
     void* p_cuCtxFromGreenCtx "reinterpret_cast<void*&>(cuda_core::p_cuCtxFromGreenCtx)"
@@ -322,6 +349,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Graph
     void* p_cuGraphDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphDestroy)"
+    void* p_cuGraphInstantiateWithParams "reinterpret_cast<void*&>(cuda_core::p_cuGraphInstantiateWithParams)"
+    void* p_cuGraphExecUpdate "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecUpdate)"
     void* p_cuGraphExecDestroy "reinterpret_cast<void*&>(cuda_core::p_cuGraphExecDestroy)"
     void* p_cuUserObjectCreate "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectCreate)"
     void* p_cuUserObjectRelease "reinterpret_cast<void*&>(cuda_core::p_cuUserObjectRelease)"
@@ -351,6 +380,9 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # SM resource split (13.1+)
     void* p_cuDevSmResourceSplit "reinterpret_cast<void*&>(cuda_core::p_cuDevSmResourceSplit)"
 
+    # cuMemcpyWithAttributesAsync (13.2+)
+    void* p_cuMemcpyWithAttributesAsync "reinterpret_cast<void*&>(cuda_core::p_cuMemcpyWithAttributesAsync)"
+
     # NVRTC
     void* p_nvrtcDestroyProgram "reinterpret_cast<void*&>(cuda_core::p_nvrtcDestroyProgram)"
 
@@ -377,6 +409,7 @@ cdef void* _get_optional_driver_fn(str name):
 
 cdef void _init_driver_fn_pointers() noexcept:
     global p_cuDevicePrimaryCtxRetain, p_cuDevicePrimaryCtxRelease, p_cuCtxGetCurrent
+    global p_cuCtxSetCurrent
     global p_cuGreenCtxCreate, p_cuGreenCtxDestroy, p_cuCtxFromGreenCtx
     global p_cuDevResourceGenerateDesc, p_cuGreenCtxStreamCreate
     global p_cuStreamCreateWithPriority, p_cuStreamDestroy
@@ -388,13 +421,15 @@ cdef void _init_driver_fn_pointers() noexcept:
     global p_cuMemFreeAsync, p_cuMemFree, p_cuMemFreeHost
     global p_cuMemPoolImportPointer
     global p_cuLibraryLoadFromFile, p_cuLibraryLoadData, p_cuLibraryUnload, p_cuLibraryGetKernel
-    global p_cuGraphDestroy, p_cuGraphExecDestroy
+    global p_cuGraphDestroy, p_cuGraphInstantiateWithParams
+    global p_cuGraphExecUpdate, p_cuGraphExecDestroy
     global p_cuUserObjectCreate, p_cuUserObjectRelease
     global p_cuGraphRetainUserObject, p_cuGraphReleaseUserObject
     global p_cuGraphNodeFindInClone, p_cuGraphChildGraphNodeGetGraph
     global p_cuLinkDestroy
     global p_cuGraphicsUnmapResources, p_cuGraphicsUnregisterResource
     global p_cuDevSmResourceSplit
+    global p_cuMemcpyWithAttributesAsync
     global p_cuArray3DCreate, p_cuArrayDestroy
     global p_cuMipmappedArrayCreate, p_cuMipmappedArrayDestroy, p_cuMipmappedArrayGetLevel
     global p_cuTexObjectCreate, p_cuTexObjectDestroy
@@ -404,6 +439,7 @@ cdef void _init_driver_fn_pointers() noexcept:
     p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
     p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
     p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
+    p_cuCtxSetCurrent = _get_driver_fn("cuCtxSetCurrent")
     p_cuGreenCtxCreate = _get_optional_driver_fn("cuGreenCtxCreate")
     p_cuGreenCtxDestroy = _get_optional_driver_fn("cuGreenCtxDestroy")
     p_cuCtxFromGreenCtx = _get_optional_driver_fn("cuCtxFromGreenCtx")
@@ -451,6 +487,8 @@ cdef void _init_driver_fn_pointers() noexcept:
 
     # Graph
     p_cuGraphDestroy = _get_driver_fn("cuGraphDestroy")
+    p_cuGraphInstantiateWithParams = _get_driver_fn("cuGraphInstantiateWithParams")
+    p_cuGraphExecUpdate = _get_driver_fn("cuGraphExecUpdate")
     p_cuGraphExecDestroy = _get_driver_fn("cuGraphExecDestroy")
     p_cuUserObjectCreate = _get_driver_fn("cuUserObjectCreate")
     p_cuUserObjectRelease = _get_driver_fn("cuUserObjectRelease")
@@ -479,6 +517,9 @@ cdef void _init_driver_fn_pointers() noexcept:
 
     # SM resource split (13.1+ — may not exist in older cuda-bindings)
     p_cuDevSmResourceSplit = _get_optional_driver_fn("cuDevSmResourceSplit")
+
+    # cuMemcpyWithAttributesAsync (13.2+ — may not exist in older cuda-bindings)
+    p_cuMemcpyWithAttributesAsync = _get_optional_driver_fn("cuMemcpyWithAttributesAsync")
 
 _init_driver_fn_pointers()
 initialize_deferred_cleanup()

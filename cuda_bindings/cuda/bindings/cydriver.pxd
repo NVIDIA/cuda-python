@@ -3,8 +3,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=bb890a59df1f24c75b658b283d480647d1201feb4e6b644edd4742022b7fbf8c
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cccb0572002cd20232f2b9f5c7acf559c92813d33dfc364136d57c8f453e50c6
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    uint32_t,
+    uint64_t,
+)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 from libc.stdint cimport uint32_t, uint64_t
 
 
@@ -3715,6 +3726,7 @@ cdef enum: CUDA_NVSCISYNC_ATTR_WAIT = 2
 cdef enum: CU_MEM_CREATE_USAGE_TILE_POOL = 1
 
 cdef enum: CU_MEM_CREATE_USAGE_HW_DECOMPRESS = 2
+
 
 cdef enum: CU_MEM_POOL_CREATE_USAGE_HW_DECOMPRESS = 2
 

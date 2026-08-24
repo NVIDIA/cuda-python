@@ -31,6 +31,18 @@ _ExplanationTable = dict[int, str | tuple[str, ...]]
 _ExplanationTableLoader = Callable[[], _ExplanationTable]
 
 
+def _parse_version_triple(version_str: str) -> tuple[int, int, int]:
+    """Parse a PEP 440 version string into a (major, minor, patch) triple.
+
+    Strips local-version identifiers and handles pre-release suffixes such as
+    ``0b1`` or ``0rc1`` by extracting only the leading integer from each
+    release segment.
+    """
+    parts = version_str.partition("+")[0].split(".")[:3]
+    ints = ([int(m.group(1)) if (m := re.match(r"(\d+)", v)) else 0 for v in parts] + [0, 0, 0])[:3]
+    return (ints[0], ints[1], ints[2])
+
+
 # ``version.pyx`` cannot be reused here (circular import via ``cuda_utils``).
 def _binding_version() -> tuple[int, int, int]:
     """Return the installed ``cuda-bindings`` version, or a conservative old value."""
@@ -38,10 +50,7 @@ def _binding_version() -> tuple[int, int, int]:
         version = importlib.metadata.version("cuda-bindings")
     except importlib.metadata.PackageNotFoundError:
         return (0, 0, 0)  # For very old versions of cuda-python
-
-    parts = version.partition("+")[0].split(".")[:3]
-    parts_int = ([int(v) for v in parts] + [0, 0, 0])[:3]
-    return (parts_int[0], parts_int[1], parts_int[2])
+    return _parse_version_triple(version)
 
 
 def _binding_version_has_usable_enum_docstrings(version: tuple[int, int, int]) -> bool:

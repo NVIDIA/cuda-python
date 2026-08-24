@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=becc61b4d220395420a59980fa3a7dc2ea4c45e7c64881bf7819df3a57443343
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=70771457725c58846635384e6abc57f4ac479190c1fa0f3b0f174ba9420d20b9
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -44,7 +44,10 @@ cdef extern from "<windows.h>":
     ctypedef void* HMODULE
     void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport (
+    intptr_t,
+    uintptr_t,
+)
 
 import threading as _cyb_threading
 
@@ -205,91 +208,91 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvrtc()
     cdef dict data = {}
     global __nvrtcGetErrorString
-    data["__nvrtcGetErrorString"] = <_cyb_intptr_t>__nvrtcGetErrorString
+    data["__nvrtcGetErrorString"] = <intptr_t>__nvrtcGetErrorString
 
     global __nvrtcVersion
-    data["__nvrtcVersion"] = <_cyb_intptr_t>__nvrtcVersion
+    data["__nvrtcVersion"] = <intptr_t>__nvrtcVersion
 
     global __nvrtcGetNumSupportedArchs
-    data["__nvrtcGetNumSupportedArchs"] = <_cyb_intptr_t>__nvrtcGetNumSupportedArchs
+    data["__nvrtcGetNumSupportedArchs"] = <intptr_t>__nvrtcGetNumSupportedArchs
 
     global __nvrtcGetSupportedArchs
-    data["__nvrtcGetSupportedArchs"] = <_cyb_intptr_t>__nvrtcGetSupportedArchs
+    data["__nvrtcGetSupportedArchs"] = <intptr_t>__nvrtcGetSupportedArchs
 
     global __nvrtcCreateProgram
-    data["__nvrtcCreateProgram"] = <_cyb_intptr_t>__nvrtcCreateProgram
+    data["__nvrtcCreateProgram"] = <intptr_t>__nvrtcCreateProgram
 
     global __nvrtcDestroyProgram
-    data["__nvrtcDestroyProgram"] = <_cyb_intptr_t>__nvrtcDestroyProgram
+    data["__nvrtcDestroyProgram"] = <intptr_t>__nvrtcDestroyProgram
 
     global __nvrtcCompileProgram
-    data["__nvrtcCompileProgram"] = <_cyb_intptr_t>__nvrtcCompileProgram
+    data["__nvrtcCompileProgram"] = <intptr_t>__nvrtcCompileProgram
 
     global __nvrtcGetPTXSize
-    data["__nvrtcGetPTXSize"] = <_cyb_intptr_t>__nvrtcGetPTXSize
+    data["__nvrtcGetPTXSize"] = <intptr_t>__nvrtcGetPTXSize
 
     global __nvrtcGetPTX
-    data["__nvrtcGetPTX"] = <_cyb_intptr_t>__nvrtcGetPTX
+    data["__nvrtcGetPTX"] = <intptr_t>__nvrtcGetPTX
 
     global __nvrtcGetCUBINSize
-    data["__nvrtcGetCUBINSize"] = <_cyb_intptr_t>__nvrtcGetCUBINSize
+    data["__nvrtcGetCUBINSize"] = <intptr_t>__nvrtcGetCUBINSize
 
     global __nvrtcGetCUBIN
-    data["__nvrtcGetCUBIN"] = <_cyb_intptr_t>__nvrtcGetCUBIN
+    data["__nvrtcGetCUBIN"] = <intptr_t>__nvrtcGetCUBIN
 
     global __nvrtcGetLTOIRSize
-    data["__nvrtcGetLTOIRSize"] = <_cyb_intptr_t>__nvrtcGetLTOIRSize
+    data["__nvrtcGetLTOIRSize"] = <intptr_t>__nvrtcGetLTOIRSize
 
     global __nvrtcGetLTOIR
-    data["__nvrtcGetLTOIR"] = <_cyb_intptr_t>__nvrtcGetLTOIR
+    data["__nvrtcGetLTOIR"] = <intptr_t>__nvrtcGetLTOIR
 
     global __nvrtcGetOptiXIRSize
-    data["__nvrtcGetOptiXIRSize"] = <_cyb_intptr_t>__nvrtcGetOptiXIRSize
+    data["__nvrtcGetOptiXIRSize"] = <intptr_t>__nvrtcGetOptiXIRSize
 
     global __nvrtcGetOptiXIR
-    data["__nvrtcGetOptiXIR"] = <_cyb_intptr_t>__nvrtcGetOptiXIR
+    data["__nvrtcGetOptiXIR"] = <intptr_t>__nvrtcGetOptiXIR
 
     global __nvrtcGetProgramLogSize
-    data["__nvrtcGetProgramLogSize"] = <_cyb_intptr_t>__nvrtcGetProgramLogSize
+    data["__nvrtcGetProgramLogSize"] = <intptr_t>__nvrtcGetProgramLogSize
 
     global __nvrtcGetProgramLog
-    data["__nvrtcGetProgramLog"] = <_cyb_intptr_t>__nvrtcGetProgramLog
+    data["__nvrtcGetProgramLog"] = <intptr_t>__nvrtcGetProgramLog
 
     global __nvrtcAddNameExpression
-    data["__nvrtcAddNameExpression"] = <_cyb_intptr_t>__nvrtcAddNameExpression
+    data["__nvrtcAddNameExpression"] = <intptr_t>__nvrtcAddNameExpression
 
     global __nvrtcGetLoweredName
-    data["__nvrtcGetLoweredName"] = <_cyb_intptr_t>__nvrtcGetLoweredName
+    data["__nvrtcGetLoweredName"] = <intptr_t>__nvrtcGetLoweredName
 
     global __nvrtcGetPCHHeapSize
-    data["__nvrtcGetPCHHeapSize"] = <_cyb_intptr_t>__nvrtcGetPCHHeapSize
+    data["__nvrtcGetPCHHeapSize"] = <intptr_t>__nvrtcGetPCHHeapSize
 
     global __nvrtcSetPCHHeapSize
-    data["__nvrtcSetPCHHeapSize"] = <_cyb_intptr_t>__nvrtcSetPCHHeapSize
+    data["__nvrtcSetPCHHeapSize"] = <intptr_t>__nvrtcSetPCHHeapSize
 
     global __nvrtcGetPCHCreateStatus
-    data["__nvrtcGetPCHCreateStatus"] = <_cyb_intptr_t>__nvrtcGetPCHCreateStatus
+    data["__nvrtcGetPCHCreateStatus"] = <intptr_t>__nvrtcGetPCHCreateStatus
 
     global __nvrtcGetPCHHeapSizeRequired
-    data["__nvrtcGetPCHHeapSizeRequired"] = <_cyb_intptr_t>__nvrtcGetPCHHeapSizeRequired
+    data["__nvrtcGetPCHHeapSizeRequired"] = <intptr_t>__nvrtcGetPCHHeapSizeRequired
 
     global __nvrtcSetFlowCallback
-    data["__nvrtcSetFlowCallback"] = <_cyb_intptr_t>__nvrtcSetFlowCallback
+    data["__nvrtcSetFlowCallback"] = <intptr_t>__nvrtcSetFlowCallback
 
     global __nvrtcGetTileIRSize
-    data["__nvrtcGetTileIRSize"] = <_cyb_intptr_t>__nvrtcGetTileIRSize
+    data["__nvrtcGetTileIRSize"] = <intptr_t>__nvrtcGetTileIRSize
 
     global __nvrtcGetTileIR
-    data["__nvrtcGetTileIR"] = <_cyb_intptr_t>__nvrtcGetTileIR
+    data["__nvrtcGetTileIR"] = <intptr_t>__nvrtcGetTileIR
 
     global __nvrtcInstallBundledHeaders
-    data["__nvrtcInstallBundledHeaders"] = <_cyb_intptr_t>__nvrtcInstallBundledHeaders
+    data["__nvrtcInstallBundledHeaders"] = <intptr_t>__nvrtcInstallBundledHeaders
 
     global __nvrtcGetBundledHeadersInfo
-    data["__nvrtcGetBundledHeadersInfo"] = <_cyb_intptr_t>__nvrtcGetBundledHeadersInfo
+    data["__nvrtcGetBundledHeadersInfo"] = <intptr_t>__nvrtcGetBundledHeadersInfo
 
     global __nvrtcRemoveBundledHeaders
-    data["__nvrtcRemoveBundledHeaders"] = <_cyb_intptr_t>__nvrtcRemoveBundledHeaders
+    data["__nvrtcRemoveBundledHeaders"] = <intptr_t>__nvrtcRemoveBundledHeaders
     _cyb_func_ptrs = data
     return data
 

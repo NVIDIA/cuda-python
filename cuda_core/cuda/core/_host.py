@@ -6,6 +6,8 @@ from __future__ import annotations
 import threading
 from typing import ClassVar
 
+__all__ = ["Host"]
+
 
 class Host:
     """Host (CPU) location for managed-memory operations.

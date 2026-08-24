@@ -9,8 +9,8 @@ import weakref
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
-from helpers.marks import requires_module
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
 from cuda.core._utils.cuda_utils import CUDAError
@@ -196,6 +196,7 @@ def test_graph_update_replaces_attachment_user_objects(init_cuda):
     assert called == ["new"]
 
 
+@pytest.mark.thread_unsafe(reason="deferred cleanup on main thread which would wait")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_failed_graph_update_does_not_adopt_attachments(init_cuda):
     """A rejected source graph keeps ownership separate from the exec."""
