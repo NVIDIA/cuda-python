@@ -84,10 +84,9 @@ class RegisteredSystemEvents:
 
 def _pci_bus_id_from_gpu_id(gpu_id: int) -> str:
     """
-    Decode a packed NVML ``gpu_id`` (``domain[31:16] | bus[15:8] | device[7:0]``)
-    into an NVML-style PCI bus ID (``NVML_DEVICE_PCI_BUS_ID_FMT``).
+    Decode an NVML System Event packed ``gpu_id`` into an NVML-style PCI bus ID
+    string.
     """
-
 def register_events(events: SystemEventType | str | list[SystemEventType | str]) -> RegisteredSystemEvents:
     """
     Starts recording of events on test system.
