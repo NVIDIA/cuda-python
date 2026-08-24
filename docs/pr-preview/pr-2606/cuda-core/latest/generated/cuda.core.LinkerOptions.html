@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c1345e5a"></script>
+    <script src="../_static/documentation_options.js?v=e1d54e44"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev80';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev105';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1046,6 +1046,27 @@ Default: False.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.LinkerOptions.numba_debug">
+<span class="sig-name descname"><span class="pre">numba_debug</span></span><a class="headerlink" href="#cuda.core.LinkerOptions.numba_debug" title="Link to this definition">#</a></dt>
+<dd><p>Non-functional. <code class="docutils literal notranslate"><span class="pre">numba_debug</span></code> is an NVVM/NVRTC <em>compiler</em> option;
+neither nvJitLink nor the driver’s cuLink API recognizes it, so no
+linking backend can honor it and the value is ignored.
+Default: None.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 1.2.0: </span>Setting this option emits a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#DeprecationWarning" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a>. It has never
+had an effect on any linking backend and will be removed in
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 2.0.0. Use
+<a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.numba_debug" title="cuda.core.ProgramOptions.numba_debug"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ProgramOptions.numba_debug</span></code></a> on an NVVM or NVRTC compilation
+path instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1121,6 +1142,7 @@ Default: False.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LinkerOptions.split_compile"><code class="docutils literal notranslate"><span class="pre">LinkerOptions.split_compile</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LinkerOptions.split_compile_extended"><code class="docutils literal notranslate"><span class="pre">LinkerOptions.split_compile_extended</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LinkerOptions.no_cache"><code class="docutils literal notranslate"><span class="pre">LinkerOptions.no_cache</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LinkerOptions.numba_debug"><code class="docutils literal notranslate"><span class="pre">LinkerOptions.numba_debug</span></code></a></li>
 </ul>
 </li>
 </ul>
