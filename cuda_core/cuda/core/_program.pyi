@@ -52,6 +52,9 @@ class Program:
         Returns None if the filesystem is not writable, so the caller can fall back
         to the label-only behavior instead of failing the compile.
         """
+    @property
+    def is_closed(self) -> bool:
+        """Whether this program has been closed."""
     def compile(self, target_type: ObjectCodeFormatType | str, name_expressions: tuple[str, ...] | list[str]=(), logs: object | None=None, *, cache: ProgramCacheResource | None=None) -> ObjectCode:
         """Compile the program to the specified target type.
 

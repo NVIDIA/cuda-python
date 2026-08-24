@@ -1636,7 +1636,7 @@ def test_memcpy_mixed_buffer_and_raw_owner(init_cuda):
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_closed_buffer_rejected(init_cuda):
-    """Memset rejects a Buffer with no active allocation."""
+    """Memset rejects a closed Buffer."""
     _skip_if_no_mempool()
     dev = Device()
     mr = DeviceMemoryResource(dev)
@@ -1645,7 +1645,7 @@ def test_memset_closed_buffer_rejected(init_cuda):
     buf.close()
 
     g = GraphDefinition()
-    with pytest.raises(ValueError, match="dst Buffer has no active allocation"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         g.memset(buf, 0xAB, 4)
 
 
@@ -1661,7 +1661,7 @@ def test_memset_closed_buffer_dst_owner_rejected(init_cuda):
     buf.close()
 
     g = GraphDefinition()
-    with pytest.raises(ValueError, match="dst_owner Buffer has no active allocation"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         g.memset(dptr, 0xAB, 4, dst_owner=buf)
 
 
@@ -1677,7 +1677,7 @@ def test_memcpy_closed_buffer_src_owner_rejected(init_cuda):
     buf.close()
 
     g = GraphDefinition()
-    with pytest.raises(ValueError, match="src_owner Buffer has no active allocation"):
+    with pytest.raises(RuntimeError, match="Buffer has been closed"):
         g.memcpy(dptr, dptr, 4, src_owner=buf)
 
 

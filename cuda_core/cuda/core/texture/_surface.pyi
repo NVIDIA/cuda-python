@@ -21,6 +21,9 @@ class SurfaceObject:
     def handle(self):
         """The underlying ``CUsurfObject`` as an integer (64-bit kernel arg)."""
     @property
+    def is_closed(self) -> bool:
+        """Whether this surface object has been closed."""
+    @property
     def resource(self):
         """The :class:`ResourceDescriptor` this surface was built from."""
     @property

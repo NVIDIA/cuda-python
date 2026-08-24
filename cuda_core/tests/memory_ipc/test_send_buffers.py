@@ -131,10 +131,11 @@ class TestIpcReexport:
 
         # Forward the buffer to C.
         q_bc.put(buffer)
-        buffer.close()
 
-        # Wait for C to receive before exiting.
+        # Queue serialization runs in a feeder thread. Keep the buffer open
+        # until C has received it and the parent releases this process.
         event_b.wait(timeout=CHILD_TIMEOUT_SEC)
+        buffer.close()
 
     def process_c_main(self, q_bc, event_c):
         # Process C: receive buffer from B then fill it.
