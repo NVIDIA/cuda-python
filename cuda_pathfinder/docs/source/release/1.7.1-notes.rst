@@ -1,0 +1,24 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. py:currentmodule:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.7.1 Release notes
+=======================================
+
+Bugfixes
+--------
+
+* Restrict Windows CUPTI filesystem discovery to descriptor-declared DLL
+  names. Removing broad wildcard matches keeps candidate selection consistent
+  with already-loaded detection and native loading, and prevents undeclared
+  DLL names from being selected.
+  (`PR #2689 <https://github.com/NVIDIA/cuda-python/pull/2689>`_)
+
+* Make Linux filesystem discovery, already-loaded detection, and native loading
+  use one descriptor-declared, newest-first library filename list. This prevents
+  broad matches from selecting undeclared ABI or patch-version filenames;
+  explicit directory layouts must expose a declared name. Explicitly declare
+  the unversioned NVVM wheel filename to preserve CUDA 12.9 wheel discovery,
+  and correct the ``cufftMp`` catalog order so ABI 12 is preferred over ABI 11.
+  (`PR #2689 <https://github.com/NVIDIA/cuda-python/pull/2689>`_)
