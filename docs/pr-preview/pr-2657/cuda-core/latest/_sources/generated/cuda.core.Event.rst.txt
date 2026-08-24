@@ -31,6 +31,7 @@ cuda.core.Event
    .. autoattribute:: handle
    .. autoattribute:: ipc_descriptor
    .. autoattribute:: is_blocking_sync
+   .. autoattribute:: is_closed
    .. autoattribute:: is_done
    .. autoattribute:: is_ipc_enabled
    .. autoattribute:: is_timing_enabled

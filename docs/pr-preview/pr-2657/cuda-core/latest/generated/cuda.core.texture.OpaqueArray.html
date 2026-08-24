@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fdf210a0"></script>
+    <script src="../_static/documentation_options.js?v=8e245a90"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev95';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev103';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -861,6 +861,12 @@ is accepted so the copy can be captured into a graph.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.texture.OpaqueArray.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.texture.OpaqueArray.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>Whether this array has been closed.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.texture.OpaqueArray.is_surface_load_store">
 <span class="sig-name descname"><span class="pre">is_surface_load_store</span></span><a class="headerlink" href="#cuda.core.texture.OpaqueArray.is_surface_load_store" title="Link to this definition">#</a></dt>
 <dd><p>True if this array was created with <code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY3D_SURFACE_LDST</span></code>
@@ -947,6 +953,7 @@ and can be bound as a <a class="reference internal" href="cuda.core.texture.Surf
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.OpaqueArray.element_bytes"><code class="docutils literal notranslate"><span class="pre">OpaqueArray.element_bytes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.OpaqueArray.format"><code class="docutils literal notranslate"><span class="pre">OpaqueArray.format</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.OpaqueArray.handle"><code class="docutils literal notranslate"><span class="pre">OpaqueArray.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.OpaqueArray.is_closed"><code class="docutils literal notranslate"><span class="pre">OpaqueArray.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.OpaqueArray.is_surface_load_store"><code class="docutils literal notranslate"><span class="pre">OpaqueArray.is_surface_load_store</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.OpaqueArray.num_channels"><code class="docutils literal notranslate"><span class="pre">OpaqueArray.num_channels</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.texture.OpaqueArray.shape"><code class="docutils literal notranslate"><span class="pre">OpaqueArray.shape</span></code></a></li>
