@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.vgpu\_type\_get\_max\_instances\_per\_gpu\_instance
-======================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: vgpu_type_get_max_instances_per_gpu_instance
