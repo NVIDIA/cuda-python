@@ -15,6 +15,7 @@ import re
 import helpers
 import pytest
 
+from cuda.core import Device as CudaDevice
 from cuda.core import system
 from cuda.core.system import typing
 
@@ -128,7 +129,8 @@ def test_numa_node_id(subtests):
 
 
 def test_device_cuda_compute_capability():
-    for device in system.Device.get_all_devices():
+    for cuda_device in CudaDevice.get_all_devices():
+        device = cuda_device.to_system_device()
         cuda_compute_capability = device.cuda_compute_capability
         assert isinstance(cuda_compute_capability, tuple)
         assert len(cuda_compute_capability) == 2
@@ -309,7 +311,8 @@ def test_device_brand():
 
 
 def test_device_pci_bus_id():
-    for device in system.Device.get_all_devices():
+    for cuda_device in CudaDevice.get_all_devices():
+        device = cuda_device.to_system_device()
         pci_bus_id = device.pci_info.bus_id
         assert isinstance(pci_bus_id, str)
 
@@ -339,6 +342,30 @@ def test_device_attributes(subtests):
             assert isinstance(attributes.compute_instance_slice_count, int)
             assert isinstance(attributes.memory_size_mb, int)
             assert attributes.memory_size_mb > 0
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.7")
+def test_device_attributes_wraps_nvml_struct():
+    # Use synthetic data because NVML exposes these attributes only for MIG
+    # devices.
+    raw = nvml.DeviceAttributes()
+    raw.multiprocessor_count = 14
+    raw.memory_size_mb = 9728
+
+    attrs = _device.DeviceAttributes(raw)
+    assert isinstance(attrs, _device.DeviceAttributes)
+    assert attrs.multiprocessor_count == 14
+    assert attrs.memory_size_mb == 9728
+
+
+@pytest.mark.agent_authored(model="claude-opus-4.7")
+def test_event_data_wraps_nvml_struct():
+    raw = nvml.EventData()
+    raw.event_type = nvml.EventType.PSTATE
+
+    event = _device.EventData(raw)
+    assert isinstance(event, _device.EventData)
+    assert event.event_type is typing.EventType.PSTATE
 
 
 def test_c2c_mode_enabled(subtests):
@@ -590,7 +617,10 @@ def test_clock(subtests):
                 with unsupported_before(device, None):
                     pstate = device.performance_state
 
-                min_, max_ = clock.get_min_max_clock_of_pstate_mhz(pstate)
+                # Individual queries may be unsupported for a clock domain even
+                # on newer devices.
+                with unsupported_before(device, None):
+                    min_, max_ = clock.get_min_max_clock_of_pstate_mhz(pstate)
                 assert isinstance(min_, int)
                 assert min_ >= 0
                 assert isinstance(max_, int)
@@ -601,7 +631,7 @@ def test_clock(subtests):
                 assert isinstance(max_mhz, int)
                 assert max_mhz >= 0
 
-                with unsupported_before(device, DeviceArch.KEPLER):
+                with unsupported_before(device, None):
                     current_mhz = clock.get_current_mhz()
                 assert isinstance(current_mhz, int)
                 assert current_mhz >= 0
@@ -849,7 +879,8 @@ def test_pstates(subtests):
 
 
 def test_compute_running_processes(subtests):
-    for device in system.Device.get_all_devices():
+    for cuda_device in CudaDevice.get_all_devices():
+        device = cuda_device.to_system_device()
         with subtests.test(device_index=device.index):
             with unsupported_before(device, "FERMI"):
                 processes = device.compute_running_processes

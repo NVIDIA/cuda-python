@@ -32,5 +32,20 @@ class LoadedDL:
 
 
 def load_dependencies(desc: LibDescriptor, load_func: Callable[[str], LoadedDL]) -> None:
+    """Load required dependencies, then best-effort runtime dependencies.
+
+    A plain ``DynamicLibNotFoundError`` from an optional dependency is
+    suppressed. More specific contract errors and failures while loading a
+    dependency that was found remain errors.
+    """
     for dep in desc.dependencies:
         load_func(dep)
+    for dep in desc.optional_dependencies:
+        try:
+            load_func(dep)
+        except DynamicLibNotFoundError as exc:
+            # Both public contract errors inherit DynamicLibNotFoundError, but
+            # neither an unknown descriptor nor platform incompatibility means
+            # that an optional runtime component is simply absent.
+            if type(exc) is not DynamicLibNotFoundError:
+                raise

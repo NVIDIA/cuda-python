@@ -14,6 +14,7 @@ import pytest
 from conftest import xfail_on_graph_mempool_oom
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
 from cuda_python_test_helpers import under_compute_sanitizer

@@ -219,9 +219,18 @@ jobs:
 
           OLD_BRANCH=${{ needs.compute-matrix.outputs.OLD_BRANCH }}
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id --branch "${OLD_BRANCH}" NVIDIA/cuda-python "CI")
+          OLD_WHEEL_ARTIFACT_PATTERN="${OLD_BASENAME}[0-9a-f]"
+          LOOKUP_ARGS=(
+            --branch "${OLD_BRANCH}"
+            --artifact "${OLD_WHEEL_ARTIFACT_PATTERN}"
+          )
+          if ${{ inputs.test-python }}; then
+            LOOKUP_ARGS+=(--artifact cuda-python-wheel)
+          fi
+          LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id \
+            "${LOOKUP_ARGS[@]}" NVIDIA/cuda-python "CI")
 
-          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
+          gh run download "${LATEST_PRIOR_RUN_ID}" -p "${OLD_BASENAME}" -R NVIDIA/cuda-python
           rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
           ls -al $OLD_BASENAME
           mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
@@ -229,7 +238,7 @@ jobs:
           rmdir $OLD_BASENAME
 
           if ${{ inputs.test-python }}; then
-            gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
+            gh run download "${LATEST_PRIOR_RUN_ID}" -p cuda-python-wheel -R NVIDIA/cuda-python
             ls -al cuda-python-wheel
             mv cuda-python-wheel/*.whl .
             rmdir cuda-python-wheel
