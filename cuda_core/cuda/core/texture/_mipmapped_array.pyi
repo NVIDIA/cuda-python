@@ -72,6 +72,9 @@ class MipmappedArray:
     def handle(self):
         """The underlying ``CUmipmappedArray`` as an integer."""
     @property
+    def is_closed(self) -> bool:
+        """Whether this mipmapped array has been closed."""
+    @property
     def shape(self):
         """Base-level (level 0) allocation shape, in elements."""
     @property

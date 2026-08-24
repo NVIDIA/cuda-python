@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
+import os
 import pickle
 import re
 import uuid
@@ -10,8 +11,14 @@ import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.constants import POOL_SIZE
 
-from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
-from cuda.core._memory._ipc import IPCBufferDescriptor
+from cuda.core import (
+    Buffer,
+    Device,
+    DeviceMemoryResource,
+    DeviceMemoryResourceOptions,
+    PinnedMemoryResource,
+)
+from cuda.core._memory._ipc import IPCAllocationHandle, IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
@@ -46,8 +53,6 @@ def test_import_truncated_buffer_descriptor(ipc_device, ipc_memory_resource):
 
 def test_ipc_allocation_handle_rejects_negative_fd():
     """Negative fds are rejected even when CPython runs with -O (Glasswing V3.2)."""
-    from cuda.core._memory._ipc import IPCAllocationHandle
-
     with pytest.raises(ValueError, match=r"Invalid allocation handle \(fd\) -1: must be non-negative"):
         IPCAllocationHandle._init(-1, None)
 
@@ -65,6 +70,38 @@ def test_register_rejects_non_ipc_memory_resource(mempool_device):
     # The rejected registration must not leave the resource in the registry.
     with pytest.raises(RuntimeError, match=r"Memory resource [a-z0-9-]+ was not found"):
         DeviceMemoryResource.from_registry(key)
+
+
+@pytest.mark.skipif(os.name == "nt", reason="IPC allocation handles are not supported on Windows")
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_ipc_allocation_handle_state_tracks_close():
+    read_fd, write_fd = os.pipe()
+    handle = IPCAllocationHandle._init(read_fd, None)
+    try:
+        assert not handle.is_closed
+        handle.close()
+        assert handle.is_closed
+        assert bool(handle) is True  # Preserve backward-compatible truthiness after close.
+        with pytest.raises(ValueError, match="is closed"):
+            int(handle)
+    finally:
+        handle.close()
+        os.close(write_fd)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_ipc_allocation_handle_rejected_before_registry_hit(ipc_device, ipc_memory_resource):
+    mr = ipc_memory_resource
+    handle = IPCAllocationHandle._init(os.dup(int(mr.allocation_handle)), mr.uuid)
+    assert mr.register(mr.uuid) is mr
+    handle.close()
+
+    with pytest.raises(RuntimeError, match="IPCAllocationHandle has been closed"):
+        if isinstance(mr, DeviceMemoryResource):
+            DeviceMemoryResource.from_allocation_handle(ipc_device, handle)
+        else:
+            assert isinstance(mr, PinnedMemoryResource)
+            PinnedMemoryResource.from_allocation_handle(handle)
 
 
 class ChildErrorHarness:

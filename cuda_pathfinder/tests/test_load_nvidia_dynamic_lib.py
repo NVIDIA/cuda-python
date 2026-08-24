@@ -86,7 +86,7 @@ def test_libname_dict_values_are_unique(dict_name):
 def test_supported_libnames_windows_libnames_requiring_os_add_dll_directory_consistency():
     assert not (
         set(supported_nvidia_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY)
-        - set(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)
+        - set(supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS)
     )
 
 

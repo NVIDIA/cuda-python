@@ -139,7 +139,8 @@ class TestIpcReexport:
         # Forward the buffer to C.
         q_bc.put(buffer)
 
-        # Wait for C to receive before exiting.
+        # Queue serialization runs in a feeder thread. Keep the buffer open
+        # until C has received it and the parent releases this process.
         event_b.wait(timeout=CHILD_TIMEOUT_SEC)
         buffer.close()
         stream.sync()

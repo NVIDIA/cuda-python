@@ -220,6 +220,22 @@ def test_linker_logs_cached_after_link(compile_ptx_functions):
     assert linker.get_info_log() == info_log
 
 
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_linker_rejects_link_but_preserves_cached_logs(compile_ptx_functions):
+    linker = Linker(*compile_ptx_functions, options=LinkerOptions(arch=ARCH))
+    linker.link("cubin")
+    error_log = linker.get_error_log()
+    info_log = linker.get_info_log()
+    linker.close()
+
+    assert linker.is_closed
+    assert bool(linker) is True  # Preserve backward-compatible truthiness after close.
+    assert linker.get_error_log() == error_log
+    assert linker.get_info_log() == info_log
+    with pytest.raises(RuntimeError, match="Linker has been closed"):
+        linker.link("cubin")
+
+
 def test_linker_handle(compile_ptx_functions):
     """Linker.handle returns a non-null handle object."""
     options = LinkerOptions(arch=ARCH)

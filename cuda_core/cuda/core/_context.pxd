@@ -23,3 +23,9 @@ cdef class Context:
     cdef Context _from_green_ctx(type cls, GreenCtxHandle h_green_ctx, int device_id)
 
     cpdef close(self)
+
+
+cdef inline int Context_check_open(Context self) except -1:
+    if not self._h_context:
+        raise RuntimeError("Context has been closed")
+    return 0

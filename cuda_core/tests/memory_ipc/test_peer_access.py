@@ -135,6 +135,7 @@ class TestBufferPeerAccessAfterImport:
         with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
             PatternGen(dev0, NBYTES, stream=stream0).verify_buffer(buffer, seed=False)
 
+        dev1.set_current()
         buffer.close()
         # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
         dev1.sync()

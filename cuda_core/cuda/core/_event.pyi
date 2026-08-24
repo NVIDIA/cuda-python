@@ -67,6 +67,9 @@ class Event:
         Releases the event handle. The underlying CUDA event is destroyed
         when the last reference is released.
         """
+    @property
+    def is_closed(self) -> bool:
+        """Whether this event has been closed."""
     def __isub__(self, other: object): ...
     def __rsub__(self, other: object): ...
     def __sub__(self, other: Event) -> float: ...

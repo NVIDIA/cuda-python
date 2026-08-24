@@ -40,10 +40,17 @@ class _MemPoolAttributes:
 class _MemPool(MemoryResource):
     def __init__(self) -> None: ...
     def close(self) -> None:
+        """Release this object's reference to the memory pool.
+
+        New allocations and operations requiring this object's pool handle are
+        rejected afterward. For owned pools, release of the underlying pool's
+        resources is deferred until all outstanding allocations are freed and
+        pending free operations complete. :meth:`deallocate` remains available
+        after :meth:`close` so existing allocations can still be released.
         """
-        Close the memory resource and destroy the associated memory pool
-        if owned.
-        """
+    @property
+    def is_closed(self) -> bool:
+        """Whether this memory resource has been closed."""
     def allocate(self, size: int, *, stream: Stream | GraphBuilder) -> Buffer:
         """Allocate a buffer of the requested size.
 

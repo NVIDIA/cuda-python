@@ -24,6 +24,9 @@ class Context:
     @property
     def _handle(self) -> cuda.bindings.driver.CUcontext | None: ...
     @property
+    def is_closed(self) -> bool:
+        """Whether this context has been closed."""
+    @property
     def is_green(self) -> bool:
         """True if this context was created from device resources."""
     @property

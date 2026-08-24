@@ -260,6 +260,9 @@ class Buffer:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Buffer.handle)``.
         """
+    @property
+    def is_closed(self) -> bool:
+        """Whether this buffer has been closed."""
     def __eq__(self, other: object) -> bool: ...
     def __hash__(self) -> int: ...
     def __repr__(self) -> str: ...

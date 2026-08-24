@@ -4,6 +4,9 @@
 
 import contextlib
 import re
+import shutil
+import subprocess
+import sys
 import warnings
 
 import pytest
@@ -428,6 +431,17 @@ def test_program_close():
     program.close()
     # close() is idempotent
     program.close()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6")
+def test_closed_program_rejects_compile():
+    program = Program('extern "C" __global__ void my_kernel() {}', "c++")
+    assert not program.is_closed
+    program.close()
+
+    assert program.is_closed
+    with pytest.raises(RuntimeError, match="Program has been closed"):
+        program.compile("ptx")
 
 
 @nvvm_available
@@ -987,6 +1001,131 @@ def test_find_libdevice_path_delegates_to_pathfinder(monkeypatch):
     monkeypatch.setattr(cuda.pathfinder, "find_bitcode_lib", fake_find)
     assert _program._find_libdevice_path() == sentinel
     assert captured == ["device"]
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_nvrtc_debug_materializes_source_to_temp_file(init_cuda, tmp_path):
+    """debug/lineinfo writes NVRTC source to a real path; off and explicit name= do not."""
+    import os
+
+    code = 'extern "C" __global__ void matmul() {}'
+
+    # case 1: (debug=False, lineinfo=False)
+    off = Program(code, "c++", ProgramOptions(arch="sm_80"))
+    assert off.compile("ptx").name == "default_program"
+    off.close()
+
+    # case 2: (debug=True or lineinfo=True) and explicit_name is provided
+    explicit_name = str(tmp_path / "user_kernel.cu")
+    named = Program(code, "c++", ProgramOptions(name=explicit_name, debug=True, arch="sm_80"))
+    assert named.compile("ptx").name == explicit_name
+    assert not os.path.isfile(explicit_name)
+    named.close()
+
+    # case 3: (debug=True or lineinfo=True) and explicit_name is not provided
+    default_named = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    implicit_name = default_named.compile("ptx").name
+    try:
+        assert os.path.isfile(implicit_name)
+        assert re.fullmatch(r"test_program_matmul_[a-z0-9_]{8}\.cu", os.path.basename(implicit_name))
+        with open(implicit_name, encoding="utf-8") as fh:
+            assert fh.read() == code
+    finally:
+        default_named.close()
+    assert not os.path.isfile(implicit_name)
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+@pytest.mark.thread_unsafe(reason="monkeypatches tempfile.mkstemp on the Program module")
+def test_nvrtc_debug_falls_back_when_tmp_not_writable(init_cuda, monkeypatch):
+    """debug=True still compiles if the temp dir cannot be written (issue #2422)."""
+    from cuda.core import _program
+
+    def _denied(*_args, **_kwargs):
+        raise OSError(30, "Read-only file system")
+
+    monkeypatch.setattr(_program.tempfile, "mkstemp", _denied)
+
+    code = 'extern "C" __global__ void matmul() {}'
+    prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    try:
+        assert prog.compile("ptx").name == "default_program"
+    finally:
+        prog.close()
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_nvrtc_debug_concurrent_compile_uses_unique_temp_files(init_cuda):
+    """Same kernel compiled concurrently gets distinct mkstemp paths (issue #2422)."""
+    import os
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    code = 'extern "C" __global__ void matmul() {}'
+    n = 2
+    barrier = threading.Barrier(n)
+
+    def _compile_one():
+        Device().set_current()
+        barrier.wait()
+        prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+        name = prog.compile("ptx").name
+        return prog, name
+
+    with ThreadPoolExecutor(max_workers=n) as pool:
+        futures = [pool.submit(_compile_one) for _ in range(n)]
+        results = [fut.result() for fut in futures]
+
+    progs, names = zip(*results)
+    try:
+        assert len(set(names)) == n
+        for name in names:
+            assert os.path.isfile(name)
+            assert re.fullmatch(r"test_program_matmul_[a-z0-9_]{8}\.cu", os.path.basename(name))
+            with open(name, encoding="utf-8") as fh:
+                assert fh.read() == code
+    finally:
+        for prog in progs:
+            prog.close()
+    for name in names:
+        assert not os.path.isfile(name)
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
+    import pathlib
+
+    cuda_gdb = shutil.which("cuda-gdb")
+    if cuda_gdb is None:
+        pytest.skip("cuda-gdb is not on PATH")
+
+    child = pathlib.Path(__file__).resolve().parent / "helpers" / "cuda_gdb_src.py"
+    proc = subprocess.run(  # noqa: S603 - trusted argv: cuda-gdb + this interpreter + in-tree helper
+        [
+            cuda_gdb,
+            "--batch",
+            "-ex",
+            "set cuda break_on_launch application",
+            "-ex",
+            "run",
+            "-ex",
+            "list",
+            "--args",
+            sys.executable,
+            "-u",
+            str(child),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    output = (proc.stdout or "") + (proc.stderr or "")
+    if "Operation not permitted" in output or "ptrace" in output.lower():
+        pytest.skip("cuda-gdb cannot trace this process")
+    assert re.search(r"cuda_gdb_src_kernel_\w+\.cu", output), output
+    assert "ISSUE_2422_SOURCE_LINE" in output, output
+    assert "No such file or directory" not in output, output
 
 
 def test_nvrtc_compile_with_logs_capture(init_cuda):

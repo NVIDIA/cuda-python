@@ -128,6 +128,9 @@ class GraphBuilder:
     def close(self):
         """Destroy the graph builder."""
     @property
+    def is_closed(self) -> bool:
+        """Whether this graph builder has been closed."""
+    @property
     def stream(self) -> Stream:
         """Returns the stream associated with the graph builder."""
     @property
@@ -430,6 +433,9 @@ class Graph:
     def __init__(self): ...
     def close(self) -> None:
         """Destroy the graph."""
+    @property
+    def is_closed(self) -> bool:
+        """Whether this executable graph has been closed."""
     @property
     def handle(self) -> driver.CUgraphExec:
         """Return the underlying ``CUgraphExec`` object.

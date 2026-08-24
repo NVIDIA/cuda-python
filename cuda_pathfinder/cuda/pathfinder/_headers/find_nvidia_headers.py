@@ -18,10 +18,12 @@ from cuda.pathfinder._headers.header_descriptor import (
     HEADER_DESCRIPTORS,
     platform_include_subdirs,
     resolve_conda_anchor,
+    system_install_dir_patterns,
 )
 from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
 if TYPE_CHECKING:
     from cuda.pathfinder._headers.header_descriptor import HeaderDescriptor
@@ -101,6 +103,18 @@ def find_in_conda(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     return None
 
 
+def find_in_product_roots(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
+    """Search roots supplied through product-specific environment variables."""
+    for env_var in desc.product_root_env_vars:
+        root = os.environ.get(env_var)
+        if not root:
+            continue
+        result = _locate_in_anchor_layout(desc, root)
+        if result is not None:
+            return LocatedHeaderDir(abs_path=result, found_via=env_var)
+    return None
+
+
 def find_in_cuda_path(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Search ``$CUDA_PATH`` / ``$CUDA_HOME``."""
     cuda_home = get_cuda_path_or_home()
@@ -136,8 +150,8 @@ def find_via_ctk_root_canary(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
 
 def find_in_system_install_dirs(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Search system install directories (glob patterns)."""
-    for pattern in desc.system_install_dirs:
-        for hdr_dir in sorted(glob.glob(pattern), reverse=True):
+    for pattern in system_install_dir_patterns(desc):
+        for hdr_dir in sorted(glob.glob(pattern), key=numeric_aware_path_sort_key, reverse=True):
             if _joined_isfile(hdr_dir, desc.header_basename):
                 return LocatedHeaderDir(abs_path=hdr_dir, found_via="supported_install_dir")
     return None
@@ -151,6 +165,7 @@ def find_in_system_install_dirs(desc: HeaderDescriptor) -> LocatedHeaderDir | No
 FIND_STEPS: tuple[HeaderFindStep, ...] = (
     find_in_site_packages,
     find_in_conda,
+    find_in_product_roots,
     find_in_cuda_path,
     find_via_ctk_root_canary,
     find_in_system_install_dirs,
@@ -190,10 +205,11 @@ def locate_nvidia_header_directory(libname: str) -> LocatedHeaderDir | None:
     Search order:
         1. **NVIDIA Python wheels** — site-packages directories from the descriptor.
         2. **Conda environments** — platform-specific conda include layouts.
-        3. **CUDA Toolkit environment variables** — ``CUDA_PATH`` / ``CUDA_HOME``.
-        4. **CTK root canary probe** — subprocess canary (descriptors with
+        3. **Product environment variables** — for example, ``CUDNN_PATH``.
+        4. **CUDA Toolkit environment variables** — ``CUDA_PATH`` / ``CUDA_HOME``.
+        5. **CTK root canary probe** — subprocess canary (descriptors with
            ``use_ctk_root_canary=True`` only).
-        5. **System install directories** — glob patterns from the descriptor.
+        6. **System install directories** — glob patterns from the descriptor.
     """
     desc = HEADER_DESCRIPTORS.get(libname)
     if desc is None:
@@ -218,10 +234,11 @@ def find_nvidia_header_directory(libname: str) -> str | None:
     Search order:
         1. **NVIDIA Python wheels** — site-packages directories from the descriptor.
         2. **Conda environments** — platform-specific conda include layouts.
-        3. **CUDA Toolkit environment variables** — ``CUDA_PATH`` / ``CUDA_HOME``.
-        4. **CTK root canary probe** — subprocess canary (descriptors with
+        3. **Product environment variables** — for example, ``CUDNN_PATH``.
+        4. **CUDA Toolkit environment variables** — ``CUDA_PATH`` / ``CUDA_HOME``.
+        5. **CTK root canary probe** — subprocess canary (descriptors with
            ``use_ctk_root_canary=True`` only).
-        5. **System install directories** — glob patterns from the descriptor.
+        6. **System install directories** — glob patterns from the descriptor.
     """
     found = locate_nvidia_header_directory(libname)
     return found.abs_path if found else None
