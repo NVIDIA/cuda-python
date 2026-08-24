@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.4.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=464151e9be344b663eb001d24b780328f477470afca263a03384394a057b74bd
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=183bfbae252b3647deef334f131c6e98f300c401f6a6b13c5c4f5e10b442917c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -20,7 +20,9 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
         flags |= _cyb_cpython.PyBUF_WRITABLE
     cdef int status = -1
     cdef _cyb_cpython.Py_buffer view
-    if isinstance(buf, int):
+    if buf is None:
+        ptr = 0
+    elif isinstance(buf, int):
         ptr = <intptr_t>buf
     else:
         try:
@@ -31,7 +33,7 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
         except Exception as e:
             adj = "writable " if not readonly else ""
             raise ValueError(
-                "buf must be either a Python int representing the pointer "
+                "buf must be None, a Python int representing the pointer "
                 f"address to a valid buffer, or a 1D contiguous {adj}"
                 f"buffer, of size {size}"
             ) from e
@@ -320,6 +322,17 @@ cpdef tuple version():
 
 
 cpdef add_index(intptr_t handle, code, size_t size, identifier):
+    """nvFatbinAddIndex adds an index file to the fatbinary.
+
+    Args:
+        handle (intptr_t): nvFatbin handle.
+        code (bytes): The index.
+        size (size_t): The size of the index.
+        identifier (str): Name of the index, useful when extracting
+            the fatbin with tools like cuobjdump.
+
+    .. seealso:: `nvFatbinAddIndex`
+    """
     cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, size, readonly=True)
     if not isinstance(identifier, str):
         raise TypeError("identifier must be a Python str")

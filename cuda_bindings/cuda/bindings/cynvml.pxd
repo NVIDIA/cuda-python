@@ -11,7 +11,7 @@
 ###############################################################################
 
 # enums
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=54d380973e59fbf316058a81b2026313f3564008841e322dd7dc3c7915e4ee87
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f30665f85b06f57b6b81c0fd72d072b39d4f39d2d841ef632ec6854e8338a4cf
 ctypedef enum nvmlBridgeChipType_t "nvmlBridgeChipType_t":
     NVML_BRIDGE_CHIP_PLX "NVML_BRIDGE_CHIP_PLX" = 0
     NVML_BRIDGE_CHIP_BRO4 "NVML_BRIDGE_CHIP_BRO4" = 1
@@ -1854,7 +1854,8 @@ ctypedef struct nvmlNvlinkFirmwareInfo_t 'nvmlNvlinkFirmwareInfo_t':
 ctypedef struct nvmlPRMTLV_v1_t 'nvmlPRMTLV_v1_t':
     unsigned dataSize
     unsigned status
-    cuda_bindings_nvml__anon_pod7 _anon_pod_member0
+    unsigned char inData[496]
+    unsigned char outData[496]
 
 ctypedef struct nvmlVgpuSchedulerLogInfo_v2_t 'nvmlVgpuSchedulerLogInfo_v2_t':
     unsigned int engineId

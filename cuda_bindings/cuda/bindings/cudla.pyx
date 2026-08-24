@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3c177b7a0328c0f6f16067c8c9f4e5a002bd019e8c17c017ba9f77af21da8d75
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8db4f3703154bbd048aae5f4898e945b579e61df5aab1921efeebcea470335f1
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -75,7 +75,9 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
         flags |= _cyb_cpython.PyBUF_WRITABLE
     cdef int status = -1
     cdef _cyb_cpython.Py_buffer view
-    if isinstance(buf, int):
+    if buf is None:
+        ptr = 0
+    elif isinstance(buf, int):
         ptr = <intptr_t>buf
     else:
         try:
@@ -86,7 +88,7 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
         except Exception as e:
             adj = "writable " if not readonly else ""
             raise ValueError(
-                "buf must be either a Python int representing the pointer "
+                "buf must be None, a Python int representing the pointer "
                 f"address to a valid buffer, or a 1D contiguous {adj}"
                 f"buffer, of size {size}"
             ) from e
@@ -1695,23 +1697,30 @@ class FenceType(_cyb_IntEnum):
     """
     See `cudlaFenceType`.
     """
-    NVSCISYNC_FENCE = CUDLA_NVSCISYNC_FENCE
-    NVSCISYNC_FENCE_SOF = CUDLA_NVSCISYNC_FENCE_SOF
+    FENCE = CUDLA_NVSCISYNC_FENCE
+    NVSCISYNC_FENCE = FENCE  # backward-compat alias
+    FENCE_SOF = CUDLA_NVSCISYNC_FENCE_SOF
+    NVSCISYNC_FENCE_SOF = FENCE_SOF  # backward-compat alias
 
 class ModuleLoadFlags(_cyb_IntEnum):
     """
     See `cudlaModuleLoadFlags`.
     """
-    MODULE_DEFAULT = CUDLA_MODULE_DEFAULT
-    MODULE_ENABLE_FAULT_DIAGNOSTICS = CUDLA_MODULE_ENABLE_FAULT_DIAGNOSTICS
+    DEFAULT = CUDLA_MODULE_DEFAULT
+    MODULE_DEFAULT = DEFAULT  # backward-compat alias
+    ENABLE_FAULT_DIAGNOSTICS = CUDLA_MODULE_ENABLE_FAULT_DIAGNOSTICS
+    MODULE_ENABLE_FAULT_DIAGNOSTICS = ENABLE_FAULT_DIAGNOSTICS  # backward-compat alias
 
 class SubmissionFlags(_cyb_IntEnum):
     """
     See `cudlaSubmissionFlags`.
     """
-    SUBMIT_NOOP = CUDLA_SUBMIT_NOOP
-    SUBMIT_SKIP_LOCK_ACQUIRE = CUDLA_SUBMIT_SKIP_LOCK_ACQUIRE
-    SUBMIT_DIAGNOSTICS_TASK = CUDLA_SUBMIT_DIAGNOSTICS_TASK
+    NOOP = CUDLA_SUBMIT_NOOP
+    SUBMIT_NOOP = NOOP  # backward-compat alias
+    SKIP_LOCK_ACQUIRE = CUDLA_SUBMIT_SKIP_LOCK_ACQUIRE
+    SUBMIT_SKIP_LOCK_ACQUIRE = SKIP_LOCK_ACQUIRE  # backward-compat alias
+    DIAGNOSTICS_TASK = CUDLA_SUBMIT_DIAGNOSTICS_TASK
+    SUBMIT_DIAGNOSTICS_TASK = DIAGNOSTICS_TASK  # backward-compat alias
 
 class AccessPermissionFlags(_cyb_IntEnum):
     """
@@ -1804,9 +1813,10 @@ cpdef module_unload(intptr_t h_module, uint32_t flags):
     check_status(__status__)
 
 
-cpdef submit_task(intptr_t dev_handle, intptr_t ptr_to_tasks, uint32_t num_tasks, intptr_t stream, uint32_t flags):
+cpdef submit_task(intptr_t dev_handle, ptr_to_tasks, uint32_t num_tasks, intptr_t stream, uint32_t flags):
+    cdef intptr_t _ptr_to_tasks_ptr_ = int(ptr_to_tasks)
     with nogil:
-        __status__ = cudlaSubmitTask(<const DevHandle>dev_handle, <const cudlaTask* const>ptr_to_tasks, <const uint32_t>num_tasks, <void* const>stream, <const uint32_t>flags)
+        __status__ = cudlaSubmitTask(<const DevHandle>dev_handle, <const cudlaTask* const>_ptr_to_tasks_ptr_, <const uint32_t>num_tasks, <void* const>stream, <const uint32_t>flags)
     check_status(__status__)
 
 

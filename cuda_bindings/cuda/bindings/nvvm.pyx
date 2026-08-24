@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a82258bb2654bea18f6bce657324bdbbee8b8b0b30d2a0021e792ba5f95fa9a4
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6fc70275a97b87cfcb879950f4db012bc84a57d5493f097308c0f5c2473d0e0b
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -20,7 +20,9 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
         flags |= _cyb_cpython.PyBUF_WRITABLE
     cdef int status = -1
     cdef _cyb_cpython.Py_buffer view
-    if isinstance(buf, int):
+    if buf is None:
+        ptr = 0
+    elif isinstance(buf, int):
         ptr = <intptr_t>buf
     else:
         try:
@@ -31,7 +33,7 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
         except Exception as e:
             adj = "writable " if not readonly else ""
             raise ValueError(
-                "buf must be either a Python int representing the pointer "
+                "buf must be None, a Python int representing the pointer "
                 f"address to a valid buffer, or a 1D contiguous {adj}"
                 f"buffer, of size {size}"
             ) from e

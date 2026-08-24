@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from cuda_python_test_helpers.mempool import xfail_if_mempool_oom
 
-import cuda.bindings._v2.driver as cuda
+import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 
 
@@ -16,52 +16,61 @@ def supportsMemoryPool():
 
 def test_interop_stream():
     # DRV to RT
-    stream = cuda.stream_create(0)
+    err_dr, stream = cuda.cuStreamCreate(0)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
     (err_rt,) = cudart.cudaStreamDestroy(stream)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, stream = cudart.cudaStreamCreate()
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    cuda.stream_destroy_v2(int(stream))
+    (err_dr,) = cuda.cuStreamDestroy(stream)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
 def test_interop_event():
     # DRV to RT
-    event = cuda.event_create(0)
+    err_dr, event = cuda.cuEventCreate(0)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
     (err_rt,) = cudart.cudaEventDestroy(event)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, event = cudart.cudaEventCreate()
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    cuda.event_destroy_v2(int(event))
+    (err_dr,) = cuda.cuEventDestroy(event)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
 def test_interop_graph():
     # DRV to RT
-    graph = cuda.graph_create(0)
+    err_dr, graph = cuda.cuGraphCreate(0)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
     (err_rt,) = cudart.cudaGraphDestroy(graph)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, graph = cudart.cudaGraphCreate(0)
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    cuda.graph_destroy(int(graph))
+    (err_dr,) = cuda.cuGraphDestroy(graph)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
 def test_interop_graphNode():
-    graph = cuda.graph_create(0)
+    err_dr, graph = cuda.cuGraphCreate(0)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     # DRV to RT
-    node = cuda.graph_add_empty_node(graph, 0, 0)
+    err_dr, node = cuda.cuGraphAddEmptyNode(graph, [], 0)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
     (err_rt,) = cudart.cudaGraphDestroyNode(node)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, node = cudart.cudaGraphAddEmptyNode(graph, [], 0)
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    cuda.graph_destroy_node(int(node))
+    (err_dr,) = cuda.cuGraphDestroyNode(node)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     (err_rt,) = cudart.cudaGraphDestroy(graph)
     assert err_rt == cudart.cudaError_t.cudaSuccess
@@ -78,11 +87,9 @@ def test_interop_graphNode():
 @pytest.mark.skipif(not supportsMemoryPool(), reason="Requires mempool operations")
 def test_interop_memPool():
     # DRV to RT
-    try:
-        pool = cuda.device_get_default_mem_pool(0)
-    except cuda.DriverError as e:
-        xfail_if_mempool_oom(e, "device_get_default_mem_pool", 0)
-        raise
+    err_dr, pool = cuda.cuDeviceGetDefaultMemPool(0)
+    xfail_if_mempool_oom(err_dr, "cuDeviceGetDefaultMemPool", 0)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
     (err_rt,) = cudart.cudaDeviceSetMemPool(0, pool)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
@@ -90,22 +97,27 @@ def test_interop_memPool():
     err_rt, pool = cudart.cudaDeviceGetDefaultMemPool(0)
     xfail_if_mempool_oom(err_rt, "cudaDeviceGetDefaultMemPool", 0)
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    cuda.device_set_mem_pool(0, int(pool))
+    (err_dr,) = cuda.cuDeviceSetMemPool(0, pool)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
 def test_interop_graphExec():
-    graph = cuda.graph_create(0)
-    cuda.graph_add_empty_node(graph, 0, 0)
+    err_dr, graph = cuda.cuGraphCreate(0)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    err_dr, node = cuda.cuGraphAddEmptyNode(graph, [], 0)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     # DRV to RT
-    graphExec = cuda.graph_instantiate_with_flags(graph, 0)
+    err_dr, graphExec = cuda.cuGraphInstantiate(graph, 0)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
     (err_rt,) = cudart.cudaGraphExecDestroy(graphExec)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, graphExec = cudart.cudaGraphInstantiate(graph, 0)
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    cuda.graph_exec_destroy(int(graphExec))
+    (err_dr,) = cuda.cuGraphExecDestroy(graphExec)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     (err_rt,) = cudart.cudaGraphDestroy(graph)
     assert err_rt == cudart.cudaError_t.cudaSuccess
@@ -114,7 +126,8 @@ def test_interop_graphExec():
 def test_interop_deviceptr():
     # Allocate dev memory
     size = 1024 * np.uint8().itemsize
-    dptr = cuda.mem_alloc_v2(size)
+    err_dr, dptr = cuda.cuMemAlloc(size)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     # Allocate host memory
     h1 = np.full(size, 1).astype(np.uint8)
@@ -133,4 +146,5 @@ def test_interop_deviceptr():
     assert np.array_equal(h1, h2)
 
     # Cleanup
-    cuda.mem_free_v2(dptr)
+    (err_dr,) = cuda.cuMemFree(dptr)
+    assert err_dr == cuda.CUresult.CUDA_SUCCESS

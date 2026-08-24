@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.3.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9167da2a3d3194c67c44a0fe8d4d34b3dbd3c0f43061c50b7d238d2044c75509
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=145e61d9d4d137888a2f17f5ce90ed879d00bc4648e0acb4fd2384d350f138af
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -95,8 +95,10 @@ class BridgeChipType(_cyb_FastEnum):
 
     See `nvmlBridgeChipType_t`.
     """
-    BRIDGE_CHIP_PLX = NVML_BRIDGE_CHIP_PLX
-    BRIDGE_CHIP_BRO4 = NVML_BRIDGE_CHIP_BRO4
+    PLX = NVML_BRIDGE_CHIP_PLX
+    BRIDGE_CHIP_PLX = PLX  # backward-compat alias
+    BRO4 = NVML_BRIDGE_CHIP_BRO4
+    BRIDGE_CHIP_BRO4 = BRO4  # backward-compat alias
 
 class NvLinkUtilizationCountUnits(_cyb_FastEnum):
     """
@@ -104,11 +106,16 @@ class NvLinkUtilizationCountUnits(_cyb_FastEnum):
 
     See `nvmlNvLinkUtilizationCountUnits_t`.
     """
-    NVLINK_COUNTER_UNIT_CYCLES = NVML_NVLINK_COUNTER_UNIT_CYCLES
-    NVLINK_COUNTER_UNIT_PACKETS = NVML_NVLINK_COUNTER_UNIT_PACKETS
-    NVLINK_COUNTER_UNIT_BYTES = NVML_NVLINK_COUNTER_UNIT_BYTES
-    NVLINK_COUNTER_UNIT_RESERVED = NVML_NVLINK_COUNTER_UNIT_RESERVED
-    NVLINK_COUNTER_UNIT_COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
+    CYCLES = NVML_NVLINK_COUNTER_UNIT_CYCLES
+    NVLINK_COUNTER_UNIT_CYCLES = CYCLES  # backward-compat alias
+    PACKETS = NVML_NVLINK_COUNTER_UNIT_PACKETS
+    NVLINK_COUNTER_UNIT_PACKETS = PACKETS  # backward-compat alias
+    BYTES = NVML_NVLINK_COUNTER_UNIT_BYTES
+    NVLINK_COUNTER_UNIT_BYTES = BYTES  # backward-compat alias
+    RESERVED = NVML_NVLINK_COUNTER_UNIT_RESERVED
+    NVLINK_COUNTER_UNIT_RESERVED = RESERVED  # backward-compat alias
+    COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
+    NVLINK_COUNTER_UNIT_COUNT = COUNT  # backward-compat alias
 
 class NvLinkUtilizationCountPktTypes(_cyb_FastEnum):
     """
@@ -119,15 +126,24 @@ class NvLinkUtilizationCountPktTypes(_cyb_FastEnum):
 
     See `nvmlNvLinkUtilizationCountPktTypes_t`.
     """
-    NVLINK_COUNTER_PKTFILTER_NOP = NVML_NVLINK_COUNTER_PKTFILTER_NOP
-    NVLINK_COUNTER_PKTFILTER_READ = NVML_NVLINK_COUNTER_PKTFILTER_READ
-    NVLINK_COUNTER_PKTFILTER_WRITE = NVML_NVLINK_COUNTER_PKTFILTER_WRITE
-    NVLINK_COUNTER_PKTFILTER_RATOM = NVML_NVLINK_COUNTER_PKTFILTER_RATOM
-    NVLINK_COUNTER_PKTFILTER_NRATOM = NVML_NVLINK_COUNTER_PKTFILTER_NRATOM
-    NVLINK_COUNTER_PKTFILTER_FLUSH = NVML_NVLINK_COUNTER_PKTFILTER_FLUSH
-    NVLINK_COUNTER_PKTFILTER_RESPDATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPDATA
-    NVLINK_COUNTER_PKTFILTER_RESPNODATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPNODATA
-    NVLINK_COUNTER_PKTFILTER_ALL = NVML_NVLINK_COUNTER_PKTFILTER_ALL
+    NOP = NVML_NVLINK_COUNTER_PKTFILTER_NOP
+    NVLINK_COUNTER_PKTFILTER_NOP = NOP  # backward-compat alias
+    READ = NVML_NVLINK_COUNTER_PKTFILTER_READ
+    NVLINK_COUNTER_PKTFILTER_READ = READ  # backward-compat alias
+    WRITE = NVML_NVLINK_COUNTER_PKTFILTER_WRITE
+    NVLINK_COUNTER_PKTFILTER_WRITE = WRITE  # backward-compat alias
+    RATOM = NVML_NVLINK_COUNTER_PKTFILTER_RATOM
+    NVLINK_COUNTER_PKTFILTER_RATOM = RATOM  # backward-compat alias
+    NRATOM = NVML_NVLINK_COUNTER_PKTFILTER_NRATOM
+    NVLINK_COUNTER_PKTFILTER_NRATOM = NRATOM  # backward-compat alias
+    FLUSH = NVML_NVLINK_COUNTER_PKTFILTER_FLUSH
+    NVLINK_COUNTER_PKTFILTER_FLUSH = FLUSH  # backward-compat alias
+    RESPDATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPDATA
+    NVLINK_COUNTER_PKTFILTER_RESPDATA = RESPDATA  # backward-compat alias
+    RESPNODATA = NVML_NVLINK_COUNTER_PKTFILTER_RESPNODATA
+    NVLINK_COUNTER_PKTFILTER_RESPNODATA = RESPNODATA  # backward-compat alias
+    ALL = NVML_NVLINK_COUNTER_PKTFILTER_ALL
+    NVLINK_COUNTER_PKTFILTER_ALL = ALL  # backward-compat alias
 
 class NvLinkCapability(_cyb_FastEnum):
     """
@@ -135,13 +151,20 @@ class NvLinkCapability(_cyb_FastEnum):
 
     See `nvmlNvLinkCapability_t`.
     """
-    NVLINK_CAP_P2P_SUPPORTED = NVML_NVLINK_CAP_P2P_SUPPORTED
-    NVLINK_CAP_SYSMEM_ACCESS = NVML_NVLINK_CAP_SYSMEM_ACCESS
-    NVLINK_CAP_P2P_ATOMICS = NVML_NVLINK_CAP_P2P_ATOMICS
-    NVLINK_CAP_SYSMEM_ATOMICS = NVML_NVLINK_CAP_SYSMEM_ATOMICS
-    NVLINK_CAP_SLI_BRIDGE = NVML_NVLINK_CAP_SLI_BRIDGE
-    NVLINK_CAP_VALID = NVML_NVLINK_CAP_VALID
-    NVLINK_CAP_COUNT = NVML_NVLINK_CAP_COUNT
+    P2P_SUPPORTED = NVML_NVLINK_CAP_P2P_SUPPORTED
+    NVLINK_CAP_P2P_SUPPORTED = P2P_SUPPORTED  # backward-compat alias
+    SYSMEM_ACCESS = NVML_NVLINK_CAP_SYSMEM_ACCESS
+    NVLINK_CAP_SYSMEM_ACCESS = SYSMEM_ACCESS  # backward-compat alias
+    P2P_ATOMICS = NVML_NVLINK_CAP_P2P_ATOMICS
+    NVLINK_CAP_P2P_ATOMICS = P2P_ATOMICS  # backward-compat alias
+    SYSMEM_ATOMICS = NVML_NVLINK_CAP_SYSMEM_ATOMICS
+    NVLINK_CAP_SYSMEM_ATOMICS = SYSMEM_ATOMICS  # backward-compat alias
+    SLI_BRIDGE = NVML_NVLINK_CAP_SLI_BRIDGE
+    NVLINK_CAP_SLI_BRIDGE = SLI_BRIDGE  # backward-compat alias
+    VALID = NVML_NVLINK_CAP_VALID
+    NVLINK_CAP_VALID = VALID  # backward-compat alias
+    COUNT = NVML_NVLINK_CAP_COUNT
+    NVLINK_CAP_COUNT = COUNT  # backward-compat alias
 
 class NvLinkErrorCounter(_cyb_FastEnum):
     """
@@ -149,12 +172,18 @@ class NvLinkErrorCounter(_cyb_FastEnum):
 
     See `nvmlNvLinkErrorCounter_t`.
     """
-    NVLINK_ERROR_DL_REPLAY = NVML_NVLINK_ERROR_DL_REPLAY
-    NVLINK_ERROR_DL_RECOVERY = NVML_NVLINK_ERROR_DL_RECOVERY
-    NVLINK_ERROR_DL_CRC_FLIT = NVML_NVLINK_ERROR_DL_CRC_FLIT
-    NVLINK_ERROR_DL_CRC_DATA = NVML_NVLINK_ERROR_DL_CRC_DATA
-    NVLINK_ERROR_DL_ECC_DATA = NVML_NVLINK_ERROR_DL_ECC_DATA
-    NVLINK_ERROR_COUNT = NVML_NVLINK_ERROR_COUNT
+    DL_REPLAY = NVML_NVLINK_ERROR_DL_REPLAY
+    NVLINK_ERROR_DL_REPLAY = DL_REPLAY  # backward-compat alias
+    DL_RECOVERY = NVML_NVLINK_ERROR_DL_RECOVERY
+    NVLINK_ERROR_DL_RECOVERY = DL_RECOVERY  # backward-compat alias
+    DL_CRC_FLIT = NVML_NVLINK_ERROR_DL_CRC_FLIT
+    NVLINK_ERROR_DL_CRC_FLIT = DL_CRC_FLIT  # backward-compat alias
+    DL_CRC_DATA = NVML_NVLINK_ERROR_DL_CRC_DATA
+    NVLINK_ERROR_DL_CRC_DATA = DL_CRC_DATA  # backward-compat alias
+    DL_ECC_DATA = NVML_NVLINK_ERROR_DL_ECC_DATA
+    NVLINK_ERROR_DL_ECC_DATA = DL_ECC_DATA  # backward-compat alias
+    COUNT = NVML_NVLINK_ERROR_COUNT
+    NVLINK_ERROR_COUNT = COUNT  # backward-compat alias
 
 class IntNvLinkDeviceType(_cyb_FastEnum):
     """
@@ -162,10 +191,14 @@ class IntNvLinkDeviceType(_cyb_FastEnum):
 
     See `nvmlIntNvLinkDeviceType_t`.
     """
-    NVLINK_DEVICE_TYPE_GPU = NVML_NVLINK_DEVICE_TYPE_GPU
-    NVLINK_DEVICE_TYPE_IBMNPU = NVML_NVLINK_DEVICE_TYPE_IBMNPU
-    NVLINK_DEVICE_TYPE_SWITCH = NVML_NVLINK_DEVICE_TYPE_SWITCH
-    NVLINK_DEVICE_TYPE_UNKNOWN = NVML_NVLINK_DEVICE_TYPE_UNKNOWN
+    GPU = NVML_NVLINK_DEVICE_TYPE_GPU
+    NVLINK_DEVICE_TYPE_GPU = GPU  # backward-compat alias
+    IBMNPU = NVML_NVLINK_DEVICE_TYPE_IBMNPU
+    NVLINK_DEVICE_TYPE_IBMNPU = IBMNPU  # backward-compat alias
+    SWITCH = NVML_NVLINK_DEVICE_TYPE_SWITCH
+    NVLINK_DEVICE_TYPE_SWITCH = SWITCH  # backward-compat alias
+    UNKNOWN = NVML_NVLINK_DEVICE_TYPE_UNKNOWN
+    NVLINK_DEVICE_TYPE_UNKNOWN = UNKNOWN  # backward-compat alias
 
 class GpuTopologyLevel(_cyb_FastEnum):
     """
@@ -174,37 +207,58 @@ class GpuTopologyLevel(_cyb_FastEnum):
 
     See `nvmlGpuTopologyLevel_t`.
     """
-    TOPOLOGY_INTERNAL = NVML_TOPOLOGY_INTERNAL
-    TOPOLOGY_SINGLE = NVML_TOPOLOGY_SINGLE
-    TOPOLOGY_MULTIPLE = NVML_TOPOLOGY_MULTIPLE
-    TOPOLOGY_HOSTBRIDGE = NVML_TOPOLOGY_HOSTBRIDGE
-    TOPOLOGY_NODE = NVML_TOPOLOGY_NODE
-    TOPOLOGY_SYSTEM = NVML_TOPOLOGY_SYSTEM
+    INTERNAL = NVML_TOPOLOGY_INTERNAL
+    TOPOLOGY_INTERNAL = INTERNAL  # backward-compat alias
+    SINGLE = NVML_TOPOLOGY_SINGLE
+    TOPOLOGY_SINGLE = SINGLE  # backward-compat alias
+    MULTIPLE = NVML_TOPOLOGY_MULTIPLE
+    TOPOLOGY_MULTIPLE = MULTIPLE  # backward-compat alias
+    HOSTBRIDGE = NVML_TOPOLOGY_HOSTBRIDGE
+    TOPOLOGY_HOSTBRIDGE = HOSTBRIDGE  # backward-compat alias
+    NODE = NVML_TOPOLOGY_NODE
+    TOPOLOGY_NODE = NODE  # backward-compat alias
+    SYSTEM = NVML_TOPOLOGY_SYSTEM
+    TOPOLOGY_SYSTEM = SYSTEM  # backward-compat alias
 
 class GpuP2PStatus(_cyb_FastEnum):
     """
     See `nvmlGpuP2PStatus_t`.
     """
-    P2P_STATUS_OK = NVML_P2P_STATUS_OK
-    P2P_STATUS_CHIPSET_NOT_SUPPORED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORED
-    P2P_STATUS_CHIPSET_NOT_SUPPORTED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORTED
-    P2P_STATUS_GPU_NOT_SUPPORTED = NVML_P2P_STATUS_GPU_NOT_SUPPORTED
-    P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED = NVML_P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED
-    P2P_STATUS_DISABLED_BY_REGKEY = NVML_P2P_STATUS_DISABLED_BY_REGKEY
-    P2P_STATUS_NOT_SUPPORTED = NVML_P2P_STATUS_NOT_SUPPORTED
-    P2P_STATUS_UNKNOWN = NVML_P2P_STATUS_UNKNOWN
+    OK = NVML_P2P_STATUS_OK
+    P2P_STATUS_OK = OK  # backward-compat alias
+    CHIPSET_NOT_SUPPORED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORED
+    P2P_STATUS_CHIPSET_NOT_SUPPORED = CHIPSET_NOT_SUPPORED  # backward-compat alias
+    CHIPSET_NOT_SUPPORTED = NVML_P2P_STATUS_CHIPSET_NOT_SUPPORTED
+    P2P_STATUS_CHIPSET_NOT_SUPPORTED = CHIPSET_NOT_SUPPORTED  # backward-compat alias
+    GPU_NOT_SUPPORTED = NVML_P2P_STATUS_GPU_NOT_SUPPORTED
+    P2P_STATUS_GPU_NOT_SUPPORTED = GPU_NOT_SUPPORTED  # backward-compat alias
+    IOH_TOPOLOGY_NOT_SUPPORTED = NVML_P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED
+    P2P_STATUS_IOH_TOPOLOGY_NOT_SUPPORTED = IOH_TOPOLOGY_NOT_SUPPORTED  # backward-compat alias
+    DISABLED_BY_REGKEY = NVML_P2P_STATUS_DISABLED_BY_REGKEY
+    P2P_STATUS_DISABLED_BY_REGKEY = DISABLED_BY_REGKEY  # backward-compat alias
+    NOT_SUPPORTED = NVML_P2P_STATUS_NOT_SUPPORTED
+    P2P_STATUS_NOT_SUPPORTED = NOT_SUPPORTED  # backward-compat alias
+    UNKNOWN = NVML_P2P_STATUS_UNKNOWN
+    P2P_STATUS_UNKNOWN = UNKNOWN  # backward-compat alias
 
 class GpuP2PCapsIndex(_cyb_FastEnum):
     """
     See `nvmlGpuP2PCapsIndex_t`.
     """
-    P2P_CAPS_INDEX_READ = NVML_P2P_CAPS_INDEX_READ
-    P2P_CAPS_INDEX_WRITE = NVML_P2P_CAPS_INDEX_WRITE
-    P2P_CAPS_INDEX_NVLINK = NVML_P2P_CAPS_INDEX_NVLINK
-    P2P_CAPS_INDEX_ATOMICS = NVML_P2P_CAPS_INDEX_ATOMICS
-    P2P_CAPS_INDEX_PCI = NVML_P2P_CAPS_INDEX_PCI
-    P2P_CAPS_INDEX_PROP = NVML_P2P_CAPS_INDEX_PROP
-    P2P_CAPS_INDEX_UNKNOWN = NVML_P2P_CAPS_INDEX_UNKNOWN
+    READ = NVML_P2P_CAPS_INDEX_READ
+    P2P_CAPS_INDEX_READ = READ  # backward-compat alias
+    WRITE = NVML_P2P_CAPS_INDEX_WRITE
+    P2P_CAPS_INDEX_WRITE = WRITE  # backward-compat alias
+    NVLINK = NVML_P2P_CAPS_INDEX_NVLINK
+    P2P_CAPS_INDEX_NVLINK = NVLINK  # backward-compat alias
+    ATOMICS = NVML_P2P_CAPS_INDEX_ATOMICS
+    P2P_CAPS_INDEX_ATOMICS = ATOMICS  # backward-compat alias
+    PCI = NVML_P2P_CAPS_INDEX_PCI
+    P2P_CAPS_INDEX_PCI = PCI  # backward-compat alias
+    PROP = NVML_P2P_CAPS_INDEX_PROP
+    P2P_CAPS_INDEX_PROP = PROP  # backward-compat alias
+    UNKNOWN = NVML_P2P_CAPS_INDEX_UNKNOWN
+    P2P_CAPS_INDEX_UNKNOWN = UNKNOWN  # backward-compat alias
 
 class SamplingType(_cyb_FastEnum):
     """
@@ -230,9 +284,12 @@ class PcieUtilCounter(_cyb_FastEnum):
 
     See `nvmlPcieUtilCounter_t`.
     """
-    PCIE_UTIL_TX_BYTES = NVML_PCIE_UTIL_TX_BYTES
-    PCIE_UTIL_RX_BYTES = NVML_PCIE_UTIL_RX_BYTES
-    PCIE_UTIL_COUNT = NVML_PCIE_UTIL_COUNT
+    TX_BYTES = NVML_PCIE_UTIL_TX_BYTES
+    PCIE_UTIL_TX_BYTES = TX_BYTES  # backward-compat alias
+    RX_BYTES = NVML_PCIE_UTIL_RX_BYTES
+    PCIE_UTIL_RX_BYTES = RX_BYTES  # backward-compat alias
+    COUNT = NVML_PCIE_UTIL_COUNT
+    PCIE_UTIL_COUNT = COUNT  # backward-compat alias
 
 class ValueType(_cyb_FastEnum):
     """
@@ -255,15 +312,24 @@ class PerfPolicyType(_cyb_FastEnum):
 
     See `nvmlPerfPolicyType_t`.
     """
-    PERF_POLICY_POWER = (NVML_PERF_POLICY_POWER, 'How long did power violations cause the GPU to be below application clocks.')
-    PERF_POLICY_THERMAL = (NVML_PERF_POLICY_THERMAL, 'How long did thermal violations cause the GPU to be below application clocks.')
-    PERF_POLICY_SYNC_BOOST = (NVML_PERF_POLICY_SYNC_BOOST, 'How long did sync boost cause the GPU to be below application clocks.')
-    PERF_POLICY_BOARD_LIMIT = (NVML_PERF_POLICY_BOARD_LIMIT, 'How long did the board limit cause the GPU to be below application clocks.')
-    PERF_POLICY_LOW_UTILIZATION = (NVML_PERF_POLICY_LOW_UTILIZATION, 'How long did low utilization cause the GPU to be below application clocks.')
-    PERF_POLICY_RELIABILITY = (NVML_PERF_POLICY_RELIABILITY, 'How long did the board reliability limit cause the GPU to be below application clocks.')
-    PERF_POLICY_TOTAL_APP_CLOCKS = (NVML_PERF_POLICY_TOTAL_APP_CLOCKS, 'Total time the GPU was held below application clocks by any limiter (0 - 5 above).')
-    PERF_POLICY_TOTAL_BASE_CLOCKS = (NVML_PERF_POLICY_TOTAL_BASE_CLOCKS, 'Total time the GPU was held below base clocks.')
-    PERF_POLICY_COUNT = NVML_PERF_POLICY_COUNT
+    POWER = (NVML_PERF_POLICY_POWER, 'How long did power violations cause the GPU to be below application clocks.')
+    PERF_POLICY_POWER = POWER  # backward-compat alias
+    THERMAL = (NVML_PERF_POLICY_THERMAL, 'How long did thermal violations cause the GPU to be below application clocks.')
+    PERF_POLICY_THERMAL = THERMAL  # backward-compat alias
+    SYNC_BOOST = (NVML_PERF_POLICY_SYNC_BOOST, 'How long did sync boost cause the GPU to be below application clocks.')
+    PERF_POLICY_SYNC_BOOST = SYNC_BOOST  # backward-compat alias
+    BOARD_LIMIT = (NVML_PERF_POLICY_BOARD_LIMIT, 'How long did the board limit cause the GPU to be below application clocks.')
+    PERF_POLICY_BOARD_LIMIT = BOARD_LIMIT  # backward-compat alias
+    LOW_UTILIZATION = (NVML_PERF_POLICY_LOW_UTILIZATION, 'How long did low utilization cause the GPU to be below application clocks.')
+    PERF_POLICY_LOW_UTILIZATION = LOW_UTILIZATION  # backward-compat alias
+    RELIABILITY = (NVML_PERF_POLICY_RELIABILITY, 'How long did the board reliability limit cause the GPU to be below application clocks.')
+    PERF_POLICY_RELIABILITY = RELIABILITY  # backward-compat alias
+    TOTAL_APP_CLOCKS = (NVML_PERF_POLICY_TOTAL_APP_CLOCKS, 'Total time the GPU was held below application clocks by any limiter (0 - 5 above).')
+    PERF_POLICY_TOTAL_APP_CLOCKS = TOTAL_APP_CLOCKS  # backward-compat alias
+    TOTAL_BASE_CLOCKS = (NVML_PERF_POLICY_TOTAL_BASE_CLOCKS, 'Total time the GPU was held below base clocks.')
+    PERF_POLICY_TOTAL_BASE_CLOCKS = TOTAL_BASE_CLOCKS  # backward-compat alias
+    COUNT = NVML_PERF_POLICY_COUNT
+    PERF_POLICY_COUNT = COUNT  # backward-compat alias
 
 class ThermalTarget(_cyb_FastEnum):
     """
@@ -314,10 +380,14 @@ class CoolerControl(_cyb_FastEnum):
 
     See `nvmlCoolerControl_t`.
     """
-    THERMAL_COOLER_SIGNAL_NONE = (NVML_THERMAL_COOLER_SIGNAL_NONE, 'This cooler has no control signal.')
-    THERMAL_COOLER_SIGNAL_TOGGLE = (NVML_THERMAL_COOLER_SIGNAL_TOGGLE, 'This cooler can only be toggled either ON or OFF (eg a switch).')
-    THERMAL_COOLER_SIGNAL_VARIABLE = (NVML_THERMAL_COOLER_SIGNAL_VARIABLE, "This cooler's level can be adjusted from some minimum to some maximum (eg a knob).")
-    THERMAL_COOLER_SIGNAL_COUNT = NVML_THERMAL_COOLER_SIGNAL_COUNT
+    NONE = (NVML_THERMAL_COOLER_SIGNAL_NONE, 'This cooler has no control signal.')
+    THERMAL_COOLER_SIGNAL_NONE = NONE  # backward-compat alias
+    TOGGLE = (NVML_THERMAL_COOLER_SIGNAL_TOGGLE, 'This cooler can only be toggled either ON or OFF (eg a switch).')
+    THERMAL_COOLER_SIGNAL_TOGGLE = TOGGLE  # backward-compat alias
+    VARIABLE = (NVML_THERMAL_COOLER_SIGNAL_VARIABLE, "This cooler's level can be adjusted from some minimum to some maximum (eg a knob).")
+    THERMAL_COOLER_SIGNAL_VARIABLE = VARIABLE  # backward-compat alias
+    COUNT = NVML_THERMAL_COOLER_SIGNAL_COUNT
+    THERMAL_COOLER_SIGNAL_COUNT = COUNT  # backward-compat alias
 
 class CoolerTarget(_cyb_FastEnum):
     """
@@ -325,11 +395,16 @@ class CoolerTarget(_cyb_FastEnum):
 
     See `nvmlCoolerTarget_t`.
     """
-    THERMAL_NONE = (NVML_THERMAL_COOLER_TARGET_NONE, 'This cooler cools nothing.')
-    THERMAL_GPU = (NVML_THERMAL_COOLER_TARGET_GPU, 'This cooler can cool the GPU.')
-    THERMAL_MEMORY = (NVML_THERMAL_COOLER_TARGET_MEMORY, 'This cooler can cool the memory.')
-    THERMAL_POWER_SUPPLY = (NVML_THERMAL_COOLER_TARGET_POWER_SUPPLY, 'This cooler can cool the power supply.')
-    THERMAL_GPU_RELATED = (NVML_THERMAL_COOLER_TARGET_GPU_RELATED, 'This cooler cools all of the components related to its target gpu. GPU_RELATED = GPU | MEMORY | POWER_SUPPLY.')
+    NONE = (NVML_THERMAL_COOLER_TARGET_NONE, 'This cooler cools nothing.')
+    THERMAL_NONE = NONE  # backward-compat alias
+    GPU = (NVML_THERMAL_COOLER_TARGET_GPU, 'This cooler can cool the GPU.')
+    THERMAL_GPU = GPU  # backward-compat alias
+    MEMORY = (NVML_THERMAL_COOLER_TARGET_MEMORY, 'This cooler can cool the memory.')
+    THERMAL_MEMORY = MEMORY  # backward-compat alias
+    POWER_SUPPLY = (NVML_THERMAL_COOLER_TARGET_POWER_SUPPLY, 'This cooler can cool the power supply.')
+    THERMAL_POWER_SUPPLY = POWER_SUPPLY  # backward-compat alias
+    GPU_RELATED = (NVML_THERMAL_COOLER_TARGET_GPU_RELATED, 'This cooler cools all of the components related to its target gpu. GPU_RELATED = GPU | MEMORY | POWER_SUPPLY.')
+    THERMAL_GPU_RELATED = GPU_RELATED  # backward-compat alias
 
 class UUIDType(_cyb_FastEnum):
     """
@@ -347,8 +422,10 @@ class EnableState(_cyb_FastEnum):
 
     See `nvmlEnableState_t`.
     """
-    FEATURE_DISABLED = (NVML_FEATURE_DISABLED, 'Feature disabled.')
-    FEATURE_ENABLED = (NVML_FEATURE_ENABLED, 'Feature enabled.')
+    DISABLED = (NVML_FEATURE_DISABLED, 'Feature disabled.')
+    FEATURE_DISABLED = DISABLED  # backward-compat alias
+    ENABLED = (NVML_FEATURE_ENABLED, 'Feature enabled.')
+    FEATURE_ENABLED = ENABLED  # backward-compat alias
 
 class BrandType(_cyb_FastEnum):
     """
@@ -356,25 +433,44 @@ class BrandType(_cyb_FastEnum):
 
     See `nvmlBrandType_t`.
     """
-    BRAND_UNKNOWN = NVML_BRAND_UNKNOWN
-    BRAND_QUADRO = NVML_BRAND_QUADRO
-    BRAND_TESLA = NVML_BRAND_TESLA
-    BRAND_NVS = NVML_BRAND_NVS
-    BRAND_GRID = NVML_BRAND_GRID
-    BRAND_GEFORCE = NVML_BRAND_GEFORCE
-    BRAND_TITAN = NVML_BRAND_TITAN
-    BRAND_NVIDIA_VAPPS = NVML_BRAND_NVIDIA_VAPPS
-    BRAND_NVIDIA_VPC = NVML_BRAND_NVIDIA_VPC
-    BRAND_NVIDIA_VCS = NVML_BRAND_NVIDIA_VCS
-    BRAND_NVIDIA_VWS = NVML_BRAND_NVIDIA_VWS
-    BRAND_NVIDIA_CLOUD_GAMING = NVML_BRAND_NVIDIA_CLOUD_GAMING
-    BRAND_NVIDIA_VGAMING = NVML_BRAND_NVIDIA_VGAMING
-    BRAND_QUADRO_RTX = NVML_BRAND_QUADRO_RTX
-    BRAND_NVIDIA_RTX = NVML_BRAND_NVIDIA_RTX
-    BRAND_NVIDIA = NVML_BRAND_NVIDIA
-    BRAND_GEFORCE_RTX = NVML_BRAND_GEFORCE_RTX
-    BRAND_TITAN_RTX = NVML_BRAND_TITAN_RTX
-    BRAND_COUNT = NVML_BRAND_COUNT
+    UNKNOWN = NVML_BRAND_UNKNOWN
+    BRAND_UNKNOWN = UNKNOWN  # backward-compat alias
+    QUADRO = NVML_BRAND_QUADRO
+    BRAND_QUADRO = QUADRO  # backward-compat alias
+    TESLA = NVML_BRAND_TESLA
+    BRAND_TESLA = TESLA  # backward-compat alias
+    NVS = NVML_BRAND_NVS
+    BRAND_NVS = NVS  # backward-compat alias
+    GRID = NVML_BRAND_GRID
+    BRAND_GRID = GRID  # backward-compat alias
+    GEFORCE = NVML_BRAND_GEFORCE
+    BRAND_GEFORCE = GEFORCE  # backward-compat alias
+    TITAN = NVML_BRAND_TITAN
+    BRAND_TITAN = TITAN  # backward-compat alias
+    NVIDIA_VAPPS = NVML_BRAND_NVIDIA_VAPPS
+    BRAND_NVIDIA_VAPPS = NVIDIA_VAPPS  # backward-compat alias
+    NVIDIA_VPC = NVML_BRAND_NVIDIA_VPC
+    BRAND_NVIDIA_VPC = NVIDIA_VPC  # backward-compat alias
+    NVIDIA_VCS = NVML_BRAND_NVIDIA_VCS
+    BRAND_NVIDIA_VCS = NVIDIA_VCS  # backward-compat alias
+    NVIDIA_VWS = NVML_BRAND_NVIDIA_VWS
+    BRAND_NVIDIA_VWS = NVIDIA_VWS  # backward-compat alias
+    NVIDIA_CLOUD_GAMING = NVML_BRAND_NVIDIA_CLOUD_GAMING
+    BRAND_NVIDIA_CLOUD_GAMING = NVIDIA_CLOUD_GAMING  # backward-compat alias
+    NVIDIA_VGAMING = NVML_BRAND_NVIDIA_VGAMING
+    BRAND_NVIDIA_VGAMING = NVIDIA_VGAMING  # backward-compat alias
+    QUADRO_RTX = NVML_BRAND_QUADRO_RTX
+    BRAND_QUADRO_RTX = QUADRO_RTX  # backward-compat alias
+    NVIDIA_RTX = NVML_BRAND_NVIDIA_RTX
+    BRAND_NVIDIA_RTX = NVIDIA_RTX  # backward-compat alias
+    NVIDIA = NVML_BRAND_NVIDIA
+    BRAND_NVIDIA = NVIDIA  # backward-compat alias
+    GEFORCE_RTX = NVML_BRAND_GEFORCE_RTX
+    BRAND_GEFORCE_RTX = GEFORCE_RTX  # backward-compat alias
+    TITAN_RTX = NVML_BRAND_TITAN_RTX
+    BRAND_TITAN_RTX = TITAN_RTX  # backward-compat alias
+    COUNT = NVML_BRAND_COUNT
+    BRAND_COUNT = COUNT  # backward-compat alias
 
 class TemperatureThresholds(_cyb_FastEnum):
     """
@@ -382,15 +478,24 @@ class TemperatureThresholds(_cyb_FastEnum):
 
     See `nvmlTemperatureThresholds_t`.
     """
-    TEMPERATURE_THRESHOLD_SHUTDOWN = NVML_TEMPERATURE_THRESHOLD_SHUTDOWN
-    TEMPERATURE_THRESHOLD_SLOWDOWN = NVML_TEMPERATURE_THRESHOLD_SLOWDOWN
-    TEMPERATURE_THRESHOLD_MEM_MAX = NVML_TEMPERATURE_THRESHOLD_MEM_MAX
-    TEMPERATURE_THRESHOLD_GPU_MAX = NVML_TEMPERATURE_THRESHOLD_GPU_MAX
-    TEMPERATURE_THRESHOLD_ACOUSTIC_MIN = NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MIN
-    TEMPERATURE_THRESHOLD_ACOUSTIC_CURR = NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_CURR
-    TEMPERATURE_THRESHOLD_ACOUSTIC_MAX = NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MAX
-    TEMPERATURE_THRESHOLD_GPS_CURR = NVML_TEMPERATURE_THRESHOLD_GPS_CURR
-    TEMPERATURE_THRESHOLD_COUNT = NVML_TEMPERATURE_THRESHOLD_COUNT
+    SHUTDOWN = NVML_TEMPERATURE_THRESHOLD_SHUTDOWN
+    TEMPERATURE_THRESHOLD_SHUTDOWN = SHUTDOWN  # backward-compat alias
+    SLOWDOWN = NVML_TEMPERATURE_THRESHOLD_SLOWDOWN
+    TEMPERATURE_THRESHOLD_SLOWDOWN = SLOWDOWN  # backward-compat alias
+    MEM_MAX = NVML_TEMPERATURE_THRESHOLD_MEM_MAX
+    TEMPERATURE_THRESHOLD_MEM_MAX = MEM_MAX  # backward-compat alias
+    GPU_MAX = NVML_TEMPERATURE_THRESHOLD_GPU_MAX
+    TEMPERATURE_THRESHOLD_GPU_MAX = GPU_MAX  # backward-compat alias
+    ACOUSTIC_MIN = NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MIN
+    TEMPERATURE_THRESHOLD_ACOUSTIC_MIN = ACOUSTIC_MIN  # backward-compat alias
+    ACOUSTIC_CURR = NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_CURR
+    TEMPERATURE_THRESHOLD_ACOUSTIC_CURR = ACOUSTIC_CURR  # backward-compat alias
+    ACOUSTIC_MAX = NVML_TEMPERATURE_THRESHOLD_ACOUSTIC_MAX
+    TEMPERATURE_THRESHOLD_ACOUSTIC_MAX = ACOUSTIC_MAX  # backward-compat alias
+    GPS_CURR = NVML_TEMPERATURE_THRESHOLD_GPS_CURR
+    TEMPERATURE_THRESHOLD_GPS_CURR = GPS_CURR  # backward-compat alias
+    COUNT = NVML_TEMPERATURE_THRESHOLD_COUNT
+    TEMPERATURE_THRESHOLD_COUNT = COUNT  # backward-compat alias
 
 class TemperatureSensors(_cyb_FastEnum):
     """
@@ -398,8 +503,10 @@ class TemperatureSensors(_cyb_FastEnum):
 
     See `nvmlTemperatureSensors_t`.
     """
-    TEMPERATURE_GPU = (NVML_TEMPERATURE_GPU, 'Temperature sensor for the GPU die.')
-    TEMPERATURE_COUNT = NVML_TEMPERATURE_COUNT
+    GPU = (NVML_TEMPERATURE_GPU, 'Temperature sensor for the GPU die.')
+    TEMPERATURE_GPU = GPU  # backward-compat alias
+    COUNT = NVML_TEMPERATURE_COUNT
+    TEMPERATURE_COUNT = COUNT  # backward-compat alias
 
 class ComputeMode(_cyb_FastEnum):
     """
@@ -409,11 +516,16 @@ class ComputeMode(_cyb_FastEnum):
 
     See `nvmlComputeMode_t`.
     """
-    COMPUTEMODE_DEFAULT = (NVML_COMPUTEMODE_DEFAULT, 'Default compute mode -- multiple contexts per device.')
-    COMPUTEMODE_EXCLUSIVE_THREAD = (NVML_COMPUTEMODE_EXCLUSIVE_THREAD, 'Support Removed.')
-    COMPUTEMODE_PROHIBITED = (NVML_COMPUTEMODE_PROHIBITED, 'Compute-prohibited mode -- no contexts per device.')
-    COMPUTEMODE_EXCLUSIVE_PROCESS = (NVML_COMPUTEMODE_EXCLUSIVE_PROCESS, 'Compute-exclusive-process mode -- only one context per device, usable from multiple threads at a time.')
-    COMPUTEMODE_COUNT = NVML_COMPUTEMODE_COUNT
+    DEFAULT = (NVML_COMPUTEMODE_DEFAULT, 'Default compute mode -- multiple contexts per device.')
+    COMPUTEMODE_DEFAULT = DEFAULT  # backward-compat alias
+    EXCLUSIVE_THREAD = (NVML_COMPUTEMODE_EXCLUSIVE_THREAD, 'Support Removed.')
+    COMPUTEMODE_EXCLUSIVE_THREAD = EXCLUSIVE_THREAD  # backward-compat alias
+    PROHIBITED = (NVML_COMPUTEMODE_PROHIBITED, 'Compute-prohibited mode -- no contexts per device.')
+    COMPUTEMODE_PROHIBITED = PROHIBITED  # backward-compat alias
+    EXCLUSIVE_PROCESS = (NVML_COMPUTEMODE_EXCLUSIVE_PROCESS, 'Compute-exclusive-process mode -- only one context per device, usable from multiple threads at a time.')
+    COMPUTEMODE_EXCLUSIVE_PROCESS = EXCLUSIVE_PROCESS  # backward-compat alias
+    COUNT = NVML_COMPUTEMODE_COUNT
+    COMPUTEMODE_COUNT = COUNT  # backward-compat alias
 
 class MemoryErrorType(_cyb_FastEnum):
     """
@@ -454,7 +566,8 @@ class EccCounterType(_cyb_FastEnum):
     """
     VOLATILE_ECC = (NVML_VOLATILE_ECC, 'Volatile counts are reset each time the driver loads.')
     AGGREGATE_ECC = (NVML_AGGREGATE_ECC, 'Aggregate counts persist across reboots (i.e. for the lifetime of the device).')
-    COUNT = (NVML_ECC_COUNTER_TYPE_COUNT, 'Count of memory counter types.')
+    ECC_COUNTER_TYPE_COUNT = (NVML_ECC_COUNTER_TYPE_COUNT, 'Count of memory counter types.')
+    COUNT = ECC_COUNTER_TYPE_COUNT  # backward-compat alias
 
 class ClockType(_cyb_FastEnum):
     """
@@ -462,11 +575,16 @@ class ClockType(_cyb_FastEnum):
 
     See `nvmlClockType_t`.
     """
-    CLOCK_GRAPHICS = (NVML_CLOCK_GRAPHICS, 'Graphics clock domain.')
-    CLOCK_SM = (NVML_CLOCK_SM, 'SM clock domain.')
-    CLOCK_MEM = (NVML_CLOCK_MEM, 'Memory clock domain.')
-    CLOCK_VIDEO = (NVML_CLOCK_VIDEO, 'Video encoder/decoder clock domain.')
-    CLOCK_COUNT = (NVML_CLOCK_COUNT, 'Count of clock types.')
+    GRAPHICS = (NVML_CLOCK_GRAPHICS, 'Graphics clock domain.')
+    CLOCK_GRAPHICS = GRAPHICS  # backward-compat alias
+    SM = (NVML_CLOCK_SM, 'SM clock domain.')
+    CLOCK_SM = SM  # backward-compat alias
+    MEM = (NVML_CLOCK_MEM, 'Memory clock domain.')
+    CLOCK_MEM = MEM  # backward-compat alias
+    VIDEO = (NVML_CLOCK_VIDEO, 'Video encoder/decoder clock domain.')
+    CLOCK_VIDEO = VIDEO  # backward-compat alias
+    COUNT = (NVML_CLOCK_COUNT, 'Count of clock types.')
+    CLOCK_COUNT = COUNT  # backward-compat alias
 
 class ClockId(_cyb_FastEnum):
     """
@@ -487,9 +605,12 @@ class DriverModel(_cyb_FastEnum):
 
     See `nvmlDriverModel_t`.
     """
-    DRIVER_WDDM = (NVML_DRIVER_WDDM, 'WDDM driver model -- GPU treated as a display device.')
-    DRIVER_WDM = (NVML_DRIVER_WDM, 'WDM (TCC) model (deprecated) -- GPU treated as a generic compute device.')
-    DRIVER_MCDM = (NVML_DRIVER_MCDM, 'MCDM driver model -- GPU treated as a Microsoft compute device.')
+    WDDM = (NVML_DRIVER_WDDM, 'WDDM driver model -- GPU treated as a display device.')
+    DRIVER_WDDM = WDDM  # backward-compat alias
+    WDM = (NVML_DRIVER_WDM, 'WDM (TCC) model (deprecated) -- GPU treated as a generic compute device.')
+    DRIVER_WDM = WDM  # backward-compat alias
+    MCDM = (NVML_DRIVER_MCDM, 'MCDM driver model -- GPU treated as a Microsoft compute device.')
+    DRIVER_MCDM = MCDM  # backward-compat alias
 
 class Pstates(_cyb_FastEnum):
     """
@@ -497,23 +618,40 @@ class Pstates(_cyb_FastEnum):
 
     See `nvmlPstates_t`.
     """
-    PSTATE_0 = (NVML_PSTATE_0, 'Performance state 0 -- Maximum Performance.')
-    PSTATE_1 = (NVML_PSTATE_1, 'Performance state 1.')
-    PSTATE_2 = (NVML_PSTATE_2, 'Performance state 2.')
-    PSTATE_3 = (NVML_PSTATE_3, 'Performance state 3.')
-    PSTATE_4 = (NVML_PSTATE_4, 'Performance state 4.')
-    PSTATE_5 = (NVML_PSTATE_5, 'Performance state 5.')
-    PSTATE_6 = (NVML_PSTATE_6, 'Performance state 6.')
-    PSTATE_7 = (NVML_PSTATE_7, 'Performance state 7.')
-    PSTATE_8 = (NVML_PSTATE_8, 'Performance state 8.')
-    PSTATE_9 = (NVML_PSTATE_9, 'Performance state 9.')
-    PSTATE_10 = (NVML_PSTATE_10, 'Performance state 10.')
-    PSTATE_11 = (NVML_PSTATE_11, 'Performance state 11.')
-    PSTATE_12 = (NVML_PSTATE_12, 'Performance state 12.')
-    PSTATE_13 = (NVML_PSTATE_13, 'Performance state 13.')
-    PSTATE_14 = (NVML_PSTATE_14, 'Performance state 14.')
-    PSTATE_15 = (NVML_PSTATE_15, 'Performance state 15 -- Minimum Performance.')
-    PSTATE_UNKNOWN = (NVML_PSTATE_UNKNOWN, 'Unknown performance state.')
+    PSTATES_0 = (NVML_PSTATE_0, 'Performance state 0 -- Maximum Performance.')
+    PSTATE_0 = PSTATES_0  # backward-compat alias
+    PSTATES_1 = (NVML_PSTATE_1, 'Performance state 1.')
+    PSTATE_1 = PSTATES_1  # backward-compat alias
+    PSTATES_2 = (NVML_PSTATE_2, 'Performance state 2.')
+    PSTATE_2 = PSTATES_2  # backward-compat alias
+    PSTATES_3 = (NVML_PSTATE_3, 'Performance state 3.')
+    PSTATE_3 = PSTATES_3  # backward-compat alias
+    PSTATES_4 = (NVML_PSTATE_4, 'Performance state 4.')
+    PSTATE_4 = PSTATES_4  # backward-compat alias
+    PSTATES_5 = (NVML_PSTATE_5, 'Performance state 5.')
+    PSTATE_5 = PSTATES_5  # backward-compat alias
+    PSTATES_6 = (NVML_PSTATE_6, 'Performance state 6.')
+    PSTATE_6 = PSTATES_6  # backward-compat alias
+    PSTATES_7 = (NVML_PSTATE_7, 'Performance state 7.')
+    PSTATE_7 = PSTATES_7  # backward-compat alias
+    PSTATES_8 = (NVML_PSTATE_8, 'Performance state 8.')
+    PSTATE_8 = PSTATES_8  # backward-compat alias
+    PSTATES_9 = (NVML_PSTATE_9, 'Performance state 9.')
+    PSTATE_9 = PSTATES_9  # backward-compat alias
+    PSTATES_10 = (NVML_PSTATE_10, 'Performance state 10.')
+    PSTATE_10 = PSTATES_10  # backward-compat alias
+    PSTATES_11 = (NVML_PSTATE_11, 'Performance state 11.')
+    PSTATE_11 = PSTATES_11  # backward-compat alias
+    PSTATES_12 = (NVML_PSTATE_12, 'Performance state 12.')
+    PSTATE_12 = PSTATES_12  # backward-compat alias
+    PSTATES_13 = (NVML_PSTATE_13, 'Performance state 13.')
+    PSTATE_13 = PSTATES_13  # backward-compat alias
+    PSTATES_14 = (NVML_PSTATE_14, 'Performance state 14.')
+    PSTATE_14 = PSTATES_14  # backward-compat alias
+    PSTATES_15 = (NVML_PSTATE_15, 'Performance state 15 -- Minimum Performance.')
+    PSTATE_15 = PSTATES_15  # backward-compat alias
+    PSTATES_UNKNOWN = (NVML_PSTATE_UNKNOWN, 'Unknown performance state.')
+    PSTATE_UNKNOWN = PSTATES_UNKNOWN  # backward-compat alias
 
 class GpuOperationMode(_cyb_FastEnum):
     """
@@ -523,9 +661,12 @@ class GpuOperationMode(_cyb_FastEnum):
 
     See `nvmlGpuOperationMode_t`.
     """
-    GOM_ALL_ON = (NVML_GOM_ALL_ON, 'Everything is enabled and running at full speed.')
-    GOM_COMPUTE = (NVML_GOM_COMPUTE, 'Designed for running only compute tasks. Graphics operations are not allowed')
-    GOM_LOW_DP = (NVML_GOM_LOW_DP, "Designed for running graphics applications that don't require high bandwidth double precision")
+    ALL_ON = (NVML_GOM_ALL_ON, 'Everything is enabled and running at full speed.')
+    GOM_ALL_ON = ALL_ON  # backward-compat alias
+    COMPUTE = (NVML_GOM_COMPUTE, 'Designed for running only compute tasks. Graphics operations are not allowed')
+    GOM_COMPUTE = COMPUTE  # backward-compat alias
+    LOW_DP = (NVML_GOM_LOW_DP, "Designed for running graphics applications that don't require high bandwidth double precision")
+    GOM_LOW_DP = LOW_DP  # backward-compat alias
 
 class InforomObject(_cyb_FastEnum):
     """
@@ -533,11 +674,16 @@ class InforomObject(_cyb_FastEnum):
 
     See `nvmlInforomObject_t`.
     """
-    INFOROM_OEM = (NVML_INFOROM_OEM, 'An object defined by OEM.')
-    INFOROM_ECC = (NVML_INFOROM_ECC, 'The ECC object determining the level of ECC support.')
-    INFOROM_POWER = (NVML_INFOROM_POWER, 'The power management object.')
-    INFOROM_DEN = (NVML_INFOROM_DEN, 'DRAM Encryption object.')
-    INFOROM_COUNT = (NVML_INFOROM_COUNT, 'This counts the number of infoROM objects the driver knows about.')
+    OEM = (NVML_INFOROM_OEM, 'An object defined by OEM.')
+    INFOROM_OEM = OEM  # backward-compat alias
+    ECC = (NVML_INFOROM_ECC, 'The ECC object determining the level of ECC support.')
+    INFOROM_ECC = ECC  # backward-compat alias
+    POWER = (NVML_INFOROM_POWER, 'The power management object.')
+    INFOROM_POWER = POWER  # backward-compat alias
+    DEN = (NVML_INFOROM_DEN, 'DRAM Encryption object.')
+    INFOROM_DEN = DEN  # backward-compat alias
+    COUNT = (NVML_INFOROM_COUNT, 'This counts the number of infoROM objects the driver knows about.')
+    INFOROM_COUNT = COUNT  # backward-compat alias
 
 class Return(_cyb_FastEnum):
     """
@@ -621,10 +767,14 @@ class GpuUtilizationDomainId(_cyb_FastEnum):
 
     See `nvmlGpuUtilizationDomainId_t`.
     """
-    GPU_UTILIZATION_DOMAIN_GPU = (NVML_GPU_UTILIZATION_DOMAIN_GPU, 'Graphics engine domain.')
-    GPU_UTILIZATION_DOMAIN_FB = (NVML_GPU_UTILIZATION_DOMAIN_FB, 'Frame buffer domain.')
-    GPU_UTILIZATION_DOMAIN_VID = (NVML_GPU_UTILIZATION_DOMAIN_VID, 'Video engine domain.')
-    GPU_UTILIZATION_DOMAIN_BUS = (NVML_GPU_UTILIZATION_DOMAIN_BUS, 'Bus interface domain.')
+    GPU = (NVML_GPU_UTILIZATION_DOMAIN_GPU, 'Graphics engine domain.')
+    GPU_UTILIZATION_DOMAIN_GPU = GPU  # backward-compat alias
+    FB = (NVML_GPU_UTILIZATION_DOMAIN_FB, 'Frame buffer domain.')
+    GPU_UTILIZATION_DOMAIN_FB = FB  # backward-compat alias
+    VID = (NVML_GPU_UTILIZATION_DOMAIN_VID, 'Video engine domain.')
+    GPU_UTILIZATION_DOMAIN_VID = VID  # backward-compat alias
+    BUS = (NVML_GPU_UTILIZATION_DOMAIN_BUS, 'Bus interface domain.')
+    GPU_UTILIZATION_DOMAIN_BUS = BUS  # backward-compat alias
 
 class GpuVirtualizationMode(_cyb_FastEnum):
     """
@@ -653,8 +803,10 @@ class VgpuVmIdType(_cyb_FastEnum):
 
     See `nvmlVgpuVmIdType_t`.
     """
-    VGPU_VM_ID_DOMAIN_ID = (NVML_VGPU_VM_ID_DOMAIN_ID, 'VM ID represents DOMAIN ID.')
-    VGPU_VM_ID_UUID = (NVML_VGPU_VM_ID_UUID, 'VM ID represents UUID.')
+    DOMAIN_ID = (NVML_VGPU_VM_ID_DOMAIN_ID, 'VM ID represents DOMAIN ID.')
+    VGPU_VM_ID_DOMAIN_ID = DOMAIN_ID  # backward-compat alias
+    UUID = (NVML_VGPU_VM_ID_UUID, 'VM ID represents UUID.')
+    VGPU_VM_ID_UUID = UUID  # backward-compat alias
 
 class VgpuGuestInfoState(_cyb_FastEnum):
     """
@@ -662,8 +814,10 @@ class VgpuGuestInfoState(_cyb_FastEnum):
 
     See `nvmlVgpuGuestInfoState_t`.
     """
-    VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED, 'Guest-dependent fields uninitialized.')
-    VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED, 'Guest-dependent fields initialized.')
+    UNINITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED, 'Guest-dependent fields uninitialized.')
+    VGPU_INSTANCE_GUEST_INFO_STATE_UNINITIALIZED = UNINITIALIZED  # backward-compat alias
+    INITIALIZED = (NVML_VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED, 'Guest-dependent fields initialized.')
+    VGPU_INSTANCE_GUEST_INFO_STATE_INITIALIZED = INITIALIZED  # backward-compat alias
 
 class GridLicenseFeatureCode(_cyb_FastEnum):
     """
@@ -684,12 +838,18 @@ class VgpuCapability(_cyb_FastEnum):
 
     See `nvmlVgpuCapability_t`.
     """
-    VGPU_CAP_NVLINK_P2P = (NVML_VGPU_CAP_NVLINK_P2P, 'P2P over NVLink is supported.')
-    VGPU_CAP_GPUDIRECT = (NVML_VGPU_CAP_GPUDIRECT, 'GPUDirect capability is supported.')
-    VGPU_CAP_MULTI_VGPU_EXCLUSIVE = (NVML_VGPU_CAP_MULTI_VGPU_EXCLUSIVE, 'vGPU profile cannot be mixed with other vGPU profiles in same VM')
-    VGPU_CAP_EXCLUSIVE_TYPE = (NVML_VGPU_CAP_EXCLUSIVE_TYPE, 'vGPU profile cannot run on a GPU alongside other profiles of different type')
-    VGPU_CAP_EXCLUSIVE_SIZE = (NVML_VGPU_CAP_EXCLUSIVE_SIZE, 'vGPU profile cannot run on a GPU alongside other profiles of different size')
-    VGPU_CAP_COUNT = NVML_VGPU_CAP_COUNT
+    NVLINK_P2P = (NVML_VGPU_CAP_NVLINK_P2P, 'P2P over NVLink is supported.')
+    VGPU_CAP_NVLINK_P2P = NVLINK_P2P  # backward-compat alias
+    GPUDIRECT = (NVML_VGPU_CAP_GPUDIRECT, 'GPUDirect capability is supported.')
+    VGPU_CAP_GPUDIRECT = GPUDIRECT  # backward-compat alias
+    MULTI_VGPU_EXCLUSIVE = (NVML_VGPU_CAP_MULTI_VGPU_EXCLUSIVE, 'vGPU profile cannot be mixed with other vGPU profiles in same VM')
+    VGPU_CAP_MULTI_VGPU_EXCLUSIVE = MULTI_VGPU_EXCLUSIVE  # backward-compat alias
+    EXCLUSIVE_TYPE = (NVML_VGPU_CAP_EXCLUSIVE_TYPE, 'vGPU profile cannot run on a GPU alongside other profiles of different type')
+    VGPU_CAP_EXCLUSIVE_TYPE = EXCLUSIVE_TYPE  # backward-compat alias
+    EXCLUSIVE_SIZE = (NVML_VGPU_CAP_EXCLUSIVE_SIZE, 'vGPU profile cannot run on a GPU alongside other profiles of different size')
+    VGPU_CAP_EXCLUSIVE_SIZE = EXCLUSIVE_SIZE  # backward-compat alias
+    COUNT = NVML_VGPU_CAP_COUNT
+    VGPU_CAP_COUNT = COUNT  # backward-compat alias
 
 class VgpuDriverCapability(_cyb_FastEnum):
     """
@@ -697,9 +857,12 @@ class VgpuDriverCapability(_cyb_FastEnum):
 
     See `nvmlVgpuDriverCapability_t`.
     """
-    VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU = (NVML_VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU, 'Supports mixing of different vGPU profiles within one guest VM.')
-    VGPU_DRIVER_CAP_WARM_UPDATE = (NVML_VGPU_DRIVER_CAP_WARM_UPDATE, 'Supports FSR and warm update of vGPU host driver without terminating the running guest VM.')
-    VGPU_DRIVER_CAP_COUNT = NVML_VGPU_DRIVER_CAP_COUNT
+    HETEROGENEOUS_MULTI_VGPU = (NVML_VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU, 'Supports mixing of different vGPU profiles within one guest VM.')
+    VGPU_DRIVER_CAP_HETEROGENEOUS_MULTI_VGPU = HETEROGENEOUS_MULTI_VGPU  # backward-compat alias
+    WARM_UPDATE = (NVML_VGPU_DRIVER_CAP_WARM_UPDATE, 'Supports FSR and warm update of vGPU host driver without terminating the running guest VM.')
+    VGPU_DRIVER_CAP_WARM_UPDATE = WARM_UPDATE  # backward-compat alias
+    COUNT = NVML_VGPU_DRIVER_CAP_COUNT
+    VGPU_DRIVER_CAP_COUNT = COUNT  # backward-compat alias
 
 class DeviceVgpuCapability(_cyb_FastEnum):
     """
@@ -707,19 +870,32 @@ class DeviceVgpuCapability(_cyb_FastEnum):
 
     See `nvmlDeviceVgpuCapability_t`.
     """
-    DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU = (NVML_DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU, 'Query whether the fractional vGPU profiles on this GPU can be used in multi-vGPU configurations.')
-    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing types.')
-    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing framebuffer sizes.')
-    DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW, "Query the GPU's read_device_buffer expected bandwidth capacity in megabytes per second.")
-    DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW, "Query the GPU's write_device_buffer expected bandwidth capacity in megabytes per second.")
-    DEVICE_VGPU_CAP_DEVICE_STREAMING = (NVML_DEVICE_VGPU_CAP_DEVICE_STREAMING, 'Query whether the vGPU profiles on the GPU supports migration data streaming.')
-    DEVICE_VGPU_CAP_MINI_QUARTER_GPU = (NVML_DEVICE_VGPU_CAP_MINI_QUARTER_GPU, 'Set/Get support for mini-quarter vGPU profiles.')
-    DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU = (NVML_DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU, 'Set/Get support for compute media engine vGPU profiles.')
-    DEVICE_VGPU_CAP_WARM_UPDATE = (NVML_DEVICE_VGPU_CAP_WARM_UPDATE, 'Query whether the GPU supports FSR and warm update.')
-    DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS = (NVML_DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS, 'Query whether the GPU supports reporting of placements of timesliced vGPU profiles with identical framebuffer sizes.')
-    DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED, 'Query whether the GPU supports timesliced vGPU on MIG.')
-    DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED, 'Set/Get MIG timesliced mode reporting, without impacting the underlying functionality.')
-    DEVICE_VGPU_CAP_COUNT = NVML_DEVICE_VGPU_CAP_COUNT
+    FRACTIONAL_MULTI_VGPU = (NVML_DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU, 'Query whether the fractional vGPU profiles on this GPU can be used in multi-vGPU configurations.')
+    DEVICE_VGPU_CAP_FRACTIONAL_MULTI_VGPU = FRACTIONAL_MULTI_VGPU  # backward-compat alias
+    HETEROGENEOUS_TIMESLICE_PROFILES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing types.')
+    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_PROFILES = HETEROGENEOUS_TIMESLICE_PROFILES  # backward-compat alias
+    HETEROGENEOUS_TIMESLICE_SIZES = (NVML_DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES, 'Query whether the GPU support concurrent execution of timesliced vGPU profiles of differing framebuffer sizes.')
+    DEVICE_VGPU_CAP_HETEROGENEOUS_TIMESLICE_SIZES = HETEROGENEOUS_TIMESLICE_SIZES  # backward-compat alias
+    READ_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW, "Query the GPU's read_device_buffer expected bandwidth capacity in megabytes per second.")
+    DEVICE_VGPU_CAP_READ_DEVICE_BUFFER_BW = READ_DEVICE_BUFFER_BW  # backward-compat alias
+    WRITE_DEVICE_BUFFER_BW = (NVML_DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW, "Query the GPU's write_device_buffer expected bandwidth capacity in megabytes per second.")
+    DEVICE_VGPU_CAP_WRITE_DEVICE_BUFFER_BW = WRITE_DEVICE_BUFFER_BW  # backward-compat alias
+    DEVICE_STREAMING = (NVML_DEVICE_VGPU_CAP_DEVICE_STREAMING, 'Query whether the vGPU profiles on the GPU supports migration data streaming.')
+    DEVICE_VGPU_CAP_DEVICE_STREAMING = DEVICE_STREAMING  # backward-compat alias
+    MINI_QUARTER_GPU = (NVML_DEVICE_VGPU_CAP_MINI_QUARTER_GPU, 'Set/Get support for mini-quarter vGPU profiles.')
+    DEVICE_VGPU_CAP_MINI_QUARTER_GPU = MINI_QUARTER_GPU  # backward-compat alias
+    COMPUTE_MEDIA_ENGINE_GPU = (NVML_DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU, 'Set/Get support for compute media engine vGPU profiles.')
+    DEVICE_VGPU_CAP_COMPUTE_MEDIA_ENGINE_GPU = COMPUTE_MEDIA_ENGINE_GPU  # backward-compat alias
+    WARM_UPDATE = (NVML_DEVICE_VGPU_CAP_WARM_UPDATE, 'Query whether the GPU supports FSR and warm update.')
+    DEVICE_VGPU_CAP_WARM_UPDATE = WARM_UPDATE  # backward-compat alias
+    HOMOGENEOUS_PLACEMENTS = (NVML_DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS, 'Query whether the GPU supports reporting of placements of timesliced vGPU profiles with identical framebuffer sizes.')
+    DEVICE_VGPU_CAP_HOMOGENEOUS_PLACEMENTS = HOMOGENEOUS_PLACEMENTS  # backward-compat alias
+    MIG_TIMESLICING_SUPPORTED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED, 'Query whether the GPU supports timesliced vGPU on MIG.')
+    DEVICE_VGPU_CAP_MIG_TIMESLICING_SUPPORTED = MIG_TIMESLICING_SUPPORTED  # backward-compat alias
+    MIG_TIMESLICING_ENABLED = (NVML_DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED, 'Set/Get MIG timesliced mode reporting, without impacting the underlying functionality.')
+    DEVICE_VGPU_CAP_MIG_TIMESLICING_ENABLED = MIG_TIMESLICING_ENABLED  # backward-compat alias
+    COUNT = NVML_DEVICE_VGPU_CAP_COUNT
+    DEVICE_VGPU_CAP_COUNT = COUNT  # backward-compat alias
 
 class DeviceGpuRecoveryAction(_cyb_FastEnum):
     """
@@ -727,12 +903,18 @@ class DeviceGpuRecoveryAction(_cyb_FastEnum):
 
     See `nvmlDeviceGpuRecoveryAction_t`.
     """
-    GPU_RECOVERY_ACTION_NONE = (NVML_GPU_RECOVERY_ACTION_NONE, 'No action needed.')
-    GPU_RECOVERY_ACTION_GPU_RESET = (NVML_GPU_RECOVERY_ACTION_GPU_RESET, 'Reset Gpu.')
-    GPU_RECOVERY_ACTION_NODE_REBOOT = (NVML_GPU_RECOVERY_ACTION_NODE_REBOOT, 'Reboot Node.')
-    GPU_RECOVERY_ACTION_DRAIN_P2P = (NVML_GPU_RECOVERY_ACTION_DRAIN_P2P, 'Drain P2P.')
-    GPU_RECOVERY_ACTION_DRAIN_AND_RESET = (NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET, 'Drain P2P and Reset Gpu.')
-    GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN = (NVML_GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN, 'Recover IMEX Domain.')
+    NONE = (NVML_GPU_RECOVERY_ACTION_NONE, 'No action needed.')
+    GPU_RECOVERY_ACTION_NONE = NONE  # backward-compat alias
+    GPU_RESET = (NVML_GPU_RECOVERY_ACTION_GPU_RESET, 'Reset Gpu.')
+    GPU_RECOVERY_ACTION_GPU_RESET = GPU_RESET  # backward-compat alias
+    NODE_REBOOT = (NVML_GPU_RECOVERY_ACTION_NODE_REBOOT, 'Reboot Node.')
+    GPU_RECOVERY_ACTION_NODE_REBOOT = NODE_REBOOT  # backward-compat alias
+    DRAIN_P2P = (NVML_GPU_RECOVERY_ACTION_DRAIN_P2P, 'Drain P2P.')
+    GPU_RECOVERY_ACTION_DRAIN_P2P = DRAIN_P2P  # backward-compat alias
+    DRAIN_AND_RESET = (NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET, 'Drain P2P and Reset Gpu.')
+    GPU_RECOVERY_ACTION_DRAIN_AND_RESET = DRAIN_AND_RESET  # backward-compat alias
+    RECOVER_IMEX_DOMAIN = (NVML_GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN, 'Recover IMEX Domain.')
+    GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN = RECOVER_IMEX_DOMAIN  # backward-compat alias
 
 class FanState(_cyb_FastEnum):
     """
@@ -740,8 +922,10 @@ class FanState(_cyb_FastEnum):
 
     See `nvmlFanState_t`.
     """
-    FAN_NORMAL = (NVML_FAN_NORMAL, 'Fan is working properly.')
-    FAN_FAILED = (NVML_FAN_FAILED, 'Fan has failed.')
+    NORMAL = (NVML_FAN_NORMAL, 'Fan is working properly.')
+    FAN_NORMAL = NORMAL  # backward-compat alias
+    FAILED = (NVML_FAN_FAILED, 'Fan has failed.')
+    FAN_FAILED = FAILED  # backward-compat alias
 
 class LedColor(_cyb_FastEnum):
     """
@@ -758,10 +942,14 @@ class EncoderType(_cyb_FastEnum):
 
     See `nvmlEncoderType_t`.
     """
-    ENCODER_QUERY_H264 = (NVML_ENCODER_QUERY_H264, 'H264 encoder.')
-    ENCODER_QUERY_HEVC = (NVML_ENCODER_QUERY_HEVC, 'HEVC encoder.')
-    ENCODER_QUERY_AV1 = (NVML_ENCODER_QUERY_AV1, 'AV1 encoder.')
-    ENCODER_QUERY_UNKNOWN = (NVML_ENCODER_QUERY_UNKNOWN, 'Unknown encoder.')
+    H264 = (NVML_ENCODER_QUERY_H264, 'H264 encoder.')
+    ENCODER_QUERY_H264 = H264  # backward-compat alias
+    HEVC = (NVML_ENCODER_QUERY_HEVC, 'HEVC encoder.')
+    ENCODER_QUERY_HEVC = HEVC  # backward-compat alias
+    AV1 = (NVML_ENCODER_QUERY_AV1, 'AV1 encoder.')
+    ENCODER_QUERY_AV1 = AV1  # backward-compat alias
+    UNKNOWN = (NVML_ENCODER_QUERY_UNKNOWN, 'Unknown encoder.')
+    ENCODER_QUERY_UNKNOWN = UNKNOWN  # backward-compat alias
 
 class FBCSessionType(_cyb_FastEnum):
     """
@@ -782,8 +970,10 @@ class DetachGpuState(_cyb_FastEnum):
 
     See `nvmlDetachGpuState_t`.
     """
-    DETACH_GPU_KEEP = NVML_DETACH_GPU_KEEP
-    DETACH_GPU_REMOVE = NVML_DETACH_GPU_REMOVE
+    KEEP = NVML_DETACH_GPU_KEEP
+    DETACH_GPU_KEEP = KEEP  # backward-compat alias
+    REMOVE = NVML_DETACH_GPU_REMOVE
+    DETACH_GPU_REMOVE = REMOVE  # backward-compat alias
 
 class PcieLinkState(_cyb_FastEnum):
     """
@@ -791,8 +981,10 @@ class PcieLinkState(_cyb_FastEnum):
 
     See `nvmlPcieLinkState_t`.
     """
-    PCIE_LINK_KEEP = NVML_PCIE_LINK_KEEP
-    PCIE_LINK_SHUT_DOWN = NVML_PCIE_LINK_SHUT_DOWN
+    KEEP = NVML_PCIE_LINK_KEEP
+    PCIE_LINK_KEEP = KEEP  # backward-compat alias
+    SHUT_DOWN = NVML_PCIE_LINK_SHUT_DOWN
+    PCIE_LINK_SHUT_DOWN = SHUT_DOWN  # backward-compat alias
 
 class ClockLimitId(_cyb_FastEnum):
     """
@@ -820,11 +1012,16 @@ class VgpuPgpuCompatibilityLimitCode(_cyb_FastEnum):
 
     See `nvmlVgpuPgpuCompatibilityLimitCode_t`.
     """
-    VGPU_COMPATIBILITY_LIMIT_NONE = (NVML_VGPU_COMPATIBILITY_LIMIT_NONE, 'Compatibility is not limited.')
-    VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER, 'ompatibility is limited by host driver version.')
-    VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER, 'Compatibility is limited by guest driver version.')
-    VGPU_COMPATIBILITY_LIMIT_GPU = (NVML_VGPU_COMPATIBILITY_LIMIT_GPU, 'Compatibility is limited by GPU hardware.')
-    VGPU_COMPATIBILITY_LIMIT_OTHER = (NVML_VGPU_COMPATIBILITY_LIMIT_OTHER, 'Compatibility is limited by an undefined factor.')
+    NONE = (NVML_VGPU_COMPATIBILITY_LIMIT_NONE, 'Compatibility is not limited.')
+    VGPU_COMPATIBILITY_LIMIT_NONE = NONE  # backward-compat alias
+    HOST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER, 'ompatibility is limited by host driver version.')
+    VGPU_COMPATIBILITY_LIMIT_HOST_DRIVER = HOST_DRIVER  # backward-compat alias
+    GUEST_DRIVER = (NVML_VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER, 'Compatibility is limited by guest driver version.')
+    VGPU_COMPATIBILITY_LIMIT_GUEST_DRIVER = GUEST_DRIVER  # backward-compat alias
+    GPU = (NVML_VGPU_COMPATIBILITY_LIMIT_GPU, 'Compatibility is limited by GPU hardware.')
+    VGPU_COMPATIBILITY_LIMIT_GPU = GPU  # backward-compat alias
+    OTHER = (NVML_VGPU_COMPATIBILITY_LIMIT_OTHER, 'Compatibility is limited by an undefined factor.')
+    VGPU_COMPATIBILITY_LIMIT_OTHER = OTHER  # backward-compat alias
 
 class GpmMetricId(_cyb_FastEnum):
     """
@@ -832,330 +1029,649 @@ class GpmMetricId(_cyb_FastEnum):
 
     See `nvmlGpmMetricId_t`.
     """
-    GPM_METRIC_GRAPHICS_UTIL = (NVML_GPM_METRIC_GRAPHICS_UTIL, 'Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.')
-    GPM_METRIC_SM_UTIL = (NVML_GPM_METRIC_SM_UTIL, 'Percentage of SMs that were busy. 0.0 - 100.0.')
-    GPM_METRIC_SM_OCCUPANCY = (NVML_GPM_METRIC_SM_OCCUPANCY, 'Percentage of warps that were active vs theoretical maximum. 0.0 - 100.0.')
-    GPM_METRIC_INTEGER_UTIL = (NVML_GPM_METRIC_INTEGER_UTIL, "Percentage of time the GPU's SMs were doing integer operations. 0.0 - 100.0.")
-    GPM_METRIC_ANY_TENSOR_UTIL = (NVML_GPM_METRIC_ANY_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing ANY tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DFMA_TENSOR_UTIL = (NVML_GPM_METRIC_DFMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DFMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
-    GPM_METRIC_DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0 */`.')
-    GPM_METRIC_FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
-    GPM_METRIC_FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
-    GPM_METRIC_FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
-    GPM_METRIC_PCIE_TX_PER_SEC = (NVML_GPM_METRIC_PCIE_TX_PER_SEC, 'PCIe traffic from this GPU in MiB/sec.')
-    GPM_METRIC_PCIE_RX_PER_SEC = (NVML_GPM_METRIC_PCIE_RX_PER_SEC, 'PCIe traffic to this GPU in MiB/sec.')
-    GPM_METRIC_NVDEC_0_UTIL = (NVML_GPM_METRIC_NVDEC_0_UTIL, 'Percent utilization of NVDEC 0. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_1_UTIL = (NVML_GPM_METRIC_NVDEC_1_UTIL, 'Percent utilization of NVDEC 1. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_2_UTIL = (NVML_GPM_METRIC_NVDEC_2_UTIL, 'Percent utilization of NVDEC 2. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_3_UTIL = (NVML_GPM_METRIC_NVDEC_3_UTIL, 'Percent utilization of NVDEC 3. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_4_UTIL = (NVML_GPM_METRIC_NVDEC_4_UTIL, 'Percent utilization of NVDEC 4. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_5_UTIL = (NVML_GPM_METRIC_NVDEC_5_UTIL, 'Percent utilization of NVDEC 5. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_6_UTIL = (NVML_GPM_METRIC_NVDEC_6_UTIL, 'Percent utilization of NVDEC 6. 0.0 - 100.0.')
-    GPM_METRIC_NVDEC_7_UTIL = (NVML_GPM_METRIC_NVDEC_7_UTIL, 'Percent utilization of NVDEC 7. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_0_UTIL = (NVML_GPM_METRIC_NVJPG_0_UTIL, 'Percent utilization of NVJPG 0. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_1_UTIL = (NVML_GPM_METRIC_NVJPG_1_UTIL, 'Percent utilization of NVJPG 1. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_2_UTIL = (NVML_GPM_METRIC_NVJPG_2_UTIL, 'Percent utilization of NVJPG 2. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_3_UTIL = (NVML_GPM_METRIC_NVJPG_3_UTIL, 'Percent utilization of NVJPG 3. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_4_UTIL = (NVML_GPM_METRIC_NVJPG_4_UTIL, 'Percent utilization of NVJPG 4. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_5_UTIL = (NVML_GPM_METRIC_NVJPG_5_UTIL, 'Percent utilization of NVJPG 5. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_6_UTIL = (NVML_GPM_METRIC_NVJPG_6_UTIL, 'Percent utilization of NVJPG 6. 0.0 - 100.0.')
-    GPM_METRIC_NVJPG_7_UTIL = (NVML_GPM_METRIC_NVJPG_7_UTIL, 'Percent utilization of NVJPG 7. 0.0 - 100.0.')
-    GPM_METRIC_NVOFA_0_UTIL = (NVML_GPM_METRIC_NVOFA_0_UTIL, 'Percent utilization of NVOFA 0. 0.0 - 100.0.')
-    GPM_METRIC_NVOFA_1_UTIL = (NVML_GPM_METRIC_NVOFA_1_UTIL, 'Percent utilization of NVOFA 1. 0.0 - 100.0.')
-    GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC, 'NvLink read bandwidth for all links in MiB/sec.')
-    GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC, 'NvLink write bandwidth for all links in MiB/sec.')
-    GPM_METRIC_NVLINK_L0_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_RX_PER_SEC, 'NvLink read bandwidth for link 0 in MiB/sec.')
-    GPM_METRIC_NVLINK_L0_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_TX_PER_SEC, 'NvLink write bandwidth for link 0 in MiB/sec.')
-    GPM_METRIC_NVLINK_L1_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_RX_PER_SEC, 'NvLink read bandwidth for link 1 in MiB/sec.')
-    GPM_METRIC_NVLINK_L1_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_TX_PER_SEC, 'NvLink write bandwidth for link 1 in MiB/sec.')
-    GPM_METRIC_NVLINK_L2_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_RX_PER_SEC, 'NvLink read bandwidth for link 2 in MiB/sec.')
-    GPM_METRIC_NVLINK_L2_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_TX_PER_SEC, 'NvLink write bandwidth for link 2 in MiB/sec.')
-    GPM_METRIC_NVLINK_L3_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_RX_PER_SEC, 'NvLink read bandwidth for link 3 in MiB/sec.')
-    GPM_METRIC_NVLINK_L3_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_TX_PER_SEC, 'NvLink write bandwidth for link 3 in MiB/sec.')
-    GPM_METRIC_NVLINK_L4_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_RX_PER_SEC, 'NvLink read bandwidth for link 4 in MiB/sec.')
-    GPM_METRIC_NVLINK_L4_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_TX_PER_SEC, 'NvLink write bandwidth for link 4 in MiB/sec.')
-    GPM_METRIC_NVLINK_L5_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_RX_PER_SEC, 'NvLink read bandwidth for link 5 in MiB/sec.')
-    GPM_METRIC_NVLINK_L5_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_TX_PER_SEC, 'NvLink write bandwidth for link 5 in MiB/sec.')
-    GPM_METRIC_NVLINK_L6_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_RX_PER_SEC, 'NvLink read bandwidth for link 6 in MiB/sec.')
-    GPM_METRIC_NVLINK_L6_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_TX_PER_SEC, 'NvLink write bandwidth for link 6 in MiB/sec.')
-    GPM_METRIC_NVLINK_L7_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_RX_PER_SEC, 'NvLink read bandwidth for link 7 in MiB/sec.')
-    GPM_METRIC_NVLINK_L7_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_TX_PER_SEC, 'NvLink write bandwidth for link 7 in MiB/sec.')
-    GPM_METRIC_NVLINK_L8_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_RX_PER_SEC, 'NvLink read bandwidth for link 8 in MiB/sec.')
-    GPM_METRIC_NVLINK_L8_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_TX_PER_SEC, 'NvLink write bandwidth for link 8 in MiB/sec.')
-    GPM_METRIC_NVLINK_L9_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_RX_PER_SEC, 'NvLink read bandwidth for link 9 in MiB/sec.')
-    GPM_METRIC_NVLINK_L9_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_TX_PER_SEC, 'NvLink write bandwidth for link 9 in MiB/sec.')
-    GPM_METRIC_NVLINK_L10_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_RX_PER_SEC, 'NvLink read bandwidth for link 10 in MiB/sec.')
-    GPM_METRIC_NVLINK_L10_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_TX_PER_SEC, 'NvLink write bandwidth for link 10 in MiB/sec.')
-    GPM_METRIC_NVLINK_L11_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_RX_PER_SEC, 'NvLink read bandwidth for link 11 in MiB/sec.')
-    GPM_METRIC_NVLINK_L11_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_TX_PER_SEC, 'NvLink write bandwidth for link 11 in MiB/sec.')
-    GPM_METRIC_NVLINK_L12_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_RX_PER_SEC, 'NvLink read bandwidth for link 12 in MiB/sec.')
-    GPM_METRIC_NVLINK_L12_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_TX_PER_SEC, 'NvLink write bandwidth for link 12 in MiB/sec.')
-    GPM_METRIC_NVLINK_L13_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_RX_PER_SEC, 'NvLink read bandwidth for link 13 in MiB/sec.')
-    GPM_METRIC_NVLINK_L13_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_TX_PER_SEC, 'NvLink write bandwidth for link 13 in MiB/sec.')
-    GPM_METRIC_NVLINK_L14_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_RX_PER_SEC, 'NvLink read bandwidth for link 14 in MiB/sec.')
-    GPM_METRIC_NVLINK_L14_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_TX_PER_SEC, 'NvLink write bandwidth for link 14 in MiB/sec.')
-    GPM_METRIC_NVLINK_L15_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_RX_PER_SEC, 'NvLink read bandwidth for link 15 in MiB/sec.')
-    GPM_METRIC_NVLINK_L15_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_TX_PER_SEC, 'NvLink write bandwidth for link 15 in MiB/sec.')
-    GPM_METRIC_NVLINK_L16_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_RX_PER_SEC, 'NvLink read bandwidth for link 16 in MiB/sec.')
-    GPM_METRIC_NVLINK_L16_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_TX_PER_SEC, 'NvLink write bandwidth for link 16 in MiB/sec.')
-    GPM_METRIC_NVLINK_L17_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_RX_PER_SEC, 'NvLink read bandwidth for link 17 in MiB/sec.')
-    GPM_METRIC_NVLINK_L17_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_TX_PER_SEC, 'NvLink write bandwidth for link 17 in MiB/sec.')
-    GPM_METRIC_C2C_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC
-    GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC
-    GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC
-    GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC
-    GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC
-    GPM_METRIC_HOSTMEM_CACHE_HIT = NVML_GPM_METRIC_HOSTMEM_CACHE_HIT
-    GPM_METRIC_HOSTMEM_CACHE_MISS = NVML_GPM_METRIC_HOSTMEM_CACHE_MISS
-    GPM_METRIC_PEERMEM_CACHE_HIT = NVML_GPM_METRIC_PEERMEM_CACHE_HIT
-    GPM_METRIC_PEERMEM_CACHE_MISS = NVML_GPM_METRIC_PEERMEM_CACHE_MISS
-    GPM_METRIC_DRAM_CACHE_HIT = NVML_GPM_METRIC_DRAM_CACHE_HIT
-    GPM_METRIC_DRAM_CACHE_MISS = NVML_GPM_METRIC_DRAM_CACHE_MISS
-    GPM_METRIC_NVENC_0_UTIL = NVML_GPM_METRIC_NVENC_0_UTIL
-    GPM_METRIC_NVENC_1_UTIL = NVML_GPM_METRIC_NVENC_1_UTIL
-    GPM_METRIC_NVENC_2_UTIL = NVML_GPM_METRIC_NVENC_2_UTIL
-    GPM_METRIC_NVENC_3_UTIL = NVML_GPM_METRIC_NVENC_3_UTIL
-    GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR0_CTXSW_REQUESTS = NVML_GPM_METRIC_GR0_CTXSW_REQUESTS
-    GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR0_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR0_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR1_CTXSW_REQUESTS = NVML_GPM_METRIC_GR1_CTXSW_REQUESTS
-    GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR1_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR1_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR2_CTXSW_REQUESTS = NVML_GPM_METRIC_GR2_CTXSW_REQUESTS
-    GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR2_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR2_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR3_CTXSW_REQUESTS = NVML_GPM_METRIC_GR3_CTXSW_REQUESTS
-    GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR3_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR3_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR4_CTXSW_REQUESTS = NVML_GPM_METRIC_GR4_CTXSW_REQUESTS
-    GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR4_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR4_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR5_CTXSW_REQUESTS = NVML_GPM_METRIC_GR5_CTXSW_REQUESTS
-    GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR5_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR5_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR6_CTXSW_REQUESTS = NVML_GPM_METRIC_GR6_CTXSW_REQUESTS
-    GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR6_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR6_CTXSW_ACTIVE_PCT
-    GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED
-    GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE
-    GPM_METRIC_GR7_CTXSW_REQUESTS = NVML_GPM_METRIC_GR7_CTXSW_REQUESTS
-    GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ
-    GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT
-    GPM_METRIC_NVLINK_L18_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L18_RX_PER_SEC
-    GPM_METRIC_NVLINK_L18_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L18_TX_PER_SEC
-    GPM_METRIC_NVLINK_L19_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L19_RX_PER_SEC
-    GPM_METRIC_NVLINK_L19_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L19_TX_PER_SEC
-    GPM_METRIC_NVLINK_L20_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L20_RX_PER_SEC
-    GPM_METRIC_NVLINK_L20_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L20_TX_PER_SEC
-    GPM_METRIC_NVLINK_L21_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L21_RX_PER_SEC
-    GPM_METRIC_NVLINK_L21_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L21_TX_PER_SEC
-    GPM_METRIC_NVLINK_L22_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L22_RX_PER_SEC
-    GPM_METRIC_NVLINK_L22_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L22_TX_PER_SEC
-    GPM_METRIC_NVLINK_L23_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L23_RX_PER_SEC
-    GPM_METRIC_NVLINK_L23_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L23_TX_PER_SEC
-    GPM_METRIC_NVLINK_L24_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L24_RX_PER_SEC
-    GPM_METRIC_NVLINK_L24_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L24_TX_PER_SEC
-    GPM_METRIC_NVLINK_L25_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L25_RX_PER_SEC
-    GPM_METRIC_NVLINK_L25_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L25_TX_PER_SEC
-    GPM_METRIC_NVLINK_L26_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L26_RX_PER_SEC
-    GPM_METRIC_NVLINK_L26_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L26_TX_PER_SEC
-    GPM_METRIC_NVLINK_L27_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L27_RX_PER_SEC
-    GPM_METRIC_NVLINK_L27_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L27_TX_PER_SEC
-    GPM_METRIC_NVLINK_L28_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L28_RX_PER_SEC
-    GPM_METRIC_NVLINK_L28_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L28_TX_PER_SEC
-    GPM_METRIC_NVLINK_L29_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L29_RX_PER_SEC
-    GPM_METRIC_NVLINK_L29_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L29_TX_PER_SEC
-    GPM_METRIC_NVLINK_L30_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L30_RX_PER_SEC
-    GPM_METRIC_NVLINK_L30_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L30_TX_PER_SEC
-    GPM_METRIC_NVLINK_L31_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L31_RX_PER_SEC
-    GPM_METRIC_NVLINK_L31_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L31_TX_PER_SEC
-    GPM_METRIC_NVLINK_L32_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L32_RX_PER_SEC
-    GPM_METRIC_NVLINK_L32_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L32_TX_PER_SEC
-    GPM_METRIC_NVLINK_L33_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L33_RX_PER_SEC
-    GPM_METRIC_NVLINK_L33_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L33_TX_PER_SEC
-    GPM_METRIC_NVLINK_L34_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L34_RX_PER_SEC
-    GPM_METRIC_NVLINK_L34_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L34_TX_PER_SEC
-    GPM_METRIC_NVLINK_L35_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L35_RX_PER_SEC
-    GPM_METRIC_NVLINK_L35_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L35_TX_PER_SEC
-    GPM_METRIC_SM_CYCLES_ELAPSED = (NVML_GPM_METRIC_SM_CYCLES_ELAPSED, "The GPU's SM cycles elapsed since reboot.")
-    GPM_METRIC_SM_CYCLES_ACTIVE = (NVML_GPM_METRIC_SM_CYCLES_ACTIVE, "The GPU's SM activity since reboot.")
-    GPM_METRIC_MMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_MMA_CYCLES_ACTIVE, "The GPU's SM MMA tensor activity since reboot.")
-    GPM_METRIC_DMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DMMA_CYCLES_ACTIVE, "The GPU's SM DMMA tensor activity since reboot.")
-    GPM_METRIC_HMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_HMMA_CYCLES_ACTIVE, "The GPU's SM HMMA tensor activity since reboot.")
-    GPM_METRIC_IMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_IMMA_CYCLES_ACTIVE, "The GPU's SM IMMA tensor activity since reboot.")
-    GPM_METRIC_DFMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DFMA_CYCLES_ACTIVE, "The GPU's SM DFMA tensor activity since reboot.")
-    GPM_METRIC_PCIE_TX = (NVML_GPM_METRIC_PCIE_TX, 'The PCIe TX traffic since reboot.')
-    GPM_METRIC_PCIE_RX = (NVML_GPM_METRIC_PCIE_RX, 'The PCIe RX traffic since reboot.')
-    GPM_METRIC_INTEGER_CYCLES_ACTIVE = (NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE, "The GPU's SM integer activity since reboot.")
-    GPM_METRIC_FP64_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP64_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
-    GPM_METRIC_FP32_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP32_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
-    GPM_METRIC_FP16_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP16_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
-    GPM_METRIC_NVLINK_L0_RX = (NVML_GPM_METRIC_NVLINK_L0_RX, 'NvLink read for link 0 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L0_TX = (NVML_GPM_METRIC_NVLINK_L0_TX, 'NvLink write for link 0 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L1_RX = (NVML_GPM_METRIC_NVLINK_L1_RX, 'NvLink read for link 1 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L1_TX = (NVML_GPM_METRIC_NVLINK_L1_TX, 'NvLink write for link 1 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L2_RX = (NVML_GPM_METRIC_NVLINK_L2_RX, 'NvLink read for link 2 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L2_TX = (NVML_GPM_METRIC_NVLINK_L2_TX, 'NvLink write for link 2 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L3_RX = (NVML_GPM_METRIC_NVLINK_L3_RX, 'NvLink read for link 3 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L3_TX = (NVML_GPM_METRIC_NVLINK_L3_TX, 'NvLink write for link 3 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L4_RX = (NVML_GPM_METRIC_NVLINK_L4_RX, 'NvLink read for link 4 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L4_TX = (NVML_GPM_METRIC_NVLINK_L4_TX, 'NvLink write for link 4 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L5_RX = (NVML_GPM_METRIC_NVLINK_L5_RX, 'NvLink read for link 5 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L5_TX = (NVML_GPM_METRIC_NVLINK_L5_TX, 'NvLink write for link 5 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L6_RX = (NVML_GPM_METRIC_NVLINK_L6_RX, 'NvLink read for link 6 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L6_TX = (NVML_GPM_METRIC_NVLINK_L6_TX, 'NvLink write for link 6 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L7_RX = (NVML_GPM_METRIC_NVLINK_L7_RX, 'NvLink read for link 7 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L7_TX = (NVML_GPM_METRIC_NVLINK_L7_TX, 'NvLink write for link 7 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L8_RX = (NVML_GPM_METRIC_NVLINK_L8_RX, 'NvLink read for link 8 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L8_TX = (NVML_GPM_METRIC_NVLINK_L8_TX, 'NvLink write for link 8 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L9_RX = (NVML_GPM_METRIC_NVLINK_L9_RX, 'NvLink read for link 9 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L9_TX = (NVML_GPM_METRIC_NVLINK_L9_TX, 'NvLink write for link 9 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L10_RX = (NVML_GPM_METRIC_NVLINK_L10_RX, 'NvLink read for link 10 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L10_TX = (NVML_GPM_METRIC_NVLINK_L10_TX, 'NvLink write for link 10 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L11_RX = (NVML_GPM_METRIC_NVLINK_L11_RX, 'NvLink read for link 11 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L11_TX = (NVML_GPM_METRIC_NVLINK_L11_TX, 'NvLink write for link 11 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L12_RX = (NVML_GPM_METRIC_NVLINK_L12_RX, 'NvLink read for link 12 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L12_TX = (NVML_GPM_METRIC_NVLINK_L12_TX, 'NvLink write for link 12 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L13_RX = (NVML_GPM_METRIC_NVLINK_L13_RX, 'NvLink read for link 13 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L13_TX = (NVML_GPM_METRIC_NVLINK_L13_TX, 'NvLink write for link 13 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L14_RX = (NVML_GPM_METRIC_NVLINK_L14_RX, 'NvLink read for link 14 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L14_TX = (NVML_GPM_METRIC_NVLINK_L14_TX, 'NvLink write for link 14 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L15_RX = (NVML_GPM_METRIC_NVLINK_L15_RX, 'NvLink read for link 15 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L15_TX = (NVML_GPM_METRIC_NVLINK_L15_TX, 'NvLink write for link 15 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L16_RX = (NVML_GPM_METRIC_NVLINK_L16_RX, 'NvLink read for link 16 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L16_TX = (NVML_GPM_METRIC_NVLINK_L16_TX, 'NvLink write for link 16 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L17_RX = (NVML_GPM_METRIC_NVLINK_L17_RX, 'NvLink read for link 17 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L17_TX = (NVML_GPM_METRIC_NVLINK_L17_TX, 'NvLink write for link 17 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L18_RX = (NVML_GPM_METRIC_NVLINK_L18_RX, 'NvLink read for link 18 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L18_TX = (NVML_GPM_METRIC_NVLINK_L18_TX, 'NvLink write for link 18 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L19_RX = (NVML_GPM_METRIC_NVLINK_L19_RX, 'NvLink read for link 19 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L19_TX = (NVML_GPM_METRIC_NVLINK_L19_TX, 'NvLink write for link 19 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L20_RX = (NVML_GPM_METRIC_NVLINK_L20_RX, 'NvLink read for link 20 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L20_TX = (NVML_GPM_METRIC_NVLINK_L20_TX, 'NvLink write for link 20 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L21_RX = (NVML_GPM_METRIC_NVLINK_L21_RX, 'NvLink read for link 21 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L21_TX = (NVML_GPM_METRIC_NVLINK_L21_TX, 'NvLink write for link 21 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L22_RX = (NVML_GPM_METRIC_NVLINK_L22_RX, 'NvLink read for link 22 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L22_TX = (NVML_GPM_METRIC_NVLINK_L22_TX, 'NvLink write for link 22 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L23_RX = (NVML_GPM_METRIC_NVLINK_L23_RX, 'NvLink read for link 23 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L23_TX = (NVML_GPM_METRIC_NVLINK_L23_TX, 'NvLink write for link 23 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L24_RX = (NVML_GPM_METRIC_NVLINK_L24_RX, 'NvLink read for link 24 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L24_TX = (NVML_GPM_METRIC_NVLINK_L24_TX, 'NvLink write for link 24 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L25_RX = (NVML_GPM_METRIC_NVLINK_L25_RX, 'NvLink read for link 25 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L25_TX = (NVML_GPM_METRIC_NVLINK_L25_TX, 'NvLink write for link 25 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L26_RX = (NVML_GPM_METRIC_NVLINK_L26_RX, 'NvLink read for link 26 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L26_TX = (NVML_GPM_METRIC_NVLINK_L26_TX, 'NvLink write for link 26 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L27_RX = (NVML_GPM_METRIC_NVLINK_L27_RX, 'NvLink read for link 27 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L27_TX = (NVML_GPM_METRIC_NVLINK_L27_TX, 'NvLink write for link 27 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L28_RX = (NVML_GPM_METRIC_NVLINK_L28_RX, 'NvLink read for link 28 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L28_TX = (NVML_GPM_METRIC_NVLINK_L28_TX, 'NvLink write for link 28 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L29_RX = (NVML_GPM_METRIC_NVLINK_L29_RX, 'NvLink read for link 29 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L29_TX = (NVML_GPM_METRIC_NVLINK_L29_TX, 'NvLink write for link 29 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L30_RX = (NVML_GPM_METRIC_NVLINK_L30_RX, 'NvLink read for link 30 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L30_TX = (NVML_GPM_METRIC_NVLINK_L30_TX, 'NvLink write for link 30 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L31_RX = (NVML_GPM_METRIC_NVLINK_L31_RX, 'NvLink read for link 31 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L31_TX = (NVML_GPM_METRIC_NVLINK_L31_TX, 'NvLink write for link 31 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L32_RX = (NVML_GPM_METRIC_NVLINK_L32_RX, 'NvLink read for link 32 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L32_TX = (NVML_GPM_METRIC_NVLINK_L32_TX, 'NvLink write for link 32 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L33_RX = (NVML_GPM_METRIC_NVLINK_L33_RX, 'NvLink read for link 33 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L33_TX = (NVML_GPM_METRIC_NVLINK_L33_TX, 'NvLink write for link 33 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L34_RX = (NVML_GPM_METRIC_NVLINK_L34_RX, 'NvLink read for link 34 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L34_TX = (NVML_GPM_METRIC_NVLINK_L34_TX, 'NvLink write for link 34 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L35_RX = (NVML_GPM_METRIC_NVLINK_L35_RX, 'NvLink read for link 35 in bytes since reboot.')
-    GPM_METRIC_NVLINK_L35_TX = (NVML_GPM_METRIC_NVLINK_L35_TX, 'NvLink write for link 35 in bytes since reboot.')
-    GPM_METRIC_MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1.')
+    GRAPHICS_UTIL = (NVML_GPM_METRIC_GRAPHICS_UTIL, 'Percentage of time any compute/graphics app was active on the GPU. 0.0 - 100.0.')
+    GPM_METRIC_GRAPHICS_UTIL = GRAPHICS_UTIL  # backward-compat alias
+    SM_UTIL = (NVML_GPM_METRIC_SM_UTIL, 'Percentage of SMs that were busy. 0.0 - 100.0.')
+    GPM_METRIC_SM_UTIL = SM_UTIL  # backward-compat alias
+    SM_OCCUPANCY = (NVML_GPM_METRIC_SM_OCCUPANCY, 'Percentage of warps that were active vs theoretical maximum. 0.0 - 100.0.')
+    GPM_METRIC_SM_OCCUPANCY = SM_OCCUPANCY  # backward-compat alias
+    INTEGER_UTIL = (NVML_GPM_METRIC_INTEGER_UTIL, "Percentage of time the GPU's SMs were doing integer operations. 0.0 - 100.0.")
+    GPM_METRIC_INTEGER_UTIL = INTEGER_UTIL  # backward-compat alias
+    ANY_TENSOR_UTIL = (NVML_GPM_METRIC_ANY_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing ANY tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_ANY_TENSOR_UTIL = ANY_TENSOR_UTIL  # backward-compat alias
+    DFMA_TENSOR_UTIL = (NVML_GPM_METRIC_DFMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DFMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DFMA_TENSOR_UTIL = DFMA_TENSOR_UTIL  # backward-compat alias
+    HMMA_TENSOR_UTIL = (NVML_GPM_METRIC_HMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing HMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_HMMA_TENSOR_UTIL = HMMA_TENSOR_UTIL  # backward-compat alias
+    DMMA_TENSOR_UTIL = (NVML_GPM_METRIC_DMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing DMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_DMMA_TENSOR_UTIL = DMMA_TENSOR_UTIL  # backward-compat alias
+    IMMA_TENSOR_UTIL = (NVML_GPM_METRIC_IMMA_TENSOR_UTIL, "Percentage of time the GPU's SMs were doing IMMA tensor operations. 0.0 - 100.0.")
+    GPM_METRIC_IMMA_TENSOR_UTIL = IMMA_TENSOR_UTIL  # backward-compat alias
+    DRAM_BW_UTIL = (NVML_GPM_METRIC_DRAM_BW_UTIL, 'Percentage of DRAM bw used vs theoretical maximum. `0.0 - 100.0 */`.')
+    GPM_METRIC_DRAM_BW_UTIL = DRAM_BW_UTIL  # backward-compat alias
+    FP64_UTIL = (NVML_GPM_METRIC_FP64_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP64 math. 0.0 - 100.0.")
+    GPM_METRIC_FP64_UTIL = FP64_UTIL  # backward-compat alias
+    FP32_UTIL = (NVML_GPM_METRIC_FP32_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP32 math. 0.0 - 100.0.")
+    GPM_METRIC_FP32_UTIL = FP32_UTIL  # backward-compat alias
+    FP16_UTIL = (NVML_GPM_METRIC_FP16_UTIL, "Percentage of time the GPU's SMs were doing non-tensor FP16 math. 0.0 - 100.0.")
+    GPM_METRIC_FP16_UTIL = FP16_UTIL  # backward-compat alias
+    PCIE_TX_PER_SEC = (NVML_GPM_METRIC_PCIE_TX_PER_SEC, 'PCIe traffic from this GPU in MiB/sec.')
+    GPM_METRIC_PCIE_TX_PER_SEC = PCIE_TX_PER_SEC  # backward-compat alias
+    PCIE_RX_PER_SEC = (NVML_GPM_METRIC_PCIE_RX_PER_SEC, 'PCIe traffic to this GPU in MiB/sec.')
+    GPM_METRIC_PCIE_RX_PER_SEC = PCIE_RX_PER_SEC  # backward-compat alias
+    NVDEC_0_UTIL = (NVML_GPM_METRIC_NVDEC_0_UTIL, 'Percent utilization of NVDEC 0. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_0_UTIL = NVDEC_0_UTIL  # backward-compat alias
+    NVDEC_1_UTIL = (NVML_GPM_METRIC_NVDEC_1_UTIL, 'Percent utilization of NVDEC 1. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_1_UTIL = NVDEC_1_UTIL  # backward-compat alias
+    NVDEC_2_UTIL = (NVML_GPM_METRIC_NVDEC_2_UTIL, 'Percent utilization of NVDEC 2. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_2_UTIL = NVDEC_2_UTIL  # backward-compat alias
+    NVDEC_3_UTIL = (NVML_GPM_METRIC_NVDEC_3_UTIL, 'Percent utilization of NVDEC 3. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_3_UTIL = NVDEC_3_UTIL  # backward-compat alias
+    NVDEC_4_UTIL = (NVML_GPM_METRIC_NVDEC_4_UTIL, 'Percent utilization of NVDEC 4. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_4_UTIL = NVDEC_4_UTIL  # backward-compat alias
+    NVDEC_5_UTIL = (NVML_GPM_METRIC_NVDEC_5_UTIL, 'Percent utilization of NVDEC 5. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_5_UTIL = NVDEC_5_UTIL  # backward-compat alias
+    NVDEC_6_UTIL = (NVML_GPM_METRIC_NVDEC_6_UTIL, 'Percent utilization of NVDEC 6. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_6_UTIL = NVDEC_6_UTIL  # backward-compat alias
+    NVDEC_7_UTIL = (NVML_GPM_METRIC_NVDEC_7_UTIL, 'Percent utilization of NVDEC 7. 0.0 - 100.0.')
+    GPM_METRIC_NVDEC_7_UTIL = NVDEC_7_UTIL  # backward-compat alias
+    NVJPG_0_UTIL = (NVML_GPM_METRIC_NVJPG_0_UTIL, 'Percent utilization of NVJPG 0. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_0_UTIL = NVJPG_0_UTIL  # backward-compat alias
+    NVJPG_1_UTIL = (NVML_GPM_METRIC_NVJPG_1_UTIL, 'Percent utilization of NVJPG 1. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_1_UTIL = NVJPG_1_UTIL  # backward-compat alias
+    NVJPG_2_UTIL = (NVML_GPM_METRIC_NVJPG_2_UTIL, 'Percent utilization of NVJPG 2. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_2_UTIL = NVJPG_2_UTIL  # backward-compat alias
+    NVJPG_3_UTIL = (NVML_GPM_METRIC_NVJPG_3_UTIL, 'Percent utilization of NVJPG 3. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_3_UTIL = NVJPG_3_UTIL  # backward-compat alias
+    NVJPG_4_UTIL = (NVML_GPM_METRIC_NVJPG_4_UTIL, 'Percent utilization of NVJPG 4. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_4_UTIL = NVJPG_4_UTIL  # backward-compat alias
+    NVJPG_5_UTIL = (NVML_GPM_METRIC_NVJPG_5_UTIL, 'Percent utilization of NVJPG 5. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_5_UTIL = NVJPG_5_UTIL  # backward-compat alias
+    NVJPG_6_UTIL = (NVML_GPM_METRIC_NVJPG_6_UTIL, 'Percent utilization of NVJPG 6. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_6_UTIL = NVJPG_6_UTIL  # backward-compat alias
+    NVJPG_7_UTIL = (NVML_GPM_METRIC_NVJPG_7_UTIL, 'Percent utilization of NVJPG 7. 0.0 - 100.0.')
+    GPM_METRIC_NVJPG_7_UTIL = NVJPG_7_UTIL  # backward-compat alias
+    NVOFA_0_UTIL = (NVML_GPM_METRIC_NVOFA_0_UTIL, 'Percent utilization of NVOFA 0. 0.0 - 100.0.')
+    GPM_METRIC_NVOFA_0_UTIL = NVOFA_0_UTIL  # backward-compat alias
+    NVOFA_1_UTIL = (NVML_GPM_METRIC_NVOFA_1_UTIL, 'Percent utilization of NVOFA 1. 0.0 - 100.0.')
+    GPM_METRIC_NVOFA_1_UTIL = NVOFA_1_UTIL  # backward-compat alias
+    NVLINK_TOTAL_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC, 'NvLink read bandwidth for all links in MiB/sec.')
+    GPM_METRIC_NVLINK_TOTAL_RX_PER_SEC = NVLINK_TOTAL_RX_PER_SEC  # backward-compat alias
+    NVLINK_TOTAL_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC, 'NvLink write bandwidth for all links in MiB/sec.')
+    GPM_METRIC_NVLINK_TOTAL_TX_PER_SEC = NVLINK_TOTAL_TX_PER_SEC  # backward-compat alias
+    NVLINK_L0_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_RX_PER_SEC, 'NvLink read bandwidth for link 0 in MiB/sec.')
+    GPM_METRIC_NVLINK_L0_RX_PER_SEC = NVLINK_L0_RX_PER_SEC  # backward-compat alias
+    NVLINK_L0_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L0_TX_PER_SEC, 'NvLink write bandwidth for link 0 in MiB/sec.')
+    GPM_METRIC_NVLINK_L0_TX_PER_SEC = NVLINK_L0_TX_PER_SEC  # backward-compat alias
+    NVLINK_L1_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_RX_PER_SEC, 'NvLink read bandwidth for link 1 in MiB/sec.')
+    GPM_METRIC_NVLINK_L1_RX_PER_SEC = NVLINK_L1_RX_PER_SEC  # backward-compat alias
+    NVLINK_L1_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L1_TX_PER_SEC, 'NvLink write bandwidth for link 1 in MiB/sec.')
+    GPM_METRIC_NVLINK_L1_TX_PER_SEC = NVLINK_L1_TX_PER_SEC  # backward-compat alias
+    NVLINK_L2_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_RX_PER_SEC, 'NvLink read bandwidth for link 2 in MiB/sec.')
+    GPM_METRIC_NVLINK_L2_RX_PER_SEC = NVLINK_L2_RX_PER_SEC  # backward-compat alias
+    NVLINK_L2_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L2_TX_PER_SEC, 'NvLink write bandwidth for link 2 in MiB/sec.')
+    GPM_METRIC_NVLINK_L2_TX_PER_SEC = NVLINK_L2_TX_PER_SEC  # backward-compat alias
+    NVLINK_L3_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_RX_PER_SEC, 'NvLink read bandwidth for link 3 in MiB/sec.')
+    GPM_METRIC_NVLINK_L3_RX_PER_SEC = NVLINK_L3_RX_PER_SEC  # backward-compat alias
+    NVLINK_L3_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L3_TX_PER_SEC, 'NvLink write bandwidth for link 3 in MiB/sec.')
+    GPM_METRIC_NVLINK_L3_TX_PER_SEC = NVLINK_L3_TX_PER_SEC  # backward-compat alias
+    NVLINK_L4_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_RX_PER_SEC, 'NvLink read bandwidth for link 4 in MiB/sec.')
+    GPM_METRIC_NVLINK_L4_RX_PER_SEC = NVLINK_L4_RX_PER_SEC  # backward-compat alias
+    NVLINK_L4_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L4_TX_PER_SEC, 'NvLink write bandwidth for link 4 in MiB/sec.')
+    GPM_METRIC_NVLINK_L4_TX_PER_SEC = NVLINK_L4_TX_PER_SEC  # backward-compat alias
+    NVLINK_L5_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_RX_PER_SEC, 'NvLink read bandwidth for link 5 in MiB/sec.')
+    GPM_METRIC_NVLINK_L5_RX_PER_SEC = NVLINK_L5_RX_PER_SEC  # backward-compat alias
+    NVLINK_L5_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L5_TX_PER_SEC, 'NvLink write bandwidth for link 5 in MiB/sec.')
+    GPM_METRIC_NVLINK_L5_TX_PER_SEC = NVLINK_L5_TX_PER_SEC  # backward-compat alias
+    NVLINK_L6_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_RX_PER_SEC, 'NvLink read bandwidth for link 6 in MiB/sec.')
+    GPM_METRIC_NVLINK_L6_RX_PER_SEC = NVLINK_L6_RX_PER_SEC  # backward-compat alias
+    NVLINK_L6_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L6_TX_PER_SEC, 'NvLink write bandwidth for link 6 in MiB/sec.')
+    GPM_METRIC_NVLINK_L6_TX_PER_SEC = NVLINK_L6_TX_PER_SEC  # backward-compat alias
+    NVLINK_L7_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_RX_PER_SEC, 'NvLink read bandwidth for link 7 in MiB/sec.')
+    GPM_METRIC_NVLINK_L7_RX_PER_SEC = NVLINK_L7_RX_PER_SEC  # backward-compat alias
+    NVLINK_L7_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L7_TX_PER_SEC, 'NvLink write bandwidth for link 7 in MiB/sec.')
+    GPM_METRIC_NVLINK_L7_TX_PER_SEC = NVLINK_L7_TX_PER_SEC  # backward-compat alias
+    NVLINK_L8_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_RX_PER_SEC, 'NvLink read bandwidth for link 8 in MiB/sec.')
+    GPM_METRIC_NVLINK_L8_RX_PER_SEC = NVLINK_L8_RX_PER_SEC  # backward-compat alias
+    NVLINK_L8_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L8_TX_PER_SEC, 'NvLink write bandwidth for link 8 in MiB/sec.')
+    GPM_METRIC_NVLINK_L8_TX_PER_SEC = NVLINK_L8_TX_PER_SEC  # backward-compat alias
+    NVLINK_L9_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_RX_PER_SEC, 'NvLink read bandwidth for link 9 in MiB/sec.')
+    GPM_METRIC_NVLINK_L9_RX_PER_SEC = NVLINK_L9_RX_PER_SEC  # backward-compat alias
+    NVLINK_L9_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L9_TX_PER_SEC, 'NvLink write bandwidth for link 9 in MiB/sec.')
+    GPM_METRIC_NVLINK_L9_TX_PER_SEC = NVLINK_L9_TX_PER_SEC  # backward-compat alias
+    NVLINK_L10_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_RX_PER_SEC, 'NvLink read bandwidth for link 10 in MiB/sec.')
+    GPM_METRIC_NVLINK_L10_RX_PER_SEC = NVLINK_L10_RX_PER_SEC  # backward-compat alias
+    NVLINK_L10_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L10_TX_PER_SEC, 'NvLink write bandwidth for link 10 in MiB/sec.')
+    GPM_METRIC_NVLINK_L10_TX_PER_SEC = NVLINK_L10_TX_PER_SEC  # backward-compat alias
+    NVLINK_L11_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_RX_PER_SEC, 'NvLink read bandwidth for link 11 in MiB/sec.')
+    GPM_METRIC_NVLINK_L11_RX_PER_SEC = NVLINK_L11_RX_PER_SEC  # backward-compat alias
+    NVLINK_L11_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L11_TX_PER_SEC, 'NvLink write bandwidth for link 11 in MiB/sec.')
+    GPM_METRIC_NVLINK_L11_TX_PER_SEC = NVLINK_L11_TX_PER_SEC  # backward-compat alias
+    NVLINK_L12_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_RX_PER_SEC, 'NvLink read bandwidth for link 12 in MiB/sec.')
+    GPM_METRIC_NVLINK_L12_RX_PER_SEC = NVLINK_L12_RX_PER_SEC  # backward-compat alias
+    NVLINK_L12_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L12_TX_PER_SEC, 'NvLink write bandwidth for link 12 in MiB/sec.')
+    GPM_METRIC_NVLINK_L12_TX_PER_SEC = NVLINK_L12_TX_PER_SEC  # backward-compat alias
+    NVLINK_L13_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_RX_PER_SEC, 'NvLink read bandwidth for link 13 in MiB/sec.')
+    GPM_METRIC_NVLINK_L13_RX_PER_SEC = NVLINK_L13_RX_PER_SEC  # backward-compat alias
+    NVLINK_L13_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L13_TX_PER_SEC, 'NvLink write bandwidth for link 13 in MiB/sec.')
+    GPM_METRIC_NVLINK_L13_TX_PER_SEC = NVLINK_L13_TX_PER_SEC  # backward-compat alias
+    NVLINK_L14_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_RX_PER_SEC, 'NvLink read bandwidth for link 14 in MiB/sec.')
+    GPM_METRIC_NVLINK_L14_RX_PER_SEC = NVLINK_L14_RX_PER_SEC  # backward-compat alias
+    NVLINK_L14_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L14_TX_PER_SEC, 'NvLink write bandwidth for link 14 in MiB/sec.')
+    GPM_METRIC_NVLINK_L14_TX_PER_SEC = NVLINK_L14_TX_PER_SEC  # backward-compat alias
+    NVLINK_L15_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_RX_PER_SEC, 'NvLink read bandwidth for link 15 in MiB/sec.')
+    GPM_METRIC_NVLINK_L15_RX_PER_SEC = NVLINK_L15_RX_PER_SEC  # backward-compat alias
+    NVLINK_L15_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L15_TX_PER_SEC, 'NvLink write bandwidth for link 15 in MiB/sec.')
+    GPM_METRIC_NVLINK_L15_TX_PER_SEC = NVLINK_L15_TX_PER_SEC  # backward-compat alias
+    NVLINK_L16_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_RX_PER_SEC, 'NvLink read bandwidth for link 16 in MiB/sec.')
+    GPM_METRIC_NVLINK_L16_RX_PER_SEC = NVLINK_L16_RX_PER_SEC  # backward-compat alias
+    NVLINK_L16_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L16_TX_PER_SEC, 'NvLink write bandwidth for link 16 in MiB/sec.')
+    GPM_METRIC_NVLINK_L16_TX_PER_SEC = NVLINK_L16_TX_PER_SEC  # backward-compat alias
+    NVLINK_L17_RX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_RX_PER_SEC, 'NvLink read bandwidth for link 17 in MiB/sec.')
+    GPM_METRIC_NVLINK_L17_RX_PER_SEC = NVLINK_L17_RX_PER_SEC  # backward-compat alias
+    NVLINK_L17_TX_PER_SEC = (NVML_GPM_METRIC_NVLINK_L17_TX_PER_SEC, 'NvLink write bandwidth for link 17 in MiB/sec.')
+    GPM_METRIC_NVLINK_L17_TX_PER_SEC = NVLINK_L17_TX_PER_SEC  # backward-compat alias
+    C2C_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_TOTAL_TX_PER_SEC = C2C_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_TOTAL_RX_PER_SEC = C2C_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_DATA_TX_PER_SEC = C2C_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_DATA_RX_PER_SEC = C2C_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK0_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK0_TOTAL_TX_PER_SEC = C2C_LINK0_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK0_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK0_TOTAL_RX_PER_SEC = C2C_LINK0_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK0_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK0_DATA_TX_PER_SEC = C2C_LINK0_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK0_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK0_DATA_RX_PER_SEC = C2C_LINK0_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK1_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK1_TOTAL_TX_PER_SEC = C2C_LINK1_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK1_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK1_TOTAL_RX_PER_SEC = C2C_LINK1_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK1_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK1_DATA_TX_PER_SEC = C2C_LINK1_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK1_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK1_DATA_RX_PER_SEC = C2C_LINK1_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK2_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK2_TOTAL_TX_PER_SEC = C2C_LINK2_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK2_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK2_TOTAL_RX_PER_SEC = C2C_LINK2_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK2_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK2_DATA_TX_PER_SEC = C2C_LINK2_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK2_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK2_DATA_RX_PER_SEC = C2C_LINK2_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK3_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK3_TOTAL_TX_PER_SEC = C2C_LINK3_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK3_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK3_TOTAL_RX_PER_SEC = C2C_LINK3_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK3_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK3_DATA_TX_PER_SEC = C2C_LINK3_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK3_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK3_DATA_RX_PER_SEC = C2C_LINK3_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK4_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK4_TOTAL_TX_PER_SEC = C2C_LINK4_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK4_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK4_TOTAL_RX_PER_SEC = C2C_LINK4_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK4_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK4_DATA_TX_PER_SEC = C2C_LINK4_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK4_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK4_DATA_RX_PER_SEC = C2C_LINK4_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK5_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK5_TOTAL_TX_PER_SEC = C2C_LINK5_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK5_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK5_TOTAL_RX_PER_SEC = C2C_LINK5_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK5_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK5_DATA_TX_PER_SEC = C2C_LINK5_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK5_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK5_DATA_RX_PER_SEC = C2C_LINK5_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK6_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK6_TOTAL_TX_PER_SEC = C2C_LINK6_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK6_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK6_TOTAL_RX_PER_SEC = C2C_LINK6_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK6_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK6_DATA_TX_PER_SEC = C2C_LINK6_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK6_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK6_DATA_RX_PER_SEC = C2C_LINK6_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK7_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK7_TOTAL_TX_PER_SEC = C2C_LINK7_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK7_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK7_TOTAL_RX_PER_SEC = C2C_LINK7_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK7_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK7_DATA_TX_PER_SEC = C2C_LINK7_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK7_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK7_DATA_RX_PER_SEC = C2C_LINK7_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK8_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK8_TOTAL_TX_PER_SEC = C2C_LINK8_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK8_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK8_TOTAL_RX_PER_SEC = C2C_LINK8_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK8_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK8_DATA_TX_PER_SEC = C2C_LINK8_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK8_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK8_DATA_RX_PER_SEC = C2C_LINK8_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK9_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK9_TOTAL_TX_PER_SEC = C2C_LINK9_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK9_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK9_TOTAL_RX_PER_SEC = C2C_LINK9_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK9_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK9_DATA_TX_PER_SEC = C2C_LINK9_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK9_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK9_DATA_RX_PER_SEC = C2C_LINK9_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK10_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK10_TOTAL_TX_PER_SEC = C2C_LINK10_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK10_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK10_TOTAL_RX_PER_SEC = C2C_LINK10_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK10_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK10_DATA_TX_PER_SEC = C2C_LINK10_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK10_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK10_DATA_RX_PER_SEC = C2C_LINK10_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK11_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK11_TOTAL_TX_PER_SEC = C2C_LINK11_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK11_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK11_TOTAL_RX_PER_SEC = C2C_LINK11_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK11_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK11_DATA_TX_PER_SEC = C2C_LINK11_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK11_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK11_DATA_RX_PER_SEC = C2C_LINK11_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK12_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK12_TOTAL_TX_PER_SEC = C2C_LINK12_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK12_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK12_TOTAL_RX_PER_SEC = C2C_LINK12_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK12_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK12_DATA_TX_PER_SEC = C2C_LINK12_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK12_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK12_DATA_RX_PER_SEC = C2C_LINK12_DATA_RX_PER_SEC  # backward-compat alias
+    C2C_LINK13_TOTAL_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC
+    GPM_METRIC_C2C_LINK13_TOTAL_TX_PER_SEC = C2C_LINK13_TOTAL_TX_PER_SEC  # backward-compat alias
+    C2C_LINK13_TOTAL_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC
+    GPM_METRIC_C2C_LINK13_TOTAL_RX_PER_SEC = C2C_LINK13_TOTAL_RX_PER_SEC  # backward-compat alias
+    C2C_LINK13_DATA_TX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC
+    GPM_METRIC_C2C_LINK13_DATA_TX_PER_SEC = C2C_LINK13_DATA_TX_PER_SEC  # backward-compat alias
+    C2C_LINK13_DATA_RX_PER_SEC = NVML_GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC
+    GPM_METRIC_C2C_LINK13_DATA_RX_PER_SEC = C2C_LINK13_DATA_RX_PER_SEC  # backward-compat alias
+    HOSTMEM_CACHE_HIT = NVML_GPM_METRIC_HOSTMEM_CACHE_HIT
+    GPM_METRIC_HOSTMEM_CACHE_HIT = HOSTMEM_CACHE_HIT  # backward-compat alias
+    HOSTMEM_CACHE_MISS = NVML_GPM_METRIC_HOSTMEM_CACHE_MISS
+    GPM_METRIC_HOSTMEM_CACHE_MISS = HOSTMEM_CACHE_MISS  # backward-compat alias
+    PEERMEM_CACHE_HIT = NVML_GPM_METRIC_PEERMEM_CACHE_HIT
+    GPM_METRIC_PEERMEM_CACHE_HIT = PEERMEM_CACHE_HIT  # backward-compat alias
+    PEERMEM_CACHE_MISS = NVML_GPM_METRIC_PEERMEM_CACHE_MISS
+    GPM_METRIC_PEERMEM_CACHE_MISS = PEERMEM_CACHE_MISS  # backward-compat alias
+    DRAM_CACHE_HIT = NVML_GPM_METRIC_DRAM_CACHE_HIT
+    GPM_METRIC_DRAM_CACHE_HIT = DRAM_CACHE_HIT  # backward-compat alias
+    DRAM_CACHE_MISS = NVML_GPM_METRIC_DRAM_CACHE_MISS
+    GPM_METRIC_DRAM_CACHE_MISS = DRAM_CACHE_MISS  # backward-compat alias
+    NVENC_0_UTIL = NVML_GPM_METRIC_NVENC_0_UTIL
+    GPM_METRIC_NVENC_0_UTIL = NVENC_0_UTIL  # backward-compat alias
+    NVENC_1_UTIL = NVML_GPM_METRIC_NVENC_1_UTIL
+    GPM_METRIC_NVENC_1_UTIL = NVENC_1_UTIL  # backward-compat alias
+    NVENC_2_UTIL = NVML_GPM_METRIC_NVENC_2_UTIL
+    GPM_METRIC_NVENC_2_UTIL = NVENC_2_UTIL  # backward-compat alias
+    NVENC_3_UTIL = NVML_GPM_METRIC_NVENC_3_UTIL
+    GPM_METRIC_NVENC_3_UTIL = NVENC_3_UTIL  # backward-compat alias
+    GR0_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED
+    GPM_METRIC_GR0_CTXSW_CYCLES_ELAPSED = GR0_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR0_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE
+    GPM_METRIC_GR0_CTXSW_CYCLES_ACTIVE = GR0_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR0_CTXSW_REQUESTS = NVML_GPM_METRIC_GR0_CTXSW_REQUESTS
+    GPM_METRIC_GR0_CTXSW_REQUESTS = GR0_CTXSW_REQUESTS  # backward-compat alias
+    GR0_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ
+    GPM_METRIC_GR0_CTXSW_CYCLES_PER_REQ = GR0_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR0_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR0_CTXSW_ACTIVE_PCT
+    GPM_METRIC_GR0_CTXSW_ACTIVE_PCT = GR0_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR1_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED
+    GPM_METRIC_GR1_CTXSW_CYCLES_ELAPSED = GR1_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR1_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE
+    GPM_METRIC_GR1_CTXSW_CYCLES_ACTIVE = GR1_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR1_CTXSW_REQUESTS = NVML_GPM_METRIC_GR1_CTXSW_REQUESTS
+    GPM_METRIC_GR1_CTXSW_REQUESTS = GR1_CTXSW_REQUESTS  # backward-compat alias
+    GR1_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ
+    GPM_METRIC_GR1_CTXSW_CYCLES_PER_REQ = GR1_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR1_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR1_CTXSW_ACTIVE_PCT
+    GPM_METRIC_GR1_CTXSW_ACTIVE_PCT = GR1_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR2_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED
+    GPM_METRIC_GR2_CTXSW_CYCLES_ELAPSED = GR2_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR2_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE
+    GPM_METRIC_GR2_CTXSW_CYCLES_ACTIVE = GR2_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR2_CTXSW_REQUESTS = NVML_GPM_METRIC_GR2_CTXSW_REQUESTS
+    GPM_METRIC_GR2_CTXSW_REQUESTS = GR2_CTXSW_REQUESTS  # backward-compat alias
+    GR2_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ
+    GPM_METRIC_GR2_CTXSW_CYCLES_PER_REQ = GR2_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR2_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR2_CTXSW_ACTIVE_PCT
+    GPM_METRIC_GR2_CTXSW_ACTIVE_PCT = GR2_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR3_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED
+    GPM_METRIC_GR3_CTXSW_CYCLES_ELAPSED = GR3_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR3_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE
+    GPM_METRIC_GR3_CTXSW_CYCLES_ACTIVE = GR3_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR3_CTXSW_REQUESTS = NVML_GPM_METRIC_GR3_CTXSW_REQUESTS
+    GPM_METRIC_GR3_CTXSW_REQUESTS = GR3_CTXSW_REQUESTS  # backward-compat alias
+    GR3_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ
+    GPM_METRIC_GR3_CTXSW_CYCLES_PER_REQ = GR3_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR3_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR3_CTXSW_ACTIVE_PCT
+    GPM_METRIC_GR3_CTXSW_ACTIVE_PCT = GR3_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR4_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED
+    GPM_METRIC_GR4_CTXSW_CYCLES_ELAPSED = GR4_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR4_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE
+    GPM_METRIC_GR4_CTXSW_CYCLES_ACTIVE = GR4_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR4_CTXSW_REQUESTS = NVML_GPM_METRIC_GR4_CTXSW_REQUESTS
+    GPM_METRIC_GR4_CTXSW_REQUESTS = GR4_CTXSW_REQUESTS  # backward-compat alias
+    GR4_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ
+    GPM_METRIC_GR4_CTXSW_CYCLES_PER_REQ = GR4_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR4_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR4_CTXSW_ACTIVE_PCT
+    GPM_METRIC_GR4_CTXSW_ACTIVE_PCT = GR4_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR5_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED
+    GPM_METRIC_GR5_CTXSW_CYCLES_ELAPSED = GR5_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR5_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE
+    GPM_METRIC_GR5_CTXSW_CYCLES_ACTIVE = GR5_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR5_CTXSW_REQUESTS = NVML_GPM_METRIC_GR5_CTXSW_REQUESTS
+    GPM_METRIC_GR5_CTXSW_REQUESTS = GR5_CTXSW_REQUESTS  # backward-compat alias
+    GR5_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ
+    GPM_METRIC_GR5_CTXSW_CYCLES_PER_REQ = GR5_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR5_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR5_CTXSW_ACTIVE_PCT
+    GPM_METRIC_GR5_CTXSW_ACTIVE_PCT = GR5_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR6_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED
+    GPM_METRIC_GR6_CTXSW_CYCLES_ELAPSED = GR6_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR6_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE
+    GPM_METRIC_GR6_CTXSW_CYCLES_ACTIVE = GR6_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR6_CTXSW_REQUESTS = NVML_GPM_METRIC_GR6_CTXSW_REQUESTS
+    GPM_METRIC_GR6_CTXSW_REQUESTS = GR6_CTXSW_REQUESTS  # backward-compat alias
+    GR6_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ
+    GPM_METRIC_GR6_CTXSW_CYCLES_PER_REQ = GR6_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR6_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR6_CTXSW_ACTIVE_PCT
+    GPM_METRIC_GR6_CTXSW_ACTIVE_PCT = GR6_CTXSW_ACTIVE_PCT  # backward-compat alias
+    GR7_CTXSW_CYCLES_ELAPSED = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED
+    GPM_METRIC_GR7_CTXSW_CYCLES_ELAPSED = GR7_CTXSW_CYCLES_ELAPSED  # backward-compat alias
+    GR7_CTXSW_CYCLES_ACTIVE = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE
+    GPM_METRIC_GR7_CTXSW_CYCLES_ACTIVE = GR7_CTXSW_CYCLES_ACTIVE  # backward-compat alias
+    GR7_CTXSW_REQUESTS = NVML_GPM_METRIC_GR7_CTXSW_REQUESTS
+    GPM_METRIC_GR7_CTXSW_REQUESTS = GR7_CTXSW_REQUESTS  # backward-compat alias
+    GR7_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ
+    GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = GR7_CTXSW_CYCLES_PER_REQ  # backward-compat alias
+    GR7_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT
+    GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = GR7_CTXSW_ACTIVE_PCT  # backward-compat alias
+    NVLINK_L18_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L18_RX_PER_SEC
+    GPM_METRIC_NVLINK_L18_RX_PER_SEC = NVLINK_L18_RX_PER_SEC  # backward-compat alias
+    NVLINK_L18_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L18_TX_PER_SEC
+    GPM_METRIC_NVLINK_L18_TX_PER_SEC = NVLINK_L18_TX_PER_SEC  # backward-compat alias
+    NVLINK_L19_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L19_RX_PER_SEC
+    GPM_METRIC_NVLINK_L19_RX_PER_SEC = NVLINK_L19_RX_PER_SEC  # backward-compat alias
+    NVLINK_L19_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L19_TX_PER_SEC
+    GPM_METRIC_NVLINK_L19_TX_PER_SEC = NVLINK_L19_TX_PER_SEC  # backward-compat alias
+    NVLINK_L20_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L20_RX_PER_SEC
+    GPM_METRIC_NVLINK_L20_RX_PER_SEC = NVLINK_L20_RX_PER_SEC  # backward-compat alias
+    NVLINK_L20_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L20_TX_PER_SEC
+    GPM_METRIC_NVLINK_L20_TX_PER_SEC = NVLINK_L20_TX_PER_SEC  # backward-compat alias
+    NVLINK_L21_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L21_RX_PER_SEC
+    GPM_METRIC_NVLINK_L21_RX_PER_SEC = NVLINK_L21_RX_PER_SEC  # backward-compat alias
+    NVLINK_L21_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L21_TX_PER_SEC
+    GPM_METRIC_NVLINK_L21_TX_PER_SEC = NVLINK_L21_TX_PER_SEC  # backward-compat alias
+    NVLINK_L22_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L22_RX_PER_SEC
+    GPM_METRIC_NVLINK_L22_RX_PER_SEC = NVLINK_L22_RX_PER_SEC  # backward-compat alias
+    NVLINK_L22_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L22_TX_PER_SEC
+    GPM_METRIC_NVLINK_L22_TX_PER_SEC = NVLINK_L22_TX_PER_SEC  # backward-compat alias
+    NVLINK_L23_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L23_RX_PER_SEC
+    GPM_METRIC_NVLINK_L23_RX_PER_SEC = NVLINK_L23_RX_PER_SEC  # backward-compat alias
+    NVLINK_L23_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L23_TX_PER_SEC
+    GPM_METRIC_NVLINK_L23_TX_PER_SEC = NVLINK_L23_TX_PER_SEC  # backward-compat alias
+    NVLINK_L24_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L24_RX_PER_SEC
+    GPM_METRIC_NVLINK_L24_RX_PER_SEC = NVLINK_L24_RX_PER_SEC  # backward-compat alias
+    NVLINK_L24_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L24_TX_PER_SEC
+    GPM_METRIC_NVLINK_L24_TX_PER_SEC = NVLINK_L24_TX_PER_SEC  # backward-compat alias
+    NVLINK_L25_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L25_RX_PER_SEC
+    GPM_METRIC_NVLINK_L25_RX_PER_SEC = NVLINK_L25_RX_PER_SEC  # backward-compat alias
+    NVLINK_L25_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L25_TX_PER_SEC
+    GPM_METRIC_NVLINK_L25_TX_PER_SEC = NVLINK_L25_TX_PER_SEC  # backward-compat alias
+    NVLINK_L26_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L26_RX_PER_SEC
+    GPM_METRIC_NVLINK_L26_RX_PER_SEC = NVLINK_L26_RX_PER_SEC  # backward-compat alias
+    NVLINK_L26_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L26_TX_PER_SEC
+    GPM_METRIC_NVLINK_L26_TX_PER_SEC = NVLINK_L26_TX_PER_SEC  # backward-compat alias
+    NVLINK_L27_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L27_RX_PER_SEC
+    GPM_METRIC_NVLINK_L27_RX_PER_SEC = NVLINK_L27_RX_PER_SEC  # backward-compat alias
+    NVLINK_L27_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L27_TX_PER_SEC
+    GPM_METRIC_NVLINK_L27_TX_PER_SEC = NVLINK_L27_TX_PER_SEC  # backward-compat alias
+    NVLINK_L28_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L28_RX_PER_SEC
+    GPM_METRIC_NVLINK_L28_RX_PER_SEC = NVLINK_L28_RX_PER_SEC  # backward-compat alias
+    NVLINK_L28_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L28_TX_PER_SEC
+    GPM_METRIC_NVLINK_L28_TX_PER_SEC = NVLINK_L28_TX_PER_SEC  # backward-compat alias
+    NVLINK_L29_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L29_RX_PER_SEC
+    GPM_METRIC_NVLINK_L29_RX_PER_SEC = NVLINK_L29_RX_PER_SEC  # backward-compat alias
+    NVLINK_L29_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L29_TX_PER_SEC
+    GPM_METRIC_NVLINK_L29_TX_PER_SEC = NVLINK_L29_TX_PER_SEC  # backward-compat alias
+    NVLINK_L30_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L30_RX_PER_SEC
+    GPM_METRIC_NVLINK_L30_RX_PER_SEC = NVLINK_L30_RX_PER_SEC  # backward-compat alias
+    NVLINK_L30_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L30_TX_PER_SEC
+    GPM_METRIC_NVLINK_L30_TX_PER_SEC = NVLINK_L30_TX_PER_SEC  # backward-compat alias
+    NVLINK_L31_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L31_RX_PER_SEC
+    GPM_METRIC_NVLINK_L31_RX_PER_SEC = NVLINK_L31_RX_PER_SEC  # backward-compat alias
+    NVLINK_L31_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L31_TX_PER_SEC
+    GPM_METRIC_NVLINK_L31_TX_PER_SEC = NVLINK_L31_TX_PER_SEC  # backward-compat alias
+    NVLINK_L32_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L32_RX_PER_SEC
+    GPM_METRIC_NVLINK_L32_RX_PER_SEC = NVLINK_L32_RX_PER_SEC  # backward-compat alias
+    NVLINK_L32_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L32_TX_PER_SEC
+    GPM_METRIC_NVLINK_L32_TX_PER_SEC = NVLINK_L32_TX_PER_SEC  # backward-compat alias
+    NVLINK_L33_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L33_RX_PER_SEC
+    GPM_METRIC_NVLINK_L33_RX_PER_SEC = NVLINK_L33_RX_PER_SEC  # backward-compat alias
+    NVLINK_L33_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L33_TX_PER_SEC
+    GPM_METRIC_NVLINK_L33_TX_PER_SEC = NVLINK_L33_TX_PER_SEC  # backward-compat alias
+    NVLINK_L34_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L34_RX_PER_SEC
+    GPM_METRIC_NVLINK_L34_RX_PER_SEC = NVLINK_L34_RX_PER_SEC  # backward-compat alias
+    NVLINK_L34_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L34_TX_PER_SEC
+    GPM_METRIC_NVLINK_L34_TX_PER_SEC = NVLINK_L34_TX_PER_SEC  # backward-compat alias
+    NVLINK_L35_RX_PER_SEC = NVML_GPM_METRIC_NVLINK_L35_RX_PER_SEC
+    GPM_METRIC_NVLINK_L35_RX_PER_SEC = NVLINK_L35_RX_PER_SEC  # backward-compat alias
+    NVLINK_L35_TX_PER_SEC = NVML_GPM_METRIC_NVLINK_L35_TX_PER_SEC
+    GPM_METRIC_NVLINK_L35_TX_PER_SEC = NVLINK_L35_TX_PER_SEC  # backward-compat alias
+    SM_CYCLES_ELAPSED = (NVML_GPM_METRIC_SM_CYCLES_ELAPSED, "The GPU's SM cycles elapsed since reboot.")
+    GPM_METRIC_SM_CYCLES_ELAPSED = SM_CYCLES_ELAPSED  # backward-compat alias
+    SM_CYCLES_ACTIVE = (NVML_GPM_METRIC_SM_CYCLES_ACTIVE, "The GPU's SM activity since reboot.")
+    GPM_METRIC_SM_CYCLES_ACTIVE = SM_CYCLES_ACTIVE  # backward-compat alias
+    MMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_MMA_CYCLES_ACTIVE, "The GPU's SM MMA tensor activity since reboot.")
+    GPM_METRIC_MMA_CYCLES_ACTIVE = MMA_CYCLES_ACTIVE  # backward-compat alias
+    DMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DMMA_CYCLES_ACTIVE, "The GPU's SM DMMA tensor activity since reboot.")
+    GPM_METRIC_DMMA_CYCLES_ACTIVE = DMMA_CYCLES_ACTIVE  # backward-compat alias
+    HMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_HMMA_CYCLES_ACTIVE, "The GPU's SM HMMA tensor activity since reboot.")
+    GPM_METRIC_HMMA_CYCLES_ACTIVE = HMMA_CYCLES_ACTIVE  # backward-compat alias
+    IMMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_IMMA_CYCLES_ACTIVE, "The GPU's SM IMMA tensor activity since reboot.")
+    GPM_METRIC_IMMA_CYCLES_ACTIVE = IMMA_CYCLES_ACTIVE  # backward-compat alias
+    DFMA_CYCLES_ACTIVE = (NVML_GPM_METRIC_DFMA_CYCLES_ACTIVE, "The GPU's SM DFMA tensor activity since reboot.")
+    GPM_METRIC_DFMA_CYCLES_ACTIVE = DFMA_CYCLES_ACTIVE  # backward-compat alias
+    PCIE_TX = (NVML_GPM_METRIC_PCIE_TX, 'The PCIe TX traffic since reboot.')
+    GPM_METRIC_PCIE_TX = PCIE_TX  # backward-compat alias
+    PCIE_RX = (NVML_GPM_METRIC_PCIE_RX, 'The PCIe RX traffic since reboot.')
+    GPM_METRIC_PCIE_RX = PCIE_RX  # backward-compat alias
+    INTEGER_CYCLES_ACTIVE = (NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE, "The GPU's SM integer activity since reboot.")
+    GPM_METRIC_INTEGER_CYCLES_ACTIVE = INTEGER_CYCLES_ACTIVE  # backward-compat alias
+    FP64_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP64_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_FP64_CYCLES_ACTIVE = FP64_CYCLES_ACTIVE  # backward-compat alias
+    FP32_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP32_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_FP32_CYCLES_ACTIVE = FP32_CYCLES_ACTIVE  # backward-compat alias
+    FP16_CYCLES_ACTIVE = (NVML_GPM_METRIC_FP16_CYCLES_ACTIVE, "The GPU's SM FP64 activity since reboot.")
+    GPM_METRIC_FP16_CYCLES_ACTIVE = FP16_CYCLES_ACTIVE  # backward-compat alias
+    NVLINK_L0_RX = (NVML_GPM_METRIC_NVLINK_L0_RX, 'NvLink read for link 0 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L0_RX = NVLINK_L0_RX  # backward-compat alias
+    NVLINK_L0_TX = (NVML_GPM_METRIC_NVLINK_L0_TX, 'NvLink write for link 0 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L0_TX = NVLINK_L0_TX  # backward-compat alias
+    NVLINK_L1_RX = (NVML_GPM_METRIC_NVLINK_L1_RX, 'NvLink read for link 1 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L1_RX = NVLINK_L1_RX  # backward-compat alias
+    NVLINK_L1_TX = (NVML_GPM_METRIC_NVLINK_L1_TX, 'NvLink write for link 1 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L1_TX = NVLINK_L1_TX  # backward-compat alias
+    NVLINK_L2_RX = (NVML_GPM_METRIC_NVLINK_L2_RX, 'NvLink read for link 2 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L2_RX = NVLINK_L2_RX  # backward-compat alias
+    NVLINK_L2_TX = (NVML_GPM_METRIC_NVLINK_L2_TX, 'NvLink write for link 2 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L2_TX = NVLINK_L2_TX  # backward-compat alias
+    NVLINK_L3_RX = (NVML_GPM_METRIC_NVLINK_L3_RX, 'NvLink read for link 3 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L3_RX = NVLINK_L3_RX  # backward-compat alias
+    NVLINK_L3_TX = (NVML_GPM_METRIC_NVLINK_L3_TX, 'NvLink write for link 3 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L3_TX = NVLINK_L3_TX  # backward-compat alias
+    NVLINK_L4_RX = (NVML_GPM_METRIC_NVLINK_L4_RX, 'NvLink read for link 4 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L4_RX = NVLINK_L4_RX  # backward-compat alias
+    NVLINK_L4_TX = (NVML_GPM_METRIC_NVLINK_L4_TX, 'NvLink write for link 4 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L4_TX = NVLINK_L4_TX  # backward-compat alias
+    NVLINK_L5_RX = (NVML_GPM_METRIC_NVLINK_L5_RX, 'NvLink read for link 5 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L5_RX = NVLINK_L5_RX  # backward-compat alias
+    NVLINK_L5_TX = (NVML_GPM_METRIC_NVLINK_L5_TX, 'NvLink write for link 5 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L5_TX = NVLINK_L5_TX  # backward-compat alias
+    NVLINK_L6_RX = (NVML_GPM_METRIC_NVLINK_L6_RX, 'NvLink read for link 6 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L6_RX = NVLINK_L6_RX  # backward-compat alias
+    NVLINK_L6_TX = (NVML_GPM_METRIC_NVLINK_L6_TX, 'NvLink write for link 6 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L6_TX = NVLINK_L6_TX  # backward-compat alias
+    NVLINK_L7_RX = (NVML_GPM_METRIC_NVLINK_L7_RX, 'NvLink read for link 7 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L7_RX = NVLINK_L7_RX  # backward-compat alias
+    NVLINK_L7_TX = (NVML_GPM_METRIC_NVLINK_L7_TX, 'NvLink write for link 7 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L7_TX = NVLINK_L7_TX  # backward-compat alias
+    NVLINK_L8_RX = (NVML_GPM_METRIC_NVLINK_L8_RX, 'NvLink read for link 8 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L8_RX = NVLINK_L8_RX  # backward-compat alias
+    NVLINK_L8_TX = (NVML_GPM_METRIC_NVLINK_L8_TX, 'NvLink write for link 8 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L8_TX = NVLINK_L8_TX  # backward-compat alias
+    NVLINK_L9_RX = (NVML_GPM_METRIC_NVLINK_L9_RX, 'NvLink read for link 9 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L9_RX = NVLINK_L9_RX  # backward-compat alias
+    NVLINK_L9_TX = (NVML_GPM_METRIC_NVLINK_L9_TX, 'NvLink write for link 9 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L9_TX = NVLINK_L9_TX  # backward-compat alias
+    NVLINK_L10_RX = (NVML_GPM_METRIC_NVLINK_L10_RX, 'NvLink read for link 10 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L10_RX = NVLINK_L10_RX  # backward-compat alias
+    NVLINK_L10_TX = (NVML_GPM_METRIC_NVLINK_L10_TX, 'NvLink write for link 10 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L10_TX = NVLINK_L10_TX  # backward-compat alias
+    NVLINK_L11_RX = (NVML_GPM_METRIC_NVLINK_L11_RX, 'NvLink read for link 11 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L11_RX = NVLINK_L11_RX  # backward-compat alias
+    NVLINK_L11_TX = (NVML_GPM_METRIC_NVLINK_L11_TX, 'NvLink write for link 11 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L11_TX = NVLINK_L11_TX  # backward-compat alias
+    NVLINK_L12_RX = (NVML_GPM_METRIC_NVLINK_L12_RX, 'NvLink read for link 12 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L12_RX = NVLINK_L12_RX  # backward-compat alias
+    NVLINK_L12_TX = (NVML_GPM_METRIC_NVLINK_L12_TX, 'NvLink write for link 12 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L12_TX = NVLINK_L12_TX  # backward-compat alias
+    NVLINK_L13_RX = (NVML_GPM_METRIC_NVLINK_L13_RX, 'NvLink read for link 13 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L13_RX = NVLINK_L13_RX  # backward-compat alias
+    NVLINK_L13_TX = (NVML_GPM_METRIC_NVLINK_L13_TX, 'NvLink write for link 13 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L13_TX = NVLINK_L13_TX  # backward-compat alias
+    NVLINK_L14_RX = (NVML_GPM_METRIC_NVLINK_L14_RX, 'NvLink read for link 14 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L14_RX = NVLINK_L14_RX  # backward-compat alias
+    NVLINK_L14_TX = (NVML_GPM_METRIC_NVLINK_L14_TX, 'NvLink write for link 14 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L14_TX = NVLINK_L14_TX  # backward-compat alias
+    NVLINK_L15_RX = (NVML_GPM_METRIC_NVLINK_L15_RX, 'NvLink read for link 15 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L15_RX = NVLINK_L15_RX  # backward-compat alias
+    NVLINK_L15_TX = (NVML_GPM_METRIC_NVLINK_L15_TX, 'NvLink write for link 15 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L15_TX = NVLINK_L15_TX  # backward-compat alias
+    NVLINK_L16_RX = (NVML_GPM_METRIC_NVLINK_L16_RX, 'NvLink read for link 16 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L16_RX = NVLINK_L16_RX  # backward-compat alias
+    NVLINK_L16_TX = (NVML_GPM_METRIC_NVLINK_L16_TX, 'NvLink write for link 16 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L16_TX = NVLINK_L16_TX  # backward-compat alias
+    NVLINK_L17_RX = (NVML_GPM_METRIC_NVLINK_L17_RX, 'NvLink read for link 17 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L17_RX = NVLINK_L17_RX  # backward-compat alias
+    NVLINK_L17_TX = (NVML_GPM_METRIC_NVLINK_L17_TX, 'NvLink write for link 17 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L17_TX = NVLINK_L17_TX  # backward-compat alias
+    NVLINK_L18_RX = (NVML_GPM_METRIC_NVLINK_L18_RX, 'NvLink read for link 18 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L18_RX = NVLINK_L18_RX  # backward-compat alias
+    NVLINK_L18_TX = (NVML_GPM_METRIC_NVLINK_L18_TX, 'NvLink write for link 18 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L18_TX = NVLINK_L18_TX  # backward-compat alias
+    NVLINK_L19_RX = (NVML_GPM_METRIC_NVLINK_L19_RX, 'NvLink read for link 19 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L19_RX = NVLINK_L19_RX  # backward-compat alias
+    NVLINK_L19_TX = (NVML_GPM_METRIC_NVLINK_L19_TX, 'NvLink write for link 19 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L19_TX = NVLINK_L19_TX  # backward-compat alias
+    NVLINK_L20_RX = (NVML_GPM_METRIC_NVLINK_L20_RX, 'NvLink read for link 20 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L20_RX = NVLINK_L20_RX  # backward-compat alias
+    NVLINK_L20_TX = (NVML_GPM_METRIC_NVLINK_L20_TX, 'NvLink write for link 20 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L20_TX = NVLINK_L20_TX  # backward-compat alias
+    NVLINK_L21_RX = (NVML_GPM_METRIC_NVLINK_L21_RX, 'NvLink read for link 21 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L21_RX = NVLINK_L21_RX  # backward-compat alias
+    NVLINK_L21_TX = (NVML_GPM_METRIC_NVLINK_L21_TX, 'NvLink write for link 21 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L21_TX = NVLINK_L21_TX  # backward-compat alias
+    NVLINK_L22_RX = (NVML_GPM_METRIC_NVLINK_L22_RX, 'NvLink read for link 22 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L22_RX = NVLINK_L22_RX  # backward-compat alias
+    NVLINK_L22_TX = (NVML_GPM_METRIC_NVLINK_L22_TX, 'NvLink write for link 22 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L22_TX = NVLINK_L22_TX  # backward-compat alias
+    NVLINK_L23_RX = (NVML_GPM_METRIC_NVLINK_L23_RX, 'NvLink read for link 23 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L23_RX = NVLINK_L23_RX  # backward-compat alias
+    NVLINK_L23_TX = (NVML_GPM_METRIC_NVLINK_L23_TX, 'NvLink write for link 23 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L23_TX = NVLINK_L23_TX  # backward-compat alias
+    NVLINK_L24_RX = (NVML_GPM_METRIC_NVLINK_L24_RX, 'NvLink read for link 24 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L24_RX = NVLINK_L24_RX  # backward-compat alias
+    NVLINK_L24_TX = (NVML_GPM_METRIC_NVLINK_L24_TX, 'NvLink write for link 24 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L24_TX = NVLINK_L24_TX  # backward-compat alias
+    NVLINK_L25_RX = (NVML_GPM_METRIC_NVLINK_L25_RX, 'NvLink read for link 25 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L25_RX = NVLINK_L25_RX  # backward-compat alias
+    NVLINK_L25_TX = (NVML_GPM_METRIC_NVLINK_L25_TX, 'NvLink write for link 25 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L25_TX = NVLINK_L25_TX  # backward-compat alias
+    NVLINK_L26_RX = (NVML_GPM_METRIC_NVLINK_L26_RX, 'NvLink read for link 26 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L26_RX = NVLINK_L26_RX  # backward-compat alias
+    NVLINK_L26_TX = (NVML_GPM_METRIC_NVLINK_L26_TX, 'NvLink write for link 26 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L26_TX = NVLINK_L26_TX  # backward-compat alias
+    NVLINK_L27_RX = (NVML_GPM_METRIC_NVLINK_L27_RX, 'NvLink read for link 27 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L27_RX = NVLINK_L27_RX  # backward-compat alias
+    NVLINK_L27_TX = (NVML_GPM_METRIC_NVLINK_L27_TX, 'NvLink write for link 27 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L27_TX = NVLINK_L27_TX  # backward-compat alias
+    NVLINK_L28_RX = (NVML_GPM_METRIC_NVLINK_L28_RX, 'NvLink read for link 28 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L28_RX = NVLINK_L28_RX  # backward-compat alias
+    NVLINK_L28_TX = (NVML_GPM_METRIC_NVLINK_L28_TX, 'NvLink write for link 28 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L28_TX = NVLINK_L28_TX  # backward-compat alias
+    NVLINK_L29_RX = (NVML_GPM_METRIC_NVLINK_L29_RX, 'NvLink read for link 29 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L29_RX = NVLINK_L29_RX  # backward-compat alias
+    NVLINK_L29_TX = (NVML_GPM_METRIC_NVLINK_L29_TX, 'NvLink write for link 29 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L29_TX = NVLINK_L29_TX  # backward-compat alias
+    NVLINK_L30_RX = (NVML_GPM_METRIC_NVLINK_L30_RX, 'NvLink read for link 30 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L30_RX = NVLINK_L30_RX  # backward-compat alias
+    NVLINK_L30_TX = (NVML_GPM_METRIC_NVLINK_L30_TX, 'NvLink write for link 30 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L30_TX = NVLINK_L30_TX  # backward-compat alias
+    NVLINK_L31_RX = (NVML_GPM_METRIC_NVLINK_L31_RX, 'NvLink read for link 31 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L31_RX = NVLINK_L31_RX  # backward-compat alias
+    NVLINK_L31_TX = (NVML_GPM_METRIC_NVLINK_L31_TX, 'NvLink write for link 31 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L31_TX = NVLINK_L31_TX  # backward-compat alias
+    NVLINK_L32_RX = (NVML_GPM_METRIC_NVLINK_L32_RX, 'NvLink read for link 32 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L32_RX = NVLINK_L32_RX  # backward-compat alias
+    NVLINK_L32_TX = (NVML_GPM_METRIC_NVLINK_L32_TX, 'NvLink write for link 32 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L32_TX = NVLINK_L32_TX  # backward-compat alias
+    NVLINK_L33_RX = (NVML_GPM_METRIC_NVLINK_L33_RX, 'NvLink read for link 33 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L33_RX = NVLINK_L33_RX  # backward-compat alias
+    NVLINK_L33_TX = (NVML_GPM_METRIC_NVLINK_L33_TX, 'NvLink write for link 33 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L33_TX = NVLINK_L33_TX  # backward-compat alias
+    NVLINK_L34_RX = (NVML_GPM_METRIC_NVLINK_L34_RX, 'NvLink read for link 34 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L34_RX = NVLINK_L34_RX  # backward-compat alias
+    NVLINK_L34_TX = (NVML_GPM_METRIC_NVLINK_L34_TX, 'NvLink write for link 34 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L34_TX = NVLINK_L34_TX  # backward-compat alias
+    NVLINK_L35_RX = (NVML_GPM_METRIC_NVLINK_L35_RX, 'NvLink read for link 35 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L35_RX = NVLINK_L35_RX  # backward-compat alias
+    NVLINK_L35_TX = (NVML_GPM_METRIC_NVLINK_L35_TX, 'NvLink write for link 35 in bytes since reboot.')
+    GPM_METRIC_NVLINK_L35_TX = NVLINK_L35_TX  # backward-compat alias
+    MAX = (NVML_GPM_METRIC_MAX, 'Maximum value above +1.')
+    GPM_METRIC_MAX = MAX  # backward-compat alias
 
 class PowerProfileType(_cyb_FastEnum):
     """
     See `nvmlPowerProfileType_t`.
     """
-    POWER_PROFILE_MAX_P = NVML_POWER_PROFILE_MAX_P
-    POWER_PROFILE_MAX_Q = NVML_POWER_PROFILE_MAX_Q
-    POWER_PROFILE_COMPUTE = NVML_POWER_PROFILE_COMPUTE
-    POWER_PROFILE_MEMORY_BOUND = NVML_POWER_PROFILE_MEMORY_BOUND
-    POWER_PROFILE_NETWORK = NVML_POWER_PROFILE_NETWORK
-    POWER_PROFILE_BALANCED = NVML_POWER_PROFILE_BALANCED
-    POWER_PROFILE_LLM_INFERENCE = NVML_POWER_PROFILE_LLM_INFERENCE
-    POWER_PROFILE_LLM_TRAINING = NVML_POWER_PROFILE_LLM_TRAINING
-    POWER_PROFILE_RBM = NVML_POWER_PROFILE_RBM
-    POWER_PROFILE_DCPCIE = NVML_POWER_PROFILE_DCPCIE
-    POWER_PROFILE_HMMA_SPARSE = NVML_POWER_PROFILE_HMMA_SPARSE
-    POWER_PROFILE_HMMA_DENSE = NVML_POWER_PROFILE_HMMA_DENSE
-    POWER_PROFILE_SYNC_BALANCED = NVML_POWER_PROFILE_SYNC_BALANCED
-    POWER_PROFILE_HPC = NVML_POWER_PROFILE_HPC
-    POWER_PROFILE_MIG = NVML_POWER_PROFILE_MIG
-    POWER_PROFILE_MAX = NVML_POWER_PROFILE_MAX
+    MAX_P = NVML_POWER_PROFILE_MAX_P
+    POWER_PROFILE_MAX_P = MAX_P  # backward-compat alias
+    MAX_Q = NVML_POWER_PROFILE_MAX_Q
+    POWER_PROFILE_MAX_Q = MAX_Q  # backward-compat alias
+    COMPUTE = NVML_POWER_PROFILE_COMPUTE
+    POWER_PROFILE_COMPUTE = COMPUTE  # backward-compat alias
+    MEMORY_BOUND = NVML_POWER_PROFILE_MEMORY_BOUND
+    POWER_PROFILE_MEMORY_BOUND = MEMORY_BOUND  # backward-compat alias
+    NETWORK = NVML_POWER_PROFILE_NETWORK
+    POWER_PROFILE_NETWORK = NETWORK  # backward-compat alias
+    BALANCED = NVML_POWER_PROFILE_BALANCED
+    POWER_PROFILE_BALANCED = BALANCED  # backward-compat alias
+    LLM_INFERENCE = NVML_POWER_PROFILE_LLM_INFERENCE
+    POWER_PROFILE_LLM_INFERENCE = LLM_INFERENCE  # backward-compat alias
+    LLM_TRAINING = NVML_POWER_PROFILE_LLM_TRAINING
+    POWER_PROFILE_LLM_TRAINING = LLM_TRAINING  # backward-compat alias
+    RBM = NVML_POWER_PROFILE_RBM
+    POWER_PROFILE_RBM = RBM  # backward-compat alias
+    DCPCIE = NVML_POWER_PROFILE_DCPCIE
+    POWER_PROFILE_DCPCIE = DCPCIE  # backward-compat alias
+    HMMA_SPARSE = NVML_POWER_PROFILE_HMMA_SPARSE
+    POWER_PROFILE_HMMA_SPARSE = HMMA_SPARSE  # backward-compat alias
+    HMMA_DENSE = NVML_POWER_PROFILE_HMMA_DENSE
+    POWER_PROFILE_HMMA_DENSE = HMMA_DENSE  # backward-compat alias
+    SYNC_BALANCED = NVML_POWER_PROFILE_SYNC_BALANCED
+    POWER_PROFILE_SYNC_BALANCED = SYNC_BALANCED  # backward-compat alias
+    HPC = NVML_POWER_PROFILE_HPC
+    POWER_PROFILE_HPC = HPC  # backward-compat alias
+    MIG = NVML_POWER_PROFILE_MIG
+    POWER_PROFILE_MIG = MIG  # backward-compat alias
+    MAX = NVML_POWER_PROFILE_MAX
+    POWER_PROFILE_MAX = MAX  # backward-compat alias
 
 class DeviceAddressingModeType(_cyb_FastEnum):
     """
@@ -1163,9 +1679,12 @@ class DeviceAddressingModeType(_cyb_FastEnum):
 
     See `nvmlDeviceAddressingModeType_t`.
     """
-    DEVICE_ADDRESSING_MODE_NONE = (NVML_DEVICE_ADDRESSING_MODE_NONE, 'No active mode.')
-    DEVICE_ADDRESSING_MODE_HMM = (NVML_DEVICE_ADDRESSING_MODE_HMM, 'Heterogeneous Memory Management mode.')
-    DEVICE_ADDRESSING_MODE_ATS = (NVML_DEVICE_ADDRESSING_MODE_ATS, 'Address Translation Services mode.')
+    NONE = (NVML_DEVICE_ADDRESSING_MODE_NONE, 'No active mode.')
+    DEVICE_ADDRESSING_MODE_NONE = NONE  # backward-compat alias
+    HMM = (NVML_DEVICE_ADDRESSING_MODE_HMM, 'Heterogeneous Memory Management mode.')
+    DEVICE_ADDRESSING_MODE_HMM = HMM  # backward-compat alias
+    ATS = (NVML_DEVICE_ADDRESSING_MODE_ATS, 'Address Translation Services mode.')
+    DEVICE_ADDRESSING_MODE_ATS = ATS  # backward-compat alias
 
 class PRMCounterId(_cyb_FastEnum):
     """
@@ -3267,7 +3786,10 @@ cdef class ProcessInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_info_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=process_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessInfo_t) }"
@@ -3287,9 +3809,10 @@ cdef class ProcessInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -3449,7 +3972,10 @@ cdef class ProcessDetail_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_detail_v1_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=process_detail_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessDetail_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessDetail_v1_t) }"
@@ -3469,9 +3995,10 @@ cdef class ProcessDetail_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -4176,7 +4703,10 @@ cdef class BridgeChipInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=bridge_chip_info_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=bridge_chip_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlBridgeChipInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlBridgeChipInfo_t) }"
@@ -4196,9 +4726,10 @@ cdef class BridgeChipInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -4539,7 +5070,10 @@ cdef class _py_anon_pod0:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=_py_anon_pod0_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=_py_anon_pod0_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod0), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod0) }"
@@ -4559,9 +5093,10 @@ cdef class _py_anon_pod0:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -4896,7 +5431,10 @@ cdef class ClkMonFaultInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=clk_mon_fault_info_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=clk_mon_fault_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlClkMonFaultInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlClkMonFaultInfo_t) }"
@@ -4916,9 +5454,10 @@ cdef class ClkMonFaultInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -5248,7 +5787,10 @@ cdef class ProcessUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_utilization_sample_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=process_utilization_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessUtilizationSample_t) }"
@@ -5268,9 +5810,10 @@ cdef class ProcessUtilizationSample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -5455,7 +5998,10 @@ cdef class ProcessUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_utilization_info_v1_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=process_utilization_info_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessUtilizationInfo_v1_t) }"
@@ -5475,9 +6021,10 @@ cdef class ProcessUtilizationInfo_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -6409,7 +6956,10 @@ cdef class _py_anon_pod1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=_py_anon_pod1_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=_py_anon_pod1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod1), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod1) }"
@@ -6429,9 +6979,10 @@ cdef class _py_anon_pod1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -6881,6 +7432,237 @@ cdef class VgpuTypeBar1Info_v1:
         return obj
 
 
+cdef _get_vgpu_process_utilization_sample_dtype_offsets():
+    cdef nvmlVgpuProcessUtilizationSample_t pod
+    return _numpy.dtype({
+        'names': ['vgpu_instance', 'pid', 'process_name', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
+        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 64), _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.processName)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuProcessUtilizationSample_t),
+    })
+
+vgpu_process_utilization_sample_dtype = _get_vgpu_process_utilization_sample_dtype_offsets()
+
+cdef class VgpuProcessUtilizationSample:
+    """Empty-initialize an array of `nvmlVgpuProcessUtilizationSample_t`.
+    The resulting object is of length `size` and of dtype `vgpu_process_utilization_sample_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `nvmlVgpuProcessUtilizationSample_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=vgpu_process_utilization_sample_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationSample_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationSample_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.VgpuProcessUtilizationSample_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.VgpuProcessUtilizationSample object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, VgpuProcessUtilizationSample)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def vgpu_instance(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.vgpu_instance[0])
+        return self._data.vgpu_instance
+
+    @vgpu_instance.setter
+    def vgpu_instance(self, val):
+        self._data.vgpu_instance = val
+
+    @property
+    def pid(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.pid[0])
+        return self._data.pid
+
+    @pid.setter
+    def pid(self, val):
+        self._data.pid = val
+
+    @property
+    def process_name(self):
+        """~_numpy.int8: (array of length 64)."""
+        return self._data.process_name
+
+    @process_name.setter
+    def process_name(self, val):
+        self._data.process_name = val
+
+    @property
+    def time_stamp(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.time_stamp[0])
+        return self._data.time_stamp
+
+    @time_stamp.setter
+    def time_stamp(self, val):
+        self._data.time_stamp = val
+
+    @property
+    def sm_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.sm_util[0])
+        return self._data.sm_util
+
+    @sm_util.setter
+    def sm_util(self, val):
+        self._data.sm_util = val
+
+    @property
+    def mem_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.mem_util[0])
+        return self._data.mem_util
+
+    @mem_util.setter
+    def mem_util(self, val):
+        self._data.mem_util = val
+
+    @property
+    def enc_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.enc_util[0])
+        return self._data.enc_util
+
+    @enc_util.setter
+    def enc_util(self, val):
+        self._data.enc_util = val
+
+    @property
+    def dec_util(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.dec_util[0])
+        return self._data.dec_util
+
+    @dec_util.setter
+    def dec_util(self, val):
+        self._data.dec_util = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return VgpuProcessUtilizationSample.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_process_utilization_sample_dtype:
+            return VgpuProcessUtilizationSample.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an VgpuProcessUtilizationSample instance with the memory from the given buffer."""
+        return VgpuProcessUtilizationSample.from_data(_numpy.frombuffer(buffer, dtype=vgpu_process_utilization_sample_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an VgpuProcessUtilizationSample instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `vgpu_process_utilization_sample_dtype` holding the data.
+        """
+        cdef VgpuProcessUtilizationSample obj = VgpuProcessUtilizationSample.__new__(VgpuProcessUtilizationSample)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != vgpu_process_utilization_sample_dtype:
+            raise ValueError("data array must be of dtype vgpu_process_utilization_sample_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an VgpuProcessUtilizationSample instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef VgpuProcessUtilizationSample obj = VgpuProcessUtilizationSample.__new__(VgpuProcessUtilizationSample)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlVgpuProcessUtilizationSample_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_sample_dtype)
+        obj._data = data.view(_numpy.recarray)
+        obj._owner = owner
+
+        return obj
+
+
 cdef _get_vgpu_process_utilization_info_v1_dtype_offsets():
     cdef nvmlVgpuProcessUtilizationInfo_v1_t pod
     return _numpy.dtype({
@@ -6918,7 +7700,10 @@ cdef class VgpuProcessUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_process_utilization_info_v1_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=vgpu_process_utilization_info_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationInfo_v1_t) }"
@@ -6938,9 +7723,10 @@ cdef class VgpuProcessUtilizationInfo_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -7439,7 +8225,10 @@ cdef class VgpuSchedulerLogEntry:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=vgpu_scheduler_log_entry_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_t) }"
@@ -7459,9 +8248,10 @@ cdef class VgpuSchedulerLogEntry:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -9030,7 +9820,10 @@ cdef class HwbcEntry:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=hwbc_entry_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=hwbc_entry_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlHwbcEntry_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlHwbcEntry_t) }"
@@ -9050,9 +9843,10 @@ cdef class HwbcEntry:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -9686,7 +10480,10 @@ cdef class UnitFanInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=unit_fan_info_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=unit_fan_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlUnitFanInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlUnitFanInfo_t) }"
@@ -9706,9 +10503,10 @@ cdef class UnitFanInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -10022,7 +10820,10 @@ cdef class SystemEventData_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=system_event_data_v1_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=system_event_data_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlSystemEventData_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlSystemEventData_v1_t) }"
@@ -10042,9 +10843,10 @@ cdef class SystemEventData_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -10377,7 +11179,10 @@ cdef class EncoderSessionInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=encoder_session_info_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=encoder_session_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlEncoderSessionInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlEncoderSessionInfo_t) }"
@@ -10397,9 +11202,10 @@ cdef class EncoderSessionInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -10765,7 +11571,10 @@ cdef class FBCSessionInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=fbc_session_info_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=fbc_session_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlFBCSessionInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlFBCSessionInfo_t) }"
@@ -10785,9 +11594,10 @@ cdef class FBCSessionInfo:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -13204,7 +14014,10 @@ cdef class GpuInstancePlacement:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=gpu_instance_placement_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=gpu_instance_placement_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlGpuInstancePlacement_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlGpuInstancePlacement_t) }"
@@ -13224,9 +14037,10 @@ cdef class GpuInstancePlacement:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -13640,7 +14454,10 @@ cdef class ComputeInstancePlacement:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=compute_instance_placement_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=compute_instance_placement_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlComputeInstancePlacement_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlComputeInstancePlacement_t) }"
@@ -13660,9 +14477,10 @@ cdef class ComputeInstancePlacement:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -14777,7 +15595,10 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t) }"
@@ -14797,9 +15618,10 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -15343,7 +16165,10 @@ cdef class NvlinkFirmwareVersion:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=nvlink_firmware_version_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=nvlink_firmware_version_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlNvlinkFirmwareVersion_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlNvlinkFirmwareVersion_t) }"
@@ -15363,9 +16188,10 @@ cdef class NvlinkFirmwareVersion:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -15825,7 +16651,10 @@ cdef class VgpuSchedulerLogEntry_v2:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_v2_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_v2_t) }"
@@ -15845,9 +16674,10 @@ cdef class VgpuSchedulerLogEntry_v2:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -17388,7 +18218,10 @@ cdef class Sample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=sample_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlSample_t) }"
@@ -17408,9 +18241,10 @@ cdef class Sample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -17547,7 +18381,10 @@ cdef class VgpuInstanceUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_instance_utilization_sample_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=vgpu_instance_utilization_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuInstanceUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuInstanceUtilizationSample_t) }"
@@ -17567,9 +18404,10 @@ cdef class VgpuInstanceUtilizationSample:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -17746,7 +18584,10 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_instance_utilization_info_v1_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=vgpu_instance_utilization_info_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t) }"
@@ -17766,9 +18607,10 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -17962,7 +18804,10 @@ cdef class FieldValue:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=field_value_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=field_value_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlFieldValue_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlFieldValue_t) }"
@@ -17982,9 +18827,10 @@ cdef class FieldValue:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -19597,7 +20443,10 @@ cdef class GridLicensableFeature:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=grid_licensable_feature_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=grid_licensable_feature_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlGridLicensableFeature_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlGridLicensableFeature_t) }"
@@ -19617,9 +20466,10 @@ cdef class GridLicensableFeature:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -21367,7 +22217,10 @@ cdef class PRMCounter_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=prm_counter_v1_dtype)
+        # Zero-initialized (not _numpy.empty): the caller may not set every
+        # field (e.g. reserved/padding members the wrapper doesn't expose),
+        # and many C APIs require unset bytes to be zero rather than garbage.
+        arr = _numpy.zeros(size, dtype=prm_counter_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPRMCounter_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPRMCounter_v1_t) }"
@@ -21387,9 +22240,10 @@ cdef class PRMCounter_v1:
         return self._data.ctypes.data
 
     def __int__(self):
-        if self._data.size > 1:
-            raise TypeError("int() argument must be a bytes-like object of size 1. "
-                            "To get the pointer address of an array, use .ptr")
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
         return self._data.ctypes.data
 
     def __len__(self):
@@ -22909,12 +23763,37 @@ cpdef object system_get_hic_version():
     check_status_size(__status__)
     cdef HwbcEntry hwbc_entries = HwbcEntry(hwbc_count[0])
     cdef nvmlHwbcEntry_t *hwbc_entries_ptr = <nvmlHwbcEntry_t *><intptr_t>(hwbc_entries._get_ptr())
-    if hwbc_count[0] == 0:
-        return hwbc_entries
-    with nogil:
-        __status__ = nvmlSystemGetHicVersion(<unsigned int*>hwbc_count, hwbc_entries_ptr)
-    check_status(__status__)
+    if hwbc_count[0] != 0:
+        with nogil:
+            __status__ = nvmlSystemGetHicVersion(<unsigned int*>hwbc_count, hwbc_entries_ptr)
+        check_status(__status__)
     return hwbc_entries
+
+
+cpdef object system_get_topology_gpu_set(unsigned int cpu_number):
+    """Retrieve the set of GPUs that have a CPU affinity with the given CPU number For all products. Supported on Linux only.
+
+    Args:
+        cpu_number (unsigned int): The CPU number.
+
+    Returns:
+        intptr_t: An array of device handles for GPUs found with
+            affinity to ``cpu_number``.
+
+    .. seealso:: `nvmlSystemGetTopologyGpuSet`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlSystemGetTopologyGpuSet(cpu_number, <unsigned int*>count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _device_array_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *device_array_ptr = <intptr_t *>(_device_array_alloc_.data)
+    cdef object device_array = _device_array_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlSystemGetTopologyGpuSet(cpu_number, <unsigned int*>count, <nvmlDevice_t*>device_array_ptr)
+        check_status(__status__)
+    return device_array
 
 
 cpdef unsigned int unit_get_count() except? 0:
@@ -23050,6 +23929,32 @@ cpdef object unit_get_fan_speed_info(intptr_t unit):
         __status__ = nvmlUnitGetFanSpeedInfo(<Unit>unit, fan_speeds)
     check_status(__status__)
     return fan_speeds_py
+
+
+cpdef object unit_get_devices(intptr_t unit):
+    """Retrieves the set of GPU devices that are attached to the specified unit.
+
+    Args:
+        unit (intptr_t): The identifier of the target unit.
+
+    Returns:
+        intptr_t: Reference in which to return the references to the
+            attached GPU devices.
+
+    .. seealso:: `nvmlUnitGetDevices`
+    """
+    cdef unsigned int[1] device_count = [0]
+    with nogil:
+        __status__ = nvmlUnitGetDevices(<Unit>unit, <unsigned int*>device_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _devices_alloc_ = _cyb_view.array(shape=(max(device_count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *devices_ptr = <intptr_t *>(_devices_alloc_.data)
+    cdef object devices = _devices_alloc_[:device_count[0]]
+    if device_count[0] != 0:
+        with nogil:
+            __status__ = nvmlUnitGetDevices(<Unit>unit, <unsigned int*>device_count, <nvmlDevice_t*>devices_ptr)
+        check_status(__status__)
+    return devices
 
 
 cpdef unsigned int device_get_count_v2() except? 0:
@@ -23307,10 +24212,9 @@ cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_s
 
     .. seealso:: `nvmlDeviceGetMemoryAffinity`
     """
-    if node_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array node_set = _cyb_view.array(shape=(node_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *node_set_ptr = <unsigned long *>(node_set.data)
+    cdef _cyb_view.array _node_set_alloc_ = _cyb_view.array(shape=(max(node_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
+    cdef unsigned long *node_set_ptr = <unsigned long *>(_node_set_alloc_.data)
+    cdef object node_set = _node_set_alloc_[:node_set_size]
     with nogil:
         __status__ = nvmlDeviceGetMemoryAffinity(<Device>device, node_set_size, node_set_ptr, <nvmlAffinityScope_t>scope)
     check_status(__status__)
@@ -23333,10 +24237,9 @@ cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int 
 
     .. seealso:: `nvmlDeviceGetCpuAffinityWithinScope`
     """
-    if cpu_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
+    cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
+    cdef unsigned long *cpu_set_ptr = <unsigned long *>(_cpu_set_alloc_.data)
+    cdef object cpu_set = _cpu_set_alloc_[:cpu_set_size]
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinityWithinScope(<Device>device, cpu_set_size, cpu_set_ptr, <nvmlAffinityScope_t>scope)
     check_status(__status__)
@@ -23358,10 +24261,9 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
 
     .. seealso:: `nvmlDeviceGetCpuAffinity`
     """
-    if cpu_set_size == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long), format="L", mode="c")[:0]
-    cdef _cyb_view.array cpu_set = _cyb_view.array(shape=(cpu_set_size,), itemsize=sizeof(unsigned long), format="L", mode="c")
-    cdef unsigned long *cpu_set_ptr = <unsigned long *>(cpu_set.data)
+    cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
+    cdef unsigned long *cpu_set_ptr = <unsigned long *>(_cpu_set_alloc_.data)
+    cdef object cpu_set = _cpu_set_alloc_[:cpu_set_size]
     with nogil:
         __status__ = nvmlDeviceGetCpuAffinity(<Device>device, cpu_set_size, cpu_set_ptr)
     check_status(__status__)
@@ -23429,6 +24331,34 @@ cpdef int device_get_topology_common_ancestor(intptr_t device1, intptr_t device2
         __status__ = nvmlDeviceGetTopologyCommonAncestor(<Device>device1, <Device>device2, &path_info)
     check_status(__status__)
     return <int>path_info
+
+
+cpdef object device_get_topology_nearest_gpus(intptr_t device, int level):
+    """Retrieve the set of GPUs that are nearest to a given device at a specific interconnectivity level For all products. Supported on Linux only.
+
+    Args:
+        device (intptr_t): The identifier of the first device.
+        level (GpuTopologyLevel): The ``nvmlGpuTopologyLevel_t`` level
+            to search for other GPUs.
+
+    Returns:
+        intptr_t: An array of device handles for GPUs found at
+            ``level``.
+
+    .. seealso:: `nvmlDeviceGetTopologyNearestGpus`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetTopologyNearestGpus(<Device>device, <_GpuTopologyLevel>level, <unsigned int*>count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _device_array_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *device_array_ptr = <intptr_t *>(_device_array_alloc_.data)
+    cdef object device_array = _device_array_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetTopologyNearestGpus(<Device>device, <_GpuTopologyLevel>level, <unsigned int*>count, <nvmlDevice_t*>device_array_ptr)
+        check_status(__status__)
+    return device_array
 
 
 cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_index) except? -1:
@@ -23945,13 +24875,13 @@ cpdef object device_get_supported_memory_clocks(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, clocks_m_hz_ptr)
-    check_status(__status__)
+    cdef _cyb_view.array _clocks_m_hz_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(_clocks_m_hz_alloc_.data)
+    cdef object clocks_m_hz = _clocks_m_hz_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, clocks_m_hz_ptr)
+        check_status(__status__)
     return clocks_m_hz
 
 
@@ -23972,13 +24902,13 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
     with nogil:
         __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array clocks_m_hz = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(clocks_m_hz.data)
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, clocks_m_hz_ptr)
-    check_status(__status__)
+    cdef _cyb_view.array _clocks_m_hz_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(_clocks_m_hz_alloc_.data)
+    cdef object clocks_m_hz = _clocks_m_hz_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, clocks_m_hz_ptr)
+        check_status(__status__)
     return clocks_m_hz
 
 
@@ -24373,7 +25303,7 @@ cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device):
     return (min_offset, max_offset)
 
 
-cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
+cpdef device_set_clock_offsets(intptr_t device, info):
     """Control current clock offset of some clock domain for a given PState.
 
     Args:
@@ -24383,8 +25313,9 @@ cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
 
     .. seealso:: `nvmlDeviceSetClockOffsets`
     """
+    cdef intptr_t _info_ptr_ = int(info)
     with nogil:
-        __status__ = nvmlDeviceSetClockOffsets(<Device>device, <nvmlClockOffset_t*>info)
+        __status__ = nvmlDeviceSetClockOffsets(<Device>device, <nvmlClockOffset_t*>_info_ptr_)
     check_status(__status__)
 
 
@@ -24829,11 +25760,10 @@ cpdef object device_get_encoder_sessions(intptr_t device):
     check_status_size(__status__)
     cdef EncoderSessionInfo session_infos = EncoderSessionInfo(session_count[0])
     cdef nvmlEncoderSessionInfo_t *session_infos_ptr = <nvmlEncoderSessionInfo_t *><intptr_t>(session_infos._get_ptr())
-    if session_count[0] == 0:
-        return session_infos
-    with nogil:
-        __status__ = nvmlDeviceGetEncoderSessions(<Device>device, <unsigned int*>session_count, session_infos_ptr)
-    check_status(__status__)
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetEncoderSessions(<Device>device, <unsigned int*>session_count, session_infos_ptr)
+        check_status(__status__)
     return session_infos
 
 
@@ -24947,11 +25877,10 @@ cpdef object device_get_fbc_sessions(intptr_t device):
     check_status_size(__status__)
     cdef FBCSessionInfo session_info = FBCSessionInfo(session_count[0])
     cdef nvmlFBCSessionInfo_t *session_info_ptr = <nvmlFBCSessionInfo_t *><intptr_t>(session_info._get_ptr())
-    if session_count[0] == 0:
-        return session_info
-    with nogil:
-        __status__ = nvmlDeviceGetFBCSessions(<Device>device, <unsigned int*>session_count, session_info_ptr)
-    check_status(__status__)
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetFBCSessions(<Device>device, <unsigned int*>session_count, session_info_ptr)
+        check_status(__status__)
     return session_info
 
 
@@ -25034,11 +25963,10 @@ cpdef object device_get_compute_running_processes_v3(intptr_t device):
     check_status_size(__status__)
     cdef ProcessInfo infos = ProcessInfo(info_count[0])
     cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
-    if info_count[0] == 0:
-        return infos
-    with nogil:
-        __status__ = nvmlDeviceGetComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-    check_status(__status__)
+    if info_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+        check_status(__status__)
     return infos
 
 
@@ -25060,11 +25988,10 @@ cpdef object device_get_graphics_running_processes_v3(intptr_t device):
     check_status_size(__status__)
     cdef ProcessInfo infos = ProcessInfo(info_count[0])
     cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
-    if info_count[0] == 0:
-        return infos
-    with nogil:
-        __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-    check_status(__status__)
+    if info_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+        check_status(__status__)
     return infos
 
 
@@ -25086,11 +26013,10 @@ cpdef object device_get_mps_compute_running_processes_v3(intptr_t device):
     check_status_size(__status__)
     cdef ProcessInfo infos = ProcessInfo(info_count[0])
     cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *><intptr_t>(infos._get_ptr())
-    if info_count[0] == 0:
-        return infos
-    with nogil:
-        __status__ = nvmlDeviceGetMPSComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-    check_status(__status__)
+    if info_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetMPSComputeRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
+        check_status(__status__)
     return infos
 
 
@@ -25134,6 +26060,38 @@ cpdef int device_get_api_restriction(intptr_t device, int api_type) except? -1:
         __status__ = nvmlDeviceGetAPIRestriction(<Device>device, <_RestrictedAPI>api_type, &is_restricted)
     check_status(__status__)
     return <int>is_restricted
+
+
+cpdef tuple device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
+    """Gets recent samples for the GPU.
+
+    Args:
+        device (intptr_t): The identifier for the target device.
+        type (SamplingType): Type of sampling event.
+        last_seen_time_stamp (unsigned long long): Return only samples
+            with timestamp greater than last_seen_time_stamp.
+
+    Returns:
+        A 2-tuple containing:
+
+        - int: Output parameter to represent the type of sample value as
+            described in nvmlSampleVal_t.
+        - nvmlSample_t: Reference in which samples are returned.
+
+    .. seealso:: `nvmlDeviceGetSamples`
+    """
+    cdef _ValueType sample_val_type
+    cdef unsigned int[1] sample_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, &sample_val_type, <unsigned int*>sample_count, NULL)
+    check_status_size(__status__)
+    cdef Sample samples = Sample(sample_count[0])
+    cdef nvmlSample_t *samples_ptr = <nvmlSample_t *><intptr_t>(samples._get_ptr())
+    if not (sample_count[0] == 0):
+        with nogil:
+            __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, &sample_val_type, <unsigned int*>sample_count, samples_ptr)
+        check_status(__status__)
+    return (<int>sample_val_type, samples)
 
 
 cpdef object device_get_bar1_memory_info(intptr_t device):
@@ -25576,13 +26534,13 @@ cpdef object device_get_accounting_pids(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
-    with nogil:
-        __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, pids_ptr)
-    check_status(__status__)
+    cdef _cyb_view.array _pids_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef unsigned int *pids_ptr = <unsigned int *>(_pids_alloc_.data)
+    cdef object pids = _pids_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, pids_ptr)
+        check_status(__status__)
     return pids
 
 
@@ -25623,14 +26581,48 @@ cpdef object device_get_retired_pages(intptr_t device, int cause):
     with nogil:
         __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL)
     check_status_size(__status__)
-    if page_count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0]
-    cdef _cyb_view.array addresses = _cyb_view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    cdef unsigned long long *addresses_ptr = <unsigned long long *>(addresses.data)
-    with nogil:
-        __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr)
-    check_status(__status__)
+    cdef _cyb_view.array _addresses_alloc_ = _cyb_view.array(shape=(max(page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+    cdef unsigned long long *addresses_ptr = <unsigned long long *>(_addresses_alloc_.data)
+    cdef object addresses = _addresses_alloc_[:page_count[0]]
+    if page_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr)
+        check_status(__status__)
     return addresses
+
+
+cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause):
+    """Returns the list of retired pages by source, including pages that are pending retirement The address information provided from this API is the hardware address of the page that was retired. Note that this does not match the virtual address used in CUDA, but will match the address information in Xid 63.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        cause (PageRetirementCause): Filter page addresses by cause of
+            retirement.
+
+    Returns:
+        A 2-tuple containing:
+
+        - unsigned long long: Buffer to write the page addresses into.
+        - unsigned long long: Buffer to write the timestamps of page
+            retirement, additional for _v2.
+
+    .. seealso:: `nvmlDeviceGetRetiredPages_v2`
+    """
+    cdef unsigned int[1] page_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _addresses_alloc_ = _cyb_view.array(shape=(max(page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+    cdef unsigned long long *addresses_ptr = <unsigned long long *>(_addresses_alloc_.data)
+    cdef object addresses = _addresses_alloc_[:page_count[0]]
+    cdef _cyb_view.array _timestamps_alloc_ = _cyb_view.array(shape=(max(page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+    cdef unsigned long long *timestamps_ptr = <unsigned long long *>(_timestamps_alloc_.data)
+    cdef object timestamps = _timestamps_alloc_[:page_count[0]]
+    if not (page_count[0] == 0):
+        with nogil:
+            __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, addresses_ptr, timestamps_ptr)
+        check_status(__status__)
+    return (addresses, timestamps)
 
 
 cpdef int device_get_retired_pages_pending_status(intptr_t device) except? -1:
@@ -25760,11 +26752,10 @@ cpdef object device_get_process_utilization(intptr_t device, unsigned long long 
     check_status_size(__status__)
     cdef ProcessUtilizationSample utilization = ProcessUtilizationSample(process_samples_count[0])
     cdef nvmlProcessUtilizationSample_t *utilization_ptr = <nvmlProcessUtilizationSample_t *><intptr_t>(utilization._get_ptr())
-    if process_samples_count[0] == 0:
-        return utilization
-    with nogil:
-        __status__ = nvmlDeviceGetProcessUtilization(<Device>device, utilization_ptr, <unsigned int*>process_samples_count, last_seen_time_stamp)
-    check_status(__status__)
+    if process_samples_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetProcessUtilization(<Device>device, utilization_ptr, <unsigned int*>process_samples_count, last_seen_time_stamp)
+        check_status(__status__)
     return utilization
 
 
@@ -26257,7 +27248,7 @@ cpdef object device_get_nvlink_bw_mode(intptr_t device):
     return get_bw_mode_py
 
 
-cpdef device_set_nvlink_bw_mode(intptr_t device, intptr_t set_bw_mode):
+cpdef device_set_nvlink_bw_mode(intptr_t device, set_bw_mode):
     """Set the NvLink Reduced Bandwidth Mode for the device.
 
     Args:
@@ -26267,9 +27258,10 @@ cpdef device_set_nvlink_bw_mode(intptr_t device, intptr_t set_bw_mode):
 
     .. seealso:: `nvmlDeviceSetNvlinkBwMode`
     """
+    cdef intptr_t _set_bw_mode_ptr_ = int(set_bw_mode)
     set_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkSetBwMode_v1_t), 1)
     with nogil:
-        __status__ = nvmlDeviceSetNvlinkBwMode(<Device>device, <nvmlNvlinkSetBwMode_t*>set_bw_mode)
+        __status__ = nvmlDeviceSetNvlinkBwMode(<Device>device, <nvmlNvlinkSetBwMode_t*>_set_bw_mode_ptr_)
     check_status(__status__)
 
 
@@ -26357,7 +27349,7 @@ cpdef event_set_free(intptr_t set):
     check_status(__status__)
 
 
-cpdef device_modify_drain_state(intptr_t pci_info, int new_state):
+cpdef device_modify_drain_state(pci_info, int new_state):
     """Modify the drain state of a GPU. This method forces a GPU to no longer accept new incoming requests. Any new NVML process will no longer see this GPU. Persistence mode for this GPU must be turned off before this call is made. Must be called as administrator. For Linux only.
 
     Args:
@@ -26368,12 +27360,13 @@ cpdef device_modify_drain_state(intptr_t pci_info, int new_state):
 
     .. seealso:: `nvmlDeviceModifyDrainState`
     """
+    cdef intptr_t _pci_info_ptr_ = int(pci_info)
     with nogil:
-        __status__ = nvmlDeviceModifyDrainState(<nvmlPciInfo_t*>pci_info, <_EnableState>new_state)
+        __status__ = nvmlDeviceModifyDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, <_EnableState>new_state)
     check_status(__status__)
 
 
-cpdef int device_query_drain_state(intptr_t pci_info) except? -1:
+cpdef int device_query_drain_state(pci_info) except? -1:
     """Query the drain state of a GPU. This method is used to check if a GPU is in a currently draining state. For Linux only.
 
     Args:
@@ -26386,14 +27379,15 @@ cpdef int device_query_drain_state(intptr_t pci_info) except? -1:
 
     .. seealso:: `nvmlDeviceQueryDrainState`
     """
+    cdef intptr_t _pci_info_ptr_ = int(pci_info)
     cdef _EnableState current_state
     with nogil:
-        __status__ = nvmlDeviceQueryDrainState(<nvmlPciInfo_t*>pci_info, &current_state)
+        __status__ = nvmlDeviceQueryDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, &current_state)
     check_status(__status__)
     return <int>current_state
 
 
-cpdef device_remove_gpu_v2(intptr_t pci_info, int gpu_state, int link_state):
+cpdef device_remove_gpu_v2(pci_info, int gpu_state, int link_state):
     """This method will remove the specified GPU from the view of both NVML and the NVIDIA kernel driver as long as no other processes are attached. If other processes are attached, this call will return NVML_ERROR_IN_USE and the GPU will be returned to its original "draining" state. Note: the only situation where a process can still be attached after :func:`device_modify_drain_state` is called to initiate the draining state is if that process was using, and is still using, a GPU before the call was made. Also note, persistence mode counts as an attachment to the GPU thus it must be disabled prior to this call.
 
     Args:
@@ -26405,12 +27399,13 @@ cpdef device_remove_gpu_v2(intptr_t pci_info, int gpu_state, int link_state):
 
     .. seealso:: `nvmlDeviceRemoveGpu_v2`
     """
+    cdef intptr_t _pci_info_ptr_ = int(pci_info)
     with nogil:
-        __status__ = nvmlDeviceRemoveGpu_v2(<nvmlPciInfo_t*>pci_info, <_DetachGpuState>gpu_state, <_PcieLinkState>link_state)
+        __status__ = nvmlDeviceRemoveGpu_v2(<nvmlPciInfo_t*>_pci_info_ptr_, <_DetachGpuState>gpu_state, <_PcieLinkState>link_state)
     check_status(__status__)
 
 
-cpdef device_discover_gpus(intptr_t pci_info):
+cpdef device_discover_gpus(pci_info):
     """Request the OS and the NVIDIA kernel driver to rediscover a portion of the PCI subsystem looking for GPUs that were previously removed. The portion of the PCI tree can be narrowed by specifying a domain, bus, and device. If all are zeroes then the entire PCI tree will be searched. Please note that for long-running NVML processes the enumeration will change based on how many GPUs are discovered and where they are inserted in bus order.
 
     Args:
@@ -26419,8 +27414,9 @@ cpdef device_discover_gpus(intptr_t pci_info):
 
     .. seealso:: `nvmlDeviceDiscoverGpus`
     """
+    cdef intptr_t _pci_info_ptr_ = int(pci_info)
     with nogil:
-        __status__ = nvmlDeviceDiscoverGpus(<nvmlPciInfo_t*>pci_info)
+        __status__ = nvmlDeviceDiscoverGpus(<nvmlPciInfo_t*>_pci_info_ptr_)
     check_status(__status__)
 
 
@@ -26591,6 +27587,58 @@ cpdef unsigned int device_get_vgpu_capabilities(intptr_t device, int capability)
     return cap_result
 
 
+cpdef object device_get_supported_vgpus(intptr_t device):
+    """Retrieve the supported vGPU types on a physical GPU (device).
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: Pointer to caller-supplied array in which to
+            return list of vGPU types.
+
+    .. seealso:: `nvmlDeviceGetSupportedVgpus`
+    """
+    cdef unsigned int[1] vgpu_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _vgpu_type_ids_alloc_ = _cyb_view.array(shape=(max(vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+    cdef nvmlVgpuTypeId_t *vgpu_type_ids_ptr = <nvmlVgpuTypeId_t *>(_vgpu_type_ids_alloc_.data)
+    cdef object vgpu_type_ids = _vgpu_type_ids_alloc_[:vgpu_count[0]]
+    if vgpu_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, <unsigned int*>vgpu_count, vgpu_type_ids_ptr)
+        check_status(__status__)
+    return vgpu_type_ids
+
+
+cpdef object device_get_creatable_vgpus(intptr_t device):
+    """Retrieve the currently creatable vGPU types on a physical GPU (device).
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: Pointer to caller-supplied array in which to
+            return list of vGPU types.
+
+    .. seealso:: `nvmlDeviceGetCreatableVgpus`
+    """
+    cdef unsigned int[1] vgpu_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _vgpu_type_ids_alloc_ = _cyb_view.array(shape=(max(vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+    cdef nvmlVgpuTypeId_t *vgpu_type_ids_ptr = <nvmlVgpuTypeId_t *>(_vgpu_type_ids_alloc_.data)
+    cdef object vgpu_type_ids = _vgpu_type_ids_alloc_[:vgpu_count[0]]
+    if vgpu_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, <unsigned int*>vgpu_count, vgpu_type_ids_ptr)
+        check_status(__status__)
+    return vgpu_type_ids
+
+
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
     """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See nvmlConstants::NVML_DEVICE_NAME_BUFFER_SIZE.
 
@@ -26606,13 +27654,12 @@ cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
     with nogil:
         __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, NULL, <unsigned int*>size)
     check_status_size(__status__)
-    if size[0] == 0:
-        return ""
     cdef bytes _vgpu_type_class_ = bytes(size[0])
     cdef char* vgpu_type_class = _vgpu_type_class_
-    with nogil:
-        __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_class, <unsigned int*>size)
-    check_status(__status__)
+    if size[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuTypeGetClass(<nvmlVgpuTypeId_t>vgpu_type_id, vgpu_type_class, <unsigned int*>size)
+        check_status(__status__)
     return _cyb_cpython.PyUnicode_FromString(vgpu_type_class)
 
 
@@ -26815,6 +27862,56 @@ cpdef object vgpu_type_get_bar1_info(unsigned int vgpu_type_id):
         __status__ = nvmlVgpuTypeGetBAR1Info(<nvmlVgpuTypeId_t>vgpu_type_id, bar1info)
     check_status(__status__)
     return bar1info_py
+
+
+cpdef object device_get_active_vgpus(intptr_t device):
+    """Retrieve the active vGPU instances on a device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        unsigned int: Pointer to array in which to return list of vGPU
+            instances.
+
+    .. seealso:: `nvmlDeviceGetActiveVgpus`
+    """
+    cdef unsigned int[1] vgpu_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetActiveVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
+    check_status_size(__status__)
+    cdef _cyb_view.array _vgpu_instances_alloc_ = _cyb_view.array(shape=(max(vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuInstance_t), format="I", mode="c")
+    cdef nvmlVgpuInstance_t *vgpu_instances_ptr = <nvmlVgpuInstance_t *>(_vgpu_instances_alloc_.data)
+    cdef object vgpu_instances = _vgpu_instances_alloc_[:vgpu_count[0]]
+    if vgpu_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetActiveVgpus(<Device>device, <unsigned int*>vgpu_count, vgpu_instances_ptr)
+        check_status(__status__)
+    return vgpu_instances
+
+
+cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
+    """Retrieve the VM ID associated with a vGPU instance.
+
+    Args:
+        vgpu_instance (unsigned int): Identifier of the target vGPU
+            instance.
+
+    Returns:
+        A 2-tuple containing:
+
+        - char: Pointer to caller-supplied buffer to hold VM ID.
+        - int: Pointer to hold VM ID type.
+
+    .. seealso:: `nvmlVgpuInstanceGetVmID`
+    """
+    cdef unsigned int size = 80
+    cdef char[80] vm_id
+    cdef _VgpuVmIdType vm_id_type
+    with nogil:
+        __status__ = nvmlVgpuInstanceGetVmID(<nvmlVgpuInstance_t>vgpu_instance, vm_id, size, &vm_id_type)
+    check_status(__status__)
+    return (_cyb_cpython.PyUnicode_FromString(vm_id), <int>vm_id_type)
 
 
 cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
@@ -27035,11 +28132,10 @@ cpdef object vgpu_instance_get_encoder_sessions(unsigned int vgpu_instance):
     check_status_size(__status__)
     cdef EncoderSessionInfo session_info = EncoderSessionInfo(session_count[0])
     cdef nvmlEncoderSessionInfo_t *session_info_ptr = <nvmlEncoderSessionInfo_t *><intptr_t>(session_info._get_ptr())
-    if session_count[0] == 0:
-        return session_info
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetEncoderSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
-    check_status(__status__)
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetEncoderSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
+        check_status(__status__)
     return session_info
 
 
@@ -27083,11 +28179,10 @@ cpdef object vgpu_instance_get_fbc_sessions(unsigned int vgpu_instance):
     check_status_size(__status__)
     cdef FBCSessionInfo session_info = FBCSessionInfo(session_count[0])
     cdef nvmlFBCSessionInfo_t *session_info_ptr = <nvmlFBCSessionInfo_t *><intptr_t>(session_info._get_ptr())
-    if session_count[0] == 0:
-        return session_info
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetFBCSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
-    check_status(__status__)
+    if session_count[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetFBCSessions(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>session_count, session_info_ptr)
+        check_status(__status__)
     return session_info
 
 
@@ -27126,13 +28221,12 @@ cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, NULL, <unsigned int*>length)
     check_status_size(__status__)
-    if length[0] == 0:
-        return ""
     cdef bytes _vgpu_pci_id_ = bytes(length[0])
     cdef char* vgpu_pci_id = _vgpu_pci_id_
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, vgpu_pci_id, <unsigned int*>length)
-    check_status(__status__)
+    if length[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetGpuPciId(<nvmlVgpuInstance_t>vgpu_instance, vgpu_pci_id, <unsigned int*>length)
+        check_status(__status__)
     return _cyb_cpython.PyUnicode_FromString(vgpu_pci_id)
 
 
@@ -27177,7 +28271,7 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
     return _cyb_cpython.PyUnicode_FromString(mdev_uuid)
 
 
-cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_scheduler):
+cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, p_scheduler):
     """Set vGPU scheduler state for the given GPU instance.
 
     Args:
@@ -27187,9 +28281,10 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_sc
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
+    cdef intptr_t _p_scheduler_ptr_ = int(p_scheduler)
     (<nvmlVgpuSchedulerState_t*>p_scheduler).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
-        __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>p_scheduler)
+        __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_)
     check_status(__status__)
 
 
@@ -27251,13 +28346,12 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, NULL, <unsigned int*>buffer_size)
     check_status_size(__status__)
-    if buffer_size[0] == 0:
-        return ""
     cdef bytes _pgpu_metadata_ = bytes(buffer_size[0])
     cdef char* pgpu_metadata = _pgpu_metadata_
-    with nogil:
-        __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, pgpu_metadata, <unsigned int*>buffer_size)
-    check_status(__status__)
+    if buffer_size[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetPgpuMetadataString(<Device>device, pgpu_metadata, <unsigned int*>buffer_size)
+        check_status(__status__)
     return _cyb_cpython.PyUnicode_FromString(pgpu_metadata)
 
 
@@ -27336,7 +28430,32 @@ cpdef device_set_vgpu_scheduler_state(intptr_t device, intptr_t p_scheduler_stat
     check_status(__status__)
 
 
-cpdef set_vgpu_version(intptr_t vgpu_version):
+cpdef tuple get_vgpu_version():
+    """Query the ranges of supported vGPU versions.
+
+    Returns:
+        A 2-tuple containing:
+
+        - nvmlVgpuVersion_t: Pointer to the structure in which the
+            preset range of vGPU versions supported by the NVIDIA vGPU
+            Manager is written.
+        - nvmlVgpuVersion_t: Pointer to the structure in which the range
+            of supported vGPU versions set by an administrator is
+            written.
+
+    .. seealso:: `nvmlGetVgpuVersion`
+    """
+    cdef VgpuVersion supported_py = VgpuVersion()
+    cdef nvmlVgpuVersion_t *supported = <nvmlVgpuVersion_t *><intptr_t>(supported_py._get_ptr())
+    cdef VgpuVersion current_py = VgpuVersion()
+    cdef nvmlVgpuVersion_t *current = <nvmlVgpuVersion_t *><intptr_t>(current_py._get_ptr())
+    with nogil:
+        __status__ = nvmlGetVgpuVersion(supported, current)
+    check_status(__status__)
+    return (supported_py, current_py)
+
+
+cpdef set_vgpu_version(vgpu_version):
     """Override the preset range of vGPU versions supported by the NVIDIA vGPU Manager with a range set by an administrator.
 
     Args:
@@ -27345,13 +28464,14 @@ cpdef set_vgpu_version(intptr_t vgpu_version):
 
     .. seealso:: `nvmlSetVgpuVersion`
     """
+    cdef intptr_t _vgpu_version_ptr_ = int(vgpu_version)
     with nogil:
-        __status__ = nvmlSetVgpuVersion(<nvmlVgpuVersion_t*>vgpu_version)
+        __status__ = nvmlSetVgpuVersion(<nvmlVgpuVersion_t*>_vgpu_version_ptr_)
     check_status(__status__)
 
 
-cpdef tuple device_get_vgpu_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
-    """Retrieves current utilization for processes running on vGPUs on a physical GPU (device).
+cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
+    """Retrieves current utilization for vGPUs on a physical GPU (device).
 
     Args:
         device (intptr_t): The identifier for the target device.
@@ -27361,20 +28481,54 @@ cpdef tuple device_get_vgpu_process_utilization(intptr_t device, unsigned long l
     Returns:
         A 2-tuple containing:
 
-        - unsigned int: Pointer to caller-supplied array size, and
-            returns number of processes running on vGPU instances.
-        - nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied
+        - int: Pointer to caller-supplied buffer to hold the type of
+            returned sample values.
+        - nvmlVgpuInstanceUtilizationSample_t: Pointer to caller-
+            supplied buffer in which vGPU utilization samples are
+            returned.
+
+    .. seealso:: `nvmlDeviceGetVgpuUtilization`
+    """
+    cdef _ValueType sample_val_type
+    cdef unsigned int[1] vgpu_instance_samples_count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetVgpuUtilization(<Device>device, last_seen_time_stamp, &sample_val_type, <unsigned int*>vgpu_instance_samples_count, NULL)
+    check_status_size(__status__)
+    cdef VgpuInstanceUtilizationSample utilization_samples = VgpuInstanceUtilizationSample(vgpu_instance_samples_count[0])
+    cdef nvmlVgpuInstanceUtilizationSample_t *utilization_samples_ptr = <nvmlVgpuInstanceUtilizationSample_t *><intptr_t>(utilization_samples._get_ptr())
+    if not (vgpu_instance_samples_count[0] == 0):
+        with nogil:
+            __status__ = nvmlDeviceGetVgpuUtilization(<Device>device, last_seen_time_stamp, &sample_val_type, <unsigned int*>vgpu_instance_samples_count, utilization_samples_ptr)
+        check_status(__status__)
+    return (<int>sample_val_type, utilization_samples)
+
+
+cpdef object device_get_vgpu_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
+    """Retrieves current utilization for processes running on vGPUs on a physical GPU (device).
+
+    Args:
+        device (intptr_t): The identifier for the target device.
+        last_seen_time_stamp (unsigned long long): Return only samples
+            with timestamp greater than last_seen_time_stamp.
+
+    Returns:
+        nvmlVgpuProcessUtilizationSample_t: Pointer to caller-supplied
             buffer in which vGPU sub process utilization samples are
             returned.
 
     .. seealso:: `nvmlDeviceGetVgpuProcessUtilization`
     """
-    cdef unsigned int vgpu_process_samples_count
-    cdef nvmlVgpuProcessUtilizationSample_t utilization_samples
+    cdef unsigned int[1] vgpu_process_samples_count = [0]
     with nogil:
-        __status__ = nvmlDeviceGetVgpuProcessUtilization(<Device>device, last_seen_time_stamp, &vgpu_process_samples_count, &utilization_samples)
-    check_status(__status__)
-    return (vgpu_process_samples_count, utilization_samples)
+        __status__ = nvmlDeviceGetVgpuProcessUtilization(<Device>device, last_seen_time_stamp, <unsigned int*>vgpu_process_samples_count, NULL)
+    check_status_size(__status__)
+    cdef VgpuProcessUtilizationSample utilization_samples = VgpuProcessUtilizationSample(vgpu_process_samples_count[0])
+    cdef nvmlVgpuProcessUtilizationSample_t *utilization_samples_ptr = <nvmlVgpuProcessUtilizationSample_t *><intptr_t>(utilization_samples._get_ptr())
+    if vgpu_process_samples_count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetVgpuProcessUtilization(<Device>device, last_seen_time_stamp, <unsigned int*>vgpu_process_samples_count, utilization_samples_ptr)
+        check_status(__status__)
+    return utilization_samples
 
 
 cpdef int vgpu_instance_get_accounting_mode(unsigned int vgpu_instance) except? -1:
@@ -27413,13 +28567,13 @@ cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    if count[0] == 0:
-        return _cyb_view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef _cyb_view.array pids = _cyb_view.array(shape=(count[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    cdef unsigned int *pids_ptr = <unsigned int *>(pids.data)
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, pids_ptr)
-    check_status(__status__)
+    cdef _cyb_view.array _pids_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef unsigned int *pids_ptr = <unsigned int *>(_pids_alloc_.data)
+    cdef object pids = _pids_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, pids_ptr)
+        check_status(__status__)
     return pids
 
 
@@ -27585,11 +28739,10 @@ cpdef object device_get_gpu_instance_possible_placements_v2(intptr_t device, uns
     check_status_size(__status__)
     cdef GpuInstancePlacement placements = GpuInstancePlacement(count[0])
     cdef nvmlGpuInstancePlacement_t *placements_ptr = <nvmlGpuInstancePlacement_t *><intptr_t>(placements._get_ptr())
-    if count[0] == 0:
-        return placements
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstancePossiblePlacements_v2(<Device>device, profile_id, placements_ptr, <unsigned int*>count)
-    check_status(__status__)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGpuInstancePossiblePlacements_v2(<Device>device, profile_id, placements_ptr, <unsigned int*>count)
+        check_status(__status__)
     return placements
 
 
@@ -27634,7 +28787,7 @@ cpdef intptr_t device_create_gpu_instance(intptr_t device, unsigned int profile_
     return <intptr_t>gpu_instance
 
 
-cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsigned int profile_id, intptr_t placement) except? 0:
+cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsigned int profile_id, placement) except? 0:
     """Create GPU instance with the specified placement.
 
     Args:
@@ -27649,9 +28802,10 @@ cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsign
 
     .. seealso:: `nvmlDeviceCreateGpuInstanceWithPlacement`
     """
+    cdef intptr_t _placement_ptr_ = int(placement)
     cdef GpuInstance gpu_instance
     with nogil:
-        __status__ = nvmlDeviceCreateGpuInstanceWithPlacement(<Device>device, profile_id, <const nvmlGpuInstancePlacement_t*>placement, &gpu_instance)
+        __status__ = nvmlDeviceCreateGpuInstanceWithPlacement(<Device>device, profile_id, <const nvmlGpuInstancePlacement_t*>_placement_ptr_, &gpu_instance)
     check_status(__status__)
     return <intptr_t>gpu_instance
 
@@ -27667,6 +28821,35 @@ cpdef gpu_instance_destroy(intptr_t gpu_instance):
     with nogil:
         __status__ = nvmlGpuInstanceDestroy(<GpuInstance>gpu_instance)
     check_status(__status__)
+
+
+cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
+    """Get GPU instances for given profile ID.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        profile_id (unsigned int): The GPU instance profile ID. See
+            ``nvmlDeviceGetGpuInstanceProfileInfo``.
+
+    Returns:
+        intptr_t: Returns pre-exiting GPU instances, the buffer must
+            be large enough to accommodate the instances supported by
+            the profile. See ``nvmlDeviceGetGpuInstanceProfileInfo``.
+
+    .. seealso:: `nvmlDeviceGetGpuInstances`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, NULL, <unsigned int*>count)
+    check_status_size(__status__)
+    cdef _cyb_view.array _gpu_instances_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *gpu_instances_ptr = <intptr_t *>(_gpu_instances_alloc_.data)
+    cdef object gpu_instances = _gpu_instances_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t*>gpu_instances_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return gpu_instances
 
 
 cpdef intptr_t device_get_gpu_instance_by_id(intptr_t device, unsigned int id) except? 0:
@@ -27779,11 +28962,10 @@ cpdef object gpu_instance_get_compute_instance_possible_placements(intptr_t gpu_
     check_status_size(__status__)
     cdef ComputeInstancePlacement placements = ComputeInstancePlacement(count[0])
     cdef nvmlComputeInstancePlacement_t *placements_ptr = <nvmlComputeInstancePlacement_t *><intptr_t>(placements._get_ptr())
-    if count[0] == 0:
-        return placements
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstancePossiblePlacements(<GpuInstance>gpu_instance, profile_id, placements_ptr, <unsigned int*>count)
-    check_status(__status__)
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlGpuInstanceGetComputeInstancePossiblePlacements(<GpuInstance>gpu_instance, profile_id, placements_ptr, <unsigned int*>count)
+        check_status(__status__)
     return placements
 
 
@@ -27808,7 +28990,7 @@ cpdef intptr_t gpu_instance_create_compute_instance(intptr_t gpu_instance, unsig
     return <intptr_t>compute_instance
 
 
-cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_instance, unsigned int profile_id, intptr_t placement) except? 0:
+cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_instance, unsigned int profile_id, placement) except? 0:
     """Create compute instance with the specified placement.
 
     Args:
@@ -27824,9 +29006,10 @@ cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_
 
     .. seealso:: `nvmlGpuInstanceCreateComputeInstanceWithPlacement`
     """
+    cdef intptr_t _placement_ptr_ = int(placement)
     cdef ComputeInstance compute_instance
     with nogil:
-        __status__ = nvmlGpuInstanceCreateComputeInstanceWithPlacement(<GpuInstance>gpu_instance, profile_id, <const nvmlComputeInstancePlacement_t*>placement, &compute_instance)
+        __status__ = nvmlGpuInstanceCreateComputeInstanceWithPlacement(<GpuInstance>gpu_instance, profile_id, <const nvmlComputeInstancePlacement_t*>_placement_ptr_, &compute_instance)
     check_status(__status__)
     return <intptr_t>compute_instance
 
@@ -27842,6 +29025,37 @@ cpdef compute_instance_destroy(intptr_t compute_instance):
     with nogil:
         __status__ = nvmlComputeInstanceDestroy(<ComputeInstance>compute_instance)
     check_status(__status__)
+
+
+cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id):
+    """Get compute instances for given profile ID.
+
+    Args:
+        gpu_instance (intptr_t): The identifier of the target GPU
+            instance.
+        profile_id (unsigned int): The compute instance profile ID.
+            See ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+
+    Returns:
+        intptr_t: Returns pre-exiting compute instances, the buffer
+            must be large enough to accommodate the instances
+            supported by the profile. See
+            ``nvmlGpuInstanceGetComputeInstanceProfileInfo``.
+
+    .. seealso:: `nvmlGpuInstanceGetComputeInstances`
+    """
+    cdef unsigned int[1] count = [0]
+    with nogil:
+        __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, NULL, <unsigned int*>count)
+    check_status_size(__status__)
+    cdef _cyb_view.array _compute_instances_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef intptr_t *compute_instances_ptr = <intptr_t *>(_compute_instances_alloc_.data)
+    cdef object compute_instances = _compute_instances_alloc_[:count[0]]
+    if count[0] != 0:
+        with nogil:
+            __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t*>compute_instances_ptr, <unsigned int*>count)
+        check_status(__status__)
+    return compute_instances
 
 
 cpdef intptr_t gpu_instance_get_compute_instance_by_id(intptr_t gpu_instance, unsigned int id) except? 0:
@@ -28101,7 +29315,7 @@ cpdef object device_get_power_mizer_mode_v1(intptr_t device):
     return power_mizer_mode_py
 
 
-cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode):
+cpdef device_set_power_mizer_mode_v1(intptr_t device, power_mizer_mode):
     """Sets the new power mizer mode.
 
     Args:
@@ -28111,8 +29325,9 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
 
     .. seealso:: `nvmlDeviceSetPowerMizerMode_v1`
     """
+    cdef intptr_t _power_mizer_mode_ptr_ = int(power_mizer_mode)
     with nogil:
-        __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>power_mizer_mode)
+        __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>_power_mizer_mode_ptr_)
     check_status(__status__)
 
 
@@ -28209,7 +29424,7 @@ cpdef object gpu_instance_get_vgpu_scheduler_log_v2(intptr_t gpu_instance):
     return p_scheduler_log_info_py
 
 
-cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_state):
+cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, p_scheduler_state):
     """Sets the vGPU scheduler state.
 
     Args:
@@ -28219,12 +29434,13 @@ cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, intptr_t p_scheduler_s
 
     .. seealso:: `nvmlDeviceSetVgpuSchedulerState_v2`
     """
+    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
     with nogil:
-        __status__ = nvmlDeviceSetVgpuSchedulerState_v2(<Device>device, <nvmlVgpuSchedulerState_v2_t*>p_scheduler_state)
+        __status__ = nvmlDeviceSetVgpuSchedulerState_v2(<Device>device, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
 
 
-cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p_scheduler_state):
+cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, p_scheduler_state):
     """Set vGPU scheduler state for the given GPU instance.
 
     Args:
@@ -28234,8 +29450,9 @@ cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, intptr_t p
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState_v2`
     """
+    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
     with nogil:
-        __status__ = nvmlGpuInstanceSetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_v2_t*>p_scheduler_state)
+        __status__ = nvmlGpuInstanceSetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
 
 
@@ -28321,28 +29538,6 @@ cpdef object device_get_remapped_rows_v2(intptr_t device):
     return info_py
 
 
-cpdef object system_get_topology_gpu_set(unsigned int cpuNumber):
-    """Retrieve the set of GPUs that have a CPU affinity with the given CPU number
-
-    Args:
-        cpuNumber (unsigned int): The CPU number
-
-    Returns:
-        array: An array of device handles for GPUs found with affinity to  cpuNumber
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, NULL)
-    check_status_size(__status__)
-    if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, <nvmlDevice_t *>deviceArray.data)
-    check_status(__status__)
-    return deviceArray
-
-
 cpdef str system_get_driver_branch():
     """Retrieves the driver branch of the NVIDIA driver installed on the system.
 
@@ -28359,61 +29554,6 @@ cpdef str system_get_driver_branch():
         __status__ = nvmlSystemGetDriverBranch(&info, length)
     check_status(__status__)
     return cpython.PyUnicode_FromString(info.branch)
-
-
-cpdef object unit_get_devices(intptr_t unit):
-    """Retrieves the set of GPU devices that are attached to the specified unit.
-
-    Args:
-        unit (Unit): The identifier of the target unit.
-
-    Returns:
-        array: An array of device handles for GPUs attached to the unit.
-    """
-    cdef unsigned int[1] deviceCount = [0]
-    with nogil:
-        __status__ = nvmlUnitGetDevices(<nvmlUnit_t>unit, <unsigned int*>deviceCount, NULL)
-    check_status_size(__status__)
-    if deviceCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlUnitGetDevices(<nvmlUnit_t>unit, <unsigned int*>deviceCount, <nvmlDevice_t *>deviceArray.data)
-    check_status(__status__)
-    return deviceArray
-
-
-cpdef object device_get_topology_nearest_gpus(intptr_t device, unsigned int level):
-    """Retrieve the set of GPUs that are nearest to a given device at a specific interconnectivity level
-
-    Args:
-        device (Device): The identifier of the first device
-        level (GpuTopologyLevel): The level to search for other GPUs
-
-    Returns:
-        array: An array of device handles for GPUs found at level
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetTopologyNearestGpus(
-            <Device>device,
-            <nvmlGpuTopologyLevel_t>level,
-            count,
-            NULL
-        )
-    check_status_size(__status__)
-    if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetTopologyNearestGpus(
-            <Device>device,
-            <nvmlGpuTopologyLevel_t>level,
-            count,
-            <nvmlDevice_t *>deviceArray.data
-        )
-    check_status(__status__)
-    return deviceArray
 
 
 cpdef int device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t sensorType):
@@ -28488,58 +29628,6 @@ cpdef object device_get_running_process_detail_list(intptr_t device, unsigned in
         __status__ = nvmlDeviceGetRunningProcessDetailList(<Device>device, ptr)
     check_status(__status__)
     return plist
-
-
-cpdef tuple device_get_samples(intptr_t device, int type, unsigned long long last_seen_time_stamp):
-    """Gets recent samples for the GPU.
-
-    Args:
-        device (intptr_t): The identifier for the target device.
-        type (SamplingType): Type of sampling event.
-        last_seen_time_stamp (unsigned long long): Return only samples with timestamp greater than last_seen_time_stamp.
-
-    .. seealso:: `nvmlDeviceGetSamples`
-    """
-    cdef unsigned int[1] sample_count = [0]
-    cdef unsigned int[1] sample_val_type = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, <_ValueType*>sample_val_type, <unsigned int*>sample_count, NULL)
-    check_status_size(__status__)
-    cdef Sample samples = Sample(sample_count[0])
-    cdef nvmlSample_t *samples_ptr = <nvmlSample_t *>samples._get_ptr()
-    if sample_count[0] == 0:
-        return samples
-    with nogil:
-        __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, <_ValueType*>sample_val_type, <unsigned int*>sample_count, samples_ptr)
-    check_status(__status__)
-    return (sample_val_type[0], samples)
-
-
-cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause):
-    """Returns the list of retired pages by source, including pages that are pending retirement
-
-    Args:
-        device (Device): The identifier of the target device.
-        cause (PageRetirementCause): Filter page addresses by cause of retirement.
-
-    Returns:
-        tuple: A tuple of two arrays (addresses, timestamps).
-    """
-    cdef unsigned int[1] page_count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL, NULL)
-    check_status_size(__status__)
-    if page_count[0] == 0:
-        return (
-            view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0],
-            view.array(shape=(1,), itemsize=sizeof(unsigned long long), format="Q", mode="c")[:0]
-        )
-    cdef view.array addresses = view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    cdef view.array timestamps = view.array(shape=(page_count[0],), itemsize=sizeof(unsigned long long), format="Q", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, <unsigned long long *>addresses.data, <unsigned long long *>timestamps.data)
-    check_status(__status__)
-    return (addresses, timestamps)
 
 
 cpdef object device_get_processes_utilization_info(intptr_t device, unsigned long long last_seen_time_stamp):
@@ -28683,90 +29771,6 @@ cpdef  device_clear_field_values(intptr_t device, values):
     with nogil:
         __status__ = nvmlDeviceClearFieldValues(<Device>device, valuesCount, ptr)
     check_status(__status__)
-
-
-cpdef object device_get_supported_vgpus(intptr_t device):
-    """Retrieve the supported vGPU types on a physical GPU (device).
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        array: An array of supported vGPU type IDs.
-    """
-    cdef unsigned int[1] vgpuCount = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, vgpuCount, NULL)
-    check_status_size(__status__)
-    if vgpuCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array vgpuTypeIds = view.array(shape=(deviceCount[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, vgpuCount, <nvmlVgpuTypeId_t *>vgpuTypeIds.data)
-    check_status(__status__)
-    return vgpuTypeIds
-
-
-cpdef object device_get_creatable_vgpus(intptr_t device):
-    """Retrieve the currently creatable vGPU types on a physical GPU (device).
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        array: An array of createable vGPU type IDs.
-    """
-    cdef unsigned int[1] vgpuCount = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, vgpuCount, NULL)
-    check_status_size(__status__)
-    if vgpuCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array vgpuTypeIds = view.array(shape=(deviceCount[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, vgpuCount, <nvmlVgpuTypeId_t *>vgpuTypeIds.data)
-    check_status(__status__)
-    return vgpuTypeIds
-
-
-cpdef object device_get_active_vgpus(intptr_t device):
-    """Retrieve the active vGPU instances on a device.
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        array: An array of active vGPU instance IDs.
-    """
-    cdef unsigned int[1] vgpuCount = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetActiveVgpus(<Device>device, vgpuCount, NULL)
-    check_status_size(__status__)
-    if vgpuCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
-    cdef view.array vgpuInstances = view.array(shape=(deviceCount[0],), itemsize=sizeof(unsigned int), format="I", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetActiveVgpus(<Device>device, vgpuCount, <nvmlVgpuInstance_t *>vgpuInstances.data)
-    check_status(__status__)
-    return vgpuInstances
-
-
-cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
-    """Retrieve the VM ID associated with a vGPU instance.
-
-    Args:
-        vgpu_instance (unsigned int): The identifier of the target vGPU instance.
-
-    Returns:
-        tuple[str, VgpuVmIdType]: A tuple of (id, id_type).
-    """
-    cdef unsigned int size = 80
-    cdef char[80] vmId
-    cdef nvmlVgpuVmIdType_t[1] vmIdType
-    with nogil:
-        __status__ = nvmlVgpuInstanceGetVmID(<nvmlVgpuInstance_t>vgpu_instance, vmId, size, vmIdType)
-    check_status(__status__)
-    return (cpython.PyUnicode_FromString(vmId), vmIdType[0])
 
 
 cpdef object gpu_instance_get_creatable_vgpus(intptr_t gpu_instance):
@@ -28976,24 +29980,6 @@ cpdef object get_vgpu_compatibility(VgpuMetadata vgpu_metadata, VgpuPgpuMetadata
     return compatibilityInfo
 
 
-cpdef tuple get_vgpu_version():
-    """Query the ranges of supported vGPU versions.
-
-    Returns:
-        tuple: A tuple of (VgpuVersion supported, VgpuVersion current).
-    """
-    cdef VgpuVersion supported = VgpuVersion()
-    cdef nvmlVgpuVersion_t *supported_ptr = <nvmlVgpuVersion_t *>supported._get_ptr()
-    cdef VgpuVersion current = VgpuVersion()
-    cdef nvmlVgpuVersion_t *current_ptr = <nvmlVgpuVersion_t *>current._get_ptr()
-
-    with nogil:
-        __status__ = nvmlGetVgpuVersion(supported_ptr, current_ptr)
-
-    check_status(__status__)
-    return (supported, current)
-
-
 cpdef object device_get_vgpu_instances_utilization_info(intptr_t device):
     """
     Retrieves recent utilization for vGPU instances running on a physical GPU (device).
@@ -29059,58 +30045,6 @@ cpdef object device_get_vgpu_processes_utilization_info(intptr_t device, unsigne
     check_status(__status__)
 
     return vgpuProcUtilInfo
-
-
-cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
-    """Get GPU instances for given profile ID.
-
-    Args:
-        device (Device): The identifier of the target device.
-        profile_id (unsigned int): The GPU instance profile ID. See device_get_gpu_instance_profile_info().
-
-    Returns:
-        array: An array of GPU instance handles.
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, NULL, count)
-    check_status_size(__status__)
-
-    if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-
-    cdef view.array gpuInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t *>gpuInstances.data, count)
-    check_status(__status__)
-
-    return gpuInstances
-
-
-cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned int profile_id):
-    """Get Compute instances for given profile ID.
-
-    Args:
-        gpu_instance (GpuInstance): The identifier of the target GPU Instance.
-        profile_id (unsigned int): The Compute instance profile ID.
-
-    Returns:
-        array: An array of Compute instance handles.
-    """
-    cdef unsigned int[1] count = [0]
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, NULL, count)
-    check_status_size(__status__)
-
-    if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-
-    cdef view.array computeInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
-    with nogil:
-        __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t *>computeInstances.data, count)
-    check_status(__status__)
-
-    return computeInstances
 
 
 cpdef object device_get_sram_unique_uncorrected_ecc_error_counts(intptr_t device):
@@ -29708,55 +30642,6 @@ cpdef gpu_instance_set_vgpu_heterogeneous_mode(intptr_t gpu_instance, unsigned i
         heterogeneous_mode[0].mode = mode
         __status__ = nvmlGpuInstanceSetVgpuHeterogeneousMode(<GpuInstance>gpu_instance, heterogeneous_mode)
     check_status(__status__)
-
-
-cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last_seen_time_stamp):
-    """Retrieves current utilization for vGPUs on a physical GPU (device).
-
-    Args:
-        device (intptr_t): The identifier for the target device.
-        last_seen_time_stamp (unsigned long long): Return only samples with timestamp greater than last_seen_time_stamp.
-
-    Returns:
-        A 2-tuple containing:
-
-        - samples: Returned sample values.
-        - utilizationSamples: Utilization samples.
-
-    .. seealso:: `nvmlDeviceGetVgpuUtilization`
-    """
-    cdef unsigned int vgpu_instance_samples_count
-    with nogil:
-        __status__ = nvmlDeviceGetVgpuUtilization(
-            <Device>device,
-            last_seen_time_stamp,
-            NULL,
-            &vgpu_instance_samples_count,
-            NULL
-        )
-    check_status_size(__status__)
-
-    if vgpu_instance_samples_count == 0:
-        return (
-            view.array(shape=(1,), itemsize=sizeof(int), format="I", mode="c")[:0],
-            VgpuInstanceUtilizationSample(0)
-        )
-
-    cdef view.array arr = view.array(shape=(vgpu_instance_samples_count,), itemsize=sizeof(int), format="I", mode="c")
-    cdef VgpuInstanceUtilizationSample utilization_samples_py = VgpuInstanceUtilizationSample(vgpu_instance_samples_count)
-    cdef nvmlVgpuInstanceUtilizationSample_t *ptr = <nvmlVgpuInstanceUtilizationSample_t *>utilization_samples_py._get_ptr()
-
-    with nogil:
-        __status__ = nvmlDeviceGetVgpuUtilization(
-            <Device>device,
-            last_seen_time_stamp,
-            <nvmlValueType_t *>arr.data,
-            &vgpu_instance_samples_count,
-            ptr
-        )
-    check_status(__status__)
-
-    return (arr, utilization_samples_py)
 
 
 cpdef object device_read_prm_counters_v1(intptr_t device, PRMCounter_v1 counters):
