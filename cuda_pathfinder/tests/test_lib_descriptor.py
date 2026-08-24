@@ -168,3 +168,11 @@ def test_linux_soname_candidates_preserve_explicit_unversioned_name():
     desc = LIB_DESCRIPTORS["nvcudla"]
 
     assert linux_soname_candidates(desc) == ("libnvcudla.so",)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_soname_candidates_prefer_versioned_name_over_declared_unversioned_name():
+    desc = LIB_DESCRIPTORS["nvvm"]
+
+    assert desc.linux_sonames == ("libnvvm.so", "libnvvm.so.4")
+    assert linux_soname_candidates(desc) == ("libnvvm.so.4", "libnvvm.so")

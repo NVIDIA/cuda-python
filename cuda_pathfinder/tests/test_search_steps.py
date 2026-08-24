@@ -289,6 +289,24 @@ class TestFindInSitePackages:
         assert result.abs_path == str(so_file)
         assert result.found_via == "site-packages"
 
+    @pytest.mark.agent_authored(model="gpt-5.6-sol")
+    def test_nvvm_linux_wheel_accepts_declared_unversioned_filename(self, mocker, tmp_path):
+        lib_dir = tmp_path / "nvidia" / "cuda_nvcc" / "nvvm" / "lib64"
+        lib_dir.mkdir(parents=True)
+        so_file = lib_dir / "libnvvm.so"
+        so_file.touch()
+
+        mocker.patch(
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            return_value=[str(lib_dir)],
+        )
+
+        result = find_in_site_packages(_ctx(LIB_DESCRIPTORS["nvvm"], platform=LinuxSearchPlatform()))
+
+        assert result is not None
+        assert result.abs_path == str(so_file)
+        assert result.found_via == "site-packages"
+
     def test_found_windows(self, mocker, tmp_path):
         bin_dir = tmp_path / "nvidia" / "cuda_runtime" / "bin"
         bin_dir.mkdir(parents=True)

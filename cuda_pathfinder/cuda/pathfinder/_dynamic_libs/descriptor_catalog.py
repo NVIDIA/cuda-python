@@ -124,7 +124,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
     DescriptorSpec(
         name="nvvm",
         packaged_with="ctk",
-        linux_sonames=("libnvvm.so.4",),
+        linux_sonames=("libnvvm.so", "libnvvm.so.4"),
         windows_dlls=("nvvm64.dll", "nvvm64_40_0.dll", "nvvm70.dll"),
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
