@@ -158,8 +158,8 @@ class PatternGen:
     Provides methods to fill a target buffer with  known test patterns and
     verify the expected values.
 
-    If a stream is provided, operations are synchronized with respect to that
-    stream.  Otherwise, they are synchronized over the device.
+    Operations are submitted to the supplied stream. Verification synchronizes
+    that stream before comparing results on the host.
 
     The test pattern is either a fixed value or a cyclic pattern generated from
     an 8-bit seed.  Only one of `value` or `seed` should be supplied.
@@ -170,11 +170,10 @@ class PatternGen:
     buffer and then perform a comparison.
     """
 
-    def __init__(self, device, size, stream=None):
+    def __init__(self, device, size, *, stream):
         self.device = device
         self.size = size
-        self.stream = stream if stream is not None else device.create_stream()
-        self.sync_target = stream if stream is not None else device
+        self.stream = Stream_accept(stream)
         self.pattern_buffers = {}
 
     def fill_buffer(self, buffer, seed=None, value=None):
@@ -191,7 +190,7 @@ class PatternGen:
         pattern_buffer = self._get_pattern_buffer(seed, value)
         ptr_expected = self._ptr(pattern_buffer)
         scratch_buffer.copy_from(buffer, stream=self.stream)
-        self.sync_target.sync()
+        self.stream.sync()
         assert libc.memcmp(ptr_test, ptr_expected, self.size) == 0
 
     @staticmethod

@@ -1492,9 +1492,9 @@ def test_device_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64, stream=device.default_stream)
-    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
+    src_buffer = mr.allocate(64, stream=stream)
+    dst_buffer = mr.allocate(64, stream=stream)
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
     dst_buffer.close()
@@ -1540,9 +1540,9 @@ def test_pinned_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64, stream=device.default_stream)
-    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
+    src_buffer = mr.allocate(64, stream=stream)
+    dst_buffer = mr.allocate(64, stream=stream)
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
     dst_buffer.close()
@@ -1587,9 +1587,9 @@ def test_managed_memory_resource_with_options(init_cuda):
     buffer.close(stream)
 
     # Test memory copying between buffers from same pool
-    src_buffer = mr.allocate(64, stream=device.default_stream)
-    dst_buffer = mr.allocate(64, stream=device.default_stream)
     stream = device.create_stream()
+    src_buffer = mr.allocate(64, stream=stream)
+    dst_buffer = mr.allocate(64, stream=stream)
     src_buffer.copy_to(dst_buffer, stream=stream)
     device.sync()
     dst_buffer.close()
