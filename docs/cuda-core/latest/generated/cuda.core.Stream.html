@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8668bd11"></script>
+    <script src="../_static/documentation_options.js?v=22103908"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -789,6 +789,12 @@ using Stream.from_handle().</p>
 <p>Releases the stream handle. For owned streams, this destroys the
 underlying CUDA stream. For borrowed streams, this releases the
 reference and allows the Python owner to be GC’d.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Do not close <a class="reference internal" href="../api.html#cuda.core.LEGACY_DEFAULT_STREAM" title="cuda.core.LEGACY_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code></a> or
+<a class="reference internal" href="../api.html#cuda.core.PER_THREAD_DEFAULT_STREAM" title="cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a>. They are shared module-level
+objects, so closing one invalidates it for the rest of the process.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -934,6 +940,12 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(St
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.Stream.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.Stream.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>Whether this stream has been closed.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.Stream.is_nonblocking">
 <span class="sig-name descname"><span class="pre">is_nonblocking</span></span><a class="headerlink" href="#cuda.core.Stream.is_nonblocking" title="Link to this definition">#</a></dt>
 <dd><p>Return True if this is a nonblocking stream, otherwise False.</p>
@@ -1025,6 +1037,7 @@ context at call time.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.context"><code class="docutils literal notranslate"><span class="pre">Stream.context</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.device"><code class="docutils literal notranslate"><span class="pre">Stream.device</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.handle"><code class="docutils literal notranslate"><span class="pre">Stream.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.is_closed"><code class="docutils literal notranslate"><span class="pre">Stream.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.is_nonblocking"><code class="docutils literal notranslate"><span class="pre">Stream.is_nonblocking</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.priority"><code class="docutils literal notranslate"><span class="pre">Stream.priority</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.resources"><code class="docutils literal notranslate"><span class="pre">Stream.resources</span></code></a></li>

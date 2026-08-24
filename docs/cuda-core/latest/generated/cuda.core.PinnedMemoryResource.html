@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8668bd11"></script>
+    <script src="../_static/documentation_options.js?v=22103908"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -826,8 +826,12 @@ explicitly set, that value is used regardless of <code class="docutils literal n
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.close" title="Link to this definition">#</a></dt>
-<dd><p>Close the memory resource and destroy the associated memory pool
-if owned.</p>
+<dd><p>Release this object’s reference to the memory pool.</p>
+<p>New allocations and operations requiring this object’s pool handle are
+rejected afterward. For owned pools, release of the underlying pool’s
+resources is deferred until all outstanding allocations are freed and
+pending free operations complete. <a class="reference internal" href="#cuda.core.PinnedMemoryResource.deallocate" title="cuda.core.PinnedMemoryResource.deallocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">deallocate()</span></code></a> remains available
+after <a class="reference internal" href="#cuda.core.PinnedMemoryResource.close" title="cuda.core.PinnedMemoryResource.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> so existing allocations can still be released.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -956,6 +960,18 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>_MemPool.handle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>Whether this memory resource has been closed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_MemPool.is_closed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1105,6 +1121,7 @@ only for IPC-enabled memory resources.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.attributes"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.handle"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.is_closed"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.is_handle_owned"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.is_handle_owned</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.is_host_accessible</span></code></a></li>

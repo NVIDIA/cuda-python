@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=8668bd11"></script>
+    <script src="../_static/documentation_options.js?v=22103908"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev98';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.2.dev99';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -810,6 +810,12 @@ free recipe can pin that context.
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a> to change the stream that orders
 a buffer’s eventual deallocation without closing the buffer.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2600">#2600</a>)</p></li>
+<li><p>Closeable resource objects now report their state through <code class="docutils literal notranslate"><span class="pre">is_closed</span></code>, while
+graph definitions and nodes report their state through <code class="docutils literal notranslate"><span class="pre">is_valid</span></code>. Active
+operations reject closed or invalid resources, and cross-object APIs reject
+them before passing a null handle to CUDA. Closing either default-stream
+singleton remains a no-op because those process-wide tokens must stay valid.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2627">#2627</a>)</p></li>
 <li><p>Explicit calls to <code class="docutils literal notranslate"><span class="pre">deallocate()</span></code> on pool-backed memory resources and
 <a class="reference internal" href="../generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a> now propagate errors from the underlying CUDA
 free operation. Previously, these errors could be suppressed. Automatic
