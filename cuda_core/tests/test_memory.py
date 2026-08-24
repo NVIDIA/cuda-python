@@ -20,6 +20,7 @@ from helpers.buffers import (
     DummyUnifiedMemoryResource,
     StubMemoryResource,
     make_instrumented_memory_resource,
+    thread_unsafe_on_windows,
 )
 from helpers.constants import POOL_SIZE
 from helpers.memory import (
@@ -283,9 +284,8 @@ def _pattern_bytes(value) -> bytes:
 
 
 @pytest.fixture(params=["device", "unified", "pinned"])
-def fill_env(request):
-    device = Device()
-    device.set_current()
+def fill_env(request, init_cuda):
+    device = init_cuda
     if request.param == "device":
         mr = DummyDeviceMemoryResource(device)
     elif request.param == "unified":
@@ -348,6 +348,7 @@ if np is not None:
     )
 
 
+@thread_unsafe_on_windows
 @pytest.mark.parametrize("value,size,exc", _FILL_CASES)
 def test_buffer_fill(fill_env, value, size, exc):
     device, mr = fill_env
@@ -1519,6 +1520,8 @@ def test_managed_memory_resource_with_options(init_cuda):
     device.sync()
     dst_buffer.close()
     src_buffer.close()
+    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+    device.sync()
 
 
 def test_managed_memory_resource_preferred_location_default(init_cuda):
