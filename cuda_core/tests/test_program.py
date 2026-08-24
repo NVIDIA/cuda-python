@@ -4,6 +4,9 @@
 
 import contextlib
 import re
+import shutil
+import subprocess
+import sys
 import warnings
 
 import pytest
@@ -316,8 +319,10 @@ options = [
     ProgramOptions(prec_div=True),
     ProgramOptions(prec_sqrt=True),
     ProgramOptions(fma=True),
-    # Plumb-through; no-op at link time. See #1287.
-    ProgramOptions(debug=True, numba_debug=True),
+    # ``numba_debug`` is deliberately absent: it was listed here as a link-time
+    # no-op (#1287), but no linker backend accepts it, so it was dropped
+    # silently (#2640). The PTX path now warns; see
+    # test_ptx_program_numba_debug_warns_and_is_ignored.
 ]
 if not is_culink_backend:
     options += [
@@ -368,7 +373,7 @@ def test_program_options_name_accepts_none(name):
 # This is tested against the current device's arch
 def test_program_compile_valid_target_type(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
-    program = Program(code, "c++", options={"name": "42"})
+    program = Program(code, "c++", options=ProgramOptions(name="42"))
 
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
@@ -380,7 +385,7 @@ def test_program_compile_valid_target_type(init_cuda):
         ptx_kernel = ptx_object_code.get_kernel("my_kernel")
         assert isinstance(ptx_kernel, Kernel)
 
-    program = Program(ptx_object_code.code.decode(), "ptx", options={"name": "24"})
+    program = Program(ptx_object_code.code.decode(), "ptx", options=ProgramOptions(name="24"))
     cubin_object_code = program.compile("cubin")
     assert isinstance(cubin_object_code, ObjectCode)
     assert cubin_object_code.name == "24"
@@ -870,6 +875,34 @@ def test_ptx_program_extra_sources_unsupported(ptx_code_object):
         Program(ptx_code_object.code.decode(), "ptx", options)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_ptx_program_numba_debug_warns_and_is_ignored(init_cuda, ptx_code_object):
+    """PTX inputs go to the linker, which cannot honor numba_debug (#2640).
+
+    It used to be forwarded into ``LinkerOptions`` and dropped without a word,
+    so the compile appeared to succeed with the option applied. It is still
+    ignored -- no linker can do anything with it -- but no longer silently.
+
+    ``UserWarning``, not ``DeprecationWarning``: ``ProgramOptions.numba_debug``
+    is not deprecated, it is supported on NVVM/NVRTC and merely inapplicable to
+    this backend.
+    """
+    with pytest.warns(UserWarning, match="numba_debug is ignored for code_type='ptx'"):
+        program = Program(ptx_code_object.code.decode(), "ptx", ProgramOptions(numba_debug=True))
+    assert program.compile("cubin") is not None
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("value", [None, False])
+def test_ptx_program_numba_debug_unset_or_false_does_not_warn(init_cuda, ptx_code_object, value):
+    """The gate is truthiness: only an enabled ``numba_debug`` asks for
+    something the PTX path cannot deliver, so ``False`` is not worth a warning."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        program = Program(ptx_code_object.code.decode(), "ptx", ProgramOptions(numba_debug=value))
+    assert program.compile("cubin") is not None
+
+
 def test_ptx_program_handle_is_linker_handle(init_cuda, ptx_code_object):
     """Program.handle for the PTX backend delegates to the linker handle."""
     program = Program(ptx_code_object.code.decode(), "ptx")
@@ -957,6 +990,131 @@ def test_find_libdevice_path_delegates_to_pathfinder(monkeypatch):
     monkeypatch.setattr(cuda.pathfinder, "find_bitcode_lib", fake_find)
     assert _program._find_libdevice_path() == sentinel
     assert captured == ["device"]
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_nvrtc_debug_materializes_source_to_temp_file(init_cuda, tmp_path):
+    """debug/lineinfo writes NVRTC source to a real path; off and explicit name= do not."""
+    import os
+
+    code = 'extern "C" __global__ void matmul() {}'
+
+    # case 1: (debug=False, lineinfo=False)
+    off = Program(code, "c++", ProgramOptions(arch="sm_80"))
+    assert off.compile("ptx").name == "default_program"
+    off.close()
+
+    # case 2: (debug=True or lineinfo=True) and explicit_name is provided
+    explicit_name = str(tmp_path / "user_kernel.cu")
+    named = Program(code, "c++", ProgramOptions(name=explicit_name, debug=True, arch="sm_80"))
+    assert named.compile("ptx").name == explicit_name
+    assert not os.path.isfile(explicit_name)
+    named.close()
+
+    # case 3: (debug=True or lineinfo=True) and explicit_name is not provided
+    default_named = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    implicit_name = default_named.compile("ptx").name
+    try:
+        assert os.path.isfile(implicit_name)
+        assert re.fullmatch(r"test_program_matmul_[a-z0-9_]{8}\.cu", os.path.basename(implicit_name))
+        with open(implicit_name, encoding="utf-8") as fh:
+            assert fh.read() == code
+    finally:
+        default_named.close()
+    assert not os.path.isfile(implicit_name)
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+@pytest.mark.thread_unsafe(reason="monkeypatches tempfile.mkstemp on the Program module")
+def test_nvrtc_debug_falls_back_when_tmp_not_writable(init_cuda, monkeypatch):
+    """debug=True still compiles if the temp dir cannot be written (issue #2422)."""
+    from cuda.core import _program
+
+    def _denied(*_args, **_kwargs):
+        raise OSError(30, "Read-only file system")
+
+    monkeypatch.setattr(_program.tempfile, "mkstemp", _denied)
+
+    code = 'extern "C" __global__ void matmul() {}'
+    prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    try:
+        assert prog.compile("ptx").name == "default_program"
+    finally:
+        prog.close()
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_nvrtc_debug_concurrent_compile_uses_unique_temp_files(init_cuda):
+    """Same kernel compiled concurrently gets distinct mkstemp paths (issue #2422)."""
+    import os
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    code = 'extern "C" __global__ void matmul() {}'
+    n = 2
+    barrier = threading.Barrier(n)
+
+    def _compile_one():
+        Device().set_current()
+        barrier.wait()
+        prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+        name = prog.compile("ptx").name
+        return prog, name
+
+    with ThreadPoolExecutor(max_workers=n) as pool:
+        futures = [pool.submit(_compile_one) for _ in range(n)]
+        results = [fut.result() for fut in futures]
+
+    progs, names = zip(*results)
+    try:
+        assert len(set(names)) == n
+        for name in names:
+            assert os.path.isfile(name)
+            assert re.fullmatch(r"test_program_matmul_[a-z0-9_]{8}\.cu", os.path.basename(name))
+            with open(name, encoding="utf-8") as fh:
+                assert fh.read() == code
+    finally:
+        for prog in progs:
+            prog.close()
+    for name in names:
+        assert not os.path.isfile(name)
+
+
+@pytest.mark.agent_authored(model="cursor-grok-4.6")
+def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
+    import pathlib
+
+    cuda_gdb = shutil.which("cuda-gdb")
+    if cuda_gdb is None:
+        pytest.skip("cuda-gdb is not on PATH")
+
+    child = pathlib.Path(__file__).resolve().parent / "helpers" / "cuda_gdb_src.py"
+    proc = subprocess.run(  # noqa: S603 - trusted argv: cuda-gdb + this interpreter + in-tree helper
+        [
+            cuda_gdb,
+            "--batch",
+            "-ex",
+            "set cuda break_on_launch application",
+            "-ex",
+            "run",
+            "-ex",
+            "list",
+            "--args",
+            sys.executable,
+            "-u",
+            str(child),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    output = (proc.stdout or "") + (proc.stderr or "")
+    if "Operation not permitted" in output or "ptrace" in output.lower():
+        pytest.skip("cuda-gdb cannot trace this process")
+    assert re.search(r"cuda_gdb_src_kernel_\w+\.cu", output), output
+    assert "ISSUE_2422_SOURCE_LINE" in output, output
+    assert "No such file or directory" not in output, output
 
 
 def test_nvrtc_compile_with_logs_capture(init_cuda):

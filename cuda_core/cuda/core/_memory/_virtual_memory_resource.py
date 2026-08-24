@@ -350,10 +350,9 @@ class VirtualMemoryResource(MemoryResource):
             # All succeeded, cancel undo actions
             trans.commit()
 
-        # Update the buffer size (pointer stays the same)
-        # TODO: #2049 This is a real bug, accessing _size which doesn't exist.
-        # Fix bug and remove the "type: ignore[attr-defined]" comment.
-        buf._size = new_size  # type: ignore[attr-defined]
+        # Update the buffer size (pointer stays the same). `Buffer.size` has
+        # no public setter, so this reaches into the private attribute.
+        buf._size = new_size
         return buf
 
     def _grow_allocation_slow_path(

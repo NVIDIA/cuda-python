@@ -16,7 +16,10 @@ import functools
 import sys
 import warnings
 from collections.abc import Callable  # no-cython-lint  # used in string annotations below
-from typing import Any  # no-cython-lint  # used in string annotations below
+from typing import TYPE_CHECKING, Any  # no-cython-lint  # used in string annotations below
+
+if TYPE_CHECKING:
+    from cuda.core._tensor_map import TensorMapDescriptorOptions
 
 import numpy
 
@@ -377,7 +380,7 @@ cdef class StridedMemoryView:
         self,
         box_dim: tuple[int, ...] | None = None,
         *,
-        options: object = None,
+        options: TensorMapDescriptorOptions | None = None,
         element_strides: tuple[int, ...] | None = None,
         data_type: object = None,
         interleave: object = None,

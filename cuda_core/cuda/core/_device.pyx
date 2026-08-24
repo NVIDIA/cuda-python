@@ -28,7 +28,7 @@ from cuda.core._resource_handles cimport (
     as_cu,
 )
 
-from cuda.core._stream import IsStreamType, Stream
+from cuda.core._stream import IsStreamType, Stream, StreamOptions
 from cuda.core._utils.clear_error_support import assert_type
 from cuda.core._utils.cuda_utils import (
     ComputeCapability,
@@ -1033,9 +1033,12 @@ class Device:
         tuple of Device
             A tuple containing instances of available devices.
         """
-        from cuda.core import system
-        total = system.get_num_devices()
-        return tuple(cls(device_id) for device_id in range(total))
+        return cls._get_all_devices_from_cuda_driver()
+
+    @classmethod
+    def _get_all_devices_from_cuda_driver(cls):
+        Device_ensure_cuda_initialized()
+        return tuple(Device_ensure_tls_devices(cls))
 
     def to_system_device(self) -> 'cuda.core.system.Device':
         """
@@ -1376,7 +1379,7 @@ class Device:
 
         return Context._from_green_ctx(Context, h_green, self._device_id)
 
-    def create_stream(self, obj: IsStreamType | None = None, options: object = None) -> Stream:
+    def create_stream(self, obj: IsStreamType | None = None, options: StreamOptions | None = None) -> Stream:
         """Create a :obj:`~_stream.Stream` object.
 
         New stream objects can be created in two different ways:

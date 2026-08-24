@@ -10,6 +10,10 @@ This module provides :class:`Program` for compiling source code into
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
+import re
+import sys
+import tempfile
 import threading
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -87,6 +91,49 @@ cdef class Program:
         # Reset handles - the C++ shared_ptr destructor handles cleanup
         self._h_nvrtc.reset()
         self._h_nvvm.reset()
+        self._cleanup_debug_source()
+
+    def __dealloc__(self):
+        self._cleanup_debug_source()
+
+    def _cleanup_debug_source(self):
+        path = self._nvrtc_name.decode()
+        self._unlink_debug_source(path)
+
+    def _unlink_debug_source(self, path: str) -> None:
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
+
+    def _try_materialize_nvrtc_debug_source(self, code: str) -> str | None:
+        """Write *code* to a ``{caller}_{kernel}_XXXXXXXX.cu`` temp file for cuda-gdb.
+
+        ``caller`` is the Python file stem (no ``.py``). ``kernel`` is the first
+        ``__global__`` function name, or ``kernel`` if none is found.
+
+        Returns None if the filesystem is not writable, so the caller can fall back
+        to the label-only behavior instead of failing the compile.
+        """
+        frame = sys._getframe()
+        while frame and frame.f_globals.get("__name__", "").startswith("cuda.core"):
+            frame = frame.f_back
+        caller = "program"
+        if frame:
+            caller = os.path.splitext(os.path.basename(frame.f_code.co_filename))[0]
+        match = re.search(r"__global__.*?(\w+)\s*\(", code, re.DOTALL)
+        prefix = re.sub(r"\W", "_", f"{caller}_{match.group(1) if match else 'kernel'}_")
+        try:
+            fd, path = tempfile.mkstemp(prefix=prefix, suffix=".cu")
+        except OSError:
+            return None
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(code)
+            return path
+        except OSError:
+            self._unlink_debug_source(path)
+            return None
 
     def compile(
         self,
@@ -223,7 +270,7 @@ cdef class Program:
                     stacklevel=2,
                     category=RuntimeWarning,
                 )
-            return ObjectCode._init(hit_bytes, target_type, name=self._options.name)
+            return ObjectCode._init(hit_bytes, target_type, name=self._nvrtc_name.decode())
         compiled = _program_compile_uncached(self, target_type, name_expressions, logs)
         cache[key] = compiled
         return compiled
@@ -469,8 +516,11 @@ class ProgramOptions:
     numba_debug : bool, optional
         Emit the debug information layout expected by Numba. Recognized only by
         newer toolkits; compilers that do not support it reject the option with
-        an error.
-        Default: False
+        an error. Applies only to the NVVM and NVRTC compilation backends --
+        ``code_type="ptx"`` is processed by the linker, which cannot honor it,
+        so enabling this option there emits a :class:`UserWarning` and the
+        option is ignored.
+        Default: None
     """
 
     name: str | None = "default_program"
@@ -732,6 +782,21 @@ cpdef bint _can_load_generated_ptx() except? -1:
 
 cdef inline object _translate_program_options(object options):
     """Translate ProgramOptions to LinkerOptions for PTX compilation."""
+    # ``numba_debug`` is an NVVM/NVRTC compiler option that no linking backend can
+    # honor. It used to be forwarded into ``LinkerOptions`` and dropped without a
+    # word; warn instead, and do not forward -- forwarding would only trigger the
+    # deprecation warning on a field the user never touched. ``UserWarning``, not
+    # ``DeprecationWarning``: ``ProgramOptions.numba_debug`` is not deprecated, it
+    # is fully supported on NVVM and NVRTC and merely inapplicable here. The gate
+    # is truthiness, matching ``_prepare_nvvm_options_impl``: only an enabled
+    # ``numba_debug`` asks for something this path cannot deliver.
+    if options.numba_debug:
+        warn(
+            "numba_debug is ignored for code_type='ptx', which is processed by the linker; "
+            "it applies only to the NVVM and NVRTC compilation backends.",
+            UserWarning,
+            stacklevel=4,
+        )
     return LinkerOptions(
         name=options.name,
         arch=options.arch,
@@ -747,7 +812,6 @@ cdef inline object _translate_program_options(object options):
         split_compile=options.split_compile,
         ptxas_options=options.ptxas_options,
         no_cache=options.no_cache,
-        numba_debug = options.numba_debug
     )
 
 
@@ -771,16 +835,22 @@ cdef inline int Program_init(Program self, object code, str code_type, object op
     self._libdevice_added = False
 
     self._pch_status = None
+    self._nvrtc_name = options._name
 
     if code_type == "c++":
         assert_type(code, str)
         if options.extra_sources is not None:
             raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
 
+        if (options.debug or options.lineinfo) and options.name == "default_program":
+            debug_path = self._try_materialize_nvrtc_debug_source(code)
+            if debug_path is not None:
+                self._nvrtc_name = debug_path.encode()
+
         # TODO: support pre-loaded headers & include names
         code_bytes = code.encode()
         code_ptr = <const char*>code_bytes
-        name_ptr = <const char*>options._name
+        name_ptr = <const char*>self._nvrtc_name
 
         with nogil:
             HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcCreateProgram(
@@ -952,7 +1022,7 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
     cdef list options_list = self._options.as_bytes("nvrtc", target_type)
 
     result = _nvrtc_compile_and_extract(
-        prog, target_type, name_expressions, logs, options_list, self._options.name,
+        prog, target_type, name_expressions, logs, options_list, self._nvrtc_name.decode(),
     )
 
     cdef bint pch_creation_possible = self._options.create_pch or self._options.pch
@@ -980,14 +1050,14 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
 
     cdef cynvrtc.nvrtcProgram retry_prog
     cdef const char* code_ptr = <const char*>self._code
-    cdef const char* name_ptr = <const char*>self._options._name
+    cdef const char* name_ptr = <const char*>self._nvrtc_name
     with nogil:
         HANDLE_RETURN_NVRTC(NULL, cynvrtc.nvrtcCreateProgram(
             &retry_prog, code_ptr, name_ptr, 0, NULL, NULL))
     self._h_nvrtc = create_nvrtc_program_handle(retry_prog)
 
     result = _nvrtc_compile_and_extract(
-        retry_prog, target_type, name_expressions, logs, options_list, self._options.name,
+        retry_prog, target_type, name_expressions, logs, options_list, self._nvrtc_name.decode(),
     )
 
     status = _read_pch_status(retry_prog)

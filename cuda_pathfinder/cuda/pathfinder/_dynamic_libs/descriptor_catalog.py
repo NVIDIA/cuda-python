@@ -61,12 +61,19 @@ class DescriptorSpec:
     packaged_with: PackagedWith
     linux_sonames: tuple[str, ...] = ()
     windows_dlls: tuple[str, ...] = ()
+    windows_dll_fallback_globs: tuple[str, ...] = ()
     supported_windows_arch: tuple[WindowsArch, ...] = ()
     site_packages_linux: tuple[str, ...] = ()
     site_packages_windows: WindowsSearchDirs = WindowsSearchDirs()
     dependencies: tuple[str, ...] = ()
+    optional_dependencies: tuple[str, ...] = ()
     anchor_rel_dirs_linux: tuple[str, ...] = ("lib64", "lib")
     anchor_rel_dirs_windows: WindowsSearchDirs = DEFAULT_WINDOWS_CTK_ANCHOR_DIRS
+    install_root_env_vars_linux: tuple[str, ...] = ()
+    install_root_env_rel_dirs_linux: tuple[str, ...] = ()
+    install_root_env_vars_windows: tuple[str, ...] = ()
+    install_root_env_rel_dirs_windows: WindowsSearchDirs = WindowsSearchDirs()
+    program_files_root_globs_windows: WindowsSearchDirs = WindowsSearchDirs()
     ctk_root_canary_anchor_libnames: tuple[str, ...] = ()
     requires_add_dll_directory: bool = False
     requires_rtld_deepbind: bool = False
@@ -353,23 +360,24 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="ctk",
         linux_sonames=("libcupti.so.12", "libcupti.so.13"),
         windows_dlls=(
-            "cupti64_2026.3.0.dll",
-            "cupti64_2026.2.1.dll",
-            "cupti64_2026.2.0.dll",
-            "cupti64_2026.1.1.dll",
-            "cupti64_2026.1.0.dll",
-            "cupti64_2025.4.1.dll",
-            "cupti64_2025.3.1.dll",
-            "cupti64_2025.2.1.dll",
-            "cupti64_2025.1.1.dll",
-            "cupti64_2024.3.2.dll",
-            "cupti64_2024.2.1.dll",
-            "cupti64_2024.1.1.dll",
-            "cupti64_2023.3.1.dll",
-            "cupti64_2023.2.2.dll",
-            "cupti64_2023.1.1.dll",
             "cupti64_2022.4.1.dll",
+            "cupti64_2023.1.1.dll",
+            "cupti64_2023.2.2.dll",
+            "cupti64_2023.3.1.dll",
+            "cupti64_2024.1.1.dll",
+            "cupti64_2024.2.1.dll",
+            "cupti64_2024.3.2.dll",
+            "cupti64_2025.1.1.dll",
+            "cupti64_2025.2.1.dll",
+            "cupti64_2025.3.1.dll",
+            "cupti64_2025.4.1.dll",
+            "cupti64_2026.1.0.dll",
+            "cupti64_2026.1.1.dll",
+            "cupti64_2026.2.0.dll",
+            "cupti64_2026.2.1.dll",
+            "cupti64_2026.3.0.dll",
         ),
+        windows_dll_fallback_globs=("cupti64_*.dll",),
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cuda_cupti/lib"),
         site_packages_windows=_ctk_windows_wheel_dirs("nvidia/cu13/bin", "nvidia/cuda_cupti/bin"),
@@ -410,6 +418,29 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         site_packages_linux=("nvidia/cufftmp/cu13/lib", "nvidia/cufftmp/cu12/lib"),
         dependencies=("nvshmem_host",),
         requires_rtld_deepbind=True,
+    ),
+    DescriptorSpec(
+        name="cudnn",
+        packaged_with="other",
+        linux_sonames=("libcudnn.so.9",),
+        windows_dlls=("cudnn64_9.dll",),
+        supported_windows_arch=("x64", "arm64"),
+        site_packages_linux=("nvidia/cudnn/lib",),
+        site_packages_windows=WindowsSearchDirs.x64_only("nvidia/cudnn/bin"),
+        dependencies=("cublasLt",),
+        optional_dependencies=("nvrtc",),
+        install_root_env_vars_linux=("CUDNN_PATH",),
+        install_root_env_rel_dirs_linux=("lib", "lib64"),
+        # The ARM64 layout is verified only for the standalone archive rooted
+        # at CUDNN_PATH, not for conda, CUDA_PATH, or Program Files installs.
+        anchor_rel_dirs_windows=WindowsSearchDirs.x64_only("bin/x64", "bin"),
+        install_root_env_vars_windows=("CUDNN_PATH",),
+        install_root_env_rel_dirs_windows=WindowsSearchDirs(
+            x64=("bin/x64", "bin"),
+            arm64=("bin/arm64",),
+        ),
+        program_files_root_globs_windows=WindowsSearchDirs.x64_only("NVIDIA/CUDNN/v9.*"),
+        requires_add_dll_directory=True,
     ),
     DescriptorSpec(
         name="cusolverMp",
@@ -530,6 +561,8 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         packaged_with="other",
         linux_sonames=("libnccl.so.2",),
         site_packages_linux=("nvidia/nccl/lib",),
+        install_root_env_vars_linux=("NCCL_HOME",),
+        install_root_env_rel_dirs_linux=("lib", "lib64", "build/lib"),
     ),
     DescriptorSpec(
         name="nvpl_fftw",
