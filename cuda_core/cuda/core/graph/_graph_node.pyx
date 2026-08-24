@@ -21,6 +21,7 @@ from cuda.core._event cimport Event
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._memory._buffer cimport Buffer
+from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport GraphCondition, GraphDefinition
 from cuda.core.graph._subclasses cimport (
@@ -206,6 +207,9 @@ cdef class GraphNode:
 
     def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
+
+        Clustered and cooperative launch configurations are not currently
+        supported for graph kernel nodes.
 
         .. warning::
 
@@ -487,10 +491,12 @@ cdef class GraphNode:
         - **Python callable**: Pass any callable. The GIL is acquired
           automatically. The callable must take no arguments; use closures
           or ``functools.partial`` to bind state.
-        - **ctypes function pointer**: Pass a ``ctypes.CFUNCTYPE`` instance.
-          The function receives a single ``void*`` argument (the
-          ``user_data``). The caller must keep the ctypes wrapper alive
-          for the lifetime of the graph.
+        - **ctypes function pointer**: The function receives a single
+          ``void*`` argument (the ``user_data``), and the caller must keep
+          the ctypes wrapper alive for the lifetime of the graph. Its
+          declared prototype must match the driver's ``CUhostFn``
+          (``void (*)(void*)``): ``ctypes.CFUNCTYPE(None, ctypes.c_void_p)``,
+          or ``ctypes.WINFUNCTYPE(None, ctypes.c_void_p)`` on Windows.
 
         .. warning::
 
@@ -515,6 +521,14 @@ cdef class GraphNode:
         -------
         HostCallbackNode
             A new HostCallbackNode representing the callback.
+
+        Raises
+        ------
+        TypeError
+            If ``fn`` is a ctypes function pointer whose declared prototype
+            does not match ``CUhostFn``.
+        ValueError
+            If ``user_data`` is given for a Python callable.
         """
         return GN_callback(self, fn, user_data)
 
@@ -720,6 +734,10 @@ cdef inline KernelNode GN_launch(GraphNode self, LaunchConfig conf, Kernel ker, 
     cdef OpaqueHandle args_owner
     cdef PreparedAttachment prepared
 
+    if conf.cluster is not None or conf.is_cooperative:
+        raise NotImplementedError(
+            "clustered or cooperative graph kernel nodes are not supported")
+
     if pred_node != NULL:
         deps = &pred_node
         num_deps = 1
@@ -818,11 +836,9 @@ cdef inline AllocNode GN_alloc(GraphNode self, size_t size, object device,
             peer_id = getattr(peer_dev, 'device_id', peer_dev)
             peer_ids.append(peer_id)
             access_descs.push_back(cydriver.CUmemAccessDesc_st(
-                cydriver.CUmemLocation_st(
-                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-                    peer_id
-                ),
-                cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+                cumemlocation_from_id(
+                    cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, peer_id),
+                cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE,
             ))
 
     cdef str memory_type_str = "device" if memory_type is None else str(memory_type)
@@ -890,7 +906,8 @@ cdef inline OpaqueHandle _buffer_attachment_owner(Buffer buf, str label):
 
 
 cdef inline OpaqueHandle _resolve_memcpy_operand(
-        object operand, object owner, str side, cydriver.CUdeviceptr* out_ptr):
+        object operand, object owner, str side,
+        cydriver.CUdeviceptr* out_ptr) except *:
     """Resolve an operand to a pointer and optional attachment owner.
 
     ``operand`` is a :class:`Buffer` or a raw integer address; its device
@@ -970,45 +987,51 @@ cdef inline MemsetNode GN_memset(
         val, elem_size, width, height, pitch))
 
 
-cdef inline MemcpyNode GN_memcpy(
-        GraphNode self, cydriver.CUdeviceptr c_dst, OpaqueHandle dst_owner,
-        cydriver.CUdeviceptr c_src, OpaqueHandle src_owner, size_t size):
-    cdef unsigned int dst_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
-    cdef unsigned int src_mem_type = cydriver.CU_MEMORYTYPE_DEVICE
+cdef cydriver.CUmemorytype _get_memcpy_memory_type(
+        cydriver.CUdeviceptr ptr) except *:
+    cdef unsigned int memory_type = cydriver.CU_MEMORYTYPE_DEVICE
     cdef cydriver.CUresult ret
     with nogil:
         ret = cydriver.cuPointerGetAttribute(
-            &dst_mem_type,
+            &memory_type,
             cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-            c_dst)
-        if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
-            HANDLE_RETURN(ret)
-        ret = cydriver.cuPointerGetAttribute(
-            &src_mem_type,
-            cydriver.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-            c_src)
-        if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
-            HANDLE_RETURN(ret)
+            ptr)
+    if ret != cydriver.CUDA_SUCCESS and ret != cydriver.CUDA_ERROR_INVALID_VALUE:
+        HANDLE_RETURN(ret)
+    return <cydriver.CUmemorytype>memory_type
 
-    cdef cydriver.CUmemorytype c_dst_type = <cydriver.CUmemorytype>dst_mem_type
-    cdef cydriver.CUmemorytype c_src_type = <cydriver.CUmemorytype>src_mem_type
 
-    cdef cydriver.CUDA_MEMCPY3D params
-    c_memset(&params, 0, sizeof(params))
+cdef void _init_memcpy_params(
+        cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t size,
+        cydriver.CUDA_MEMCPY3D* params, cydriver.CUmemorytype* dst_type,
+        cydriver.CUmemorytype* src_type) except *:
+    dst_type[0] = _get_memcpy_memory_type(dst)
+    src_type[0] = _get_memcpy_memory_type(src)
 
-    params.srcMemoryType = c_src_type
-    params.dstMemoryType = c_dst_type
-    if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
-        params.srcHost = <void*><uintptr_t>c_src
+    c_memset(params, 0, sizeof(params[0]))
+    params.srcMemoryType = src_type[0]
+    params.dstMemoryType = dst_type[0]
+    if src_type[0] == cydriver.CU_MEMORYTYPE_HOST:
+        params.srcHost = <void*><uintptr_t>src
     else:
-        params.srcDevice = c_src
-    if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
-        params.dstHost = <void*><uintptr_t>c_dst
+        params.srcDevice = src
+    if dst_type[0] == cydriver.CU_MEMORYTYPE_HOST:
+        params.dstHost = <void*><uintptr_t>dst
     else:
-        params.dstDevice = c_dst
+        params.dstDevice = dst
     params.WidthInBytes = size
     params.Height = 1
     params.Depth = 1
+
+
+cdef inline MemcpyNode GN_memcpy(
+        GraphNode self, cydriver.CUdeviceptr c_dst, OpaqueHandle dst_owner,
+        cydriver.CUdeviceptr c_src, OpaqueHandle src_owner, size_t size):
+    cdef cydriver.CUDA_MEMCPY3D params
+    cdef cydriver.CUmemorytype c_dst_type
+    cdef cydriver.CUmemorytype c_src_type
+    _init_memcpy_params(
+        c_dst, c_src, size, &params, &c_dst_type, &c_src_type)
 
     cdef cydriver.CUgraphNode new_node = NULL
     cdef GraphHandle h_graph = graph_node_get_graph(self._h_node)

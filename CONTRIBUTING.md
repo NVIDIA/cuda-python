@@ -25,6 +25,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
+    - [Pre-commit on Windows](#pre-commit-on-windows)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -165,6 +166,22 @@ keep the tree consistent if they run on *every* commit. Relying on manual
 between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` (and CI) will print a visible
 warning reminding you to run `pre-commit install`.
+
+### Pre-commit on Windows
+
+For development on Windows (not WSL), the `lychee` pre-commit task will not work
+when running `pre-commit run --all-files`.  This problem does not occur if you
+install the pre-commit hook and run it automatically as part of your `git
+commit` workflow.  To resolve this, you can either:
+
+1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
+
+2. Skip it by setting the environment variable `SKIP` to `lychee`.  This would
+   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
+
+## Secret Scanning
+
+The `secret-scan-trufflehog` pre-commit hook scans staged files and installs TruffleHog into its own environment on first run, on Linux, macOS, and Windows. If it flags a secret, remove it before committing, or contact a maintainer if it's a false positive. Secrets are also scanned server-side in CI.
 
 
 ## Signing Your Work

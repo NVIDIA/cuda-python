@@ -5,10 +5,9 @@
 """Tests for GraphMemoryResource allocation and attributes during graph capture."""
 
 import pytest
-from helpers import IS_WINDOWS, IS_WSL
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer, thread_unsafe_on_windows
+from helpers.memory import xfail_on_graph_mempool_oom
 
-from conftest import xfail_on_graph_mempool_oom
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -20,6 +19,7 @@ from cuda.core import (
 )
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.graph import GraphCompleteOptions
+from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
 
 # NOTE(seberg): "global" mode seems thread-unsafe even when working on stream
 _GRAPH_MODES = [

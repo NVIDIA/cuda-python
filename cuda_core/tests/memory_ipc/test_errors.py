@@ -4,9 +4,11 @@
 import multiprocessing
 import pickle
 import re
+import uuid
 
 import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.constants import POOL_SIZE
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core._memory._ipc import IPCBufferDescriptor
@@ -14,7 +16,6 @@ from cuda.core._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
-POOL_SIZE = 2097152
 
 
 # these tests spawn new processes and files which fails for very many threads
@@ -49,6 +50,21 @@ def test_ipc_allocation_handle_rejects_negative_fd():
 
     with pytest.raises(ValueError, match=r"Invalid allocation handle \(fd\) -1: must be non-negative"):
         IPCAllocationHandle._init(-1, None)
+
+
+@pytest.mark.human_authored
+def test_register_rejects_non_ipc_memory_resource(mempool_device):
+    """register() on a resource without IPC enabled raises instead of dereferencing None."""
+    mr = DeviceMemoryResource(mempool_device)
+    assert not mr.is_ipc_enabled
+
+    key = uuid.uuid4()
+    with pytest.raises(RuntimeError, match="Memory resource is not IPC-enabled"):
+        mr.register(key)
+
+    # The rejected registration must not leave the resource in the registry.
+    with pytest.raises(RuntimeError, match=r"Memory resource [a-z0-9-]+ was not found"):
+        DeviceMemoryResource.from_registry(key)
 
 
 class ChildErrorHarness:

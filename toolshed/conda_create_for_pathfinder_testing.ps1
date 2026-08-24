@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 param(
@@ -19,6 +19,7 @@ conda activate "pathfinder_testing_cu$CudaMajorMinorPatch"
 # Keep this list aligned with the Windows-installable subset of
 # cuda_pathfinder/pyproject.toml.
 $cpkgs = @(
+    "cudnn",
     "cusparselt-dev",
     "cutensor",
     "cutlass",

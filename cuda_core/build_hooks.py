@@ -46,9 +46,9 @@ def _import_get_cuda_path_or_home():
             cuda = None
 
         for p in sys.path:
-            sp_cuda = os.path.join(p, "cuda")
-            if os.path.isdir(os.path.join(sp_cuda, "pathfinder")):
-                cuda.__path__ = list(cuda.__path__) + [sp_cuda]
+            sp_cuda = Path(p) / "cuda"
+            if (sp_cuda / "pathfinder").is_dir():
+                cuda.__path__ = list(cuda.__path__) + [str(sp_cuda)]
                 break
         else:
             raise ModuleNotFoundError(
@@ -57,6 +57,11 @@ def _import_get_cuda_path_or_home():
             )
         import cuda.pathfinder
 
+    pathfinder_dir = Path(cuda.pathfinder.__file__).parent
+    print(
+        f"Using cuda-pathfinder {cuda.pathfinder.__version__} from {pathfinder_dir}",
+        file=sys.stderr,
+    )
     return cuda.pathfinder.get_cuda_path_or_home
 
 
@@ -128,6 +133,9 @@ def _build_cuda_core(debug=False):
     # This function populates "_extensions".
     global _extensions
 
+    # Resolve CUDA first so the pathfinder import repairs PEP 517 namespace shadowing before importing bindings.
+    cuda_path = _get_cuda_path()
+
     # Add cuda-bindings to sys.path so Cython can find .pxd files
     # This is needed for editable installs where meta path finders don't work for Cython
     # We need to add the directory containing the 'cuda' package so Cython can resolve
@@ -136,6 +144,7 @@ def _build_cuda_core(debug=False):
         import cuda.bindings
 
         bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
+        print(f"Using cuda-bindings {cuda.bindings.__version__} from {bindings_path}", file=sys.stderr)
         cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
         if str(cuda_package_dir) not in sys.path:
             sys.path.insert(0, str(cuda_package_dir))
@@ -172,7 +181,7 @@ def _build_cuda_core(debug=False):
 
         return sources
 
-    all_include_dirs = [os.path.join(_get_cuda_path(), "include")]
+    all_include_dirs = [os.path.join(cuda_path, "include")]
     extra_compile_args = []
     extra_link_args = []
     extra_cythonize_kwargs = {}

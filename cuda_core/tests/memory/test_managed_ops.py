@@ -5,8 +5,8 @@ import mmap
 
 import pytest
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource
+from helpers.memory import create_managed_memory_resource_or_skip
 
-from conftest import create_managed_memory_resource_or_skip
 from cuda.bindings import driver
 from cuda.core import Device, Host, ManagedBuffer
 from cuda.core._memory._managed_buffer import _get_int_attr
@@ -37,9 +37,10 @@ def _page_base(buf):
 
 
 def _skip_if_raw_managed_alloc_unsupported(device):
-    # Raw `cuMemAllocManaged` capability — distinct from conftest's
-    # `skip_if_managed_memory_unsupported`, which gates `ManagedMemoryResource`
-    # pool creation. Used by tests that exercise `DummyUnifiedMemoryResource`.
+    # Raw `cuMemAllocManaged` capability — distinct from
+    # `helpers.memory.skip_if_managed_memory_unsupported`, which gates
+    # `ManagedMemoryResource` pool creation. Used by tests that exercise
+    # `DummyUnifiedMemoryResource`.
     try:
         if not device.properties.managed_memory:
             pytest.skip("Device does not support managed memory operations")

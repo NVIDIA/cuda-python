@@ -405,3 +405,65 @@ def test_default_stream_per_thread_when_env_set(monkeypatch):
     assert default_stream() is PER_THREAD_DEFAULT_STREAM
     monkeypatch.delenv("CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM", raising=False)
     assert default_stream() is LEGACY_DEFAULT_STREAM
+
+
+def _skip_unless_multi_gpu():
+    if len(Device.get_all_devices()) < 2:
+        pytest.skip("requires 2+ GPUs")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("stream", [LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM])
+def test_default_stream_follows_current_context(stream):
+    """A default-stream token denotes whatever context is current, so its
+    queries follow a context switch instead of reporting the first context
+    they ever saw (issue #2485)."""
+    _skip_unless_multi_gpu()
+
+    for device_id in (0, 1, 0):
+        dev = Device(device_id)
+        dev.set_current()
+        assert stream.device.device_id == device_id
+        assert stream.context == dev.context
+        assert stream.record().context == dev.context
+        # Exercise Stream.resources and check it tracks the same context
+        # resolution as .context (issue #2485).
+        assert stream.resources.sm.sm_count == stream.context.resources.sm.sm_count
+        assert stream.resources.sm.sm_count == dev.resources.sm.sm_count
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_default_stream_first_touch_does_not_pin_context():
+    """Any query resolves the context, including repr(), so logging a default
+    stream must not bind the singleton to whichever context happened to be
+    current at the time (issue #2485)."""
+    _skip_unless_multi_gpu()
+
+    Device(1).set_current()
+    repr(LEGACY_DEFAULT_STREAM)
+
+    dev0 = Device(0)
+    dev0.set_current()
+    assert LEGACY_DEFAULT_STREAM.device.device_id == 0
+    assert LEGACY_DEFAULT_STREAM.context == dev0.context
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_created_stream_keeps_its_own_context():
+    """A created stream has a context fixed at creation and keeps reporting it
+    across a switch; only default-stream tokens follow the current context
+    (issue #2485)."""
+    _skip_unless_multi_gpu()
+
+    dev0 = Device(0)
+    dev0.set_current()
+    stream = dev0.create_stream()
+    assert stream.context == dev0.context
+
+    try:
+        Device(1).set_current()
+        assert stream.device.device_id == 0
+        assert stream.context == dev0.context
+    finally:
+        dev0.set_current()
+        stream.close()

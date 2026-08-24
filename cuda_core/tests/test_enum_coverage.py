@@ -128,6 +128,15 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 
     _MODULES.append(system_typing)
 
+    _CLOCKS_EVENT_REASONS_STR_UNMAPPED = {
+        core_member
+        for binding_member, core_member in (
+            ("EVENT_REASON_BOARD_LIMIT", "BOARD_LIMIT"),
+            ("EVENT_REASON_RELIABILITY", "RELIABILITY"),
+        )
+        if binding_member not in nvml.ClocksEventReasons.__members__
+    }
+
     _CASES.extend(
         [
             (
@@ -160,7 +169,7 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
                 system_typing.ClocksEventReasons,
                 _device._CLOCKS_EVENT_REASONS_MAPPING,
                 set(),
-                set(),
+                _CLOCKS_EVENT_REASONS_STR_UNMAPPED,
             ),
             (
                 nvml.EventType,

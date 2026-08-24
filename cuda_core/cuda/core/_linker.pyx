@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union
 from warnings import warn
 
+from cuda.pathfinder import DynamicLibNotFoundError
 from cuda.pathfinder._optional_cuda_import import _optional_cuda_import
 from cuda.core._device import Device
 from cuda.core._module import ObjectCode
@@ -282,6 +283,18 @@ class LinkerOptions:
     no_cache : bool, optional
         Do not cache the intermediate steps of nvJitLink.
         Default: False.
+    numba_debug : bool, optional
+        Non-functional. ``numba_debug`` is an NVVM/NVRTC *compiler* option;
+        neither nvJitLink nor the driver's cuLink API recognizes it, so no
+        linking backend can honor it and the value is ignored.
+        Default: None.
+
+        .. deprecated:: 1.2.0
+            Setting this option emits a :class:`DeprecationWarning`. It has never
+            had an effect on any linking backend and will be removed in
+            ``cuda.core`` 2.0.0. Use
+            :attr:`ProgramOptions.numba_debug` on an NVVM or NVRTC compilation
+            path instead.
     """
 
     name: str | None = "<default linker>"
@@ -310,6 +323,21 @@ class LinkerOptions:
     def __post_init__(self) -> None:
         _lazy_init()
         self._name = self.name.encode()
+        # No linking backend reads ``numba_debug``, so warn where the value is
+        # supplied rather than in the option builders -- the user learns once,
+        # at the call site that set it, instead of once per link. The gate is
+        # ``is not None`` (unlike the ignore-warning on the PTX compile path):
+        # it is the *field* that is going away, so any explicit value earns the
+        # notice, including ``False``.
+        if self.numba_debug is not None:
+            warn(
+                "numba_debug is not supported by any linking backend and is ignored. "
+                "LinkerOptions.numba_debug is deprecated and will be removed in "
+                "cuda.core 2.0.0; use ProgramOptions.numba_debug on an NVVM or NVRTC "
+                "compilation path instead.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
 
     def _prepare_nvjitlink_options(self, as_bytes: bool = False) -> list[bytes] | list[str]:
         options = []
@@ -683,26 +711,30 @@ def _decide_nvjitlink_or_driver() -> bool:
         " For best results, consider upgrading to a recent version of"
     )
 
-    nvjitlink_module = _optional_cuda_import(
-        "cuda.bindings.nvjitlink",
-        probe_function=lambda module: module.version(),  # probe triggers nvJitLink runtime load
-    )
+    nvjitlink_module = _optional_cuda_import("cuda.bindings.nvjitlink")
     if nvjitlink_module is None:
         warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
     else:
         from cuda.bindings._internal import nvjitlink
 
-        if _nvjitlink_has_version_symbol(nvjitlink):
-            _use_nvjitlink_backend = True
-            return False  # Use nvjitlink
-        warn_txt = (
-            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
-            f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
-        )
+        try:
+            has_version_symbol = _nvjitlink_has_version_symbol(nvjitlink)
+        except DynamicLibNotFoundError:
+            warn_txt = (
+                f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
+            )
+        else:
+            if has_version_symbol:
+                _use_nvjitlink_backend = True
+                return False  # Use nvjitlink
+            warn_txt = (
+                f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is too old (<12.3)."
+                f" Therefore cuda.bindings.nvjitlink is not usable and {warn_txt_common} nvJitLink."
+            )
 
     warn(warn_txt, stacklevel=2, category=RuntimeWarning)
-    _use_nvjitlink_backend = False
     _driver = driver
+    _use_nvjitlink_backend = False
     return True
 
 

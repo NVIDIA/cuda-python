@@ -108,10 +108,10 @@ def test_event_is_monadic(ipc_device):
     """Check that IPC-enabled events are always bound and cannot be reset."""
     device = ipc_device
     with pytest.raises(TypeError, match=r"^IPC-enabled events must be bound; use Stream.record for creation\.$"):
-        device.create_event({"ipc_enabled": True})
+        device.create_event(EventOptions(ipc_enabled=True))
 
     stream = device.create_stream()
-    e = stream.record(options={"ipc_enabled": True})
+    e = stream.record(options=EventOptions(ipc_enabled=True))
     with pytest.raises(
         TypeError,
         match=r"^IPC-enabled events should not be re-recorded, instead create a new event by supplying options\.$",

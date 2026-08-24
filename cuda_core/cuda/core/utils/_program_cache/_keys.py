@@ -499,6 +499,11 @@ class _LinkerBackend(_KeyBackend):
             raise ValueError(
                 "extra_sources is only valid for code_type='nvvm'; Program() rejects it for code_type='ptx'."
             )
+        # ``numba_debug`` is deliberately not rejected here and is absent from
+        # ``_LINKER_FIELD_GATES``: for PTX inputs the linker ignores it (with a
+        # warning from ``_translate_program_options``), so it cannot change the
+        # generated code and must not perturb the key. Two PTX compiles that
+        # differ only in ``numba_debug`` are the same compile.
         # PTX compiles go through the Linker. When the driver (cuLink)
         # backend is selected (nvJitLink unavailable), ``Program.compile``
         # rejects a subset of options that nvJitLink would accept; reject

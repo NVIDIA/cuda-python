@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -7,7 +7,9 @@ import ctypes
 import ctypes.wintypes
 import os
 import struct
+import sys
 import warnings
+from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
@@ -22,7 +24,10 @@ WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
 POINTER_ADDRESS_SPACE = 2 ** (struct.calcsize("P") * 8)
 
 # Set up kernel32 functions with proper types
-kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+windll = getattr(ctypes, "windll", None)
+if windll is None:
+    raise RuntimeError("ctypes.windll is required on Windows")
+kernel32 = windll.kernel32
 
 # GetModuleHandleW
 kernel32.GetModuleHandleW.argtypes = [ctypes.wintypes.LPCWSTR]
@@ -43,6 +48,11 @@ kernel32.GetModuleFileNameW.argtypes = [
     ctypes.wintypes.DWORD,  # nSize
 ]
 kernel32.GetModuleFileNameW.restype = ctypes.wintypes.DWORD
+
+
+# GetLastError
+kernel32.GetLastError.argtypes = []
+kernel32.GetLastError.restype = ctypes.wintypes.DWORD
 
 
 def ctypes_handle_to_unsigned_int(handle: ctypes.wintypes.HMODULE) -> int:
@@ -73,7 +83,8 @@ def add_dll_directory(dll_abs_path: str) -> None:
     # the directory must stay on the search path for the process lifetime, and
     # the handle has no finalizer, so dropping it does not remove the directory.
     try:
-        os.add_dll_directory(dirpath)  # type: ignore[attr-defined]
+        if sys.platform == "win32":
+            os.add_dll_directory(dirpath)
     except OSError as e:
         # Warn instead of failing silently; the PATH update below is a weaker
         # fallback that newer loaders may ignore.
@@ -96,7 +107,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     length = kernel32.GetModuleFileNameW(handle, buffer, len(buffer))
 
     if length == 0:
-        error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
+        error_code = kernel32.GetLastError()
         raise RuntimeError(f"GetModuleFileNameW failed for {libname!r} (error code: {error_code})")
 
     # If buffer was too small, try with larger buffer
@@ -104,21 +115,25 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
         buffer = ctypes.create_unicode_buffer(32768)  # Extended path length
         length = kernel32.GetModuleFileNameW(handle, buffer, len(buffer))
         if length == 0:
-            error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
+            error_code = kernel32.GetLastError()
             raise RuntimeError(f"GetModuleFileNameW failed for {libname!r} (error code: {error_code})")
 
     return buffer.value
 
 
-def check_if_already_loaded_from_elsewhere(desc: LibDescriptor, have_abs_path: bool) -> LoadedDL | None:
-    for dll_name in desc.windows_dlls:
+def _candidate_dll_names(desc: LibDescriptor) -> Iterator[str]:
+    """Yield tabulated DLL names from newest to oldest."""
+    return reversed(desc.windows_dlls)
+
+
+def check_if_already_loaded_from_elsewhere(desc: LibDescriptor) -> LoadedDL | None:
+    for dll_name in _candidate_dll_names(desc):
         handle = kernel32.GetModuleHandleW(dll_name)
         if handle:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)
-            if have_abs_path and desc.requires_add_dll_directory:
-                # This is a side-effect if the pathfinder loads the library via
-                # load_with_abs_path(). To make the side-effect more deterministic,
-                # activate it even if the library was already loaded from elsewhere.
+            if desc.requires_add_dll_directory:
+                # Match load_with_abs_path(): lazy component DLLs need the directory
+                # of the module that is actually loaded, regardless of how it arrived.
                 add_dll_directory(abs_path)
             return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "was-already-loaded-from-elsewhere")
     return None
@@ -139,8 +154,7 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    # Reverse tabulated names to achieve new -> old search order.
-    for dll_name in reversed(desc.windows_dlls):
+    for dll_name in _candidate_dll_names(desc):
         handle = kernel32.LoadLibraryExW(dll_name, None, 0)
         if handle:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)
@@ -170,7 +184,7 @@ def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | No
     handle = kernel32.LoadLibraryExW(found_path, None, flags)
 
     if not handle:
-        error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
+        error_code = kernel32.GetLastError()
         raise RuntimeError(f"Failed to load DLL at {found_path}: Windows error {error_code}")
 
     return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle), found_via)

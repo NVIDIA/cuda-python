@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import inspect
+import warnings
 
 import pytest
 
@@ -303,6 +304,49 @@ class TestWhichBackendClassmethod:
         assert result == "nvJitLink"
         assert called, "_decide_nvjitlink_or_driver was not called"
 
+    @pytest.mark.agent_authored(model="grok-4.5")
+    def test_which_backend_falls_back_when_nvjitlink_too_old(self, monkeypatch):
+        """Regression test for #2408: old nvJitLink must not crash which_backend()."""
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
+        monkeypatch.setattr(_linker, "_driver", None)
+
+        def fake__optional_cuda_import(modname, probe_function=None):
+            assert modname == "cuda.bindings.nvjitlink"
+            assert probe_function is None
+            return object()
+
+        monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+        monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", lambda _nvjitlink: False)
+
+        with pytest.warns(RuntimeWarning, match="too old \\(<12.3\\)"):
+            assert Linker.which_backend() == "driver"
+
+        assert _linker._use_nvjitlink_backend is False
+
+    @pytest.mark.agent_authored(model="grok-4.5")
+    def test_which_backend_falls_back_when_dylib_missing(self, monkeypatch):
+        """Missing nvJitLink dylib must fall back without raising."""
+        from cuda.pathfinder import DynamicLibNotFoundError
+
+        monkeypatch.setattr(_linker, "_use_nvjitlink_backend", None)
+        monkeypatch.setattr(_linker, "_driver", None)
+
+        def raise_missing(_nvjitlink):
+            raise DynamicLibNotFoundError("missing")
+
+        def fake__optional_cuda_import(modname, probe_function=None):
+            assert modname == "cuda.bindings.nvjitlink"
+            assert probe_function is None
+            return object()
+
+        monkeypatch.setattr(_linker, "_nvjitlink_has_version_symbol", raise_missing)
+        monkeypatch.setattr(_linker, "_optional_cuda_import", fake__optional_cuda_import)
+
+        with pytest.warns(RuntimeWarning, match="cuda.bindings.nvjitlink is not available"):
+            assert Linker.which_backend() == "driver"
+
+        assert _linker._use_nvjitlink_backend is False
+
     def test_which_backend_is_classmethod(self):
         attr = inspect.getattr_static(Linker, "which_backend")
         assert isinstance(attr, classmethod)
@@ -391,6 +435,41 @@ def test_prepare_driver_options_unsupported_raises(driver_binding, kwargs, match
     opts = LinkerOptions(**kwargs)
     with pytest.raises(ValueError, match=match):
         opts._prepare_driver_options()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("value", [True, False])
+def test_numba_debug_warns_and_is_ignored(value):
+    """No linking backend reads ``numba_debug``, so it is ignored -- but not
+    silently, which was the bug in #2640.
+
+    The gate is ``is not None``, not truthiness: it is the field itself that is
+    deprecated, so ``numba_debug=False`` earns the notice too even though it
+    asks for nothing.
+    """
+    with pytest.warns(DeprecationWarning, match="numba_debug is not supported by any linking backend"):
+        opts = LinkerOptions(arch="sm_80", debug=True, numba_debug=value)
+    # Warned, not rejected, and the rest of the option set is untouched.
+    assert opts._prepare_nvjitlink_options(as_bytes=True) == [b"-arch=sm_80", b"-g"]
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_numba_debug_unset_does_not_warn():
+    """The deprecation notice fires only when the field is explicitly set."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        options = LinkerOptions(arch="sm_80", debug=True)._prepare_nvjitlink_options(as_bytes=True)
+    assert options == [b"-arch=sm_80", b"-g"]
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_numba_debug_ignored_by_driver_backend_too(driver_binding):
+    """The cuLink driver API has no CUjit_option for numba_debug either, so it
+    is ignored there as well rather than reaching the driver."""
+    with pytest.warns(DeprecationWarning, match="numba_debug"):
+        opts = LinkerOptions(arch="sm_80", numba_debug=True)
+    formatted_options, option_keys = opts._prepare_driver_options()
+    assert not any("NUMBA" in str(key) for key in option_keys)
 
 
 def test_linker_empty_object_codes_raises():

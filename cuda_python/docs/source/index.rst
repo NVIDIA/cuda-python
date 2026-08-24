@@ -29,7 +29,7 @@ multiple components:
 .. _device: https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#device-apis
 .. _distributed: https://docs.nvidia.com/cuda/nvmath-python/latest/distributed-apis/index.html
 .. _nvmath.bindings: https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html
-.. _nvshmem4py: https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html
+.. _nvshmem4py: https://docs.nvidia.com/nvshmem/api/latest/api/language_bindings/python/index.html
 .. _Nsight Python: https://docs.nvidia.com/nsight-python/index.html
 .. _CUPTI Python: https://docs.nvidia.com/cupti-python/
 .. _Accelerated Computing Hub: https://github.com/NVIDIA/accelerated-computing-hub
@@ -55,7 +55,7 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    numba.cuda <https://nvidia.github.io/numba-cuda/>
    cuda.tile <https://docs.nvidia.com/cuda/cutile-python/>
    nvmath-python <https://docs.nvidia.com/cuda/nvmath-python/>
-   nvshmem4py <https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html>
+   nvshmem4py <https://docs.nvidia.com/nvshmem/api/latest/api/language_bindings/python/index.html>
    Nsight Python <https://docs.nvidia.com/nsight-python/index.html>
    CUPTI Python <https://docs.nvidia.com/cupti-python/>
    Accelerated Computing Hub <https://github.com/NVIDIA/accelerated-computing-hub>

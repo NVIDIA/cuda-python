@@ -16,21 +16,31 @@ from cuda.core._memory cimport _ipc
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     StreamHandle,
+    ContextHandle,
     deviceptr_create_with_owner,
     deviceptr_create_with_mr,
     register_mr_dealloc_callback,
     as_intptr,
     as_cu,
+    get_current_context,
     set_deallocation_stream,
 )
 from cuda.core.typing import DevicePointerType
 
-from cuda.core._stream cimport Stream, Stream_accept, default_stream
+from cuda.core._memory._copy_attributes cimport _with_attributes_available
+from cuda.core._memory._copy_attributes cimport _to_cu_memcpy_attributes  # no-cython-lint
+
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._resource_handles cimport memcpy_with_attributes_async
+
+from cuda.core._stream cimport Stream, Stream_accept, Stream_is_legacy_default_token, default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
 import sys
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
+from cuda.core._memory._copy_enums import CopyOptions, _reject_unsupported_during_api_call
 from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core._dlpack import classify_dl_device, make_py_capsule
 from cuda.core._device import Device
@@ -49,29 +59,44 @@ cdef void _mr_dealloc_callback(
     size_t size,
     const StreamHandle& h_stream,
 ) noexcept:
-    """Called by the C++ deleter to deallocate via MemoryResource.deallocate.
-
-    This is the C++ teardown path: there is no Python caller frame from
-    which to obtain a stream. If the device-pointer handle was created
-    without ``set_deallocation_stream`` being called (e.g. buffers minted
-    via ``Buffer.from_handle(ptr, size, mr=mr)`` from DLPack import,
-    third-party adapters, or other foreign sources), ``h_stream`` is
-    empty here. Stream-ordered MR ``deallocate`` overrides reject
-    ``stream=None`` (issue #2001), so without a fallback the destructor
-    would print a warning and leak the allocation. Fall back to the
-    legacy/per-thread default stream so the free still happens; this is
-    the unique exception to the "no implicit default-stream fallback"
-    policy because the teardown has no other source of truth.
-    """
+    """Called by the C++ deleter to deallocate via MemoryResource.deallocate."""
     cdef Stream stream
     try:
-        stream = Stream._from_handle(Stream, h_stream) if h_stream else default_stream()
+        if not h_stream:
+            print(
+                "Warning: no deallocation stream was recorded; falling back to "
+                "the default stream for mr.deallocate() during Buffer "
+                "destruction. This is an internal cuda-core error; please "
+                "report it with your CUDA driver, CUDA Toolkit, and "
+                "cuda-python versions.",
+                file=sys.stderr,
+            )
+            stream = default_stream()
+        else:
+            stream = Stream._from_handle(Stream, h_stream)
         mr.deallocate(int(ptr), size, stream=stream)
     except Exception as exc:
         print(f"Warning: mr.deallocate() failed during Buffer destruction: {exc}",
               file=sys.stderr)
 
 register_mr_dealloc_callback(_mr_dealloc_callback)
+
+
+cdef inline void _apply_deallocation_stream(
+        const DevicePtrHandle& h_ptr, const StreamHandle& h_stream) except *:
+    """Record h_stream as the deallocation stream for h_ptr.
+
+    Translates CUDA_ERROR_INVALID_CONTEXT (default-stream token with no current
+    context) into a descriptive RuntimeError instead of a raw CUDAError.
+    """
+    cdef cydriver.CUresult status = set_deallocation_stream(h_ptr, h_stream)
+    if status == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+        raise RuntimeError(
+            "Cannot record a default deallocation stream when no CUDA context is "
+            "current. Call Device.set_current() first, or pass stream= with a "
+            "non-default Stream."
+        )
+    HANDLE_RETURN(status)
 
 
 __all__ = ['Buffer', 'MemoryResource']
@@ -141,6 +166,75 @@ cdef inline void _init_memory_attrs(Buffer self):
         self._mem_attrs_inited.store(True, memory_order_release)
 
 
+cdef bint _stream_is_capturing(Stream s):
+    cdef cydriver.CUstreamCaptureStatus cap_status
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &cap_status,
+                                                     NULL, NULL, NULL, NULL, NULL))
+    ELSE:
+        HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &cap_status,
+                                                     NULL, NULL, NULL, NULL))
+    return cap_status == cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE
+
+
+cdef void _do_copy_with_attributes(
+    cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t nbytes,
+    object options, cydriver.CUstream hstream,
+):
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        # Routed through the memcpy_with_attributes_async() C++ shim since
+        # cydriver.cuMemcpyWithAttributesAsync is absent from cuda-bindings < 13.2.
+        cdef cydriver.CUmemcpyAttributes cu_attr = _to_cu_memcpy_attributes(options)
+        with nogil:
+            HANDLE_RETURN(memcpy_with_attributes_async(dst, src, nbytes, <void*>&cu_attr, hstream))
+    ELSE:
+        pass  # unreachable: _with_attributes_available() is always False on CUDA 12
+
+
+cdef void _dispatch_buffer_copy(
+    cydriver.CUdeviceptr dst, cydriver.CUdeviceptr src, size_t nbytes,
+    Stream s, object options, str method_name,
+):
+    """Submit a single copy, honoring CopyOptions when the attributes path is usable."""
+    if options is None:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(dst, src, nbytes, as_cu(s._h_stream)))
+        return
+    if not isinstance(options, CopyOptions):
+        raise TypeError(
+            f"{method_name}: options must be CopyOptions, got {type(options).__name__}"
+        )
+    if Stream_is_legacy_default_token(s):
+        raise TypeError(
+            f"{method_name} does not accept LEGACY_DEFAULT_STREAM with options "
+            "(matches copy_batch); cuMemcpyWithAttributesAsync rejects it outright, "
+            "unlike PER_THREAD_DEFAULT_STREAM, which is a real stream to the driver "
+            "and is accepted. Pass an explicit stream, PER_THREAD_DEFAULT_STREAM, "
+            "or options=None."
+        )
+    if _stream_is_capturing(s):
+        raise TypeError(
+            f"{method_name} does not support graph capture with options "
+            "(matches copy_batch); the driver has no graph-node form of "
+            "cuMemcpyWithAttributesAsync, so options cannot be honored in a graph. "
+            "Use GraphNode.memcpy for a plain (non-attributed) copy node, or pass "
+            "options=None."
+        )
+    if _with_attributes_available():
+        _do_copy_with_attributes(dst, src, nbytes, options, as_cu(s._h_stream))
+    else:
+        _reject_unsupported_during_api_call(
+            options.src_access_order,
+            "cuda.bindings and the driver to both report CUDA 13.2 or newer "
+            "(cuMemcpyWithAttributesAsync is unavailable here)",
+        )
+        # STREAM and ANY never require access sooner than stream order, so
+        # cuMemcpyAsync satisfies them; options are otherwise silently
+        # ignored on this pre-CUDA-13.2 fallback path, matching copy_batch.
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(dst, src, nbytes, as_cu(s._h_stream)))
+
+
 cdef class Buffer:
     """Represent a handle to allocated memory.
 
@@ -176,20 +270,43 @@ cdef class Buffer:
     def _init(
         cls, ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         ipc_descriptor: IPCBufferDescriptor | None = None,
-        owner : object | None = None
+        owner : object | None = None,
+        *,
+        stream: Stream | GraphBuilder | None = None,
     ) -> Buffer:
         """Create a Buffer from a raw pointer.
 
         When ``mr`` is provided, the buffer takes ownership: ``mr.deallocate()``
         is called when the buffer is closed or garbage collected.  When ``owner``
         is provided, the owner is kept alive but no deallocation is performed.
+        When ``mr`` is provided, a deallocation stream is recorded at creation
+        (``stream`` if given, otherwise ``default_stream()``). Recording a
+        default-stream token requires a CUDA context to be current.
         """
         if mr is not None and owner is not None:
             raise ValueError("owner and memory resource cannot be both specified together")
+        if stream is not None and mr is None:
+            raise ValueError("stream requires a memory resource (mr)")
         cdef Buffer self = Buffer.__new__(cls)
         cdef uintptr_t c_ptr = <uintptr_t>(int(ptr))
+        cdef Stream s
+        cdef cydriver.CUresult _ds_status
         if mr is not None:
+            s = Stream_accept(default_stream() if stream is None else stream)
             self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
+            _ds_status = set_deallocation_stream(self._h_ptr, s._h_stream)
+            if _ds_status != cydriver.CUresult.CUDA_SUCCESS:
+                # Reset before raising: the DevicePtrHandle destructor would otherwise
+                # invoke _mr_dealloc_callback, which catches any inner exception and
+                # clears the exception state, swallowing the error we're about to raise.
+                self._h_ptr.reset()
+                if _ds_status == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+                    raise RuntimeError(
+                        "Cannot record a default deallocation stream when no CUDA context is "
+                        "current. Call Device.set_current() first, or pass stream= with a "
+                        "non-default Stream."
+                    )
+                HANDLE_RETURN(_ds_status)
         else:
             self._h_ptr = deviceptr_create_with_owner(c_ptr, owner)
         self._size = size
@@ -201,10 +318,17 @@ cdef class Buffer:
 
     @staticmethod
     def _reduce_helper(mr, ipc_descriptor):
+        cdef ContextHandle h_ctx = get_current_context()
+        cdef int device_id
+        if not h_ctx:
+            # Spawned processes unpickle arguments before entering their target,
+            # so initialize the context needed to bind the default-stream token.
+            device_id = mr.device_id
+            (Device(device_id) if device_id >= 0 else Device()).set_current()
         # The parent process's stream is not portable across processes, so the
         # pickle path cannot thread an explicit stream through. Seed the
         # imported buffer's deallocation with the current context's default
-        # stream; the receiver can override via buffer.close(stream).
+        # stream; the receiver can override it before or during close.
         return Buffer.from_ipc_descriptor(mr, ipc_descriptor, stream=default_stream())
 
     def __reduce__(self) -> tuple[object, ...]:
@@ -217,6 +341,8 @@ cdef class Buffer:
     def from_handle(
         ptr: DevicePointerType, size_t size, mr: MemoryResource | None = None,
         owner: object | None = None,
+        *,
+        stream: Stream | GraphBuilder | None = None,
     ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
@@ -234,6 +360,13 @@ cdef class Buffer:
             An object holding external allocation that the ``ptr`` points to.
             The reference is kept as long as the buffer is alive.
             The ``owner`` and ``mr`` cannot be specified together.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
+            Keyword-only. The stream used to order the buffer's deallocation
+            when ``mr`` owns the pointer. Defaults to ``default_stream()``.
+            Recording a default-stream token requires a CUDA context to be
+            current. If the buffer may be freed from a different host thread,
+            pass a stream other than the per-thread default stream, which
+            refers to a different stream on each thread.
 
         Note
         ----
@@ -241,7 +374,7 @@ cdef class Buffer:
         non-owning reference.  The pointer will NOT be freed when the
         :class:`Buffer` is closed or garbage collected.
         """
-        return Buffer._init(ptr, size, mr=mr, owner=owner)
+        return Buffer._init(ptr, size, mr=mr, owner=owner, stream=stream)
 
     @classmethod
     def from_ipc_descriptor(
@@ -272,8 +405,11 @@ cdef class Buffer:
     @cython.critical_section
     def ipc_descriptor(self) -> IPCBufferDescriptor:
         """Descriptor for sharing this buffer with other processes."""
+        cdef object ipc_data
         if self._ipc_data is None:
-            self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+            ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+            if self._ipc_data is None:
+                self._ipc_data = ipc_data
         return self._ipc_data.ipc_descriptor
 
     def close(self, stream: Stream | GraphBuilder | None = None) -> None:
@@ -287,8 +423,44 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`, optional
             The stream object to use for asynchronous deallocation. If None,
             the deallocation stream stored in the handle is used.
+
+        See Also
+        --------
+        set_deallocation_stream
+            Change the deallocation stream without closing the buffer.
         """
         Buffer_close(self, stream)
+
+    def set_deallocation_stream(self, stream: Stream | GraphBuilder) -> None:
+        """Change the stream that orders this buffer's eventual deallocation.
+
+        The buffer remains open and usable. A later :meth:`close` without a
+        stream, garbage collection, or release of the final retained device
+        pointer handle uses the replacement stream.
+
+        This method does not synchronize streams or establish dependencies.
+        The caller must ensure that allocation and all accesses are ordered
+        before the deallocation on ``stream``.
+
+        Parameters
+        ----------
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            The stream to use for eventual asynchronous deallocation.
+
+        Raises
+        ------
+        RuntimeError
+            If the buffer is already closed, or if a default-stream token
+            cannot be bound because no CUDA context is current.
+        TypeError
+            If ``stream`` is ``None`` or is not an accepted stream object.
+
+        Notes
+        -----
+        Synchronizing concurrent mutation and destruction of the same buffer
+        is the caller's responsibility.
+        """
+        Buffer_set_deallocation_stream(self, stream)
 
     def __enter__(self):
         return self
@@ -297,7 +469,8 @@ cdef class Buffer:
         self.close()
         return False
 
-    def copy_to(self, dst: Buffer | None = None, *, stream: Stream | GraphBuilder) -> Buffer:
+    def copy_to(self, dst: Buffer | None = None, *, stream: Stream | GraphBuilder,
+                options: CopyOptions | None = None) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -312,6 +485,28 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
+        options : :class:`~utils.CopyOptions`, optional
+            Transfer hints (source access order, location hints, overlap mode).
+            Honored when cuda.bindings and the driver are both CUDA 13.2 or
+            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
+            capturing stream either, since a graph cannot represent these
+            attributes; use :meth:`graph.GraphNode.memcpy` for a plain,
+            non-attributed copy node, or pass ``options=None``. On an older
+            cuda.bindings/driver, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` are silently ignored; ``DURING_API_CALL`` raises
+            instead of silently downgrading its guarantee.
+
+        Raises
+        ------
+        TypeError
+            If ``options`` is not a :class:`~utils.CopyOptions` instance, or
+            if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
+            or a stream currently in graph capture mode.
+        RuntimeError
+            If ``options.src_access_order`` is ``DURING_API_CALL`` and
+            cuda.bindings or the driver is older than CUDA 13.2: falling
+            back to a plain copy cannot honor that guarantee.
 
         """
         cdef Stream s = Stream_accept(stream)
@@ -328,12 +523,12 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
+        _dispatch_buffer_copy(
+            as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, s, options, "copy_to")
         return dst
 
-    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder) -> None:
+    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder,
+                  options: CopyOptions | None = None) -> None:
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
@@ -343,7 +538,28 @@ cdef class Buffer:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
+        options : :class:`~utils.CopyOptions`, optional
+            Transfer hints (source access order, location hints, overlap mode).
+            Honored when cuda.bindings and the driver are both CUDA 13.2 or
+            newer. Not accepted with ``LEGACY_DEFAULT_STREAM``; use
+            ``PER_THREAD_DEFAULT_STREAM`` instead. Not accepted with a
+            capturing stream either, since a graph cannot represent these
+            attributes; use :meth:`graph.GraphNode.memcpy` for a plain,
+            non-attributed copy node, or pass ``options=None``. On an older
+            cuda.bindings/driver, ``src_access_order`` values of ``STREAM``
+            and ``ANY`` are silently ignored; ``DURING_API_CALL`` raises
+            instead of silently downgrading its guarantee.
 
+        Raises
+        ------
+        TypeError
+            If ``options`` is not a :class:`~utils.CopyOptions` instance, or
+            if ``options`` is given together with ``LEGACY_DEFAULT_STREAM``
+            or a stream currently in graph capture mode.
+        RuntimeError
+            If ``options.src_access_order`` is ``DURING_API_CALL`` and
+            cuda.bindings or the driver is older than CUDA 13.2: falling
+            back to a plain copy cannot honor that guarantee.
         """
         cdef Stream s = Stream_accept(stream)
         cdef size_t dst_size = self._size
@@ -353,9 +569,8 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
+        _dispatch_buffer_copy(
+            as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, s, options, "copy_from")
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder) -> None:
         """Fill this buffer with a repeating byte pattern.
@@ -543,7 +758,12 @@ cdef class MemoryResource:
         stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
             Keyword-only. The stream on which to perform the allocation
             asynchronously. Must be passed explicitly; pass
-            ``device.default_stream`` to use the default stream.
+            ``device.default_stream`` to use the default stream. For subclasses
+            that support stream-ordered deallocation, this stream also orders
+            the buffer's eventual deallocation, so if the buffer may be freed
+            from a different host thread, prefer a stream other than the
+            per-thread default stream, which refers to a different stream on
+            each thread.
 
         Returns
         -------
@@ -616,15 +836,47 @@ cdef Buffer Buffer_from_deviceptr_handle(
     return buf
 
 
+cdef tuple Buffer_coerce_batch(object buffers, str what, str single_hint):
+    """Coerce ``buffers`` to a ``tuple[Buffer, ...]``; reject a bare Buffer.
+
+    Shared by the batched free functions. Passing one Buffer is rejected
+    rather than treated as a one-element batch so that the per-buffer API
+    named by ``single_hint`` stays the single obvious way to do it.
+    """
+    cdef list out
+    if isinstance(buffers, Buffer):
+        raise TypeError(
+            f"{what}: pass a sequence of Buffers; for a single buffer use {single_hint}"
+        )
+    if not isinstance(buffers, Sequence):
+        raise TypeError(
+            f"{what}: buffers must be a sequence of Buffer, got {type(buffers).__name__}"
+        )
+    if not buffers:
+        raise ValueError(f"{what}: empty buffers sequence")
+    out = []
+    for item in buffers:
+        if not isinstance(item, Buffer):
+            raise TypeError(f"{what}: expected Buffer, got {type(item).__name__}")
+        out.append(item)
+    return tuple(out)
+
+
+cdef inline void Buffer_set_deallocation_stream(Buffer self, object stream):
+    """Validate and replace a live buffer's deallocation recipe."""
+    if not self._h_ptr:
+        raise RuntimeError("Cannot set the deallocation stream on a closed Buffer")
+    cdef Stream s = Stream_accept(stream)
+    _apply_deallocation_stream(self._h_ptr, s._h_stream)
+
+
 cdef inline void Buffer_close(Buffer self, object stream):
     """Close a buffer, freeing its memory."""
-    cdef Stream s
     if not self._h_ptr:
         return
     # Update deallocation stream if provided
     if stream is not None:
-        s = Stream_accept(stream)
-        set_deallocation_stream(self._h_ptr, s._h_stream)
+        Buffer_set_deallocation_stream(self, stream)
     # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
     self._h_ptr.reset()
     self._size = 0

@@ -9,14 +9,16 @@ entry, rather than comparing the catalog against itself.
 
 from __future__ import annotations
 
+import fnmatch
 import re
 
 import pytest
 
-from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG, DescriptorSpec
+from cuda.pathfinder._dynamic_libs.descriptor_catalog import DESCRIPTOR_CATALOG, DescriptorSpec, WindowsSearchDirs
 
 _VALID_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _VALID_PACKAGED_WITH_VALUES = {"ctk", "other", "driver"}
+_VALID_WINDOWS_ARCHES = ("x64", "arm64")
 _CATALOG_BY_NAME = {spec.name: spec for spec in DESCRIPTOR_CATALOG}
 
 
@@ -51,6 +53,15 @@ def test_no_self_dependency(spec: DescriptorSpec):
     assert spec.name not in spec.dependencies, f"{spec.name} lists itself as a dependency"
 
 
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_optional_dependencies_reference_existing_entries(spec: DescriptorSpec):
+    for dep in spec.optional_dependencies:
+        assert dep in _CATALOG_BY_NAME, f"{spec.name} optionally depends on unknown library {dep!r}"
+        assert dep != spec.name, f"{spec.name} lists itself as an optional dependency"
+        assert dep not in spec.dependencies, f"{spec.name} lists {dep!r} as both required and optional"
+
+
 @pytest.mark.parametrize(
     "spec",
     [s for s in DESCRIPTOR_CATALOG if s.packaged_with == "driver"],
@@ -59,7 +70,7 @@ def test_no_self_dependency(spec: DescriptorSpec):
 def test_driver_libs_have_no_site_packages(spec: DescriptorSpec):
     """Driver libs are system-search-only; site-packages paths would be unused."""
     assert not spec.site_packages_linux, f"driver lib {spec.name} has site_packages_linux"
-    assert not spec.site_packages_windows, f"driver lib {spec.name} has site_packages_windows"
+    assert spec.site_packages_windows == WindowsSearchDirs(), f"driver lib {spec.name} has site_packages_windows"
 
 
 @pytest.mark.parametrize(
@@ -86,6 +97,126 @@ def test_windows_dlls_look_like_dlls(spec: DescriptorSpec):
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_windows_dll_fallback_globs_are_basenames(spec: DescriptorSpec):
+    for dll_glob in spec.windows_dll_fallback_globs:
+        assert "*" in dll_glob
+        assert dll_glob.endswith(".dll")
+        assert "/" not in dll_glob
+        assert "\\" not in dll_glob
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_only_cupti_uses_forward_compatible_windows_dll_glob():
+    specs_with_globs = {spec.name for spec in DESCRIPTOR_CATALOG if spec.windows_dll_fallback_globs}
+
+    assert specs_with_globs == {"cupti"}
+    assert _CATALOG_BY_NAME["cupti"].windows_dll_fallback_globs == ("cupti64_*.dll",)
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_windows_dll_fallback_globs_do_not_match_other_descriptors(spec: DescriptorSpec):
+    for dll_glob in spec.windows_dll_fallback_globs:
+        sibling_matches = {
+            (other.name, dll)
+            for other in DESCRIPTOR_CATALOG
+            if other is not spec
+            for dll in other.windows_dlls
+            if fnmatch.fnmatchcase(dll.casefold(), dll_glob.casefold())
+        }
+        assert not sibling_matches, f"{spec.name} glob {dll_glob!r} also matches {sibling_matches}"
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_supported_windows_arch_is_explicit_and_canonical(spec: DescriptorSpec):
+    expected = tuple(arch for arch in _VALID_WINDOWS_ARCHES if arch in spec.supported_windows_arch)
+    assert spec.supported_windows_arch == expected
+    assert bool(spec.supported_windows_arch) == bool(spec.windows_dlls)
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_windows_search_dirs_do_not_include_unsupported_arches(spec: DescriptorSpec):
+    if not spec.windows_dlls:
+        return
+    for arch in _VALID_WINDOWS_ARCHES:
+        if arch not in spec.supported_windows_arch:
+            assert not spec.site_packages_windows.for_arch(arch)
+            assert not spec.anchor_rel_dirs_windows.for_arch(arch)
+            assert not spec.install_root_env_rel_dirs_windows.for_arch(arch)
+            assert not spec.program_files_root_globs_windows.for_arch(arch)
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5")
+def test_windows_install_root_env_metadata_is_complete(spec: DescriptorSpec):
+    has_env_vars = bool(spec.install_root_env_vars_windows)
+    has_rel_dirs = any(spec.install_root_env_rel_dirs_windows.for_arch(arch) for arch in _VALID_WINDOWS_ARCHES)
+
+    assert has_env_vars == has_rel_dirs, f"{spec.name} must define both installation-root env vars and relative dirs"
+    if has_env_vars:
+        for arch in spec.supported_windows_arch:
+            assert spec.install_root_env_rel_dirs_windows.for_arch(arch), (
+                f"{spec.name} exposes installation-root env vars without {arch} relative dirs"
+            )
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_linux_install_root_env_metadata_is_complete(spec: DescriptorSpec):
+    has_env_vars = bool(spec.install_root_env_vars_linux)
+    has_rel_dirs = bool(spec.install_root_env_rel_dirs_linux)
+
+    assert has_env_vars == has_rel_dirs, f"{spec.name} must define both Linux installation-root env vars and dirs"
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cusparselt_windows_metadata_matches_wheel_layouts():
+    spec = _CATALOG_BY_NAME["cusparseLt"]
+    assert spec.supported_windows_arch == ("x64", "arm64")
+    assert spec.site_packages_windows == WindowsSearchDirs(
+        x64=("nvidia/cu13/bin/x64", "nvidia/cusparselt/bin"),
+        arm64=("nvidia/cu13/bin/arm64",),
+    )
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_cudnn_metadata_matches_supported_layouts():
+    spec = _CATALOG_BY_NAME["cudnn"]
+    assert spec.packaged_with == "other"
+    assert spec.linux_sonames == ("libcudnn.so.9",)
+    assert spec.windows_dlls == ("cudnn64_9.dll",)
+    assert not spec.windows_dll_fallback_globs
+    assert spec.supported_windows_arch == ("x64", "arm64")
+    assert spec.site_packages_linux == ("nvidia/cudnn/lib",)
+    assert spec.site_packages_windows == WindowsSearchDirs.x64_only("nvidia/cudnn/bin")
+    assert spec.anchor_rel_dirs_windows == WindowsSearchDirs.x64_only("bin/x64", "bin")
+    assert spec.dependencies == ("cublasLt",)
+    assert spec.optional_dependencies == ("nvrtc",)
+    assert spec.install_root_env_vars_linux == ("CUDNN_PATH",)
+    assert spec.install_root_env_rel_dirs_linux == ("lib", "lib64")
+    assert spec.install_root_env_vars_windows == ("CUDNN_PATH",)
+    assert spec.install_root_env_rel_dirs_windows == WindowsSearchDirs(
+        x64=("bin/x64", "bin"),
+        arm64=("bin/arm64",),
+    )
+    assert spec.program_files_root_globs_windows == WindowsSearchDirs.x64_only("NVIDIA/CUDNN/v9.*")
+    assert spec.requires_add_dll_directory
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_nccl_metadata_matches_supported_linux_install_layouts():
+    spec = _CATALOG_BY_NAME["nccl"]
+    assert spec.packaged_with == "other"
+    assert spec.linux_sonames == ("libnccl.so.2",)
+    assert spec.site_packages_linux == ("nvidia/nccl/lib",)
+    assert spec.install_root_env_vars_linux == ("NCCL_HOME",)
+    assert spec.install_root_env_rel_dirs_linux == ("lib", "lib64", "build/lib")
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 def test_ctk_root_canary_anchors_reference_known_ctk_libs(spec: DescriptorSpec):
     for anchor in spec.ctk_root_canary_anchor_libnames:
         assert anchor in _CATALOG_BY_NAME, f"{spec.name} has unknown canary anchor {anchor!r}"
@@ -96,3 +227,10 @@ def test_ctk_root_canary_anchors_reference_known_ctk_libs(spec: DescriptorSpec):
 def test_only_ctk_libs_define_ctk_root_canary_anchors(spec: DescriptorSpec):
     if spec.ctk_root_canary_anchor_libnames:
         assert spec.packaged_with == "ctk", f"{spec.name} defines canary anchors but is not a CTK lib"
+
+
+@pytest.mark.agent_authored(model="gpt-5")
+def test_only_nvvm_requires_windows_binary_arch_check():
+    checked_libs = {spec.name for spec in DESCRIPTOR_CATALOG if spec.requires_windows_binary_arch_check}
+
+    assert checked_libs == {"nvvm"}

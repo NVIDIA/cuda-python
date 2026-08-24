@@ -13,20 +13,21 @@ import re
 import weakref
 
 import pytest
+from helpers.constants import POOL_SIZE
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
-from conftest import xfail_on_graph_mempool_oom
 from cuda.core import (
     Buffer,
     Device,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
+    EventOptions,
     Kernel,
     LaunchConfig,
     Program,
     Stream,
-    system,
 )
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core.graph import GraphDefinition
@@ -169,7 +170,7 @@ def sample_program_nvvm(init_cuda):
 @pytest.fixture
 def sample_device_alt(init_cuda):
     """An alternate Device object (requires multi-GPU)."""
-    if system.get_num_devices() < 2:
+    if len(Device.get_all_devices()) < 2:
         pytest.skip("requires multi-GPU")
     device_alt = Device(1)
     device_alt.set_current()
@@ -224,8 +225,6 @@ def sample_kernel_alt(sample_object_code_alt):
 # Fixtures - IPC samples (for pickle tests)
 # =============================================================================
 
-POOL_SIZE = 2097152
-
 
 @pytest.fixture
 def sample_ipc_buffer_descriptor(ipc_device):
@@ -244,7 +243,7 @@ def sample_ipc_buffer_descriptor(ipc_device):
 def sample_ipc_event_descriptor(ipc_device):
     """An IPCEventDescriptor."""
     stream = ipc_device.create_stream()
-    e = stream.record(options={"ipc_enabled": True})
+    e = stream.record(options=EventOptions(ipc_enabled=True))
     return e.ipc_descriptor
 
 
@@ -705,7 +704,8 @@ REPR_PATTERNS = [
     (
         "sample_launch_config",
         r"LaunchConfig\(grid=\(\d+, \d+, \d+\), cluster=.+, block=\(\d+, \d+, \d+\), "
-        r"shmem_size=\d+, is_cooperative=(?:True|False)\)",
+        r"shmem_size=\d+, is_cooperative=(?:True|False), "
+        r"programmatic_stream_serialization=(?:True|False)\)",
     ),
     ("sample_kernel", r"<Kernel handle=0x[0-9a-f]+>"),
     # ObjectCode variations (by code_type)
