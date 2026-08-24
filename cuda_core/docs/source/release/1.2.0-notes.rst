@@ -168,7 +168,7 @@ Fixes and enhancements
   ``data`` with ``byte_offset = 0``. The capsule-consuming path was already
   correct.
   (`#2592 <https://github.com/NVIDIA/cuda-python/issues/2592>`__)
-  
+
 - ``Program(ptx, "ptx", ProgramOptions(numba_debug=True))`` now warns that the
   option is ignored instead of discarding it silently. ``numba_debug`` is an
   NVVM/NVRTC *compiler* option: nvJitLink rejects it with
