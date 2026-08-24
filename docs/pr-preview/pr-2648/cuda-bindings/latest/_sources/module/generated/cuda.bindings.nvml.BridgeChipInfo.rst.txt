@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.BridgeChipInfo
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: BridgeChipInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BridgeChipInfo.__init__
+      ~BridgeChipInfo.from_buffer
+      ~BridgeChipInfo.from_data
+      ~BridgeChipInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BridgeChipInfo.fw_version
+      ~BridgeChipInfo.ptr
+      ~BridgeChipInfo.type
+   
+   
