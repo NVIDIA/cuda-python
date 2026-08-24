@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.buf\_register
-==================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: buf_register
