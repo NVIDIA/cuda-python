@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1a8d9ee78bc417c85345caf1dd580ac660ab437cd874a89d6924786f4ad7aade
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c34f226d941a77ab78685766f1df3af41e44e3c34580ac476391e2918ee2a15b
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -45,7 +45,10 @@ cdef extern from "<windows.h>":
     ctypedef void* HMODULE
     void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-from libc.stdint cimport intptr_t as _cyb_intptr_t
+from libc.stdint cimport (
+    intptr_t,
+    uintptr_t,
+)
 
 import threading as _cyb_threading
 
@@ -146,46 +149,46 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvvm()
     cdef dict data = {}
     global __nvvmGetErrorString
-    data["__nvvmGetErrorString"] = <_cyb_intptr_t>__nvvmGetErrorString
+    data["__nvvmGetErrorString"] = <intptr_t>__nvvmGetErrorString
 
     global __nvvmVersion
-    data["__nvvmVersion"] = <_cyb_intptr_t>__nvvmVersion
+    data["__nvvmVersion"] = <intptr_t>__nvvmVersion
 
     global __nvvmIRVersion
-    data["__nvvmIRVersion"] = <_cyb_intptr_t>__nvvmIRVersion
+    data["__nvvmIRVersion"] = <intptr_t>__nvvmIRVersion
 
     global __nvvmCreateProgram
-    data["__nvvmCreateProgram"] = <_cyb_intptr_t>__nvvmCreateProgram
+    data["__nvvmCreateProgram"] = <intptr_t>__nvvmCreateProgram
 
     global __nvvmDestroyProgram
-    data["__nvvmDestroyProgram"] = <_cyb_intptr_t>__nvvmDestroyProgram
+    data["__nvvmDestroyProgram"] = <intptr_t>__nvvmDestroyProgram
 
     global __nvvmAddModuleToProgram
-    data["__nvvmAddModuleToProgram"] = <_cyb_intptr_t>__nvvmAddModuleToProgram
+    data["__nvvmAddModuleToProgram"] = <intptr_t>__nvvmAddModuleToProgram
 
     global __nvvmLazyAddModuleToProgram
-    data["__nvvmLazyAddModuleToProgram"] = <_cyb_intptr_t>__nvvmLazyAddModuleToProgram
+    data["__nvvmLazyAddModuleToProgram"] = <intptr_t>__nvvmLazyAddModuleToProgram
 
     global __nvvmCompileProgram
-    data["__nvvmCompileProgram"] = <_cyb_intptr_t>__nvvmCompileProgram
+    data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
 
     global __nvvmVerifyProgram
-    data["__nvvmVerifyProgram"] = <_cyb_intptr_t>__nvvmVerifyProgram
+    data["__nvvmVerifyProgram"] = <intptr_t>__nvvmVerifyProgram
 
     global __nvvmGetCompiledResultSize
-    data["__nvvmGetCompiledResultSize"] = <_cyb_intptr_t>__nvvmGetCompiledResultSize
+    data["__nvvmGetCompiledResultSize"] = <intptr_t>__nvvmGetCompiledResultSize
 
     global __nvvmGetCompiledResult
-    data["__nvvmGetCompiledResult"] = <_cyb_intptr_t>__nvvmGetCompiledResult
+    data["__nvvmGetCompiledResult"] = <intptr_t>__nvvmGetCompiledResult
 
     global __nvvmGetProgramLogSize
-    data["__nvvmGetProgramLogSize"] = <_cyb_intptr_t>__nvvmGetProgramLogSize
+    data["__nvvmGetProgramLogSize"] = <intptr_t>__nvvmGetProgramLogSize
 
     global __nvvmGetProgramLog
-    data["__nvvmGetProgramLog"] = <_cyb_intptr_t>__nvvmGetProgramLog
+    data["__nvvmGetProgramLog"] = <intptr_t>__nvvmGetProgramLog
 
     global __nvvmLLVMVersion
-    data["__nvvmLLVMVersion"] = <_cyb_intptr_t>__nvvmLLVMVersion
+    data["__nvvmLLVMVersion"] = <intptr_t>__nvvmLLVMVersion
     _cyb_func_ptrs = data
     return data
 

@@ -2,9 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.0. Do not modify it directly.
-
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=436984a783ea5e6bef13945d0b6d60b4143aa08131c82cdea619337233b15737
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1897e221f7cea1db8c935488157e3b929f4225e2de3eb5bdc80d302fc35d7e96
+
+
+# <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    intptr_t,
+    uint32_t,
+    uint64_t,
+)
+
+
+# <<<< END OF PREAMBLE CONTENT >>>>
+
 from libc.stdint cimport intptr_t
 
 from .cycudla cimport *
@@ -45,10 +57,10 @@ cpdef intptr_t mem_register(intptr_t dev_handle, intptr_t ptr, size_t size, uint
 cpdef intptr_t module_load_from_memory(intptr_t dev_handle, p_module, size_t module_size, uint32_t flags) except *
 cpdef module_unload(intptr_t h_module, uint32_t flags)
 cpdef submit_task(intptr_t dev_handle, intptr_t ptr_to_tasks, uint32_t num_tasks, intptr_t stream, uint32_t flags)
-cpdef object device_get_attribute(intptr_t dev_handle, int attrib) except *
+cpdef object device_get_attribute(intptr_t dev_handle, int attrib)
 cpdef mem_unregister(intptr_t dev_handle, intptr_t dev_ptr)
 cpdef int get_last_error(intptr_t dev_handle) except? 0
 cpdef destroy_device(intptr_t dev_handle)
 cpdef set_task_timeout_in_ms(intptr_t dev_handle, uint32_t timeout)
 
-cpdef module_get_attributes(intptr_t h_module, int attr_type) except *
+cpdef module_get_attributes(intptr_t h_module, int attr_type)

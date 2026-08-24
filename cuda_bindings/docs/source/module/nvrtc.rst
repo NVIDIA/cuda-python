@@ -4,7 +4,7 @@
 .. This code was automatically generated with version 13.4.0. Do not modify it directly.
 
 .. !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e81ae93eee7b54340488dc4be19f2767d6c7316292571214623473e1d8452da7
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e76a612b65e25ae5ed1d2a8527e929bb3df7e42fb4c61e274e9fa8ec740142fa
 -----
 nvrtc
 -----
@@ -129,7 +129,11 @@ NVRTC defines the following types and functions for bundled headers installation
 .. autofunction:: cuda.bindings.nvrtc.nvrtcRemoveBundledHeaders
 .. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS
 
-    Flags for nvrtcInstallBundledHeaders.Skip installation if version marker exists and version matches. This is the default behavior when flags=0.
+    Flags for nvrtcInstallBundledHeaders.
+
+
+
+    Skip installation if version marker exists and version matches. This is the default behavior when flags=0.
 
 .. autoattribute:: cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE
 

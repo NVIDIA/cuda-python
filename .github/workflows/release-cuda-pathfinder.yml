@@ -33,6 +33,7 @@ jobs:
   # Collect release metadata, find the CI run, create a draft release.
   # --------------------------------------------------------------------------
   prepare:
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
